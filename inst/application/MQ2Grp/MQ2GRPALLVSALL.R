@@ -1,12 +1,6 @@
 library(prolfqua)
 
-args <- commandArgs(trailingOnly = TRUE)
-if (length(args) == 0) {
-  ymlfile <- "config_WU273293.yaml"
-} else {
-  ymlfile <- args[1]
-
-}
+ymlfile <- "config.yaml"
 yml = yaml::read_yaml(ymlfile)
 
 
@@ -38,7 +32,7 @@ annot <- annot |> dplyr::mutate(
 
 annot$Relative.Path <- NULL
 
-proteinAnnot <- dplyr::select(protein, proteinID, fasta.headers ) |> distinct()
+proteinAnnot <- dplyr::select(protein, proteinID, fasta.headers ) |> dplyr::distinct()
 peptide <- dplyr::inner_join(annot, peptide)
 peptide <- dplyr::inner_join(proteinAnnot, peptide, by = c(proteinID = "leading.razor.protein"))
 
@@ -96,11 +90,10 @@ outdir <- "xyz"
 dir.create(outdir)
 
 
+
 for (i in 1:length(levels)) {
   for (j in 1:length(levels)) {
     if (i != j) {
-      i <- 1
-      j <- 2
       cat(levels[i], levels[j], "\n")
       GRP2$Contrasts <- paste0("Experiment_",levels[i], " - ", "Experiment_",levels[j])
       names(GRP2$Contrasts) <- paste0("Experiment" , levels[i], "_vs_", levels[j])
@@ -115,7 +108,7 @@ for (i in 1:length(levels)) {
                                        protein_annot = "fasta.headers",
                                        remove = TRUE)
 
-
+      debug(write_2GRP)
       prolfqua::write_2GRP(grp2, outpath = outpath)
       prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = outpath)
 
