@@ -108,7 +108,7 @@ for (i in 1:length(levels)) {
                                        protein_annot = "fasta.headers",
                                        remove = TRUE)
 
-      prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fanme)
+      prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
       prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = fname)
 
     }
