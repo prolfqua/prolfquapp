@@ -98,19 +98,18 @@ for (i in 1:length(levels)) {
       GRP2$Contrasts <- paste0("Experiment_",levels[i], " - ", "Experiment_",levels[j])
       names(GRP2$Contrasts) <- paste0("Experiment" , levels[i], "_vs_", levels[j])
       message(GRP2$Contrasts)
-      outpath <- file.path( outdir, paste0("Experiment_" , levels[i], "_vs_", levels[j]))
-      proteinF <- peptide |> dplyr::filter( .data$Experiment == levels[i] | .data$Experiment == levels[j])
+      fname <- paste0("Experiment_" , levels[i], "_vs_", levels[j])
+      outpath <- file.path( outdir, fname)
+      proteinF <- peptide |> dplyr::filter(.data$Experiment == levels[i] | .data$Experiment == levels[j])
 
-      debug(prolfqua::make2grpReport)
       grp2 <- prolfqua::make2grpReport(proteinF,
                                        atable,
                                        GRP2,
                                        protein_annot = "fasta.headers",
                                        remove = TRUE)
 
-      debug(write_2GRP)
-      prolfqua::write_2GRP(grp2, outpath = outpath)
-      prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = outpath)
+      prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fanme)
+      prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = fname)
 
     }
   }
