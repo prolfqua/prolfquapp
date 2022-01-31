@@ -1,0 +1,50 @@
+application:
+  input:
+    FragPipe-RESOURCE:
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p27283/bfabric/Proteomics/FragPipe-RESOURCE/2022/2022-01/2022-01-21/workunit_273814/2083507.zip
+  output:
+  - bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs/p27283/bfabric/Proteomics/SAINTexpress-Fragpipe/2022/2022-01/2022-01-31//workunit_274237//2093340.zip
+  parameters:
+    FCthreshold: '4'
+    SAINTscore: '0.95'
+    SpcInt: spc
+    datasetId: '41720'
+    memory: 1G
+    nodelist: fgcz-r-033
+    partition: prx
+  protocol: scp
+job_configuration:
+  executable: /home/bfabric/slurmworker/bin/fgcz_slurm_SaintExpress_prolfqua.bash
+  external_job_id: 105119
+  fastasequence: '>sp|P42212|GFP_AEQVI Green fluorescent protein OS=Aequorea victoria
+    OX=6100 GN=GFP PE=1 SV=1
+
+    MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTL
+
+    VTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLV
+
+    NRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLAD
+
+    HYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK'
+  input:
+    FragPipe-RESOURCE:
+    - resource_id: 2083507
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2083507
+  inputdataset: null
+  order_id: 27283
+  output:
+    protocol: scp
+    resource_id: 2093340
+    ssh_args: -o StrictHostKeyChecking=no -2 -l bfabric -x
+  project_id: null
+  stderr:
+    protocol: file
+    resource_id: 2093341
+    url: /home/bfabric/slurmworker/log/workunitid-274237_resourceid-2093340.err
+  stdout:
+    protocol: file
+    resource_id: 2093342
+    url: /home/bfabric/slurmworker/log/workunitid-274237_resourceid-2093340.out
+  workunit_id: 274237
+  workunit_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-workunit.html?workunitId=274237
+
