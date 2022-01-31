@@ -38,15 +38,17 @@ peptide <- dplyr::inner_join(proteinAnnot, peptide, by = c(proteinID = "leading.
 
 ################### annotations
 GRP2 <- list()
-
-GRP2$projectID <- PROJECTID
-GRP2$orderID <- ORDERID
-GRP2$workunitID <- WORKUNITID
+GRP2$Bfabric <- list()
+GRP2$Bfabric$projectID <- PROJECTID
+GRP2$Bfabric$orderID <- ORDERID
+GRP2$Bfabric$workunitID <- WORKUNITID
 
 GRP2$Software <- "MaxQuant"
 
-GRP2$inputID <- INPUT_ID
-GRP2$inputURL <- INPUT_URL
+GRP2$Bfabric$inputID <- INPUT_ID
+GRP2$Bfabric$inputURL <- INPUT_URL
+
+
 GRP2$nrPeptides <- 2
 GRP2$log2FCthreshold <- 1
 GRP2$FDRthreshold <- 0.1
@@ -69,19 +71,6 @@ atable$factorDepth <- 1
 atable$setWorkIntensity("peptide.intensity")
 
 
-if (FALSE) {
-  ps <- prolfqua::ProjectStructure$new(outpath = ".",
-                                       project_Id = "",
-                                       workunit_Id = basename(getwd()),
-                                       order_Id = "",
-                                       inputAnnotation = NULL,
-                                       inputData = NULL)
-
-  prolfqua::render_MQSummary_rmd(lfqdata$data,
-                                 config$clone(deep = TRUE),
-                                 ps, format = "html")
-}
-
 
 
 # Compute all possible 2 Grps to avoid specifying reference.
@@ -90,28 +79,54 @@ outdir <- "xyz"
 dir.create(outdir)
 
 
+if (TRUE) {
+  i <- 1
+  j <- 2
+  cat(levels[i], levels[j], "\n")
+  GRP2$Contrasts <- paste0("Experiment_",levels[i], " - ", "Experiment_",levels[j])
+  names(GRP2$Contrasts) <- paste0("Experiment" , levels[i], "_vs_", levels[j])
+  message(GRP2$Contrasts)
+  fname <- paste0("Experiment_" , levels[i], "_vs_", levels[j])
+  outpath <- file.path( outdir, fname)
+  proteinF <- peptide |> dplyr::filter(.data$Experiment == levels[i] | .data$Experiment == levels[j])
 
-for (i in 1:length(levels)) {
-  for (j in 1:length(levels)) {
-    if (i != j) {
-      cat(levels[i], levels[j], "\n")
-      GRP2$Contrasts <- paste0("Experiment_",levels[i], " - ", "Experiment_",levels[j])
-      names(GRP2$Contrasts) <- paste0("Experiment" , levels[i], "_vs_", levels[j])
-      message(GRP2$Contrasts)
-      fname <- paste0("Experiment_" , levels[i], "_vs_", levels[j])
-      outpath <- file.path( outdir, fname)
-      proteinF <- peptide |> dplyr::filter(.data$Experiment == levels[i] | .data$Experiment == levels[j])
+  grp2 <- prolfqua::make2grpReport(proteinF,
+                                   atable,
+                                   GRP2,
+                                   protein_annot = "fasta.headers",
+                                   remove = TRUE)
 
-      grp2 <- prolfqua::make2grpReport(proteinF,
-                                       atable,
-                                       GRP2,
-                                       protein_annot = "fasta.headers",
-                                       remove = TRUE)
+  names(grp2)
 
-      prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
-      prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = fname)
+  grp2$contrMore$get_contrasts()
+  grp2$transformedlfqData$get_subset(grp2$contrMore)
+  prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
+  prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = fname)
 
+
+} else {
+  for (i in 1:length(levels)) {
+    for (j in 1:length(levels)) {
+      if (i != j) {
+        cat(levels[i], levels[j], "\n")
+        GRP2$Contrasts <- paste0("Experiment_",levels[i], " - ", "Experiment_",levels[j])
+        names(GRP2$Contrasts) <- paste0("Experiment" , levels[i], "_vs_", levels[j])
+        message(GRP2$Contrasts)
+        fname <- paste0("Experiment_" , levels[i], "_vs_", levels[j])
+        outpath <- file.path( outdir, fname)
+        proteinF <- peptide |> dplyr::filter(.data$Experiment == levels[i] | .data$Experiment == levels[j])
+
+        grp2 <- prolfqua::make2grpReport(proteinF,
+                                         atable,
+                                         GRP2,
+                                         protein_annot = "fasta.headers",
+                                         remove = TRUE)
+
+        prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
+        prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = fname)
+
+      }
     }
   }
-}
 
+}
