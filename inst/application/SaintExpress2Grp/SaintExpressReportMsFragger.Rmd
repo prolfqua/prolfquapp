@@ -15,9 +15,9 @@ params:
 ---
 
 ```{r setup, include=FALSE}
-library(ggraph)
-library(igraph)
-library(prolfqua)
+#library(ggraph)
+#library(igraph)
+#library(prolfqua)
 
 SEP <- params$sep
 sp_string <- if (SEP$spc) {"spectral counts"} else {"intensities"}
@@ -58,7 +58,7 @@ pl$intensity_distribution_violin()
 
 ```{r missingpercond, fig.cap="(ref:missingpercond)", fig.with=10, fig.height=7, include = FALSE}
 sum <- SEP$lfqdata$get_Summariser()
-sum$plot_missingness_per_condition()
+sum$plot_missingness_per_group()
 
 ```
 
@@ -106,41 +106,37 @@ SEP$lfqdata$get_Plotter()$pca_plotly()
 
 
 
-# Saint analysis
+# SAINT analysis
 
 
-To analyse the data we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html).
+To analyse the data we used the [SAINTexpress software](http://saint-apms.sourceforge.net/Main.html).
 
 Protein interactions will be filtered with an _SaintScore_ of `r SEP$SSthreshold` and a fold change threshold of `r SEP$FCthreshold` which corresponds to a $\log_2(`r SEP$FCthreshold`)$ of `r log2(SEP$FCthreshold)`.
 
 
 
-```{r include = FALSE}
-dd <- SEP$cse$get_contrasts() |> select(Bait, BFDR)
-dd <- dd |> mutate(FDRrange =  cut(BFDR , breaks = c( -0.01, 0.05, 0.1, 0.25, 1)) )
-xt <- dd |> group_by(Bait, FDRrange) |> summarize(n = n()) |> na.omit()
-lv <- levels(xt$FDRrange)
-xt <- xt |> pivot_wider(id_cols = "Bait", names_from = "FDRrange", values_from = n)
-xt[,c("Bait",lv)] |> knitr::kable(caption = "# of interactions reported with FDR < 0.05; < 0.1; < 0.25; < 1.")
-
-```
 
 ```{r}
-dd <- SEP$cse$get_contrasts() |> select(Bait, SaintScore)
 
-dd <- dd |> mutate(SaintScorerange =  cut(SaintScore , breaks = c(-0.01, SEP$SSthreshold, 1)))
-xt <- dd |> group_by(Bait, SaintScorerange) |> summarize(n = n()) |> na.omit()
-
+dd <- SEP$cse$get_contrasts() |> dplyr::select(Bait, SaintScore)
+dd <- dd |> dplyr::mutate(SaintScorerange =  cut(SaintScore , breaks = c(-0.01, SEP$SSthreshold, 1)))
+xt <- dd |> dplyr::group_by(Bait, SaintScorerange) |> dplyr::summarize(n = dplyr::n()) |> na.omit()
 lv <- levels(xt$SaintScorerange)
-xt <- xt |> pivot_wider(id_cols = "Bait", names_from = "SaintScorerange", values_from = n)
-xt[is.na(xt)] <- 0
 
-xt <- xt[,c("Bait",rev(lv))]
+xt <- xt |> tidyr::pivot_wider(id_cols = "Bait", names_from = "SaintScorerange", values_from = n)
+
+columns <- setdiff(c("Bait",rev(lv)), colnames(xt))
+for (col in columns) {
+  xt[[col]] <- NA
+}
+xt[is.na(xt)] <- 0
+xt <- dplyr::select(xt, dplyr::any_of(c("Bait",rev(lv))))
 colnames(xt)[2:3] <- c("accpeted","rejected")
+
 xt |>  knitr::kable( caption =
                  paste0("# of interactions accepted with SaintScore ", SEP$SSthreshold,".")
                  )
-               
+isSig <- nrow(SEP$sig) > 0
 ```
 
 
@@ -151,9 +147,6 @@ SEP$pcse$score_plotly()[[1]]
 ```
 
 
-```{r fig.cap = "Volcano Plot log2FC vs BFDR.", fig.width=7, fig.height=7, include = FALSE, eval = FALSE}
-SEP$pcse$volcano_plotly()[[1]]
-```
 
 (ref:maplot) MA Plot - x-axis mean protein intensity, y-axis $\log_2(FC)$. Red horizontal line $\log_2(FC)$  = `r log2(SEP$FCthreshold)`.
 
@@ -163,17 +156,17 @@ SEP$pcse$ma_plotly()
 
 (ref:network) Protein interaction network for _SaintScore_ > `r SEP$SSthreshold` and foldchange > `r SEP$FCthreshold`. Lines - protein interactions. Line color depends on the Bait proteins.
 
-```{r network, fig.cap="(ref:network)"}
-bbSE <- select(SEP$sig, from = Bait, to = Prey, 
-             Bait = Bait, SS = SaintScore)
+```{r network, fig.cap="(ref:network)", eval=isSig}
+
+bbSE <- dplyr::select(SEP$sig, from = Bait, to = Prey, 
+                      Bait = Bait, SS = SaintScore)
 
 inn <- igraph::graph_from_data_frame( bbSE, directed = FALSE )
 
-library(ggraph)
-ggraph(inn,layout = 'kk') +
-  geom_node_text(aes(label = name), size = 2.5) +
-  geom_edge_link(aes(color = Bait), alpha = 0.6) + 
-  theme(legend.position = "none")
+ggraph::ggraph(inn,layout = 'kk') +
+  ggraph::geom_node_text(ggplot2::aes(label = name), size = 2.5) +
+  ggraph::geom_edge_link(ggplot2::aes(color = Bait), alpha = 0.6) + 
+  ggplot::theme(legend.position = "none")
 
 ```
 
@@ -181,15 +174,15 @@ ggraph(inn,layout = 'kk') +
 (ref:vennDiagram) Venn diagram showing the number of interaction partners common and distinct for various baits, for _SaintScore_ > `r SEP$SSthreshold`.
 
 
-```{r vennDiagram, fig.cap="(ref:vennDiagram)"}
-b1 <- bbSE |> select(from, to)
+```{r vennDiagram, fig.cap="(ref:vennDiagram)", eval = isSig}
+b1 <- bbSE |> dplyr::select(from, to)
 xx <-  split(b1$to, b1$from)
 ggVennDiagram::ggVennDiagram(xx)
 
 ```
 
 
-```{r}
+```{r, eval = isSig}
 sigsub <- SEP$lfqdata$get_subset(data.frame(protein_Id = SEP$sig$Prey))
 rs <- sigsub$get_Plotter()$raster(rownames = TRUE)
 
@@ -197,24 +190,24 @@ rs <- sigsub$get_Plotter()$raster(rownames = TRUE)
 
 (ref:heatsig) Heatmap showing the $\log_2$ transformed `r sp_string` of proteins with _SaintScore_ > `r SEP$SSthreshold`.
 
-```{r, fig.cap="(ref:heatsig)", fig.width=8, fig.height=10}
+```{r, fig.cap="(ref:heatsig)", fig.width=8, fig.height=10, eval = isSig}
 rs
 ```
 
 
-```{r DT}
+```{r DT, eval = isSig}
 cap <- paste0("Proteins with SaintScore > ", SEP$SSthreshold, " and foldchange > ", SEP$FCthreshold, ".")
 DT::datatable(SEP$sig, caption = cap)
 ```
 
-# Supplment
+# Supplement
 
-```{r fig.cap="x axis - Saint Score, y axis = -log10(BFDR)"}
+```{r fig.cap="x axis - Saint Score, y axis = -log10(BFDR)", eval = isSig}
 
-ggplot( SEP$cse$get_contrasts(), aes(x = SaintScore, y = -log10(BFDR) ) ) +
-  geom_point() +
-  geom_vline(xintercept = SEP$SSthreshold, color = 'red') +
-  facet_wrap( ~ Bait )
+ggplot2::ggplot( SEP$cse$get_contrasts(), ggplot2::aes(x = SaintScore, y = -log10(BFDR) ) ) +
+  ggplot2::geom_point() +
+  ggplot2::geom_vline(xintercept = SEP$SSthreshold, color = 'red') +
+  ggplot2::facet_wrap( ~ Bait )
 
 ```
 
