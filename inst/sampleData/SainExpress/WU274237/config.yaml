@@ -6,7 +6,7 @@ application:
   - bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs/p27283/bfabric/Proteomics/SAINTexpress-Fragpipe/2022/2022-01/2022-01-31//workunit_274237//2093340.zip
   parameters:
     FCthreshold: '4'
-    SAINTscore: '0.95'
+    SAINTscore: '0.5'
     SpcInt: spc
     datasetId: '41720'
     memory: 1G
