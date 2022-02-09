@@ -116,17 +116,14 @@ REPORTDATA$pcse <- pcse
 
 
 rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variables not needed for rendering
-rmarkdown::render("SaintExpressReportMsFraggerV2.Rmd",
+rmarkdown::render("SaintExpressReportMsFragger.Rmd",
                   params = list(sep = REPORTDATA),
                   output_format = bookdown::html_document2(),
                   envir = new.env())
 
-rmarkdown::render("SaintExpressReportMsFraggerV2.Rmd",
-                  params = list(sep = REPORTDATA),
-                  output_format = bookdown::html_document2())
 
-file.copy("SaintExpressReportMsFraggerV2.html",
- file.path(ZIPDIR, paste0(treat, "SaintExpressReportMsFraggerV2.html")),
+file.copy("SaintExpressReportMsFragger.html",
+ file.path(ZIPDIR, paste0(treat, "SaintExpressReportMsFragger.html")),
  overwrite = TRUE)
 
 
