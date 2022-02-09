@@ -40,7 +40,7 @@ pp$raw.file |> unique()
 annotation$raw.file <- basename(annotation$`Relative Path`)
 annotation <- dplyr::mutate(annotation, raw.file = gsub(".raw", "", tolower(make.names(raw.file))))
 annotation$`Relative Path` <- NULL
-sum(make.names(annotation$raw.file) %in% pp$raw.file)
+
 stopifnot(sum(annotation$raw.file %in% pp$raw.file) > 0) # check that some files are annotated, if not exit script.
 pdata <- dplyr::inner_join(annotation, pp )
 
@@ -85,6 +85,7 @@ intdata <- dplyr::inner_join(intdata ,
 bb <- prolfqua::protein_2localSaint(
   intdata,
   quantcolumn = lfqdata$config$table$getWorkIntensity())
+
 RESULTS <- c(RESULTS, bb)
 res <- prolfqua::runSaint(bb, spc = REPORTDATA$spc)
 names(res)
@@ -103,8 +104,9 @@ pcse <- cse$get_Plotter(FCthreshold = log2(REPORTDATA$FCthreshold),
 sig <- cse$get_contrasts() |>
   dplyr::filter(.data$SaintScore  >  REPORTDATA$SSthreshold & .data$log2FC  >  log2(REPORTDATA$FCthreshold))
 
+# Transform data for PCA visualization etc
 tt <- lfqdata$get_Transformer()$log2()
-lfqdata <- tt$robscale()$lfq
+lfqdata <- tt$lfq
 
 REPORTDATA$BFABRIC <- BFABRIC
 REPORTDATA$lfqdata <- lfqdata
@@ -114,14 +116,17 @@ REPORTDATA$pcse <- pcse
 
 
 rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variables not needed for rendering
-
-rmarkdown::render("SaintExpressReportMsFragger.Rmd",
+rmarkdown::render("SaintExpressReportMsFraggerV2.Rmd",
                   params = list(sep = REPORTDATA),
                   output_format = bookdown::html_document2(),
                   envir = new.env())
 
-file.copy("SaintExpressReportMsFragger.html",
- file.path(ZIPDIR, paste0(treat, "SaintExpressReportMsFragger.html")),
+rmarkdown::render("SaintExpressReportMsFraggerV2.Rmd",
+                  params = list(sep = REPORTDATA),
+                  output_format = bookdown::html_document2())
+
+file.copy("SaintExpressReportMsFraggerV2.html",
+ file.path(ZIPDIR, paste0(treat, "SaintExpressReportMsFraggerV2.html")),
  overwrite = TRUE)
 
 

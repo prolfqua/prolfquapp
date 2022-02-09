@@ -204,8 +204,12 @@ rs <- sigsub$get_Plotter()$raster(rownames = TRUE)
 
 ```
 
+```{r results='asis'}
+if (isSig) {cat("The protein abundance heatmap (Figure \\@ref(fig:heatsig)) is pre-filtered for prays that show _SaintScore_ >", SEP$SSthreshold," and foldchange > ", SEP$FCthreshold, ".")} else {
+  cat("There are not significant results given the _SaintScore_ >", SEP$SSthreshold," and foldchange > ", SEP$FCthreshold, ".")
+}
 
-The protein abundance heatmap (Figure \@ref(fig:heatsig)) is pre-filtered for prays that show _SaintScore_ > `r SEP$SSthreshold`.
+```
 
 (ref:heatsig) Heatmap showing the $\log_2$ transformed protein abundance estimate for prays with _SaintScore_ obove `r SEP$SSthreshold` for at least one prey.
 
@@ -221,7 +225,10 @@ DT::datatable(SEP$sig, caption = cap)
 ## Interaction network reconstruction
 
 
-Protein interaction network reconstruction using graph. Nodes represent bait proteins are shown using the protein ID and bait proteins are shown using the name of the bait. Edges indicate bait-pray interactions scored above the chosen thresholds. Line color depends on the bait proteins.
+```{r intext , results='asis', eval=isSig}
+cat("Protein interaction network reconstruction using graph. Nodes represent bait proteins are shown using the protein ID and bait proteins are shown using the name of the bait. Edges indicate bait-pray interactions scored above the chosen thresholds. Line color depends on the bait proteins.")
+```
+
 
 (ref:network) Protein interaction network for _SaintScore_ > `r SEP$SSthreshold` and foldchange > `r SEP$FCthreshold`. Lines - protein interactions. Line color depends on the bait proteins.
 
