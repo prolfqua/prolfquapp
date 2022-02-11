@@ -1,0 +1,280 @@
+---
+title: "Interaction Proteomics Report"
+author: "Functional Genomics Center Zurich"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+  bookdown::html_document2:
+    toc: true
+  pdf_document: 
+    toc: true
+params:
+  sep: NULL
+  FCt: 4
+  SCt: 0.95 
+---
+
+```{r setup, include=FALSE}
+library(DT)
+library(ggraph)
+library(igraph)
+library(prolfqua)
+library(tidyverse)
+SEP <- params$sep
+sp_string <- if (SEP$spc) {"spectral counts"} else {"intensities"}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+BFABRIC <- SEP$BFABRIC
+```
+
+
+# B-fabric related information
+
+- Projekt ID: `r BFABRIC$projectID`
+- Order ID: `r BFABRIC$orderID`
+
+The input data, used to compile this report, is available through the b-fabric resource: [`r BFABRIC$inputID`](`r BFABRIC$inputURL`). The b-fabric dataset `r BFABRIC$datasetID` was used to annotate the LC-MS files. The complete output, including this report, R code used for analysis and intermediate results, is available through the b-fabric workunit: [`r BFABRIC$workunitID`](`r BFABRIC$workunitURL`).
+
+# Introduction
+
+- General introduction into interaction proteomics analysis
+- Terminology: bait, prey
+- AP-MS, Proximity labeling
+
+# Results
+
+- Overview of results
+- Aim
+- How to use the results
+
+## Peptide and Protein identification
+
+The LC-MS data was processed using the [FragPipe proteomics pipeline](https://fragpipe.nesvilab.org/). The protein quantification results were extracted from the _combined_protein.tsv_ file.  We used the columns with the `r if(SEP$spc){'Spectral Count' }else{'Intensity'}` suffix, which stores the `r if(SEP$spc){'total number of PSMs in support of the protein identification'} else {'normalized protein intensity using the sequences after razor assignment'}`. For more information about the _combined_protein.tsv_ file see [FragPipe output tutorial]( https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#combined_proteintsv).
+
+The table below lists the LC-MS files and their assigned annotations.
+
+```{r sampleAnnotation}
+DT::datatable(SEP$lfqdata$factors(),
+              caption = "LC-MS raw file annotation table. The content of the sampleName column is used as a short form plot label and constructed from the CorT and bait attributes. CorT indicates if a raw file was assigned to the control group (C) or to the treatment group (T). The bait protein name is shown in the bait column. It should follow the <name>_<condition> pattern.")
+```
+
+In total `r SEP$lfqdata$hierarchy_counts()[2]` proteins (min. 2 peptides per protein) were identidied and quantified using `r sp_string` across all samples (we will denote this as the protein abundance estimate from here on). Bar plot below shows the number of identified proteins per raw file.
+
+```{r nrPerSample, fig.cap="Number of identified proteins across raw files.", fig.with=10, fig.height=7}
+sum <- SEP$lfqdata$get_Summariser()
+sum$plot_hierarchy_counts_sample()
+
+```
+
+### Protein abundance analysis
+
+The violin plot (Figure \@ref(fig:violinPlot)) displays the protein abundance distribution for all raw files of the data set. Mayor differences between raw files could be a hint that the individual protein abundance values are affected by technical biases. These biases might need to be corrected, in order to separate them from biological effects.
+
+(ref:violinPlot) Protein abundance distribution. The dots represent the median log2-transformed abundance value per raw file. The overall density distribution is shown as a rotated kernel density plot.
+
+
+
+```{r violinPlot, fig.cap="(ref:violinPlot)", fig.with=10, fig.height=7}
+
+
+pl <- SEP$lfqdata$get_Plotter()
+pl$intensity_distribution_violin()
+hm <- SEP$lfqdata$get_Plotter()$heatmap()
+
+```
+
+
+The protein abundance heatmap (Figure \@ref(fig:heatmap)) groups the protein and samples using unsupervised hierarchical clustering. Proteins and samples showing similar $\log_2$ abundances are grouped and shown in adjacent rows and columns respectively.
+
+(ref:heatmap) Protein abundance heatmap (rows indicate proteins, columns indicate raw files) showing the row scaled $\log_2$ transformed protein abundance value. Co-clustering (hierarchical complete linkage, euclidean distance) of samples and proteins was used.
+
+```{r heatmap, echo=FALSE, include=TRUE, fig.cap="(ref:heatmap)", fig.width=7, fig.height=7}
+hm
+```
+
+We use principal component analysis (PCA) to transform the high dimensional space defined by all proteins into a two-dimensional one containing most of the information. Plot \@ref(fig:pca) shows the location of the samples according to the first and second principal component, which explain most of the variance in the data. Samples close in the PCA plot are more similar than those farther apart.
+
+(ref:pca)  Plot of first and second principal component (PC1 and PC2) of principal component analysis (PCA). $\log_2$ transformed `r sp_string` are used as input.
+
+```{r pca, fig.cap = "(ref:pca)" , fig.width=7, fig.height=7 }
+SEP$lfqdata$get_Plotter()$pca_plotly()
+```
+
+
+### Missing value analysis
+
+The analysis of missing values can also be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:missingpercond) displays how many proteins show 0, 1, or more missing values within their replication group.
+
+(ref:missingpercond) Barplot showing the number of proteins with $0, 1, 2$ and more missing values in group. 
+
+```{r missingpercond, fig.cap="(ref:missingpercond)", fig.with=10, fig.height=7, include = TRUE}
+sum <- SEP$lfqdata$get_Summariser()
+sum$plot_missingness_per_group()
+
+```
+
+
+```{r createraster, echo=FALSE, include=FALSE}
+raster <- SEP$lfqdata$get_Plotter()$raster()
+```
+
+The protein abundance heatmap (Figure \@ref(fig:raster)) highlights missing values using grey cells. 
+
+(ref:raster) Heatmap of $\log_2$-transformed protein abundance. Proteins are shown in rows, raw files are shown in columns. The rows are sorted by mean protein intensity, the columns by sample name. Missing values are shown in grey. The figure key indicates which bait groups a raw files belongs to.
+
+```{r raster, echo=FALSE, fig.cap="(ref:raster)", fig.width=7, fig.height=7}
+raster
+hm <- pl$NA_heatmap()
+
+```
+
+By transforming protein abundance estimates into present/absent calls a dichotomous view on the data (Figure \@ref(fig:naHeat) ) can be constructed.
+
+(ref:naHeat) Protein abundance heatmap (rows indicate proteins, columns indicate raw files) showing missing protein abundance estimates across data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Protein is observed, black: Protein is not observed.
+
+```{r naHeat, echo=FALSE, fig.cap="(ref:naHeat)", fig.width=7, fig.height=7}
+hm
+```
+
+
+
+
+## Interaction scoring using SAINT
+
+In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html). The plots below show one subpanel for each bait present in the data set. All resulting candidate lists are filtered using an _SaintScore_ threshold of `r SEP$SSthreshold` and a fold-change threshold of `r SEP$FCthreshold` which corresponds to a $\log_2(FC)$ of `r log2(SEP$FCthreshold)`.
+
+Note, a fold change of e.g. 2 reported by SAINTexpress can not be interpreted as a two times higher protein abundance, because SAINTexpress internally normalizes and transforms the data.
+
+
+```{r}
+
+dd <- SEP$cse$get_contrasts() |> dplyr::select(Bait, SaintScore)
+dd <- dd |> dplyr::mutate(SaintScorerange =  cut(SaintScore , breaks = c(-0.01, SEP$SSthreshold, 1)))
+xt <- dd |> dplyr::group_by(Bait, SaintScorerange) |> dplyr::summarize(n = dplyr::n()) |> na.omit()
+lv <- levels(xt$SaintScorerange)
+
+xt <- xt |> tidyr::pivot_wider(id_cols = "Bait", names_from = "SaintScorerange", values_from = n)
+
+columns <- setdiff(c("Bait",rev(lv)), colnames(xt))
+for (col in columns) {
+  xt[[col]] <- NA
+}
+xt[is.na(xt)] <- 0
+xt <- dplyr::select(xt, dplyr::any_of(c("Bait",rev(lv))))
+colnames(xt)[2:3] <- c("accpeted","rejected")
+
+xt |>  knitr::kable( caption =
+                 paste0("# of interactions accepted with SaintScore ", SEP$SSthreshold,".")
+                 )
+isSig <- nrow(SEP$sig) > 0
+```
+
+
+The volcano plot \@ref(fig:scatterplot) helps to identify prey proteins with large fold change and SaintScore. Promising candidate pray proteins are found in the upper right sector of the plot.
+
+
+
+(ref:scatterplot) Scatter plot showing SaintScore on the y-axis versus the $\log_2$ transformed SAINTexpress fold change (x-axis). Each dot represent a potential pray protein. Red horizontal line : _SaintScore_ of `r SEP$SSthreshold`. Red vertical line : $\log_2(FC)$ of `r log2(SEP$FCthreshold)`.
+
+```{r scatterplot, fig.cap = "(ref:scatterplot)", fig.width=7, fig.height=7}
+SEP$pcse$score_plotly()[[1]]
+```
+
+An alternative significance estimate reported by SAINTexpress is the Bayesian FDR (BFDR). The volcano (Figure \@ref(fig:volcanoPlotBfdr)) uses the same data as above with the exception that the significance dimension is a $-\log_10$ transformed BFDR, i.e., small values of BFDR become large after transformation.
+
+(ref:volcanoPlotBfdr) "Volcano Plot showing $-\log_10$ transformed BFDR as function of $\log_2$ transformed effect size.
+
+```{r volcanoPlotBfdr, fig.cap = "(ref:volcanoPlotBfdr)", fig.width=7, fig.height=7, include = TRUE, eval = TRUE}
+SEP$pcse$volcano_plotly()[[1]]
+```
+
+Sometimes measured effects sizes (differences between samples groups) are biased by the signal intensity (here protein abundance). Such systematic effects can be explored using MA-plots (Figure \@ref(fig:maplot). 
+
+(ref:maplot) MA plot displays the effect size estimate as a function of the mean protein intensity across conditions (baits). Each dot represents an observed protein. Red horizontal lines represent the fold-change threshold.
+
+```{r maplot, fig.cap = "(ref:maplot)", fig.width=7, fig.height=7}
+SEP$pcse$ma_plotly()
+```
+
+
+```{r aChunkNamePLEASE}
+sigsub <- SEP$lfqdata$get_subset(data.frame(protein_Id = SEP$sig$Prey))
+rs <- sigsub$get_Plotter()$raster(rownames = TRUE)
+
+```
+
+```{r results='asis'}
+if (isSig) {cat("The protein abundance heatmap (Figure \\@ref(fig:heatsig)) is pre-filtered for prays that show _SaintScore_ >", SEP$SSthreshold," and foldchange > ", SEP$FCthreshold, ".")} else {
+  cat("There are not significant results given the _SaintScore_ >", SEP$SSthreshold," and foldchange > ", SEP$FCthreshold, ".")
+}
+
+```
+
+(ref:heatsig) Heatmap showing the $\log_2$ transformed protein abundance estimate for prays with _SaintScore_ obove `r SEP$SSthreshold` for at least one prey.
+
+```{r heatsig, fig.cap="(ref:heatsig)", fig.width=8, fig.height=10, eval = isSig}
+rs
+```
+
+```{r DT,  eval = isSig}
+cap <- paste0("Proteins with SaintScore > ", SEP$SSthreshold, " and foldchange > ", SEP$FCthreshold, ".")
+DT::datatable(SEP$sig, caption = cap)
+```
+
+## Interaction network reconstruction
+
+
+```{r intext , results='asis', eval=isSig}
+cat("Protein interaction network reconstruction using graph. Nodes represent bait proteins are shown using the protein ID and bait proteins are shown using the name of the bait. Edges indicate bait-pray interactions scored above the chosen thresholds. Line color depends on the bait proteins.")
+```
+
+
+(ref:network) Protein interaction network for _SaintScore_ > `r SEP$SSthreshold` and foldchange > `r SEP$FCthreshold`. Lines - protein interactions. Line color depends on the bait proteins.
+
+```{r network, fig.cap="(ref:network)", eval=isSig}
+
+bbSE <- dplyr::select(SEP$sig, from = Bait, to = Prey, 
+                      Bait = Bait, SS = SaintScore)
+
+inn <- igraph::graph_from_data_frame( bbSE, directed = FALSE )
+
+ggraph::ggraph(inn,layout = 'kk') +
+  ggraph::geom_node_text(ggplot2::aes(label = name), size = 2.5) +
+  ggraph::geom_edge_link(ggplot2::aes(color = Bait), alpha = 0.6) + 
+  ggplot2::theme(legend.position = "none")
+
+```
+
+
+(ref:vennDiagram) Venn diagram showing the number of prays common to various bait proteins in the data set, for _SaintScore_ > `r SEP$SSthreshold`.
+
+```{r vennDiagram, fig.cap="(ref:vennDiagram)", eval = isSig}
+b1 <- bbSE |> dplyr::select(from, to)
+
+xx <-  split(b1$to, b1$from)
+if (length(xx) > 1) {
+  ggVennDiagram::ggVennDiagram(xx)
+}
+```
+
+
+
+# Supplement
+
+```{r fig.cap="x axis - Saint Score, y axis = -log10(BFDR)", eval = isSig}
+
+ggplot2::ggplot( SEP$cse$get_contrasts(), ggplot2::aes(x = SaintScore, y = -log10(BFDR) ) ) +
+  ggplot2::geom_point() +
+  ggplot2::geom_vline(xintercept = SEP$SSthreshold, color = 'red') +
+  ggplot2::facet_wrap( ~ Bait )
+
+```
+
+# Session Info
+
+```{r sessionInfo}
+pander::pander(sessionInfo())
+```
+
+# References

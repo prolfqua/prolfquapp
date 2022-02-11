@@ -44,7 +44,9 @@ peptide <- dplyr::inner_join(proteinAnnot, peptide, by = c(proteinID = "leading.
 GRP2 <- list()
 GRP2$Bfabric <- list()
 GRP2$Bfabric$projectID <- PROJECTID
-GRP2$Bfabric$projectName <- "Order_26863"
+
+
+GRP2$Bfabric$projectName <- "" # workunit name in the future.
 GRP2$Bfabric$orderID <- ORDERID
 
 GRP2$Bfabric$workunitID <- WORKUNITID
@@ -61,6 +63,9 @@ GRP2$pop$FDRthreshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`
 removeREV <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {FALSE}
 revpattern <- yml$application$parameters$`7|REVpattern`
 contpattern <- yml$application$parameters$`8|CONpattern`
+
+GRP2$Software <- "MaxQuant"
+
 
 # Setup configuration
 
@@ -80,26 +85,12 @@ atable$factorDepth <- 1
 atable$setWorkIntensity("peptide.intensity")
 
 
-if (FALSE) {
-  ps <- prolfqua::ProjectStructure$new(outpath = ".",
-                                       project_Id = "",
-                                       workunit_Id = basename(getwd()),
-                                       order_Id = "",
-                                       inputAnnotation = NULL,
-                                       inputData = NULL)
-
-  prolfqua::render_MQSummary_rmd(lfqdata$data,
-                                 config$clone(deep = TRUE),
-                                 ps, format = "html")
-}
-
 
 
 # Compute all possible 2 Grps to avoid specifying reference.
 levels <- annot$Experiment |> unique()
 outdir <- "xyz"
 dir.create(outdir)
-
 
 
 for (i in 1:length(levels)) {
@@ -126,4 +117,3 @@ for (i in 1:length(levels)) {
     }
   }
 }
-

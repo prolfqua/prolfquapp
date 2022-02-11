@@ -1,5 +1,5 @@
 # Author : Witold Wolski <wew@fgcz.ethz.ch>
-# compatible with prolfqua 2.9.0 release available from https://github.com/wolski/prolfqua/releases/tag/v0.2.9
+# compatible with prolfqua 3.0.0 release available from https://github.com/wolski/prolfqua/releases/tag/v0.2.9
 
 
 # Read b-fabric related information
@@ -33,11 +33,14 @@ treat <- "FRAGPIPE_"
 # load data
 annotation <- readr::read_csv("dataset.csv")
 pp <- prolfqua::tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
+pp$raw.file |> unique()
+
 
 # attach annotation to combined_protein data
 annotation$raw.file <- basename(annotation$`Relative Path`)
-annotation <- dplyr::mutate(annotation, raw.file = paste0("x", gsub(".raw", "", tolower(raw.file))))
+annotation <- dplyr::mutate(annotation, raw.file = gsub(".raw", "", tolower(make.names(raw.file))))
 annotation$`Relative Path` <- NULL
+
 stopifnot(sum(annotation$raw.file %in% pp$raw.file) > 0) # check that some files are annotated, if not exit script.
 pdata <- dplyr::inner_join(annotation, pp )
 
@@ -63,7 +66,7 @@ if (REPORTDATA$spc) {
 config <- prolfqua::AnalysisConfiguration$new(ata)
 sdata <- prolfqua::setup_analysis(pdata, config)
 lfqdata <- prolfqua::LFQData$new(sdata, config)
-lfqdata$remove_small_intensities()
+lfqdata$remove_small_intensities(threshold = 0.1)
 
 
 # remove rev and contaminant sequences
@@ -82,23 +85,28 @@ intdata <- dplyr::inner_join(intdata ,
 bb <- prolfqua::protein_2localSaint(
   intdata,
   quantcolumn = lfqdata$config$table$getWorkIntensity())
+
 RESULTS <- c(RESULTS, bb)
 res <- prolfqua::runSaint(bb, spc = REPORTDATA$spc)
+names(res)
 RESULTS <- c(RESULTS, res)
-
+names(RESULTS)
 # write analysis results
 writexl::write_xlsx(RESULTS, path = file.path(ZIPDIR,paste0(treat, "_data.xlsx")))
 
 # Prepare result visualization and render report
+#prolfqua::ContrastsSaintExpress$debug("get_Plotter")
 cse <- prolfqua::ContrastsSaintExpress$new(res$list)
-pcse <- cse$get_Plotter(fcthreshold = log2(REPORTDATA$FCthreshold),
-                        bfdrthreshold = REPORTDATA$FDRthreshold)
+pcse <- cse$get_Plotter(FCthreshold = log2(REPORTDATA$FCthreshold),
+                        SaintScore = REPORTDATA$SSthreshold,
+                        BFDRthreshold = REPORTDATA$FDRthreshold)
 
 sig <- cse$get_contrasts() |>
   dplyr::filter(.data$SaintScore  >  REPORTDATA$SSthreshold & .data$log2FC  >  log2(REPORTDATA$FCthreshold))
 
+# Transform data for PCA visualization etc
 tt <- lfqdata$get_Transformer()$log2()
-lfqdata <- tt$robscale()$lfq
+lfqdata <- tt$lfq
 
 REPORTDATA$BFABRIC <- BFABRIC
 REPORTDATA$lfqdata <- lfqdata
@@ -108,11 +116,11 @@ REPORTDATA$pcse <- pcse
 
 
 rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variables not needed for rendering
-
 rmarkdown::render("SaintExpressReportMsFragger.Rmd",
                   params = list(sep = REPORTDATA),
                   output_format = bookdown::html_document2(),
                   envir = new.env())
+
 
 file.copy("SaintExpressReportMsFragger.html",
  file.path(ZIPDIR, paste0(treat, "SaintExpressReportMsFragger.html")),
