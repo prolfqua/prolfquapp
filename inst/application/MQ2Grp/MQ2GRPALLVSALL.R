@@ -1,21 +1,22 @@
-library(prolfqua)
-
 ymlfile <- "config.yaml"
 yml = yaml::read_yaml(ymlfile)
-
-
 
 WORKUNITID = yml$job_configuration$workunit_id
 PROJECTID = yml$job_configuration$project_id
 ORDERID = yml$job_configuration$order_id
-INPUT_ID = yml$job_configuration$input[[1]][[1]]$resource_id
-INPUT_URL = yml$job_configuration$input[[1]][[1]]$resource_url
+
+idxzip <- grep("*.zip",yml$application$input$MaxQuant_textfiles)
+
+INPUT_ID = yml$job_configuration$input[[1]][[idxzip]]$resource_id
+INPUT_URL = yml$job_configuration$input[[1]][[idxzip]]$resource_url
+###
+
+yml$application$parameters$`3|Normalization`
 
 peptidef <- "peptides.txt"
 proteinf <- "proteinGroups.txt"
 dsf <- "dataset.csv"
 REPEATED <- TRUE
-
 
 stopifnot(file.exists(peptidef), file.exists(proteinf), file.exists(dsf))
 
@@ -29,27 +30,37 @@ annot <- annot |> dplyr::mutate(
   )
 )
 
-
+nr <- sum(annot$raw.file %in% unique(peptide$raw.file))
+logger::log_info("nr", nr, " files annotated")
 annot$Relative.Path <- NULL
+
 
 proteinAnnot <- dplyr::select(protein, proteinID, fasta.headers ) |> dplyr::distinct()
 peptide <- dplyr::inner_join(annot, peptide)
 peptide <- dplyr::inner_join(proteinAnnot, peptide, by = c(proteinID = "leading.razor.protein"))
 
+
 ################### annotations
 GRP2 <- list()
+GRP2$Bfabric <- list()
+GRP2$Bfabric$projectID <- PROJECTID
+GRP2$Bfabric$projectName <- "Order_26863"
+GRP2$Bfabric$orderID <- ORDERID
 
-GRP2$projectID <- PROJECTID
-GRP2$orderID <- ORDERID
-GRP2$workunitID <- WORKUNITID
+GRP2$Bfabric$workunitID <- WORKUNITID
+GRP2$Bfabric$inputID <- INPUT_ID
+GRP2$Bfabric$inputURL <- INPUT_URL
 
-GRP2$Software <- "MaxQuant"
+#at least 2 peptides per protein
+GRP2$pop <- list()
+GRP2$pop$transform <- yml$application$parameters$`3|Normalization`
 
-GRP2$inputID <- INPUT_ID
-GRP2$inputURL <- INPUT_URL
-GRP2$nrPeptides <- 2
-GRP2$log2FCthreshold <- 1
-GRP2$FDRthreshold <- 0.1
+GRP2$pop$aggregate <- yml$application$parameters$`2|Aggregation`
+GRP2$pop$Diffthreshold <- as.numeric(yml$application$parameters$`4|Difference_threshold`)
+GRP2$pop$FDRthreshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
+removeREV <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {FALSE}
+revpattern <- yml$application$parameters$`7|REVpattern`
+contpattern <- yml$application$parameters$`8|CONpattern`
 
 # Setup configuration
 
@@ -95,20 +106,21 @@ for (i in 1:length(levels)) {
   for (j in 1:length(levels)) {
     if (i != j) {
       cat(levels[i], levels[j], "\n")
-      GRP2$Contrasts <- paste0("Experiment_",levels[i], " - ", "Experiment_",levels[j])
-      names(GRP2$Contrasts) <- paste0("Experiment" , levels[i], "_vs_", levels[j])
-      message(GRP2$Contrasts)
+      GRP2$pop$Contrasts <- paste0("Experiment_",levels[i], " - ", "Experiment_",levels[j])
+      names(GRP2$pop$Contrasts) <- paste0("Experiment" , levels[i], "_vs_", levels[j])
+      message("CONTRAST", GRP2$pop$Contrasts)
       fname <- paste0("Experiment_" , levels[i], "_vs_", levels[j])
       outpath <- file.path( outdir, fname)
       proteinF <- peptide |> dplyr::filter(.data$Experiment == levels[i] | .data$Experiment == levels[j])
-
       grp2 <- prolfqua::make2grpReport(proteinF,
                                        atable,
                                        GRP2,
                                        protein_annot = "fasta.headers",
+                                       revpattern = revpattern,
+                                       contpattern = contpattern,
                                        remove = TRUE)
 
-      prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fanme)
+      prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
       prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = fname)
 
     }
