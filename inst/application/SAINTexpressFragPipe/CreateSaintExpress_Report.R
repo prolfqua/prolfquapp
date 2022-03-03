@@ -114,6 +114,7 @@ REPORTDATA$sig <- sig
 REPORTDATA$cse <- cse
 REPORTDATA$pcse <- pcse
 
+SEP <- REPORTDATA
 
 rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variables not needed for rendering
 rmarkdown::render("SaintExpressReportMsFragger.Rmd",

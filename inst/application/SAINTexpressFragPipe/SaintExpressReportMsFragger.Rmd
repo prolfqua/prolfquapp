@@ -69,17 +69,15 @@ sum$plot_hierarchy_counts_sample()
 
 ### Protein abundance analysis
 
-The violin plot (Figure \@ref(fig:violinPlot)) displays the protein abundance distribution for all raw files of the data set. Mayor differences between raw files could be a hint that the individual protein abundance values are affected by technical biases. These biases might need to be corrected, in order to separate them from biological effects.
+The density plot (Figure \@ref(fig:violinPlot)) displays the protein abundance distribution for all raw files of the data set. Mayor differences between raw files could be a hint that the individual protein abundance values are affected by technical biases. These biases might need to be corrected, in order to separate them from biological effects.
 
 (ref:violinPlot) Protein abundance distribution. The dots represent the median log2-transformed abundance value per raw file. The overall density distribution is shown as a rotated kernel density plot.
 
 
 
 ```{r violinPlot, fig.cap="(ref:violinPlot)", fig.with=10, fig.height=7}
-
-
 pl <- SEP$lfqdata$get_Plotter()
-pl$intensity_distribution_violin()
+pl$intensity_distribution_density()
 hm <- SEP$lfqdata$get_Plotter()$heatmap()
 
 ```
@@ -106,26 +104,23 @@ SEP$lfqdata$get_Plotter()$pca_plotly()
 
 The analysis of missing values can also be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:missingpercond) displays how many proteins show 0, 1, or more missing values within their replication group.
 
-(ref:missingpercond) Barplot showing the number of proteins with $0, 1, 2$ and more missing values in group. 
+(ref:missingpercond) Venn diagramm showing the number of proteins with $0, 1, 2$ and more missing values in group. 
 
-```{r missingpercond, fig.cap="(ref:missingpercond)", fig.with=10, fig.height=7, include = TRUE}
-sum <- SEP$lfqdata$get_Summariser()
-sum$plot_missingness_per_group()
+```{r missingpercond, fig.cap="(ref:missingpercond)", fig.with=10, fig.height=7, include = FALSE}
+prepUpset <- function(data, cf, tr = 2){
+  tmp <- prolfqua::interaction_missing_stats(data, cf)
+  nrMiss <- tmp$data %>% tidyr::pivot_wider(id_cols = cf$table$hkeysDepth(),
+                                            names_from = cf$table$fkeysDepth(),
+                                            values_from = !!rlang::sym("nrMeasured"))
+  
+  nrMiss[,-(1:cf$table$hierarchyDepth)][nrMiss[,-(1:cf$table$hierarchyDepth)] < tr] <- 0
+  nrMiss[,-(1:cf$table$hierarchyDepth)][nrMiss[,-(1:cf$table$hierarchyDepth)] >= tr] <- 1
+  return(as.data.frame(nrMiss))
+  
+}
 
-```
-
-
-```{r createraster, echo=FALSE, include=FALSE}
-raster <- SEP$lfqdata$get_Plotter()$raster()
-```
-
-The protein abundance heatmap (Figure \@ref(fig:raster)) highlights missing values using grey cells. 
-
-(ref:raster) Heatmap of $\log_2$-transformed protein abundance. Proteins are shown in rows, raw files are shown in columns. The rows are sorted by mean protein intensity, the columns by sample name. Missing values are shown in grey. The figure key indicates which bait groups a raw files belongs to.
-
-```{r raster, echo=FALSE, fig.cap="(ref:raster)", fig.width=7, fig.height=7}
-raster
-hm <- pl$NA_heatmap()
+pups <- prepUpset(SEP$lfqdata$data, SEP$lfqdata$config)
+upset(pups, order.by = "freq")
 
 ```
 
@@ -142,13 +137,12 @@ hm
 
 ## Interaction scoring using SAINT
 
-In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html). The plots below show one subpanel for each bait present in the data set. All resulting candidate lists are filtered using an _SaintScore_ threshold of `r SEP$SSthreshold` and a fold-change threshold of `r SEP$FCthreshold` which corresponds to a $\log_2(FC)$ of `r log2(SEP$FCthreshold)`.
+In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html). The plots below show one subpanel for each bait present in the data set. All resulting candidate lists are filtered using an Bayesian false discovery rate (BFDR) threshold of `r SEP$BFDRthreshold` and an  empirical fold-change score (eFC) threshold of `r SEP$FCthreshold` which corresponds to a $\log_2(eFC)$ of `r log2(SEP$FCthreshold)`.
 
-Note, a fold change of e.g. 2 reported by SAINTexpress can not be interpreted as a two times higher protein abundance, because SAINTexpress internally normalizes and transforms the data.
+Please note, an empirical fold-change of e.g. 2 reported by SAINTexpress can not be interpreted as a two times higher protein abundance, because SAINTexpress internally normalizes and transforms the data.
 
 
 ```{r}
-
 dd <- SEP$cse$get_contrasts() |> dplyr::select(Bait, SaintScore)
 dd <- dd |> dplyr::mutate(SaintScorerange =  cut(SaintScore , breaks = c(-0.01, SEP$SSthreshold, 1)))
 xt <- dd |> dplyr::group_by(Bait, SaintScorerange) |> dplyr::summarize(n = dplyr::n()) |> na.omit()
@@ -189,11 +183,11 @@ An alternative significance estimate reported by SAINTexpress is the Bayesian FD
 SEP$pcse$volcano_plotly()[[1]]
 ```
 
-Sometimes measured effects sizes (differences between samples groups) are biased by the signal intensity (here protein abundance). Such systematic effects can be explored using MA-plots (Figure \@ref(fig:maplot). 
+Sometimes measured effects sizes (differences between samples groups) are biased by the signal intensity (here protein abundance). Such systematic effects can be explored using MA-plots (Figure \@ref(fig:maplot).
 
 (ref:maplot) MA plot displays the effect size estimate as a function of the mean protein intensity across conditions (baits). Each dot represents an observed protein. Red horizontal lines represent the fold-change threshold.
 
-```{r maplot, fig.cap = "(ref:maplot)", fig.width=7, fig.height=7}
+```{r maplot, fig.cap = "(ref:maplot)", fig.width=7, fig.height=7, include=FALSE}
 SEP$pcse$ma_plotly()
 ```
 
