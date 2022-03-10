@@ -25,7 +25,7 @@ REPORTDATA <- list()
 REPORTDATA$spc <- if ( yml$application$parameters$SpcInt == "spc") { TRUE } else {FALSE}
 REPORTDATA$FCthreshold <- as.numeric( yml$application$parameters$FCthreshold )
 REPORTDATA$SSthreshold <- as.numeric( yml$application$parameters$SAINTscore )
-REPORTDATA$FDRthreshold <- 0.25
+REPORTDATA$FDRthreshold <- 0.01
 
 # Prefix for exported files
 treat <- "FRAGPIPE_"
@@ -102,7 +102,7 @@ pcse <- cse$get_Plotter(FCthreshold = log2(REPORTDATA$FCthreshold),
                         BFDRthreshold = REPORTDATA$FDRthreshold)
 
 sig <- cse$get_contrasts() |>
-  dplyr::filter(.data$SaintScore  >  REPORTDATA$SSthreshold & .data$log2FC  >  log2(REPORTDATA$FCthreshold))
+  dplyr::filter(.data$BFDR  <  REPORTDATA$FDRthreshold & .data$log2FC  >  log2(REPORTDATA$FCthreshold))
 
 # Transform data for PCA visualization etc
 tt <- lfqdata$get_Transformer()$log2()
@@ -116,6 +116,7 @@ REPORTDATA$pcse <- pcse
 
 SEP <- REPORTDATA
 
+saveRDS(REPORTDATA, file = "REPORTDATA.rds")
 rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variables not needed for rendering
 rmarkdown::render("SaintExpressReportMsFragger.Rmd",
                   params = list(sep = REPORTDATA),

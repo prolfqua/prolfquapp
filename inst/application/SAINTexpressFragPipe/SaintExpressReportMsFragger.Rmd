@@ -102,11 +102,12 @@ SEP$lfqdata$get_Plotter()$pca_plotly()
 
 ### Missing value analysis
 
-The analysis of missing values can also be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:missingpercond) displays how many proteins show 0, 1, or more missing values within their replication group.
+The analysis of missing values can also be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:vennProteins) displays how many proteins are shared among the conditions or all possible intersection of conditions. If a protein was observed in one or zero samples in a group we say it is absent and present otherwise. We did choose zero ore one as absent absent, since one observation might be an artefact of a match between runs.
 
-(ref:missingpercond) Venn diagramm showing the number of proteins with $0, 1, 2$ and more missing values in group. 
 
-```{r missingpercond, fig.cap="(ref:missingpercond)", fig.with=10, fig.height=7, include = FALSE}
+(ref:vennProteins) Venn diagram showing the number of proteins present in all possible intersections. 
+
+```{r vennProteins, fig.cap="(ref:vennProteins)", fig.with=10, fig.height=7, include = TRUE}
 prepUpset <- function(data, cf, tr = 2){
   tmp <- prolfqua::interaction_missing_stats(data, cf)
   nrMiss <- tmp$data %>% tidyr::pivot_wider(id_cols = cf$table$hkeysDepth(),
@@ -120,8 +121,13 @@ prepUpset <- function(data, cf, tr = 2){
 }
 
 pups <- prepUpset(SEP$lfqdata$data, SEP$lfqdata$config)
-upset(pups, order.by = "freq")
+UpSetR::upset(pups, order.by = "freq")
 
+```
+
+
+```{r raster, echo=FALSE}
+hm <- pl$NA_heatmap()
 ```
 
 By transforming protein abundance estimates into present/absent calls a dichotomous view on the data (Figure \@ref(fig:naHeat) ) can be constructed.
@@ -137,58 +143,34 @@ hm
 
 ## Interaction scoring using SAINT
 
-In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html). The plots below show one subpanel for each bait present in the data set. All resulting candidate lists are filtered using an Bayesian false discovery rate (BFDR) threshold of `r SEP$BFDRthreshold` and an  empirical fold-change score (eFC) threshold of `r SEP$FCthreshold` which corresponds to a $\log_2(eFC)$ of `r log2(SEP$FCthreshold)`.
+In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html). The plots below show one subpanel for each bait present in the data set. All resulting candidate lists are filtered using an Bayesian false discovery rate (BFDR) threshold of `r SEP$BFDRthreshold` and an  empirical fold-change score (EFC) threshold of `r SEP$FCthreshold` which corresponds to a $\log_2(EFC)$ of `r log2(SEP$FCthreshold)`.
 
-Please note, an empirical fold-change of e.g. 2 reported by SAINTexpress can not be interpreted as a two times higher protein abundance, because SAINTexpress internally normalizes and transforms the data.
+Please note, an empirical fold-change (EFC) score of e.g. 2 reported by SAINTexpress can not be interpreted as a two times higher protein abundance, because SAINTexpress internally normalizes and transforms the data.
 
 
 ```{r}
-dd <- SEP$cse$get_contrasts() |> dplyr::select(Bait, SaintScore)
-dd <- dd |> dplyr::mutate(SaintScorerange =  cut(SaintScore , breaks = c(-0.01, SEP$SSthreshold, 1)))
-xt <- dd |> dplyr::group_by(Bait, SaintScorerange) |> dplyr::summarize(n = dplyr::n()) |> na.omit()
-lv <- levels(xt$SaintScorerange)
 
-xt <- xt |> tidyr::pivot_wider(id_cols = "Bait", names_from = "SaintScorerange", values_from = n)
+acc <- SEP$sig |> dplyr::group_by(Bait) |> dplyr::summarize(accepted = dplyr::n())
+all <- SEP$cse$get_contrasts() |> dplyr::group_by(Bait) |> dplyr::summarise(all = dplyr::n())
 
-columns <- setdiff(c("Bait",rev(lv)), colnames(xt))
-for (col in columns) {
-  xt[[col]] <- NA
-}
-xt[is.na(xt)] <- 0
-xt <- dplyr::select(xt, dplyr::any_of(c("Bait",rev(lv))))
-colnames(xt)[2:3] <- c("accpeted","rejected")
+accall <- dplyr::left_join(all, acc)
+accall[is.na(accall)] <- 0
+accall <- accall |> dplyr::mutate(`% accpeted ` = round(accepted / all * 100, digits = 1))
 
-xt |>  knitr::kable( caption =
-                 paste0("# of interactions accepted with SaintScore ", SEP$SSthreshold,".")
+accall |>  knitr::kable( caption =
+                 paste0("# of interactions accepted with BFDR < ", SEP$FDRthreshold," and EFC score threshold > ", SEP$FCthreshold,".")
                  )
 isSig <- nrow(SEP$sig) > 0
+
 ```
 
 
-The volcano plot \@ref(fig:scatterplot) helps to identify prey proteins with large fold change and SaintScore. Promising candidate pray proteins are found in the upper right sector of the plot.
+The volcano plot \@ref(fig:volcanoPlotBfdr) helps to identify prey proteins with large EFC score and a low BFDR. The significance dimension is a $-\log_{10}$ transformed BFDR, i.e., small values of BFDR become large after transformation. Promising candidate pray proteins are found in the upper right sector of the plot.
 
-
-
-(ref:scatterplot) Scatter plot showing SaintScore on the y-axis versus the $\log_2$ transformed SAINTexpress fold change (x-axis). Each dot represent a potential pray protein. Red horizontal line : _SaintScore_ of `r SEP$SSthreshold`. Red vertical line : $\log_2(FC)$ of `r log2(SEP$FCthreshold)`.
-
-```{r scatterplot, fig.cap = "(ref:scatterplot)", fig.width=7, fig.height=7}
-SEP$pcse$score_plotly()[[1]]
-```
-
-An alternative significance estimate reported by SAINTexpress is the Bayesian FDR (BFDR). The volcano (Figure \@ref(fig:volcanoPlotBfdr)) uses the same data as above with the exception that the significance dimension is a $-\log_10$ transformed BFDR, i.e., small values of BFDR become large after transformation.
-
-(ref:volcanoPlotBfdr) "Volcano Plot showing $-\log_10$ transformed BFDR as function of $\log_2$ transformed effect size.
+(ref:volcanoPlotBfdr) Volcano Plot showing $-\log_{10}$ transformed BFDR as function of $\log_2$ transformed effect size. The blue line shows the $-log_{10}$ transformed BFDR threshold of `r SEP$FDRthreshold`, while the red line the $\log_2$ transformed FC of `r SEP$FCthreshold`. 
 
 ```{r volcanoPlotBfdr, fig.cap = "(ref:volcanoPlotBfdr)", fig.width=7, fig.height=7, include = TRUE, eval = TRUE}
 SEP$pcse$volcano_plotly()[[1]]
-```
-
-Sometimes measured effects sizes (differences between samples groups) are biased by the signal intensity (here protein abundance). Such systematic effects can be explored using MA-plots (Figure \@ref(fig:maplot).
-
-(ref:maplot) MA plot displays the effect size estimate as a function of the mean protein intensity across conditions (baits). Each dot represents an observed protein. Red horizontal lines represent the fold-change threshold.
-
-```{r maplot, fig.cap = "(ref:maplot)", fig.width=7, fig.height=7, include=FALSE}
-SEP$pcse$ma_plotly()
 ```
 
 
@@ -199,20 +181,21 @@ rs <- sigsub$get_Plotter()$raster(rownames = TRUE)
 ```
 
 ```{r results='asis'}
-if (isSig) {cat("The protein abundance heatmap (Figure \\@ref(fig:heatsig)) is pre-filtered for prays that show _SaintScore_ >", SEP$SSthreshold," and foldchange > ", SEP$FCthreshold, ".")} else {
-  cat("There are not significant results given the _SaintScore_ >", SEP$SSthreshold," and foldchange > ", SEP$FCthreshold, ".")
+if (isSig) {cat("The protein abundance heatmap (Figure \\@ref(fig:heatsig)) is pre-filtered for prays that show _BFDR_ < ", SEP$FDRthreshold," and EFC score > ", SEP$FCthreshold, ".")
+} else {
+  cat("There are not significant results given the _BFDR_ < ", SEP$FDRthreshold," and EFC score > ", SEP$FCthreshold, ".")
 }
 
 ```
 
-(ref:heatsig) Heatmap showing the $\log_2$ transformed protein abundance estimate for prays with _SaintScore_ obove `r SEP$SSthreshold` for at least one prey.
+(ref:heatsig) Heatmap showing the $\log_2$ transformed protein abundance estimate for prays with _BFDR_ below `r SEP$FCthreshold` for at least one prey.
 
 ```{r heatsig, fig.cap="(ref:heatsig)", fig.width=8, fig.height=10, eval = isSig}
 rs
 ```
 
 ```{r DT,  eval = isSig}
-cap <- paste0("Proteins with SaintScore > ", SEP$SSthreshold, " and foldchange > ", SEP$FCthreshold, ".")
+cap <- paste0("Proteins with BFDR < ", SEP$FDRthreshold, " and EFC score > ", SEP$FCthreshold, ".")
 DT::datatable(SEP$sig, caption = cap)
 ```
 
@@ -224,35 +207,62 @@ cat("Protein interaction network reconstruction using graph. Nodes represent bai
 ```
 
 
-(ref:network) Protein interaction network for _SaintScore_ > `r SEP$SSthreshold` and foldchange > `r SEP$FCthreshold`. Lines - protein interactions. Line color depends on the bait proteins.
+(ref:network) Protein interaction network for _BFDR_ < `r SEP$SSthreshold` and EFC score > `r SEP$FCthreshold`. Lines - protein interactions. Line color depends on the bait proteins.
 
 ```{r network, fig.cap="(ref:network)", eval=isSig}
 
-bbSE <- dplyr::select(SEP$sig, from = Bait, to = Prey, 
-                      Bait = Bait, SS = SaintScore)
+bbSE <- dplyr::select(SEP$sig,
+                      from = Bait,
+                      to = Prey, 
+                      Bait = Bait,
+                      SS = SaintScore)
 
 inn <- igraph::graph_from_data_frame( bbSE, directed = FALSE )
 
-ggraph::ggraph(inn,layout = 'kk') +
+bb <- ggraph::ggraph(inn,layout = 'kk') +
   ggraph::geom_node_text(ggplot2::aes(label = name), size = 2.5) +
   ggraph::geom_edge_link(ggplot2::aes(color = Bait), alpha = 0.6) + 
   ggplot2::theme(legend.position = "none")
+bb + ggplot2::theme_classic()
 
 ```
 
 
-(ref:vennDiagram) Venn diagram showing the number of prays common to various bait proteins in the data set, for _SaintScore_ > `r SEP$SSthreshold`.
+(ref:vennDiagram) Venn diagram showing the number of prays common or distinct to the bait proteins in the data set, for _BFDR_ < `r SEP$FDRthreshold` and _EFC_ score < `r SEP$FCthreshold`.
 
 ```{r vennDiagram, fig.cap="(ref:vennDiagram)", eval = isSig}
 b1 <- bbSE |> dplyr::select(from, to)
 
 xx <-  split(b1$to, b1$from)
+
 if (length(xx) > 1) {
-  ggVennDiagram::ggVennDiagram(xx)
+  UpSetR::upset(UpSetR::fromList(xx))
 }
+
 ```
 
 
+# Additional Analysis
+
+
+In the zip file you will find an excel file. All the figures in this document can be recreated using the data in this excel file.
+
+The file contains several spreadsheets:
+- _annotation_ - the annotation of the samples in the experiment
+- _inter_, _prey_, and _bait_ spreadsheets which are the inputs to the SAINTexpress executable.
+- _list_ spreadsheet which is the ouptut of SAINTExpress. 
+- presenceAbsence - spreadsheet containing the presence absence information used to create the VennDiagram figure \@ref(fig:vennProteins). Cells with 0 entries indicate protein absence while 1 entries protein presence.
+
+A detailed description of the SAINTexpress inputs and outputs can be found in the _SAINTexpress.doc_ included in the zip file.
+
+
+To compare the obtained results with known protein interactions we recommend the [string-db.org](https://string-db.org/), which is curated database of protein-protein interaction networks for a large variaty of organisms. String-db can also be used to perform functional enrichment analysis. To simplify the data upload to string-db we include text files containing the uniprot ids:
+
+- `all_<baitName>.txt` all prey proteins.
+- `accepted_<baitName>.txt` prey proteins accepted with the BFDR and EFC specified.
+
+
+We do also include the file: which can be imported into 
 
 # Supplement
 
