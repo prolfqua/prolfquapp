@@ -102,7 +102,7 @@ pcse <- cse$get_Plotter(FCthreshold = log2(REPORTDATA$FCthreshold),
                         BFDRthreshold = REPORTDATA$FDRthreshold)
 
 sig <- cse$get_contrasts() |>
-  dplyr::filter(.data$BFDR  <  REPORTDATA$FDRthreshold & .data$log2FC  >  log2(REPORTDATA$FCthreshold))
+  dplyr::filter(.data$BFDR  <  REPORTDATA$FDRthreshold & .data$log2_EFCs  >  log2(REPORTDATA$FCthreshold))
 
 # Transform data for PCA visualization etc
 tt <- lfqdata$get_Transformer()$log2()
