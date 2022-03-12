@@ -48,8 +48,6 @@ The input data, used to compile this report, is available through the b-fabric r
 - Aim
 - How to use the results
 
-## Peptide and Protein identification
-
 The LC-MS data was processed using the [FragPipe proteomics pipeline](https://fragpipe.nesvilab.org/). The protein quantification results were extracted from the _combined_protein.tsv_ file.  We used the columns with the `r if(SEP$spc){'Spectral Count' }else{'Intensity'}` suffix, which stores the `r if(SEP$spc){'total number of PSMs in support of the protein identification'} else {'normalized protein intensity using the sequences after razor assignment'}`. For more information about the _combined_protein.tsv_ file see [FragPipe output tutorial]( https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#combined_proteintsv).
 
 The table below lists the LC-MS files and their assigned annotations.
@@ -59,7 +57,11 @@ DT::datatable(SEP$lfqdata$factors(),
               caption = "LC-MS raw file annotation table. The content of the sampleName column is used as a short form plot label and constructed from the CorT and bait attributes. CorT indicates if a raw file was assigned to the control group (C) or to the treatment group (T). The bait protein name is shown in the bait column. It should follow the <name>_<condition> pattern.")
 ```
 
-In total `r SEP$lfqdata$hierarchy_counts()[2]` proteins (min. 2 peptides per protein) were identidied and quantified using `r sp_string` across all samples (we will denote this as the protein abundance estimate from here on). Bar plot below shows the number of identified proteins per raw file.
+
+## Peptide and Protein identification
+
+
+In total `r SEP$lfqdata$hierarchy_counts()[2]` proteins (min. 2 peptides per protein) were identified and quantified using `r sp_string` across all samples (we will denote this as the protein abundance estimate from here on). Bar plot below shows the number of identified proteins per raw file.
 
 ```{r nrPerSample, fig.cap="Number of identified proteins across raw files.", fig.with=10, fig.height=7}
 sum <- SEP$lfqdata$get_Summariser()
@@ -102,7 +104,7 @@ SEP$lfqdata$get_Plotter()$pca_plotly()
 
 ### Missing value analysis
 
-The analysis of missing values can also be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:vennProteins) displays how many proteins are shared among the conditions or all possible intersection of conditions. If a protein was observed in one or zero samples in a group we say it is absent and present otherwise. We did choose zero ore one as absent absent, since one observation might be an artefact of a match between runs.
+The analysis of missing values can also be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:vennProteins) displays how many proteins are shared among the conditions or all possible intersection of conditions. If a protein was observed in one or zero samples in a group we say it is absent and present otherwise. We did choose zero ore one as absent, since one observation might be an artefact of a match between runs.
 
 
 (ref:vennProteins) Venn diagram showing the number of proteins present in all possible intersections. 
@@ -143,10 +145,47 @@ hm
 
 ## Interaction scoring using SAINT
 
-In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html). The plots below show one subpanel for each bait present in the data set. All resulting candidate lists are filtered using an Bayesian false discovery rate (BFDR) threshold of `r SEP$BFDRthreshold` and an  empirical fold-change score (EFC) threshold of `r SEP$FCthreshold` which corresponds to a $\log_2(EFC)$ of `r log2(SEP$FCthreshold)`.
+In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html). The plots below show one subpanel for each bait present in the data set.
 
 Please note, an empirical fold-change (EFC) score of e.g. 2 reported by SAINTexpress can not be interpreted as a two times higher protein abundance, because SAINTexpress internally normalizes and transforms the data.
 
+
+
+
+The volcano plot \@ref(fig:volcanoPlotBfdr) helps to identify prey proteins with large EFC score and a low BFDR. The significance dimension is a $-\log_{10}$ transformed BFDR, i.e., small values of BFDR become large after transformation. Promising candidate pray proteins are found in the upper right sector of the plot.
+
+(ref:volcanoPlotBfdr) Volcano Plot showing $-\log_{10}$ transformed BFDR as function of $\log_2$ transformed effect size. The blue line shows the $-log_{10}$ transformed BFDR threshold of `r SEP$FDRthreshold`, while the red line the $\log_2$ transformed FC of `r SEP$FCthreshold`. 
+
+
+
+
+```{r setupVolcano, echo = FALSE}
+datax <- SEP$cse$get_contrasts()
+prot_annot <- dplyr::rename(SEP$prot_annot, Prey=protein)
+prot_annot <- dplyr::inner_join(prot_annot, datax)
+bb <- prot_annot %>% dplyr::select(Prey, description, Bait, BFDR )
+bb <- bb |> tidyr::pivot_wider(names_from = "Bait", names_prefix = "BFDR.", values_from = BFDR)
+bb <- crosstalk::SharedData$new(bb, ~Prey, group = "Choose protein")
+DT::datatable(bb, filter="bottom")
+
+```
+
+
+```{r volcanoPlotBfdr, fig.cap = "(ref:volcanoPlotBfdr)", fig.width=7, fig.height=7, include = TRUE, eval = TRUE}
+xd <- prolfqua::volcano_Plotly( datax , effect = "log2_EFCs", significance = "BFDR", contrast = "Bait", xintercept =  log2(SEP$FCthreshold), yintercept = SEP$FDRthreshold)
+plotly::subplot(xd, shareX = TRUE, shareY = TRUE)
+
+```
+
+
+
+
+
+
+
+## Interaction network reconstruction
+
+All resulting candidate lists are filtered using an Bayesian false discovery rate (BFDR) threshold of `r SEP$BFDRthreshold` and an  empirical fold-change score (EFC) threshold of `r SEP$FCthreshold` which corresponds to a $\log_2(EFC)$ of `r log2(SEP$FCthreshold)`.
 
 ```{r}
 
@@ -162,17 +201,18 @@ accall |>  knitr::kable( caption =
                  )
 isSig <- nrow(SEP$sig) > 0
 
+
 ```
 
 
-The volcano plot \@ref(fig:volcanoPlotBfdr) helps to identify prey proteins with large EFC score and a low BFDR. The significance dimension is a $-\log_{10}$ transformed BFDR, i.e., small values of BFDR become large after transformation. Promising candidate pray proteins are found in the upper right sector of the plot.
 
-(ref:volcanoPlotBfdr) Volcano Plot showing $-\log_{10}$ transformed BFDR as function of $\log_2$ transformed effect size. The blue line shows the $-log_{10}$ transformed BFDR threshold of `r SEP$FDRthreshold`, while the red line the $\log_2$ transformed FC of `r SEP$FCthreshold`. 
+```{r results='asis'}
+if (isSig) {cat("The protein abundance heatmap (Figure \\@ref(fig:heatsig)) shows the proteins passing the BFDR and EFCs thresholds.")
+} else {
+  cat("There are not significant results given the _BFDR_ and EFC score thresholds.")
+}
 
-```{r volcanoPlotBfdr, fig.cap = "(ref:volcanoPlotBfdr)", fig.width=7, fig.height=7, include = TRUE, eval = TRUE}
-SEP$pcse$volcano_plotly()[[1]]
 ```
-
 
 ```{r aChunkNamePLEASE}
 sigsub <- SEP$lfqdata$get_subset(data.frame(protein_Id = SEP$sig$Prey))
@@ -180,26 +220,13 @@ rs <- sigsub$get_Plotter()$raster(rownames = TRUE)
 
 ```
 
-```{r results='asis'}
-if (isSig) {cat("The protein abundance heatmap (Figure \\@ref(fig:heatsig)) is pre-filtered for prays that show _BFDR_ < ", SEP$FDRthreshold," and EFC score > ", SEP$FCthreshold, ".")
-} else {
-  cat("There are not significant results given the _BFDR_ < ", SEP$FDRthreshold," and EFC score > ", SEP$FCthreshold, ".")
-}
 
-```
-
-(ref:heatsig) Heatmap showing the $\log_2$ transformed protein abundance estimate for prays with _BFDR_ below `r SEP$FCthreshold` for at least one prey.
+(ref:heatsig) Heatmap showing the $\log_2$ transformed protein abundance estimate for prays which pass the BFDR and EFCs thresholds.
 
 ```{r heatsig, fig.cap="(ref:heatsig)", fig.width=8, fig.height=10, eval = isSig}
 rs
 ```
 
-```{r DT,  eval = isSig}
-cap <- paste0("Proteins with BFDR < ", SEP$FDRthreshold, " and EFC score > ", SEP$FCthreshold, ".")
-DT::datatable(SEP$sig, caption = cap)
-```
-
-## Interaction network reconstruction
 
 
 ```{r intext , results='asis', eval=isSig}
@@ -220,15 +247,16 @@ bbSE <- dplyr::select(SEP$sig,
 inn <- igraph::graph_from_data_frame( bbSE, directed = FALSE )
 
 bb <- ggraph::ggraph(inn,layout = 'kk') +
-  ggraph::geom_node_text(ggplot2::aes(label = name), size = 2.5) +
+  ggraph::geom_node_text(ggplot2::aes(label = name), size = 3.5) +
   ggraph::geom_edge_link(ggplot2::aes(color = Bait), alpha = 0.6) + 
-  ggplot2::theme(legend.position = "none")
-bb + ggplot2::theme_classic()
+  ggplot2::theme(legend.position = "none") +
+  theme(panel.background = element_rect(fill = 'white', colour = 'black'))
+bb
 
 ```
 
 
-(ref:vennDiagram) Venn diagram showing the number of prays common or distinct to the bait proteins in the data set, for _BFDR_ < `r SEP$FDRthreshold` and _EFC_ score < `r SEP$FCthreshold`.
+(ref:vennDiagram) Venn diagram showing the number of prays common and specific to the bait proteins in the data set.
 
 ```{r vennDiagram, fig.cap="(ref:vennDiagram)", eval = isSig}
 b1 <- bbSE |> dplyr::select(from, to)
@@ -263,6 +291,8 @@ To compare the obtained results with known protein interactions we recommend the
 
 
 We do also include the file: which can be imported into 
+
+
 
 # Supplement
 

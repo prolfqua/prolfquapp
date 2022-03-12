@@ -32,13 +32,19 @@ treat <- "FRAGPIPE_"
 
 # load data
 annotation <- readr::read_csv("dataset.csv")
-pp <- prolfqua::tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
+
+source(file="../../../R/tidy_MSFragger.R")
+library(tidyverse)
+pp <- tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
+colnames(pp)
+prot_annot <- dplyr::select(pp,protein , description) |> dplyr::distinct()
+
 pp$raw.file |> unique()
 
 
 # attach annotation to combined_protein data
 annotation$raw.file <- basename(annotation$`Relative Path`)
-annotation <- dplyr::mutate(annotation, raw.file = gsub(".raw", "", tolower(make.names(raw.file))))
+annotation <- dplyr::mutate(annotation, raw.file = gsub(".raw", "", raw.file))
 annotation$`Relative Path` <- NULL
 
 stopifnot(sum(annotation$raw.file %in% pp$raw.file) > 0) # check that some files are annotated, if not exit script.
@@ -78,17 +84,22 @@ RESULTS$annotation <- lfqdata$factors()
 
 # Run Saint Analysis
 intdata <- lfqdata$data
+
 intdata <- dplyr::inner_join(intdata ,
                       dplyr::distinct( dplyr::select(pdata, protein, protein.length)),
                       by = c(protein_Id = "protein"))
-
 bb <- prolfqua::protein_2localSaint(
   intdata,
   quantcolumn = lfqdata$config$table$getWorkIntensity())
 
+
 RESULTS <- c(RESULTS, bb)
 res <- prolfqua::runSaint(bb, spc = REPORTDATA$spc)
-names(res)
+res$list |> head()
+
+res$list <- dplyr::inner_join(prot_annot, res$list, by = c(protein = "Prey"), keep = TRUE)
+res$list$protein <- NULL
+
 RESULTS <- c(RESULTS, res)
 names(RESULTS)
 # write analysis results
@@ -113,11 +124,12 @@ REPORTDATA$lfqdata <- lfqdata
 REPORTDATA$sig <- sig
 REPORTDATA$cse <- cse
 REPORTDATA$pcse <- pcse
-
+REPORTDATA$prot_annot <- prot_annot
 SEP <- REPORTDATA
 
 saveRDS(REPORTDATA, file = "REPORTDATA.rds")
 rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variables not needed for rendering
+SEP <- REPORTDATA
 rmarkdown::render("SaintExpressReportMsFragger.Rmd",
                   params = list(sep = REPORTDATA),
                   output_format = bookdown::html_document2(),
