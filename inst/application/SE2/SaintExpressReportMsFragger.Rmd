@@ -287,15 +287,16 @@ The file contains several spreadsheets:
 - _annotation_ - the annotation of the samples in the experiment
 - _inter_, _prey_, and _bait_ spreadsheets which are the inputs to the SAINTexpress executable.
 - _list_ spreadsheet which is the ouptut of SAINTExpress. 
-- presenceAbsence - spreadsheet containing the presence absence information used to create the VennDiagram figure \@ref(fig:vennProteins). Cells with 0 entries indicate protein absence while 1 entries protein presence.
+- _MissingInformtion_ - spreadsheet containing information in how many samples of condition a protein is observed. This information is used to create the VennDiagram figure \@ref(fig:vennProteins).
+- _inputData_ A table where each column represents a sample and each row represents a protein and the cells store the protein abundances.
 
 A detailed description of the SAINTexpress inputs and outputs can be found in the _SAINTexpress.doc_ included in the zip file.
 
 
 To compare the obtained results with known protein interactions we recommend the [string-db.org](https://string-db.org/), which is curated database of protein-protein interaction networks for a large variaty of organisms. String-db can also be used to perform functional enrichment analysis. To simplify the data upload to string-db we include text files containing the uniprot ids:
 
-- `all_<baitName>.txt` all prey proteins.
-- `accepted_<baitName>.txt` prey proteins accepted with the BFDR and EFC specified.
+- `ORA_background.txt` all prey proteins.
+- `ORA_Bait_<baitname>.txt` prey proteins accepted with the BFDR and EFC specified.
 
 
 We do also include the file: which can be imported into 

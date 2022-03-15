@@ -168,7 +168,7 @@ for (i in 1:nrow(sigg)) {
               row.names = FALSE,
               quote = FALSE )
 }
-
+prolfqua::copy_SAINTe_doc(workdir = ZIPDIR)
 
 SEP <- REPORTDATA
 
