@@ -121,11 +121,7 @@ resContrasts <- resContrasts |> dplyr::select(-dplyr::all_of( c("group_1_name", 
 sig <- resContrasts |>
   dplyr::filter(.data$BFDR  <  REPORTDATA$FDRthreshold & .data$log2_EFCs  >  log2(REPORTDATA$FCthreshold))
 
-head(resContrasts)
 
-library(prozor)
-
-resContrasts$Prey
 
 # Transform data for PCA visualization etc
 tt <- lfqdata$get_Transformer()$log2()
