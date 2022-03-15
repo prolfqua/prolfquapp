@@ -183,7 +183,7 @@ plotly::subplot(xd, shareX = TRUE, shareY = TRUE, nrows = nrow)
 
 ## Interaction network reconstruction
 
-The Bait Prey interaction candidate lists are filtered using an Bayesian false discovery rate (BFDR) threshold of `r SEP$BFDRthreshold` and an  empirical fold-change score (EFC) threshold of `r SEP$FCthreshold` which corresponds to a $\log_2(EFC)$ of `r log2(SEP$FCthreshold)`.
+The Bait Prey interaction candidate lists are filtered using an Bayesian false discovery rate (BFDR) threshold of __`r SEP$FDRthreshold`__ and an  empirical fold-change score (EFC) threshold of __`r SEP$FCthreshold`__ which corresponds to a $\log_2(EFC)$ of `r log2(SEP$FCthreshold)`.
 Table \@ref(tab:nrSignificant) shows the number of bait prey pairs which pass the filter criteria, while \@ref(fig:SigPrey) lists the filtered bait prey pairs and shows their `BFDR` and `log2_EFCs` scores.
 
 
