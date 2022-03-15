@@ -53,7 +53,7 @@ The LC-MS data was processed using the [FragPipe proteomics pipeline](https://fr
 The table below lists the LC-MS files and their assigned annotations.
 
 ```{r sampleAnnotation}
-DT::datatable(SEP$lfqdata$factors(),
+DT::datatable(SEP$lfqdata_transformed$factors(),
               caption = "LC-MS raw file annotation table. The content of the sampleName column is used as a short form plot label and constructed from the CorT and bait attributes. CorT indicates if a raw file was assigned to the control group (C) or to the treatment group (T). The bait protein name is shown in the bait column. It should follow the <name>_<condition> pattern.")
 ```
 
@@ -61,10 +61,10 @@ DT::datatable(SEP$lfqdata$factors(),
 ## Peptide and Protein identification
 
 
-In total `r SEP$lfqdata$hierarchy_counts()[2]` proteins (min. 2 peptides per protein) were identified and quantified using `r sp_string` across all samples (we will denote this as the protein abundance estimate from here on). Bar plot below shows the number of identified proteins per raw file.
+In total `r SEP$lfqdata_transformed$hierarchy_counts()[2]` proteins (min. 2 peptides per protein) were identified and quantified using `r sp_string` across all samples (we will denote this as the protein abundance estimate from here on). Bar plot below shows the number of identified proteins per raw file.
 
 ```{r nrPerSample, fig.cap="Number of identified proteins across raw files.", fig.with=10, fig.height=7}
-sum <- SEP$lfqdata$get_Summariser()
+sum <- SEP$lfqdata_transformed$get_Summariser()
 sum$plot_hierarchy_counts_sample()
 
 ```
@@ -78,9 +78,9 @@ The density plot (Figure \@ref(fig:violinPlot)) displays the protein abundance d
 
 
 ```{r violinPlot, fig.cap="(ref:violinPlot)", fig.with=10, fig.height=7}
-pl <- SEP$lfqdata$get_Plotter()
+pl <- SEP$lfqdata_transformed$get_Plotter()
 pl$intensity_distribution_density()
-hm <- SEP$lfqdata$get_Plotter()$heatmap()
+hm <- SEP$lfqdata_transformed$get_Plotter()$heatmap()
 
 ```
 
@@ -98,7 +98,7 @@ We use principal component analysis (PCA) to transform the high dimensional spac
 (ref:pca)  Plot of first and second principal component (PC1 and PC2) of principal component analysis (PCA). $\log_2$ transformed `r sp_string` are used as input.
 
 ```{r pca, fig.cap = "(ref:pca)" , fig.width=7, fig.height=7 }
-SEP$lfqdata$get_Plotter()$pca_plotly()
+SEP$lfqdata_transformed$get_Plotter()$pca_plotly()
 ```
 
 
@@ -110,20 +110,7 @@ The analysis of missing values can also be an important indicator for potential 
 (ref:vennProteins) Venn diagram showing the number of proteins present in all possible intersections. 
 
 ```{r vennProteins, fig.cap="(ref:vennProteins)", fig.with=10, fig.height=7, include = TRUE}
-prepUpset <- function(data, cf, tr = 2){
-  tmp <- prolfqua::interaction_missing_stats(data, cf)
-  nrMiss <- tmp$data %>% tidyr::pivot_wider(id_cols = cf$table$hkeysDepth(),
-                                            names_from = cf$table$fkeysDepth(),
-                                            values_from = !!rlang::sym("nrMeasured"))
-  
-  nrMiss[,-(1:cf$table$hierarchyDepth)][nrMiss[,-(1:cf$table$hierarchyDepth)] < tr] <- 0
-  nrMiss[,-(1:cf$table$hierarchyDepth)][nrMiss[,-(1:cf$table$hierarchyDepth)] >= tr] <- 1
-  return(as.data.frame(nrMiss))
-  
-}
-
-pups <- prepUpset(SEP$lfqdata$data, SEP$lfqdata$config)
-UpSetR::upset(pups, order.by = "freq")
+UpSetR::upset(SEP$pups, order.by = "freq")
 
 ```
 
@@ -160,7 +147,7 @@ The volcano plot \@ref(fig:volcanoPlotBfdr) helps to identify prey proteins with
 
 
 ```{r setupVolcano, echo = FALSE}
-datax <- SEP$cse$get_contrasts()
+datax <- SEP$resContrasts
 prot_annot <- dplyr::rename(SEP$prot_annot, Prey=protein)
 prot_annot <- dplyr::inner_join(prot_annot, datax)
 bb <- prot_annot %>% dplyr::select(Prey, description, Bait, BFDR )
@@ -173,6 +160,7 @@ DT::datatable(bb, filter = "bottom", options = list(pageLength = 5))
 
 ```{r volcanoPlotBfdr, fig.cap = "(ref:volcanoPlotBfdr)", fig.width=7, fig.height=7, include = TRUE, eval = TRUE}
 xd <- prolfqua::volcano_Plotly( datax , effect = "log2_EFCs", significance = "BFDR", contrast = "Bait", xintercept =  log2(SEP$FCthreshold), yintercept = SEP$FDRthreshold)
+xd <- lapply(xd, plotly::highlight , off = "plotly_doubleclick")
 plotly::subplot(xd, shareX = TRUE, shareY = TRUE)
 
 ```
@@ -192,7 +180,7 @@ Table \@ref(tab:nrSignificant) shows the number of bait prey pairs which pass th
 ```{r nrSignificant}
 
 acc <- SEP$sig |> dplyr::group_by(Bait) |> dplyr::summarize(accepted = dplyr::n())
-all <- SEP$cse$get_contrasts() |> dplyr::group_by(Bait) |> dplyr::summarise(all = dplyr::n())
+all <- SEP$resContrasts |> dplyr::group_by(Bait) |> dplyr::summarise(all = dplyr::n())
 
 accall <- dplyr::left_join(all, acc)
 accall[is.na(accall)] <- 0
@@ -209,7 +197,7 @@ isSig <- nrow(SEP$sig) > 0
 
 
 ```{r SigPrey, eval=isSig, fig.cap= "Candidate list."}
-sig <- dplyr::select(SEP$sig, Bait, Prey, log2_EFCs, BFDR, SaintScore)
+sig <- crosstalk::SharedData$new(SEP$sig, ~Prey, group = "Choose protein")
 DT::datatable(sig)
 ```
 
@@ -225,7 +213,7 @@ if (isSig) {cat("The protein abundance heatmap (Figure \\@ref(fig:heatsig)) show
 ```
 
 ```{r aChunkNamePLEASE}
-sigsub <- SEP$lfqdata$get_subset(data.frame(protein_Id = SEP$sig$Prey))
+sigsub <- SEP$lfqdata_transformed$get_subset(data.frame(protein_Id = SEP$sig$Prey))
 rs <- sigsub$get_Plotter()$raster(rownames = TRUE)
 
 ```
@@ -308,7 +296,7 @@ We do also include the file: which can be imported into
 
 ```{r fig.cap="x axis - Saint Score, y axis = -log10(BFDR)", eval = isSig}
 
-ggplot2::ggplot( SEP$cse$get_contrasts(), ggplot2::aes(x = SaintScore, y = -log10(BFDR) ) ) +
+ggplot2::ggplot( SEP$resContrasts, ggplot2::aes(x = SaintScore, y = -log10(BFDR) ) ) +
   ggplot2::geom_point() +
   ggplot2::geom_vline(xintercept = SEP$SSthreshold, color = 'red') +
   ggplot2::facet_wrap( ~ Bait )

@@ -33,9 +33,9 @@ treat <- "FRAGPIPE_"
 # load data
 annotation <- readr::read_csv("dataset.csv")
 
-source(file="../../../R/tidy_MSFragger.R")
+#source(file = "../../../R/tidy_MSFragger.R")
 library(tidyverse)
-pp <- tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
+pp <- prolfqua::tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
 colnames(pp)
 prot_annot <- dplyr::select(pp,protein , description) |> dplyr::distinct()
 
@@ -88,43 +88,80 @@ intdata <- lfqdata$data
 intdata <- dplyr::inner_join(intdata ,
                       dplyr::distinct( dplyr::select(pdata, protein, protein.length)),
                       by = c(protein_Id = "protein"))
-bb <- prolfqua::protein_2localSaint(
+localSAINTinput <- prolfqua::protein_2localSaint(
   intdata,
   quantcolumn = lfqdata$config$table$getWorkIntensity())
 
 
-RESULTS <- c(RESULTS, bb)
-res <- prolfqua::runSaint(bb, spc = REPORTDATA$spc)
-res$list |> head()
+RESULTS <- c(RESULTS, localSAINTinput)
+resSaint <- prolfqua::runSaint(localSAINTinput, spc = REPORTDATA$spc)
+resSaint$list |> head()
 
-res$list <- dplyr::inner_join(prot_annot, res$list, by = c(protein = "Prey"), keep = TRUE)
-res$list$protein <- NULL
+resSaint$list <- dplyr::inner_join(prot_annot, resSaint$list, by = c(protein = "Prey"), keep = TRUE)
+resSaint$list$protein <- NULL
 
-RESULTS <- c(RESULTS, res)
-names(RESULTS)
+RESULTS <- c(RESULTS, resSaint)
 # write analysis results
-writexl::write_xlsx(RESULTS, path = file.path(ZIPDIR,paste0(treat, "_data.xlsx")))
 
 # Prepare result visualization and render report
 #prolfqua::ContrastsSaintExpress$debug("get_Plotter")
-cse <- prolfqua::ContrastsSaintExpress$new(res$list)
-pcse <- cse$get_Plotter(FCthreshold = log2(REPORTDATA$FCthreshold),
-                        SaintScore = REPORTDATA$SSthreshold,
-                        BFDRthreshold = REPORTDATA$FDRthreshold)
+cse <- prolfqua::ContrastsSaintExpress$new(resSaint$list)
 
-sig <- cse$get_contrasts() |>
+
+resContrasts <- cse$get_contrasts()
+resContrasts <- resContrasts |> dplyr::select(-dplyr::all_of( c("group_1_name", "group_2_name", "group_1", "group_2" )))
+sig <- resContrasts |>
   dplyr::filter(.data$BFDR  <  REPORTDATA$FDRthreshold & .data$log2_EFCs  >  log2(REPORTDATA$FCthreshold))
+
+head(resContrasts)
+
+library(prozor)
+
+resContrasts$Prey
 
 # Transform data for PCA visualization etc
 tt <- lfqdata$get_Transformer()$log2()
-lfqdata <- tt$lfq
+lfqdata_transformed <- tt$lfq
+
+
+prepUpset <- function(data, cf, tr = 2) {
+  tmp <- prolfqua::interaction_missing_stats(data, cf)
+  nrMiss <- tmp$data %>% tidyr::pivot_wider(id_cols = cf$table$hkeysDepth(),
+                                            names_from = cf$table$fkeysDepth(),
+                                            values_from = !!rlang::sym("nrMeasured"))
+
+  nrMiss[,-(1:cf$table$hierarchyDepth)][nrMiss[,-(1:cf$table$hierarchyDepth)] < tr] <- 0
+  nrMiss[,-(1:cf$table$hierarchyDepth)][nrMiss[,-(1:cf$table$hierarchyDepth)] >= tr] <- 1
+  return(as.data.frame(nrMiss))
+}
+
+REPORTDATA$pups <- prepUpset(lfqdata$data, lfqdata$config)
+RESULTS$InputData <- lfqdata$to_wide()$data
+
+gs <- lfqdata$get_Summariser()
+RESULTS$MissingInformation <- gs$interaction_missing_stats()$data
+RESULTS$MissingInformation$isotopeLabel <- NULL
+RESULTS$listFile <- NULL
+writexl::write_xlsx(RESULTS, path = file.path(ZIPDIR,paste0(treat, "_data.xlsx")))
+
 
 REPORTDATA$BFABRIC <- BFABRIC
-REPORTDATA$lfqdata <- lfqdata
+REPORTDATA$lfqdata_transformed <- lfqdata_transformed
 REPORTDATA$sig <- sig
-REPORTDATA$cse <- cse
-REPORTDATA$pcse <- pcse
+REPORTDATA$resContrasts <- resContrasts
 REPORTDATA$prot_annot <- prot_annot
+
+tmp <- prolfqua::get_UniprotID_from_fasta_header(REPORTDATA$pups, "protein_Id")
+write.table(data.frame(tmp$UniprotID), file = file.path(ZIPDIR,"ORA_background.txt"), col.names = FALSE, row.names = FALSE, quote = FALSE )
+sig |> dplyr::group_by(Bait) |> nest() -> sigg
+
+for (i in 1:nrow(sigg)) {
+  tmp <- prolfqua::get_UniprotID_from_fasta_header(sigg$data[[i]], "Prey")
+  filename <- paste0("ORA_Bait_", sigg$Bait[i] , ".txt")
+  write.table(data.frame(tmp$UniprotID), file = file.path(ZIPDIR, filename))
+}
+
+
 SEP <- REPORTDATA
 
 saveRDS(REPORTDATA, file = "REPORTDATA.rds")
