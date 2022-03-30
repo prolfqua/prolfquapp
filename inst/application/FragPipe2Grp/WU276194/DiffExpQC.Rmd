@@ -1,0 +1,154 @@
+---
+title: "Differential Expression Analysis Quality Control."
+author: "Functional Genomics Center Zurich"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+  bookdown::html_document2:
+    toc: true
+  pdf_document: 
+    toc: true
+header-includes: 
+  \usepackage{fancyhdr}
+  \pagestyle{fancy}
+  \fancyhead[CO,CE]{Differential Expression Analysis}
+  \fancyfoot[CO,CE]{\textbf{FGCZ} - www.fgcz.ch - 2018}
+  \fancyfoot[LE,RO]{\thepage} 
+params:
+  grp: NULL
+vignette: >
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+bibliography: bibliography.bib
+editor_options: 
+  chunk_output_type: console
+always_allow_html: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+
+
+grp2 <- params$grp
+```
+
+
+# Missing Value analysis
+
+The analysis of missing values can be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:missingProtein) left panel, shows the number of proteins (y) axis with $0-N$ missing values (x - axis). Ideally a protein should be observed in all samples within a group (zero missing values). The density plot on the right panel (Figure \@ref(fig:missingProtein)) shows the distribution of the mean protein intensity within a group, given $0-N$ missing values. Usually proteins with zero missing values have a higher average abundance than proteins with 1 or more missing values, i.e. low abundant proteins might not be detected in some of the samples. However, if these distribution do strongly overlap, this points to a different source of missigness caused by large sample heterogeneity or technical problems. 
+
+
+
+(ref:missingProtein) Left panel - number of proteins with $n$ missing values (nrNA), Right panel - distribution of average intensity within group, of proteins with 1 to N missing values.
+
+
+```{r missingProtein, eval=TRUE, fig.cap="(ref:missingProtein)", fig.height=5, fig.width=8}
+
+pl <- grp2$RES$lfqData$get_Plotter()
+p2 <- pl$missigness_histogram()
+
+sr <- grp2$RES$lfqData$get_Summariser()
+p1 <- sr$plot_missingness_per_group()
+
+gridExtra::grid.arrange(p1 , p2 , nrow = 2)
+
+```
+
+
+Large differences in the set of proteins observed in the samples or among the conditions, typically indicates, either technical problems or excessive biological variability. If only one out of ten samples has an different set of proteins compared with all the other samples in the same group it most likely is an outlier and can be removed from the analysis. If a larger proportion of samples within the same group has a different set of proteins, this will decrease the power of the analysis. If the differences between the groups are large but within the groups are small, this might bias the difference estimates, i.e. produce many false positive or false negative results.
+
+# Variance analysis of the data
+
+The left panel A of Figure \@ref(fig:SDViolin), show the coefficients of variations (CV) for all proteins computed on not normalized data. Ideally the within group CV should be smaller than the CV of all samples. 
+Panel B of Figure \@ref(fig:SDViolin) shows the distribution of the standard deviation for all proteins of log2 transformed data while the right panel C of Figure \@ref(fig:SDViolin) shows it for normalized data. We expect that after applying the data normalization within group variance is decreased compared with the overall variance (all). However, if normalization increases the within group variance compared with the overall variance, this indicates an incompatibility of the normalization method and the data. 
+If the within group variance after normalization is larger than the variance for all samples this either indicates an outlier sample, excessive biological variance within that group, or incompatibility of the data normalization method.
+
+
+(ref:SDViolin) Left panel - Distribution of coefficient of variation (CV) within groups and in entire experiment (all), Center panel - Distribution of standard deviations (sd) of $\log_2$ transformed data. Right panel - Distribution of protein standard deviation (sd), after data normalization within groups and in entire experiment. The black dot indicates the median CV.
+
+```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)", eval=TRUE}
+stR <- grp2$RES$lfqData$get_Stats()
+pA <- stR$violin() + ggplot2::theme_classic() + ggplot2::labs(tag="A")
+st <- grp2$RES$transformedlfqData$get_Stats()
+pC <- st$violin() + ggplot2::theme_classic() + ggplot2::labs(tag="C")
+
+lfqData <- grp2$RES$lfqData
+tr <- lfqData$get_Transformer()
+tmp <- tr$log2()$lfq
+stback <- tmp$get_Stats()
+pB <- stback$violin() + ggplot2::theme_classic() + ggplot2::labs(tag="B")
+
+gridExtra::grid.arrange(pA, pB, pC, nrow = 1)
+
+```
+
+The Table \@ref(tab:CVtable) shows the median CV of all groups and across all samples (all).
+
+```{r CVtable, eval=TRUE}
+resR <- stR$stats_quantiles()
+res <- st$stats_quantiles()
+reslog2 <- stback$stats_quantiles()
+
+C <- dplyr::bind_rows(
+CV = resR$wide  |> dplyr::filter(probs == 0.5) |> round(digits = 2),
+sd_log2 = reslog2$wide |> dplyr::filter(probs == 0.5) |> round(digits = 2),
+sd = res$wide |> dplyr::filter(probs == 0.5)  |> round(digits = 2)
+)
+
+C <- C |> dplyr::mutate( what = c("CV","sd_log2","sd"), .before = 1 )
+
+C$probs <- NULL
+knitr::kable(C, caption = 'Median (prob 0.5) of coefficient of variation (CV) and standard deviation (sd)')
+
+```
+
+
+# Differential Expression Analysis
+
+Normally most of the proteins in the dataset are not differentially expressed, i.e. the differences between the two groups should be close to zero. Figure \@ref(fig:densityOFFoldChanges), top, shows the distribution of differences between the groups for all the proteins in the dataset. Ideally the median of this distribution (red line) should equal zero (green line). If the median and the mode of the difference distribution is non zero, this should be taken into account when drawing conclusions from the data [TODO reference].
+
+The bottom panel in Figure \@ref(fig:densityOFFoldChanges) shows the distribution of the p-values for all the proteins. If the null hypothesis is true the distribution of the p-values will be uniform. If there is a subset of proteins differentially expressed this will result in a higher frequency of small p-values. If there is a higher frequency of large p-values (close to 1) this indicates that the linear model fails to describe the variance of the data; reasons might be: outliers, an source of variability not included in the model [TODO reference].
+
+
+(ref:densityOFFoldChanges) Top : distribution of the differences among groups for all the proteins in the dataset. red dotted line - median fold change, green line - expected value of the median fold change. Bottom - histogram of p-values for all the proteins in the dataset. X-axis - p-values, Y-axis - frequency of p-values.
+
+```{r densityOFFoldChanges, fig.width=8, fig.height=4, dpi=300, fig.cap = "(ref:densityOFFoldChanges)"}
+cpl <- grp2$RES$contrMerged$get_Plotter(FCthreshold = grp2$pop$Diffthreshold, FDRthreshold = grp2$pop$FDRthreshold)
+p1 <- cpl$histogram_diff()
+p2 <- cpl$histogram()$p.value
+gridExtra::grid.arrange(p1,p2)
+
+```
+
+
+
+To identify abundant proteins with large differences or to examine if only for low abundance proteins large fold changes are observed the ma-plot figure \@ref(fig:MAPlot) is used, which visualizes the differences between measurements taken in two groups (y axis) as a function of the average protein abundance (x-axis). More importantly, the observed fold change should not depend on the protein abundance. Figure \@ref(fig:MAplot) right panel, plots the difference of each protein against average protein abundance rank of the protein.
+
+(ref:MAPlot) MA plot: x - axis: mean normalized protein intensity, y - axis: difference between the groups.
+
+```{r MAPlot, fig.width=8, fig.height=5,  fig.cap="(ref:MAPlot)", eval=TRUE}
+cpl <- grp2$RES$contrMerged$get_Plotter(
+  FCthreshold = grp2$pop$Diffthreshold,
+  FDRthreshold = grp2$pop$FDRthreshold)
+ppb <- cpl$ma_plot(rank = FALSE)
+ppc <- cpl$ma_plot(fc = GRP2$pop$Diffthreshold, rank = TRUE)
+gridExtra::grid.arrange(ppb, ppc, ncol=1)
+
+```
+
+

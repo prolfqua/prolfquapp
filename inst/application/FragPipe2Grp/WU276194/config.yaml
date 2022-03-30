@@ -1,0 +1,54 @@
+application:
+  input:
+    FragPipe-RESOURCE:
+    - bfabric@fgcz-bfabric-sys://export/bfabricexternal//container_23811/workunit_274531/QCandSampleSize.Rmd.html
+    - bfabric@fgcz-data.uzh.ch://home/bfabric/slurmworker/log//workunitid-274531_resourceid-2100415.out
+    - bfabric@fgcz-data.uzh.ch://home/bfabric/slurmworker/log//workunitid-274531_resourceid-2100415.err
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p23811/bfabric/Proteomics/FragPipe-RESOURCE/2022/2022-02/2022-02-10/workunit_274531/2100415.zip
+  output:
+  - bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs/p23811/bfabric/Proteomics/Comparing_Two_Groups_from_FragPipe_295/2022/2022-03/2022-03-24//workunit_276194//2123391.zip
+  parameters:
+    1|datasetId: '42100'
+    2|Aggregation: medpolish
+    3|Normalization: robscale
+    4|Difference_threshold: '2'
+    5|FDR_threshold: '0.1'
+    6|remConDec: 'false'
+    7|REVpattern: ^REV_
+    8|CONpattern: ^CON_|^zz
+    memory: 1G
+    nodelist: fgcz-r-033
+    partition: prx
+  protocol: scp
+job_configuration:
+  executable: /home/bfabric/slurmworker/bin/fgcz_slurm_Compare2Grp_FragPipe_prolfqua.bash
+  external_job_id: 109579
+  fastasequence: ''
+  input:
+    FragPipe-RESOURCE:
+    - resource_id: 2100586
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2100586
+    - resource_id: 2100417
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2100417
+    - resource_id: 2100416
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2100416
+    - resource_id: 2100415
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2100415
+  inputdataset: null
+  order_id: null
+  output:
+    protocol: scp
+    resource_id: 2123391
+    ssh_args: -o StrictHostKeyChecking=no -2 -l bfabric -x
+  project_id: 23811
+  stderr:
+    protocol: file
+    resource_id: 2123392
+    url: /home/bfabric/slurmworker/log/workunitid-276194_resourceid-2123391.err
+  stdout:
+    protocol: file
+    resource_id: 2123393
+    url: /home/bfabric/slurmworker/log/workunitid-276194_resourceid-2123391.out
+  workunit_id: 276194
+  workunit_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-workunit.html?workunitId=276194
+

@@ -1,0 +1,404 @@
+---
+title: "Differential Expression Analysis."
+author: "Functional Genomics Center Zurich"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+  bookdown::html_document2:
+    toc: true
+  pdf_document: 
+    toc: true
+header-includes: 
+  \usepackage{fancyhdr}
+  \pagestyle{fancy}
+  \fancyhead[CO,CE]{Group Comparison}
+  \fancyfoot[CO,CE]{\textbf{FGCZ} - www.fgcz.ch - 2018}
+  \fancyfoot[LE,RO]{\thepage} 
+params:
+  grp: NULL
+vignette: >
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+bibliography: bibliography.bib
+editor_options: 
+  chunk_output_type: console
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+
+
+grp2 <- params$grp
+```
+
+
+# B-fabric related information
+
+This report is stored in the LIMS system _bfabric_ <https://fgcz-bfabric.uzh.ch> [@Trker2010] in the project: `r grp2$Bfabric$projectID`, order: `r grp2$Bfabric$orderID`, `r if(!is.null(grp2$Bfabric$workunitID)){ "with the workunit name :" }`  `r grp2$Bfabric$workunitID`.
+
+The inputs of this anlysis are available in b-fabric [`r grp2$Bfabric$inputID`](`r grp2$Bfabric$inputURL`).
+
+[TODO] specify output location of this report.
+
+# Introduction
+
+This analysis tests if the __difference__ among the protein abundances measured in two groups is significantly non-zero. To perform the test the difference estimate is related to the within group variances.
+
+To make the test as sensitive and specific as possible, to increase the power of the test, the methods used to measure protein abundances, and preprocess the data are optimized to minimize the biochemical and technical variance, and to remove biases. However, the downside is that the reported abundances and their differences can only be compared with their variances but often have no biological interpretation. 
+
+The information which this report provides is if a protein is differential expressed between two groups given a  False Discovery Rate (FDR) threshold.
+
+
+# Methods
+
+The protein identification and quantification were performed using: 
+`r if(!is.null(grp2$Software)){grp2$Software} else {"<Specify parameter grp2$Software>"}`. More details can be found in b-fabric.
+
+
+We run a set of functions implemented in the R package _[prolfqua](https://github.com/wolski/prolfqua)_ [@prolfquaGithubIO] to filter and normalize the data, generate visualizations, and to compute differential expression analysis results which are e.g.: difference between groups, t-statistics, degrees of freedom, and  False Discovery Rates (FDR) for all proteins quantified. The improve the power of the tests the protein variances are moderated [@Smyth2004], i.e. the individual protein variances are updated using a variance prior estimated from all the proteins in the experiment.
+
+
+# Results
+
+```{r samples, eval=TRUE}
+
+tab <- data.frame(table(grp2$RES$lfqData$factors()[[grp2$RES$lfqData$config$table$fkeysDepth()]]))
+colnames(tab) <- c("Group","# samples")
+knitr::kable(tab, caption = "Nr of samples in each group.")
+
+```
+
+Table \@ref(tab:samples) shows the number of samples in each group while Table \@ref(tab:annotation) shows the names of the files assigned to the group.
+
+```{r annotation, eval=TRUE}
+knitr::kable(grp2$RES$lfqData$factors(), caption = "LC-MS raw file annotation table. The content of the sampleName column is used as a short form to plot labels. The group to which a sample is assigned to is shown in the column group.")
+
+```
+
+
+## Peptide and Protein identification
+
+The protein matrix is filtered using the following threshold:
+
+- Minimum number of peptides / protein: `r grp2$pop$nrPeptides`.
+- The overall number of proteins in this experiment is: `r grp2$RES$Summary$totalNrOfProteins` 
+- Total number without decoys sequences is `r grp2$RES$Summary$NrOfProteinsNoDecoys` 
+- Percentage of contaminants : `r grp2$RES$Summary$percentOfContaminants` %
+- Percentage of false positives (Decoy sequences) : `r grp2$RES$Summary$percentOfFalsePositives` %
+
+
+```{r nrPerSample, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
+sum <- grp2$RES$lfqData$get_Summariser()
+sum$plot_hierarchy_counts_sample()
+
+```
+
+
+## Missing Value Analysis
+
+
+```{r}
+pl <- grp2$RES$lfqData$get_Plotter()
+
+nah <- pl$NA_heatmap()
+```
+
+By transforming protein abundance estimates into present/absent calls a dichotomous view on the data (Figure \@ref(fig:naHeat) ) can be constructed. We expect that samples in the same group are more similar to each other and therefore cluster together, i.e. the are in the same branch of the dendrogram.
+
+
+(ref:naHeat) Protein abundance heatmap (rows indicate proteins, columns indicate raw files) showing missing protein abundance estimates across data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Protein is observed, black: Protein is not observed.
+
+```{r naHeat, fig.width=7, fig.height=6, dpi=300, fig.cap="(ref:naHeat)", eval=TRUE}
+nah
+```
+
+
+Using figure \@ref(fig:vennProteins) we examine if the same set of proteins is observed in each group. If a protein is not observed in any of the samples in a group we say it is absent, and otherwise it is present. Larger overlap among groups improves the modelling of the data hence systematic differences among samples can be corrected. Furthermore, no imputation or modelling of missing observations is required making it easier to interpret the differences among the groups.
+
+(ref:vennProteins) Venn diagram showing the number of proteins present in each group and in all possible intersections among groups. 
+
+```{r vennProteins, fig.cap="ref:vennProteins"}
+pups <- prolfqua::UpSet_interaction_missing_stats(grp2$RES$lfqData$data, grp2$RES$lfqData$config, tr=1)
+UpSetR::upset(pups, order.by = "freq")
+```
+
+Large differences in the set of proteins observed in the samples or among the conditions, typically indicates, either technical problems or excessive biological variability. If only one out of ten samples has an different set of proteins compared with all the other samples in the same group it most likely is an outlier and can be removed from the analysis. If a larger proportion of samples within the same group has a different set of proteins, this will decrease the power of the analysis. If the differences between the groups are large but within the groups are small, this might bias the difference estimates, i.e. produce many false positive or false negative results.
+
+
+## Protein Abundance Analysis
+
+
+The density plot (Figure \@ref(fig:normalized) left panel)  displays the protein abundance distribution for all samples of the data set. Mayor differences between raw files could be a hint that the individual protein abundance values are affected by technical biases. These biases might need to be corrected, in order to separate them from biological effects.
+
+
+Figure \@ref(fig:normalized) right panel, shows the normalized values. Normalization is applied to remove systematic differences in protein abundances due to different sample concentrations, or different amount of sample loaded on a column. Protein abundance normalization is important, so that true differentially expressed proteins can be detected. 
+
+```{r normalization, results = 'asis'}
+if (grp2$pop$transform == "robscale") {
+  cat("To do this the z-score of the $\\log_2$ transformed protein abundances are computed.",
+      "Because we need to estimate the protein fold-changes on the original scale, we have to multiply the $z$-score by the average standard deviation of all the $N$ samples in the experiment.",
+  "After normalization all samples have an equal mean and variance and a similar distribution.")
+} else if (grp2$pop$transform == "vsn") {
+  cat("To do this the variance stabilizing normalization (vsn) was applied [@HuberVSN2002].")
+} else if (grp2$pop$transform == "none") {
+  cat("However, in some circumstances it is advisable not to normalize the data, e.g. in case of affinity purification experiments, or when the requirements of sufficient similarity among samples are not met.")
+}
+
+```
+
+(ref:normalized) Kernel density function showing the distribution of protein abundances in all samples. Left panel : Raw protein abundance of all samples in the dataset. Right panel: Normalized protein abundances of all samples in the dataset.
+
+```{r normalized,  fig.width=8, fig.height=5,dpi=300, fig.cap="(ref:normalized)", eval=TRUE}
+
+pl <- grp2$RES$lfqData$get_Plotter()
+p1 <- pl$intensity_distribution_density()
+
+plTransformed <- grp2$RES$transformedlfqData$get_Plotter()
+p2 <- plTransformed$intensity_distribution_density() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+gridExtra::grid.arrange(p1, p2, nrow=1)
+
+```
+
+The median coefficient of variation (CV) of a group of samples or all samples in the dataset, can be used to compare the experiment with other experiments [TODO reference]. The median CV for high performance liquid chromatography experiments ranges from 5% to 35% depending on the biological samples studied, the chromatography method used or if label free or quantification using labels was used [TODO reference].
+
+Figure \@ref(fig:SDViolin), show the coefficients of variations (CV) for all proteins computed on not normalized data. Ideally the within group CV should be smaller than the CV of all samples. 
+
+(ref:SDViolin) Distribution of coefficient of variation (CV) within each groups and in the entire experiment (all).
+
+```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)", eval=TRUE}
+stR <- grp2$RES$lfqData$get_Stats()
+pA <- stR$violin() + ggplot2::theme_classic() + ggplot2::labs(tag="A")
+pA
+
+```
+
+The Table \@ref(tab:CVtable) shows the median CV of all groups and across all samples (all).
+
+```{r CVtable, eval=TRUE}
+resR <- stR$stats_quantiles()
+
+C <- dplyr::bind_rows(
+CV = resR$wide  |> dplyr::filter(probs == 0.5) |> round(digits = 2)
+)
+
+C <- C |> dplyr::mutate( what = c("CV"), .before = 1 )
+
+C$probs <- NULL
+knitr::kable(C, caption = 'Median of coefficient of variation (CV).')
+
+```
+
+
+
+```{r generateHeatmaps, inlcude = FALSE}
+pl <- grp2$RES$transformedlfqData$get_Plotter()
+ph <- pl$heatmap()
+
+```
+
+The protein abundance heatmap (Figure \@ref(fig:heatmap)) groups the protein and samples using unsupervised hierarchical clustering. Distances between proteins and samples are computed using transformed protein abudances. If a protein is absent in a large proportion of samples this distance can not be computed and therefore the protein is not shown in the heatmap.  Proteins and samples showing similar abundances are grouped and shown in adjacent rows and columns respectively. 
+
+
+(ref:heatmap) Protein abundance heatmap (rows indicate proteins, columns indicate raw files) showing the row scaled $\log_2$ transformed protein abundance value. Co-clustering (hierarchical complete linkage, euclidean distance) of samples and proteins was used.
+
+
+
+```{r heatmap, fig.width=7, fig.height=8, dpi=300, fig.cap="(ref:heatmap)", eval=TRUE}
+ph
+```
+
+We use principal component analysis (PCA) to transform the high dimensional space defined by all proteins into a two-dimensional one containing most of the information. Plot \@ref(fig:pca) shows the location of the samples according to the first and second principal component, which explain most of the variance in the data. Samples close in the PCA plot are more similar than those farther apart.
+
+(ref:pca)  Plot of first and second principal component (PC1 and PC2) of principal component analysis (PCA). Normalized abundances were used as input.
+
+```{r pca, fig.cap = "(ref:pca)" , fig.width=7, fig.height=7 }
+grp2$RES$transformedlfqData$get_Plotter()$pca_plotly()
+```
+
+# Differential Expression Analysis
+
+The method used to test for differential expression consists of several steps: First a linear model that explains the observed protein abundances using the grouping of the samples (model formula : `r grp2$RES$formula`), is fitted using the R function _lm_ to each protein. Secondly, the difference between the group is computed:
+
+`r names(grp2$pop$Contrast)` = `r grp2$pop$Contrast`, 
+
+and a null hypothesis significance test (NHST) is conducted, where the null hypothesis is that the protein is not differentially expressed [TODO cite linear models book]. Next, to increase the power of the analysis variance shrinkage is performed [TODO cite Limma]. Finally, false discovery rate (FDR) using the Benjamini-Hochberg procedure is computed [TODO reference for HB]. The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. 
+
+
+
+```{r setupVolcano, echo = FALSE}
+
+datax <- grp2$RES$contrMerged$get_contrasts()
+datax$FDR <- ifelse(is.na(datax$FDR), 1, datax$FDR)
+datax <- dplyr::inner_join(grp2$RES$rowAnnot$row_annot, datax)
+
+bb <- datax %>% dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "FDR", "diff" )))
+
+#bb <- bb |> tidyr::pivot_wider(names_from = "contrast", names_prefix = "FDR.", values_from = "FDR")
+
+bb <- crosstalk::SharedData$new(bb, ~protein_Id, group = "Choose protein")
+DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |> DT::formatRound(columns=c('FDR', 'diff'), digits=3)
+
+```
+
+(ref:volcanoplot) Volcano plot where the x-axis shows the difference among the groups and the y-axis the $-\log_10(FDR)$. The red line indicates the $-log_{10}(FDR)$ of `r grp2$pop$FDRthreshold`, while the green lines represent the the difference of minus and plus `r grp2$pop$Diffthreshold`.
+
+
+```{r volcanoplot, fig.cap = "(ref:volcanoplot)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
+
+palette <- c("black","darkgray")
+palette <- setNames(palette, unique(datax$modelName))  
+palette
+xd <- prolfqua::volcano_Plotly( 
+  datax ,
+  proteinID = "protein_Id",
+  effect = "diff",
+  significance = "FDR",
+  contrast = "contrast",
+  color = "modelName",
+  palette = palette,
+  xintercept =  c(-grp2$pop$Diffthreshold,grp2$pop$Diffthreshold),
+  yintercept = grp2$pop$FDRthreshold,
+  title_size = 10)
+
+xd <- lapply(xd, plotly::highlight , off = "plotly_doubleclick")
+nrow <- ceiling(length(xd) / 4)
+plotly::subplot(xd, shareX = TRUE, shareY = TRUE, nrows = nrow)
+
+```
+
+
+## Differentially Expressed Proteins
+
+Here we use the FDR threshold of `r grp2$pop$FDRthreshold` and a difference threshold of `r grp2$pop$Diffthreshold` to select differentially expressed proteins.
+
+Table \@ref(tab:nrsignificant) summarizes the number of significant calls with FDR < `r grp2$pop$FDRthreshold` and difference > `r grp2$pop$Diffthreshold` while \@ref(fig:top20table) lists all the significant proteins.
+
+
+```{r nrsignificant, results="markup", eval=TRUE}
+
+x <- data.frame(table(abs(datax$diff) >  grp2$pop$Diffthreshold  & datax$FDR < grp2$pop$FDRthreshold))
+
+if (length(x$Var1) == 2) {
+  x$Var1 <- c("Not Significant" , "Significant")
+} else {
+  x$Var1 <- c("Not Significant")
+}
+names(x)[names(x) == 'Var1'] <- ''
+mycap <- paste0("Number of not significant and significant proteins with difference > ", grp2$pop$Diffthreshold, " and FDR < ", grp2$pop$FDRthreshold, "."  )
+knitr::kable(x, caption = mycap)
+
+```
+
+(ref:SigPrey) Significant proteins obtained by applying the difference and FDR thresholds.
+
+```{r areThereSig}
+datax <- datax |>
+  dplyr::filter(.data$FDR < grp2$pop$FDRthreshold & abs(.data$diff) > grp2$pop$Diffthreshold )
+showSignificant <- TRUE
+if(nrow(datax) == 0){
+  showSignificant <- NULL
+
+}
+```
+
+
+```{r SigPrey, fig.cap= "(ref:SigPrey)", eval = showSignificant}
+ctdata <- datax |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "FDR", "diff" )))
+sig <- crosstalk::SharedData$new(ctdata, ~protein_Id, group = "Choose protein")
+DT::datatable(sig)|> DT::formatRound(columns=c('FDR', 'diff'), digits=3)
+```
+
+
+
+
+```{r prepareHeatmap, eval = showSignificant}
+signif <- grp2$RES$transformedlfqData$get_copy()
+signif <- signif$get_subset(datax)
+sigheat <- signif$get_Plotter()$raster(rownames = TRUE)
+
+
+```
+
+
+
+
+```{r makeText, eval = showSignificant, results = 'asis'}
+
+cat(paste("Furthermore, figure \\@ref(fig:sigroteins) shows a heatmap of proteins with the FDR < ", grp2$pop$FDRthreshold ," and diff > ",  grp2$pop$Diffthreshold, "."))
+
+```
+
+
+(ref:sigroteins) Heatmap showing the $\log_2$ transformed protein abundances estimate for prays which pass the FDR and log_FC thresholds.
+
+```{r sigroteins, fig.cap="(ref:sigroteins)", eval = showSignificant}
+sigheat
+```
+
+
+
+
+# Data Interpretation
+
+For interpreting the results in the `.xlsx` file, the protein $IDs$ can be either sorted by `diff`, `t-statistic` or $sign(diff) \cdot$ FDR. Large positive or negative fold changes typically result in smaller p-values.
+
+The protein IDs sorted by fold change or t-statistic can then be subjected to gene set enrichment analysis (GSEA). Alternatively, a subset filtered by FDR, e.g. for a threshold of $0.1$ or $0.25$, can be analysed using over-representation analysis (ORA). The web application WebGestalt (WEB-based GEne SeT AnaLysis Toolkit) <http://www.webgestalt.org> implements both of these methods for the most popular organisms [@Wang2017]. The [DAVID Bioinformatics Resource](https://david.ncifcrf.gov/home.jsp) also enables you to run ORA analysis for a wide variety of organizms.
+
+Overrepresentation analysis is performed on biological functional categories (e.g., biological processes of gene ontology annotations) or on biological pathways (e.g., KEGG or Wikipathways). Using such methods allows identifying functions or pathways for proteins in the submitted list. For the correct usage and interpretation of the results from such an analysis, it is essential to specify the background proteome. The background proteome is the list of all proteins identified in your experiment.
+
+
+A further resource to analyze the results is the STRING database <https://string-db.org> [@Szklarczyk2017]. It reports known and predicted interactions for proteins in the submit   ted list.
+
+
+The FGCZ can support you, with the interpretation of your quantitative proteomics data or with a more customized analysis. Further visualization of the data, targeted to your audience, e.g., receiver operator curves (ROC) or MA-plots, can be generated. You can reach the proteome-bioinformatics team at <protinf@fgcz.uzh.ch>.
+
+
+The obtained results should be validated orthogonal, e.g. with Western blots. The Functional Genomics Center Zurich does not provide any kind of guarantee for the validity of the results.
+For questions and improvement suggestions, with respect to this report, please do contact <protinf@fgcz.uzh.ch>.
+
+
+# Session Information
+
+
+```{r sessionInfo}
+pander::pander(sessionInfo())
+```
+
+
+# References {-}
+
+<div id="refs"></div>
+
+
+# Methods
+
+Based on the linear model coefficients, we estimate the difference between the groups (column _diff_) and the variance for each protein, which allows us to compute the t-statistic (column _statistic_). Furthermore, using the degrees of freedom (column _df_), we determine the p-value, i.e., the probability of the Type I error (Type I error - the error of falsely rejecting the null hypothesis). The null hypothesis is that proteins are not differentially expressed.
+
+If, for some of the proteins, there are no observations in one of the groups the group mean con not be estimated. Therefore, assuming that the observation are missing because the protein abundance is below the limit of detection, we substitute the unobserved group mean with the mean of $1\%$ smallest group averages of all the porteins. If the observations present in the other group allow us to estimate the variance of the measurement for that protein we compute the t-statistic, p-value and FDR.
+
+However, results for proteins with a large number of missing observations should be assessed separately. Therefore, proteins for which we imputed the unobserved group mean we label with `Imputed_Mean`. Those with a sufficient number of observations are labelled with `Linear_Model_Moderated` (see Figure \@ref(fig:volcanoplot), and column _modelName_ in the Excel table containing the analysis results.).
+
+
+# Glossary
+
+- groups - different treatments, genotypes etc.
+- diff or (log2_Ratio) - it is the difference between the two groups, commonly called log ratio or log fold change.
+
+This difference in some cases can be interpreted as log2 FC, e.g. in case of label free quantification, and when the data is log2 transformed and the scaling preserve the variance. In other cases, e.g. TMT where ratio compression can be observed or when using other data transformations, the interpretation is not possible.
+- FDR - false discovery rate
+- p-value - probability of type I error.
+
+
+
+
