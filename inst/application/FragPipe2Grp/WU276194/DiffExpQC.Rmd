@@ -50,8 +50,7 @@ grp2 <- params$grp
 
 # Missing Value analysis
 
-The analysis of missing values can be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:missingProtein) left panel, shows the number of proteins (y) axis with $0-N$ missing values (x - axis). Ideally a protein should be observed in all samples within a group (zero missing values). The density plot on the right panel (Figure \@ref(fig:missingProtein)) shows the distribution of the mean protein intensity within a group, given $0-N$ missing values. Usually proteins with zero missing values have a higher average abundance than proteins with 1 or more missing values, i.e. low abundant proteins might not be detected in some of the samples. However, if these distribution do strongly overlap, this points to a different source of missigness caused by large sample heterogeneity or technical problems. 
-
+The analysis of missing values can be an essential indicator of potential problems and biases in the data. We, therefore, visualize the structure of missing values (missing protein abundance estimate per protein) using various plots. Figure \@ref(fig:missingProtein) left panel shows the number of proteins (y) axis with $0-N$ missing values (x-axis) in each group. Ideally, a protein should be observed in all samples within a group (zero missing values). The density plot on the right panel (Figure \@ref(fig:missingProtein)) shows the distribution of the mean protein intensity within a group, given $0-N$ missing values. Usually, proteins with zero missing values have a higher average abundance than those with one or more missing values because low abundant proteins might not be detected in some samples. However, if these distributions strongly overlap, this points to a different source of missingness, e.g., large sample heterogeneity or technical problems. 
 
 
 (ref:missingProtein) Left panel - number of proteins with $n$ missing values (nrNA), Right panel - distribution of average intensity within group, of proteins with 1 to N missing values.
@@ -70,14 +69,10 @@ gridExtra::grid.arrange(p1 , p2 , nrow = 2)
 ```
 
 
-Large differences in the set of proteins observed in the samples or among the conditions, typically indicates, either technical problems or excessive biological variability. If only one out of ten samples has an different set of proteins compared with all the other samples in the same group it most likely is an outlier and can be removed from the analysis. If a larger proportion of samples within the same group has a different set of proteins, this will decrease the power of the analysis. If the differences between the groups are large but within the groups are small, this might bias the difference estimates, i.e. produce many false positive or false negative results.
-
 # Variance analysis of the data
 
-The left panel A of Figure \@ref(fig:SDViolin), show the coefficients of variations (CV) for all proteins computed on not normalized data. Ideally the within group CV should be smaller than the CV of all samples. 
-Panel B of Figure \@ref(fig:SDViolin) shows the distribution of the standard deviation for all proteins of log2 transformed data while the right panel C of Figure \@ref(fig:SDViolin) shows it for normalized data. We expect that after applying the data normalization within group variance is decreased compared with the overall variance (all). However, if normalization increases the within group variance compared with the overall variance, this indicates an incompatibility of the normalization method and the data. 
-If the within group variance after normalization is larger than the variance for all samples this either indicates an outlier sample, excessive biological variance within that group, or incompatibility of the data normalization method.
-
+The left panel A of Figure \@ref(fig:SDViolin), shows the coefficients of variations (CV) for all proteins computed on not normalized data. Ideally, the within-group CV should be smaller than the CV of all samples. 
+Panel B of Figure \@ref(fig:SDViolin) shows the distribution of the standard deviation for all proteins of log2 transformed data, while the right panel C of Figure \@ref(fig:SDViolin) shows it for normalized data. We expect that within-group variance is decreased by data normalization compared with the overall variance (all). However, if normalization increases within group variance compared to overall variance, this indicates an incompatibility of the normalization method and the data. 
 
 (ref:SDViolin) Left panel - Distribution of coefficient of variation (CV) within groups and in entire experiment (all), Center panel - Distribution of standard deviations (sd) of $\log_2$ transformed data. Right panel - Distribution of protein standard deviation (sd), after data normalization within groups and in entire experiment. The black dot indicates the median CV.
 
@@ -120,10 +115,9 @@ knitr::kable(C, caption = 'Median (prob 0.5) of coefficient of variation (CV) an
 
 # Differential Expression Analysis
 
-Normally most of the proteins in the dataset are not differentially expressed, i.e. the differences between the two groups should be close to zero. Figure \@ref(fig:densityOFFoldChanges), top, shows the distribution of differences between the groups for all the proteins in the dataset. Ideally the median of this distribution (red line) should equal zero (green line). If the median and the mode of the difference distribution is non zero, this should be taken into account when drawing conclusions from the data [TODO reference].
+Typically most of the datasets' proteins are not differentially expressed, i.e., the differences between the two groups should be close to zero. Figure \@ref(fig:densityOFFoldChanges) shows the distribution of differences between the groups for all the proteins in the dataset. Ideally, the median of this distribution (red line) should equal zero (green line). If the median and mode of the difference distribution are non zero, this should be considered when interpreting the differential expression analysis results.
 
-The bottom panel in Figure \@ref(fig:densityOFFoldChanges) shows the distribution of the p-values for all the proteins. If the null hypothesis is true the distribution of the p-values will be uniform. If there is a subset of proteins differentially expressed this will result in a higher frequency of small p-values. If there is a higher frequency of large p-values (close to 1) this indicates that the linear model fails to describe the variance of the data; reasons might be: outliers, an source of variability not included in the model [TODO reference].
-
+The bottom panel in Figure \@ref(fig:densityOFFoldChanges) shows the distribution of the p-values for all the proteins. If the null hypothesis is true, the distribution of the p-values will be uniform. If a subset of proteins is differentially expressed this will result in a higher frequency of small p-values. If there is a higher frequency of large p-values (close to 1) this indicates that the linear model fails to describe the variance of the data; the reasons might be: outliers, a source of variability not included in the model.
 
 (ref:densityOFFoldChanges) Top : distribution of the differences among groups for all the proteins in the dataset. red dotted line - median fold change, green line - expected value of the median fold change. Bottom - histogram of p-values for all the proteins in the dataset. X-axis - p-values, Y-axis - frequency of p-values.
 
@@ -135,9 +129,7 @@ gridExtra::grid.arrange(p1,p2)
 
 ```
 
-
-
-To identify abundant proteins with large differences or to examine if only for low abundance proteins large fold changes are observed the ma-plot figure \@ref(fig:MAPlot) is used, which visualizes the differences between measurements taken in two groups (y axis) as a function of the average protein abundance (x-axis). More importantly, the observed fold change should not depend on the protein abundance. Figure \@ref(fig:MAplot) right panel, plots the difference of each protein against average protein abundance rank of the protein.
+To identify abundant proteins with large differences or if only low abundt proteins show large fold changes the ma-plot figure \@ref(fig:MAPlot) can be used. The ma-plot shows the differences between measurements taken in two groups (y-axis) as a function of the average protein abundance (x-axis). More importantly, the observed fold change should not depend on the protein abundance. Figure \@ref(fig:MAplot) right panel plots the difference of each protein against the rank of the average protein abundance.
 
 (ref:MAPlot) MA plot: x - axis: mean normalized protein intensity, y - axis: difference between the groups.
 
@@ -151,4 +143,12 @@ gridExtra::grid.arrange(ppb, ppc, ncol=1)
 
 ```
 
+
+# Missing data.
+
+Based on the linear model coefficients, we estimate the difference between the groups (column _diff_) and the variance for each protein, which allows us to compute the t-statistic (column _statistic_). Furthermore, using the degrees of freedom (column _df_), we determine the p-value, i.e., the probability of the Type I error (Type I error - the error of falsely rejecting the null hypothesis). The null hypothesis is that proteins are not differentially expressed.
+
+If there are no abundances in one of the groups for a protein, the group mean can not be estimated. Therefore, assuming that the observation is missing because the protein abundance is below the detection limit, we can substitute it with this limit. We estimate the detection limit using the mean of the $1\%$ smallest group averages. If the observations present in the other group allow us to calculate the variance of the measurement for that protein, we can compute the t-statistic, p-value, and FDR. If not, we use the median pooled variance of the 10% of low abundant proteins in the dataset.
+
+However, we recommend assessing difference estimates and FDR estimates for proteins with many missing observations separately. Therefore, proteins for which we imputed the unobserved group mean we label with `Imputed_Mean`. Those proteins with a sufficiently large number of observations to fit a linear model we label with `Linear_Model_Moderated` (see the volcano plot, and column _modelName_ in the Excel table containing the analysis results.).
 
