@@ -13,3 +13,4 @@ Imports:
   prolfqua,
   igraph,
   ggraph
+RoxygenNote: 7.1.2

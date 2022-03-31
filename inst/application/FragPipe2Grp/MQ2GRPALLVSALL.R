@@ -129,9 +129,8 @@ for (i in seq_along(levels)) {
                                        contpattern = contpattern,
                                        remove = TRUE)
 
-      prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
-      prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = fname, stage=FALSE)
-      stop()
+      prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
+      prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname, stage=FALSE)
     }
 
   }
