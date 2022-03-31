@@ -264,7 +264,7 @@ DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |> DT::form
 
 ```
 
-(ref:volcanoplot) Volcano plot where the x-axis shows the difference among the groups and the y-axis the $-\log_10(FDR)$. The red line indicates the $-log_{10}(FDR)$ of `r grp2$pop$FDRthreshold`, while the green lines represent the the difference of minus and plus `r grp2$pop$Diffthreshold`.
+(ref:volcanoplot) Volcano plot where the x-axis shows the difference among the groups and the y-axis the $-\log_10(FDR)$. The red line indicates the $-log_{10}(FDR)$ of FDR = `r grp2$pop$FDRthreshold`, while the green lines represent the the difference of minus and plus `r grp2$pop$Diffthreshold`. In gray fold changes estimated using missing value imputation are shown.
 
 
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
@@ -342,14 +342,19 @@ DT::datatable(sig, caption = "Table of significant proteins.")|> DT::formatRound
 ```{r prepareHeatmap, eval = showSignificant}
 signif <- grp2$RES$transformedlfqData$get_copy()
 signif <- signif$get_subset(datax)
-sigheat <- signif$get_Plotter()$raster(rownames = TRUE)
+if(nrow(datax) > 30){
+  rownames = FALSE
+} else {
+  rownames = TRUE
+}
+sigheat <- signif$get_Plotter()$raster(rownames = rownames)
 
 ```
 
 
 ```{r makeText, eval = showSignificant, results = 'asis'}
 
-cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 transformed empirical protein abundances for all significant calls."))
+cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 transformed empirical protein abundances of all significant calls."))
 
 ```
 
