@@ -128,16 +128,6 @@ tt <- lfqdata$get_Transformer()$log2()
 lfqdata_transformed <- tt$lfq
 
 
-prepUpset <- function(data, cf, tr = 2) {
-  tmp <- prolfqua::interaction_missing_stats(data, cf)
-  nrMiss <- tmp$data %>% tidyr::pivot_wider(id_cols = cf$table$hkeysDepth(),
-                                            names_from = cf$table$fkeysDepth(),
-                                            values_from = !!rlang::sym("nrMeasured"))
-
-  nrMiss[,-(1:cf$table$hierarchyDepth)][nrMiss[,-(1:cf$table$hierarchyDepth)] < tr] <- 0
-  nrMiss[,-(1:cf$table$hierarchyDepth)][nrMiss[,-(1:cf$table$hierarchyDepth)] >= tr] <- 1
-  return(as.data.frame(nrMiss))
-}
 
 REPORTDATA$pups <- prepUpset(lfqdata$data, lfqdata$config)
 RESULTS$InputData <- lfqdata$to_wide()$data

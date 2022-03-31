@@ -75,8 +75,6 @@ The density plot (Figure \@ref(fig:violinPlot)) displays the protein abundance d
 
 (ref:violinPlot) Protein abundance distribution. The dots represent the median log2-transformed abundance value per raw file. The overall density distribution is shown as a rotated kernel density plot.
 
-
-
 ```{r violinPlot, fig.cap="(ref:violinPlot)", fig.with=10, fig.height=7}
 pl <- SEP$lfqdata_transformed$get_Plotter()
 pl$intensity_distribution_density()
@@ -104,10 +102,10 @@ SEP$lfqdata_transformed$get_Plotter()$pca_plotly()
 
 ### Missing value analysis
 
-The analysis of missing values can also be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:vennProteins) displays how many proteins are shared among the conditions or all possible intersection of conditions. If a protein was observed in one or zero samples in a group we say it is absent and present otherwise. We did choose zero ore one as absent, since one observation might be an artefact of a match between runs.
+The analysis of missing values can be an important indicator for potential problems and biases in the data. We therefore visualize the structure of missing values (missing protein abundance estimate per protein) using different plots. Figure \@ref(fig:vennProteins) displays how many proteins are shared among the conditions or all possible intersection of conditions. If a protein was observed in one or zero samples in a group we say it is absent and present otherwise. We did choose zero ore one as absent, since one observation might be an artefact of a match between runs.
 
 
-(ref:vennProteins) Venn diagram showing the number of proteins present in all possible intersections. 
+(ref:vennProteins) Venn diagram showing the number of proteins present in each group and in all possible intersections among groups. 
 
 ```{r vennProteins, fig.cap="(ref:vennProteins)", fig.with=10, fig.height=7, include = TRUE}
 UpSetR::upset(SEP$pups, order.by = "freq")
@@ -126,8 +124,6 @@ By transforming protein abundance estimates into present/absent calls a dichotom
 ```{r naHeat, echo=FALSE, fig.cap="(ref:naHeat)", fig.width=7, fig.height=7}
 hm
 ```
-
-
 
 
 ## Interaction scoring using SAINT
@@ -299,7 +295,6 @@ To compare the obtained results with known protein interactions we recommend the
 - `ORA_Bait_<baitname>.txt` prey proteins accepted with the BFDR and EFC specified.
 
 
-We do also include the file: which can be imported into 
 
 
 
