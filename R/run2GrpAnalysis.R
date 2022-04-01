@@ -69,13 +69,14 @@ make2grpReport <- function(startdata,
 
   # Preprocess Data
   config <- prolfqua::AnalysisConfiguration$new(atable)
-  adata <- setup_analysis(startdata, config)
+  adata <- prolfqua::setup_analysis(startdata, config)
   proteinID <- atable$hkeysDepth()
 
-  prot_annot <- select(startdata , c( atable$hierarchy[[proteinID]], protein_annot)) |> distinct()
-  prot_annot <- rename(prot_annot, !!proteinID := (!!atable$hierarchy[[proteinID]]))
+  prot_annot <- dplyr::select(startdata , c( atable$hierarchy[[proteinID]], protein_annot)) |>
+    dplyr::distinct()
+  prot_annot <- dplyr::rename(prot_annot, !!proteinID := (!!atable$hierarchy[[proteinID]]))
 
-  lfqdata <- LFQData$new(adata, config)
+  lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
 
 
@@ -113,7 +114,7 @@ make2grpReport <- function(startdata,
   }
 
   ## count contaminants.
-  protAnnot <- RowAnnotProtein$new(
+  protAnnot <- prolfqua::RowAnnotProtein$new(
     transformed,
     row_annot = prot_annot)
 
@@ -142,7 +143,7 @@ make2grpReport <- function(startdata,
                     paste(transformed$config$table$factorKeys(), collapse = " + "))
   message("FORMULA :",  formula)
   GRP2$RES$formula <- formula
-  formula_Condition <-  strategy_lm(formula)
+  formula_Condition <-  prolfqua::strategy_lm(formula)
   # specify model definition
   modelName  <- "Model"
 
@@ -155,9 +156,9 @@ make2grpReport <- function(startdata,
   GRP2$RES$models <- mod
 
   contr <- prolfqua::Contrasts$new(mod, GRP2$pop$Contrasts)
-  conrM <- ContrastsModerated$new(contr, modelName = "Linear_Model_Moderated")
-  mC <- ContrastsSimpleImpute$new(lfqdata = transformed, contrasts = GRP2$pop$Contrasts)
-  conMI <- ContrastsModerated$new(mC, modelName = "Imputed_Mean")
+  conrM <- prolfqua::ContrastsModerated$new(contr, modelName = "Linear_Model_Moderated")
+  mC <- prolfqua::ContrastsSimpleImpute$new(lfqdata = transformed, contrasts = GRP2$pop$Contrasts)
+  conMI <- prolfqua::ContrastsModerated$new(mC, modelName = "Imputed_Mean")
 
   res <- prolfqua::addContrastResults(conrM, conMI)
   GRP2$RES$contrMerged <- res$merged
@@ -180,9 +181,9 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   tr <- GRP2$RES$transformedlfqData
   ra <- GRP2$RES$rowAnnot
   formula <- data.frame(formula = GRP2$RES$formula, contrast_name = names(GRP2$pop$Contrasts), contrast = GRP2$pop$Contrasts)
-  wideraw <- inner_join(ra$row_annot, rd$to_wide()$data)
-  widetr <- inner_join(ra$row_annot , tr$to_wide()$data )
-  ctr <- inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts())
+  wideraw <- dplyr::inner_join(ra$row_annot, rd$to_wide()$data)
+  widetr <- dplyr::inner_join(ra$row_annot , tr$to_wide()$data )
+  ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts())
   resultList <- list()
   resultList$annotation = tr$to_wide()$annot
   resultList$raw_data = wideraw
