@@ -103,11 +103,9 @@ if(! length(levels) > 1){
   logger:log_error("not enough group levels_ to make comparisons.")
 }
 
-undebug(prolfqua::make2grpReport)
 
 GRP2$pop$nrPeptides <- 2
 
-undebug(prolfqua::make2grpReport)
 
 for (i in seq_along(levels)) {
   for (j in seq_along(levels)) {
@@ -121,7 +119,7 @@ for (i in seq_along(levels)) {
       fname <- paste0("Group_" , levels[i], "_vs_", levels[j])
       outpath <- file.path( ZIPDIR, fname)
       proteinF <- protein |> dplyr::filter(.data$Group_ == levels[i] | .data$Group_ == levels[j])
-      grp2 <- prolfqua::make2grpReport(proteinF,
+      grp2 <- prolfquapp::make2grpReport(proteinF,
                                        atable,
                                        GRP2,
                                        protein_annot = "description",
