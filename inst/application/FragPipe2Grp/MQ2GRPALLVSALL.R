@@ -1,4 +1,3 @@
-rm(list=ls())
 ymlfile <- "config.yaml"
 yml = yaml::read_yaml(ymlfile)
 
@@ -71,13 +70,16 @@ contpattern <- yml$application$parameters$`8|CONpattern`
 GRP2$Software <- "FragPipe"
 
 
-# Setup configuration
+#### Setup configuration ###
 
 atable <- prolfqua::AnalysisTableAnnotation$new()
 atable$fileName = "raw.file"
 atable$hierarchy[["protein_Id"]] <- c("protein")
 
-#
+if(sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0){
+  atable$sampleName <- grep("^name", colnames(annot) , value=TRUE, ignore.case = TRUE)
+}
+
 atable$hierarchyDepth <- 1
 
 group <- grep("^group", colnames(protein), value= TRUE, ignore.case = TRUE)
@@ -110,25 +112,26 @@ GRP2$pop$nrPeptides <- 2
 for (i in seq_along(levels)) {
   for (j in seq_along(levels)) {
     if (i != j) {
-      i <- 1
-      j <- 2
       cat(levels[i], levels[j], "\n")
       GRP2$pop$Contrasts <- paste0("Group_",levels[i], " - ", "Group_",levels[j])
       names(GRP2$pop$Contrasts) <- paste0("Group_" , levels[i], "_vs_", levels[j])
       message("CONTRAST : ", GRP2$pop$Contrasts)
-      fname <- paste0("Group_" , levels[i], "_vs_", levels[j])
-      outpath <- file.path( ZIPDIR, fname)
       proteinF <- protein |> dplyr::filter(.data$Group_ == levels[i] | .data$Group_ == levels[j])
       grp2 <- prolfquapp::make2grpReport(proteinF,
-                                       atable,
-                                       GRP2,
-                                       protein_annot = "description",
-                                       revpattern = revpattern,
-                                       contpattern = contpattern,
-                                       remove = TRUE)
+                                         atable,
+                                         GRP2,
+                                         protein_annot = "description",
+                                         revpattern = revpattern,
+                                         contpattern = contpattern,
+                                         remove = TRUE)
 
+      fname <- paste0("Group_" , levels[i], "_vs_", levels[j])
+      qcname <- paste0("QC_" , levels[i], "_vs_", levels[j])
+      outpath <- file.path( ZIPDIR, fname)
       prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
       prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname, stage=FALSE)
+      prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, stage=FALSE,markdown = "_DiffExpQC.Rmd")
+
     }
 
   }

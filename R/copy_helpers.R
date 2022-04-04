@@ -4,7 +4,7 @@
 #' @export
 #'
 copy_2grp_markdown <- function(workdir = getwd()){
-  runscripts <- c("_Grp2Analysis.Rmd", "bibliography.bib", "DiffExpQC.Rmd", "MQ2GRPALLVSALL.R")
+  runscripts <- c("_Grp2Analysis.Rmd", "bibliography.bib", "_DiffExpQC.Rmd", "MQ2GRPALLVSALL.R")
   runscripts <- file.path("application/FragPipe2Grp/",runscripts )
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
