@@ -137,8 +137,6 @@ In order to score potential interactions between observed proteins (potential pr
 Please note, an empirical fold-change (EFC) score of e.g. 2 reported by SAINTexpress can not be interpreted as a two times higher protein abundance, because SAINTexpress internally normalizes and transforms the data.
 
 
-
-
 The volcano plot \@ref(fig:volcanoPlotBfdr) helps to identify prey proteins with large EFC score and a low BFDR. The significance dimension is a $-\log_{10}$ transformed BFDR, i.e., small values of BFDR become large after transformation. Promising candidate pray proteins are found in the upper right sector of the plot.
 
 (ref:volcanoPlotBfdr) Volcano plot showing $-\log_{10}$ transformed BFDR as function of $\log_2$ transformed effect size. The red line shows the $-log_{10}$ transformed BFDR threshold of `r SEP$FDRthreshold`, while the green line the $\log_2$ transformed FC of `r SEP$FCthreshold`. 

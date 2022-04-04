@@ -134,6 +134,9 @@ make2grpReport <- function(startdata,
     logger::log_info("removing contaminants and reverse sequences with patterns: {contpattern} {revpattern}")
   }
 
+  lfqdata$rename_response("protein_abundance")
+  transformed$rename_response("normalized_protein_abundance")
+
   GRP2$RES$lfqData <- lfqdata
   GRP2$RES$transformedlfqData <- transformed
 
@@ -200,9 +203,15 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
 #' @param outpath path to place output
 #' @param htmlname name for html file
 #' @param word default FALSE, if true create word document.
+#' @param markdown which file to render
 #' @export
 #' @family workflow
-render_2GRP <- function(GRP2, outpath, htmlname="Result2Grp", word = FALSE, stage = TRUE){
+render_2GRP <- function(GRP2,
+                        outpath,
+                        htmlname="Result2Grp",
+                        word = FALSE,
+                        stage = TRUE,
+                        markdown = "_Grp2Analysis.Rmd"){
   if(stage){
     prolfqua::copy_2grp_markdown()
 
@@ -210,14 +219,14 @@ render_2GRP <- function(GRP2, outpath, htmlname="Result2Grp", word = FALSE, stag
   dir.create(outpath)
 
   rmarkdown::render(
-    "_Grp2Analysis.Rmd",
+    markdown,
     params = list(grp = GRP2) ,
     output_format = if(word){
       bookdown::word_document2(toc = TRUE, toc_float = TRUE) } else {
         bookdown::html_document2(toc = TRUE, toc_float = TRUE)
       }
   )
-  fname <- paste0("_Grp2Analysis", if(word) {".docx"} else {".html"})
+  fname <- paste0(tools::file_path_sans_ext(markdown), if(word) {".docx"} else {".html"})
   if (file.copy(fname, file.path(outpath, paste0(htmlname,if(word) {".docx"} else {".html"})), overwrite = TRUE)) {
     file.remove(fname)
   }

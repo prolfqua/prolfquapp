@@ -138,12 +138,3 @@ gridExtra::grid.arrange(ppb, ppc, ncol=1)
 
 ```
 
-
-# Missing data.
-
-Based on the linear model coefficients, we estimate the difference between the groups (column _diff_) and the variance for each protein, which allows us to compute the t-statistic (column _statistic_). Furthermore, using the degrees of freedom (column _df_), we determine the p-value, i.e., the probability of the Type I error (Type I error - the error of falsely rejecting the null hypothesis). The null hypothesis is that proteins are not differentially expressed.
-
-If there are no abundances in one of the groups for a protein, the group mean can not be estimated. Therefore, assuming that the observation is missing because the protein abundance is below the detection limit, we can substitute it with this limit. We estimate the detection limit using the mean of the $1\%$ smallest group averages. If the observations present in the other group allow us to calculate the variance of the measurement for that protein, we can compute the t-statistic, p-value, and FDR. If not, we use the median pooled variance of the 10% of low abundant proteins in the dataset.
-
-However, we recommend assessing difference estimates and FDR estimates for proteins with many missing observations separately. Therefore, proteins for which we imputed the unobserved group mean we label with `Imputed_Mean`. Those proteins with a sufficiently large number of observations to fit a linear model we label with `Linear_Model_Moderated` (see the volcano plot, and column _modelName_ in the Excel table containing the analysis results.).
-

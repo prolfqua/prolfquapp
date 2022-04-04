@@ -18,7 +18,14 @@ make2grpReport(
 
 write_2GRP(GRP2, outpath, xlsxname = "AnalysisResults")
 
-render_2GRP(GRP2, outpath, htmlname = "Result2Grp", word = FALSE, stage = TRUE)
+render_2GRP(
+  GRP2,
+  outpath,
+  htmlname = "Result2Grp",
+  word = FALSE,
+  stage = TRUE,
+  markdown = "_Grp2Analysis.Rmd"
+)
 }
 \arguments{
 \item{startdata}{table in long format}
@@ -42,6 +49,8 @@ render_2GRP(GRP2, outpath, htmlname = "Result2Grp", word = FALSE, stage = TRUE)
 \item{htmlname}{name for html file}
 
 \item{word}{default FALSE, if true create word document.}
+
+\item{markdown}{which file to render}
 }
 \description{
 For use examples see run_scripts directory
