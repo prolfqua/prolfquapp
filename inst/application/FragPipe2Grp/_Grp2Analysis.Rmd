@@ -266,7 +266,11 @@ grp2$RES$transformedlfqData$get_Plotter()$pca_plotly()
 
 # Differential Expression Analysis
 
-The method used to test for differential expression consists of several steps: First a linear model that explains the observed protein abundances using the grouping of the samples is fitted using the R function _lm_ to each protein. Secondly, the difference between the group is computed:
+The method used to test for differential expression consists of several steps: First a linear model that explains the observed protein abundances using the grouping of the samples is fitted using the R function _lm_ to each protein:
+
+`r grp2$RES$formula`.
+
+Secondly, the difference between the group is computed:
 
 `r names(grp2$pop$Contrast)` = `r grp2$pop$Contrast`, 
 
