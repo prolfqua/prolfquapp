@@ -445,7 +445,6 @@ For questions and improvement suggestions, with respect to this report, please d
 
 # Session Information
 
-
 ```{r sessionInfo}
 pander::pander(sessionInfo())
 ```
@@ -454,8 +453,6 @@ pander::pander(sessionInfo())
 # References {-}
 
 <div id="refs"></div>
-
-
 
 
 # Glossary
