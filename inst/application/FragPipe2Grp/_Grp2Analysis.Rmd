@@ -424,7 +424,7 @@ To compare the obtained results with known protein interactions we recommend the
 
 
 - `ORA_background.txt` all proteins.
-- `ORA_Bait_<contrast_name>.txt` proteins accepted with the BFDR and EFC specified.
+- `ORA_Bait_<contrast_name>.txt` proteins accepted with the FDR and difference treshold specified.
 
 Other web applications allowing to run over representation analysis (ORA) [@monti2019proteomics] are:
 
