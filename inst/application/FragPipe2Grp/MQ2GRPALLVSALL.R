@@ -7,43 +7,7 @@ ORDERID = yml$job_configuration$order_id
 ORDERID <- if(is.null(ORDERID)){PROJECTID}else{ORDERID}
 
 ZIPDIR = paste0("C",ORDERID,"WU",WORKUNITID)
-dir.create(ZIPDIR)
 
-
-
-idxzip <- grep("*.zip",yml$application$input[[1]])
-
-INPUT_ID = yml$job_configuration$input[[1]][[idxzip]]$resource_id
-INPUT_URL = yml$job_configuration$input[[1]][[idxzip]]$resource_url
-###
-
-NORMALIZATION <- yml$application$parameters$`3|Normalization`
-
-proteinf <- "combined_protein.tsv"
-dsf <- "dataset.csv"
-REPEATED <- TRUE
-
-stopifnot( file.exists(proteinf), file.exists(dsf))
-
-protein <- prolfqua::tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
-annot <- read.csv(dsf)
-
-annot <- annot |> dplyr::mutate(
-  raw.file = gsub("^x|.d.zip$|.raw$","",
-                  basename(annot$Relative.Path)
-  )
-)
-
-nr <- sum(annot$raw.file %in% unique(protein$raw.file))
-logger::log_info("nr", nr, " files annotated")
-annot$Relative.Path <- NULL
-
-
-proteinAnnot <- dplyr::select(protein, protein, description ) |> dplyr::distinct()
-protein <- dplyr::inner_join(annot, protein)
-
-
-################### annotations
 GRP2 <- list()
 GRP2$Bfabric <- list()
 GRP2$Bfabric$projectID <- PROJECTID
@@ -69,6 +33,48 @@ contpattern <- yml$application$parameters$`8|CONpattern`
 
 GRP2$Software <- "FragPipe"
 
+###
+
+
+
+dir.create(ZIPDIR)
+
+
+
+idxzip <- grep("*.zip",yml$application$input[[1]])
+
+INPUT_ID = yml$job_configuration$input[[1]][[idxzip]]$resource_id
+INPUT_URL = yml$job_configuration$input[[1]][[idxzip]]$resource_url
+###
+
+NORMALIZATION <- yml$application$parameters$`3|Normalization`
+
+proteinf <- "combined_protein.tsv"
+dsf <- "dataset.csv"
+REPEATED <- TRUE
+
+stopifnot( file.exists(proteinf), file.exists(dsf))
+
+protein <- prolfqua::tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
+# remove single hit wonders.
+protein <- protein |> dplyr::filter(combined.total.peptides > 1 )
+
+annot <- read.csv(dsf)
+annot <- annot |> dplyr::mutate(
+  raw.file = gsub("^x|.d.zip$|.raw$","",
+                  basename(annot$Relative.Path)
+  )
+)
+
+nr <- sum(annot$raw.file %in% unique(protein$raw.file))
+logger::log_info("nr", nr, " files annotated")
+annot$Relative.Path <- NULL
+
+proteinAnnot <- dplyr::select(protein, protein, description ) |> dplyr::distinct()
+protein <- dplyr::inner_join(annot, protein)
+
+
+################### annotations
 
 #### Setup configuration ###
 
@@ -82,9 +88,9 @@ if(sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0){
 
 atable$hierarchyDepth <- 1
 
-group <- grep("^group", colnames(protein), value= TRUE, ignore.case = TRUE)
-protein <- protein |> dplyr::rename(Group_ = !!rlang::sym(group))
-atable$factors[["Group_"]] = "Group_"
+stopifnot(sum(grepl("^group", colnames(protein), ignore.case = TRUE)) == 1)
+groupingVAR <- grep("^group", colnames(protein), value= TRUE, ignore.case = TRUE)
+atable$factors[["Group_"]] = groupingVAR
 
 if (!is.null(annot$Subject) & REPEATED) {
   atable$factors[["Subject"]] = grep("^subject", colnames(protein), value = TRUE, ignore.case = TRUE)
@@ -94,15 +100,13 @@ atable$factorDepth <- 1
 atable$setWorkIntensity("razor.intensity")
 
 
-
-
 # Compute all possible 2 Grps to avoid specifying reference.
-levels <- protein[["Group_"]] |> unique()
+levels <- protein[[groupingVAR]] |> unique()
 
 logger::log_info("levels : ", paste(levels, collapse = " "))
 
 if(! length(levels) > 1){
-  logger:log_error("not enough group levels_ to make comparisons.")
+  logger::log_error("not enough group levels_ to make comparisons.")
 }
 
 
@@ -116,7 +120,7 @@ for (i in seq_along(levels)) {
       GRP2$pop$Contrasts <- paste0("Group_",levels[i], " - ", "Group_",levels[j])
       names(GRP2$pop$Contrasts) <- paste0("Group_" , levels[i], "_vs_", levels[j])
       message("CONTRAST : ", GRP2$pop$Contrasts)
-      proteinF <- protein |> dplyr::filter(.data$Group_ == levels[i] | .data$Group_ == levels[j])
+      proteinF <- protein |> dplyr::filter(!!rlang::sym(groupingVAR) == levels[i] | !!rlang::sym(groupingVAR) == levels[j])
       grp2 <- prolfquapp::make2grpReport(proteinF,
                                          atable,
                                          GRP2,
