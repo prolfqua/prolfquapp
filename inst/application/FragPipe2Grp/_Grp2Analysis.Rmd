@@ -305,7 +305,7 @@ DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |> DT::form
 
 ```
 
-(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed BFDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r grp2$pop$FDRthreshold`, while the green lines represent the the difference of minus and plus `r grp2$pop$Diffthreshold`. In dark-gray differences estimated using missing value imputation are shown.
+(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r grp2$pop$FDRthreshold`, while the green lines represent the the difference of minus and plus `r grp2$pop$Diffthreshold`. In dark-gray differences estimated using missing value imputation are shown.
 
 
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
@@ -397,7 +397,7 @@ cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 tr
 
 ```
 
-(ref:sigroteins) Heatmap showing the $\log_2$ transformed empirical protein abundances for prays which pass the FDR and log_FC thresholds.
+(ref:sigroteins) Heatmap showing the $\log_2$ transformed empirical protein abundances for prays which pass the FDR and difference thresholds.
 
 ```{r sigroteins, fig.cap="(ref:sigroteins)", eval = showSignificant}
 sigheat
@@ -424,7 +424,7 @@ To compare the obtained results with known protein interactions we recommend the
 
 
 - `ORA_background.txt` all proteins.
-- `ORA_Bait_<contrast_name>.txt` proteins accepted with the FDR and difference treshold specified.
+- `ORA_Bait_<contrast_name>.txt` proteins accepted with the FDR and difference threshold.
 
 Other web applications allowing to run over representation analysis (ORA) [@monti2019proteomics] are:
 
