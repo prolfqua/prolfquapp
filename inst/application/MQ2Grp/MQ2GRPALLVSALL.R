@@ -103,7 +103,7 @@ for (i in 1:length(levels)) {
       fname <- paste0("Experiment_" , levels[i], "_vs_", levels[j])
       outpath <- file.path( outdir, fname)
       proteinF <- peptide |> dplyr::filter(.data$Experiment == levels[i] | .data$Experiment == levels[j])
-      grp2 <- prolfqua::make2grpReport(proteinF,
+      grp2 <- prolfquapp::make2grpReport(proteinF,
                                        atable,
                                        GRP2,
                                        protein_annot = "fasta.headers",
