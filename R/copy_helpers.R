@@ -15,7 +15,7 @@ copy_2grp_FragPipe <- function(workdir = getwd()){
 #' @export
 #'
 copy_2grp_MaxQuant <- function(workdir = getwd()){
-  runscripts <- c("application/_Grp2Analysis.Rmd", "application/bibliography.bib", "application/_DiffExpQC.Rmd", "application/FragPipe2Grp/FRG2GRP.R")
+  runscripts <- c("application/_Grp2Analysis.Rmd", "application/bibliography.bib", "application/_DiffExpQC.Rmd", "application/MQ2Grp/MQ2GRPALLVSALL.R")
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
 
