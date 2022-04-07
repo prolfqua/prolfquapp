@@ -167,7 +167,7 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts())
   resultList <- list()
   resultList$annotation = tr$to_wide()$annot
-  resultList$normalized_abundances = inner_join(ra$row_annot, rd$data)
+  resultList$normalized_abundances = dplyr::inner_join(ra$row_annot, rd$data)
   resultList$raw_abundances_matrix = wideraw
   resultList$normalized_abundances_matrix = widetr
   resultList$diff_exp_analysis = ctr
@@ -176,6 +176,34 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   resultList$summary = GRP2$RES$Summary
   resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr=1)
 
+  bkg <- prolfqua::get_UniprotID_from_fasta_header(
+    grp2$RES$rowAnnot$row_annot,
+    idcolumn = "protein_Id")$UniprotID
+  ff <- file.path(outpath ,"ORA_background.txt")
+  write.table(bkg,file = ff, col.names = FALSE,
+              row.names = FALSE, quote=FALSE)
+
+  fg <- prolfqua::get_UniprotID_from_fasta_header(
+  grp2$RES$contrastsData_signif,
+  idcolumn = "protein_Id")
+  ora_sig <- split(fg$UniprotID, fg$contrast)
+  for(i in names(ora_sig)){
+    ff <- file.path(outpath, paste0("Ora_",i,".txt" ))
+    logger::log_info("Writing File ", ff)
+    write.table(ora_sig[[i]],file = ff, col.names = FALSE,
+               row.names = FALSE, quote=FALSE)
+  }
+  fg <- prolfqua::get_UniprotID_from_fasta_header(
+    grp2$RES$contrastsData,
+    idcolumn = "protein_Id")
+  gsea <- fg |> dplyr::select(contrast, UniprotID, statistic) |> dplyr::arrange(statistic)
+  gsea <- split(dplyr::select(gsea,UniprotID, statistic ), gsea$contrast)
+  for(i in names(gsea)){
+    ff <- file.path(outpath, paste0("GSEA_",i,".txt" ))
+    logger::log_info("Writing File ", ff)
+    write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
+                row.names = FALSE, quote=FALSE)
+  }
   writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
 }
 
