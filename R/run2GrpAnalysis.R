@@ -58,26 +58,14 @@
 #' render_2GRP(grp, "." ,word = TRUE)
 #' write_2GRP(grp,".")
 #' }
-make2grpReport <- function(startdata,
-                           atable,
+make2grpReport <- function(lfqdata,
+                           prot_annot,
                            GRP2,
-                           protein_annot = "Description",
                            revpattern = "^REV_",
                            contpattern = "^zz|^CON__",
                            remove = FALSE
 ) {
 
-  # Preprocess Data
-  config <- prolfqua::AnalysisConfiguration$new(atable)
-  adata <- prolfqua::setup_analysis(startdata, config)
-  proteinID <- atable$hkeysDepth()
-
-  prot_annot <- dplyr::select(startdata , c( atable$hierarchy[[proteinID]], protein_annot)) |>
-    dplyr::distinct()
-  prot_annot <- dplyr::rename(prot_annot, !!proteinID := (!!atable$hierarchy[[proteinID]]))
-
-  lfqdata <- prolfqua::LFQData$new(adata, config)
-  lfqdata$remove_small_intensities()
 
 
   ### Do some type of data normalization (or do not)
@@ -92,26 +80,6 @@ make2grpReport <- function(startdata,
     logger::log_warn("no such transformaton : {GRP2$pop$transform}")
   }
   logger::log_info("data transformed : {GRP2$pop$transform}.")
-
-
-  ### Aggregate peptides to proteins
-  if ( length(transformed$config$table$hierarchyKeys()) > transformed$config$table$hierarchyDepth ) {
-    message("AGGREGATING PEPTIDE DATA!")
-    transformed$filter_proteins_by_peptide_count()
-    aggregator <- transformed$get_Aggregator()
-    if (GRP2$pop$aggregate == "medpolish") {
-      aggregator$medpolish()
-    } else if (GRP2$pop$aggregate == "topN") {
-      aggregator$sum_topN()
-    } else if (GRP2$pop$aggregate == "lmrob") {
-      aggregator$lmrob()
-    } else {
-      logger::log_warn("no such aggregator {GRP2$pop$aggregate}.")
-    }
-    logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
-
-    transformed <- aggregator$lfq_agg
-  }
 
   ## count contaminants.
   protAnnot <- prolfqua::RowAnnotProtein$new(
@@ -210,12 +178,7 @@ render_2GRP <- function(GRP2,
                         outpath,
                         htmlname="Result2Grp",
                         word = FALSE,
-                        stage = TRUE,
                         markdown = "_Grp2Analysis.Rmd"){
-  if(stage){
-    prolfqua::copy_2grp_markdown()
-
-  }
   dir.create(outpath)
 
   rmarkdown::render(

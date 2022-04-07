@@ -17,8 +17,11 @@ GRP2$Bfabric$projectName <- "" # workunit name in the future.
 GRP2$Bfabric$orderID <- ORDERID
 
 GRP2$Bfabric$workunitID <- WORKUNITID
-GRP2$Bfabric$inputID <- INPUT_ID
-GRP2$Bfabric$inputURL <- INPUT_URL
+
+idxzip <- grep("*.zip",yml$application$input[[1]])
+
+GRP2$Bfabric$inputID <- yml$job_configuration$input[[1]][[idxzip]]$resource_id
+GRP2$Bfabric$inputURL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
 
 #at least 2 peptides per protein
 GRP2$pop <- list()
@@ -31,23 +34,15 @@ removeREV <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {
 revpattern <- yml$application$parameters$`7|REVpattern`
 contpattern <- yml$application$parameters$`8|CONpattern`
 
+
+
 GRP2$Software <- "FragPipe"
 
+rm(yml)
+
 ###
-
-
-
 dir.create(ZIPDIR)
-
-
-
-idxzip <- grep("*.zip",yml$application$input[[1]])
-
-INPUT_ID = yml$job_configuration$input[[1]][[idxzip]]$resource_id
-INPUT_URL = yml$job_configuration$input[[1]][[idxzip]]$resource_url
 ###
-
-NORMALIZATION <- yml$application$parameters$`3|Normalization`
 
 proteinf <- "combined_protein.tsv"
 dsf <- "dataset.csv"
@@ -70,7 +65,6 @@ nr <- sum(annot$raw.file %in% unique(protein$raw.file))
 logger::log_info("nr", nr, " files annotated")
 annot$Relative.Path <- NULL
 
-proteinAnnot <- dplyr::select(protein, protein, description ) |> dplyr::distinct()
 protein <- dplyr::inner_join(annot, protein)
 
 
@@ -82,17 +76,18 @@ atable <- prolfqua::AnalysisTableAnnotation$new()
 atable$fileName = "raw.file"
 atable$hierarchy[["protein_Id"]] <- c("protein")
 
+
+atable$hierarchyDepth <- 1
+
 if(sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0){
   atable$sampleName <- grep("^name", colnames(annot) , value=TRUE, ignore.case = TRUE)
 }
-
-atable$hierarchyDepth <- 1
 
 stopifnot(sum(grepl("^group", colnames(protein), ignore.case = TRUE)) == 1)
 groupingVAR <- grep("^group", colnames(protein), value= TRUE, ignore.case = TRUE)
 atable$factors[["Group_"]] = groupingVAR
 
-if (!is.null(annot$Subject) & REPEATED) {
+if (sum(grep("^subject", colnames(protein), ignore.case = TRUE)) == 1 & REPEATED) {
   atable$factors[["Subject"]] = grep("^subject", colnames(protein), value = TRUE, ignore.case = TRUE)
 }
 
@@ -113,18 +108,37 @@ if(! length(levels) > 1){
 GRP2$pop$nrPeptides <- 2
 
 
+
+# Preprocess Data
+config <- prolfqua::AnalysisConfiguration$new(atable)
+adata <- prolfqua::setup_analysis(protein, config)
+proteinID <- atable$hkeysDepth()
+
+# Create protein annotation.
+protein_annot <- "description"
+prot_annot <- dplyr::select(protein ,
+                            dplyr::all_of(c( atable$hierarchy[[proteinID]], protein_annot))) |>
+  dplyr::distinct()
+prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_annot))
+prot_annot <- dplyr::rename(prot_annot, !!proteinID := (!!atable$hierarchy[[proteinID]]))
+
+
+lfqdata <- prolfqua::LFQData$new(adata, config)
+lfqdata$remove_small_intensities()
+
+
 for (i in seq_along(levels)) {
   for (j in seq_along(levels)) {
     if (i != j) {
       cat(levels[i], levels[j], "\n")
       GRP2$pop$Contrasts <- paste0("Group_",levels[i], " - ", "Group_",levels[j])
       names(GRP2$pop$Contrasts) <- paste0("Group_" , levels[i], "_vs_", levels[j])
-      message("CONTRAST : ", GRP2$pop$Contrasts)
-      proteinF <- protein |> dplyr::filter(!!rlang::sym(groupingVAR) == levels[i] | !!rlang::sym(groupingVAR) == levels[j])
-      grp2 <- prolfquapp::make2grpReport(proteinF,
-                                         atable,
+      logger::log_info("CONTRAST : ", GRP2$pop$Contrasts)
+      lfqwork <- lfqdata$get_copy()
+      lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ == levels[i] | .data$Group_ == levels[j])
+      grp2 <- prolfquapp::make2grpReport(lfqdata,
+                                         prot_annot,
                                          GRP2,
-                                         protein_annot = "description",
                                          revpattern = revpattern,
                                          contpattern = contpattern,
                                          remove = TRUE)
@@ -132,9 +146,11 @@ for (i in seq_along(levels)) {
       fname <- paste0("Group_" , levels[i], "_vs_", levels[j])
       qcname <- paste0("QC_" , levels[i], "_vs_", levels[j])
       outpath <- file.path( ZIPDIR, fname)
+      logger::log_info("writing into : ", outpath, " <<<<")
+
       prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
-      prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname, stage=FALSE)
-      prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, stage=FALSE,markdown = "_DiffExpQC.Rmd")
+      prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
+      prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
     }
 

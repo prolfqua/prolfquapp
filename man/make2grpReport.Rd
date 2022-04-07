@@ -7,10 +7,9 @@
 \title{Create 2 grp report in html and write data to xlsx table}
 \usage{
 make2grpReport(
-  startdata,
-  atable,
+  lfqdata,
+  prot_annot,
   GRP2,
-  protein_annot = "Description",
   revpattern = "^REV_",
   contpattern = "^zz|^CON__",
   remove = FALSE
@@ -23,18 +22,11 @@ render_2GRP(
   outpath,
   htmlname = "Result2Grp",
   word = FALSE,
-  stage = TRUE,
   markdown = "_Grp2Analysis.Rmd"
 )
 }
 \arguments{
-\item{startdata}{table in long format}
-
-\item{atable}{AnalysisTableAnnotation annotate startdata table}
-
 \item{GRP2}{return value of \code{\link{make2grpReport}}}
-
-\item{protein_annot}{column with protein description e.g. (fasta header)}
 
 \item{revpattern}{default "REV_"}
 
@@ -51,6 +43,12 @@ render_2GRP(
 \item{word}{default FALSE, if true create word document.}
 
 \item{markdown}{which file to render}
+
+\item{startdata}{table in long format}
+
+\item{atable}{AnalysisTableAnnotation annotate startdata table}
+
+\item{protein_annot}{column with protein description e.g. (fasta header)}
 }
 \description{
 For use examples see run_scripts directory

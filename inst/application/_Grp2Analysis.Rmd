@@ -270,9 +270,15 @@ The method used to test for differential expression consists of several steps: F
 
 `r grp2$RES$formula`.
 
-Secondly, the difference between the group is computed:
+Secondly, the difference between the group is computed (Table \@ref(tab:contrtable)).
 
-`r names(grp2$pop$Contrast)` = `r grp2$pop$Contrast`, 
+```{r contrtable}
+df <- data.frame(name = names(grp2$pop$Contrast), contrast = grp2$pop$Contrast)
+rownames(df) <- NULL
+knitr::kable(df, caption = "Name of difference (Contrast), and formula used to compute it.")
+
+```
+
 
 and a null hypothesis significance test (NHST) is conducted, where the null hypothesis is that the protein is not differentially expressed [@faraway2004linear]. 
 
@@ -340,14 +346,10 @@ Here we use the FDR threshold of `r grp2$pop$FDRthreshold` and a difference thre
 
 ```{r nrsignificant, results="markup", eval=TRUE}
 
-x <- data.frame(table(abs(datax$diff) >  grp2$pop$Diffthreshold  & datax$FDR < grp2$pop$FDRthreshold))
+library(dplyr)
+mx <- datax |> dplyr::mutate(passes = abs(diff) >  grp2$pop$Diffthreshold  & FDR < grp2$pop$FDRthreshold)
+x <- mx |> dplyr::group_by(contrast) |> summarize(n = n(), Significant = sum(passes), "Not Significant" = n() - sum(passes))
 
-if (length(x$Var1) == 2) {
-  x$Var1 <- c("Not Significant" , "Significant")
-} else {
-  x$Var1 <- c("Not Significant")
-}
-names(x)[names(x) == 'Var1'] <- ''
 mycap <- paste0("Number of not significant and significant proteins."  )
 knitr::kable(x, caption = mycap)
 
@@ -407,10 +409,22 @@ cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 tr
 sigheat
 ```
 
+(ref:vennDiagram) Venn diagram showing the number of significant proteins for each contrast and their intersections.
+
+
+```{r vennDiagram, fig.cap="(ref:vennDiagram)", eval = showSignificant}
+library(tidyverse)
+xx <- split(datax$protein_Id, datax$contrast)
+if (length(xx) > 1) {
+  UpSetR::upset(UpSetR::fromList(xx))
+}
+
+```
+
 
 # Additional Analysis
 
-The zip file excel file __Results.xlsx__. All the figures in this document can be recreated using the data in the excel file. The Excel file contains the following spreadsheets:
+The zip file contains an excel file __Results.xlsx__. All the figures can be recreated using the data in the excel file. The Excel file contains the following spreadsheets:
 
 - __annotation__ - the annotation of the samples in the experiment
 - __raw_abundances__ table with empirical protein abundances.

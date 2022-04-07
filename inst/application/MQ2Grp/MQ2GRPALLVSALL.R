@@ -4,14 +4,46 @@ yml = yaml::read_yaml(ymlfile)
 WORKUNITID = yml$job_configuration$workunit_id
 PROJECTID = yml$job_configuration$project_id
 ORDERID = yml$job_configuration$order_id
+ORDERID <- if(is.null(ORDERID)){PROJECTID}else{ORDERID}
 
-idxzip <- grep("*.zip",yml$application$input$MaxQuant_textfiles)
+ZIPDIR = paste0("C",ORDERID,"WU",WORKUNITID)
 
-INPUT_ID = yml$job_configuration$input[[1]][[idxzip]]$resource_id
-INPUT_URL = yml$job_configuration$input[[1]][[idxzip]]$resource_url
+GRP2 <- list()
+GRP2$Bfabric <- list()
+GRP2$Bfabric$projectID <- PROJECTID
+
+
+GRP2$Bfabric$projectName <- "" # workunit name in the future.
+GRP2$Bfabric$orderID <- ORDERID
+
+GRP2$Bfabric$workunitID <- WORKUNITID
+
+idxzip <- grep("*.zip",yml$application$input[[1]])
+
+GRP2$Bfabric$inputID <- yml$job_configuration$input[[1]][[idxzip]]$resource_id
+GRP2$Bfabric$inputURL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
+
+#at least 2 peptides per protein
+GRP2$pop <- list()
+GRP2$pop$transform <- yml$application$parameters$`3|Normalization`
+
+GRP2$pop$aggregate <- yml$application$parameters$`2|Aggregation`
+GRP2$pop$Diffthreshold <- as.numeric(yml$application$parameters$`4|Difference_threshold`)
+GRP2$pop$FDRthreshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
+removeREV <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {FALSE}
+revpattern <- yml$application$parameters$`7|REVpattern`
+contpattern <- yml$application$parameters$`8|CONpattern`
+
+
+
+GRP2$Software <- "MaxQuant"
+
+rm(yml)
+
+###
+dir.create(ZIPDIR)
 ###
 
-yml$application$parameters$`3|Normalization`
 
 peptidef <- "peptides.txt"
 proteinf <- "proteinGroups.txt"
@@ -31,40 +63,14 @@ annot <- annot |> dplyr::mutate(
 )
 
 nr <- sum(annot$raw.file %in% unique(peptide$raw.file))
-logger::log_info("nr", nr, " files annotated")
+logger::log_info("nr : ", nr, " files annotated")
 annot$Relative.Path <- NULL
-
 
 proteinAnnot <- dplyr::select(protein, proteinID, fasta.headers ) |> dplyr::distinct()
 peptide <- dplyr::inner_join(annot, peptide)
-peptide <- dplyr::inner_join(proteinAnnot, peptide, by = c(proteinID = "leading.razor.protein"))
-
-
-################### annotations
-GRP2 <- list()
-GRP2$Bfabric <- list()
-GRP2$Bfabric$projectID <- PROJECTID
-
-
-GRP2$Bfabric$projectName <- "" # workunit name in the future.
-GRP2$Bfabric$orderID <- ORDERID
-
-GRP2$Bfabric$workunitID <- WORKUNITID
-GRP2$Bfabric$inputID <- INPUT_ID
-GRP2$Bfabric$inputURL <- INPUT_URL
-
-#at least 2 peptides per protein
-GRP2$pop <- list()
-GRP2$pop$transform <- yml$application$parameters$`3|Normalization`
-
-GRP2$pop$aggregate <- yml$application$parameters$`2|Aggregation`
-GRP2$pop$Diffthreshold <- as.numeric(yml$application$parameters$`4|Difference_threshold`)
-GRP2$pop$FDRthreshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
-removeREV <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {FALSE}
-revpattern <- yml$application$parameters$`7|REVpattern`
-contpattern <- yml$application$parameters$`8|CONpattern`
-
-GRP2$Software <- "MaxQuant"
+peptide <- dplyr::inner_join(proteinAnnot,
+                             peptide,
+                             by = c(proteinID = "leading.razor.protein"))
 
 
 # Setup configuration
@@ -73,47 +79,156 @@ atable <- prolfqua::AnalysisTableAnnotation$new()
 atable$fileName = "raw.file"
 atable$hierarchy[["protein_Id"]] <- c("proteinID")
 atable$hierarchy[["peptide_Id"]] <- c("sequence")
-
 #
 atable$hierarchyDepth <- 1
-atable$factors[["Experiment_"]] = "Experiment"
 
-if (!is.null(annot$Subject) & REPEATED) {
-  atable$factors[["Subject"]] = "Subject"
+if(sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0){
+  atable$sampleName <- grep("^name", colnames(annot) , value=TRUE, ignore.case = TRUE)
+}
+
+
+stopifnot(sum(grepl("^group", colnames(peptide), ignore.case = TRUE)) == 1)
+
+groupingVAR <- grep("^group", colnames(peptide), value= TRUE, ignore.case = TRUE)
+peptide[[groupingVAR]]<- gsub("[[:space:]]", "", peptide[[groupingVAR]])
+atable$factors[["Group_"]] = groupingVAR
+
+if (sum(grepl("^subject", colnames(peptide), ignore.case = TRUE)) == 1 & REPEATED) {
+  atable$factors[["Subject"]] = grep("^subject", colnames(peptide), value = TRUE, ignore.case = TRUE)
 }
 atable$factorDepth <- 1
 atable$setWorkIntensity("peptide.intensity")
 
 
+# Preprocess data - aggregate proteins.
+config <- prolfqua::AnalysisConfiguration$new(atable)
+adata <- prolfqua::setup_analysis(peptide, config)
+proteinID <- atable$hkeysDepth()
+
+# CREATE protein annotation.
+protein_annot <- "fasta.headers"
+prot_annot <- dplyr::select(peptide ,
+                            dplyr::all_of(c( atable$hierarchy[[proteinID]], protein_annot))) |>
+  dplyr::distinct()
+prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_annot))
+prot_annot <- dplyr::rename(prot_annot, !!proteinID := (!!atable$hierarchy[[proteinID]]))
+
+
+lfqdata <- prolfqua::LFQData$new(adata, config)
+lfqdata$remove_small_intensities()
+lfqdata$filter_proteins_by_peptide_count()
+
+logger::log_info("AGGREGATING PEPTIDE DATA!")
+
+transformed <- lfqdata$get_Transformer()$log2()$lfq
+aggregator <- transformed$get_Aggregator()
+
+if (GRP2$pop$aggregate == "medpolish") {
+  aggregator$medpolish()
+} else if (GRP2$pop$aggregate == "topN") {
+  aggregator$sum_topN()
+} else if (GRP2$pop$aggregate == "lmrob") {
+  aggregator$lmrob()
+} else {
+  logger::log_warn("no such aggregator {GRP2$pop$aggregate}.")
+}
+
+logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
+ag <- aggregator$lfq_agg
+tr <- ag$get_Transformer()
+tr <- tr$intensity_array(exp, force = TRUE)
+lfqdata <- tr$lfq
+lfqdata$is_transformed(FALSE)
+
+logger::log_info("END OF DATA TRANSFORMATION.")
 
 
 # Compute all possible 2 Grps to avoid specifying reference.
-levels <- annot$Experiment |> unique()
-outdir <- "xyz"
-dir.create(outdir)
+levels <- peptide[[groupingVAR]] |> unique()
+
+levels <- peptide |> dplyr::select(Group_ = groupingVAR,  control = starts_with("control", ignore.case = TRUE)) |>
+  dplyr::distinct()
 
 
-for (i in 1:length(levels)) {
-  for (j in 1:length(levels)) {
-    if (i != j) {
-      cat(levels[i], levels[j], "\n")
-      GRP2$pop$Contrasts <- paste0("Experiment_",levels[i], " - ", "Experiment_",levels[j])
-      names(GRP2$pop$Contrasts) <- paste0("Experiment" , levels[i], "_vs_", levels[j])
-      message("CONTRAST", GRP2$pop$Contrasts)
-      fname <- paste0("Experiment_" , levels[i], "_vs_", levels[j])
-      outpath <- file.path( outdir, fname)
-      proteinF <- peptide |> dplyr::filter(.data$Experiment == levels[i] | .data$Experiment == levels[j])
-      grp2 <- prolfquapp::make2grpReport(proteinF,
-                                       atable,
-                                       GRP2,
-                                       protein_annot = "fasta.headers",
-                                       revpattern = revpattern,
-                                       contpattern = contpattern,
-                                       remove = TRUE)
+logger::log_info("levels : ", paste(levels, collapse = " "))
+if(! length(levels$Group_) > 1){
+  logger::log_error("not enough group levels_ to make comparisons.")
+}
 
-      prolfqua::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
-      prolfqua::render_2GRP(grp2, outpath = outpath, htmlname = fname)
+CONTROL = TRUE
+if(CONTROL & !is.null(levels$control)){
+  Contrasts <- character()
+  Names <- character()
+  for (i in 1:nrow(levels)) {
+    for (j in 1:nrow(levels)) {
+      if (i != j) {
+        if(levels$control[j] == "C"){
+          cat(levels$Group_[i], levels$Group_[j], "\n")
+          Contrasts <- c(Contrasts, paste0("Group_",levels$Group_[i], " - ", "Group_",levels$Group_[j]))
+          Names <- c(Names, paste0(levels$Group_[i], "_vs_", levels$Group_[j]))
+        }
+      }
+    }
+  }
+
+  names(Contrasts) <- Names
+  GRP2$pop$Contrasts <- Contrasts
+  logger::log_info("CONTRAST : ", paste( GRP2$pop$Contrasts, collapse = " "))
+
+  lfqwork <- lfqdata$get_copy()
+  lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ %in% levels$Group_)
+
+  grp2 <- prolfquapp::make2grpReport(lfqwork,
+                                     prot_annot,
+                                     GRP2,
+                                     revpattern = revpattern,
+                                     contpattern = contpattern,
+                                     remove = TRUE)
+
+  fname <- paste0("DE_Groups_vs_Controls")
+  qcname <- paste0("QC_Groups_vs_Controls")
+  outpath <- file.path( ZIPDIR, fname)
+
+  logger::log_info("writing into : ", outpath, " <<<<")
+  prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
+  prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
+  prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+
+
+} else {
+
+  for (i in seq_along(levels$Group_)) {
+    for (j in seq_along(levels$Group_)) {
+      if (i != j) {
+        cat(levels$Group_[i], levels$Group_[j], "\n")
+        GRP2$pop$Contrasts <- paste0("Group_",levels$Group_[i], " - ", "Group_",levels$Group_[j])
+        names(GRP2$pop$Contrasts) <- paste0(levels$Group_[i], "_vs_", levels$Group_[j])
+        logger::log_info("CONTRAST : ", GRP2$pop$Contrasts)
+        lfqwork <- lfqdata$get_copy()
+        lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ == levels$Group_[i] | .data$Group_ == levels$Group_[j])
+        grp2 <- prolfquapp::make2grpReport(lfqwork,
+                                           prot_annot,
+                                           GRP2,
+                                           revpattern = revpattern,
+                                           contpattern = contpattern,
+                                           remove = TRUE)
+
+        fname <- paste0("Group_" , levels$Group_[i], "_vs_", levels$Group_[j])
+        qcname <- paste0("QC_" , levels$Group_[i], "_vs_", levels$Group_[j])
+        outpath <- file.path( ZIPDIR, fname)
+        logger::log_info("writing into : ", outpath, " <<<<")
+
+        prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
+        prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
+        prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+
+      }
 
     }
   }
+
+
 }
+
+
+
