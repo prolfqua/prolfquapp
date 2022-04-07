@@ -85,29 +85,17 @@ if(sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0){
 
 stopifnot(sum(grepl("^group", colnames(protein), ignore.case = TRUE)) == 1)
 groupingVAR <- grep("^group", colnames(protein), value= TRUE, ignore.case = TRUE)
+protein[[groupingVAR]]<- gsub("[[:space:]]", "", protein[[groupingVAR]])
 atable$factors[["Group_"]] = groupingVAR
 
-if (sum(grep("^subject", colnames(protein), ignore.case = TRUE)) == 1 & REPEATED) {
+if (sum(grepl("^subject", colnames(protein), ignore.case = TRUE)) == 1 & REPEATED) {
   atable$factors[["Subject"]] = grep("^subject", colnames(protein), value = TRUE, ignore.case = TRUE)
 }
 
 atable$factorDepth <- 1
 atable$setWorkIntensity("razor.intensity")
 
-
-# Compute all possible 2 Grps to avoid specifying reference.
-levels <- protein[[groupingVAR]] |> unique()
-
-logger::log_info("levels : ", paste(levels, collapse = " "))
-
-if(! length(levels) > 1){
-  logger::log_error("not enough group levels_ to make comparisons.")
-}
-
-
 GRP2$pop$nrPeptides <- 2
-
-
 
 # Preprocess Data
 config <- prolfqua::AnalysisConfiguration$new(atable)
@@ -127,32 +115,91 @@ lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
 
 
-for (i in seq_along(levels)) {
-  for (j in seq_along(levels)) {
-    if (i != j) {
-      cat(levels[i], levels[j], "\n")
-      GRP2$pop$Contrasts <- paste0("Group_",levels[i], " - ", "Group_",levels[j])
-      names(GRP2$pop$Contrasts) <- paste0("Group_" , levels[i], "_vs_", levels[j])
-      logger::log_info("CONTRAST : ", GRP2$pop$Contrasts)
-      lfqwork <- lfqdata$get_copy()
-      lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ == levels[i] | .data$Group_ == levels[j])
-      grp2 <- prolfquapp::make2grpReport(lfqdata,
-                                         prot_annot,
-                                         GRP2,
-                                         revpattern = revpattern,
-                                         contpattern = contpattern,
-                                         remove = TRUE)
 
-      fname <- paste0("Group_" , levels[i], "_vs_", levels[j])
-      qcname <- paste0("QC_" , levels[i], "_vs_", levels[j])
-      outpath <- file.path( ZIPDIR, fname)
-      logger::log_info("writing into : ", outpath, " <<<<")
+# Compute all possible 2 Grps to avoid specifying reference.
+levels <- protein |> dplyr::select(Group_ = groupingVAR,  control = starts_with("control", ignore.case = TRUE)) |>
+  dplyr::distinct()
 
-      prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
-      prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
-      prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+
+logger::log_info("levels : ", paste(levels, collapse = " "))
+if(! length(levels$Group_) > 1){
+  logger::log_error("not enough group levels_ to make comparisons.")
+}
+
+CONTROL = TRUE
+if(CONTROL & !is.null(levels$control)){
+  Contrasts <- character()
+  Names <- character()
+  for (i in 1:nrow(levels)) {
+    for (j in 1:nrow(levels)) {
+      if (i != j) {
+        if(levels$control[j] == "C"){
+          cat(levels$Group_[i], levels$Group_[j], "\n")
+          Contrasts <- c(Contrasts, paste0("Group_",levels$Group_[i], " - ", "Group_",levels$Group_[j]))
+          Names <- c(Names, paste0(levels$Group_[i], "_vs_", levels$Group_[j]))
+        }
+      }
+    }
+  }
+
+  names(Contrasts) <- Names
+  GRP2$pop$Contrasts <- Contrasts
+  logger::log_info("CONTRAST : ", paste( GRP2$pop$Contrasts, collapse = " "))
+
+  lfqwork <- lfqdata$get_copy()
+  lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ %in% levels$Group_)
+
+  grp2 <- prolfquapp::make2grpReport(lfqwork,
+                                     prot_annot,
+                                     GRP2,
+                                     revpattern = revpattern,
+                                     contpattern = contpattern,
+                                     remove = TRUE)
+
+  fname <- paste0("DE_Groups_vs_Controls")
+  qcname <- paste0("QC_Groups_vs_Controls")
+  outpath <- file.path( ZIPDIR, fname)
+
+  logger::log_info("writing into : ", outpath, " <<<<")
+  prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
+  prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
+  prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+
+
+} else {
+
+  for (i in seq_along(levels$Group_)) {
+    for (j in seq_along(levels$Group_)) {
+      if (i != j) {
+        cat(levels$Group_[i], levels$Group_[j], "\n")
+        GRP2$pop$Contrasts <- paste0("Group_",levels$Group_[i], " - ", "Group_",levels$Group_[j])
+        names(GRP2$pop$Contrasts) <- paste0(levels$Group_[i], "_vs_", levels$Group_[j])
+        logger::log_info("CONTRAST : ", GRP2$pop$Contrasts)
+        lfqwork <- lfqdata$get_copy()
+        lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ == levels$Group_[i] | .data$Group_ == levels$Group_[j])
+        grp2 <- prolfquapp::make2grpReport(lfqwork,
+                                           prot_annot,
+                                           GRP2,
+                                           revpattern = revpattern,
+                                           contpattern = contpattern,
+                                           remove = TRUE)
+
+        fname <- paste0("Group_" , levels$Group_[i], "_vs_", levels$Group_[j])
+        qcname <- paste0("QC_" , levels$Group_[i], "_vs_", levels$Group_[j])
+        outpath <- file.path( ZIPDIR, fname)
+        logger::log_info("writing into : ", outpath, " <<<<")
+
+        prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
+        prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
+        prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+
+      }
 
     }
-
   }
+
+
 }
+
+
+

@@ -48,7 +48,7 @@ __project__: `r grp2$Bfabric$projectID`, __order__: `r grp2$Bfabric$orderID`, `r
 
 
 The protein identification and quantification were performed using: 
-`r if(!is.null(grp2$Software)){grp2$Software} else {"<Specify parameter grp2$Software>"}`. The input file can be downlowded from here : [`r grp2$Bfabric$inputID`](`r grp2$Bfabric$inputURL`). The set of parameters used to run the quantification software can be retrieved from the workunit.
+`r if(!is.null(grp2$Software)){grp2$Software} else {"<Specify parameter grp2$Software>"}`. The input file can be downloaded from here : [`r grp2$Bfabric$inputID`](`r grp2$Bfabric$inputURL`). The set of parameters used to run the quantification software can be retrieved from the b-fabric workunit to which this file belongs.
 
 # Introduction
 
@@ -301,15 +301,12 @@ The volcano plot \@ref(fig:volcanoplot) helps to identify proteins with a large 
 
 
 ```{r setupVolcano, echo = FALSE}
-
-datax <- grp2$RES$contrMerged$get_contrasts()
-datax$FDR <- ifelse(is.na(datax$FDR), 1, datax$FDR)
-datax <- dplyr::inner_join(grp2$RES$rowAnnot$row_annot, datax)
+datax <- GRP2$RES$contrastsData
 ```
 
 
 ```{r tableAllProt, fig.cap="Differential expression analysis results of all proteins."}
-bb <- datax |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "FDR", "diff" )))
+bb <- datax |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "diff", "FDR" )))
 bb <- crosstalk::SharedData$new(bb, ~protein_Id, group = "Choose protein")
 DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |> DT::formatRound(columns=c('FDR', 'diff'), digits=3)
 
@@ -358,8 +355,7 @@ knitr::kable(x, caption = mycap)
 
 
 ```{r areThereSig}
-datax <- datax |>
-  dplyr::filter(.data$FDR < grp2$pop$FDRthreshold & abs(.data$diff) > grp2$pop$Diffthreshold )
+datax_signif <- GRP2$RES$contrastsData_signif
 showSignificant <- TRUE
 if(nrow(datax) == 0){
   showSignificant <- FALSE
@@ -376,7 +372,7 @@ cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant pro
 
 
 ```{r SigPrey, fig.cap= "(ref:SigPrey)", eval = showSignificant}
-ctdata <- datax |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "FDR", "diff" )))
+ctdata <- datax_signif |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "diff", "FDR"  )))
 sig <- crosstalk::SharedData$new(ctdata, ~protein_Id, group = "Choose protein")
 DT::datatable(sig)|> DT::formatRound(columns=c('FDR', 'diff'), digits=3)
 ```
@@ -386,8 +382,9 @@ DT::datatable(sig)|> DT::formatRound(columns=c('FDR', 'diff'), digits=3)
 
 ```{r prepareHeatmap, eval = showSignificant}
 signif <- grp2$RES$transformedlfqData$get_copy()
-signif <- signif$get_subset(datax)
-if(nrow(datax) > 30){
+signif <- signif$get_subset(datax_signif)
+
+if(sifnif$hierarchy_counts()[1] > 30){
   rownames = FALSE
 } else {
   rownames = TRUE
@@ -413,7 +410,7 @@ sigheat
 
 
 ```{r vennDiagramSig, fig.cap="(ref:vennDiagramSig)", eval = showSignificant}
-xx <- split(datax$protein_Id, datax$contrast)
+xx <- split(datax_signif$protein_Id, datax_signif$contrast)
 if (length(xx) > 1) {
   UpSetR::upset(UpSetR::fromList(xx))
 }
@@ -431,7 +428,7 @@ The zip file contains an excel file __Results.xlsx__. All the figures can be rec
 - __raw_abundances_matrix__ A table where each column represents a sample and each row represents a protein and the cells store the empirical protein abundances.
 - __normalized_abundances_matrix__ A table where each column represents a sample and each row represents a protein and the cells store the empirical protein abundances.
 - __diff_exp_analysis__ A table with the results of the differential expression analysis. For each protein there is an row containing the estimated difference between the groups, the false discovery rate FDR, the 95% confidence interval, the posterior degrees of freedom. 
-- __missing_informtion__ - spreadsheet containing information in how many samples of a group a protein is observed.
+- __missing_information__ - spreadsheet containing information in how many samples of a group a protein is observed.
 
 
 The zip file also includes an "boxplot.pdf" file which shows the boxplots of normalized protein abundances for all the proteins in the dataset.

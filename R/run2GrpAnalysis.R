@@ -134,6 +134,16 @@ make2grpReport <- function(lfqdata,
   res <- prolfqua::addContrastResults(conrM, conMI)
   GRP2$RES$contrMerged <- res$merged
   GRP2$RES$contrMore <- res$more
+
+  datax <- GRP2$RES$contrMerged$get_contrasts()
+  datax$FDR <- ifelse(is.na(datax$FDR), 1, datax$FDR)
+  datax <- dplyr::inner_join(GRP2$RES$rowAnnot$row_annot, datax)
+  GRP2$RES$contrastsData  <- datax
+
+  datax <- datax |>
+    dplyr::filter(.data$FDR < GRP2$pop$FDRthreshold & abs(.data$diff) > GRP2$pop$Diffthreshold )
+  GRP2$RES$contrastsData_signif <- datax
+
   return(GRP2)
 }
 
@@ -157,11 +167,15 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts())
   resultList <- list()
   resultList$annotation = tr$to_wide()$annot
-  resultList$raw_data = wideraw
-  resultList$transformed_data = widetr
-  resultList$contrasts = ctr
+  resultList$normalized_abundances = inner_join(ra$row_annot, rd$data)
+  resultList$raw_abundances_matrix = wideraw
+  resultList$normalized_abundances_matrix = widetr
+  resultList$diff_exp_analysis = ctr
   resultList$formula = formula
+  resultList$missing_information
   resultList$summary = GRP2$RES$Summary
+  resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr=1)
+
   writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
 }
 
