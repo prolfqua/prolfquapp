@@ -165,7 +165,7 @@ Using Figure \@ref(fig:vennProteins) we examine if we see the same proteins in e
 
 (ref:vennProteins) Venn diagram showing the number of proteins present in each group and in all possible intersections among groups. 
 
-```{r vennProteins, fig.cap="ref:vennProteins"}
+```{r vennProteins, fig.cap="(ref:vennProteins)"}
 pups <- prolfqua::UpSet_interaction_missing_stats(grp2$RES$lfqData$data, grp2$RES$lfqData$config, tr=1)
 UpSetR::upset(pups, order.by = "freq")
 
@@ -362,13 +362,13 @@ datax <- datax |>
   dplyr::filter(.data$FDR < grp2$pop$FDRthreshold & abs(.data$diff) > grp2$pop$Diffthreshold )
 showSignificant <- TRUE
 if(nrow(datax) == 0){
-  showSignificant <- NULL
-
+  showSignificant <- FALSE
 }
+
 ```
 
 
-```{r results = 'asis'}
+```{r results = 'asis', eval = showSignificant}
 cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant proteins.")
 ```
 
@@ -399,7 +399,7 @@ sigheat <- signif$get_Plotter()$raster(rownames = rownames)
 
 ```{r makeText, eval = showSignificant, results = 'asis'}
 
-cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 transformed empirical protein abundances of all significant calls."))
+cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 transformed empirical protein abundances of all significant calls"))
 
 ```
 
@@ -409,11 +409,10 @@ cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 tr
 sigheat
 ```
 
-(ref:vennDiagram) Venn diagram showing the number of significant proteins for each contrast and their intersections.
+(ref:vennDiagramSig) Venn diagram showing the number of significant proteins for each contrast and their intersections.
 
 
-```{r vennDiagram, fig.cap="(ref:vennDiagram)", eval = showSignificant}
-library(tidyverse)
+```{r vennDiagramSig, fig.cap="(ref:vennDiagramSig)", eval = showSignificant}
 xx <- split(datax$protein_Id, datax$contrast)
 if (length(xx) > 1) {
   UpSetR::upset(UpSetR::fromList(xx))
