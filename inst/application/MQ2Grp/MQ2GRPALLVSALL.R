@@ -144,8 +144,6 @@ logger::log_info("END OF DATA TRANSFORMATION.")
 
 
 # Compute all possible 2 Grps to avoid specifying reference.
-levels <- peptide[[groupingVAR]] |> unique()
-
 levels <- peptide |> dplyr::select(Group_ = groupingVAR,  control = starts_with("control", ignore.case = TRUE)) |>
   dplyr::distinct()
 
@@ -223,7 +221,6 @@ if(CONTROL & !is.null(levels$control)){
         prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
       }
-
     }
   }
 
