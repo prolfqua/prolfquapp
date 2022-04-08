@@ -355,9 +355,9 @@ knitr::kable(x, caption = mycap)
 
 
 ```{r areThereSig}
-datax_signif <- GRP2$RES$contrastsData_signif
+datax_signif <- grp2$RES$contrastsData_signif
 showSignificant <- TRUE
-if(nrow(datax) == 0){
+if(nrow(datax_signif) == 0){
   showSignificant <- FALSE
 }
 
@@ -382,10 +382,8 @@ DT::datatable(sig)|> DT::formatRound(columns=c('FDR', 'diff'), digits=3)
 
 ```{r prepareHeatmap, eval = showSignificant}
 signif <- grp2$RES$transformedlfqData$get_copy()
-
 signif <- signif$get_subset(datax_signif)
-
-if(signif$hierarchy_counts()[1] > 30){
+if(signif$hierarchy_counts()[2] > 30){
   rownames = FALSE
 } else {
   rownames = TRUE
