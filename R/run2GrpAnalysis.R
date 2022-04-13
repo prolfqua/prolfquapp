@@ -136,7 +136,6 @@ make2grpReport <- function(lfqdata,
   GRP2$RES$contrMore <- res$more
 
   datax <- GRP2$RES$contrMerged$get_contrasts()
-  datax$FDR <- ifelse(is.na(datax$FDR), 1, datax$FDR)
   datax <- dplyr::inner_join(GRP2$RES$rowAnnot$row_annot, datax)
   GRP2$RES$contrastsData  <- datax
 
@@ -199,7 +198,7 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   gsea <- fg |> dplyr::select(contrast, UniprotID, statistic) |> dplyr::arrange(statistic)
   gsea <- split(dplyr::select(gsea,UniprotID, statistic ), gsea$contrast)
   for(i in names(gsea)){
-    ff <- file.path(outpath, paste0("GSEA_",i,".txt" ))
+    ff <- file.path(outpath, paste0("GSEA_",i,".rnk" ))
     logger::log_info("Writing File ", ff)
     write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
                 row.names = FALSE, quote=FALSE)

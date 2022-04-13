@@ -1,3 +1,5 @@
+
+
 ymlfile <- "config.yaml"
 yml = yaml::read_yaml(ymlfile)
 
@@ -164,7 +166,13 @@ if(CONTROL & !is.null(levels$control)){
   prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
   prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
   prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+  pl <- grp2$RES$transformedlfqData$get_Plotter()
+  pl$write_boxplots(outpath)
 
+  bb <- grp2$RES$transformedlfqData
+  if(length(bb$config$table$factorKeys()) > 1) {
+    writeLinesPaired(bb, outpath)
+  }
 
 } else {
 
@@ -192,6 +200,13 @@ if(CONTROL & !is.null(levels$control)){
         prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
         prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
         prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+        pl <- grp2$RES$transformedlfqData$get_Plotter()
+        pl$write_boxplots(outpath)
+
+        bb <- grp2$RES$transformedlfqData
+        if(length(bb$config$table$factorKeys()) > 1) {
+          writeLinesPaired(bb, outpath)
+        }
 
       }
 
