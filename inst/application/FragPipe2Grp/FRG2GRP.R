@@ -166,11 +166,13 @@ if(CONTROL & !is.null(levels$control)){
   prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
   prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
   prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+
+  bb <- grp2$RES$transformedlfqData
+
   if(length(bb$config$table$factorKeys()) > 1) {
-    bb <- grp2$RES$transformedlfqData
     prolfquapp::writeLinesPaired(bb, outpath)
   } else{
-    pl <- grp2$RES$transformedlfqData$get_Plotter()
+    pl <- bb$get_Plotter()
     pl$write_boxplots(outpath)
   }
 
