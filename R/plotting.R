@@ -12,7 +12,7 @@ writeLinesPaired <- function(bb, outpath) {
       ggplot2::geom_point() +
       ggplot2::geom_line() +
       ggplot2::labs(title = pid)  +
-      ggplot2theme_bw()
+      ggplot2::theme_bw()
   }
   plots <- purrr::map2(nested[[2]], nested[[1]], plotL)
   pdf(file.path(outpath, "lines_paired.pdf"))
