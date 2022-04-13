@@ -171,7 +171,7 @@ if(CONTROL & !is.null(levels$control)){
 
   bb <- grp2$RES$transformedlfqData
   if(length(bb$config$table$factorKeys()) > 1) {
-    writeLinesPaired(bb, outpath)
+    prolfquapp::writeLinesPaired(bb, outpath)
   }
 
 } else {
@@ -205,7 +205,7 @@ if(CONTROL & !is.null(levels$control)){
 
         bb <- grp2$RES$transformedlfqData
         if(length(bb$config$table$factorKeys()) > 1) {
-          writeLinesPaired(bb, outpath)
+          prolfquapp::writeLinesPaired(bb, outpath)
         }
 
       }
