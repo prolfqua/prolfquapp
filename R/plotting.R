@@ -7,8 +7,8 @@ writeLinesPaired <- function(bb, outpath) {
   plotL <- function(tr, pid){
     ggplot2::ggplot(tr, ggplot2::aes_string(x = bb$config$table$factorKeys()[1],
                           y = bb$config$table$getWorkIntensity(),
-                          group = bb$config$table$factorKeys()[1],
-                          colour = bb$config$table$factorKeys()[1] )) +
+                          group = bb$config$table$factorKeys()[2],
+                          colour = bb$config$table$factorKeys()[2] )) +
       ggplot2::geom_point() +
       ggplot2::geom_line() +
       ggplot2::labs(title = pid)  +
