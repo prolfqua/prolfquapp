@@ -117,7 +117,7 @@ cse <- prolfqua::ContrastsSaintExpress$new(resSaint$list)
 
 
 resContrasts <- cse$get_contrasts()
-resContrasts <- resContrasts |> dplyr::select(-dplyr::all_of( c("group_1_name", "group_2_name", "group_1", "group_2" )))
+#resContrasts <- resContrasts |> dplyr::select(-dplyr::all_of( c("group_1_name", "group_2_name", "group_1", "group_2" )))
 sig <- resContrasts |>
   dplyr::filter(.data$BFDR  <  REPORTDATA$FDRthreshold & .data$log2_EFCs  >  log2(REPORTDATA$FCthreshold))
 
