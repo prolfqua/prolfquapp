@@ -129,7 +129,7 @@ lfqdata_transformed <- tt$lfq
 
 
 
-REPORTDATA$pups <- prepUpset(lfqdata$data, lfqdata$config)
+REPORTDATA$pups <- prolfqua::UpSet_interaction_missing_stats(lfqdata$data, lfqdata$config,tr = 2)
 RESULTS$InputData <- lfqdata$to_wide()$data
 
 gs <- lfqdata$get_Summariser()
