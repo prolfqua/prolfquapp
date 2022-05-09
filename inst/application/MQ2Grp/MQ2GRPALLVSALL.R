@@ -97,12 +97,9 @@ if (sum(grepl("^subject", colnames(peptide), ignore.case = TRUE)) == 1 & REPEATE
   atable$factors[["Subject"]] = grep("^subject", colnames(peptide), value = TRUE, ignore.case = TRUE)
 }
 
-
-if (sum(grepl("^control", colnames(protein), ignore.case = TRUE)) == 1) {
-  atable$factors[["CONTROL"]] = grep("^control", colnames(protein), value = TRUE, ignore.case = TRUE)
+if (sum(grepl("^control", colnames(peptide), ignore.case = TRUE)) == 1) {
+  atable$factors[["CONTROL"]] = grep("^control", colnames(peptide), value = TRUE, ignore.case = TRUE)
 }
-
-
 
 atable$factorDepth <- 1
 atable$setWorkIntensity("peptide.intensity")
@@ -150,4 +147,5 @@ lfqdata$is_transformed(FALSE)
 
 logger::log_info("END OF DATA TRANSFORMATION.")
 
+#debug(prolfquapp::generate_reports)
 prolfquapp::generate_reports(lfqdata, GRP2, prot_annot, revpattern, contpattern, ZIPDIR)
