@@ -27,7 +27,7 @@ GRP2$Bfabric$inputURL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
 GRP2$pop <- list()
 GRP2$pop$transform <- yml$application$parameters$`3|Normalization`
 
-GRP2$pop$aggregate <- yml$application$parameters$`2|Aggregation`
+GRP2$pop$aggregate <- "medpolish"
 GRP2$pop$Diffthreshold <- as.numeric(yml$application$parameters$`4|Difference_threshold`)
 GRP2$pop$FDRthreshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
 removeREV <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {FALSE}
@@ -96,6 +96,14 @@ atable$factors[["Group_"]] = groupingVAR
 if (sum(grepl("^subject", colnames(peptide), ignore.case = TRUE)) == 1 & REPEATED) {
   atable$factors[["Subject"]] = grep("^subject", colnames(peptide), value = TRUE, ignore.case = TRUE)
 }
+
+
+if (sum(grepl("^control", colnames(protein), ignore.case = TRUE)) == 1) {
+  atable$factors[["CONTROL"]] = grep("^control", colnames(protein), value = TRUE, ignore.case = TRUE)
+}
+
+
+
 atable$factorDepth <- 1
 atable$setWorkIntensity("peptide.intensity")
 

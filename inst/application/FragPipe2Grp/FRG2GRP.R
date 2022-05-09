@@ -94,7 +94,7 @@ if (sum(grepl("^subject", colnames(protein), ignore.case = TRUE)) == 1 & REPEATE
   atable$factors[["Subject"]] = grep("^subject", colnames(protein), value = TRUE, ignore.case = TRUE)
 }
 
-if (sum(grepl("^control", colnames(protein), ignore.case = TRUE)) == 1 & REPEATED) {
+if (sum(grepl("^control", colnames(protein), ignore.case = TRUE)) == 1) {
   atable$factors[["CONTROL"]] = grep("^control", colnames(protein), value = TRUE, ignore.case = TRUE)
 }
 
