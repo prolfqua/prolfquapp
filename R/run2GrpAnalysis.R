@@ -111,7 +111,7 @@ make2grpReport <- function(lfqdata,
   ################## Run Modelling ###############
 
   formula <- paste0(transformed$config$table$getWorkIntensity(), " ~ ",
-                    paste(transformed$config$table$factorKeys(), collapse = " + "))
+                    paste(na.omit(transformed$config$table$factorKeys()[1:2]), collapse = " + "))
   message("FORMULA :",  formula)
   GRP2$RES$formula <- formula
   formula_Condition <-  prolfqua::strategy_lm(formula)
@@ -176,14 +176,14 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr=1)
 
   bkg <- prolfqua::get_UniprotID_from_fasta_header(
-    grp2$RES$rowAnnot$row_annot,
+    GRP2$RES$rowAnnot$row_annot,
     idcolumn = "protein_Id")$UniprotID
   ff <- file.path(outpath ,"ORA_background.txt")
   write.table(bkg,file = ff, col.names = FALSE,
               row.names = FALSE, quote=FALSE)
 
   fg <- prolfqua::get_UniprotID_from_fasta_header(
-  grp2$RES$contrastsData_signif,
+    GRP2$RES$contrastsData_signif,
   idcolumn = "protein_Id")
   ora_sig <- split(fg$UniprotID, fg$contrast)
   for(i in names(ora_sig)){
@@ -193,7 +193,7 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
                row.names = FALSE, quote=FALSE)
   }
   fg <- prolfqua::get_UniprotID_from_fasta_header(
-    grp2$RES$contrastsData,
+    GRP2$RES$contrastsData,
     idcolumn = "protein_Id")
   gsea <- fg |> dplyr::select(contrast, UniprotID, statistic) |> dplyr::arrange(statistic)
   gsea <- split(dplyr::select(gsea,UniprotID, statistic ), gsea$contrast)

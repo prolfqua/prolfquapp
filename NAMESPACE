@@ -2,6 +2,7 @@
 
 export(copy_2grp_FragPipe)
 export(copy_2grp_MaxQuant)
+export(generate_reports)
 export(make2grpReport)
 export(render_2GRP)
 export(writeLinesPaired)
