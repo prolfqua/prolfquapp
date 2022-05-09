@@ -117,10 +117,11 @@ lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
 
 
-
 # Compute all possible 2 Grps to avoid specifying reference.
-levels <- protein |> dplyr::select(Group_ = groupingVAR,  control = starts_with("control", ignore.case = TRUE)) |>
+levels  <- lfqdata$factors() |>
+  dplyr::select(Group_ = Group_,  control = starts_with("control", ignore.case = TRUE)) |>
   dplyr::distinct()
+
 
 
 logger::log_info("levels : ", paste(levels, collapse = " "))
@@ -168,7 +169,6 @@ if(CONTROL & !is.null(levels$control)){
   prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
   bb <- grp2$RES$transformedlfqData
-
   if(length(bb$config$table$factorKeys()) > 1) {
     prolfquapp::writeLinesPaired(bb, outpath)
   } else{
@@ -206,7 +206,7 @@ if(CONTROL & !is.null(levels$control)){
         if(length(bb$config$table$factorKeys()) > 1) {
           prolfquapp::writeLinesPaired(bb, outpath)
         } else{
-          pl <- grp2$RES$transformedlfqData$get_Plotter()
+          pl <- bb$get_Plotter()
           pl$write_boxplots(outpath)
         }
 

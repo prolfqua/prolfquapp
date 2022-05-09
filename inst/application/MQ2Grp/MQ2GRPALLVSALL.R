@@ -87,9 +87,9 @@ if(sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0){
 }
 
 
-stopifnot(sum(grepl("^group", colnames(peptide), ignore.case = TRUE)) == 1)
+stopifnot(sum(grepl("^group|^bait", colnames(peptide), ignore.case = TRUE)) == 1)
 
-groupingVAR <- grep("^group", colnames(peptide), value= TRUE, ignore.case = TRUE)
+groupingVAR <- grep("^group|^bait", colnames(peptide), value= TRUE, ignore.case = TRUE)
 peptide[[groupingVAR]]<- gsub("[[:space:]]", "", peptide[[groupingVAR]])
 atable$factors[["Group_"]] = groupingVAR
 
@@ -144,7 +144,8 @@ logger::log_info("END OF DATA TRANSFORMATION.")
 
 
 # Compute all possible 2 Grps to avoid specifying reference.
-levels <- peptide |> dplyr::select(Group_ = groupingVAR,  control = starts_with("control", ignore.case = TRUE)) |>
+levels <- lfqdata$factors() |>
+  dplyr::select(Group_ = Group_,  control = starts_with("control", ignore.case = TRUE)) |>
   dplyr::distinct()
 
 
@@ -192,6 +193,14 @@ if(CONTROL & !is.null(levels$control)){
   prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
   prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
+  bb <- grp2$RES$transformedlfqData
+  if(length(bb$config$table$factorKeys()) > 1) {
+    prolfquapp::writeLinesPaired(bb, outpath)
+  } else{
+    pl <- bb$get_Plotter()
+    pl$write_boxplots(outpath)
+  }
+
 
 } else {
 
@@ -219,6 +228,14 @@ if(CONTROL & !is.null(levels$control)){
         prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
         prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
         prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+
+        bb <- grp2$RES$transformedlfqData
+        if(length(bb$config$table$factorKeys()) > 1) {
+          prolfquapp::writeLinesPaired(bb, outpath)
+        } else{
+          pl <- bb$get_Plotter()
+          pl$write_boxplots(outpath)
+        }
 
       }
     }
