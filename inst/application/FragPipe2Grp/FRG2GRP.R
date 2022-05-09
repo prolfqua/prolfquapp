@@ -94,6 +94,10 @@ if (sum(grepl("^subject", colnames(protein), ignore.case = TRUE)) == 1 & REPEATE
   atable$factors[["Subject"]] = grep("^subject", colnames(protein), value = TRUE, ignore.case = TRUE)
 }
 
+if (sum(grepl("^control", colnames(protein), ignore.case = TRUE)) == 1 & REPEATED) {
+  atable$factors[["CONTROL"]] = grep("^control", colnames(protein), value = TRUE, ignore.case = TRUE)
+}
+
 atable$factorDepth <- 1
 atable$setWorkIntensity("razor.intensity")
 
@@ -106,7 +110,7 @@ proteinID <- atable$hkeysDepth()
 
 # Create protein annotation.
 protein_annot <- "description"
-prot_annot <- dplyr::select(protein ,
+prot_annot <- dplyr::select(protein,
                             dplyr::all_of(c( atable$hierarchy[[proteinID]], protein_annot))) |>
   dplyr::distinct()
 prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_annot))
