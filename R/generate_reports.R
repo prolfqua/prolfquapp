@@ -54,7 +54,7 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, revpattern, contpattern,
     prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
     bb <- grp2$RES$transformedlfqData
-    if(length(bb$config$table$factorKeys()) > 1) {
+    if(sum(!grepl("^control",bb$config$table$factorKeys()))  > 1) {
       prolfquapp::writeLinesPaired(bb, outpath)
     } else{
       pl <- bb$get_Plotter()
@@ -88,7 +88,7 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, revpattern, contpattern,
           prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
           prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
           bb <- grp2$RES$transformedlfqData
-          if(length(bb$config$table$factorKeys()) > 1) {
+          if(sum(!grepl("^control",bb$config$table$factorKeys())) > 1) {
             prolfquapp::writeLinesPaired(bb, outpath)
           } else{
             pl <- bb$get_Plotter()
