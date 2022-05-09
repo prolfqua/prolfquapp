@@ -111,7 +111,7 @@ make2grpReport <- function(lfqdata,
   ################## Run Modelling ###############
 
   formula <- paste0(transformed$config$table$getWorkIntensity(), " ~ ",
-                    paste(na.omit(transformed$config$table$factorKeys()[1:2]), collapse = " + "))
+                    paste(transformed$config$table$factorKeys()[!grepl("^control", transformed$config$table$factorKeys() , ignore.case=TRUE)], collapse = " + "))
   message("FORMULA :",  formula)
   GRP2$RES$formula <- formula
   formula_Condition <-  prolfqua::strategy_lm(formula)
