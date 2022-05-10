@@ -94,14 +94,9 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, revpattern, contpattern,
             pl <- bb$get_Plotter()
             pl$write_boxplots(outpath)
           }
-
         }
-
       }
     }
-
-
   }
-
 }
 
