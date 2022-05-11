@@ -118,22 +118,22 @@ The bottom panel in Figure \@ref(fig:densityOFFoldChanges) shows the distributio
 
 ```{r densityOFFoldChanges, fig.width=8, fig.height=4, dpi=300, fig.cap = "(ref:densityOFFoldChanges)"}
 cpl <- grp2$RES$contrMerged$get_Plotter(FCthreshold = grp2$pop$Diffthreshold, FDRthreshold = grp2$pop$FDRthreshold)
-p1 <- cpl$histogram_diff()
-p2 <- cpl$histogram()$p.value
+p1 <- cpl$histogram_diff() + ggplot2::labs(tag = "A")
+p2 <- cpl$histogram()$p.value  + ggplot2::labs(tag = "B")
 gridExtra::grid.arrange(p1,p2)
 
 ```
 
-To identify abundant proteins with large differences or if only low abundt proteins show large fold changes the ma-plot figure \@ref(fig:MAPlot) can be used. The ma-plot shows the differences between measurements taken in two groups (y-axis) as a function of the average protein abundance (x-axis). More importantly, the observed fold change should not depend on the protein abundance. Figure \@ref(fig:MAplot) right panel plots the difference of each protein against the rank of the average protein abundance.
+To identify abundant proteins with large differences or if only low abundant proteins show large fold changes the ma-plot Figure \@ref(fig:MAPlot) Panel A can be used. The ma-plot shows the differences between measurements taken in two groups (y-axis) as a function of the average protein abundance (x-axis). More importantly, the observed fold change should not depend on the protein abundance. Figure \@ref(fig:MAPlot) panel B plots the difference of each protein against the rank of the average protein abundance.
 
-(ref:MAPlot) MA plot: x - axis: mean normalized protein intensity, y - axis: difference between the groups.
+(ref:MAPlot) MA plot: x - axis: average protein abundance (Panel A) or rank of average protein abundance (Panel B), y - axis: difference between the groups. 
 
 ```{r MAPlot, fig.width=8, fig.height=5,  fig.cap="(ref:MAPlot)", eval=TRUE}
 cpl <- grp2$RES$contrMerged$get_Plotter(
   FCthreshold = grp2$pop$Diffthreshold,
   FDRthreshold = grp2$pop$FDRthreshold)
-ppb <- cpl$ma_plot(rank = FALSE)
-ppc <- cpl$ma_plot(fc = GRP2$pop$Diffthreshold, rank = TRUE)
+ppb <- cpl$ma_plot(rank = FALSE) + ggplot2::labs(tag = "A")
+ppc <- cpl$ma_plot(fc = GRP2$pop$Diffthreshold, rank = TRUE) + ggplot2::labs(tag = "B")
 gridExtra::grid.arrange(ppb, ppc, ncol=1)
 
 ```
