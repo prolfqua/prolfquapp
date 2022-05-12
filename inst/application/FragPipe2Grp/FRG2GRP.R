@@ -36,8 +36,6 @@ removeREV <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {
 revpattern <- yml$application$parameters$`7|REVpattern`
 contpattern <- yml$application$parameters$`8|CONpattern`
 
-
-
 GRP2$Software <- "FragPipe"
 
 rm(yml)
@@ -62,6 +60,13 @@ annot <- annot |> dplyr::mutate(
                   basename(annot$Relative.Path)
   )
 )
+
+if( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
+  contr <- annot %>% select(ContrastName, Contrast) |> dplyr::filter(nchar(Contrast) > 0)
+  Contrasts <- contr$Contrast
+  names(Contrasts) <- contr$ContrastName
+  GRP2$pop$Contrasts <- Contrasts
+}
 
 nr <- sum(annot$raw.file %in% unique(protein$raw.file))
 logger::log_info("nr", nr, " files annotated")
