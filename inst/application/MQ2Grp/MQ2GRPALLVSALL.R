@@ -62,6 +62,14 @@ annot <- annot |> dplyr::mutate(
   )
 )
 
+if( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
+  contr <- annot %>% select(ContrastName, Contrast) |> dplyr::filter(nchar(Contrast) > 0)
+  Contrasts <- contr$Contrast
+  names(Contrasts) <- contr$ContrastName
+  GRP2$pop$Contrasts <- Contrasts
+}
+
+
 nr <- sum(annot$raw.file %in% unique(peptide$raw.file))
 logger::log_info("nr : ", nr, " files annotated")
 annot$Relative.Path <- NULL
