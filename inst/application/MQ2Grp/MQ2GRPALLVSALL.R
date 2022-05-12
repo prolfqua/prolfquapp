@@ -63,7 +63,7 @@ annot <- annot |> dplyr::mutate(
 )
 
 if( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
-  contr <- annot |> select(ContrastName, Contrast) |> dplyr::filter(nchar(Contrast) > 0)
+  contr <- annot |> dplyr::select(ContrastName, Contrast) |> dplyr::filter(nchar(Contrast) > 0)
   Contrasts <- contr$Contrast
   names(Contrasts) <- contr$ContrastName
   GRP2$pop$Contrasts <- Contrasts
