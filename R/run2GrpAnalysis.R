@@ -127,9 +127,19 @@ make2grpReport <- function(lfqdata,
   GRP2$RES$models <- mod
 
   contr <- prolfqua::Contrasts$new(mod, GRP2$pop$Contrasts)
-  conrM <- prolfqua::ContrastsModerated$new(contr, modelName = "Linear_Model_Moderated")
-  mC <- prolfqua::ContrastsSimpleImpute$new(lfqdata = transformed, contrasts = GRP2$pop$Contrasts)
-  conMI <- prolfqua::ContrastsModerated$new(mC, modelName = "Imputed_Mean")
+  conrM <- prolfqua::ContrastsModerated$new(
+    contr,
+    modelName = "Linear_Model_Moderated")
+  #saveRDS(list(transformed = transformed ,
+  #             Contrasts = GRP2$pop$Contrasts),
+  #        file = "totest.Rds")
+  mC <- prolfqua::ContrastsSimpleImpute$new(
+    lfqdata = transformed,
+    contrasts = GRP2$pop$Contrasts)
+
+  conMI <- prolfqua::ContrastsModerated$new(
+    mC,
+    modelName = "Imputed_Mean")
 
   res <- prolfqua::addContrastResults(conrM, conMI)
   GRP2$RES$contrMerged <- res$merged
