@@ -108,7 +108,7 @@ The analysis of missing values can be an important indicator for potential probl
 (ref:vennProteins) Venn diagram showing the number of proteins present in each group and in all possible intersections among groups. 
 
 ```{r vennProteins, fig.cap="(ref:vennProteins)", fig.with=10, fig.height=7, include = TRUE}
-UpSetR::upset(SEP$pups, order.by = "freq")
+UpSetR::upset(SEP$pups, order.by = "freq", nsets = 1000)
 
 ```
 
@@ -268,7 +268,7 @@ b1 <- bbSE |> dplyr::select(from, to)
 xx <-  split(b1$to, b1$from)
 
 if (length(xx) > 1) {
-  UpSetR::upset(UpSetR::fromList(xx))
+  UpSetR::upset(UpSetR::fromList(xx), order.by = "freq", nsets = 1000)
 }
 
 ```

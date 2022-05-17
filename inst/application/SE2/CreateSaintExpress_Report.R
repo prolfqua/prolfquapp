@@ -64,8 +64,8 @@ if (any(grepl("^name", colnames(annotation)))) {
 }
 
 ata$fileName = "raw.file"
-ata$factors[["CorT"]] = grep("control", colnames(annotation), value = TRUE)
-ata$factors[["bait"]] = grep("bait", colnames(annotation), value = TRUE)
+ata$factors[["CorT"]] = grep("^control", colnames(annotation), value = TRUE)
+ata$factors[["bait"]] = grep("^bait", colnames(annotation), value = TRUE)
 
 ata$factorDepth <- 2
 
@@ -85,7 +85,7 @@ lfqdata$remove_small_intensities(threshold = 0.1)
 
 
 # remove rev and contaminant sequences
-lfqdata$data <- lfqdata$data |> dplyr::filter(!grepl("^REV__|^CON__", protein_Id))
+lfqdata$data <- lfqdata$data |> dplyr::filter(!grepl("^REV_|^CON_|^zz", protein_Id, ignore.case = TRUE))
 
 RESULTS <- list() # RESULT is stored in excel table
 RESULTS$annotation <- lfqdata$factors()
