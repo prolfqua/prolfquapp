@@ -110,7 +110,7 @@ The analysis of missing values can also be an important indicator for potential 
 (ref:vennProteins) Venn diagram showing the number of proteins present in all possible intersections. 
 
 ```{r vennProteins, fig.cap="(ref:vennProteins)", fig.with=10, fig.height=7, include = TRUE}
-UpSetR::upset(SEP$pups, order.by = "freq")
+UpSetR::upset(SEP$pups, nsets = 1000, order.by = "freq")
 
 ```
 
@@ -270,7 +270,7 @@ b1 <- bbSE |> dplyr::select(from, to)
 xx <-  split(b1$to, b1$from)
 
 if (length(xx) > 1) {
-  UpSetR::upset(UpSetR::fromList(xx))
+  UpSetR::upset(UpSetR::fromList(xx), nsets = 1000)
 }
 
 ```
