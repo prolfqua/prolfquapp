@@ -317,7 +317,7 @@ DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |> DT::form
 
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
 
-palette <- c("black","darkgray")
+palette <- c("black","orange")
 palette <- setNames(palette, c("Linear_Model_Moderated", "Imputed_Mean"))  
 xd <- prolfqua::volcano_Plotly( 
   datax ,
