@@ -55,7 +55,6 @@ stopifnot(file.exists(peptidef), file.exists(proteinf), file.exists(dsf))
 protein <- prolfqua::tidyMQ_ProteinGroups(proteinf)
 peptide <- prolfqua::tidyMQ_Peptides(peptidef)
 annot <- read.csv(dsf)
-
 annot <- annot |> dplyr::mutate(
   raw.file = gsub("^x|.d.zip$|.raw$","",
                   tolower(make.names(basename(annot$Relative.Path)))
@@ -91,6 +90,8 @@ atable$hierarchy[["peptide_Id"]] <- c("sequence")
 atable$hierarchyDepth <- 1
 
 if(sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0){
+  id <- grep("^name", colnames(annot), ignore.case = TRUE)
+  class(annot[[id]]) <- "character"
   atable$sampleName <- grep("^name", colnames(annot) , value=TRUE, ignore.case = TRUE)
 }
 
