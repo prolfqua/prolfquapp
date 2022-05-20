@@ -78,8 +78,6 @@ peptide <- dplyr::inner_join(annot, peptide)
 peptide <- dplyr::inner_join(proteinAnnot,
                              peptide,
                              by = c(proteinID = "leading.razor.protein"))
-
-
 # Setup configuration
 
 atable <- prolfqua::AnalysisTableAnnotation$new()
