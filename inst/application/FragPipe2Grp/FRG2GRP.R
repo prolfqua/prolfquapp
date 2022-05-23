@@ -55,6 +55,8 @@ protein <- prolfqua::tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
 protein <- protein |> dplyr::filter(combined.total.peptides > 1 )
 
 annot <- read.csv(dsf)
+annot <- data.frame(lapply(annot, as.character))
+
 annot <- annot |> dplyr::mutate(
   raw.file = gsub("^x|.d.zip$|.raw$","",
                   basename(annot$Relative.Path)
