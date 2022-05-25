@@ -71,7 +71,7 @@ if( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
 }
 
 nr <- sum(annot$raw.file %in% unique(protein$raw.file))
-logger::log_info("nr", nr, " files annotated")
+logger::log_info("nr : ", nr, " files annotated")
 annot$Relative.Path <- NULL
 
 protein <- dplyr::inner_join(annot, protein)
