@@ -95,6 +95,8 @@ if(sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0){
 stopifnot(sum(grepl("^group", colnames(protein), ignore.case = TRUE)) == 1)
 groupingVAR <- grep("^group", colnames(protein), value= TRUE, ignore.case = TRUE)
 protein[[groupingVAR]]<- gsub("[[:space:]]", "", protein[[groupingVAR]])
+protein[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", protein[[groupingVAR]])
+
 atable$factors[["Group_"]] = groupingVAR
 
 if (sum(grepl("^subject", colnames(protein), ignore.case = TRUE)) == 1 & REPEATED) {

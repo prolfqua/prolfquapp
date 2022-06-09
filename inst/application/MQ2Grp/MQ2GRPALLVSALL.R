@@ -99,6 +99,8 @@ stopifnot(sum(grepl("^group|^bait", colnames(peptide), ignore.case = TRUE)) == 1
 
 groupingVAR <- grep("^group|^bait", colnames(peptide), value= TRUE, ignore.case = TRUE)
 peptide[[groupingVAR]]<- gsub("[[:space:]]", "", peptide[[groupingVAR]])
+protein[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", protein[[groupingVAR]])
+
 atable$factors[["Group_"]] = groupingVAR
 
 if (sum(grepl("^subject", colnames(peptide), ignore.case = TRUE)) == 1 & REPEATED) {
