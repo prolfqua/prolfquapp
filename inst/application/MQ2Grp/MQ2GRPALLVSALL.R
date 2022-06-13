@@ -99,7 +99,7 @@ stopifnot(sum(grepl("^group|^bait", colnames(peptide), ignore.case = TRUE)) == 1
 
 groupingVAR <- grep("^group|^bait", colnames(peptide), value= TRUE, ignore.case = TRUE)
 peptide[[groupingVAR]]<- gsub("[[:space:]]", "", peptide[[groupingVAR]])
-protein[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", protein[[groupingVAR]])
+peptide[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", peptide[[groupingVAR]])
 
 atable$factors[["Group_"]] = groupingVAR
 
