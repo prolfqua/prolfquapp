@@ -41,7 +41,7 @@ colnames(annotation) <- tolower(make.names(colnames(annotation)))
 annotation
 
 library(tidyverse)
-pp <- prolfqua::tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
+pp <- prolfqua::tidy_FragPipe_combined_protein("combined_protein.tsv")
 prot_annot <- dplyr::select(pp,protein , description) |> dplyr::distinct()
 pp$raw.file |> unique()
 
