@@ -93,7 +93,7 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, revpattern, contpattern,
     }
 
   } else {
-
+    # create all possible 2 grp comparisons
     for (i in seq_along(levels$Group_)) {
       for (j in seq_along(levels$Group_)) {
         if (i != j) {

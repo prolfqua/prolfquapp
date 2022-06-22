@@ -12,11 +12,12 @@
 #' @export
 #' @family workflow
 #' @examples
-#'
+#' library(prolfquapp)
+#' library(prolfqua)
 #' istar <- prolfqua_data('data_ionstar')$filtered()
 #' data <- istar$data |> dplyr::filter(protein_Id %in% sample(protein_Id, 100))
 #' data$Description <-"AAAAA"
-#'
+#' protein_annot <- data |> dplyr::select(protein_Id, Description) |> dplyr::distinct()
 #' GRP2 <- list()
 #' GRP2$Bfabric <- list()
 #' GRP2$Bfabric$projectID <- "3765"
@@ -39,7 +40,7 @@
 #'
 #' data <- dplyr::filter(data, dilution. == "a" |  dilution. == "b")
 #' atab <- AnalysisTableAnnotation$new()
-#'
+#' atab$ident_qValue = "pep"
 #' atab$fileName = "raw.file"
 #' atab$hierarchy["protein_Id"] = "protein_Id"
 #' atab$hierarchy["peptide_Id"] = "peptide_Id"
@@ -47,10 +48,22 @@
 #' atab$setWorkIntensity("peptide.intensity")
 #' atab$isotopeLabel = "isotope"
 #' config <- prolfqua::AnalysisConfiguration$new(atab)
+#'
+#' lfqdata <- prolfqua::LFQData$new(data, config)
+#' lfqdata$remove_small_intensities()
+#' aggregator <- lfqdata$get_Aggregator()
+#'
+#' aggregator$sum_topN()
+#' lfqdata <- aggregator$lfq_agg
+#'
 #' GRP2$pop$nrPeptides <- 2
 #'
-#' protein_annot = "Description"
-#' grp <- make2grpReport(data, atab, GRP2)
+#' GRP2$pop$Contrasts <- c("avsb" = "dilution.a - dilution.b")
+#' grp <- make2grpReport(lfqdata, protein_annot, GRP2)
+#' st <- grp$RES$transformedlfqData$get_Stats()
+#' bb <- st$stats()
+#' sr <- grp$RES$transformedlfqData$get_Summariser()
+#' int <- sr$interaction_missing_stats()
 #'
 #' \dontrun{
 #'
@@ -181,9 +194,12 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   resultList$normalized_abundances_matrix = widetr
   resultList$diff_exp_analysis = ctr
   resultList$formula = formula
-  resultList$missing_information
   resultList$summary = GRP2$RES$Summary
   resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr=1)
+
+  # add protein statistics
+  st <- GRP2$RES$transformedlfqData$get_Stats()
+  resultList$protein_variances <- st$stats()
 
   bkg <- prolfqua::get_UniprotID_from_fasta_header(
     GRP2$RES$rowAnnot$row_annot,
@@ -211,7 +227,7 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
     ff <- file.path(outpath, paste0("GSEA_",i,".rnk" ))
     logger::log_info("Writing File ", ff)
     write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
-                row.names = FALSE, quote=FALSE)
+                row.names = FALSE, quote=FALSE, sep = "\t")
   }
   writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
 }

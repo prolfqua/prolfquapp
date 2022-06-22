@@ -54,11 +54,12 @@ render_2GRP(
 For use examples see run_scripts directory
 }
 \examples{
-
+library(prolfquapp)
+library(prolfqua)
 istar <- prolfqua_data('data_ionstar')$filtered()
 data <- istar$data |> dplyr::filter(protein_Id \%in\% sample(protein_Id, 100))
 data$Description <-"AAAAA"
-
+protein_annot <- data |> dplyr::select(protein_Id, Description) |> dplyr::distinct()
 GRP2 <- list()
 GRP2$Bfabric <- list()
 GRP2$Bfabric$projectID <- "3765"
@@ -81,7 +82,7 @@ GRP2$Software <- "MaxQuant"
 
 data <- dplyr::filter(data, dilution. == "a" |  dilution. == "b")
 atab <- AnalysisTableAnnotation$new()
-
+atab$ident_qValue = "pep"
 atab$fileName = "raw.file"
 atab$hierarchy["protein_Id"] = "protein_Id"
 atab$hierarchy["peptide_Id"] = "peptide_Id"
@@ -89,10 +90,22 @@ atab$factors["dilution."] = "dilution."
 atab$setWorkIntensity("peptide.intensity")
 atab$isotopeLabel = "isotope"
 config <- prolfqua::AnalysisConfiguration$new(atab)
+
+lfqdata <- prolfqua::LFQData$new(data, config)
+lfqdata$remove_small_intensities()
+aggregator <- lfqdata$get_Aggregator()
+
+aggregator$sum_topN()
+lfqdata <- aggregator$lfq_agg
+
 GRP2$pop$nrPeptides <- 2
 
-protein_annot = "Description"
-grp <- make2grpReport(data, atab, GRP2)
+GRP2$pop$Contrasts <- c("avsb" = "dilution.a - dilution.b")
+grp <- make2grpReport(lfqdata, protein_annot, GRP2)
+st <- grp$RES$transformedlfqData$get_Stats()
+bb <- st$stats()
+sr <- grp$RES$transformedlfqData$get_Summariser()
+int <- sr$interaction_missing_stats()
 
 \dontrun{
 
