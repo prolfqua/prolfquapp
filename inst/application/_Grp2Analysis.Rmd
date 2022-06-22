@@ -283,12 +283,12 @@ knitr::kable(df, caption = "Name of difference (Contrast), and formula used to c
 and a null hypothesis significance test (NHST) is conducted, where the null hypothesis is that the protein is not differentially expressed [@faraway2004linear]. 
 
 If there are no abundances measured in one of the groups for some proteins, we assume the observations are missing because the protein abundance is below the detection limit. Therefore, we estimate the detection limit using the mean of the $1\%$ smallest group averages. 
-Furthermore, to make it explicit for which proteins we did impute the unobserved group mean, we label them with `Imputed_Mean` (see tables shown in Figures \@ref(fig:tableAllProt) and \@ref(fig:SigPrey) column `modelName`) and visualize them with gray dots in Figure \@ref(fig:volcanoplot). Finally, those proteins with a sufficiently large number of observations are labeled with `Linear_Model_Moderated`.
+Furthermore, to make it explicit for which proteins we did impute the unobserved group mean, we label them with `Imputed_Mean` (see table in Figures \@ref(fig:tableAllProt) column `modelName`) and visualize them with gray dots in Figure \@ref(fig:volcanoplot). Finally, those proteins with a sufficiently large number of observations are labeled with `Linear_Model_Moderated`.
 
 Next, to increase the power of the analysis variance shrinkage is performed [@Smyth2004]. Finally, the false discovery rate (FDR) using the Benjamini-Hochberg procedure is computed [@benjamini1995controlling].
 The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. By filtering the proteins using a FDR threshold of `r grp2$pop$FDRthreshold*100` % we can expect this proportion of false positives in the list and `r (1 - grp2$pop$FDRthreshold) * 100` % truly differentially expressed proteins. Because we do not know which of them are true positives follow up experiments are necessary.
 
-The table shown in Figure \@ref(fig:tableAllProt) summarizes the differential expression analysis results by providing the following information:
+The table (Figure \@ref(fig:tableAllProt)) summarizes the differential expression analysis results by providing the following information:
 
 - protein_Id - unique protein identifier
 - description - information about the protein provided in the FASTA database
@@ -427,7 +427,8 @@ The zip file contains an excel file __Results.xlsx__. All the figures can be rec
 - __raw_abundances_matrix__ A table where each column represents a sample and each row represents a protein and the cells store the empirical protein abundances.
 - __normalized_abundances_matrix__ A table where each column represents a sample and each row represents a protein and the cells store the empirical protein abundances.
 - __diff_exp_analysis__ A table with the results of the differential expression analysis. For each protein there is an row containing the estimated difference between the groups, the false discovery rate FDR, the 95% confidence interval, the posterior degrees of freedom. 
-- __missing_information__ - spreadsheet containing information in how many samples of a group a protein is observed.
+- __missing_information__ - spreadsheet containing information if a protein is present (1) or absent in a group (0).
+- __protein_variances__ - spreadsheet which for each protein shows the variance (var) or standard deviation (sd) within a group, the number of samples (n) and the number of observations (not_na) as well as the group average intensity (mean).
 
 
 The zip file also includes an "boxplot.pdf" file which shows the boxplots of normalized protein abundances for all the proteins in the dataset.

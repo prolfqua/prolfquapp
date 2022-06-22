@@ -50,7 +50,7 @@ REPEATED <- TRUE
 
 stopifnot( file.exists(proteinf), file.exists(dsf))
 
-protein <- prolfqua::tidy_MSFragger_combined_protein_V16("combined_protein.tsv")
+protein <- prolfqua::tidy_FragPipe_combined_protein("combined_protein.tsv")
 # remove single hit wonders.
 protein <- protein |> dplyr::filter(combined.total.peptides > 1 )
 
