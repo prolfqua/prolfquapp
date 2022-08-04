@@ -95,17 +95,19 @@ groupingVAR <- grep("^group", colnames(protein), value= TRUE, ignore.case = TRUE
 protein[[groupingVAR]]<- gsub("[[:space:]]", "", protein[[groupingVAR]])
 protein[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", protein[[groupingVAR]])
 
+atable$factorDepth <- 1
+
 atable$factors[["Group_"]] = groupingVAR
 
 if (sum(grepl("^subject", colnames(protein), ignore.case = TRUE)) == 1 & REPEATED) {
   atable$factors[["Subject"]] = grep("^subject", colnames(protein), value = TRUE, ignore.case = TRUE)
+  atable$factorDepth <- 2
 }
 
 if (sum(grepl("^control", colnames(protein), ignore.case = TRUE)) == 1) {
   atable$factors[["CONTROL"]] = grep("^control", colnames(protein), value = TRUE, ignore.case = TRUE)
 }
 
-atable$factorDepth <- 1
 atable$setWorkIntensity("razor.intensity")
 
 GRP2$pop$nrPeptides <- 2
