@@ -102,16 +102,17 @@ peptide[[groupingVAR]]<- gsub("[[:space:]]", "", peptide[[groupingVAR]])
 peptide[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", peptide[[groupingVAR]])
 
 atable$factors[["Group_"]] = groupingVAR
-
+atable$factorDepth <- 1
 if (sum(grepl("^subject", colnames(peptide), ignore.case = TRUE)) == 1 & REPEATED) {
   atable$factors[["Subject"]] = grep("^subject", colnames(peptide), value = TRUE, ignore.case = TRUE)
+  atable$factorDepth <- 2
 }
 
 if (sum(grepl("^control", colnames(peptide), ignore.case = TRUE)) == 1) {
   atable$factors[["CONTROL"]] = grep("^control", colnames(peptide), value = TRUE, ignore.case = TRUE)
 }
 
-atable$factorDepth <- 1
+
 atable$setWorkIntensity("peptide.intensity")
 
 
