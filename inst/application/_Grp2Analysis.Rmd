@@ -96,7 +96,7 @@ Table \@ref(tab:samples) shows the number of samples assigned to each group whil
 ```{r samples, eval=TRUE}
 
 tab <- data.frame(table(grp2$RES$lfqData$factors()[grp2$RES$lfqData$config$table$fkeysDepth()]))
-colnames(tab) <- c("Group","# samples")
+colnames(tab)[length(colnames(tab))] <- "# samples"
 knitr::kable(tab, caption = "Nr of samples assigned to each group.")
 
 ```
