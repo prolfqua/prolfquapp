@@ -100,8 +100,13 @@ atable$factorDepth <- 1
 atable$factors[["Group_"]] = groupingVAR
 
 if (sum(grepl("^subject", colnames(protein), ignore.case = TRUE)) == 1 & REPEATED) {
-  atable$factors[["Subject"]] = grep("^subject", colnames(protein), value = TRUE, ignore.case = TRUE)
-  atable$factorDepth <- 2
+  subvar <- grep("^subject", colnames(protein), value = TRUE, ignore.case = TRUE)
+  atable$factors[["Subject"]] = subvar
+
+  tmp <- data.frame(table(dplyr::distinct(protein[,c(groupingVAR,subvar)])) )
+  if(all(tmp$Freq > 1)){
+    atable$factorDepth <- 2
+  }
 }
 
 if (sum(grepl("^control", colnames(protein), ignore.case = TRUE)) == 1) {
