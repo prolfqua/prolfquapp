@@ -51,6 +51,7 @@ stopifnot( file.exists(proteinf), file.exists(dsf))
 protein <- prolfqua::tidy_FragPipe_combined_protein("combined_protein.tsv")
 # remove single hit wonders.
 protein <- protein |> dplyr::filter(combined.total.peptides > 1 )
+GRP2$pop$nrPeptides <- 2
 
 annot <- read.csv(dsf)
 annot <- data.frame(lapply(annot, as.character))
@@ -115,7 +116,6 @@ if (sum(grepl("^control", colnames(protein), ignore.case = TRUE)) == 1) {
 
 atable$setWorkIntensity("razor.intensity")
 
-GRP2$pop$nrPeptides <- 2
 
 # Preprocess Data
 config <- prolfqua::AnalysisConfiguration$new(atable)

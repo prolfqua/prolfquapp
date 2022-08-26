@@ -34,8 +34,6 @@ removeREV <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {
 revpattern <- yml$application$parameters$`7|REVpattern`
 contpattern <- yml$application$parameters$`8|CONpattern`
 
-
-
 GRP2$Software <- "MaxQuant"
 
 rm(yml)
@@ -133,6 +131,7 @@ prot_annot <- dplyr::rename(prot_annot, !!proteinID := (!!atable$hierarchy[[prot
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
 lfqdata$filter_proteins_by_peptide_count()
+GRP2$pop$nrPeptides <- 2
 
 logger::log_info("AGGREGATING PEPTIDE DATA!")
 

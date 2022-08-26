@@ -172,8 +172,6 @@ UpSetR::upset(pups, order.by = "freq")
 ```
 
 
-
-
 ## Protein Abundance Analysis
 
 The density plot (Figure \@ref(fig:normalized) left panel)  displays the protein abundance distribution for all data set samples. Mayor differences between samples could hint that the individual protein abundance values are affected by technical biases. These biases might need to be corrected to separate them from biological effects. The right panel of Figure \@ref(fig:normalized) shows the distribution of the transformed and scaled normalized empirical protein abundances. Normalization is applied to remove systematic differences in protein abundances due to different sample concentrations or amounts of sample loaded on a column. However, in the presence of a large proportion of missing data, normalization potentially amplifies systematic errors.
@@ -225,13 +223,8 @@ The Table \@ref(tab:CVtable) shows the median CV of all groups and across all sa
 
 ```{r CVtable, eval=TRUE}
 resR <- stR$stats_quantiles()
-
-C <- dplyr::bind_rows(
-CV = resR$wide  |> dplyr::filter(probs == 0.5) |> round(digits = 2)
-)
-
+C <- dplyr::bind_rows(CV = resR$wide  |> dplyr::filter(probs == 0.5) |> round(digits = 2))
 C <- C |> dplyr::mutate( what = c("CV"), .before = 1 )
-
 C$probs <- NULL
 knitr::kable(C, caption = 'Median of coefficient of variation (CV).')
 
@@ -342,7 +335,6 @@ plotly::subplot(xd, shareX = TRUE, shareY = TRUE, nrows = nrow)
 Here we use the FDR threshold of `r grp2$pop$FDRthreshold` and a difference threshold of `r grp2$pop$Diffthreshold` to select differentially expressed proteins. Table \@ref(tab:nrsignificant) summarizes the number of significant calls.
 
 ```{r nrsignificant, results="markup", eval=TRUE}
-
 library(dplyr)
 mx <- datax |> dplyr::mutate(passes = abs(diff) >  grp2$pop$Diffthreshold  & FDR < grp2$pop$FDRthreshold)
 x <- mx |> dplyr::group_by(contrast) |> summarize(n = n(), Significant = sum(passes), "Not Significant" = n() - sum(passes))
