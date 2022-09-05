@@ -6,9 +6,6 @@
 #' @param atable AnalysisTableAnnotation annotate startdata table
 #' @param GRP2 list with named arguments i.e. Contrasts, projectID, projectName, workunitID, nrPeptides, Diffthreshold, FDRthreshold
 #' @param protein_annot column with protein description e.g. (fasta header)
-#' @param revpattern default "REV_"
-#' @param contpattern default "^zz|^CON__"
-#' @param remove do you want to remove contaminants default (TRUE)
 #' @export
 #' @family workflow
 #' @examples
@@ -59,6 +56,9 @@
 #' GRP2$pop$nrPeptides <- 2
 #'
 #' GRP2$pop$Contrasts <- c("avsb" = "dilution.a - dilution.b")
+#' GRP2$pop$revpattern = "^REV_"
+#' GRP2$pop$contpattern = "^zz|^CON__"
+#' GRP2$pop$remove = TRUE
 #' grp <- make2grpReport(lfqdata, protein_annot, GRP2)
 #' st <- grp$RES$transformedlfqData$get_Stats()
 #' bb <- st$stats()
@@ -73,10 +73,7 @@
 #' }
 make2grpReport <- function(lfqdata,
                            prot_annot,
-                           GRP2,
-                           revpattern = "^REV_",
-                           contpattern = "^zz|^CON__",
-                           remove = FALSE
+                           GRP2
 ) {
 
 
@@ -103,16 +100,19 @@ make2grpReport <- function(lfqdata,
   GRP2$RES <- list()
   GRP2$RES$Summary <- data.frame(
     totalNrOfProteins = allProt,
-    percentOfContaminants = round(protAnnot$annotateCON(contpattern)/allProt * 100 , digits = 2),
-    percentOfFalsePositives  = round(protAnnot$annotateREV(revpattern)/allProt * 100 , digits = 2),
+    percentOfContaminants = round(protAnnot$annotateCON(GRP2$pop$contpattern)/allProt * 100 , digits = 2),
+    percentOfFalsePositives  = round(protAnnot$annotateREV(GRP2$pop$revpattern)/allProt * 100 , digits = 2),
     NrOfProteinsNoDecoys = protAnnot$nr_clean()
   )
   GRP2$RES$rowAnnot <- protAnnot
 
-  if (remove) {
+  if (GRP2$pop$remove) {
     lfqdata <- lfqdata$get_subset(protAnnot$clean())
     transformed <- transformed$get_subset(protAnnot$clean())
-    logger::log_info("removing contaminants and reverse sequences with patterns: {contpattern} {revpattern}")
+    logger::log_info(
+      paste0("removing contaminants and reverse sequences with patterns:",
+             GRP2$pop$contpattern,
+             GRP2$pop$revpattern ))
   }
 
   lfqdata$rename_response("protein_abundance")

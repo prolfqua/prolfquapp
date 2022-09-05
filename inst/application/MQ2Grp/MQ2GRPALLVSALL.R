@@ -30,9 +30,10 @@ GRP2$pop$transform <- yml$application$parameters$`3|Normalization`
 GRP2$pop$aggregate <- "medpolish"
 GRP2$pop$Diffthreshold <- as.numeric(yml$application$parameters$`4|Difference_threshold`)
 GRP2$pop$FDRthreshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
-removeREV <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {FALSE}
-revpattern <- yml$application$parameters$`7|REVpattern`
-contpattern <- yml$application$parameters$`8|CONpattern`
+
+GRP2$pop$remove <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {FALSE}
+GRP2$pop$revpattern <- yml$application$parameters$`7|REVpattern`
+GRP2$pop$contpattern <- yml$application$parameters$`8|CONpattern`
 
 GRP2$Software <- "MaxQuant"
 

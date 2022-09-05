@@ -4,7 +4,7 @@
 \alias{generate_reports}
 \title{generate reports}
 \usage{
-generate_reports(lfqdata, GRP2, prot_annot, revpattern, contpattern, ZIPDIR)
+generate_reports(lfqdata, GRP2, prot_annot, ZIPDIR)
 }
 \description{
 generate reports

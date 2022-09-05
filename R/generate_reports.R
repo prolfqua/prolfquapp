@@ -1,7 +1,7 @@
 #' generate reports
 #' @export
 #'
-generate_reports <- function(lfqdata, GRP2, prot_annot, revpattern, contpattern, ZIPDIR) {
+generate_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
   # Compute all possible 2 Grps to avoid specifying reference.
 
 
@@ -21,10 +21,7 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, revpattern, contpattern,
 
     grp2 <- prolfquapp::make2grpReport(lfqwork,
                                        prot_annot,
-                                       GRP2,
-                                       revpattern = revpattern,
-                                       contpattern = contpattern,
-                                       remove = TRUE)
+                                       GRP2)
 
     fname <- paste0("DE_Groups_vs_Controls")
     qcname <- paste0("QC_Groups_vs_Controls")
@@ -70,10 +67,7 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, revpattern, contpattern,
 
     grp2 <- prolfquapp::make2grpReport(lfqwork,
                                        prot_annot,
-                                       GRP2,
-                                       revpattern = revpattern,
-                                       contpattern = contpattern,
-                                       remove = TRUE)
+                                       GRP2)
 
     fname <- paste0("DE_Groups_vs_Controls")
     qcname <- paste0("QC_Groups_vs_Controls")
@@ -105,10 +99,7 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, revpattern, contpattern,
           lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ == levels$Group_[i] | .data$Group_ == levels$Group_[j])
           grp2 <- prolfquapp::make2grpReport(lfqwork,
                                              prot_annot,
-                                             GRP2,
-                                             revpattern = revpattern,
-                                             contpattern = contpattern,
-                                             remove = TRUE)
+                                             GRP2)
 
           fname <- paste0("Group_" , levels$Group_[i], "_vs_", levels$Group_[j])
           qcname <- paste0("QC_" , levels$Group_[i], "_vs_", levels$Group_[j])

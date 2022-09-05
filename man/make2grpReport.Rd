@@ -6,14 +6,7 @@
 \alias{render_2GRP}
 \title{Create 2 grp report in html and write data to xlsx table}
 \usage{
-make2grpReport(
-  lfqdata,
-  prot_annot,
-  GRP2,
-  revpattern = "^REV_",
-  contpattern = "^zz|^CON__",
-  remove = FALSE
-)
+make2grpReport(lfqdata, prot_annot, GRP2)
 
 write_2GRP(GRP2, outpath, xlsxname = "AnalysisResults")
 
@@ -27,12 +20,6 @@ render_2GRP(
 }
 \arguments{
 \item{GRP2}{return value of \code{\link{make2grpReport}}}
-
-\item{revpattern}{default "REV_"}
-
-\item{contpattern}{default "^zz|^CON__"}
-
-\item{remove}{do you want to remove contaminants default (TRUE)}
 
 \item{outpath}{path to place output}
 
@@ -101,6 +88,9 @@ lfqdata <- aggregator$lfq_agg
 GRP2$pop$nrPeptides <- 2
 
 GRP2$pop$Contrasts <- c("avsb" = "dilution.a - dilution.b")
+GRP2$pop$revpattern = "^REV_"
+GRP2$pop$contpattern = "^zz|^CON__"
+GRP2$pop$remove = TRUE
 grp <- make2grpReport(lfqdata, protein_annot, GRP2)
 st <- grp$RES$transformedlfqData$get_Stats()
 bb <- st$stats()
