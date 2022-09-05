@@ -185,13 +185,12 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   ra <- GRP2$RES$rowAnnot
   formula <- data.frame(formula = GRP2$RES$formula, contrast_name = names(GRP2$pop$Contrasts), contrast = GRP2$pop$Contrasts)
   wideraw <- dplyr::inner_join(ra$row_annot, rd$to_wide()$data)
-  widetr <- dplyr::inner_join(tr$row_annot , tr$to_wide()$data )
+  widetr <- dplyr::inner_join(ra$row_annot , tr$to_wide()$data)
   ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts())
   resultList <- list()
   resultList$annotation = tr$to_wide()$annot
-  resultList$raw_abundances = dplyr::inner_join(rd$row_annot, rd$data)
+  resultList$normalized_abundances = dplyr::inner_join(ra$row_annot, tr$data)
   resultList$raw_abundances_matrix = wideraw
-  resultList$normalized_abundances = dplyr::inner_join(tr$row_annot, tr$data)
   resultList$normalized_abundances_matrix = widetr
   resultList$diff_exp_analysis = ctr
   resultList$formula = formula
