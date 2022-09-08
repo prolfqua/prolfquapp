@@ -159,4 +159,4 @@ lfqdata$is_transformed(FALSE)
 logger::log_info("END OF DATA TRANSFORMATION.")
 
 #debug(prolfquapp::generate_reports)
-prolfquapp::generate_reports(lfqdata, GRP2, prot_annot, revpattern, contpattern, ZIPDIR)
+prolfquapp::generate_reports(lfqdata, GRP2, prot_annot, ZIPDIR)
