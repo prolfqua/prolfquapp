@@ -305,7 +305,7 @@ DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |> DT::form
 
 ```
 
-(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r grp2$pop$FDRthreshold`, while the green lines represent the the difference of minus and plus `r grp2$pop$Diffthreshold`. In dark-gray differences estimated using missing value imputation are shown.
+(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r grp2$pop$FDRthreshold`, while the green lines represent the the difference of minus and plus `r grp2$pop$Diffthreshold`. With orange dots differences and FDRs estimated using missing value imputation are shown.
 
 
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
