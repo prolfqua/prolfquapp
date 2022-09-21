@@ -1,7 +1,7 @@
-#' Create 2 grp report in html and write data to xlsx table
+#' Create DEA report in html and write data to xlsx table
 #'
 #' For use examples see run_scripts directory
-#' @rdname make2grpReport
+#' @rdname make_DEA_report
 #' @param startdata table in long format
 #' @param atable AnalysisTableAnnotation annotate startdata table
 #' @param GRP2 list with named arguments i.e. Contrasts, projectID, projectName, workunitID, nrPeptides, Diffthreshold, FDRthreshold
@@ -59,7 +59,7 @@
 #' GRP2$pop$revpattern = "^REV_"
 #' GRP2$pop$contpattern = "^zz|^CON__"
 #' GRP2$pop$remove = TRUE
-#' grp <- make2grpReport(lfqdata, protein_annot, GRP2)
+#' grp <- make_DEA_report(lfqdata, protein_annot, GRP2)
 #' st <- grp$RES$transformedlfqData$get_Stats()
 #' bb <- st$stats()
 #' sr <- grp$RES$transformedlfqData$get_Summariser()
@@ -67,11 +67,11 @@
 #'
 #' \dontrun{
 #'
-#' render_2GRP(grp, ".")
-#' render_2GRP(grp, "." ,word = TRUE)
-#' write_2GRP(grp,".")
+#' render_DEA(grp, ".")
+#' render_DEA(grp, "." ,word = TRUE)
+#' write_DEA(grp,".")
 #' }
-make2grpReport <- function(lfqdata,
+make_DEA_report <- function(lfqdata,
                            prot_annot,
                            GRP2
 ) {
@@ -170,15 +170,16 @@ make2grpReport <- function(lfqdata,
 }
 
 
-#' write 2 grp results
-#' @rdname make2grpReport
-#' @param GRP2 return value of \code{\link{make2grpReport}}
+#' Write differential experession analysis results
+#'
+#' @rdname make_DEA_report
+#' @param GRP2 return value of \code{\link{make_DEA_report}}
 #' @param outpath path to place output
 #' @param xlsxname file name for xlsx
 #' @export
 #' @family workflow
 #'
-write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
+write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   dir.create(outpath)
   rd <- GRP2$RES$lfqData
   tr <- GRP2$RES$transformedlfqData
@@ -232,16 +233,16 @@ write_2GRP <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
 }
 
-#' render 2GRP analysis report
-#' @rdname make2grpReport
-#' @param GRP2 return value of \code{\link{make2grpReport}}
+#' Render DEA analysis report
+#' @rdname make_DEA_report
+#' @param GRP2 return value of \code{\link{make_DEA_report}}
 #' @param outpath path to place output
 #' @param htmlname name for html file
-#' @param word default FALSE, if true create word document.
+#' @param word default FALSE, if true create word document.s
 #' @param markdown which file to render
 #' @export
 #' @family workflow
-render_2GRP <- function(GRP2,
+render_DEA <- function(GRP2,
                         outpath,
                         htmlname="Result2Grp",
                         word = FALSE,

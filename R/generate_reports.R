@@ -1,7 +1,7 @@
-#' generate reports
+#' Generate differential expression analysis reports
 #' @export
 #'
-generate_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
+generate_DEA_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
   # Compute all possible 2 Grps to avoid specifying reference.
 
 
@@ -19,7 +19,7 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
     lfqwork <- lfqdata$get_copy()
     lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ %in% levels$Group_)
 
-    grp2 <- prolfquapp::make2grpReport(lfqwork,
+    grp2 <- prolfquapp::make_DEA_report(lfqwork,
                                        prot_annot,
                                        GRP2)
 
@@ -28,9 +28,9 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
     outpath <- file.path( ZIPDIR, fname)
 
     logger::log_info("writing into : ", outpath, " <<<<")
-    prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
-    prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
-    prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+    prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname)
+    prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname)
+    prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
     bb <- grp2$RES$transformedlfqData
     if(sum(!grepl("^control",bb$config$table$factorKeys(), ignore.case = TRUE))  > 1) {
@@ -65,7 +65,7 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
     lfqwork <- lfqdata$get_copy()
     lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ %in% levels$Group_)
 
-    grp2 <- prolfquapp::make2grpReport(lfqwork,
+    grp2 <- prolfquapp::make_DEA_report(lfqwork,
                                        prot_annot,
                                        GRP2)
 
@@ -74,9 +74,9 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
     outpath <- file.path( ZIPDIR, fname)
 
     logger::log_info("writing into : ", outpath, " <<<<")
-    prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
-    prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
-    prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+    prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname)
+    prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname)
+    prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
     bb <- grp2$RES$transformedlfqData
     if(sum(!grepl("^control",bb$config$table$factorKeys(), ignore.case = TRUE))  > 1) {
@@ -97,7 +97,7 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
           logger::log_info("CONTRAST : ", GRP2$pop$Contrasts, collapse = " ")
           lfqwork <- lfqdata$get_copy()
           lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ == levels$Group_[i] | .data$Group_ == levels$Group_[j])
-          grp2 <- prolfquapp::make2grpReport(lfqwork,
+          grp2 <- prolfquapp::make_DEA_report(lfqwork,
                                              prot_annot,
                                              GRP2)
 
@@ -106,9 +106,9 @@ generate_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
           outpath <- file.path( ZIPDIR, fname)
           logger::log_info("writing into : ", outpath, " <<<<")
 
-          prolfquapp::write_2GRP(grp2, outpath = outpath, xlsxname = fname)
-          prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = fname)
-          prolfquapp::render_2GRP(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+          prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname)
+          prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname)
+          prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
           bb <- grp2$RES$transformedlfqData
           if(sum(!grepl("^control",bb$config$table$factorKeys(), ignore.case = TRUE)) > 1) {
             prolfquapp::writeLinesPaired(bb, outpath)
