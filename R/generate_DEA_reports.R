@@ -9,12 +9,12 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
     dplyr::select(Group_ = Group_,  control = starts_with("control", ignore.case = TRUE)) |>
     dplyr::distinct()
   logger::log_info("levels : ", paste(levels, collapse = " "))
-  if(! length(levels$Group_) > 1){
+  if (! length(levels$Group_) > 1) {
     logger::log_error("not enough group levels_ to make comparisons.")
   }
 
   # Contrasts are already defined
-  if(!is.null(GRP2$pop$Contrasts)) {
+  if (!is.null(GRP2$pop$Contrasts)) {
     logger::log_info("CONTRAST : ", paste( GRP2$pop$Contrasts, collapse = " "))
     lfqwork <- lfqdata$get_copy()
     lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ %in% levels$Group_)
@@ -33,7 +33,7 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
     prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
     bb <- grp2$RES$transformedlfqData
-    if(sum(!grepl("^control",bb$config$table$factorKeys(), ignore.case = TRUE))  > 1) {
+    if(sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE))  > 1) {
       prolfquapp::writeLinesPaired(bb, outpath)
     } else{
       pl <- bb$get_Plotter()
@@ -79,7 +79,7 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
     prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
     bb <- grp2$RES$transformedlfqData
-    if(sum(!grepl("^control",bb$config$table$factorKeys(), ignore.case = TRUE))  > 1) {
+    if(sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE))  > 1) {
       prolfquapp::writeLinesPaired(bb, outpath)
     } else{
       pl <- bb$get_Plotter()
@@ -110,7 +110,7 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
           prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname)
           prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
           bb <- grp2$RES$transformedlfqData
-          if(sum(!grepl("^control",bb$config$table$factorKeys(), ignore.case = TRUE)) > 1) {
+          if (sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE)) > 1) {
             prolfquapp::writeLinesPaired(bb, outpath)
           } else{
             pl <- bb$get_Plotter()

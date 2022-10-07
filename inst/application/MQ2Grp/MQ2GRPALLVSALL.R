@@ -4,7 +4,7 @@ yml = yaml::read_yaml(ymlfile)
 WORKUNITID = yml$job_configuration$workunit_id
 PROJECTID = yml$job_configuration$project_id
 ORDERID = yml$job_configuration$order_id
-ORDERID <- if(is.null(ORDERID)){PROJECTID}else{ORDERID}
+ORDERID <- if (is.null(ORDERID)) { PROJECTID }else{ ORDERID }
 
 ZIPDIR = paste0("C",ORDERID,"WU",WORKUNITID)
 
@@ -31,13 +31,12 @@ GRP2$pop$aggregate <- "medpolish"
 GRP2$pop$Diffthreshold <- as.numeric(yml$application$parameters$`4|Difference_threshold`)
 GRP2$pop$FDRthreshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
 
-GRP2$pop$remove <- if(yml$application$parameters$`6|remConDec` == "true"){TRUE} else {FALSE}
+GRP2$pop$remove <- if (yml$application$parameters$`6|remConDec` == "true") { TRUE } else { FALSE }
 GRP2$pop$revpattern <- yml$application$parameters$`7|REVpattern`
 GRP2$pop$contpattern <- yml$application$parameters$`8|CONpattern`
 
 GRP2$Software <- "MaxQuant"
 
-rm(yml)
 
 ###
 dir.create(ZIPDIR)
@@ -62,7 +61,7 @@ annot <- annot |> dplyr::mutate(
   )
 )
 
-if( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
+if ( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
   contr <- annot |> dplyr::select(ContrastName, Contrast) |> dplyr::filter(nchar(Contrast) > 0)
   Contrasts <- contr$Contrast
   names(Contrasts) <- contr$ContrastName
@@ -89,15 +88,15 @@ atable$hierarchy[["peptide_Id"]] <- c("sequence")
 #
 atable$hierarchyDepth <- 1
 
-if(sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0){
-  atable$sampleName <- grep("^name", colnames(annot) , value=TRUE, ignore.case = TRUE)
+if (sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0) {
+  atable$sampleName <- grep("^name", colnames(annot) , value = TRUE, ignore.case = TRUE)
 }
 
 
 stopifnot(sum(grepl("^group|^bait", colnames(peptide), ignore.case = TRUE)) == 1)
 
-groupingVAR <- grep("^group|^bait", colnames(peptide), value= TRUE, ignore.case = TRUE)
-peptide[[groupingVAR]]<- gsub("[[:space:]]", "", peptide[[groupingVAR]])
+groupingVAR <- grep("^group|^bait", colnames(peptide), value = TRUE, ignore.case = TRUE)
+peptide[[groupingVAR]] <- gsub("[[:space:]]", "", peptide[[groupingVAR]])
 peptide[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", peptide[[groupingVAR]])
 
 atable$factors[["Group_"]] = groupingVAR
@@ -112,7 +111,7 @@ if (sum(grepl("^control", colnames(peptide), ignore.case = TRUE)) == 1) {
 }
 
 
-atable$setWorkIntensity("peptide.intensity")
+atable$set_response("peptide.intensity")
 
 
 # Preprocess data - aggregate proteins.
@@ -159,4 +158,4 @@ lfqdata$is_transformed(FALSE)
 logger::log_info("END OF DATA TRANSFORMATION.")
 
 #debug(prolfquapp::generate_reports)
-prolfquapp::generate_reports(lfqdata, GRP2, prot_annot, ZIPDIR)
+prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot, ZIPDIR)

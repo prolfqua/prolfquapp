@@ -155,7 +155,7 @@ DT::datatable(bb, filter = "bottom", options = list(pageLength = 5))
 
 
 ```{r volcanoPlotBfdr, fig.cap = "(ref:volcanoPlotBfdr)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
-xd <- prolfqua::volcano_Plotly( 
+xd <- prolfqua::volcano_plotly( 
   datax ,
   effect = "log2_EFCs",
   significance = "BFDR",

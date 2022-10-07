@@ -95,7 +95,7 @@ Table \@ref(tab:samples) shows the number of samples assigned to each group whil
 
 ```{r samples, eval=TRUE}
 
-tab <- data.frame(table(grp2$RES$lfqData$factors()[grp2$RES$lfqData$config$table$fkeysDepth()]))
+tab <- data.frame(table(grp2$RES$lfqData$factors()[grp2$RES$lfqData$config$table$factor_keys_depth()]))
 colnames(tab)[length(colnames(tab))] <- "# samples"
 knitr::kable(tab, caption = "Nr of samples assigned to each group.")
 
@@ -312,7 +312,7 @@ DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |> DT::form
 
 palette <- c("black","orange")
 palette <- setNames(palette, c("Linear_Model_Moderated", "Imputed_Mean"))  
-xd <- prolfqua::volcano_Plotly( 
+xd <- prolfqua::volcano_plotly( 
   datax ,
   proteinID = "protein_Id",
   effect = "diff",

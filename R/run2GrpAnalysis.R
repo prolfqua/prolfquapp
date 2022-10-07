@@ -123,8 +123,8 @@ make_DEA_report <- function(lfqdata,
 
   ################## Run Modelling ###############
 
-  formula <- paste0(transformed$config$table$getWorkIntensity(), " ~ ",
-                    paste(transformed$config$table$factorKeys()[!grepl("^control", transformed$config$table$factorKeys() , ignore.case=TRUE)], collapse = " + "))
+  formula <- paste0(transformed$config$table$get_response(), " ~ ",
+                    paste(transformed$config$table$factor_keys()[!grepl("^control", transformed$config$table$factor_keys() , ignore.case = TRUE)], collapse = " + "))
   message("FORMULA :",  formula)
   GRP2$RES$formula <- formula
   formula_Condition <-  prolfqua::strategy_lm(formula)
@@ -134,7 +134,7 @@ make_DEA_report <- function(lfqdata,
   mod <- prolfqua::build_model(
     transformed,
     formula_Condition,
-    subject_Id = transformed$config$table$hierarchyKeys() )
+    subject_Id = transformed$config$table$hierarchy_keys() )
 
   logger::log_info("fitted model with formula : {formula}")
   GRP2$RES$models <- mod
@@ -154,7 +154,7 @@ make_DEA_report <- function(lfqdata,
     mC,
     modelName = "Imputed_Mean")
 
-  res <- prolfqua::addContrastResults(conrM, conMI)
+  res <- prolfqua::merge_contrasts_results(conrM, conMI)
   GRP2$RES$contrMerged <- res$merged
   GRP2$RES$contrMore <- res$more
 

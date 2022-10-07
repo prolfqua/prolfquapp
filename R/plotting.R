@@ -2,13 +2,13 @@
 #' @export
 #'
 writeLinesPaired <- function(bb, outpath) {
-  nested <- bb$data |> ungroup() |> dplyr::group_by(!!!syms(bb$config$table$hierarchyKeys())) |> tidyr::nest()
+  nested <- bb$data |> ungroup() |> dplyr::group_by(!!!syms(bb$config$table$hierarchy_keys())) |> tidyr::nest()
   tr <- nested$data[[1]]
   plotL <- function(tr, pid){
     ggplot2::ggplot(tr, ggplot2::aes_string(x = bb$config$table$factorKeys()[1],
                           y = bb$config$table$getWorkIntensity(),
-                          group = bb$config$table$factorKeys()[2],
-                          colour = bb$config$table$factorKeys()[2] )) +
+                          group = bb$config$table$factor_keys()[2],
+                          colour = bb$config$table$factor_keys()[2] )) +
       ggplot2::geom_point() +
       ggplot2::geom_line() +
       ggplot2::labs(title = pid)  +
