@@ -387,11 +387,11 @@ sigheat <- signif$get_Plotter()$raster(rownames = rownames)
 
 ```{r makeText, eval = showSignificant, results = 'asis'}
 
-cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 transformed empirical protein abundances of all significant calls"))
+cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 transformed protein abundances of all significant calls."))
 
 ```
 
-(ref:sigroteins) Heatmap showing the $\log_2$ transformed empirical protein abundances for prays which pass the FDR and difference thresholds.
+(ref:sigroteins) Heatmap showing the $\log_2$ transformed protein abundances for proteins which pass the FDR and difference thresholds.
 
 ```{r sigroteins, fig.cap="(ref:sigroteins)", eval = showSignificant}
 sigheat

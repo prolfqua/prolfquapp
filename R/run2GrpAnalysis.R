@@ -204,14 +204,14 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
 
   bkg <- prolfqua::get_UniprotID_from_fasta_header(
     GRP2$RES$rowAnnot$row_annot,
-    idcolumn = "protein_Id")$UniprotID
+    idcolumn = rd$config$table$hierarchy_keys_depth())$UniprotID
   ff <- file.path(outpath ,"ORA_background.txt")
   write.table(bkg,file = ff, col.names = FALSE,
               row.names = FALSE, quote=FALSE)
 
   fg <- prolfqua::get_UniprotID_from_fasta_header(
     GRP2$RES$contrastsData_signif,
-  idcolumn = "protein_Id")
+  idcolumn = rd$config$table$hierarchy_keys_depth())
   ora_sig <- split(fg$UniprotID, fg$contrast)
   for(i in names(ora_sig)){
     ff <- file.path(outpath, paste0("Ora_",i,".txt" ))
@@ -221,7 +221,7 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   }
   fg <- prolfqua::get_UniprotID_from_fasta_header(
     GRP2$RES$contrastsData,
-    idcolumn = "protein_Id")
+    idcolumn = rd$config$table$hierarchy_keys_depth())
   gsea <- fg |> dplyr::select(contrast, UniprotID, statistic) |> dplyr::arrange(statistic)
   gsea <- split(dplyr::select(gsea,UniprotID, statistic ), gsea$contrast)
   for(i in names(gsea)){
