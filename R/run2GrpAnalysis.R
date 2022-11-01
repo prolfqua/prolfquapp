@@ -139,22 +139,22 @@ make_DEA_report <- function(lfqdata,
   logger::log_info("fitted model with formula : {formula}")
   GRP2$RES$models <- mod
 
-  contr <- prolfqua::Contrasts$new(mod, GRP2$pop$Contrasts)
+  contr <- prolfqua::Contrasts$new(mod, GRP2$pop$Contrasts,
+                                   modelName = "Linear_Model")
+
   conrM <- prolfqua::ContrastsModerated$new(
-    contr,
-    modelName = "Linear_Model_Moderated")
-  #saveRDS(list(transformed = transformed ,
-  #             Contrasts = GRP2$pop$Contrasts),
-  #        file = "totest.Rds")
+    contr)
+
   mC <- prolfqua::ContrastsSimpleImpute$new(
     lfqdata = transformed,
-    contrasts = GRP2$pop$Contrasts)
-
-  conMI <- prolfqua::ContrastsModerated$new(
-    mC,
+    contrasts = GRP2$pop$Contrasts,
     modelName = "Imputed_Mean")
 
+  conMI <- prolfqua::ContrastsModerated$new(
+    mC)
+
   res <- prolfqua::merge_contrasts_results(conrM, conMI)
+
   GRP2$RES$contrMerged <- res$merged
   GRP2$RES$contrMore <- res$more
 

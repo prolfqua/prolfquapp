@@ -106,7 +106,7 @@ if (sum(grepl("^subject", colnames(protein), ignore.case = TRUE)) == 1 & REPEATE
   atable$factors[["Subject"]] = subvar
 
   tmp <- data.frame(table(dplyr::distinct(protein[,c(groupingVAR,subvar)])) )
-  if(all(tmp$Freq > 1)){
+  if (all(tmp$Freq > 1)) {
     atable$factorDepth <- 2
   }
 }

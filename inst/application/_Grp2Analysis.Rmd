@@ -166,7 +166,7 @@ Using Figure \@ref(fig:vennProteins) we examine if we see the same proteins in e
 (ref:vennProteins) Venn diagram showing the number of proteins present in each group and in all possible intersections among groups. 
 
 ```{r vennProteins, fig.cap="(ref:vennProteins)"}
-pups <- prolfqua::UpSet_interaction_missing_stats(grp2$RES$lfqData$data, grp2$RES$lfqData$config, tr=1)
+pups <- prolfqua::UpSet_interaction_missing_stats(grp2$RES$lfqData$data, grp2$RES$lfqData$config, tr = 1)
 UpSetR::upset(pups, order.by = "freq")
 
 ```
@@ -201,7 +201,7 @@ plTransformed <- grp2$RES$transformedlfqData$get_Plotter()
 p2 <- plTransformed$intensity_distribution_density() +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1))
 
-gridExtra::grid.arrange(p1, p2, nrow=1)
+gridExtra::grid.arrange(p1, p2, nrow = 1)
 
 ```
 
@@ -214,7 +214,7 @@ Figure \@ref(fig:SDViolin), show the coefficients of variations (CV) for all pro
 
 ```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)", eval=TRUE}
 stR <- grp2$RES$lfqData$get_Stats()
-pA <- stR$violin() + ggplot2::theme_classic() + ggplot2::labs(tag="A")
+pA <- stR$violin() + ggplot2::theme_classic() + ggplot2::labs(tag = "A")
 pA
 
 ```
@@ -311,7 +311,7 @@ DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |> DT::form
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
 
 palette <- c("black","orange")
-palette <- setNames(palette, c("Linear_Model_Moderated", "Imputed_Mean"))  
+palette <- setNames(palette, c("Linear_Model_moderated", "Imputed_Mean_moderated"))  
 xd <- prolfqua::volcano_plotly( 
   datax ,
   proteinID = "protein_Id",

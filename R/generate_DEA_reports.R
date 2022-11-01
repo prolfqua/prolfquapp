@@ -43,7 +43,7 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
   }
 
   ## Generate contrasts from dataset
-  if(!is.null(levels$control)) {
+  if (!is.null(levels$control)) {
     Contrasts <- character()
     Names <- character()
     for (i in 1:nrow(levels)) {

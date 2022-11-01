@@ -1,12 +1,11 @@
 Package: prolfquapp
 Type: Package
-Title: What the Package Does (Title Case)
+Title: GUI for DEA
 Version: 0.1.1
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Witold E. Wolski <wew@fgcz.ethz.ch>
+Maintainer:  Witold E. Wolski <wew@fgcz.ethz.ch>
+Description: graphical user interface for differential expression analysis
+License: WTFPL https://en.wikipedia.org/wiki/WTFPL
 Encoding: UTF-8
 LazyData: true
 Imports:
@@ -14,3 +13,7 @@ Imports:
   igraph,
   ggraph
 RoxygenNote: 7.2.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

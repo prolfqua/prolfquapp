@@ -3,7 +3,7 @@
 #' @keywords internal
 #' @export
 #'
-copy_2grp_FragPipe <- function(workdir = getwd()){
+  copy_2grp_FragPipe <- function(workdir = getwd()){
   runscripts <- c("application/_Grp2Analysis.Rmd", "application/bibliography.bib", "application/_DiffExpQC.Rmd", "application/FragPipe2Grp/FRG2GRP.R")
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
