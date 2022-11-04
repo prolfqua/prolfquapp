@@ -72,12 +72,9 @@
 #' write_DEA(grp,".")
 #' }
 make_DEA_report <- function(lfqdata,
-                           prot_annot,
-                           GRP2
+                            prot_annot,
+                            GRP2
 ) {
-
-
-
   ### Do some type of data normalization (or do not)
   lt <- lfqdata$get_Transformer()
   if (GRP2$pop$transform == "robscale") {
@@ -165,12 +162,11 @@ make_DEA_report <- function(lfqdata,
   datax <- datax |>
     dplyr::filter(.data$FDR < GRP2$pop$FDRthreshold & abs(.data$diff) > GRP2$pop$Diffthreshold )
   GRP2$RES$contrastsData_signif <- datax
-
   return(GRP2)
 }
 
 
-#' Write differential experession analysis results
+#' Write differential expression analysis results
 #'
 #' @rdname make_DEA_report
 #' @param GRP2 return value of \code{\link{make_DEA_report}}
@@ -184,9 +180,14 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   rd <- GRP2$RES$lfqData
   tr <- GRP2$RES$transformedlfqData
   ra <- GRP2$RES$rowAnnot
-  formula <- data.frame(formula = GRP2$RES$formula, contrast_name = names(GRP2$pop$Contrasts), contrast = GRP2$pop$Contrasts)
+  formula <- data.frame(
+    formula = GRP2$RES$formula,
+    contrast_name = names(GRP2$pop$Contrasts),
+    contrast = GRP2$pop$Contrasts)
+
   wideraw <- dplyr::inner_join(ra$row_annot, rd$to_wide()$data)
   widetr <- dplyr::inner_join(ra$row_annot , tr$to_wide()$data)
+
   ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts())
   resultList <- list()
   resultList$annotation = tr$to_wide()$annot
@@ -196,39 +197,36 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   resultList$diff_exp_analysis = ctr
   resultList$formula = formula
   resultList$summary = GRP2$RES$Summary
-  resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr=1)
+  resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr = 1)
 
   # add protein statistics
   st <- GRP2$RES$transformedlfqData$get_Stats()
   resultList$protein_variances <- st$stats()
 
-  bkg <- prolfqua::get_UniprotID_from_fasta_header(
-    GRP2$RES$rowAnnot$row_annot,
-    idcolumn = rd$config$table$hierarchy_keys_depth())$UniprotID
+  bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
   ff <- file.path(outpath ,"ORA_background.txt")
   write.table(bkg,file = ff, col.names = FALSE,
-              row.names = FALSE, quote=FALSE)
+              row.names = FALSE, quote = FALSE)
 
-  fg <- prolfqua::get_UniprotID_from_fasta_header(
-    GRP2$RES$contrastsData_signif,
-  idcolumn = rd$config$table$hierarchy_keys_depth())
-  ora_sig <- split(fg$UniprotID, fg$contrast)
-  for(i in names(ora_sig)){
+  fg <- GRP2$RES$contrastsData_signif
+  ora_sig <- split(fg$IDcolumn, fg$contrast)
+
+  for (i in names(ora_sig)) {
     ff <- file.path(outpath, paste0("Ora_",i,".txt" ))
     logger::log_info("Writing File ", ff)
     write.table(ora_sig[[i]],file = ff, col.names = FALSE,
-               row.names = FALSE, quote=FALSE)
+                row.names = FALSE, quote = FALSE)
   }
-  fg <- prolfqua::get_UniprotID_from_fasta_header(
-    GRP2$RES$contrastsData,
-    idcolumn = rd$config$table$hierarchy_keys_depth())
-  gsea <- fg |> dplyr::select(contrast, UniprotID, statistic) |> dplyr::arrange(statistic)
-  gsea <- split(dplyr::select(gsea,UniprotID, statistic ), gsea$contrast)
-  for(i in names(gsea)){
+
+  fg <- GRP2$RES$contrastsData
+  gsea <- fg |> dplyr::select( contrast, IDcolumn, statistic) |> dplyr::arrange( statistic )
+  gsea <- split(dplyr::select( gsea, IDcolumn, statistic ), gsea$contrast)
+
+  for (i in names(gsea)) {
     ff <- file.path(outpath, paste0("GSEA_",i,".rnk" ))
     logger::log_info("Writing File ", ff)
     write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
-                row.names = FALSE, quote=FALSE, sep = "\t")
+                row.names = FALSE, quote = FALSE, sep = "\t")
   }
   writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
 }
@@ -243,22 +241,22 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
 #' @export
 #' @family workflow
 render_DEA <- function(GRP2,
-                        outpath,
-                        htmlname="Result2Grp",
-                        word = FALSE,
-                        markdown = "_Grp2Analysis.Rmd"){
+                       outpath,
+                       htmlname="Result2Grp",
+                       word = FALSE,
+                       markdown = "_Grp2Analysis.Rmd"){
   dir.create(outpath)
 
   rmarkdown::render(
     markdown,
     params = list(grp = GRP2) ,
-    output_format = if(word){
+    output_format = if (word) {
       bookdown::word_document2(toc = TRUE, toc_float = TRUE) } else {
         bookdown::html_document2(toc = TRUE, toc_float = TRUE)
       }
   )
-  fname <- paste0(tools::file_path_sans_ext(markdown), if(word) {".docx"} else {".html"})
-  if (file.copy(fname, file.path(outpath, paste0(htmlname,if(word) {".docx"} else {".html"})), overwrite = TRUE)) {
+  fname <- paste0(tools::file_path_sans_ext(markdown), if (word) {".docx"} else {".html"})
+  if (file.copy(fname, file.path(outpath, paste0(htmlname,if (word) {".docx"} else {".html"})), overwrite = TRUE)) {
     file.remove(fname)
   }
 }

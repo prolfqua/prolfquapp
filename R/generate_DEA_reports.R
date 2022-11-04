@@ -79,13 +79,19 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot, ZIPDIR) {
     prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
 
     bb <- grp2$RES$transformedlfqData
-    if(sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE))  > 1) {
+    grsizes <- bb$factors() |>
+      dplyr::group_by(dplyr::across(bb$config$table$factor_keys_depth())) |>
+      dplyr::summarize(n = n()) |>
+      dplyr::pull(n)
+
+    if (sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE))  > 1 &
+        all(grsizes == 1)
+    ) {
       prolfquapp::writeLinesPaired(bb, outpath)
     } else{
       pl <- bb$get_Plotter()
       pl$write_boxplots(outpath)
     }
-
   } else {
     # create all possible 2 grp comparisons
     for (i in seq_along(levels$Group_)) {
