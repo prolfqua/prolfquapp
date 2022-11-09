@@ -66,7 +66,6 @@
 #' int <- sr$interaction_missing_stats()
 #'
 #' \dontrun{
-#'
 #' render_DEA(grp, ".")
 #' render_DEA(grp, "." ,word = TRUE)
 #' write_DEA(grp,".")
@@ -79,6 +78,9 @@ make_DEA_report <- function(lfqdata,
   lt <- lfqdata$get_Transformer()
   if (GRP2$pop$transform == "robscale") {
     transformed <- lt$log2()$robscale()$lfq
+    if (!is.null(GRP2$pop$internal)) {
+      message("attempt of internal calibration.")
+    }
   } else if (GRP2$pop$transform == "vsn") {
     transformed <- lt$intensity_matrix( .func = vsn::justvsn)$lfq
   } else if (GRP2$pop$transform == "none") {
