@@ -263,3 +263,35 @@ render_DEA <- function(GRP2,
   }
 }
 
+
+#' Generate differential expression analysis reports
+#'
+#' Writes results of DEA see \code{\link{generate_DEA_reports}}
+#' @export
+#'
+write_DEA_all <- function(grp2, name, ZIPDIR){
+  fname <- paste0("DE_", name)
+  qcname <- paste0("QC_", name)
+  outpath <- file.path( ZIPDIR, fname)
+  logger::log_info("writing into : ", outpath, " <<<<")
+  prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname)
+  prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname)
+  prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+
+  bb <- grp2$RES$transformedlfqData
+  grsizes <- bb$factors() |>
+    dplyr::group_by(dplyr::across(bb$config$table$factor_keys_depth())) |>
+    dplyr::summarize(n = n()) |>
+    dplyr::pull(n)
+
+  if (sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE))  > 1 &
+      all(grsizes == 1)
+  ) {
+    prolfquapp::writeLinesPaired(bb, outpath)
+  } else{
+    pl <- bb$get_Plotter()
+    pl$write_boxplots(outpath)
+  }
+}
+
+

@@ -4,7 +4,7 @@
 \alias{generate_DEA_reports}
 \title{Generate differential expression analysis reports}
 \usage{
-generate_DEA_reports(lfqdata, GRP2, prot_annot, ZIPDIR)
+generate_DEA_reports(lfqdata, GRP2, prot_annot)
 }
 \description{
 Generate differential expression analysis reports

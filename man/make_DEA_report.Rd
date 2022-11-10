@@ -98,7 +98,6 @@ sr <- grp$RES$transformedlfqData$get_Summariser()
 int <- sr$interaction_missing_stats()
 
 \dontrun{
-
 render_DEA(grp, ".")
 render_DEA(grp, "." ,word = TRUE)
 write_DEA(grp,".")

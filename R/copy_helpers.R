@@ -3,8 +3,13 @@
 #' @keywords internal
 #' @export
 #'
-copy_2grp_FragPipe <- function(workdir = getwd()){
-  runscripts <- c("application/_Grp2Analysis.Rmd", "application/bibliography.bib", "application/_DiffExpQC.Rmd", "application/FragPipe2Grp/FRG2GRP.R")
+copy_2grp_FragPipe <- function(workdir = getwd()) {
+  runscripts <- c(
+    "application/_Grp2Analysis.Rmd",
+    "application/bibliography.bib",
+    "application/_DiffExpQC.Rmd",
+    "application/FragPipe2Grp/FRG2GRP.R"
+  )
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
 
@@ -14,8 +19,13 @@ copy_2grp_FragPipe <- function(workdir = getwd()){
 #' @keywords internal
 #' @export
 #'
-copy_2grp_MaxQuant <- function(workdir = getwd()){
-  runscripts <- c("application/_Grp2Analysis.Rmd", "application/bibliography.bib", "application/_DiffExpQC.Rmd", "application/MQ2Grp/MQ2GRPALLVSALL.R")
+copy_2grp_MaxQuant <- function(workdir = getwd()) {
+  runscripts <- c(
+    "application/_Grp2Analysis.Rmd",
+    "application/bibliography.bib",
+    "application/_DiffExpQC.Rmd",
+    "application/MQ2Grp/MQ2GRPALLVSALL.R"
+  )
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
 
@@ -25,11 +35,12 @@ copy_2grp_MaxQuant <- function(workdir = getwd()){
 #' @keywords internal
 #' @export
 #'
-copy_DEA_FragPipe_TMT <- function(workdir = getwd()){
-  runscripts <- c("application/_Grp2Analysis.Rmd",
-                  "application/bibliography.bib",
-                  "application/_DiffExpQC.Rmd",
-                  "application/FragPipeTMT/FP_TMT.R")
-
+copy_DEA_FragPipe_TMT <- function(workdir = getwd()) {
+  runscripts <- c(
+    "application/_Grp2Analysis.Rmd",
+    "application/bibliography.bib",
+    "application/_DiffExpQC.Rmd",
+    "application/FragPipeTMT/FP_TMT.R"
+  )
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
