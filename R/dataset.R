@@ -47,9 +47,10 @@ dataset_set_factors <- function(atable, peptide, REPEATED = TRUE) {
 #'
 #' @export
 #'
-dataset_protein_annot <- function(peptide,
-                                  atable,
-                                  protein_annot = "Protein.Description") {
+dataset_protein_annot <- function(
+    peptide,
+    atable,
+    protein_annot = "Protein.Description") {
   proteinID <- atable$hkeysDepth()
   prot_annot <- dplyr::select(
     peptide ,
@@ -60,12 +61,14 @@ dataset_protein_annot <- function(peptide,
 
   # figure out if this is an uniprot database.
 
-  UNIPROT <- if (mean(grepl("^sp\\|^tr\\|", prot_annot[[proteinID]])) > 0.8) { TRUE } else {FALSE}
+  UNIPROT <- mean(grepl("^sp\\||^tr\\|", prot_annot[[proteinID]])) > 0.8
+  message("uniprot database : ", UNIPROT)
+
   if (UNIPROT) {
     prot_annot <- prolfqua::get_UniprotID_from_fasta_header(prot_annot, idcolumn = proteinID)
     prot_annot <- prot_annot |> dplyr::rename(IDcolumn = UniprotID)
   } else {
-    prot_annot$IDcolumn <- atable$hkeysDepth()
+    prot_annot$IDcolumn <- prot_annot[[proteinID]]
   }
   return(prot_annot)
 }
@@ -74,7 +77,7 @@ dataset_protein_annot <- function(peptide,
 #'
 #' @export
 #'
-transform_data <- function(lfqdata,
+aggregate_data <- function(lfqdata,
                            agg_method = c("medpolish", "lmrob", "topN")) {
   agg_method <- match.arg(agg_method)
 
