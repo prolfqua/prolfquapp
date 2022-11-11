@@ -1,16 +1,12 @@
-ymlfile <- "config.yaml"
+library(tidyverse)
 
-GRP2 <- read_yaml(ymlfile, application = "FragPipeTMT")
+ymlfile <- "config.yaml"
+GRP2 <- prolfquapp::read_yaml(ymlfile, application = "FragPipeTMT")
 ###
 dir.create(GRP2$zipdir)
 ###
-
 # reading foreign data
-
-library(tidyverse)
-
 REPEATED <- TRUE
-
 # sanitize peptide csv.
 peptides <- read.csv(file = "peptide.tsv", sep = "\t")
 peptides <- peptides |> dplyr::select(
@@ -20,9 +16,8 @@ peptides <- peptides |> tidyr::pivot_longer(dplyr::starts_with("channel"), names
 peptides <- peptides |> dplyr::mutate(channel = gsub("channel_", "", .data$channel))
 
 
-
 annot <- read.csv("dataset.csv")
-GRP2 <- dataset_extract_contrasts(annot, GRP2)
+GRP2 <- prolfquapp::dataset_extract_contrasts(annot, GRP2)
 channelCol  <- grep("channel", names(annot), ignore.case = TRUE, value = TRUE)
 if (channelCol != "channel") {
   annot[["channel"]] <- annot[[channelCol]]
@@ -33,7 +28,6 @@ nr <- sum(annot$channel %in% unique(peptides$channel))
 logger::log_info("nr : ", nr, " files annotated")
 peptide <- dplyr::inner_join(annot, peptides)
 
-
 # Setup configuration
 
 atable <- prolfqua::AnalysisTableAnnotation$new()
@@ -42,15 +36,18 @@ atable$hierarchy[["protein_Id"]] <- c("Protein")
 atable$hierarchy[["peptide_Id"]] <- c("Peptide")
 
 #
-tmp <- dataset_set_factors(atable, peptide)
+tmp <- prolfquapp::dataset_set_factors(atable, peptide)
 atable <- tmp$atable
 peptide <- tmp$peptide
 
+
 # CREATE protein annotation.
-prot_annot <- dataset_protein_annot(peptide, atable, protein_annot = "Protein.Description")
+prot_annot <- prolfquapp::dataset_protein_annot(
+  peptide,
+  "Protein",
+  protein_annot = "Protein.Description")
 
 atable$set_response("abundance")
-
 # Preprocess data - aggregate proteins.
 config <- prolfqua::AnalysisConfiguration$new(atable)
 adata <- prolfqua::setup_analysis(peptide, config)
@@ -62,22 +59,15 @@ GRP2$pop$nrPeptides <- 2
 
 
 logger::log_info("AGGREGATING PEPTIDE DATA!")
-
-
-lfqdata <- transform_data(lfqdata, agg_method = GRP2$pop$aggregate)
+lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
-
 lfqdata$factors()
-
 logger::log_info("END OF DATA TRANSFORMATION.")
 
-
-
-debug(prolfquapp::generate_DEA_reports)
+#debug(prolfquapp::generate_DEA_reports)
 prolfquapp::copy_2grp_FragPipe()
-
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 
 for (i in seq_along(grp)) {
-  prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], ZIPDIR)
+  prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir )
 }
