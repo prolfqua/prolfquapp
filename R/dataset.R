@@ -3,7 +3,9 @@
 #'
 dataset_extract_contrasts <- function(annot, GRP2) {
   if ( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
-    contr <- annot |> dplyr::select(ContrastName, Contrast) |> dplyr::filter(nchar(Contrast) > 0)
+    contr <- annot |>
+      dplyr::select(rlang::.data$ContrastName, rlang::.data$Contrast) |>
+      dplyr::filter(nchar(rlang::.data$Contrast) > 0)
     Contrasts <- contr$Contrast
     names(Contrasts) <- contr$ContrastName
     GRP2$pop$Contrasts <- Contrasts
