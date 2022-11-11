@@ -51,16 +51,15 @@ dataset_set_factors <- function(atable, peptide, REPEATED = TRUE) {
 #'
 dataset_protein_annot <- function(
     peptide,
-    atable,
-    protein_annot = "Protein.Description") {
-  proteinID <- atable$hkeysDepth()
+    idcolName,
+    proteinID = "protein_Id",
+    protein_annot = "fasta.header") {
+  peptide <- dplyr::rename(peptide, !!proteinID := idcolName )
   prot_annot <- dplyr::select(
     peptide ,
-    dplyr::all_of(c( atable$hierarchy[[proteinID]], protein_annot))) |>
+    dplyr::all_of(c( proteinID, protein_annot))) |>
     dplyr::distinct()
   prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_annot))
-  prot_annot <- dplyr::rename(prot_annot, !!proteinID := (!!atable$hierarchy[[proteinID]]))
-
   # figure out if this is an uniprot database.
 
   UNIPROT <- mean(grepl("^sp\\||^tr\\|", prot_annot[[proteinID]])) > 0.8

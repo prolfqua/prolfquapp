@@ -4,7 +4,12 @@
 \alias{dataset_protein_annot}
 \title{dataset protein annot}
 \usage{
-dataset_protein_annot(peptide, atable, protein_annot = "Protein.Description")
+dataset_protein_annot(
+  peptide,
+  idcolName,
+  proteinID = "protein_Id",
+  protein_annot = "fasta.header"
+)
 }
 \description{
 dataset protein annot
