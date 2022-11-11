@@ -55,6 +55,32 @@ $~$
 In label-free quantification (LFQ) experiments, we measure relative protein changes among groups of subjects. 
 Before the main experiment, a quality control (QC) experiment is performed. We use the data from the QC to estimate the _within-group_ variance and to determine the number of samples in the main experiment. The measurements of the main experiment are modeled using linear models, mixed-effects linear models, which can be thought of as an extension of the t-test to more than two groups. These estimates are used to perform Gene Set Enrichment Analysis and Overrepresentation analysis using WebGestaltR and sigora. The meeting aims to obtain and document all the information relevant to perform a statistically sound LFQ data analysis. 
 
+## Type of proteomics experiment
+
+- [ ] data dependent aquisition (DDA) experiment (robust method, typically used for affinity purification experiments)
+   - Pro : robust, can always be applied
+   - Con : fewer ids and quant values than with other methods
+- [ ] data independent aquisition (DIA) experiment (improved sensitivity)
+  - Pro : improved sensitivity, works better if more samples are measured.
+  - Con : needs at least 8 samples
+- [ ] tandem mass tag (TMT) experiment
+  - Pro : improves sensitivity (more proteins identified) by fractionating samples
+  - Con : fold change compression
+
+
+## Sample modifications
+
+Which fixed an variable modfications are used:
+
+Variable Modifictions: 
+- [ ] acetyl 
+- [ ] biotin 
+- [ ] deamidation 
+- [ ] dimethyl 
+- [ ] formylation 
+- [ ] methylation 
+- [ ] O - Glycosylation HexNAc
+
 
 
 # Aim of the meeting
@@ -72,6 +98,7 @@ The goal of the meeting is this protocol specifying:
 The samples should be annotated with the names specified in the protocol in the b-fabric system. These names will also appear in the result tables and visualizations.
 
 We perform the data analysis according to this protocol. Changing the analysis protocol (e.g. adding contrasts or blocking factors) after the analysis was delivered will incur time delays and additional costs.
+
 
 # Genomics Analysis
 
@@ -104,9 +131,8 @@ Note:
 - If NGS - proteomics data integration is planned, compatible statistical analysis should be applied to the NGS and Proteomics data.
 
 
-
-
 # Protein sequence database and downstream analysis tools
+
 
 Which sequence database should be used for protein identification?
 
