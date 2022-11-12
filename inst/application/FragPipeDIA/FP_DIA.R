@@ -1,4 +1,5 @@
-library(tidyverse)
+library(rlang)
+
 ymlfile <- "config.yaml"
 GRP2 <- prolfquapp::read_yaml(ymlfile)
 
@@ -15,11 +16,15 @@ peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(str
 library(seqinr)
 #### code specific to Uniprot
 
-fasta <- prozor::readPeptideFasta("gencode.v40.pc_translations_NRHead.fasta")
+fasta.file <- dir(".", pattern = "*.fasta")
+
+fasta <- prozor::readPeptideFasta(fasta.file)
 fasta_annot <- prolfqua::matrix_to_tibble(
   data.frame(annot = sapply(fasta, seqinr::getAnnot)),preserve_row_names = NULL
 )
-fasta_annot <- fasta_annot |> tidyr::separate(.data$annot, c("proteinname","fasta.header"), sep = "\\s", extra = "merge")
+fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
+                                              c("proteinname","fasta.header"),
+                                              sep = "\\s", extra = "merge")
 fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = gsub(">","", .data$proteinname) )
 # remove duplicated id's
 fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
