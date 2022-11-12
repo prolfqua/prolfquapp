@@ -44,3 +44,15 @@ copy_DEA_FragPipe_TMT <- function(workdir = getwd()) {
   )
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
+
+
+copy_DEA_FragPipe_TMT <- function(workdir = getwd()) {
+  runscripts <- c(
+    "application/_Grp2Analysis.Rmd",
+    "application/bibliography.bib",
+    "application/_DiffExpQC.Rmd",
+    "application/FragPipeDIA/FP_DIA.R"
+  )
+  prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
+}
+
