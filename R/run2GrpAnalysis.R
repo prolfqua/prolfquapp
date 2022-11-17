@@ -110,6 +110,7 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' render_DEA(grp, "." ,word = TRUE)
 #' write_DEA(grp,".")
 #' }
+#'
 make_DEA_report <- function(lfqdata,
                             prot_annot,
                             GRP2

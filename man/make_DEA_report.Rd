@@ -102,5 +102,6 @@ render_DEA(grp, ".")
 render_DEA(grp, "." ,word = TRUE)
 write_DEA(grp,".")
 }
+
 }
 \concept{workflow}
