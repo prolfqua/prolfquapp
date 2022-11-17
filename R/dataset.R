@@ -104,3 +104,30 @@ aggregate_data <- function(lfqdata,
   }
   return(lfqdata)
 }
+
+
+#' extract fasta header from fasta file.
+#' @export
+#' @param fasta \code{\link{prozor::readPeptideFasta}}
+#'
+fasta_to_header <- function(fasta){
+  fasta_annot <- as_tibble(
+    data.frame(annot = sapply(fasta, seqinr::getAnnot)))
+
+  fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
+                                                c("proteinname","fasta.header"),
+                                                sep = "\\s", extra = "merge")
+  fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = gsub(">","", .data$proteinname) )
+  # remove duplicated id's
+  fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
+  proteinID <- "proteinname"
+  UNIPROT <- mean(grepl("^sp\\||^tr\\|", fasta_annot[[proteinID]])) > 0.8
+  message("uniprot database : ", UNIPROT)
+  if (UNIPROT) {
+    fasta_annot <- prolfqua::get_UniprotID_from_fasta_header(fasta_annot, idcolumn = proteinID)
+    fasta_annot <- fasta_annot |> dplyr::rename(IDcolumn = UniprotID)
+  } else {
+    fasta_annot$IDcolumn <- fasta_annot[[proteinID]]
+  }
+
+}

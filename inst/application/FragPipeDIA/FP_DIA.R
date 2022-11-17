@@ -20,7 +20,7 @@ fasta.file <- dir(".", pattern = "*.fasta")
 
 fasta <- prozor::readPeptideFasta(fasta.file)
 fasta_annot <- prolfqua::matrix_to_tibble(
-  data.frame(annot = sapply(fasta, seqinr::getAnnot)),preserve_row_names = NULL
+  data.frame(annot = sapply(fasta, seqinr::getAnnot)), preserve_row_names = NULL
 )
 fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
                                               c("proteinname","fasta.header"),

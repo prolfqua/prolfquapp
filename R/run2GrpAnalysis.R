@@ -1,3 +1,43 @@
+#' transform lfq data using robscale, vsn or non,
+#'
+#' It will also run internal but then robscale must be used.
+#' @param lfqdata \code{\link{LFQData}}
+#' @param method normalization method to use
+#' @param internal a data.frame with protein ids to be used for internal calibration, column name must be the same as
+#' @export
+#' @examples
+#' istar <- prolfqua_data('data_ionstar')$filtered()
+#' config <- prolfqua:::old2new(istar$config)
+#' tmp <- prolfqua::LFQData$new(istar$data, config)
+#' d <- istar$d
+#' internal <- dplyr::filter(d, protein_Id %in% sample(unique(d$protein_Id), 3 )) |>
+#'   dplyr::select(all_of(tmp$config$table$hierarchy_keys()[1])) |> dplyr::distinct()
+#' tmp2 <- transform_lfqdata(tmp, internal = internal)
+#' tmp2 <- transform_lfqdata(tmp)
+#'
+transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), internal = NULL) {
+  method <- match.arg(method)
+  lt <- lfqdata$get_Transformer()
+  if (method == "robscale") {
+    transformed <- lt$log2()$robscale()$lfq
+    if (!is.null(internal)) {
+      logger::log_info("Attempt of internal calibration.")
+      subset <- lfqdata$get_subset(internal)$get_Transformer()$log2()$lfq
+      transformed <- lfqdata$get_Transformer()$log2()$robscale_subset(subset)$lfq
+    }
+  } else if (method == "vsn") {
+    transformed <- lt$intensity_matrix( .func = vsn::justvsn)$lfq
+  } else if (method == "none") {
+    transformed <- lt$log2()$lfq
+  } else {
+    logger::log_warn("no such transformaton : {method}")
+    return(NULL)
+  }
+  logger::log_info("data transformed : {method}.")
+  return(transformed)
+}
+
+
 #' Create DEA report in html and write data to xlsx table
 #'
 #' For use examples see run_scripts directory
@@ -42,7 +82,7 @@
 #' atab$hierarchy["protein_Id"] = "protein_Id"
 #' atab$hierarchy["peptide_Id"] = "peptide_Id"
 #' atab$factors["dilution."] = "dilution."
-#' atab$setWorkIntensity("peptide.intensity")
+#' atab$set_response("peptide.intensity")
 #' atab$isotopeLabel = "isotope"
 #' config <- prolfqua::AnalysisConfiguration$new(atab)
 #'
@@ -75,20 +115,13 @@ make_DEA_report <- function(lfqdata,
                             GRP2
 ) {
   ### Do some type of data normalization (or do not)
-  lt <- lfqdata$get_Transformer()
-  if (GRP2$pop$transform == "robscale") {
-    transformed <- lt$log2()$robscale()$lfq
-    if (!is.null(GRP2$pop$internal)) {
-      message("attempt of internal calibration.")
-    }
-  } else if (GRP2$pop$transform == "vsn") {
-    transformed <- lt$intensity_matrix( .func = vsn::justvsn)$lfq
-  } else if (GRP2$pop$transform == "none") {
-    transformed <- lt$log2()$lfq
-  } else {
-    logger::log_warn("no such transformaton : {GRP2$pop$transform}")
-  }
-  logger::log_info("data transformed : {GRP2$pop$transform}.")
+
+  transformed <- transform_lfqdata(
+    lfqdata,
+    method = GRP2$pop$transform,
+    internal = GRP2$pop$internal
+    )
+
 
   ## count contaminants.
   protAnnot <- prolfqua::RowAnnotProtein$new(

@@ -74,7 +74,7 @@ atab$fileName = "raw.file"
 atab$hierarchy["protein_Id"] = "protein_Id"
 atab$hierarchy["peptide_Id"] = "peptide_Id"
 atab$factors["dilution."] = "dilution."
-atab$setWorkIntensity("peptide.intensity")
+atab$set_response("peptide.intensity")
 atab$isotopeLabel = "isotope"
 config <- prolfqua::AnalysisConfiguration$new(atab)
 
