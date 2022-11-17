@@ -2,6 +2,7 @@
 
 export(aggregate_data)
 export(copy_DEA_FragPipe_DDA)
+export(copy_DEA_FragPipe_DIA)
 export(copy_DEA_FragPipe_TMT)
 export(copy_DEA_MaxQuant)
 export(dataset_extract_contrasts)

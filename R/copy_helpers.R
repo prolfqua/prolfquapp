@@ -29,7 +29,7 @@ copy_DEA_MaxQuant <- function(workdir = getwd()) {
 }
 
 
-#' copy Markdown and runscript for 2 Grp Fragpipe data.
+#' copy Markdown and runscript for DEA Fragpipe TMT
 #' @param workdir directory where to copy file - default is current working directory.
 #' @keywords internal
 #' @export
@@ -44,8 +44,12 @@ copy_DEA_FragPipe_TMT <- function(workdir = getwd()) {
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
 
-
-copy_DEA_FragPipe_TMT <- function(workdir = getwd()) {
+#' copy Markdown and runscripts for DEA Fragpipe DIA
+#' @param workdir directory where to copy file - default is current working directory.
+#' @keywords internal
+#' @export
+#'
+copy_DEA_FragPipe_DIA <- function(workdir = getwd()) {
   runscripts <- c(
     "application/_Grp2Analysis.Rmd",
     "application/bibliography.bib",
