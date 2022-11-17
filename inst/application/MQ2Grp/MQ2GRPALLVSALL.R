@@ -65,7 +65,6 @@ GRP2$pop$nrPeptides <- 2
 logger::log_info("AGGREGATING PEPTIDE DATA!")
 lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 
-prolfquapp::co
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 for (i in seq_along(grp)) {
   prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir )
