@@ -8,7 +8,7 @@ copy_DEA_FragPipe_DDA <- function(workdir = getwd()) {
     "application/_Grp2Analysis.Rmd",
     "application/bibliography.bib",
     "application/_DiffExpQC.Rmd",
-    "application/FragPipe2Grp/FRG2GRP.R"
+    "application/FragPipeDDA/FP_DDA.R"
   )
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
@@ -23,7 +23,7 @@ copy_DEA_MaxQuant <- function(workdir = getwd()) {
     "application/_Grp2Analysis.Rmd",
     "application/bibliography.bib",
     "application/_DiffExpQC.Rmd",
-    "application/MQ2Grp/MQ2GRPALLVSALL.R"
+    "application/MaxQuantDDA/MQ_DDA.R"
   )
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }

@@ -5,7 +5,7 @@
 \title{dataset protein annot}
 \usage{
 dataset_protein_annot(
-  peptide,
+  msdata,
   idcolName,
   proteinID = "protein_Id",
   protein_annot = "fasta.header"

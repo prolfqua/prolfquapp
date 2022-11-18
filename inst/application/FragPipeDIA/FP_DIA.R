@@ -1,5 +1,4 @@
 library(rlang)
-
 ymlfile <- "config.yaml"
 GRP2 <- prolfquapp::read_yaml(ymlfile)
 

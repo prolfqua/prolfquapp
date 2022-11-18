@@ -17,32 +17,32 @@ dataset_extract_contrasts <- function(annot, GRP2) {
 #' @export
 #'
 #'
-dataset_set_factors <- function(atable, peptide, REPEATED = TRUE) {
+dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
   atable$hierarchyDepth <- 1
-  if (sum(grepl("^name", colnames(peptide), ignore.case = TRUE)) > 0) {
-    atable$sampleName <- grep("^name", colnames(peptide), value = TRUE, ignore.case = TRUE)
+  if (sum(grepl("^name", colnames(msdata), ignore.case = TRUE)) > 0) {
+    atable$sampleName <- grep("^name", colnames(msdata), value = TRUE, ignore.case = TRUE)
   }
 
-  stopifnot(sum(grepl("^group|^bait", colnames(peptide), ignore.case = TRUE)) == 1)
-  groupingVAR <- grep("^group|^bait", colnames(peptide), value = TRUE, ignore.case = TRUE)
-  peptide[[groupingVAR]] <- gsub("[[:space:]]", "", peptide[[groupingVAR]])
-  peptide[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", peptide[[groupingVAR]])
+  stopifnot(sum(grepl("^group|^bait", colnames(msdata), ignore.case = TRUE)) == 1)
+  groupingVAR <- grep("^group|^bait", colnames(msdata), value = TRUE, ignore.case = TRUE)
+  msdata[[groupingVAR]] <- gsub("[[:space:]]", "", msdata[[groupingVAR]])
+  msdata[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", msdata[[groupingVAR]])
 
   atable$factors[["Group_"]] = groupingVAR
   atable$factorDepth <- 1
 
-  if (sum(grepl("^subject", colnames(peptide), ignore.case = TRUE)) == 1 & REPEATED) {
-    subvar <- grep("^subject", colnames(peptide), value = TRUE, ignore.case = TRUE)
+  if (sum(grepl("^subject", colnames(msdata), ignore.case = TRUE)) == 1 & REPEATED) {
+    subvar <- grep("^subject", colnames(msdata), value = TRUE, ignore.case = TRUE)
     atable$factors[["Subject"]] = subvar
-    tmp <- data.frame(table(dplyr::distinct(peptide[,c(groupingVAR,subvar)])) )
+    tmp <- data.frame(table(dplyr::distinct(msdata[,c(groupingVAR,subvar)])) )
     if (all(tmp$Freq > 1)) {
       atable$factorDepth <- 2
     }
   }
-  if (sum(grepl("^control", colnames(peptide), ignore.case = TRUE)) == 1) {
-    atable$factors[["CONTROL"]] = grep("^control", colnames(peptide), value = TRUE, ignore.case = TRUE)
+  if (sum(grepl("^control", colnames(msdata), ignore.case = TRUE)) == 1) {
+    atable$factors[["CONTROL"]] = grep("^control", colnames(msdata), value = TRUE, ignore.case = TRUE)
   }
-  return(list(atable = atable , peptide = peptide))
+  return(list(atable = atable , msdata = msdata))
 }
 
 #' dataset protein annot
@@ -50,13 +50,13 @@ dataset_set_factors <- function(atable, peptide, REPEATED = TRUE) {
 #' @export
 #'
 dataset_protein_annot <- function(
-    peptide,
+    msdata,
     idcolName,
     proteinID = "protein_Id",
     protein_annot = "fasta.header") {
-  peptide <- dplyr::rename(peptide, !!proteinID := idcolName )
+  msdata <- dplyr::rename(msdata, !!proteinID := idcolName )
   prot_annot <- dplyr::select(
-    peptide ,
+    msdata ,
     dplyr::all_of(c( proteinID, protein_annot))) |>
     dplyr::distinct()
   prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_annot))

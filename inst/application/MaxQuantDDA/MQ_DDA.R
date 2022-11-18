@@ -48,7 +48,7 @@ atable$hierarchyDepth <- 1
 
 res <- prolfquapp::dataset_set_factors(atable, peptide)
 atable <- res$atable
-peptide <- res$peptide
+peptide <- res$msdata
 
 # create protein annotation
 prot_annot <- prolfquapp::dataset_protein_annot(peptide, "proteinID", protein_annot = "fasta.headers")

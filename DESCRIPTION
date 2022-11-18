@@ -3,7 +3,7 @@ Type: Package
 Title: GUI for DEA
 Version: 0.1.2
 Author: Witold E. Wolski <wew@fgcz.ethz.ch>
-Maintainer:  Witold E. Wolski <wew@fgcz.ethz.ch>
+Maintainer: Witold E. Wolski <wew@fgcz.ethz.ch>
 Description: graphical user interface for differential expression analysis
 License: WTFPL https://en.wikipedia.org/wiki/WTFPL
 Encoding: UTF-8
@@ -15,5 +15,7 @@ Imports:
 RoxygenNote: 7.2.1
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
+Config/testthat/edition: 3
