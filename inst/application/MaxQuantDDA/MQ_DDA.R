@@ -1,5 +1,6 @@
 ymlfile <- "config.yaml"
 GRP2 <- prolfquapp::read_yaml(ymlfile)
+dir.create(GRP2$zipdir)
 
 # internal <- data.frame(protein_Id = "sp|P60709|ACTB_HUMAN",
 #                        "sp|P08670|VIME_HUMAN",
