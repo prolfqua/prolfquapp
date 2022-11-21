@@ -20,6 +20,7 @@ test_that("FP_DDA_peptide.tsc", {
   testthat::expect_true(any(grepl(".rnk",tmp)))
   testthat::expect_true(any(grepl(".html",tmp)))
   testthat::expect_true(any(grepl(".xlsx",tmp)))
+  testthat::expect_true(any(grepl(".pdf",tmp)))
   testthat::expect_equal(length(tmp),9)
   unlink(paste0(tmpdir,"/*"), recursive = TRUE)
   setwd(curdir)
