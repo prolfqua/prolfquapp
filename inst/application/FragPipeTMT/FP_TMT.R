@@ -38,8 +38,7 @@ atable$hierarchy[["peptide_Id"]] <- c("Peptide")
 #
 tmp <- prolfquapp::dataset_set_factors(atable, peptide)
 atable <- tmp$atable
-peptide <- tmp$peptide
-
+peptide <- tmp$msdata
 
 # CREATE protein annotation.
 prot_annot <- prolfquapp::dataset_protein_annot(
@@ -62,10 +61,9 @@ logger::log_info("AGGREGATING PEPTIDE DATA!")
 lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 lfqdata$factors()
-logger::log_info("END OF DATA TRANSFORMATION.")
 
+logger::log_info("END OF DATA TRANSFORMATION.")
 #debug(prolfquapp::generate_DEA_reports)
-prolfquapp::copy_2grp_FragPipe()
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 
 for (i in seq_along(grp)) {
