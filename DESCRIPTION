@@ -12,7 +12,8 @@ Imports:
   prolfqua,
   igraph,
   ggraph,
-  UpSetR
+  UpSetR,
+  pander
 RoxygenNote: 7.2.1
 Suggests: 
     knitr,
