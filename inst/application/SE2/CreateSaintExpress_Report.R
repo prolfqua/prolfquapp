@@ -146,7 +146,7 @@ REPORTDATA$prot_annot <- prot_annot
 
 tmp <- prolfqua::get_UniprotID_from_fasta_header(REPORTDATA$pups, "protein_Id")
 write.table(data.frame(tmp$UniprotID), file = file.path(ZIPDIR,"ORA_background.txt"), col.names = FALSE, row.names = FALSE, quote = FALSE )
-sig |> dplyr::group_by(Bait) |> nest() -> sigg
+sig |> dplyr::group_by(Bait) |> tidyr::nest() -> sigg
 if (nrow(sigg) > 0) {
   for (i in 1:nrow(sigg)) {
     tmp <- prolfqua::get_UniprotID_from_fasta_header(sigg$data[[i]], "Prey")
