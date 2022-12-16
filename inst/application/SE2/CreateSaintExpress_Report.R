@@ -98,14 +98,15 @@ intdata <- dplyr::inner_join(intdata ,
                       by = c(protein_Id = "protein"))
 localSAINTinput <- prolfqua::protein_2localSaint(
   intdata,
-  quantcolumn = lfqdata$config$table$getWorkIntensity())
+  quantcolumn = lfqdata$config$table$get_response())
 
 
 RESULTS <- c(RESULTS, localSAINTinput)
 resSaint <- prolfqua::runSaint(localSAINTinput, spc = REPORTDATA$spc)
-resSaint$list |> head()
+
 
 resSaint$list <- dplyr::inner_join(prot_annot, resSaint$list, by = c(protein = "Prey"), keep = TRUE)
+
 resSaint$list$protein <- NULL
 
 RESULTS <- c(RESULTS, resSaint)
@@ -113,7 +114,7 @@ RESULTS <- c(RESULTS, resSaint)
 
 # Prepare result visualization and render report
 #prolfqua::ContrastsSaintExpress$debug("get_Plotter")
-cse <- prolfqua::ContrastsSaintExpress$new(resSaint$list)
+cse <- prolfqua::ContrastsSAINTexpress$new(resSaint$list)
 
 
 resContrasts <- cse$get_contrasts()
@@ -148,16 +149,18 @@ REPORTDATA$prot_annot <- prot_annot
 tmp <- prolfqua::get_UniprotID_from_fasta_header(REPORTDATA$pups, "protein_Id")
 write.table(data.frame(tmp$UniprotID), file = file.path(ZIPDIR,"ORA_background.txt"), col.names = FALSE, row.names = FALSE, quote = FALSE )
 sig |> dplyr::group_by(Bait) |> nest() -> sigg
-
-for (i in 1:nrow(sigg)) {
-  tmp <- prolfqua::get_UniprotID_from_fasta_header(sigg$data[[i]], "Prey")
-  filename <- paste0("ORA_Bait_", sigg$Bait[i] , ".txt")
-  write.table(data.frame(tmp$UniprotID),
-              file = file.path(ZIPDIR, filename),
-              col.names = FALSE,
-              row.names = FALSE,
-              quote = FALSE )
+if (nrow(sigg) > 0) {
+  for (i in 1:nrow(sigg)) {
+    tmp <- prolfqua::get_UniprotID_from_fasta_header(sigg$data[[i]], "Prey")
+    filename <- paste0("ORA_Bait_", sigg$Bait[i] , ".txt")
+    write.table(data.frame(tmp$UniprotID),
+                file = file.path(ZIPDIR, filename),
+                col.names = FALSE,
+                row.names = FALSE,
+                quote = FALSE )
+  }
 }
+
 prolfqua::copy_SAINTe_doc(workdir = ZIPDIR)
 
 SEP <- REPORTDATA
