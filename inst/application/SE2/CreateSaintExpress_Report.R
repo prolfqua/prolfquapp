@@ -40,7 +40,6 @@ annotation <- readr::read_csv("dataset.csv")
 colnames(annotation) <- tolower(make.names(colnames(annotation)))
 annotation
 
-library(tidyverse)
 pp <- prolfqua::tidy_FragPipe_combined_protein("combined_protein.tsv")
 prot_annot <- dplyr::select(pp,protein , description) |> dplyr::distinct()
 pp$raw.file |> unique()
