@@ -11,7 +11,9 @@ LazyData: true
 Imports:
   prolfqua,
   igraph,
-  ggraph
+  ggraph,
+  UpSetR,
+  pander
 RoxygenNote: 7.2.1
 Suggests: 
     knitr,
