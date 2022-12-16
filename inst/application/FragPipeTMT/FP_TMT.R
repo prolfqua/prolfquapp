@@ -9,6 +9,7 @@ dir.create(GRP2$zipdir)
 REPEATED <- TRUE
 # sanitize peptide csv.
 peptides <- read.csv(file = "peptide.tsv", sep = "\t")
+
 peptides <- peptides |> dplyr::select(
   dplyr::all_of(c("Peptide", "Protein", "Protein.ID",   "Entry.Name",   "Gene", "Protein.Description")),
   dplyr::starts_with("channel_"))
