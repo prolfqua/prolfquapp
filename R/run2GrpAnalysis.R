@@ -178,7 +178,7 @@ make_DEA_report <- function(lfqdata,
   conrM <- prolfqua::ContrastsModerated$new(
     contr)
 
-  mC <- prolfqua::ContrastsSimpleImpute$new(
+  mC <- prolfqua::ContrastsMissing$new(
     lfqdata = transformed,
     contrasts = GRP2$pop$Contrasts,
     modelName = "Imputed_Mean")

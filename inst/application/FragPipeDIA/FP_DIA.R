@@ -81,7 +81,7 @@ lfqdata$factors()
 logger::log_info("END OF DATA TRANSFORMATION.")
 
 
-prolfquapp::copy_2grp_FragPipe()
+prolfquapp::copy_DEA_FragPipe_DIA()
 undebug(prolfquapp::generate_DEA_reports)
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 for (i in seq_along(grp)) {
