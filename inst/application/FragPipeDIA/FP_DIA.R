@@ -25,6 +25,10 @@ fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
                                               c("proteinname","fasta.header"),
                                               sep = "\\s", extra = "merge")
 fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = gsub(">","", .data$proteinname) )
+if (TRUE) {
+  fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = gsub(".+\\|(.+)\\|.*","\\1", .data$proteinname) )
+}
+
 # remove duplicated id's
 fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
 
@@ -34,7 +38,7 @@ peptide <- dplyr::left_join(peptide, fasta_annot, by = c( Protein.Group.2 = "pro
 mean(is.na(peptide$fasta.header))
 
 
-dsf <- "datasetDMSOcompare.csv"
+dsf <- "dataset.csv"
 annot <- read.csv(dsf)
 annot <- data.frame(lapply(annot, as.character))
 annot <- annot |> dplyr::mutate(
@@ -48,7 +52,7 @@ annot$raw.file[ !annot$raw.file %in% sort(unique(peptide$raw.file)) ]
 nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
 logger::log_info("nr : ", nr, " files annotated")
 annot$Relative.Path <- NULL
-peptide <- dplyr::inner_join(annot, peptide)
+peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
 
 
 atable <- prolfqua::AnalysisTableAnnotation$new()

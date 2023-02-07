@@ -192,7 +192,7 @@ make_DEA_report <- function(lfqdata,
   GRP2$RES$contrMore <- res$more
 
   datax <- GRP2$RES$contrMerged$get_contrasts()
-  datax <- dplyr::inner_join(GRP2$RES$rowAnnot$row_annot, datax)
+  datax <- dplyr::inner_join(GRP2$RES$rowAnnot$row_annot, datax, multiple = "all")
   GRP2$RES$contrastsData  <- datax
 
   datax <- datax |>
@@ -221,13 +221,13 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
     contrast_name = names(GRP2$pop$Contrasts),
     contrast = GRP2$pop$Contrasts)
 
-  wideraw <- dplyr::inner_join(ra$row_annot, rd$to_wide()$data)
-  widetr <- dplyr::inner_join(ra$row_annot , tr$to_wide()$data)
+  wideraw <- dplyr::inner_join(ra$row_annot, rd$to_wide()$data, multiple = "all")
+  widetr <- dplyr::inner_join(ra$row_annot , tr$to_wide()$data, multiple = "all")
 
-  ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts())
+  ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts(), multiple = "all")
   resultList <- list()
   resultList$annotation = tr$to_wide()$annot
-  resultList$normalized_abundances = dplyr::inner_join(ra$row_annot, tr$data)
+  resultList$normalized_abundances = dplyr::inner_join(ra$row_annot, tr$data,multiple = "all")
   resultList$raw_abundances_matrix = wideraw
   resultList$normalized_abundances_matrix = widetr
   resultList$diff_exp_analysis = ctr

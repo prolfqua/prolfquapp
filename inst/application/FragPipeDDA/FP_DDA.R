@@ -32,7 +32,7 @@ nr <- sum(annot$raw.file %in% unique(protein$raw.file))
 logger::log_info("nr : ", nr, " files annotated")
 annot$Relative.Path <- NULL
 
-protein <- dplyr::inner_join(annot, protein)
+protein <- dplyr::inner_join(annot, protein, multiple = "all")
 
 
 ################### annotations

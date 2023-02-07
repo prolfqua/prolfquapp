@@ -35,10 +35,11 @@ logger::log_info("nr : ", nr, " files annotated")
 annot$Relative.Path <- NULL
 
 proteinAnnot <- dplyr::select(protein, proteinID, fasta.headers ) |> dplyr::distinct()
-peptide <- dplyr::inner_join(annot, peptide)
+peptide <- dplyr::inner_join(annot, peptide,multiple = "all")
 peptide <- dplyr::inner_join(proteinAnnot,
                              peptide,
-                             by = c(proteinID = "leading.razor.protein"))
+                             by = c(proteinID = "leading.razor.protein"),
+                             multiple = "all")
 # Setup configuration
 atable <- prolfqua::AnalysisTableAnnotation$new()
 atable$fileName = "raw.file"

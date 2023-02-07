@@ -51,7 +51,7 @@ annotation <- dplyr::mutate(annotation, raw.file = gsub(".raw", "", raw.file))
 annotation$relative.path <- NULL
 
 stopifnot(sum(annotation$raw.file %in% pp$raw.file) > 0) # check that some files are annotated, if not exit script.
-pdata <- dplyr::inner_join(annotation, pp )
+pdata <- dplyr::inner_join(annotation, pp,multiple = "all" )
 # filter for more than 2 peptides per protein
 pdata <- pdata |> dplyr::filter(combined.total.peptides > 1)
 # configure prolfqua
@@ -94,7 +94,7 @@ intdata <- lfqdata$data
 
 intdata <- dplyr::inner_join(intdata ,
                       dplyr::distinct( dplyr::select(pdata, protein, protein.length)),
-                      by = c(protein_Id = "protein"))
+                      by = c(protein_Id = "protein"),multiple = "all")
 localSAINTinput <- prolfqua::protein_2localSaint(
   intdata,
   quantcolumn = lfqdata$config$table$get_response())
@@ -104,7 +104,9 @@ RESULTS <- c(RESULTS, localSAINTinput)
 resSaint <- prolfqua::runSaint(localSAINTinput, spc = REPORTDATA$spc)
 
 
-resSaint$list <- dplyr::inner_join(prot_annot, resSaint$list, by = c(protein = "Prey"), keep = TRUE)
+resSaint$list <- dplyr::inner_join(prot_annot, resSaint$list,
+                                   by = c(protein = "Prey"),
+                                   keep = TRUE,multiple = "all")
 
 resSaint$list$protein <- NULL
 

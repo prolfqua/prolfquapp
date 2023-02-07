@@ -144,7 +144,7 @@ The volcano plot \@ref(fig:volcanoPlotBfdr) helps to identify prey proteins with
 ```{r setupVolcano, echo = FALSE}
 datax <- SEP$resContrasts
 prot_annot <- dplyr::rename(SEP$prot_annot, Prey=protein)
-prot_annot <- dplyr::inner_join(prot_annot, datax)
+prot_annot <- dplyr::inner_join(prot_annot, datax,multiple = "all")
 bb <- prot_annot %>% dplyr::select(Prey, description, Bait, BFDR )
 bb <- bb |> tidyr::pivot_wider(names_from = "Bait", names_prefix = "BFDR.", values_from = BFDR)
 bb <- crosstalk::SharedData$new(bb, ~Prey, group = "Choose protein")

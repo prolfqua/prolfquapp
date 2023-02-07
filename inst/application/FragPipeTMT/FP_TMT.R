@@ -27,7 +27,7 @@ if (channelCol != "channel") {
 
 nr <- sum(annot$channel %in% unique(peptides$channel))
 logger::log_info("nr : ", nr, " files annotated")
-peptide <- dplyr::inner_join(annot, peptides)
+peptide <- dplyr::inner_join(annot, peptides, multiple = "all")
 
 # Setup configuration
 

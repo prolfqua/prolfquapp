@@ -16,7 +16,9 @@ if(!inherits(annotation, 'try-error')){
 
   # unique.spectral.count
   # dataset; adapt name 'group' from dataset
-  protein <- dplyr::inner_join(annotation, protein, by = c("inputresource.name" = "raw.file"))
+  protein <- dplyr::inner_join(annotation, protein,
+                               by = c("inputresource.name" = "raw.file"),
+                               multiple = "all")
 
   # MSFragger specific (moving target)
   atable <- prolfqua::AnalysisTableAnnotation$new()
@@ -30,7 +32,8 @@ if(!inherits(annotation, 'try-error')){
 
 } else{
   annotation <- data.frame(raw.file = unique(protein$raw.file), group = 'file')
-  protein <- dplyr::inner_join(annotation, protein)
+  protein <- dplyr::inner_join(annotation, protein,
+                               multiple = "all")
 
   # MSFragger specific (moving target)
   atable <- prolfqua::AnalysisTableAnnotation$new()
