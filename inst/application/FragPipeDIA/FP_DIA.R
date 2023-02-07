@@ -64,7 +64,7 @@ atable$hierarchyDepth <- 1
 
 res <- prolfquapp::dataset_set_factors(atable, peptide)
 atable <- res$atable
-peptide <- res$peptide
+peptide <- res$msdata
 
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
