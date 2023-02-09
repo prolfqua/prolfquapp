@@ -1,0 +1,16 @@
+Bfabric:
+  projectName: ''
+  orderID: 29661
+  workunitID: DMSOcompare_genecode
+  inputID: 2196871
+  inputURL: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2196871
+pop:
+  transform: vsn
+  aggregate: medpolish
+  Diffthreshold: 1.0
+  FDRthreshold: 0.1
+  remove: no
+  revpattern: ^REV
+  contpattern: ^CON|^zz
+Software: FragPipeTMT
+zipdir: C29661WUDMSOcompare_genecode

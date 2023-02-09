@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<executable id="25418" classname="executable">
+    <deletable>false</deletable>
+    <updatable>true</updatable>
+    <created>2022-11-08 14:21:51</created>
+    <createdby>wolski</createdby>
+    <modified>2022-11-08 14:21:51</modified>
+    <modifiedby>wolski</modifiedby>
+    <name>DEA from FragPipeTMT data</name>
+    <description>Make all possible group comparisons</description>
+    <filechecksum></filechecksum>
+    <size>0</size>
+    <status>available</status>
+    <context>APPLICATION</context>
+    <enabled>true</enabled>
+    <parameter id="151579" classname="parameter">
+        <deletable>false</deletable>
+        <updatable>false</updatable>
+        <created>2022-11-08 14:21:51</created>
+        <createdby>wolski</createdby>
+        <modified>2022-11-08 14:21:51</modified>
+        <modifiedby>wolski</modifiedby>
+        <description>bfabric ID of the dataset which does annotate the experiment</description>
+        <context>APPLICATION</context>
+        <executable id="25418" classname="executable"/>
+        <inUse>true</inUse>
+        <key>1|datasetId</key>
+        <label>datasetId</label>
+        <modifiable>true</modifiable>
+        <parentAllowsModification>true</parentAllowsModification>
+        <required>true</required>
+        <type>STRING</type>
+    </parameter>
+    <parameter id="151580" classname="parameter">
+        <deletable>false</deletable>
+        <updatable>false</updatable>
+        <created>2022-11-08 14:21:51</created>
+        <createdby>wolski</createdby>
+        <modified>2022-11-08 14:21:51</modified>
+        <modifiedby>wolski</modifiedby>
+        <description>Normalization to remove systematic differences among samples. none - log2 transformation only, robscale - robust z-score, vsn - variance stabilizing transformation.</description>
+        <context>APPLICATION</context>
+        <enumeration>none</enumeration>
+        <enumeration>robscale</enumeration>
+        <enumeration>vsn</enumeration>
+        <executable id="25418" classname="executable"/>
+        <inUse>true</inUse>
+        <key>3|Normalization</key>
+        <label>Normalization</label>
+        <modifiable>true</modifiable>
+        <parentAllowsModification>true</parentAllowsModification>
+        <required>true</required>
+        <type>STRING</type>
+        <value>robscale</value>
+    </parameter>
+    <parameter id="151582" classname="parameter">
+        <deletable>false</deletable>
+        <updatable>false</updatable>
+        <created>2022-11-08 14:21:51</created>
+        <createdby>wolski</createdby>
+        <modified>2022-11-08 14:21:51</modified>
+        <modifiedby>wolski</modifiedby>
+        <description>threshold of difference among groups (when using robscale or no transform this corresponds to the log2(FC))</description>
+        <context>APPLICATION</context>
+        <enumeration>0.6</enumeration>
+        <enumeration>1</enumeration>
+        <enumeration>2</enumeration>
+        <executable id="25418" classname="executable"/>
+        <inUse>true</inUse>
+        <key>4|Difference_threshold</key>
+        <label>difference threshold</label>
+        <modifiable>true</modifiable>
+        <parentAllowsModification>true</parentAllowsModification>
+        <required>true</required>
+        <type>STRING</type>
+        <value>1</value>
+    </parameter>
+    <parameter id="151576" classname="parameter">
+        <deletable>false</deletable>
+        <updatable>false</updatable>
+        <created>2022-11-08 14:21:51</created>
+        <createdby>wolski</createdby>
+        <modified>2022-11-08 14:21:51</modified>
+        <modifiedby>wolski</modifiedby>
+        <description>FDR threshold</description>
+        <context>APPLICATION</context>
+        <enumeration>0.05</enumeration>
+        <enumeration>0.1</enumeration>
+        <enumeration>0.25</enumeration>
+        <executable id="25418" classname="executable"/>
+        <inUse>true</inUse>
+        <key>5|FDR_threshold</key>
+        <label>FDR threshold</label>
+        <modifiable>true</modifiable>
+        <parentAllowsModification>true</parentAllowsModification>
+        <required>true</required>
+        <type>STRING</type>
+        <value>0.1</value>
+    </parameter>
+    <parameter id="151581" classname="parameter">
+        <deletable>false</deletable>
+        <updatable>false</updatable>
+        <created>2022-11-08 14:21:51</created>
+        <createdby>wolski</createdby>
+        <modified>2022-11-08 14:21:51</modified>
+        <modifiedby>wolski</modifiedby>
+        <description>Remove Contaminant and Decoy (REV) sequences</description>
+        <context>APPLICATION</context>
+        <executable id="25418" classname="executable"/>
+        <inUse>true</inUse>
+        <key>6|remConDec</key>
+        <label>remove cont., decoy seq.</label>
+        <modifiable>true</modifiable>
+        <parentAllowsModification>true</parentAllowsModification>
+        <required>true</required>
+        <type>BOOLEAN</type>
+        <value>false</value>
+    </parameter>
+    <parameter id="151578" classname="parameter">
+        <deletable>false</deletable>
+        <updatable>false</updatable>
+        <created>2022-11-08 14:21:51</created>
+        <createdby>wolski</createdby>
+        <modified>2022-11-08 14:21:51</modified>
+        <modifiedby>wolski</modifiedby>
+        <description>pattern to recognize decoy sequences</description>
+        <context>APPLICATION</context>
+        <executable id="25418" classname="executable"/>
+        <inUse>true</inUse>
+        <key>7|REVpattern</key>
+        <label>decoy pattern</label>
+        <modifiable>true</modifiable>
+        <parentAllowsModification>true</parentAllowsModification>
+        <required>true</required>
+        <type>STRING</type>
+        <value>^REV</value>
+    </parameter>
+    <parameter id="151577" classname="parameter">
+        <deletable>false</deletable>
+        <updatable>false</updatable>
+        <created>2022-11-08 14:21:51</created>
+        <createdby>wolski</createdby>
+        <modified>2022-11-08 14:21:51</modified>
+        <modifiedby>wolski</modifiedby>
+        <description>pattern to recognize contaminants sequences</description>
+        <context>APPLICATION</context>
+        <executable id="25418" classname="executable"/>
+        <inUse>true</inUse>
+        <key>8|CONpattern</key>
+        <label>contaminant pattern</label>
+        <modifiable>true</modifiable>
+        <parentAllowsModification>true</parentAllowsModification>
+        <required>true</required>
+        <type>STRING</type>
+        <value>^CON|^zz</value>
+    </parameter>
+    <program>/home/bfabric/slurmworker/bin/fgcz_slurm_DEA_FragPipeDIA_310.bash</program>
+    <statusmodified>2022-11-08T14:21:05.759</statusmodified>
+    <statusmodifiedby id="3347" classname="user"/>
+    <supervisor id="3347" classname="user"/>
+    <valid>true</valid>
+</executable>
