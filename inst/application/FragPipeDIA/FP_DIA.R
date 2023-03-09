@@ -7,7 +7,7 @@ dir.create(GRP2$zipdir)
 path <- "diann-output.tsv"
 
 report2 <- prolfqua::diann_read_output(path)
-report2$raw.file <- gsub("^x|.d.zip$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
+report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
 peptide <- prolfqua::diann_output_to_peptide(report2)
 peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(strsplit(x, " "))[1]} )
 # we need to add the fasta.header information.
@@ -50,6 +50,7 @@ GRP2 <- prolfquapp::dataset_extract_contrasts(annot, GRP2)
 
 annot$raw.file[ !annot$raw.file %in% sort(unique(peptide$raw.file)) ]
 nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
+
 logger::log_info("nr : ", nr, " files annotated")
 annot$Relative.Path <- NULL
 peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
