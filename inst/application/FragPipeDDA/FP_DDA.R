@@ -1,3 +1,6 @@
+message("prolfqua Version :", packageVersion("prolfqua"), "\n")
+message("prolfqua Version :", packageVersion("prolfquapp"), "\n")
+
 ymlfile <- "config.yaml"
 
 GRP2 <- prolfquapp::read_yaml(ymlfile, application = "FragPipe")
