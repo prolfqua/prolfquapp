@@ -32,7 +32,7 @@ network <- plot_ly(type = "scatter",
 )
 
 edge_shapes <- list()
-for(i in 1:Ne) {
+for (i in 1:Ne) {
   v0 <- es[i,]$V1
   v1 <- es[i,]$V2
 

@@ -7,8 +7,11 @@ Bfabric:
 pop:
   transform: vsn
   aggregate: medpolish
+  ## model options lm, proflqua, proDA,
+  model: prolfqua
   Diffthreshold: 1.0
   FDRthreshold: 0.1
+  ## should reverse sequences and contaminants be removed.
   remove: no
   revpattern: ^REV
   contpattern: ^CON|^zz
