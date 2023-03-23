@@ -20,3 +20,10 @@ writeLinesPaired <- function(bb, outpath) {
   dev.off()
 
 }
+
+
+
+
+
+
+

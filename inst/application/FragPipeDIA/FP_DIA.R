@@ -6,7 +6,9 @@ GRP2 <- prolfquapp::read_yaml(ymlfile)
 dir.create(GRP2$zipdir)
 path <- "diann-output.tsv"
 
-report2 <- prolfqua::diann_read_output(path)
+report2 <- prolfqua::diann_read_output(path,nrPeptides = 2, Q.Value = 0.01)
+
+
 report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
 peptide <- prolfqua::diann_output_to_peptide(report2)
 peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(strsplit(x, " "))[1]} )
