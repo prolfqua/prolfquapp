@@ -2,6 +2,8 @@
 # 20211210 WEW/CP make it work for WU272669
 
 ##### QCs
+
+
 protein <- read.csv("combined_protein.tsv",
                     header = TRUE, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE ) |>
   tidyr::as_tibble() |>
@@ -10,7 +12,7 @@ protein <- read.csv("combined_protein.tsv",
 
 
 annotation <- try(read.delim("samples.txt"))
-if(!inherits(annotation, 'try-error')){
+if (!inherits(annotation, 'try-error')) {
   annotation$inputresource.name <- tools::file_path_sans_ext(tools::file_path_sans_ext(annotation$inputresource.name))
   annotation$sample.name <- make.unique(annotation$sample.name)
 

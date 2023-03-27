@@ -1,0 +1,85 @@
+---
+title: "prolfquapp - an R package to report differential expression analysis results."
+output: html_document
+date: "2022-12-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+To ease the usage barriers of the *R* package to users not familiar with statistics and *R* programming, we developed an application based on the *prolfqua* package into our data management platform [B-Fabric](https://fgcz-bfabric.uzh.ch/) [@bfabric;@bfabricjib2022]. The B-Fabric system runs a computing infrastructure controlled by a local resource management system that supports cloud-bursting [@VMMAD]. This integration enables users to select the input data and basic settings in a graphical user interface (GUI). 
+
+In this GUI application, we determine the model formula, and which comparisons to compute from the sample annotation provided in tabular form, similarly to *SAINTexpress* or *MSstats*. However, this application can analyze only parallel group designs with and without repeated measurements or factorial designs without interactions. The user receives a report including input files, the *R* markdown file, and *R* scripts necessary to replicate the analysis using their in-house *R* installation. In this way, *prolfqua* and [B-Fabric](https://fgcz-bfabric.uzh.ch/) help scientists to meet requirements from funding agencies, journals, and academic institutions while publishing their data according to the FAIR  [@FAIR] data principles. We are working on creating a shiny stand-alone application with the described functionality and making it available soon.
+
+
+
+# Describe inputs
+
+# Describe annotation table format:
+- table for parallel group design
+- table for paired analysis
+- table for factorial analysis
+- additional column with explicit contrasts specification
+
+# Describe yaml file with application parameters.
+
+- show example shiny application which can be used to generate yaml file, validate inputs and run the analysis
+
+# Describe generated ouptuts
+
+
+## Describe html document produced:
+
+- Introduction:
+- B-fabric related information
+- Results
+  - Peptide and Protein identification
+  - Missing Value Analysis
+  - Protein Abundance Analysis
+- Differential Expression Analysis
+  - Differentially Expressed Proteins
+- Additional Analysis
+
+## Describe additional files
+
+The zip file contains an excel file __Results.xlsx__. All the figures can be recreated using the data in the excel file. The Excel file contains the following spreadsheets:
+
+- __annotation__ - the annotation of the samples in the experiment
+- __raw_abundances__ table with empirical protein abundances.
+- __normalized_abundances__ table with normalized protein abundances. 
+- __raw_abundances_matrix__ A table where each column represents a sample and each row represents a protein and the cells store the empirical protein abundances.
+- __normalized_abundances_matrix__ A table where each column represents a sample and each row represents a protein and the cells store the empirical protein abundances.
+- __diff_exp_analysis__ A table with the results of the differential expression analysis. For each protein there is an row containing the estimated difference between the groups, the false discovery rate FDR, the 95% confidence interval, the posterior degrees of freedom. 
+- __missing_information__ - spreadsheet containing information if a protein is present (1) or absent in a group (0).
+- __protein_variances__ - spreadsheet which for each protein shows the variance (var) or standard deviation (sd) within a group, the number of samples (n) and the number of observations (not_na) as well as the group average intensity (mean).
+
+
+The zip file also includes an "boxplot.pdf" file which shows the boxplots of normalized protein abundances for all the proteins in the dataset.
+
+The data can be used to perform functional enrichment analysis [@monti2019proteomics]. 
+To compare the obtained results with known protein interactions we recommend the [string-db.org](https://string-db.org/) [@Szklarczyk2017], which is a curated database of protein-protein interaction networks for a large variety of organisms. To simplify the data upload to string-db we include text files containing the uniprot ids:
+
+
+- `ORA_background.txt` all proteins.
+- `ORA_<contrast_name>.txt` proteins accepted with the FDR and difference threshold.
+
+Other web applications allowing to run over representation analysis (ORA) [@monti2019proteomics] are:
+
+- [DAVID Bioinformatics Resource](https://david.ncifcrf.gov/home.jsp)
+- [WEB-based GEne SeT AnaLysis Toolkit](http://www.webgestalt.org) [@Wang2017]
+
+
+Furthermore Protein IDs sorted by t-statistic can then be subjected to gene set enrichment analysis (GSEA) [@subramanian2005gene].
+To simplify running GSEA  we provide the file :
+
+- `GSEA_<contrast_name>.rnk`
+
+This file can be used with the webgestalt web application or used with the GSEA application from [gsea-msigdb](https://www.gsea-msigdb.org/)
+
+
+For questions and improvement suggestions, with respect to this report, please do contact <protinf@fgcz.uzh.ch>.
+
+

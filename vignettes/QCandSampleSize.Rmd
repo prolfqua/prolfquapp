@@ -1,7 +1,7 @@
 ---
 title: "Quality Control & Sample Size Estimation"
-author: "WEW@FGCZ.ETHZ.CH"
-date: "`r Sys.Date()`"
+author: "Witold Wolski"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   bookdown::html_document2:
     toc: yes
@@ -10,7 +10,7 @@ output:
     toc: yes
     toc_depth: 2
 params:
-  configuration:  !r quote(prolfqua::prolfqua_data('data_ionstar')$filtered()$config$clone(deep=TRUE))
+  configuration: !r quote(prolfqua::prolfqua_data('data_ionstar')$filtered()$config$clone(deep=TRUE))
   project_conf: NULL
   data: !r quote(prolfqua::prolfqua_data('data_ionstar')$filtered()$data)
   plot_density: TRUE
@@ -49,6 +49,12 @@ data <- eval(params$data)
 
 local_project_conf <- params$project_conf
 local_config <- eval(params$configuration)
+if (!is.null(local_config$table$is_intensity_transformed)) {
+  local_config <- prolfqua::old2new(local_config)
+}
+
+
+
 
 if (is.null(local_project_conf)) {
   local_project_conf <- list()
@@ -88,15 +94,14 @@ While the overall number of `r if(params$pep){"proteins and peptides"}else{"prot
 ```{r hierarchyCounts}
 library(rlang)
 library(prolfqua)
-lfqdata <- LFQData$new(data, local_config)
+lfqdata <- prolfqua::LFQData$new(data, local_config)
 
 x <- lfqdata$hierarchy_counts()
-#knitr::kable(data.frame(NR = x), caption =paste0("Nr of" , if(params$pep){"proteins and peptides"}else{"proteins"} , " detected in all samples."),format="html") 
 
 prolfqua::table_facade( 
   data.frame(NR = x),
   caption = paste0("Nr of ",
-                   if (params$pep) {"proteins and peptides"}
+                   if(params$pep){"proteins and peptides"}
                    else
                    {"proteins"} ,
                    " detected in all samples."))
@@ -105,7 +110,7 @@ prolfqua::table_facade(
 
 
 
-```{r}
+```{r defineNrSamples}
 
 nrSamples <- nrow(lfqdata$factors())
 width = max(8, nrSamples*0.2)
@@ -113,21 +118,17 @@ width = max(8, nrSamples*0.2)
 
 (ref:hierarchyCountsSampleBarplot) Number of quantified `r if(params$pep){"peptides"}else{"proteins"}` per sample.
 
+
 ```{r hierarchyCountsSampleBarplot, fig.cap="(ref:hierarchyCountsSampleBarplot)", fig.width=width, fig.height=6}
-
-
-
 summarizer <- lfqdata$get_Summariser()
 summarizer$plot_hierarchy_counts_sample()
-
-prolfquapp::plot_abundance_vs_percent(summarizer,top_percent = 90,cumulative = TRUE, factors = FALSE)
 
 ```
 
 
-```{r}
-debug(prolfquapp::plot_abundance_vs_percent)
-prolfquapp::plot_abundance_vs_percent(summarizer, top_percent = NULL, factors = FALSE, cumulative = TRUE)
+```{r summarizeHier}
+x3 <- lfqdata$summarize_hierarchy()
+
 ```
 
 # Quality Control: Quantification
@@ -136,7 +137,7 @@ prolfquapp::plot_abundance_vs_percent(summarizer, top_percent = NULL, factors = 
 
 Ideally, we identify each `r if(params$pep){"peptide"}else{"protein"}` in all of the samples. However, because of the limit of detection (LOD) low-intensity `r if(params$pep){"peptides"}else{"proteins"}` might not be observed in all samples. Ideally, the LOD should be the only source of missingness in biological replicates. The following figures help us to verify the reproducibility of the measurement at the level of missing data.
 
-```{r}
+```{r defineHeight}
 height <- max(7, nrSamples * 0.1)
 ```
 
@@ -152,7 +153,7 @@ gridExtra::grid.arrange(p, xx3, xx4, ncol = 1)
 
 ```
 
-(ref:missingnessHeatmap) Heatmap of missing `r if(params$pep){"peptide"}else{"protein"}` quantifications clustered by sample.
+(ref:missingnessHeatmap) Heatmap of missing `r if(params$pep){"peptide"}else{"protein"}` quantifications clustered by sample, black - missing intensities, white - present.
 
 ```{r preparemissingnessHeatmap, include=FALSE}
 pNAmap <- plotter$NA_heatmap()
@@ -162,7 +163,6 @@ width <- max(8, nrSamples * 0.15)
 
 ```{r missingnessHeatmap, fig.width=width, fig.height=width, fig.align='center', fig.cap="(ref:missingnessHeatmap)"}
 print(pNAmap)
-
 ```
 
 
@@ -178,33 +178,28 @@ cat("Without applying any intensity scaling and data preprocessing, the peptide 
 ```
 
 ```{r plotDistributions, fig.cap="Density plot of peptide level Coefficient of Variations (CV).", fig.height=6, fig.width=8 , eval = show_text}
-
-moreThanOneSample <- nrow(lfqdata$factors()) > 1
-if ( moreThanOneSample ) {
-  stats <- lfqdata$get_Stats()
-  if (params$plot_density) {
-    p1 <- stats$density() +
-      ggplot2::labs(tag = "A") +
-      ggplot2::xlim(0, 150) #+
+stats <- lfqdata$get_Stats()
+if (params$plot_density) {
+  p1 <- stats$density() +
+    ggplot2::labs(tag = "A") +
+    ggplot2::xlim(0, 150) #+
     #ggplot2::theme(legend.position = "none")
-    p2 <- stats$density_median() +
-      ggplot2::labs(tag = "B") +
-      ggplot2::xlim(0, 150) +
-      ggplot2::theme(legend.position = "bottom")
-    gridExtra::grid.arrange(p1,p2)
-  } else {
-    p1 <- stats$violin() + ggplot2::labs(tag = 'A')
-    p2 <- stats$violin_median() + ggplot2::labs(tag = 'B')
-    gridExtra::grid.arrange(p1,p2)
-  }
+  p2 <- stats$density_median() +
+    ggplot2::labs(tag = "B") +
+    ggplot2::xlim(0, 150) +
+    ggplot2::theme(legend.position = "bottom")
+  gridExtra::grid.arrange(p1,p2)
+} else {
+  p1 <- stats$violin() + ggplot2::labs(tag='A')
+  p1
+  p2 <- stats$violin_median() + ggplot2::labs(tag='B')
+  gridExtra::grid.arrange(p1,p2)
 }
-
-
 ```
 
 ```{r eval=show_text}
 if (params$plot_sd_vs_mean) {
-  p0 <- stats$stdv_vs_mean() + ggplot2::labs(tag = 'A')
+  p0 <- stats$stdv_vs_mean() + labs(tag='A')
 }
 ```
 
@@ -222,9 +217,9 @@ prolfqua::table_facade(cv_quantiles_res,
 ```
 
 ```{r intensityDistribution, fig.cap="Distribution of unnormalized intensities.",fig.height = 6, fig.width=width, eval = show_text }
-if (params$plot_density) {
+if(params$plot_density){
   p0 <- plotter$intensity_distribution_density() + 
-    ggplot2::theme(legend.text = ggplot2::element_text(size = 5))
+    ggplot2::theme(legend.text = ggplot2::element_text(size=5))
   p0
 } else{
   p1 <- plotter$intensity_distribution_violin()
@@ -333,8 +328,6 @@ sd_quantile_res2 <- st$stats_quantiles(probs = c(0.5, 0.6, 0.7, 0.8, 0.9))$wide
 ```
 
 ```{r printSDTable}
-#knitr::kable(sd_quantile_res2,  digits = 3,
-#             caption = "Summary of the distribution of standard deviations at the 50th, 60th, 70th, 80th and 90th percentile.", format="html") 
 prolfqua::table_facade(sd_quantile_res2,
   caption = "Summary of the distribution of standard deviations at the 50th, 60th, 70th, 80th and 90th percentile.")
 
@@ -343,7 +336,6 @@ prolfqua::table_facade(sd_quantile_res2,
 (ref:overviewHeat) Sample and `r if(params$pep){"peptide"}else{"protein"}` Heatmap.
 
 ```{r prepareoverviewHeat, include = FALSE}
-
 hm <- plotter$heatmap()
 width = max(10, nrSamples * 0.15)
 ```

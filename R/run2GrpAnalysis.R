@@ -125,7 +125,7 @@ make_DEA_report <- function(lfqdata,
 
 
   ## count contaminants.
-  protAnnot <- prolfqua::RowAnnotProtein$new(
+  protAnnot <- prolfqua::ProteinAnnotation$new(
     transformed,
     row_annot = prot_annot)
 
@@ -133,8 +133,8 @@ make_DEA_report <- function(lfqdata,
   GRP2$RES <- list()
   GRP2$RES$Summary <- data.frame(
     totalNrOfProteins = allProt,
-    percentOfContaminants = round(protAnnot$annotateCON(GRP2$pop$contpattern)/allProt * 100 , digits = 2),
-    percentOfFalsePositives  = round(protAnnot$annotateREV(GRP2$pop$revpattern)/allProt * 100 , digits = 2),
+    percentOfContaminants = round(protAnnot$annotate_contaminants(GRP2$pop$contpattern)/allProt * 100 , digits = 2),
+    percentOfFalsePositives  = round(protAnnot$annotate_decoys(GRP2$pop$revpattern)/allProt * 100 , digits = 2),
     NrOfProteinsNoDecoys = protAnnot$nr_clean()
   )
   GRP2$RES$rowAnnot <- protAnnot

@@ -2,7 +2,6 @@ message("prolfqua Version :", packageVersion("prolfqua"), "\n")
 message("prolfqua Version :", packageVersion("prolfquapp"), "\n")
 
 ymlfile <- "config.yaml"
-
 GRP2 <- prolfquapp::read_yaml(ymlfile, application = "FragPipe")
 
 ###
@@ -12,9 +11,7 @@ dir.create(GRP2$zipdir)
 proteinf <- "combined_protein.tsv"
 dsf <- "dataset.csv"
 REPEATED <- TRUE
-
 stopifnot( file.exists(proteinf), file.exists(dsf))
-
 protein <- prolfqua::tidy_FragPipe_combined_protein("combined_protein.tsv")
 # remove single hit wonders.
 protein <- protein |> dplyr::filter(combined.total.peptides > 1 )

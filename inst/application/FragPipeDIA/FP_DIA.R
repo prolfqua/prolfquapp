@@ -5,39 +5,20 @@ GRP2 <- prolfquapp::read_yaml(ymlfile)
 ###
 dir.create(GRP2$zipdir)
 path <- "diann-output.tsv"
+debug(diann_read_output)
+report2 <- diann_read_output(path,nrPeptides = 2, Q.Value = 0.01)
 
-report2 <- prolfqua::diann_read_output(path,nrPeptides = 2, Q.Value = 0.01)
+peptide <- read_DIANN_output(
+  diann.path = file.path(path,"diann-output/diann-output.tsv"),
+  fasta.file = fasta.file,
+  ,nrPeptides = 1,
+  Q.Value = 0.1)
 
 
-report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
-peptide <- prolfqua::diann_output_to_peptide(report2)
-peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(strsplit(x, " "))[1]} )
-# we need to add the fasta.header information.
-
-library(seqinr)
-#### code specific to Uniprot
-
-fasta.file <- dir(".", pattern = "*.fasta")
-
-fasta <- prozor::readPeptideFasta(fasta.file)
-fasta_annot <- prolfqua::matrix_to_tibble(
-  data.frame(annot = sapply(fasta, seqinr::getAnnot)), preserve_row_names = NULL
-)
-fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
-                                              c("proteinname","fasta.header"),
-                                              sep = "\\s", extra = "merge")
-fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = gsub(">","", .data$proteinname) )
-if (TRUE) {
-  fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = gsub(".+\\|(.+)\\|.*","\\1", .data$proteinname) )
-}
-
-# remove duplicated id's
-fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
-
-stopifnot(mean(peptide$Protein.Group.2 %in% fasta_annot$proteinname) > 0.9)
-# add fasta headers.
-peptide <- dplyr::left_join(peptide, fasta_annot, by = c( Protein.Group.2 = "proteinname"))
-mean(is.na(peptide$fasta.header))
+prot_annot <- prolfquapp::dataset_protein_annot(
+  peptide,
+  "Protein.Group.2",
+  protein_annot = "fasta.header")
 
 
 dsf <- "dataset.csv"
@@ -68,11 +49,6 @@ atable$hierarchyDepth <- 1
 res <- prolfquapp::dataset_set_factors(atable, peptide)
 atable <- res$atable
 peptide <- res$msdata
-
-prot_annot <- prolfquapp::dataset_protein_annot(
-  peptide,
-  "Protein.Group.2",
-  protein_annot = "fasta.header")
 
 # Preprocess data - aggregate proteins.
 config <- prolfqua::AnalysisConfiguration$new(atable)
