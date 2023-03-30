@@ -301,7 +301,9 @@ datax <- GRP2$RES$contrastsData
 ```{r tableAllProt, fig.cap="Differential expression analysis results of all proteins."}
 bb <- datax |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "diff", "FDR" )))
 bb <- crosstalk::SharedData$new(bb, ~protein_Id, group = "Choose protein")
-DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |> DT::formatRound(columns=c('FDR', 'diff'), digits=3)
+
+DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |>
+  DT::formatRound(columns = c('FDR', 'diff'), digits = 3)
 
 ```
 
