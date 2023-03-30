@@ -1,15 +1,17 @@
 library(rlang)
+library(prolfqua)
+library(prolfquapp)
+
 ymlfile <- "config.yaml"
 GRP2 <- prolfquapp::read_yaml(ymlfile)
-
 ###
 dir.create(GRP2$zipdir)
-path <- "diann-output.tsv"
-debug(diann_read_output)
-report2 <- diann_read_output(path,nrPeptides = 2, Q.Value = 0.01)
+
+diann.path <- grep("diann-output.tsv", dir(recursive = TRUE), value = TRUE)
+fasta.file <- grep("*.fasta", dir(recursive = TRUE), value = TRUE)
 
 peptide <- read_DIANN_output(
-  diann.path = file.path(path,"diann-output/diann-output.tsv"),
+  diann.path = diann.path,
   fasta.file = fasta.file,
   ,nrPeptides = 1,
   Q.Value = 0.1)
@@ -60,7 +62,6 @@ logger::log_info("AGGREGATING PEPTIDE DATA!")
 
 lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
-lfqdata$factors()
 logger::log_info("END OF DATA TRANSFORMATION.")
 
 
