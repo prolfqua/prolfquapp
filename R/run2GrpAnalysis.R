@@ -233,7 +233,7 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   resultList$diff_exp_analysis = ctr
   resultList$formula = formula
   resultList$summary = GRP2$RES$Summary
-  resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr = 1)
+  resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr = 1)$data
 
   # add protein statistics
   st <- GRP2$RES$transformedlfqData$get_Stats()
