@@ -54,29 +54,28 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
 dataset_protein_annot <- function(
     msdata,
     idcolName,
-    nrPeptides = "nrPeptides",
-    proteinID_colname = "protein_Id",
-    protein_annot = "fasta.header") {
-  msdata <- dplyr::rename(msdata, !!proteinID_colname := idcolName )
+    proteinID_column = "protein_Id",
+    protein_annot = "fasta.header",
+    more_columns = c("nrPeptides", "fasta.id")) {
+  msdata <- dplyr::rename(msdata, !!proteinID_column := idcolName )
   prot_annot <- dplyr::select(
     msdata ,
-    dplyr::all_of(c( proteinID_colname, protein_annot))) |>
+    dplyr::all_of(c( proteinID_column, protein_annot, more_columns))) |>
     dplyr::distinct()
   prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_annot))
   # figure out if this is an uniprot database.
 
-  UNIPROT <- mean(grepl("^sp\\||^tr\\|", prot_annot[[proteinID_colname]])) > 0.8
+  UNIPROT <- mean(grepl("^sp\\||^tr\\|", prot_annot[[proteinID_column]])) > 0.8
   message("uniprot database : ", UNIPROT)
 
   if (UNIPROT) {
-    prot_annot <- prolfqua::get_UniprotID_from_fasta_header(prot_annot, idcolumn = proteinID_colname)
-    prot_annot <- prot_annot |> dplyr::rename(!!proteinID_colname = UniprotID)
+    prot_annot <- prolfqua::get_UniprotID_from_fasta_header(prot_annot, idcolumn = proteinID_column)
+    prot_annot <- prot_annot |> dplyr::rename(!!"IDcolumn" := !!sym("UniprotID"))
   } else {
-    prot_annot$IDcolumn <- prot_annot[[proteinID_colname]]
+    prot_annot$IDcolumn <- prot_annot[[proteinID_column]]
   }
   return(prot_annot)
 }
-
 #' dataset transform data
 #'
 #' @export
