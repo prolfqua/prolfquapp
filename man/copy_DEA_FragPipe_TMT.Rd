@@ -4,7 +4,7 @@
 \alias{copy_DEA_FragPipe_TMT}
 \title{copy Markdown and runscript for DEA Fragpipe TMT}
 \usage{
-copy_DEA_FragPipe_TMT(workdir = getwd())
+copy_DEA_FragPipe_TMT(workdir = getwd(), run_script = FALSE)
 }
 \arguments{
 \item{workdir}{directory where to copy file - default is current working directory.}

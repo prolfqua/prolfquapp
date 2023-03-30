@@ -7,8 +7,9 @@
 dataset_protein_annot(
   msdata,
   idcolName,
-  proteinID = "protein_Id",
-  protein_annot = "fasta.header"
+  proteinID_column = "protein_Id",
+  protein_annot = "fasta.header",
+  more_columns = c("nrPeptides", "fasta.id")
 )
 }
 \description{

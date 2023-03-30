@@ -5,14 +5,19 @@
 \title{Plot relative protein abundance as a function of rank by abundance}
 \usage{
 plot_abundance_vs_percent(
-  sr,
-  top_percent = 5,
+  percInfo,
+  cfg_table,
   top_N = 10,
   factors = TRUE,
-  log = FALSE,
   colors = c(`^REV_` = "red", `^CON_` = "orange"),
-  cumulative = TRUE
+  cumulative = TRUE,
+  group = "BB"
 )
+}
+\arguments{
+\item{sr}{LFQDataSummarizer}
+
+\item{top_percent}{deprecate}
 }
 \value{
 ggplot2
@@ -28,9 +33,11 @@ data <- istar$data |> dplyr::filter(protein_Id \%in\% sample(protein_Id, 100))
 lfqdata <- LFQData$new(data, istar$config)
 sr <- lfqdata$get_Summariser()
 
-plot_abundance_vs_percent(sr, top_percent = 20, factors = FALSE, cumulative = TRUE)
-plot_abundance_vs_percent(sr, top_percent = 3, factors = FALSE, cumulative = FALSE)
-plot_abundance_vs_percent(sr, top_percent = 20, factors = TRUE, cumulative = TRUE)
-plot_abundance_vs_percent(sr, top_percent = 20, factors = TRUE, cumulative = FALSE)
-plot_abundance_vs_percent(sr, top_percent = NULL, factors = TRUE, cumulative = FALSE)
+plot_abundance_vs_percent(sr, top_N = 6, factors = FALSE, cumulative = TRUE)
+pd <- plot_abundance_vs_percent(sr, top_N = NULL, factors = FALSE, cumulative = FALSE)
+
+plot_abundance_vs_percent(sr, top_N = 4, factors = TRUE, cumulative = FALSE)
+plot_abundance_vs_percent(sr, top_N = NULL, factors = TRUE, cumulative = TRUE)
+
+
 }

@@ -4,7 +4,7 @@
 \alias{copy_DEA_MaxQuant}
 \title{copy Markdown and runscript for 2 Grp Fragpipe data.}
 \usage{
-copy_DEA_MaxQuant(workdir = getwd())
+copy_DEA_MaxQuant(workdir = getwd(), run_script = FALSE)
 }
 \arguments{
 \item{workdir}{directory where to copy file - default is current working directory.}

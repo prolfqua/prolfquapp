@@ -4,7 +4,7 @@
 \alias{copy_DEA_FragPipe_DIA}
 \title{copy Markdown and runscripts for DEA Fragpipe DIA}
 \usage{
-copy_DEA_FragPipe_DIA(workdir = getwd())
+copy_DEA_FragPipe_DIA(workdir = getwd(), run_script = FALSE)
 }
 \arguments{
 \item{workdir}{directory where to copy file - default is current working directory.}
