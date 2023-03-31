@@ -12,6 +12,15 @@ dataset_protein_annot(
   more_columns = c("nrPeptides", "fasta.id")
 )
 }
+\arguments{
+\item{msdata}{data frame}
+
+\item{idcolName}{name of column with ID's}
+
+\item{protein_annot}{fasta haeder column}
+
+\item{more_columns}{more columns to include}
+}
 \description{
 dataset protein annot
 }

@@ -12,14 +12,13 @@ REPORTDATA <- readRDS("../application/SAINTexpressFragPipe/REPORTDATA.rds")
 datax <- REPORTDATA$cse$get_contrasts()
 
 
-prot_annot <- rename(REPORTDATA$prot_annot, Prey=protein)
+prot_annot <- dplyr::rename(REPORTDATA$prot_annot, Prey = protein)
 prot_annot <- inner_join(prot_annot, datax,
                          multiple = "all")
 bb <- prot_annot %>% select(Prey, description, Bait, BFDR )
 bb <- bb |> pivot_wider(names_from = "Bait", names_prefix = "BFDR.", values_from = BFDR)
 bb <- SharedData$new(bb, ~Prey, group = "Choose protein")
-prot_annot <- SharedData$new(prot_annot, ~Prey, group = "Choose protein")
-DT::datatable(bb, filter="bottom")
+DT::datatable(bb, filter = "bottom")
 
 ```
 

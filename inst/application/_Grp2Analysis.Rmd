@@ -167,7 +167,7 @@ Using Figure \@ref(fig:vennProteins) we examine if we see the same proteins in e
 
 ```{r vennProteins, fig.cap="(ref:vennProteins)"}
 pups <- prolfqua::UpSet_interaction_missing_stats(grp2$RES$lfqData$data, grp2$RES$lfqData$config, tr = 1)
-UpSetR::upset(pups, order.by = "freq")
+UpSetR::upset(pups$data, order.by = "freq", nsets = pups$nsets)
 
 ```
 
@@ -294,15 +294,28 @@ The volcano plot \@ref(fig:volcanoplot) helps to identify proteins with a large 
 
 
 ```{r setupVolcano, echo = FALSE}
-datax <- GRP2$RES$contrastsData
+datax <- as.data.frame(grp2$RES$contrastsData)
 ```
 
 
 ```{r tableAllProt, fig.cap="Differential expression analysis results of all proteins."}
-bb <- datax |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "diff", "FDR" )))
-bb <- crosstalk::SharedData$new(bb, ~protein_Id, group = "Choose protein")
+bb <- datax |> dplyr::select(
+  all_of(c("protein_Id",
+           "description",
+           "contrast",
+           "modelName",
+           "diff",
+           "FDR" )))
+bb <- crosstalk::SharedData$new(bb, ~protein_Id, group = "BB")
 
-DT::datatable(bb, filter = "bottom", options = list(pageLength = 5)) |>
+DT::datatable(bb, , filter = "bottom",
+  extensions = "Scroller",
+  style = "auto",
+  class = "compact",
+  options = list(deferRender = TRUE,
+                 scrollY = 300,
+                 scrollX = 400,
+                 scroller = TRUE) ) |>
   DT::formatRound(columns = c('FDR', 'diff'), digits = 3)
 
 ```
@@ -324,7 +337,8 @@ xd <- prolfqua::volcano_plotly(
   palette = palette,
   xintercept =  c(-grp2$pop$Diffthreshold,grp2$pop$Diffthreshold),
   yintercept = grp2$pop$FDRthreshold,
-  title_size = 10)
+  title_size = 10,
+  group = "BB")
 
 xd <- lapply(xd, plotly::highlight , off = "plotly_doubleclick")
 nrow <- ceiling(length(xd) / 4)
@@ -351,7 +365,7 @@ knitr::kable(x, caption = mycap)
 ```{r areThereSig}
 datax_signif <- grp2$RES$contrastsData_signif
 showSignificant <- TRUE
-if(nrow(datax_signif) == 0){
+if (nrow(datax_signif) == 0) {
   showSignificant <- FALSE
 }
 
@@ -366,9 +380,18 @@ cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant pro
 
 
 ```{r SigPrey, fig.cap= "(ref:SigPrey)", eval = showSignificant}
-ctdata <- datax_signif |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "diff", "FDR"  )))
-sig <- crosstalk::SharedData$new(ctdata, ~protein_Id, group = "Choose protein")
-DT::datatable(sig)|> DT::formatRound(columns=c('FDR', 'diff'), digits=3)
+ctdata <- datax_signif |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
+
+sig <- crosstalk::SharedData$new(ctdata, ~protein_Id, group = "BB")
+DT::datatable(sig, filter = "bottom",
+  extensions = "Scroller",
+  style = "auto",
+  class = "compact",
+  options = list(deferRender = TRUE,
+                 scrollY = 300,
+                 scrollX = 400,
+                 scroller = TRUE) ) |> 
+  DT::formatRound(columns = c('FDR', 'diff'), digits = 3)
 ```
 
 
@@ -377,7 +400,7 @@ DT::datatable(sig)|> DT::formatRound(columns=c('FDR', 'diff'), digits=3)
 ```{r prepareHeatmap, eval = showSignificant}
 signif <- grp2$RES$transformedlfqData$get_copy()
 signif <- signif$get_subset(datax_signif)
-if(signif$hierarchy_counts()[2] > 30){
+if (signif$hierarchy_counts()[2] > 30) {
   rownames = FALSE
 } else {
   rownames = TRUE
