@@ -121,7 +121,7 @@ make_DEA_report <- function(lfqdata,
     lfqdata,
     method = GRP2$pop$transform,
     internal = GRP2$pop$internal
-    )
+  )
 
 
   ## count contaminants.
@@ -303,7 +303,7 @@ render_DEA <- function(GRP2,
 #' Writes results of DEA see \code{\link{generate_DEA_reports}}
 #' @export
 #'
-write_DEA_all <- function(grp2, name, ZIPDIR){
+write_DEA_all <- function(grp2, name, ZIPDIR, boxplot = TRUE){
   fname <- paste0("DE_", name)
   qcname <- paste0("QC_", name)
   outpath <- file.path( ZIPDIR, fname)
@@ -317,14 +317,15 @@ write_DEA_all <- function(grp2, name, ZIPDIR){
     dplyr::group_by(dplyr::across(bb$config$table$factor_keys_depth())) |>
     dplyr::summarize(n = n()) |>
     dplyr::pull(n)
-
-  if (sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE))  > 1 &
-      all(grsizes == 1)
-  ) {
-    prolfquapp::writeLinesPaired(bb, outpath)
-  } else{
-    pl <- bb$get_Plotter()
-    pl$write_boxplots(outpath)
+  if (boxplot) {
+    if (sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE))  > 1 &
+        all(grsizes == 1)
+    ) {
+      prolfquapp::writeLinesPaired(bb, outpath)
+    } else {
+      pl <- bb$get_Plotter()
+      pl$write_boxplots(outpath)
+    }
   }
 }
 

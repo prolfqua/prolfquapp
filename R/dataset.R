@@ -48,9 +48,10 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
 #' dataset protein annot
 #'
 #' @export
-#' @param idcolName
-#' @param
-#'
+#' @param msdata data frame
+#' @param idcolName name of column with ID's
+#' @param protein_annot fasta haeder column
+#' @param more_columns more columns to include
 dataset_protein_annot <- function(
     msdata,
     idcolName,

@@ -11,8 +11,8 @@ diann.path <- grep("diann-output.tsv", dir(recursive = TRUE), value = TRUE)
 fasta.file <- grep("*.fasta", dir(recursive = TRUE), value = TRUE)
 
 peptide <- read_DIANN_output(
-  diann.path = diann.path,
-  fasta.file = fasta.file,
+  diann.path = diann.path[1],
+  fasta.file = fasta.file[1],
   ,nrPeptides = 1,
   Q.Value = 0.1)
 
@@ -68,6 +68,12 @@ logger::log_info("END OF DATA TRANSFORMATION.")
 prolfquapp::copy_DEA_FragPipe_DIA()
 undebug(prolfquapp::generate_DEA_reports)
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
+saveRDS(grp, file = "DEAll.RDS")
+#
+grp <- readRDS(file = "DEAll.RDS")
+prolfquapp::render_DEA(grp[[1]], outpath = ".", htmlname = "TestTheBest")
+
 for (i in seq_along(grp)) {
-  prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir )
+  prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir , boxplot = FALSE)
 }
+
