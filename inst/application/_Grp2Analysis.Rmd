@@ -86,8 +86,7 @@ $$
 
 The estimated differences $\Delta$ have an associated error $\epsilon$. Therefore, the differential expression analysis must test if the difference is significantly nonzero. 
 
-We run a set of functions implemented in the R package _[prolfqua]_ [@prolfquawolski2002] to filter and normalize the data, generate visualizations, and to compute differential expression analysis. To future improve the power of the differential expression test the protein variances are moderated [@Smyth2004], i.e. the individual protein variances are updated using a variance prior estimated from all the proteins in the experiment.
-
+We run a set of functions implemented in the R package _[prolfqua]_ [@prolfquawolski2023] to filter and normalize the data, generate visualizations, and to compute differential expression analysis. To future improve the power of the differential expression test the protein variances are moderated [@Smyth2004], i.e. the individual protein variances are updated using a variance prior estimated from all the proteins in the experiment.
 
 # Results
 
