@@ -21,8 +21,10 @@ annot <- read.csv(dsf)
 annot <- data.frame(lapply(annot, as.character))
 
 annot <- annot |> dplyr::mutate(
-  raw.file = gsub("^x|.d.zip$|.raw$","",
-                  basename(annot$Relative.Path)
+  raw.file = gsub(
+    "^x|.d.zip$|.raw$",
+    "",
+    basename(annot$Relative.Path)
   )
 )
 
