@@ -27,8 +27,14 @@ plot_abundance_vs_percent <- function(
                "^CON_" = "orange"),
     cumulative = TRUE,
     group = "BB") {
+
   columnAb <- if (cumulative) {"abundance_percent_cumulative"} else {"abundance_percent"}
   protID <- cfg_table$hierarchy_keys_depth()
+
+  #Select relevant columns
+  percInfo <- percInfo |>
+    dplyr::select(dplyr::all_of(c(protID,"percent_prot", columnAb, cfg_table$factor_keys_depth())))
+
   if (!factors) {
     percInfo <- percInfo |> dplyr::filter(!!rlang::sym(cfg_table$factor_keys_depth()[1]) == "ALL")
   }
@@ -44,10 +50,9 @@ plot_abundance_vs_percent <- function(
     topN <- percInfo |>
       dplyr::group_by(dplyr::across(cfg_table$factor_keys_depth())) |>
       dplyr::slice_max(order_by = !!rlang::sym(columnAb), n = top_N)
-
   } else {
     message("creating shared data with key : ", paste(" ~ ", protID ))
-    percInfo <- crosstalk::SharedData$new(percInfo , key = as.formula(paste(" ~ ", protID )),
+    percInfo <- crosstalk::SharedData$new(as.data.frame(percInfo) , key = as.formula(paste(" ~ ", protID )),
                                           group = group)
   }
 
@@ -61,8 +66,6 @@ plot_abundance_vs_percent <- function(
     myplot <- myplot + ggrepel::geom_label_repel(
       data = topN,
       aes(label = !!rlang::sym(protID)), size = 3, max.overlaps = 100)
-  } else {
-    myplot <- plotly::ggplotly(myplot)
   }
   return( myplot)
 }
