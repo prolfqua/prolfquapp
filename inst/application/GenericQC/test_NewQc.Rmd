@@ -1,0 +1,116 @@
+---
+title: "QC Report HTML"
+date: "2023-03-28"
+editor_options: 
+  chunk_output_type: console
+params:
+  precabund: NULL
+  config: NULL
+  factors: FALSE
+output:
+  bookdown::html_document2:
+    toc: yes
+    toc_depth: 2
+
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 6.5,
+  fig.height = 6.5,
+  fig.align = "center",
+  fig.pos = "H"
+)
+precabund <- params$precabund
+tableconfig <- params$config
+factors <- params$factors
+
+```
+
+```{r createPlot}
+protID = tableconfig$hierarchy_keys_depth()
+
+pp <- prolfquapp::plot_abundance_vs_percent(
+    precabund,
+    cfg_table = tableconfig,
+    top_N = NULL, factors = factors,
+    colors = c("^zz" = "red"),
+    cumulative = FALSE)
+
+#pp2 <- pp + ggplot2::scale_y_continuous(trans = 'log10')
+#pp2 <- plotly::ggplotly(pp2)
+pp <- plotly::ggplotly(pp)
+
+```
+
+
+```{r createDT}
+n = 2
+precabund_table <- precabund |> dplyr::mutate(
+    abundance_percent = signif(abundance_percent, n ),
+    abundance_percent_cumulative = signif(abundance_percent_cumulative, n),
+    percent_prot = signif(percent_prot, 3))
+
+precabund_table <- precabund_table |>
+    dplyr::select(
+        all_of(c(protID, "nrPeptides",
+                 if (factors) {tableconfig$factor_keys_depth()}else{ NULL },
+                 "nrMeasured", "meanArea", "abundance_percent" ,"description")))
+if (factors) {
+  precabund_table <- precabund_table |> 
+    pivot_wider(names_from = 'group', values_from = c("nrMeasured", "meanArea", "abundance_percent"))
+} else {
+  precabund_table <- dplyr::filter(precabund_table, !!sym(tableconfig$factor_keys_depth()) == "ALL")
+}
+
+datax <- crosstalk::SharedData$new(as.data.frame(precabund_table) , key = as.formula(paste(" ~ ", protID )), group = "BB")
+
+table <- DT::datatable(
+    datax,
+    filter = "bottom",
+    extensions = "Scroller",
+    style = "auto",
+    class = "compact",
+    options = list(deferRender = TRUE,
+                   scrollY = 300,
+                   scrollX = 400,
+                   scroller = TRUE) )
+
+
+```
+
+
+```{r}
+table
+```
+
+(ref:proteinCumulative) Cumulative protein abundance as function of protein Rank. We see that a large proportion of the abundance (y-axis) is assigned to very few high abundant proteins.
+
+```{r proteinCumulative, fig.cap = "(ref:proteinCumulative)"}
+pp
+```
+
+```{r fig.cap = "Mean protein abundance as a function of the number of peptides."}
+datax <- crosstalk::SharedData$new(as.data.frame(precabund) , key = as.formula(paste(" ~ ", protID )), group = "BB")
+
+colors = c("^zz" = "red")
+colorV <- rep("black", nrow(precabund))
+ for (i in seq_along(colors)) {
+    colorV[grepl(names(colors)[i], precabund[[protID]])] <- colors[i]
+ }
+
+pplotPepAbund <- ggplot(datax, aes(x = nrPeptides, y = meanArea)) + geom_point(color = colorV) +
+  ggplot2::scale_y_continuous(trans = 'log10') +
+  ggplot2::scale_x_continuous(trans = 'log10') +
+  facet_wrap(~ group)
+
+pplotPepAbund <- plotly::ggplotly(pplotPepAbund)
+pplotPepAbund
+```
+
+
