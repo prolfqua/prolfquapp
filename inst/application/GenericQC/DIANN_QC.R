@@ -21,11 +21,11 @@ mdir <- function(path, pattern){
 }
 
 fasta.file <- mdir(path,
-  pattern = "*.fasta$")
+                   pattern = "*.fasta$")
 diann.output <- mdir(path,
-  pattern = "diann-output.tsv")
+                     pattern = "diann-output.tsv")
 dataset.csv <- mdir(path,
-  pattern = "dataset1.csv")
+                    pattern = "dataset.csv")
 
 xx <- readr::read_tsv(diann.output)
 peptide <- read_DIANN_output(
@@ -71,34 +71,30 @@ atable$set_response("Peptide.Quantity")
 atable$factors[["group"]] = "Grouping.Var"
 atable$factorDepth <- 1
 
+
+
 config <- prolfqua::AnalysisConfiguration$new(atable)
 adata <- prolfqua::setup_analysis(peptide, config)
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities(threshold = 1)
 
 tables2write <- list()
-tables2write$peptide_wide <- left_join(prot_annot, lfqdata$to_wide()$data, multiple = "all")
+tables2write$peptide_wide <- left_join(prot_annot,
+                                       lfqdata$to_wide()$data,
+                                       multiple = "all")
 tables2write$annotation <- lfqdata$factors()
 
 lfqdataProt <- prolfquapp::aggregate_data(lfqdata, agg_method = "medpolish")
-tables2write$proteins_wide <- left_join(prot_annot, lfqdataProt$to_wide()$data, multiple = "all")
+tables2write$proteins_wide <- left_join(prot_annot,
+                                        lfqdataProt$to_wide()$data,
+                                        multiple = "all")
 
-logger::log_info("data aggregated: medpolish.")
-ps <- prolfqua::ProjectStructure$new(outpath = path,
-                                     project_Id = "",
-                                     workunit_Id = basename(getwd()),
-                                     order_Id = "",
-                                     inputAnnotation = NULL,
-                                     inputData = NULL)
 
-ps$create()
-prolfqua::LFQDataSummariser$undebug("percentage_abundance")
+
 summarizer <- lfqdata$get_Summariser()
 summarizer$plot_hierarchy_counts_sample()
 
 precabund <- summarizer$percentage_abundance()
-
-
 precabund <- inner_join(
   prot_annot,
   precabund,
@@ -107,34 +103,41 @@ precabund <- inner_join(
 
 readr::write_tsv(precabund,file = "testData.tsv")
 saveRDS(lfqdata, "lfqdata.Rds")
-colnames(precabund)
-precabund$IDcolumn <- NULL
-precabund$isotopeLabel <- NULL
-precabund$id <- NULL
-precabund$medianArea <- NULL
-precabund$nrNAs <- NULL
 
-# pp <- prolfquapp::plot_abundance_vs_percent(
-#   precabund,
-#   cfg_table = lfqdata$config$table,
-#   top_N = NULL,factors = FALSE,
-#   cumulative = TRUE)
-
-precabund_table <- precabund |> mutate(
-  abundance_percent = signif(abundance_percent, n ),
-  abundance_percent_cumulative = signif(abundance_percent_cumulative, n),
-  percent_prot = signif(percent_prot, 3))
-
-protID = lfqdata$config$table$hierarchy_keys_depth()
-datax <- crosstalk::SharedData$new(precabund_table , key = as.formula(paste(" ~ ", protID )), group = "Choose Protein")
-DT::datatable(datax)
+file.copy(system.file("application/genericQC/test_NewQc.Rmd", package = "prolfquapp"),
+          to = ".", overwrite = TRUE)
+rmarkdown::render("test_NewQc.Rmd", params = list(config = lfqdata$config$table,
+                                                  precabund = precabund,
+                                                  factors = TRUE))
 
 
-params <- list()
-params$plot <- pp
-params$data <- datax
 
-rmarkdown::render("test_NewQc.Rmd")
+
+logger::log_info("data aggregated: medpolish.")
+ps = prolfqua::ProjectStructure$new(outpath = path,
+                                    project_Id = "",
+                                    workunit_Id = basename(getwd()),
+                                    order_Id = "",
+                                    inputAnnotation = NULL,
+                                    inputData = NULL)
+ps$create()
+
+
+file.copy(system.file("application/genericQC/QCandSSE.Rmd", package = "prolfquapp"),
+          to = ".", overwrite = TRUE)
+
+sr <- lfqdataProt$get_Summariser()
+pl <- lfqdataProt$get_Plotter()
+
+#prolfqua::UpSet_missing_stats(lfqdataProt$data, lfqdataProt$config)
+pl$upset_missing()
+
+
+rmarkdown::render("QCandSSE.Rmd",
+                  params = list(data = lfqdataProt$data,
+                                configuration = lfqdataProt$config,
+                                project_conf = ps,
+                                pep = FALSE))
 
 if (FALSE) {
   if (nrow(lfqdata$factors()) > 1) {

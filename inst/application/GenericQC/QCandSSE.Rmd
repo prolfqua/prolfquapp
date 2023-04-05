@@ -79,7 +79,7 @@ You were asked to hand in 4 QC samples, to asses the biological, biochemical, an
 This document summarizes the `r if(params$pep){"peptide"}else{"protein"}` variability to asses the reproducibility of the biological samples and estimates the sample sizes needed for the main experiment. 
 
 
-# Quality Control: Identifications
+# Quality Control: Identifications and Quantifications
 
 Here we summarize the number of `r if(params$pep){"peptides"}else{"proteins"}` measured in the QC experiment. Depending on the type of your sample (e.g., pull-down, supernatant, whole cell lysate) we observe some dozens up to a few thousands of proteins `r if(params$pep){", and between a few hundred to up to some few tens of thousands of peptides"}else{""}`.
 While the overall number of `r if(params$pep){"proteins and peptides"}else{"proteins"}` can highly vary depending of the type of experiment, it is crucial that the number of `r  if(params$pep){"proteins and peptides"}else{"proteins"}`  between your biological replicates is similar (reproducibility).
@@ -114,23 +114,17 @@ width = max(8, nrSamples*0.2)
 (ref:hierarchyCountsSampleBarplot) Number of quantified `r if(params$pep){"peptides"}else{"proteins"}` per sample.
 
 ```{r hierarchyCountsSampleBarplot, fig.cap="(ref:hierarchyCountsSampleBarplot)", fig.width=width, fig.height=6}
-
-
-
 summarizer <- lfqdata$get_Summariser()
 summarizer$plot_hierarchy_counts_sample()
+```
 
-prolfquapp::plot_abundance_vs_percent(summarizer,top_percent = 90,cumulative = TRUE, factors = FALSE)
+```{r upsetMissing, fig.width=9, fig.height=9, fig.cap= "The plot shows the relationships between sets of proteins through their intersections, as well as the size of each set. The elements that are present in each intersection are shown as circles or dots in the matrix, and the size of each set is represented by the height of the corresponding row."}
+
+plotter <- lfqdata$get_Plotter()
+plotter$upset_missing()
 
 ```
 
-
-```{r}
-debug(prolfquapp::plot_abundance_vs_percent)
-prolfquapp::plot_abundance_vs_percent(summarizer, top_percent = NULL, factors = FALSE, cumulative = TRUE)
-```
-
-# Quality Control: Quantification
 
 ## Summary of missing data
 
@@ -144,7 +138,6 @@ height <- max(7, nrSamples * 0.1)
 
 ```{r missingFigIntensityHistorgram, fig.width=height, fig.height=height, fig.cap="(ref:missingFigIntensityHistorgram)"}
 
-plotter <- lfqdata$get_Plotter()
 p <- plotter$missigness_histogram()
 xx3 <- summarizer$plot_missingness_per_group()
 xx4 <- summarizer$plot_missingness_per_group_cumsum()
@@ -236,14 +229,13 @@ if (params$plot_density) {
 
 ## Variability of transformed intensities
 
-We $\log_2$ transformed and applied the `prolfqua::robust_scale()` transformation to the data. This transformation transforms and scales the data to reduce the variance (Figure \@ref(fig:plotTransformedIntensityDistributions)). Because of this, we can't report CV anymore but report standard deviations (sd). Figure \@ref(fig:sdviolinplots) shows the distribution of the `r if(params$pep){"peptide"}else{"protein"}` standard deviations while Figure \@ref(fig:sdecdf) shows the empirical cumulative distribution function (ecdf). Table \@ref(tab:printSDTable) summarises the sd. The heatmap in Figure \@ref(fig:correlationHeat) envisages the correlation between the QC samples.
+We applied the `vsn::justvsn` normalization to the data, which should remove systematic differences among the samples and reduce the variance within the groups (Figure \@ref(fig:plotTransformedIntensityDistributions)). Because of this transformation, we can't report $CV's$ anymore but report standard deviations ($sd$). Figure \@ref(fig:sdviolinplots) shows the distribution of the `r if(params$pep){"peptide"}else{"protein"}` standard deviations while Figure \@ref(fig:sdecdf) shows the empirical cumulative distribution function ($ecdf$). Table \@ref(tab:printSDTable) summarises the $sd$. The heatmap in Figure \@ref(fig:correlationHeat) shows the correlation among the QC samples.
 
 
 ```{r transformIntensities}
 if (show_text) {
   tr <- lfqdata$get_Transformer()
-  tr <- tr$log2()
-  tr <- tr$robscale()
+  tr$intensity_matrix(.func = vsn::justvsn)
   dataTransformed <- tr$lfq
 } else{
   dataTransformed <- lfqdata
@@ -424,3 +416,6 @@ prolfqua::table_facade(
 ```{r resetTheme, include=FALSE}
 ggplot2::theme_set(old.theme)
 ```
+
+
+

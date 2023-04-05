@@ -307,7 +307,7 @@ bb <- datax |> dplyr::select(
            "FDR" )))
 bb <- crosstalk::SharedData$new(bb, ~protein_Id, group = "BB")
 
-DT::datatable(bb, , filter = "bottom",
+DT::datatable(bb, filter = "bottom",
   extensions = "Scroller",
   style = "auto",
   class = "compact",
