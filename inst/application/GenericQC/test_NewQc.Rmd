@@ -59,13 +59,14 @@ precabund_table <- precabund |> dplyr::mutate(
 precabund_table <- precabund_table |>
     dplyr::select(
         all_of(c(protID, "nrPeptides",
-                 if (factors) {tableconfig$factor_keys_depth()}else{ NULL },
+                 tableconfig$factor_keys_depth(),
                  "nrMeasured", "meanArea", "abundance_percent" ,"description")))
 if (factors) {
   precabund_table <- precabund_table |> 
     pivot_wider(names_from = 'group', values_from = c("nrMeasured", "meanArea", "abundance_percent"))
 } else {
   precabund_table <- dplyr::filter(precabund_table, !!sym(tableconfig$factor_keys_depth()) == "ALL")
+  precabund_table <- dplyr::select(precabund_table, -all_of(tableconfig$factor_keys_depth()))
 }
 
 datax <- crosstalk::SharedData$new(as.data.frame(precabund_table) , key = as.formula(paste(" ~ ", protID )), group = "BB")
@@ -95,7 +96,8 @@ table
 pp
 ```
 
-```{r fig.cap = "Mean protein abundance as a function of the number of peptides."}
+
+```{r prepPeptidePlot}
 datax <- crosstalk::SharedData$new(as.data.frame(precabund) , key = as.formula(paste(" ~ ", protID )), group = "BB")
 
 colors = c("^zz" = "red")
@@ -110,6 +112,12 @@ pplotPepAbund <- ggplot(datax, aes(x = nrPeptides, y = meanArea)) + geom_point(c
   facet_wrap(~ group)
 
 pplotPepAbund <- plotly::ggplotly(pplotPepAbund)
+```
+
+(ref:nrProtplots) Mean protein abundance as a function of the number of peptides.
+
+
+```{r nrProtplots, fig.cap = "(ref:nrProtplots)"}
 pplotPepAbund
 ```
 
