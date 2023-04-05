@@ -126,7 +126,6 @@ plotter$upset_missing()
 ```
 
 
-## Summary of missing data
 
 Ideally, we identify each `r if(params$pep){"peptide"}else{"protein"}` in all of the samples. However, because of the limit of detection (LOD) low-intensity `r if(params$pep){"peptides"}else{"proteins"}` might not be observed in all samples. Ideally, the LOD should be the only source of missingness in biological replicates. The following figures help us to verify the reproducibility of the measurement at the level of missing data.
 
