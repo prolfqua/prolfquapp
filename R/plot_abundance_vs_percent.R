@@ -51,8 +51,8 @@ plot_abundance_vs_percent <- function(
       dplyr::group_by(dplyr::across(cfg_table$factor_keys_depth())) |>
       dplyr::slice_max(order_by = !!rlang::sym(columnAb), n = top_N)
   } else {
-    message("creating shared data with key : ", paste(" ~ ", protID ))
-    percInfo <- crosstalk::SharedData$new(as.data.frame(percInfo) , key = as.formula(paste(" ~ ", protID )),
+    message("creating shared data with key : ", paste0(" ~ ", protID ))
+    percInfo <- crosstalk::SharedData$new(as.data.frame(percInfo) , key = as.formula(paste(" ~ ", protID)),
                                           group = group)
   }
 
@@ -60,7 +60,7 @@ plot_abundance_vs_percent <- function(
                             y = !!rlang::sym(columnAb),
                             label = !!rlang::sym(protID))) +
     geom_point(color = colorV) +
-    facet_wrap(as.formula(paste0("~", paste(cfg_table$factor_keys_depth(), sep = " + "))))
+    facet_wrap(as.formula(paste0(" ~ ", paste(cfg_table$factor_keys_depth(), collapse = " + "))))
 
   if (!is.null(top_N) ) {
     myplot <- myplot + ggrepel::geom_label_repel(
