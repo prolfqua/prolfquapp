@@ -1,20 +1,40 @@
 #R
 # 20211210 WEW/CP make it work for WU272669
 # 20230131 make it work for Application 312
-# R_LIBS_SITE="/scratch/FRAGPIPEDIA_312/R_LIBS_V1/"; R --no-save  < ~/slurmworker/R/fgcz_fragpipeDIA_DIANN_prolfqua_qc.R
+# R_LIBS_SITE="/scratch/FRAGPIPEDIA_312/R_LIBS_V1/"; R --vanilla  < ~/slurmworker/R/fgcz_fragpipeDIA_DIANN_prolfqua_qc.R
 ##### QCs
 
 library(dplyr)
 library(tidyverse)
 library(prolfquapp)
+library(logger)
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) > 0) {
   path <- args[1]
+  project_Id <- args[2]
+  output_dir <- args[3]
+  libPath <- args[3]
+
+  logger::log_info(paste("libPath :" , .libPaths(), collapse = " ;"))
+
+  if (is.na(libPath) & dir.exists(libPath) ) {
+    logger::log_info(paste("Setting libPath:", libPath, collapse = " ;"))
+    .libPaths(libPath)
+  }
 } else {
+  message("please provide :\n",
+          "path       : folder containing fasta, diann-output.tsv and dataset.tsv file \n",
+          "project_id : b-fabric project id\n",
+          "output_dir : folder to write the results to \n",
+          "libPath.   : (optional) R library path\n"
+          )
   path = "WU287241"
-  path <- "."
+  project_Id = "o32211"
+  output_dir = "drummmmm"
 }
+
+if (!dir.exists(output_dir)) { dir.create(output_dir) }
 
 mdir <- function(path, pattern){
   dir(path, pattern, full.names = TRUE, recursive = TRUE)
@@ -27,11 +47,12 @@ diann.output <- mdir(path,
 dataset.csv <- mdir(path,
                     pattern = "dataset.csv")
 
+
 xx <- readr::read_tsv(diann.output)
 peptide <- read_DIANN_output(
   diann.path = diann.output,
   fasta.file = fasta.file,
-  ,nrPeptides = 1,
+  nrPeptides = 1,
   Q.Value = 0.1)
 
 prot_annot <- prolfquapp::dataset_protein_annot(
@@ -50,7 +71,7 @@ if (length(dataset.csv) > 0) {
   annotation <- data.frame(Relative.Path = unique(peptide$raw.file))
   annotation$inputresource.name <- tools::file_path_sans_ext(basename(annotation$Relative.Path))
   annotation$sample.name <- gsub("^[0-9]{8,8}_","", annotation$Relative.Path)
-  annotation$Grouping.Var <- "None"
+  annotation$Grouping.Var <- "None_Specified"
 }
 
 peptide <- dplyr::inner_join(
@@ -72,28 +93,23 @@ atable$factors[["group"]] = "Grouping.Var"
 atable$factorDepth <- 1
 
 
-
 config <- prolfqua::AnalysisConfiguration$new(atable)
 adata <- prolfqua::setup_analysis(peptide, config)
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities(threshold = 1)
 
-tables2write <- list()
-tables2write$peptide_wide <- left_join(prot_annot,
+TABLES2WRITE <- list()
+TABLES2WRITE$peptide_wide <- left_join(prot_annot,
                                        lfqdata$to_wide()$data,
                                        multiple = "all")
-tables2write$annotation <- lfqdata$factors()
 
+TABLES2WRITE$annotation <- lfqdata$factors()
 lfqdataProt <- prolfquapp::aggregate_data(lfqdata, agg_method = "medpolish")
-tables2write$proteins_wide <- left_join(prot_annot,
+TABLES2WRITE$proteins_wide <- left_join(prot_annot,
                                         lfqdataProt$to_wide()$data,
                                         multiple = "all")
 
-
-
 summarizer <- lfqdata$get_Summariser()
-summarizer$plot_hierarchy_counts_sample()
-
 precabund <- summarizer$percentage_abundance()
 precabund <- inner_join(
   prot_annot,
@@ -101,19 +117,15 @@ precabund <- inner_join(
   multiple = "all",
   by = lfqdata$config$table$hierarchy_keys_depth())
 
-readr::write_tsv(precabund,file = "testData.tsv")
-saveRDS(lfqdata, "lfqdata.Rds")
+TABLES2WRITE$proteinAbundances <- precabund
+writexl::write_xlsx(TABLES2WRITE, path = file.path(output_dir, "proteinAbundances.xlsx"))
 
 file.copy(system.file("application/genericQC/test_NewQc.Rmd", package = "prolfquapp"),
-          to = ".", overwrite = TRUE)
-rmarkdown::render("test_NewQc.Rmd", params = list(config = lfqdata$config$table,
+          to = output_dir, overwrite = TRUE)
+
+rmarkdown::render(file.path(output_dir,"test_NewQc.Rmd"), params = list(config = lfqdataProt$config$table,
                                                   precabund = precabund,
                                                   factors = TRUE))
-
-
-
-
-logger::log_info("data aggregated: medpolish.")
 ps = prolfqua::ProjectStructure$new(outpath = path,
                                     project_Id = "",
                                     workunit_Id = basename(getwd()),
@@ -121,30 +133,16 @@ ps = prolfqua::ProjectStructure$new(outpath = path,
                                     inputAnnotation = NULL,
                                     inputData = NULL)
 ps$create()
+if (nrow(lfqdata$factors()) > 1) {
+  file.copy(system.file("application/genericQC/QCandSSE.Rmd", package = "prolfquapp"),
+            to = output_dir, overwrite = TRUE)
 
+  rmarkdown::render(file.path(output_dir,"QCandSSE.Rmd"),
+                    params = list(data = lfqdata$data, configuration = lfqdata$config, project_conf = ps, pep = FALSE),
 
-file.copy(system.file("application/genericQC/QCandSSE.Rmd", package = "prolfquapp"),
-          to = ".", overwrite = TRUE)
-
-sr <- lfqdataProt$get_Summariser()
-pl <- lfqdataProt$get_Plotter()
-
-#prolfqua::UpSet_missing_stats(lfqdataProt$data, lfqdataProt$config)
-pl$upset_missing()
-
-
-rmarkdown::render("QCandSSE.Rmd",
-                  params = list(data = lfqdataProt$data,
-                                configuration = lfqdataProt$config,
-                                project_conf = ps,
-                                pep = FALSE))
-
-if (FALSE) {
-  if (nrow(lfqdata$factors()) > 1) {
-    rmarkdown::render("QCandSSE.Rmd", params = list(data = lfqdata$data, configuration = lfqdata$config, project_conf = ps, pep = FALSE))
-  } else{
-    message("only a single sample: ", nrow(lfqdata$factors()))
-
-  }
+                    )
+} else{
+  message("only a single sample: ", nrow(lfqdata$factors()))
 
 }
+
