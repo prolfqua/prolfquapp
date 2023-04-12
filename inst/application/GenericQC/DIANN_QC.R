@@ -14,7 +14,7 @@ if (length(args) > 0) {
 
   print(paste("libPath :" , .libPaths(), collapse = " ;"))
 
-  if (is.na(libPath) & dir.exists(libPath) ) {
+  if (!is.na(libPath) & dir.exists(libPath) ) {
     print(paste("Setting libPath:", libPath, collapse = " ;"))
     .libPaths(libPath)
   }
