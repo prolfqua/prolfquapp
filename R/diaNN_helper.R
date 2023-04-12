@@ -4,6 +4,7 @@
 #' @param nrPeptides peptide threshold
 #' @param Q.Value q value threshold
 #' @export
+#'
 read_DIANN_output <- function(diann.path,
                               fasta.file,
                               nrPeptides = 2,

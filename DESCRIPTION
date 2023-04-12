@@ -13,7 +13,8 @@ Imports:
   igraph,
   ggraph,
   UpSetR,
-  pander
+  pander,
+  logger
 RoxygenNote: 7.2.1
 Suggests: 
     knitr,

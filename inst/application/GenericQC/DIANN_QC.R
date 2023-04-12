@@ -22,7 +22,7 @@ if (length(args) > 0) {
     .libPaths(libPath)
   }
 } else {
-  message("please provide :\n",
+  warning("please provide :\n",
           "path       : folder containing fasta, diann-output.tsv and dataset.tsv file \n",
           "project_id : b-fabric project id\n",
           "output_dir : folder to write the results to \n",
