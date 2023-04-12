@@ -119,7 +119,7 @@ precabund <- inner_join(
 TABLES2WRITE$proteinAbundances <- precabund
 writexl::write_xlsx(TABLES2WRITE, path = file.path(output_dir, "proteinAbundances.xlsx"))
 
-file.copy(system.file("application/genericQC/test_NewQc.Rmd", package = "prolfquapp"),
+file.copy(system.file("application/GenericQC/test_NewQc.Rmd", package = "prolfquapp"),
           to = output_dir, overwrite = TRUE)
 
 rmarkdown::render(file.path(output_dir,"test_NewQc.Rmd"), params = list(config = lfqdataProt$config$table,
@@ -133,7 +133,7 @@ ps = prolfqua::ProjectStructure$new(outpath = path,
                                     inputData = NULL)
 ps$create()
 if (nrow(lfqdata$factors()) > 1) {
-  file.copy(system.file("application/genericQC/QCandSSE.Rmd", package = "prolfquapp"),
+  file.copy(system.file("application/GenericQC/QCandSSE.Rmd", package = "prolfquapp"),
             to = output_dir, overwrite = TRUE)
 
   rmarkdown::render(file.path(output_dir,"QCandSSE.Rmd"),
