@@ -15,7 +15,8 @@ Imports:
   logger,
   pander,
   seqinr,
-  UpSetR
+  UpSetR,
+  vsn
 RoxygenNote: 7.2.1
 Suggests: 
     knitr,
