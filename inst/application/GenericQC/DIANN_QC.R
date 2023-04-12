@@ -10,13 +10,14 @@ if (length(args) > 0) {
   path <- args[1]
   project_Id <- args[2]
   output_dir <- args[3]
-  libPath <- args[3]
+  libPath <- args[4]
 
   print(paste("libPath :" , .libPaths(), collapse = " ;"))
 
   if (!is.na(libPath) & dir.exists(libPath) ) {
     print(paste("Setting libPath:", libPath, collapse = " ;"))
     .libPaths(libPath)
+    cat(.libPaths(), sep="\n")
   }
 } else {
   warning("please provide :\n",
