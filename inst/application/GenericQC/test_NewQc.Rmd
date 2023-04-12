@@ -64,7 +64,7 @@ precabund_table <- precabund_table |>
                  "nrMeasured", "meanArea", "abundance_percent" ,"description")))
 if (factors) {
   precabund_table <- precabund_table |> 
-    pivot_wider(names_from = tableconfig$factor_keys_depth(), values_from = c("nrMeasured", "meanArea", "abundance_percent"))
+    tidyr::pivot_wider(names_from = tableconfig$factor_keys_depth(), values_from = c("nrMeasured", "meanArea", "abundance_percent"))
 } else {
   precabund_table <- dplyr::select(precabund_table, -all_of(tableconfig$factor_keys_depth()))
 }
