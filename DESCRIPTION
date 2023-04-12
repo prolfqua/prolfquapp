@@ -12,9 +12,10 @@ Imports:
   prolfqua,
   igraph,
   ggraph,
-  UpSetR,
-  pander,
   logger
+  pander,
+  seqinr,
+  UpSetR
 RoxygenNote: 7.2.1
 Suggests: 
     knitr,
