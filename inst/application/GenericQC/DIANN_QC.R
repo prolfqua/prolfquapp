@@ -4,12 +4,9 @@
 # R_LIBS_SITE="/scratch/FRAGPIPEDIA_312/R_LIBS_V1/"; R --vanilla  < ~/slurmworker/R/fgcz_fragpipeDIA_DIANN_prolfqua_qc.R
 ##### QCs
 
-library(dplyr)
-library(prolfquapp)
-library(logger)
-
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) > 0) {
+  cat(args, sep = "\n")
   path <- args[1]
   project_Id <- args[2]
   output_dir <- args[3]
@@ -32,6 +29,12 @@ if (length(args) > 0) {
   project_Id = "o32211"
   output_dir = "drummmmm"
 }
+
+library(dplyr)
+library(prolfquapp)
+library(logger)
+
+
 
 if (!dir.exists(output_dir)) { dir.create(output_dir) }
 
