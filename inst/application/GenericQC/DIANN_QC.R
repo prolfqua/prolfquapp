@@ -5,7 +5,6 @@
 ##### QCs
 
 library(dplyr)
-library(tidyverse)
 library(prolfquapp)
 library(logger)
 
