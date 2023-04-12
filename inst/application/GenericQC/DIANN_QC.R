@@ -12,10 +12,10 @@ if (length(args) > 0) {
   output_dir <- args[3]
   libPath <- args[3]
 
-  logger::log_info(paste("libPath :" , .libPaths(), collapse = " ;"))
+  print(paste("libPath :" , .libPaths(), collapse = " ;"))
 
   if (is.na(libPath) & dir.exists(libPath) ) {
-    logger::log_info(paste("Setting libPath:", libPath, collapse = " ;"))
+    print(paste("Setting libPath:", libPath, collapse = " ;"))
     .libPaths(libPath)
   }
 } else {
