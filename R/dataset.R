@@ -1,11 +1,23 @@
 #' extect contrasts from dataset
 #' @export
+#' @examples
+#'
+#' file <- system.file("application/dataset_csv/dataset 25.csv", package = "prolfquapp")
+#' res <- readr::read_csv(file)
+#' GRP2 <- make_DEA_config()
+#' GRP2 <- dataset_extract_contrasts(res,GRP2)
+#' stopifnot(length(GRP2$pop$Contrasts) == 0)
+#'
+#' file <- system.file("application/dataset_csv/dataset 26.csv", package = "prolfquapp")
+#' res <- readr::read_csv(file)
+#' GRP2 <- dataset_extract_contrasts(res,GRP2)
+#' stopifnot(length(GRP2$pop$Contrasts) == 3)
 #'
 dataset_extract_contrasts <- function(annot, GRP2) {
   if ( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
     contr <- annot |>
-      dplyr::select(rlang::.data$ContrastName, rlang::.data$Contrast) |>
-      dplyr::filter(nchar(rlang::.data$Contrast) > 0)
+      dplyr::select(all_of(c("ContrastName", "Contrast"))) |>
+      dplyr::filter(nchar(!!rlang::sym("Contrast")) > 0)
     Contrasts <- contr$Contrast
     names(Contrasts) <- contr$ContrastName
     GRP2$pop$Contrasts <- Contrasts
@@ -15,7 +27,6 @@ dataset_extract_contrasts <- function(annot, GRP2) {
 
 #' set factors and sample names columns
 #' @export
-#'
 #'
 dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
   atable$hierarchyDepth <- 1
