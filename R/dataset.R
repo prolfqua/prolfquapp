@@ -119,7 +119,7 @@ aggregate_data <- function(lfqdata,
     aggregator$sum_topN()
     lfqdata <- aggregator$lfq_agg
   } else if (agg_method == "lmrob" || agg_method == "medpolish") {
-    transformed <- lfqdata$get_Transformer()$log2()$lfq
+    transformed <- lfqdata$get_Transformer()$intensity_array(log)$lfq
     aggregator <- transformed$get_Aggregator()
     if (agg_method == "lmrob" ) {
       aggregator$lmrob()
