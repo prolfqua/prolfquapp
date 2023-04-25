@@ -139,8 +139,8 @@ make_DEA_report <- function(lfqdata,
   )
   GRP2$RES$rowAnnot <- protAnnot
 
-  if (GRP2$pop$remove) {
-    lfqdata <- lfqdata$get_subset(protAnnot$clean())
+  if (GRP2$pop$removeCon || GRP2$pop$removeDecoys) {
+    lfqdata <- lfqdata$get_subset(protAnnot$clean(contamintants = GRP2$pop$removeCon, decoys = GRP2$pop$removeDecoys))
     transformed <- transformed$get_subset(protAnnot$clean())
     logger::log_info(
       paste0("removing contaminants and reverse sequences with patterns:",
@@ -263,6 +263,9 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
     logger::log_info("Writing File ", ff)
     write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
                 row.names = FALSE, quote = FALSE, sep = "\t")
+  }
+  if (nrow(resultList$normalized_abundances) > 1048575) {
+    resultList$normalized_abundances <- NULL
   }
   writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
 }
