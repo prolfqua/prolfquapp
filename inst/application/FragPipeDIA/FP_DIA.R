@@ -66,7 +66,6 @@ logger::log_info("END OF DATA TRANSFORMATION.")
 
 
 prolfquapp::copy_DEA_FragPipe_DIA()
-undebug(prolfquapp::generate_DEA_reports)
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 saveRDS(grp, file = "DEAll.RDS")
 #

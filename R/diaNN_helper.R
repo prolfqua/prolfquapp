@@ -14,7 +14,7 @@ read_DIANN_output <- function(diann.path,
   report2 <- prolfqua::diann_read_output(diann.path, nrPeptides = nrPeptides, Q.Value = Q.Value)
   report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
   peptide <- prolfqua::diann_output_to_peptide(report2)
-  peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(strsplit(x, " "))[1]} )
+  peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
   # we need to add the fasta.header information.
   fasta <- seqinr::read.fasta(file = fasta.file, as.string = TRUE, seqtype = "AA")
   fasta_annot <- prolfqua::matrix_to_tibble(
