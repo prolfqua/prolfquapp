@@ -33,7 +33,9 @@ read_yaml <- function(ymlfile, application = "FragPipeTMT" ) {
   GRP2$pop$Diffthreshold <- as.numeric(yml$application$parameters$`4|Difference_threshold`)
   GRP2$pop$FDRthreshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
 
-  GRP2$pop$remove <- if (yml$application$parameters$`6|remConDec` == "true") { TRUE } else { FALSE }
+  GRP2$pop$removeCon <- if (yml$application$parameters$`6|remConDec` == "true") { TRUE } else { FALSE }
+  GRP2$pop$removeDecoys <- if (yml$application$parameters$`6|remConDec` == "true") { TRUE } else { FALSE }
+
   GRP2$pop$revpattern <- yml$application$parameters$`7|REVpattern`
   GRP2$pop$contpattern <- yml$application$parameters$`8|CONpattern`
 
