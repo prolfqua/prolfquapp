@@ -13,7 +13,7 @@ fasta.file <- grep("*.fasta", dir(recursive = TRUE), value = TRUE)
 peptide <- read_DIANN_output(
   diann.path = diann.path[1],
   fasta.file = fasta.file[1],
-  ,nrPeptides = 1,
+  nrPeptides = 1,
   Q.Value = 0.1)
 
 
