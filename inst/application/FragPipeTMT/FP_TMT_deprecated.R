@@ -1,3 +1,5 @@
+# this script is being deprecated.
+
 library(tidyverse)
 
 ymlfile <- "config.yaml"
