@@ -20,7 +20,9 @@ peptide <- read_DIANN_output(
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
   "Protein.Group.2",
-  protein_annot = "fasta.header")
+  protein_annot = "fasta.header",
+  more_columns = c("nrPeptides", "fasta.id", "Protein.Group")
+)
 
 
 dsf <- "dataset.csv"
@@ -43,7 +45,7 @@ peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
 
 atable <- prolfqua::AnalysisTableAnnotation$new()
 atable$fileName = "raw.file"
-atable$hierarchy[["protein_Id"]] <- c("Protein.Group.2")
+atable$hierarchy[["protein_Id"]] <- c("Protein.Group")
 atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
 atable$set_response("Peptide.Quantity")
 atable$hierarchyDepth <- 1
@@ -55,6 +57,8 @@ peptide <- res$msdata
 # Preprocess data - aggregate proteins.
 config <- prolfqua::AnalysisConfiguration$new(atable)
 adata <- prolfqua::setup_analysis(peptide, config)
+
+
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
 GRP2$pop$nrPeptides <- 2
