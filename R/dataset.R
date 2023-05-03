@@ -83,11 +83,12 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
 #' @param more_columns more columns to include
 dataset_protein_annot <- function(
     msdata,
-    idcolName,
-    proteinID_column = "protein_Id",
+    idcol = c("protein_Id" = "Protein.Group"),
     protein_annot = "fasta.header",
     more_columns = c("nrPeptides", "fasta.id")) {
-  msdata <- dplyr::rename(msdata, !!proteinID_column := idcolName )
+
+  proteinID_column = names(idcol)[1]
+  msdata <- dplyr::rename(msdata, !!proteinID_column := !!sym(idcol) )
   prot_annot <- dplyr::select(
     msdata ,
     dplyr::all_of(c( proteinID_column, protein_annot, more_columns))) |>

@@ -99,7 +99,13 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' GRP2$pop$revpattern = "^REV_"
 #' GRP2$pop$contpattern = "^zz|^CON__"
 #' GRP2$pop$remove = TRUE
-#' grp <- make_DEA_report(lfqdata, protein_annot, GRP2)
+#'
+#'
+#' protAnnot <- prolfqua::ProteinAnnotation$new(
+#'     transformed,
+#'     row_annot = protein_annot)
+#'
+#' grp <- make_DEA_report(lfqdata, protAnnot, GRP2)
 #' st <- grp$RES$transformedlfqData$get_Stats()
 #' bb <- st$stats()
 #' sr <- grp$RES$transformedlfqData$get_Summariser()
@@ -112,7 +118,7 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' }
 #'
 make_DEA_report <- function(lfqdata,
-                            prot_annot,
+                            protAnnot,
                             GRP2
 ) {
   ### Do some type of data normalization (or do not)
@@ -123,11 +129,6 @@ make_DEA_report <- function(lfqdata,
     internal = GRP2$pop$internal
   )
 
-
-  ## count contaminants.
-  protAnnot <- prolfqua::ProteinAnnotation$new(
-    transformed,
-    row_annot = prot_annot)
 
   allProt <- nrow( protAnnot$row_annot )
   GRP2$RES <- list()
