@@ -16,12 +16,11 @@ peptide <- read_DIANN_output(
   nrPeptides = 1,
   Q.Value = 0.1)
 
-
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
-  "Protein.Group.2",
+  c("protein_Id" = "Protein.Group"),
   protein_annot = "fasta.header",
-  more_columns = c("nrPeptides", "fasta.id", "Protein.Group")
+  more_columns = c("nrPeptides", "fasta.id", "Protein.Group.2")
 )
 
 
@@ -57,7 +56,7 @@ peptide <- res$msdata
 # Preprocess data - aggregate proteins.
 config <- prolfqua::AnalysisConfiguration$new(atable)
 adata <- prolfqua::setup_analysis(peptide, config)
-
+length(unique(adata$protein_Id))
 
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
@@ -68,9 +67,10 @@ lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 logger::log_info("END OF DATA TRANSFORMATION.")
 
+protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
 
 prolfquapp::copy_DEA_FragPipe_DIA()
-grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
+grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
 saveRDS(grp, file = "DEAll.RDS")
 #
 grp <- readRDS(file = "DEAll.RDS")
