@@ -4,6 +4,11 @@
 # R_LIBS_SITE="/scratch/FRAGPIPEDIA_312/R_LIBS_V1/"; R --vanilla  < ~/slurmworker/R/fgcz_fragpipeDIA_DIANN_prolfqua_qc.R
 ##### QCs
 
+library(dplyr)
+library(prolfquapp)
+library(logger)
+
+
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) > 0) {
   cat(args, sep = "\n")
@@ -17,7 +22,7 @@ if (length(args) > 0) {
   if (!is.na(libPath) & dir.exists(libPath) ) {
     print(paste("Setting libPath:", libPath, collapse = " ;"))
     .libPaths(libPath)
-    cat(.libPaths(), sep="\n")
+    cat(.libPaths(), sep = "\n")
   }
 } else {
   warning("please provide :\n",
@@ -26,18 +31,14 @@ if (length(args) > 0) {
           "output_dir : folder to write the results to \n",
           "libPath.   : (optional) R library path\n"
           )
-  path = "WU287241"
-  project_Id = "o32211"
-  output_dir = "drummmmm"
+  path = "WU288113"
+  project_Id = "o3000"
+  output_dir = "qc_dir"
 }
 
-library(dplyr)
-library(prolfquapp)
-library(logger)
-
-
-
-if (!dir.exists(output_dir)) { dir.create(output_dir) }
+if (!dir.exists(output_dir)) {
+  dir.create(output_dir)
+}
 
 mdir <- function(path, pattern){
   dir(path, pattern, full.names = TRUE, recursive = TRUE)
