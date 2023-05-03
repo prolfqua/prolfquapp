@@ -4,9 +4,6 @@
 # R_LIBS_SITE="/scratch/FRAGPIPEDIA_A312/R_LIBS_V1/"
 ##### QCs
 
-library(dplyr)
-library(prolfquapp)
-library(logger)
 
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -35,6 +32,13 @@ if (length(args) > 0) {
   project_Id = "o3000"
   output_dir = "qc_dir"
 }
+
+# this must be executed after the libPath is modified.
+
+library(dplyr)
+library(prolfquapp)
+library(logger)
+
 
 if (!dir.exists(output_dir)) {
   dir.create(output_dir)
