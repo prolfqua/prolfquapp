@@ -1,7 +1,7 @@
 #R
 # 20211210 WEW/CP make it work for WU272669
 # 20230131 make it work for Application 312
-# R_LIBS_SITE="/scratch/FRAGPIPEDIA_312/R_LIBS_V1/"; R --vanilla  < ~/slurmworker/R/fgcz_fragpipeDIA_DIANN_prolfqua_qc.R
+# R_LIBS_SITE="/scratch/FRAGPIPEDIA_A312/R_LIBS_V1/"
 ##### QCs
 
 library(dplyr)
@@ -52,7 +52,6 @@ dataset.csv <- mdir(path,
                     pattern = "dataset.csv")
 
 
-xx <- readr::read_tsv(diann.output)
 peptide <- read_DIANN_output(
   diann.path = diann.output,
   fasta.file = fasta.file,
@@ -61,8 +60,11 @@ peptide <- read_DIANN_output(
 
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
-  "Protein.Group.2",
-  protein_annot = "fasta.header")
+  c("protein_Id" = "Protein.Group"),
+  protein_annot = "fasta.header",
+  more_columns = c("nrPeptides", "fasta.id", "Protein.Group.2")
+)
+
 
 # dataset.csv must either contain columns:
 # `Relative Path` Name `Grouping Var` FileType
@@ -93,7 +95,7 @@ atable$hierarchy[["protein_Id"]] <- c("Protein.Group.2")
 atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
 atable$hierarchyDepth <- 1
 atable$set_response("Peptide.Quantity")
-atable$factors[["group"]] = "Grouping.Var"
+atable$factors[["group"]] = grep("Group",colnames(annotation), value = TRUE)
 atable$factorDepth <- 1
 
 
