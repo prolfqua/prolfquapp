@@ -28,7 +28,7 @@ if (length(args) > 0) {
           "output_dir : folder to write the results to \n",
           "libPath.   : (optional) R library path\n"
           )
-  path = "WU288113"
+  path = "2289403"
   project_Id = "o3000"
   output_dir = "qc_dir"
 }
@@ -52,6 +52,8 @@ fasta.file <- mdir(path,
                    pattern = "*.fasta$")
 diann.output <- mdir(path,
                      pattern = "diann-output.tsv")
+
+
 dataset.csv <- mdir(path,
                     pattern = "dataset.csv")
 
@@ -76,13 +78,24 @@ prot_annot <- prolfquapp::dataset_protein_annot(
 if (length(dataset.csv) > 0) {
   annotation <- read.csv(dataset.csv)
   annotation$inputresource.name <- tools::file_path_sans_ext(basename(annotation$Relative.Path))
-  annotation$sample.name <- make.unique(annotation$Name)
+  annotation$inputresource.name <- gsub("\\.d$","", annotation$inputresource.name) # remove .d for bruker timstof data.
+  if ("Name" %in% colnames(annotation)) {
+    annotation$sample.name <- make.unique(annotation$Name)
+  } else {
+    annotation$sample.name <- gsub("^[0-9]{8,8}_[0-9]{3,3}_S[0-9]{6,6}_","", annotation$inputresource.name)
+  }
+
+  if (!any(grepl("Group", colnames(annotation)))) {
+    annotation$Grouping.Var <- "None_Specified"
+  }
+
 } else{
   annotation <- data.frame(Relative.Path = unique(peptide$raw.file))
   annotation$inputresource.name <- tools::file_path_sans_ext(basename(annotation$Relative.Path))
-  annotation$sample.name <- gsub("^[0-9]{8,8}_","", annotation$Relative.Path)
+  annotation$sample.name <- gsub("^[0-9]{8,8}_","", annotation$inputresource.name)
   annotation$Grouping.Var <- "None_Specified"
 }
+
 
 peptide <- dplyr::inner_join(
   annotation,
@@ -105,6 +118,7 @@ atable$factorDepth <- 1
 
 config <- prolfqua::AnalysisConfiguration$new(atable)
 adata <- prolfqua::setup_analysis(peptide, config)
+
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities(threshold = 1)
 
