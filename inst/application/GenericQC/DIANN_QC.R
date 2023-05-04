@@ -54,11 +54,11 @@ logger::log_info(fasta.file)
 
 diann.output <- mdir(path,
                      pattern = "diann-output.tsv")
-logger::log_info(fasta.file)
+logger::log_info(diann.output)
 
 dataset.csv <- mdir(path,
                     pattern = "dataset.csv")
-logger::log_info(fasta.file)
+logger::log_info(dataset.csv)
 
 peptide <- read_DIANN_output(
   diann.path = diann.output,
