@@ -28,7 +28,7 @@ if (length(args) > 0) {
           "output_dir : folder to write the results to \n",
           "libPath.   : (optional) R library path\n"
           )
-  path = "2289403"
+  path = "WU288508"
   project_Id = "o3000"
   output_dir = "qc_dir"
 }
@@ -110,7 +110,7 @@ atable <- prolfqua::AnalysisTableAnnotation$new()
 atable$fileName = "inputresource.name"
 atable$sampleName = "sample.name"
 atable$ident_qValue = "PEP"
-atable$hierarchy[["protein_Id"]] <- c("Protein.Group.2")
+atable$hierarchy[["protein_Id"]] <- c("Protein.Group")
 atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
 atable$hierarchyDepth <- 1
 atable$set_response("Peptide.Quantity")
