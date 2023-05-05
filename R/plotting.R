@@ -2,7 +2,7 @@
 #' @export
 #'
 writeLinesPaired <- function(bb, outpath) {
-  nested <- bb$data |> ungroup() |> dplyr::group_by(!!!syms(bb$config$table$hierarchy_keys())) |> tidyr::nest()
+  nested <- bb$data |> ungroup() |> dplyr::group_by(!!!rlang::syms(bb$config$table$hierarchy_keys())) |> tidyr::nest()
   tr <- nested$data[[1]]
   plotL <- function(tr, pid){
     ggplot2::ggplot(tr, ggplot2::aes_string(x = bb$config$table$factor_keys()[1],

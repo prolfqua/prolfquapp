@@ -88,7 +88,7 @@ dataset_protein_annot <- function(
     more_columns = c("nrPeptides", "fasta.id")) {
 
   proteinID_column = names(idcol)[1]
-  msdata <- dplyr::rename(msdata, !!proteinID_column := !!sym(idcol) )
+  msdata <- dplyr::rename(msdata, !!proteinID_column := !!rlang::sym(idcol) )
   prot_annot <- dplyr::select(
     msdata ,
     dplyr::all_of(c( proteinID_column, protein_annot, more_columns))) |>
@@ -101,7 +101,7 @@ dataset_protein_annot <- function(
 
   if (UNIPROT) {
     prot_annot <- prolfqua::get_UniprotID_from_fasta_header(prot_annot, idcolumn = proteinID_column)
-    prot_annot <- prot_annot |> dplyr::rename(!!"IDcolumn" := !!sym("UniprotID"))
+    prot_annot <- prot_annot |> dplyr::rename(!!"IDcolumn" := !!rlang::sym("UniprotID"))
   } else {
     prot_annot$IDcolumn <- prot_annot[[proteinID_column]]
   }
