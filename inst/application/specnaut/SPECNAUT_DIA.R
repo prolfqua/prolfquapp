@@ -3,12 +3,8 @@ library(prolfquapp)
 
 
 inputdir <- "/Users/witoldwolski/__checkout/protriple/inst/specnaut_DataBench/forWeWat33/20230117_141504_p3000_DIA_tripleProteome_90minGradient_NOimputing_meansBackgroundSignal_Report_DIAservice_v2.xls"
-#prec <- read_tsv(inputdir)
-#colnames(prec)
-#inputdir <- "/Users/witoldwolski/__checkout/protriple/inst/specnaut_DataBench/forWeWat33/20230117_141554_p3000_DIA_tripleProteome_90MinGradien_defaultSettings_Report_DIAservice_v2.xls"
+inputdir <- "/Users/witoldwolski/__checkout/protriple/inst/specnaut_DataBench/forWeWat33/20230117_141554_p3000_DIA_tripleProteome_90MinGradien_defaultSettings_Report_DIAservice_v2.xls"
 #inputdir <- "/Users/witoldwolski/__checkout/protriple/inst/specnaut_DataBench/nonstaggered/20230426_074926_p3000_DIA_tripleProteome_90MinGradien_defaultSettings_NONstaggered_defaultSettings_Report.xls"
-
-
 
 fasta <- "/Users/witoldwolski/__checkout/protriple/inst/diann_DataBench/Triple_Proteome_Exp2_Grad90_V2/misc/fasta/fgcz_tripleProteome_MSV000090837_20221214.fasta"
 
@@ -113,6 +109,7 @@ lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 logger::log_info("END OF DATA TRANSFORMATION.")
 
+prot_annot <- prolfqua::ProteinAnnotation$new(lfqdata = lfqdata, prot_annot)
 
 prolfquapp::copy_DEA_FragPipe_DIA()
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)

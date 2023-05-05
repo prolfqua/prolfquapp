@@ -58,10 +58,15 @@ adata <- prolfqua::setup_analysis(protein, config)
 proteinID <- atable$hkeysDepth()
 
 # create protein annotation
-prot_annot <- prolfquapp::dataset_protein_annot(protein, "protein", protein_annot = "description")
+prot_annot <- prolfquapp::dataset_protein_annot(protein,
+                                                idcol = c("protein_Id" = "protein"),
+                                                protein_annot = "description",
+                                                more_columns = c("combined.total.peptides","gene","coverage"))
 
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
+
+prot_annot <- prolfqua::ProteinAnnotation$new(lfqdata, prot_annot)
 
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 for (i in seq_along(grp)) {
