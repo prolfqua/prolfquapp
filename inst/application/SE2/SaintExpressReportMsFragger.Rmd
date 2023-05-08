@@ -161,7 +161,7 @@ xd <- prolfqua::volcano_plotly(
   contrast = "Bait",
   xintercept =  log2(SEP$FCthreshold),
   yintercept = SEP$FDRthreshold,
-  title_size = 10)
+  title_size = 10, group = "Choose protein")
 
 xd <- lapply(xd, plotly::highlight , off = "plotly_doubleclick")
 nrow <- ceiling(length(xd) / 4)
@@ -169,10 +169,6 @@ nrow <- ceiling(length(xd) / 4)
 plotly::subplot(xd, shareX = TRUE, shareY = TRUE, nrows = nrow)
 
 ```
-
-
-
-
 
 
 
