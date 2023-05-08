@@ -202,7 +202,7 @@ isSig <- nrow(SEP$sig) > 0
 
 
 ```{r SigPrey, eval=isSig, fig.cap= "Candidate list."}
-sig <- crosstalk::SharedData$new(SEP$sig, ~Prey, group = "Choose protein")
+sig <- crosstalk::SharedData$new(as.data.frame(SEP$sig), ~Prey, group = "Choose protein")
 DT::datatable(sig)
 ```
 
