@@ -147,7 +147,7 @@ prot_annot <- dplyr::rename(SEP$prot_annot, Prey=protein)
 prot_annot <- dplyr::inner_join(prot_annot, datax,multiple = "all")
 bb <- prot_annot %>% dplyr::select(Prey, description, Bait, BFDR )
 bb <- bb |> tidyr::pivot_wider(names_from = "Bait", names_prefix = "BFDR.", values_from = BFDR)
-bb <- crosstalk::SharedData$new(bb, ~Prey, group = "Choose protein")
+bb <- crosstalk::SharedData$new(as.data.frame(bb), ~Prey, group = "Choose protein")
 DT::datatable(bb, filter = "bottom", options = list(pageLength = 5))
 
 ```
@@ -155,7 +155,7 @@ DT::datatable(bb, filter = "bottom", options = list(pageLength = 5))
 
 ```{r volcanoPlotBfdr, fig.cap = "(ref:volcanoPlotBfdr)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
 xd <- prolfqua::volcano_plotly( 
-  datax ,
+  as.data.frame(datax) ,
   effect = "log2_EFCs",
   significance = "BFDR",
   contrast = "Bait",
