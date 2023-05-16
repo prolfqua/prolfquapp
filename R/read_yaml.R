@@ -20,7 +20,7 @@ read_yaml <- function(ymlfile, application = "FragPipeTMT" ) {
 
   GRP2$Bfabric$workunitID <- WORKUNITID
 
-  idxzip <- grep("[0-9]{7-7}.zip",yml$application$input[[1]])
+  idxzip <- grep("[0-9]{7,7}.zip",yml$application$input[[1]])
 
   GRP2$Bfabric$inputID <- yml$job_configuration$input[[1]][[idxzip]]$resource_id
   GRP2$Bfabric$inputURL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
