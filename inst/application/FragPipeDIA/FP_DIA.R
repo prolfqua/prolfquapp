@@ -73,8 +73,8 @@ prolfquapp::copy_DEA_FragPipe_DIA()
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
 saveRDS(grp, file = "DEAll.RDS")
 #
-grp <- readRDS(file = "DEAll.RDS")
-prolfquapp::render_DEA(grp[[1]], outpath = ".", htmlname = "TestTheBest")
+#grp <- readRDS(file = "DEAll.RDS")
+#prolfquapp::render_DEA(grp[[1]], outpath = ".", htmlname = "TestTheBest")
 
 for (i in seq_along(grp)) {
   prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir , boxplot = FALSE)
