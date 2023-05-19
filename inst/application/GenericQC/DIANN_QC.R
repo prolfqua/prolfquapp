@@ -1,8 +1,5 @@
 #R
-# 20211210 WEW/CP make it work for WU272669
-# 20230131 make it work for Application 312
 # R_LIBS_SITE="/scratch/FRAGPIPEDIA_A312/R_LIBS_V1/"
-##### QCs
 
 
 
@@ -159,6 +156,7 @@ ps = prolfqua::ProjectStructure$new(outpath = path,
                                     inputAnnotation = NULL,
                                     inputData = NULL)
 ps$create()
+
 if (nrow(lfqdata$factors()) > 1) {
   file.copy(system.file("application/GenericQC/QCandSSE.Rmd", package = "prolfquapp"),
             to = output_dir, overwrite = TRUE)
@@ -169,6 +167,5 @@ if (nrow(lfqdata$factors()) > 1) {
                     )
 } else{
   message("only a single sample: ", nrow(lfqdata$factors()))
-
 }
 
