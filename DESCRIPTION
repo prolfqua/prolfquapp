@@ -1,7 +1,7 @@
 Package: prolfquapp
 Type: Package
 Title: GUI for DEA
-Version: 0.1.5
+Version: 0.1.6
 Author: Witold E. Wolski <wew@fgcz.ethz.ch>
 Maintainer: Witold E. Wolski <wew@fgcz.ethz.ch>
 Description: graphical user interface for differential expression analysis
