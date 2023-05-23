@@ -24,14 +24,19 @@ The prolfquapp can be tightly integrated with the LIMS system, and, at the same 
 # Implementation
 
 - Yaml file is generated either using a Shiny application or a command line application.
-- The parameters of the application are stored in an R list. 
-- A data frame with the sample annotation must be provided
--- one column which allows to map 
---- if TMT analysis workflow one column starting with "channel" (either upper or lower case), with the channel (FragPipeTMT)
---- if DIA or DDA workflow then one column named exactly "raw.file", containing the filenames (can include path) to the raw files. Eeach file name must be unique.
--- one column starting with "NAME" which is the sample name. Each name must be unique. These names will be used to label figures -
--- one column name starting with "group|^bait|^Experiment" (either upper or lower case) 
--- no more than one column name starting with "^subject|^BioReplicate" (either upper or lower case) - This column is optional
--- no more then one column name starting with "Contrast" (either upper or lower case) - This column is optional
+- The parameters of the application are stored in an R list
+
+
+## annotation file
+
+A data frame with the sample annotation must be provided
+
+- one column which allows to map channel or row file names to the sample Name and explanatory variables.
+  - if TMT analysis workflow one column starting with "channel" (either upper or lower case), with the channel (FragPipeTMT)
+  - if DIA or DDA workflow then one column named exactly "raw.file", containing the filenames (can include path) to the raw files. Eeach  file name must be unique.
+  - one column starting with "NAME" which is the sample name. Each name must be unique. These names will be used to label figures -
+- one column name starting with "group|^bait|^Experiment" (either upper or lower case) 
+- Optional : no or exactly one column name starting with "^subject|^BioReplicate" (either upper or lower case)
+- Optional : no or exactly one column name starting with "Contrast" (either upper or lower case)
 
 
