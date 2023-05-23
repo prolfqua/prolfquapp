@@ -227,7 +227,13 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
 
   ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts(), multiple = "all")
   resultList <- list()
-  resultList$annotation = tr$to_wide()$annot
+
+  resultList$annotation <- dplyr::inner_join(
+    rd$factors(),
+    rd$get_Summariser()$hierarchy_counts_sample(),
+    by = rd$config$table$sampleName,
+    multiple = "all")
+
   resultList$normalized_abundances = dplyr::inner_join(ra$row_annot, tr$data,multiple = "all")
   resultList$raw_abundances_matrix = wideraw
   resultList$normalized_abundances_matrix = widetr
