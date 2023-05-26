@@ -36,7 +36,7 @@ GRP2 <- prolfquapp::make_DEA_config(ZIPDIR = gsub(".csv", "", ds_file))
 
 GRP2 <- prolfquapp::dataset_extract_contrasts(annot, GRP2)
 
-channelCol  <- grep("channel", names(annot), ignore.case = TRUE, value = TRUE)
+channelCol  <- grep("^channel", names(annot), ignore.case = TRUE, value = TRUE)
 if (channelCol != "channel") {
   annot[["channel"]] <- annot[[channelCol]]
   annot[[channelCol]] <- NULL
