@@ -6,8 +6,7 @@
 \usage{
 dataset_protein_annot(
   msdata,
-  idcolName,
-  proteinID_column = "protein_Id",
+  idcol = c(protein_Id = "Protein.Group"),
   protein_annot = "fasta.header",
   more_columns = c("nrPeptides", "fasta.id")
 )
@@ -15,11 +14,11 @@ dataset_protein_annot(
 \arguments{
 \item{msdata}{data frame}
 
-\item{idcolName}{name of column with ID's}
-
 \item{protein_annot}{fasta haeder column}
 
 \item{more_columns}{more columns to include}
+
+\item{idcolName}{name of column with ID's}
 }
 \description{
 dataset protein annot

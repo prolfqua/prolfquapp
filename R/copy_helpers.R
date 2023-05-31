@@ -1,6 +1,5 @@
-#' copy Markdown and runscript for 2 Grp Fragpipe data.
+#' copy Markdown and runscript for FragPipe combined_protein.tsv
 #' @param workdir directory where to copy file - default is current working directory.
-#' @keywords internal
 #' @export
 #'
 copy_DEA_FragPipe_DDA <- function(workdir = getwd(), run_script = FALSE) {
@@ -13,9 +12,8 @@ copy_DEA_FragPipe_DDA <- function(workdir = getwd(), run_script = FALSE) {
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
 
-#' copy Markdown and runscript for 2 Grp Fragpipe data.
+#' copy Markdown and runscript for MaxQuant peptide.txt proteinGroups.txt
 #' @param workdir directory where to copy file - default is current working directory.
-#' @keywords internal
 #' @export
 #'
 copy_DEA_MaxQuant <- function(workdir = getwd(), run_script = FALSE) {
@@ -29,9 +27,8 @@ copy_DEA_MaxQuant <- function(workdir = getwd(), run_script = FALSE) {
 }
 
 
-#' copy Markdown and runscript for DEA Fragpipe TMT
+#' copy Markdown and runscript for Fragpipe TMT psm.txt
 #' @param workdir directory where to copy file - default is current working directory.
-#' @keywords internal
 #' @export
 #'
 copy_DEA_FragPipe_TMT <- function(workdir = getwd(), run_script = FALSE) {
@@ -44,12 +41,11 @@ copy_DEA_FragPipe_TMT <- function(workdir = getwd(), run_script = FALSE) {
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
 
-#' copy Markdown and runscripts for DEA Fragpipe DIA
+#' copy Markdown and runscript for DIANN diann-output.tsv
 #' @param workdir directory where to copy file - default is current working directory.
-#' @keywords internal
 #' @export
 #'
-copy_DEA_FragPipe_DIA <- function(workdir = getwd(), run_script = FALSE) {
+copy_DEA_DIANN <- function(workdir = getwd(), run_script = FALSE) {
   runscripts <- c(
     "application/_Grp2Analysis.Rmd",
     "application/bibliography.bib",

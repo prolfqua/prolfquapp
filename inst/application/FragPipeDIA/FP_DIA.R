@@ -2,6 +2,8 @@ library(rlang)
 library(prolfqua)
 library(prolfquapp)
 
+prolfquapp::copy_DEA_DIANN()
+
 ymlfile <- "config.yaml"
 GRP2 <- prolfquapp::read_yaml(ymlfile)
 ###
@@ -70,7 +72,6 @@ logger::log_info("END OF DATA TRANSFORMATION.")
 
 
 protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
-prolfquapp::copy_DEA_FragPipe_DIA()
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
 
 for (i in seq_along(grp)) {

@@ -62,7 +62,7 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot) {
     for (i in seq_along(levels$Group_)) {
       for (j in seq_along(levels$Group_)) {
         if (i != j) {
-          cat(levels$Group_[i], levels$Group_[j], "\n")
+          cat("COMPARING : ", levels$Group_[i], " vs " , levels$Group_[j], "\n")
           GRP2$pop$Contrasts <- paste0("Group_",levels$Group_[i], " - ", "Group_",levels$Group_[j])
           names(GRP2$pop$Contrasts) <- paste0(levels$Group_[i], "_vs_", levels$Group_[j])
           logger::log_info("CONTRAST : ", GRP2$pop$Contrasts, collapse = " ")
@@ -74,11 +74,13 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot) {
 
           name <- paste0(levels$Group_[i], "_vs_", levels$Group_[j])
           res[[name]] <- grp2
-          return(res)
-        }
-      }
+        }# end for 1
+      }# end for 2
     }
+    return(res)
   }
+
+
 }
 
 

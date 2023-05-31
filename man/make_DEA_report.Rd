@@ -6,7 +6,7 @@
 \alias{render_DEA}
 \title{Create DEA report in html and write data to xlsx table}
 \usage{
-make_DEA_report(lfqdata, prot_annot, GRP2)
+make_DEA_report(lfqdata, protAnnot, GRP2)
 
 write_DEA(GRP2, outpath, xlsxname = "AnalysisResults")
 
@@ -91,7 +91,13 @@ GRP2$pop$Contrasts <- c("avsb" = "dilution.a - dilution.b")
 GRP2$pop$revpattern = "^REV_"
 GRP2$pop$contpattern = "^zz|^CON__"
 GRP2$pop$remove = TRUE
-grp <- make_DEA_report(lfqdata, protein_annot, GRP2)
+
+
+protAnnot <- prolfqua::ProteinAnnotation$new(
+    transformed,
+    row_annot = protein_annot)
+
+grp <- make_DEA_report(lfqdata, protAnnot, GRP2)
 st <- grp$RES$transformedlfqData$get_Stats()
 bb <- st$stats()
 sr <- grp$RES$transformedlfqData$get_Summariser()

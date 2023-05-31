@@ -2,7 +2,7 @@
 % Please edit documentation in R/copy_helpers.R
 \name{copy_DEA_FragPipe_TMT}
 \alias{copy_DEA_FragPipe_TMT}
-\title{copy Markdown and runscript for DEA Fragpipe TMT}
+\title{copy Markdown and runscript for Fragpipe TMT psm.txt}
 \usage{
 copy_DEA_FragPipe_TMT(workdir = getwd(), run_script = FALSE)
 }
@@ -10,6 +10,5 @@ copy_DEA_FragPipe_TMT(workdir = getwd(), run_script = FALSE)
 \item{workdir}{directory where to copy file - default is current working directory.}
 }
 \description{
-copy Markdown and runscript for DEA Fragpipe TMT
+copy Markdown and runscript for Fragpipe TMT psm.txt
 }
-\keyword{internal}

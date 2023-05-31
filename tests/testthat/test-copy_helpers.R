@@ -24,7 +24,7 @@ test_that("copy_DEA_FragPipe_TMT", {
   testthat::expect_equal(length(dir(tmpdir)), 4)
 })
 
-test_that("copy_DEA_FragPipe_DIA", {
+test_that("copy_DEA_DIANN", {
   tmpdir = tempdir()
   dir(tmpdir, recursive = TRUE)
   unlink(paste0(tmpdir,"/*"), recursive = TRUE)

@@ -88,7 +88,7 @@ logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 logger::log_info("END OF DATA TRANSFORMATION.")
 
 
-prolfquapp::copy_DEA_FragPipe_DIA()
+prolfquapp::copy_DEA_DIANN()
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 prolfquapp::render_DEA(grp[[1]], outpath = GRP2$zipdir, htmlname = "TestTheBest")
 

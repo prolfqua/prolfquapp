@@ -2,7 +2,7 @@
 % Please edit documentation in R/copy_helpers.R
 \name{copy_DEA_FragPipe_DDA}
 \alias{copy_DEA_FragPipe_DDA}
-\title{copy Markdown and runscript for 2 Grp Fragpipe data.}
+\title{copy Markdown and runscript for FragPipe combined_protein.tsv}
 \usage{
 copy_DEA_FragPipe_DDA(workdir = getwd(), run_script = FALSE)
 }
@@ -10,6 +10,5 @@ copy_DEA_FragPipe_DDA(workdir = getwd(), run_script = FALSE)
 \item{workdir}{directory where to copy file - default is current working directory.}
 }
 \description{
-copy Markdown and runscript for 2 Grp Fragpipe data.
+copy Markdown and runscript for FragPipe combined_protein.tsv
 }
-\keyword{internal}

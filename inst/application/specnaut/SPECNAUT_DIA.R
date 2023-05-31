@@ -111,7 +111,6 @@ logger::log_info("END OF DATA TRANSFORMATION.")
 
 prot_annot <- prolfqua::ProteinAnnotation$new(lfqdata = lfqdata, prot_annot)
 
-prolfquapp::copy_DEA_FragPipe_DIA()
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 
 prolfquapp::render_DEA(grp[[1]], outpath = GRP2$zipdir, htmlname = "TestTheBest")
