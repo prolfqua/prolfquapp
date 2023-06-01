@@ -1,10 +1,16 @@
 Package: prolfquapp
 Type: Package
-Title: GUI for DEA
-Version: 0.1.6
+Title: Generating Dynamic DEA Reports with the prolfqua R Package
+Version: 0.1.7
 Author: Witold E. Wolski <wew@fgcz.ethz.ch>
 Maintainer: Witold E. Wolski <wew@fgcz.ethz.ch>
-Description: graphical user interface for differential expression analysis
+Description: The prolfquapp is a user-friendly application to streamline protein differential expression analysis (DEA)
+  in core facilities. The application leverages the preprocessing methods and statistical models implemented in the R package prolfqua.
+  It generates dynamic HTML reports that contain quality control plots and visualizations of the DEA results.
+  The prolfquapp also exports results in multiple formats, including XLSX files, .rnk or txt files for gene set enrichment analysis,
+  and Bioconductor SummarizedExperiment format for import into interactive visualization tools like OmicsViewer and iSEE.
+  The prolfquapp offers a comprehensive and efficient solution for researchers seeking to analyze protein differential
+  expression data in a core facility setting.
 License: WTFPL https://en.wikipedia.org/wiki/WTFPL
 Encoding: UTF-8
 LazyData: true
