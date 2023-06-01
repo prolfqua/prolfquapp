@@ -142,7 +142,7 @@ knitr::include_graphics("ds_with_ctrl_and_subject.png")
 ```
 
 If subject is specified then the model is `abundance ~ group + subject`, otherwise
- `abundance ~ group`. The group differences to compute are determined from the group column and the control column.
+ `abundance ~ group`. The group differences to compute are determined from the group and control columns.
 
 # HTML report
 
