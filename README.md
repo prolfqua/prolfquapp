@@ -1,6 +1,11 @@
 # prolfquapp: Generating Dynamic DEA Reports with the prolfqua R Package
 
-[Poster](https://github.com/wolski/prolfquapp/blob/master/inst/poster/SIB.html)
+Uses preprocessing and statistical models implemented in the R package [prolfqua](https://github.com/fgcz/prolfqua)
+[doi.org/10.1021/acs.jproteome.2c00441](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441)
+
+To learn more about the package see:
+
+[ASMS Poster pdf](https://github.com/wolski/prolfquapp/blob/master/inst/poster/prolfquapp.pdf)
 
 
 
