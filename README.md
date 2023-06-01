@@ -1,5 +1,11 @@
 # prolfquapp: Generating Dynamic DEA Reports with the prolfqua R Package
 
+
+
+ASMS poster abstract:
+
+# Streamlining Protein Differential Expression Analysis in Core Facilities
+
 ## Introduction
 
 The prolfquapp is a user-friendly application to streamline protein differential expression analysis (DEA) in core facilities. The application leverages the preprocessing methods and statistical models implemented in the R package prolfqua. It generates dynamic HTML reports that contain quality control plots and visualizations of the DEA results. The prolfquapp also exports results in multiple formats, including XLSX files, .rnk or txt files for gene set enrichment analysis, and Bioconductor SummarizedExperiment format for import into interactive visualization tools like OmicsViewer and iSEE. The prolfquapp offers a comprehensive and efficient solution for researchers seeking to analyze protein differential expression data in a core facility setting.
@@ -16,7 +22,6 @@ The application then generates multiple result files, including an HTML report. 
 Most importantly, the user receives all the data and code to reproduce the analysis on his infrastructure. This way, prolfquapp, and B-Fabric help scientists meet requirements from funding agencies, journals, and academic institutions while publishing their data according to the FAIR data principles. The source code of the prolfquapp R package is available from https://github.com/wolski/prolfquapp.
 
 ## Novel aspect
-
 
 The prolfquapp can be tightly integrated with the LIMS system, and, at the same time, You can replicate the analysis on your laptop computer. 
 
