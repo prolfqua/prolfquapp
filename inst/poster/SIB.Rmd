@@ -1,0 +1,191 @@
+---
+title: prolfquapp - Streamlining Protein Differential Expression Analysis in Core Facilities
+author: 
+  - name: Witold Wolski
+    affil: 1; 2
+    orcid: '0000-0002-6468-120X'
+  - name: Bernd Roshitzki
+    affil: 1
+    orcid: '0000-0001-5756-9773'
+  - name: Jonas Grossmann
+    affil: 1; 2
+    orcid: '0000-0002-6899-9020'
+  - name: Claudia Fortes
+    affil: 1
+  - name: Paolo Nanni
+    affil: 1
+    orcid: '0000-0001-8429-3557'
+  - name:  Christian Panse
+    affil: 1; 2
+    orcid: '0000-0003-1975-3064'
+  - name: Ralph Schlapbach
+    affil: 1
+    orcid: '0000-0002-7488-4262'
+affiliation:
+  - num: 1
+    address: Functional Genomics Center Zurich - ETH Zurich/University of Zurich (https://www.fgcz.ch/)
+  - num: 2
+    address: Swiss Institute of Bioinformatics (https://www.sib.swiss/)
+column_numbers: 4
+poster_height: "1009mm"
+poster_width: "1426mm"
+title_textsize:	"125pt"
+author_textsize: "35pt"
+font_family: Monaco
+primary_colour: "cornflowerblue"
+secondary_colour: "darkblue"
+accent_colour: "slateblue"
+sectitle2_textcol: "darkblue"
+titletext_fontfamily: Arial
+logoleft_name: hexstrickerPRLapp.png
+logoright_name: FGCZLogo.png
+output: 
+  posterdown::posterdown_html
+bibliography: prolfqua.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+options(width = 999)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 7, fig.height = 5)
+ggplot2::theme_set(ggplot2::theme_classic())
+
+```
+
+
+- Protein differential expression analysis (DEA)
+  - DIANN  
+  - FragPipe DDA
+  - FragPipe TMT
+  - MaxQuant
+- Uses preprocessing and statistical models implemented in the R package `prolfqua` <br/>
+[doi.org/10.1021/acs.jproteome.2c00441](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441)
+- Generates dynamic HTML reports
+- Exports results as XLSX files, `.rnk` and `.txt` files for GSEA and ORA
+
+
+# How To
+
+Install `R` and `prolfquapp`
+
+```{r echo=TRUE, eval=FALSE}
+install.packages('remotes')
+remotes::install_github('wolski/prolfquapp', dependencies = TRUE)
+```
+
+Create a directory with :
+
+- config.yaml (parameter file)
+- dataset.csv (experimental design) 
+- the FASTA file
+- DIANN, FragPipe or MaxQuant results
+
+Copy the R code into the working directory by running one of the functions: 
+
+```{r directory, out.width="90%"}
+knitr::include_graphics("pa_prepFunction.png")
+```
+
+The content of the working directory is:
+
+```{r dirsetup, out.width="90%"}
+knitr::include_graphics("pa_directory_setup.png")
+```
+
+Finally, from `R` console `source("FP_DIA.R")`,
+or execute `Rscript FP_DIA.R`. This
+creates a subfolder with the DEA results.
+
+```{r startdirectory, out.width="90%"}
+knitr::include_graphics("pa_output_directory.png")
+```
+
+- DE_Groups_vs_Controls.html report describing the main steps of the analysis and shows the results.
+- DE_Groups_vs_Controls.xlsx contains the raw and transformed abundances, annotations, results of the differential expression analysis.
+- `.rnk`, and `.txt` files for GSEA and ORA analysis
+
+The entire working directory is archived. It contains all the data and R code and data to <b>replicate<b/> the analysis. 
+
+## Analysis parameters
+
+The `config.yaml` file specifies the parameters of the analysis:
+
+* project related information e.g. projectID, is shown in the HTML report
+* aggregation method <br/>
+(`medpolish`, `rlm`, `top_3`)
+* abundance transformation <br/>
+(`robscale`, `vsn`, `none`),
+* FDR and effect size thresholds
+
+
+```{r configyml, out.width="70%", include = TRUE}
+knitr::include_graphics("pa_configyml.png")
+```
+
+<br/>
+
+## Sample annotation
+
+The `dataset.csv` file contains the information about the measured samples:
+
+- Relative.Path/raw.file/channel (unique)
+- name - used in plots and figures (unique)
+- group - main factor
+- subject/bioreplicate (optional) - blocking factor
+- control - used to specify the control condition (C) (optional)
+
+
+```{r pairedAnlaysis, out.width = "90%"}
+knitr::include_graphics("ds_with_ctrl_and_subject.png")
+```
+
+If subject is specified then the model is `abundance ~ group + subject`, otherwise
+ `abundance ~ group`. The group differences to compute are determined from the group column and the control column.
+
+# HTML report
+
+- Project related information (project ID etc)
+- Primary introduction to DEA
+- Sums up the design of the experiment
+- Summarizes of protein ident. and quant.: <br/> missigness, CV, clustering, PCA
+- DEA results with volcano plots and tables (they interact using `crosslink`)
+- Explains outputs, give pointers to GSEA and ORA
+- Additional QC report
+
+# Conlusion
+
+- Integrates into LIMS system <br/>
+[doi.org/10.1515/jib-2022-0031](https://doi.org/10.1515/jib-2022-0031)
+- Archived directory contains all information needed to replicate analysis <br/>
+rerun the analysis on your PC
+- Our users know Excel and like XLSX files
+- Shiny app in development
+
+
+```{r htmlreport, out.width="90%"}
+knitr::include_graphics("HTMLasImage.png")
+```
+
+# Download
+
+https://github.com/fgcz/prolfqua
+https://github.com/wolski/prolfquapp
+
+```{r url, out.width="60%",fig.show='hold', fig.align="center"}
+#knitr::include_graphics(c("qrcodeProlfqua.png", "qrCodeProlfquApp.png"))
+
+img1 <-  grid::rasterGrob(as.raster(png::readPNG("qrcodeProlfqua.png")), interpolate = FALSE)
+img2 <-  grid::rasterGrob(as.raster(png::readPNG("qrCodeProlfquApp.png")), interpolate = FALSE)
+gridExtra::grid.arrange(img1, img2, ncol = 2)
+```
+
+
+```{r sib, out.width="30%", fig.align="center"}
+knitr::include_graphics("SIB_LogoQ_GBv.svg")
+```
+
+
+
+

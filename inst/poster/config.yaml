@@ -1,0 +1,18 @@
+Bfabric:
+  projectID: 3000
+  projectName: ''
+  orderID: 3000
+  workunitID: 289521
+  inputID: 2286617
+  inputURL: https://fgcz-bfabric.uzh.ch
+pop:
+  transform: vsn
+  aggregate: medpolish
+  Diffthreshold: 1.0
+  FDRthreshold: 0.1
+  removeCon: no
+  removeDecoys: no
+  revpattern: ^REV
+  contpattern: ^CON|^zz
+Software: FragPipeTMT
+zipdir: C3000WU289521
