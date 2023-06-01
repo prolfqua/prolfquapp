@@ -1,4 +1,4 @@
-# prolfquapp: Streamlining Protein Differential Expression Analysis in Core Facilities
+# prolfquapp: Generating Dynamic DEA Reports with the prolfqua R Package
 
 ## Introduction
 
