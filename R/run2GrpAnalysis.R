@@ -98,11 +98,12 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' GRP2$pop$Contrasts <- c("avsb" = "dilution.a - dilution.b")
 #' GRP2$pop$revpattern = "^REV_"
 #' GRP2$pop$contpattern = "^zz|^CON__"
-#' GRP2$pop$remove = TRUE
+#' GRP2$pop$removeCon = TRUE
+#' GRP2$pop$removeDecoys = TRUE
 #'
 #'
 #' protAnnot <- prolfqua::ProteinAnnotation$new(
-#'     transformed,
+#'     lfqdata,
 #'     row_annot = protein_annot)
 #'
 #' grp <- make_DEA_report(lfqdata, protAnnot, GRP2)
@@ -141,7 +142,7 @@ make_DEA_report <- function(lfqdata,
   GRP2$RES$rowAnnot <- protAnnot
 
   if (GRP2$pop$removeCon || GRP2$pop$removeDecoys) {
-    lfqdata <- lfqdata$get_subset(protAnnot$clean(contamintants = GRP2$pop$removeCon, decoys = GRP2$pop$removeDecoys))
+    lfqdata <- lfqdata$get_subset(protAnnot$clean(contaminants = GRP2$pop$removeCon, decoys = GRP2$pop$removeDecoys))
     transformed <- transformed$get_subset(protAnnot$clean())
     logger::log_info(
       paste0("removing contaminants and reverse sequences with patterns:",
@@ -156,9 +157,16 @@ make_DEA_report <- function(lfqdata,
   GRP2$RES$transformedlfqData <- transformed
 
   ################## Run Modelling ###############
+  factors <- transformed$config$table$factor_keys()[!grepl("^control", transformed$config$table$factor_keys() , ignore.case = TRUE)]
 
-  formula <- paste0(transformed$config$table$get_response(), " ~ ",
-                    paste(transformed$config$table$factor_keys()[!grepl("^control", transformed$config$table$factor_keys() , ignore.case = TRUE)], collapse = " + "))
+  if(is.null(GRP2$pop$interaction) || !GRP2$pop$interaction ){
+    formula <- paste0(transformed$config$table$get_response(), " ~ ",
+                      paste(factors, collapse = " + "))
+  } else {
+    formula <- paste0(transformed$config$table$get_response(), " ~ ",
+                      paste(factors, collapse = " * "))
+  }
+
   message("FORMULA :",  formula)
   GRP2$RES$formula <- formula
   formula_Condition <-  prolfqua::strategy_lm(formula)

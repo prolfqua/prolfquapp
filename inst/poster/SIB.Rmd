@@ -4,17 +4,17 @@ author:
   - name: Witold Wolski
     affil: 1; 2
     orcid: '0000-0002-6468-120X'
-  - name: Bernd Roshitzki
-    affil: 1
-    orcid: '0000-0001-5756-9773'
   - name: Jonas Grossmann
     affil: 1; 2
     orcid: '0000-0002-6899-9020'
-  - name: Claudia Fortes
-    affil: 1
   - name: Paolo Nanni
     affil: 1
     orcid: '0000-0001-8429-3557'
+  - name: Bernd Roschitzki
+    affil: 1
+    orcid: '0000-0001-5756-9773'
+  - name: Claudia Fortes
+    affil: 1
   - name:  Christian Panse
     affil: 1; 2
     orcid: '0000-0003-1975-3064'
@@ -38,7 +38,7 @@ accent_colour: "slateblue"
 sectitle2_textcol: "darkblue"
 titletext_fontfamily: Arial
 logoleft_name: hexstrickerPRLapp.png
-logoright_name: FGCZLogo.png
+logoright_name: FGCZLogoANDSIB.png
 output: 
   posterdown::posterdown_html
 bibliography: prolfqua.bib
@@ -54,16 +54,15 @@ ggplot2::theme_set(ggplot2::theme_classic())
 
 ```
 
+# Introduction
 
-- Protein differential expression analysis (DEA)
-  - DIANN  
-  - FragPipe DDA
-  - FragPipe TMT
-  - MaxQuant
-- Uses preprocessing and statistical models implemented in the R package `prolfqua` <br/>
+- Protein differential expression analysis (DEA) for
+  DIANN, FragPipe DDA, FragPipe TMT, MaxQuant outputs, or MSstats inputs.
+- Uses preprocessing and statistical models implemented in the `R` package `prolfqua` <br/>
 [doi.org/10.1021/acs.jproteome.2c00441](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441)
 - Generates dynamic HTML reports
 - Exports results as XLSX files, `.rnk` and `.txt` files for GSEA and ORA
+- Archived analysis can easily be replicate on any system running `R` (>= 4.1)
 
 
 # How To
@@ -82,7 +81,7 @@ Create a directory with :
 - the FASTA file
 - DIANN, FragPipe or MaxQuant results
 
-Copy the R code into the working directory by running one of the functions: 
+Copy the `R` code into the working directory by running one of the functions: 
 
 ```{r directory, out.width="90%"}
 knitr::include_graphics("pa_prepFunction.png")
@@ -105,8 +104,9 @@ knitr::include_graphics("pa_output_directory.png")
 - DE_Groups_vs_Controls.html report describing the main steps of the analysis and shows the results.
 - DE_Groups_vs_Controls.xlsx contains the raw and transformed abundances, annotations, results of the differential expression analysis.
 - `.rnk`, and `.txt` files for GSEA and ORA analysis
+- Diagnostic plots for each proteins (boxplots, lineplots for peptide abundances)
 
-The entire working directory is archived. It contains all the data and R code and data to <b>replicate<b/> the analysis. 
+The entire working directory including input data, R code and results is archived. You can unzip it later and replicate the analysis using your R installation.
 
 ## Analysis parameters
 
@@ -120,51 +120,48 @@ The `config.yaml` file specifies the parameters of the analysis:
 * FDR and effect size thresholds
 
 
-```{r configyml, out.width="70%", include = TRUE}
+```{r configyml, out.width="60%", include = TRUE}
 knitr::include_graphics("pa_configyml.png")
 ```
-
-<br/>
 
 ## Sample annotation
 
 The `dataset.csv` file contains the information about the measured samples:
 
-- Relative.Path/raw.file/channel (unique)
+- Relative.Path/Path/raw.file/channel/ (unique)
 - name - used in plots and figures (unique)
-- group - main factor
+- group/experiment - main factor
 - subject/bioreplicate (optional) - blocking factor
 - control - used to specify the control condition (C) (optional)
 
+The column names are not case sensitive.
 
 ```{r pairedAnlaysis, out.width = "90%"}
 knitr::include_graphics("ds_with_ctrl_and_subject.png")
 ```
 
 If subject is specified then the model is `abundance ~ group + subject`, otherwise
- `abundance ~ group`. The group differences to compute are determined from the group and control columns.
+ `abundance ~ group`. The group differences to compute are determined from the group and control columns. MSstats anntotation.csv and dataset.csv are similar.
 
-# HTML report
+
+# HTML Report
 
 - Project related information (project ID etc)
 - Primary introduction to DEA
 - Sums up the design of the experiment
 - Summarizes of protein ident. and quant.: <br/> missigness, CV, clustering, PCA
 - DEA results with volcano plots and tables (they interact using `crosslink`)
-- Explains outputs, give pointers to GSEA and ORA
-- Additional QC report
+- Explains output formats, gives pointers to follow up analysis (GSEA, ORA)
 
-# Conlusion
+# Summary
 
 - Integrates into LIMS system <br/>
 [doi.org/10.1515/jib-2022-0031](https://doi.org/10.1515/jib-2022-0031)
-- Archived directory contains all information needed to replicate analysis <br/>
-rerun the analysis on your PC
-- Our users know Excel and like XLSX files
-- Shiny app in development
+- Archived working directory contains the results and all the data needed to replicate analysis
+ on your PC
+- User-friendly data formats (XLSX, txt, rnk)
 
-
-```{r htmlreport, out.width="90%"}
+```{r htmlreport, out.width="105%"}
 knitr::include_graphics("HTMLasImage.png")
 ```
 
@@ -181,10 +178,6 @@ img2 <-  grid::rasterGrob(as.raster(png::readPNG("qrCodeProlfquApp.png")), inter
 gridExtra::grid.arrange(img1, img2, ncol = 2)
 ```
 
-
-```{r sib, out.width="30%", fig.align="center"}
-knitr::include_graphics("SIB_LogoQ_GBv.svg")
-```
 
 
 

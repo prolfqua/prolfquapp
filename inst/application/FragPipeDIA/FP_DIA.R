@@ -63,17 +63,15 @@ length(unique(adata$protein_Id))
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
 GRP2$pop$nrPeptides <- 2
-logger::log_info("AGGREGATING PEPTIDE DATA!")
 
+
+logger::log_info("AGGREGATING PEPTIDE DATA!")
 lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 logger::log_info("END OF DATA TRANSFORMATION.")
 
-
-
 protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
-
 for (i in seq_along(grp)) {
   prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir , boxplot = FALSE)
 }

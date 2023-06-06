@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataset.R
 \name{dataset_protein_annot}
 \alias{dataset_protein_annot}
-\title{dataset protein annot}
+\title{Dataset protein annot}
 \usage{
 dataset_protein_annot(
   msdata,
@@ -21,5 +21,5 @@ dataset_protein_annot(
 \item{idcolName}{name of column with ID's}
 }
 \description{
-dataset protein annot
+Dataset protein annot
 }

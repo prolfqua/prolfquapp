@@ -90,11 +90,12 @@ GRP2$pop$nrPeptides <- 2
 GRP2$pop$Contrasts <- c("avsb" = "dilution.a - dilution.b")
 GRP2$pop$revpattern = "^REV_"
 GRP2$pop$contpattern = "^zz|^CON__"
-GRP2$pop$remove = TRUE
+GRP2$pop$removeCon = TRUE
+GRP2$pop$removeDecoys = TRUE
 
 
 protAnnot <- prolfqua::ProteinAnnotation$new(
-    transformed,
+    lfqdata,
     row_annot = protein_annot)
 
 grp <- make_DEA_report(lfqdata, protAnnot, GRP2)
