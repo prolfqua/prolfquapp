@@ -170,12 +170,15 @@ knitr::include_graphics("HTMLasImage.png")
 https://github.com/fgcz/prolfqua
 https://github.com/wolski/prolfquapp
 
-```{r url, out.width="60%",fig.show='hold', fig.align="center"}
-#knitr::include_graphics(c("qrcodeProlfqua.png", "qrCodeProlfquApp.png"))
+```{r url, out.width="65%",fig.show='hold', fig.align="center"}
+library(qrcode)
+par(mfrow = c(1,2))
+code1 <- qrcode::qr_code("https://github.com/fgcz/prolfqua")
+par(mai = rep(0, 4), mar = c(0,0,1.5,0))
+image(code1, asp = 1, col = c("white","black"), axes = FALSE, main = "prolfqua")
+code2 <- qrcode::qr_code("https://github.com/wolski/prolfquapp")
+image(code2, asp = 1, col = c("white","black"), axes = FALSE, main = "prolfquapp")
 
-img1 <-  grid::rasterGrob(as.raster(png::readPNG("qrcodeProlfqua.png")), interpolate = FALSE)
-img2 <-  grid::rasterGrob(as.raster(png::readPNG("qrCodeProlfquApp.png")), interpolate = FALSE)
-gridExtra::grid.arrange(img1, img2, ncol = 2)
 ```
 
 
