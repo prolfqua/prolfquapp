@@ -31,17 +31,17 @@ ProjectSpec <- R6::R6Class(
   "ProjectSpec",
   public = list(
     #' @field projectID project ID
-    projectID =  as.integer(23689),
+    projectID =  integer(),
     #' @field projectName project name
     projectName = "",
     #' @field orderID order ID
-    orderID = as.integer(24227),
+    orderID = integer(),
     #' @field workunitID workunit ID
-    workunitID =  as.integer(289177),
+    workunitID =  integer(),
     #' @field inputID input id
-    inputID =  as.integer(2294093),
+    inputID =  integer(),
     #' @field inputURL input URL
-    inputURL = "https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2294093"
+    inputURL = "https://fgcz-bfabric.uzh.ch/bfabric/"
   )
 )
 
@@ -126,6 +126,50 @@ R6_extract_values <- function(r6class){
 
 
 
+#' create GRP2 configuration.
+#' Use this function if there is no Yaml Input.
+#' @param patternDecoys default "REV_"
+#' @param patternContaminants default "zz_"
+#' @export
+#' @family ProlfquAppConfig
+#' @examples
+#' DEAconfig <- make_DEA_config_R6()
+#' R6list <- R6_extract_values(DEAconfig)
+make_DEA_config_R6 <- function(
+    ZIPDIR  = ".",
+    PROJECTID = "",
+    ORDERID ="",
+    WORKUNITID ="",
+    Normalization = c("vsn", "quantile", "robscale"),
+    aggregation = c("medpolish" , "top3", "lmrob"),
+    Diffthreshold = 1,
+    FDRthreshold = 0.1,
+    removeContaminants = FALSE,
+    removeDecoys = FALSE,
+    patternDecoys = "REV_",
+    patternContaminants = "zz",
+    application = "FragPipeTMT" ){
+
+  pop <- ProcessingOptions$new()
+  pop$pattern_contaminants = patternContaminants
+  pop$pattern_decoys = patternDecoys
+  pop$remove_cont = removeContaminants
+  pop$remove_decoys = removeDecoys
+  pop$FDR_threshold = FDRthreshold
+  pop$diff_threshold = Diffthreshold
+  pop$aggregate = aggregation
+  pop$transform = Normalization
+  ps <- ProjectSpec$new()
+  ps$orderID = ORDERID
+  ps$projectID = PROJECTID
+  ps$workunitID = WORKUNITID
+
+  r6obj_config <- ProlfquAppConfig$new(pop, ps)
+  r6obj_config$zipdir = ZIPDIR
+  r6obj_config$software = application
+
+  return(r6obj_config)
+}
 
 
 
