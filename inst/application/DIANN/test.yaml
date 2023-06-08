@@ -1,0 +1,18 @@
+zipdir: C23689WU289177
+software: DIANN
+project_spec:
+  inputURL: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2294093
+  inputID: 2294093
+  workunitID: 289177
+  orderID: 24227
+  projectName: ''
+  projectID: 23689
+processing_options:
+  contpattern: ^CON|^zz
+  revpattern: ^REV
+  removeDecoys: yes
+  removeCon: yes
+  FDRthreshold: 0.1
+  Diffthreshold: 1.0
+  aggregate: medpolish
+  transform: vsn
