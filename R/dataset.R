@@ -53,7 +53,7 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
   }
 
   stopifnot(sum(grepl("^channel|^Relative|^raw", colnames(msdata), ignore.case = TRUE)) >= 1)
-  fileName <- grep("^group|^bait|^Experiment", colnames(msdata), value = TRUE, ignore.case = TRUE)[1]
+  fileName <- grep("^channel|^Relative|^raw", colnames(msdata), value = TRUE, ignore.case = TRUE)[1]
   atable$fileName <- fileName
 
   stopifnot(sum(grepl("^group|^bait|^Experiment", colnames(msdata), ignore.case = TRUE)) == 1)

@@ -50,7 +50,7 @@ copy_DEA_DIANN <- function(workdir = getwd(), run_script = FALSE) {
     "application/_Grp2Analysis.Rmd",
     "application/bibliography.bib",
     "application/_DiffExpQC.Rmd",
-    if (run_script) {"application/FragPipeDIA/FP_DIA.R"}
+    if (run_script) {"application/DIANN/DIANN.R"}
   )
   prolfqua:::.scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
