@@ -4,6 +4,8 @@
 ProcessingOptions <- R6::R6Class(
   "ProcessingOptions",
   public = list(
+    #' @field peptides_nr number of peptides
+    peptides_nr = numeric(),
     #' @field transform data transformation method
     transform = "vsn",
     #' @field aggregate protein abundance estimation method
@@ -144,6 +146,7 @@ make_DEA_config_R6 <- function(
     aggregation = c("medpolish" , "top3", "lmrob"),
     Diffthreshold = 1,
     FDRthreshold = 0.1,
+    nr_peptides = 1,
     removeContaminants = FALSE,
     removeDecoys = FALSE,
     patternDecoys = "REV_",
@@ -159,6 +162,7 @@ make_DEA_config_R6 <- function(
   pop$diff_threshold = Diffthreshold
   pop$aggregate = aggregation
   pop$transform = Normalization
+  pop$nr_peptides = nr_peptides
   ps <- ProjectSpec$new()
   ps$orderID = ORDERID
   ps$projectID = PROJECTID
