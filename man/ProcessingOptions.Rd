@@ -13,6 +13,7 @@ Other ProlfquAppConfig:
 \code{\link{ProjectSpec}},
 \code{\link{ProlfquAppConfig}},
 \code{\link{R6_extract_values}()},
+\code{\link{make_DEA_config_R6}()},
 \code{\link{set_list_to_R6}()}
 }
 \concept{ProlfquAppConfig}
