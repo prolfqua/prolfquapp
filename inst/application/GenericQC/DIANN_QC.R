@@ -1,8 +1,6 @@
 #R
 # R_LIBS_SITE="/scratch/FRAGPIPEDIA_A312/R_LIBS_V1/"
 
-
-
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) > 0) {
   cat(args, sep = "\n")
@@ -25,7 +23,7 @@ if (length(args) > 0) {
           "output_dir : folder to write the results to \n",
           "libPath.   : (optional) R library path\n"
           )
-  path = "WU288508"
+  path = "."
   project_Id = "o3000"
   output_dir = "qc_dir"
 }
@@ -146,24 +144,29 @@ writexl::write_xlsx(TABLES2WRITE, path = file.path(output_dir, "proteinAbundance
 file.copy(system.file("application/GenericQC/test_NewQc.Rmd", package = "prolfquapp"),
           to = output_dir, overwrite = TRUE)
 
-rmarkdown::render(file.path(output_dir,"test_NewQc.Rmd"), params = list(config = lfqdataProt$config$table,
-                                                  precabund = precabund,
-                                                  factors = TRUE))
-ps = prolfqua::ProjectStructure$new(outpath = path,
-                                    project_Id = "",
-                                    workunit_Id = basename(getwd()),
-                                    order_Id = "",
-                                    inputAnnotation = NULL,
-                                    inputData = NULL)
-ps$create()
+rmarkdown::render(file.path(output_dir,"test_NewQc.Rmd"),
+                  params = list(config = lfqdataProt$config$table,
+                                precabund = precabund,
+                                factors = TRUE),
+                  output_file = "proteinAbundances.html")
+
+ps <- list()
+
+ps$workunit_Id = basename(getwd())
+ps$project_Id = project_Id
+ps$order_Id = project_Id
+
 
 if (nrow(lfqdata$factors()) > 1) {
   file.copy(system.file("application/GenericQC/QCandSSE.Rmd", package = "prolfquapp"),
             to = output_dir, overwrite = TRUE)
 
   rmarkdown::render(file.path(output_dir,"QCandSSE.Rmd"),
-                    params = list(data = lfqdata$data, configuration = lfqdata$config, project_conf = ps, pep = FALSE),
-
+                    params = list(data = lfqdata$data,
+                                  configuration = lfqdata$config,
+                                  project_conf = ps,
+                                  pep = FALSE),
+                    output_file = "QC_sampleSizeEstimation.html"
                     )
 } else{
   message("only a single sample: ", nrow(lfqdata$factors()))
