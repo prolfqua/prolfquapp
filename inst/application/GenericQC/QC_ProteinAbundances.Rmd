@@ -36,8 +36,8 @@ project_info <- params$project_info
 ```
 
 
-- Order : `project_info$order_Id`
-- Workunit : `project_info$workunit_Id`
+- Order : `r project_info$order_Id`
+- Workunit : `r project_info$workunit_Id`
 
 ```{r createPlot}
 protID = tableconfig$hierarchy_keys_depth()
