@@ -28,11 +28,20 @@ if (length(args) > 0) {
   output_dir = "qc_dir"
 }
 
+
+
+
 # this must be executed after the libPath is modified.
 
 library(dplyr)
 library(prolfquapp)
 library(logger)
+
+
+ps <- list()
+ps$workunit_Id = basename(getwd())
+ps$project_Id = project_Id
+ps$order_Id = project_Id
 
 
 if (!dir.exists(output_dir)) {
@@ -150,11 +159,6 @@ rmarkdown::render(file.path(output_dir,"test_NewQc.Rmd"),
                                 factors = TRUE),
                   output_file = "proteinAbundances.html")
 
-ps <- list()
-
-ps$workunit_Id = basename(getwd())
-ps$project_Id = project_Id
-ps$order_Id = project_Id
 
 
 if (nrow(lfqdata$factors()) > 1) {
