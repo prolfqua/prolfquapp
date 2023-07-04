@@ -159,7 +159,7 @@ make_DEA_report <- function(lfqdata,
   ################## Run Modelling ###############
   factors <- transformed$config$table$factor_keys()[!grepl("^control", transformed$config$table$factor_keys() , ignore.case = TRUE)]
 
-  if(is.null(GRP2$pop$interaction) || !GRP2$pop$interaction ){
+  if (is.null(GRP2$pop$interaction) || !GRP2$pop$interaction ) {
     formula <- paste0(transformed$config$table$get_response(), " ~ ",
                       paste(factors, collapse = " + "))
   } else {
@@ -187,18 +187,24 @@ make_DEA_report <- function(lfqdata,
   conrM <- prolfqua::ContrastsModerated$new(
     contr)
 
-  mC <- prolfqua::ContrastsMissing$new(
-    lfqdata = transformed,
-    contrasts = GRP2$pop$Contrasts,
-    modelName = "Imputed_Mean")
+  if (is.null(GRP2$pop$missing) || GRP2$pop$missing ) {
+    mC <- prolfqua::ContrastsMissing$new(
+      lfqdata = transformed,
+      contrasts = GRP2$pop$Contrasts,
+      modelName = "Imputed_Mean")
 
-  conMI <- prolfqua::ContrastsModerated$new(
-    mC)
+    conMI <- prolfqua::ContrastsModerated$new(
+      mC)
 
-  res <- prolfqua::merge_contrasts_results(conrM, conMI)
+    res <- prolfqua::merge_contrasts_results(conrM, conMI)
+    GRP2$RES$contrMerged <- res$merged
+    GRP2$RES$contrMore <- res$more
 
-  GRP2$RES$contrMerged <- res$merged
-  GRP2$RES$contrMore <- res$more
+  } else {
+    GRP2$RES$contrMerged <- conrM
+    GRP2$RES$contrMore <- NULL
+  }
+
 
   datax <- GRP2$RES$contrMerged$get_contrasts()
   datax <- dplyr::inner_join(GRP2$RES$rowAnnot$row_annot, datax, multiple = "all")
