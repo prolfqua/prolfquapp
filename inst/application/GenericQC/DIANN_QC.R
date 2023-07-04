@@ -156,6 +156,7 @@ file.copy(system.file("application/GenericQC/QC_ProteinAbundances.Rmd", package 
 rmarkdown::render(file.path(output_dir,"QC_ProteinAbundances.Rmd"),
                   params = list(config = lfqdataProt$config$table,
                                 precabund = precabund,
+                                project_info = ps,
                                 factors = TRUE),
                   output_file = "proteinAbundances.html")
 
