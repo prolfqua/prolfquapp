@@ -1,5 +1,5 @@
 ---
-title: "QC Report HTML"
+title: "Average Protein Abundances within Groups"
 date: "2023-03-28"
 editor_options: 
   chunk_output_type: console
@@ -7,12 +7,14 @@ params:
   precabund: NULL
   config: NULL
   factors: FALSE
+  project_info: NULL
 output:
   bookdown::html_document2:
     toc: yes
     toc_depth: 2
-
 ---
+
+
 
 ```{r setup, include=FALSE}
 library(ggplot2)
@@ -29,8 +31,13 @@ knitr::opts_chunk$set(
 precabund <- params$precabund
 tableconfig <- params$config
 factors <- params$factors
+project_info <- params$project_info
 
 ```
+
+
+- Order : `project_info$order_Id`
+- Workunit : `project_info$workunit_Id`
 
 ```{r createPlot}
 protID = tableconfig$hierarchy_keys_depth()
