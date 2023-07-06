@@ -21,7 +21,9 @@ ProcessingOptions <- R6::R6Class(
     #' @field pattern_decoys decoy patterns
     pattern_decoys = "^REV",
     #' @field pattern_contaminants pattern contaminants
-    pattern_contaminants = "^CON|^zz"
+    pattern_contaminants = "^CON|^zz",
+    #' @field nr_peptides nr peptides
+    nr_peptides = 2
   )
 )
 

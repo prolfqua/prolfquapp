@@ -37,6 +37,8 @@ Other ProlfquAppConfig:
 \item{\code{pattern_decoys}}{decoy patterns}
 
 \item{\code{pattern_contaminants}}{pattern contaminants}
+
+\item{\code{nr_peptides}}{nr peptides}
 }
 \if{html}{\out{</div>}}
 }
