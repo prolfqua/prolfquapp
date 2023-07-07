@@ -332,14 +332,17 @@ render_DEA <- function(GRP2,
 #' Writes results of DEA see \code{\link{generate_DEA_reports}}
 #' @export
 #'
-write_DEA_all <- function(grp2, name, ZIPDIR, boxplot = TRUE){
+write_DEA_all <- function(grp2, name, ZIPDIR, boxplot = TRUE , render = TRUE){
   fname <- paste0("DE_", name)
   qcname <- paste0("QC_", name)
   outpath <- file.path( ZIPDIR, fname)
   logger::log_info("writing into : ", outpath, " <<<<")
   prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname)
-  prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname)
-  prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+
+  if (render) {
+    prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname)
+    prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+  }
 
   bb <- grp2$RES$transformedlfqData
   grsizes <- bb$factors() |>
