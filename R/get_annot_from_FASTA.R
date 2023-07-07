@@ -1,7 +1,7 @@
 #' get_annot_from_fasta
 #' @export
 #'
-get_annot_from_fasta <- function(fasta){
+get_annot_from_fasta <- function(fasta.file, rev= "REV_", isUniprot = TRUE){
   fasta <- seqinr::read.fasta(file = fasta.file, as.string = TRUE, seqtype = "AA")
   fasta_annot <- prolfqua::matrix_to_tibble(
     data.frame(annot = sapply(fasta, seqinr::getAnnot)), preserve_row_names = NULL

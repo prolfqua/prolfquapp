@@ -258,8 +258,13 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
 
   # add protein statistics
   st <- GRP2$RES$transformedlfqData$get_Stats()
-  resultList$protein_variances <- st$stats()
-  resultList$protein_variances_wide <- st$stats_wide()
+  resultList$stats_normalized <- st$stats()
+  resultList$stats_normalized_wide <- st$stats_wide()
+
+  st <- GRP2$RES$lfqData$get_Stats()
+  resultList$stats_raw <- st$stats()
+  resultList$stats_raw_wide <- st$stats_wide()
+
   bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
   ff <- file.path(outpath ,"ORA_background.txt")
   write.table(bkg,file = ff, col.names = FALSE,

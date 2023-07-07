@@ -16,7 +16,7 @@ read_DIANN_output <- function(diann.path,
   peptide <- prolfqua::diann_output_to_peptide(report2)
   peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
   # we need to add the fasta.header information.
-  get_annot_from_fasta(fasta.file)
+  fasta_annot <- get_annot_from_fasta(fasta.file)
   message("Percent of Proteins with description:" ,mean(peptide$Protein.Group.2 %in% fasta_annot$proteinname) * 100)
   # add fasta headers.
   peptide <- dplyr::left_join(peptide, fasta_annot, by = c( Protein.Group.2 = "proteinname"))
