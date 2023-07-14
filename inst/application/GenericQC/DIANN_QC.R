@@ -167,13 +167,13 @@ if (nrow(lfqdata$factors()) > 1) {
             to = output_dir, overwrite = TRUE)
 
   rmarkdown::render(file.path(output_dir,"QCandSSE.Rmd"),
-                    params = list(data = lfqdata$data,
-                                  configuration = lfqdata$config,
+                    params = list(data = lfqdataProt$data,
+                                  configuration = lfqdataProt$config,
                                   project_conf = ps,
                                   pep = FALSE),
                     output_file = "QC_sampleSizeEstimation.html"
                     )
 } else{
-  message("only a single sample: ", nrow(lfqdata$factors()))
+  message("only a single sample: ", nrow(lfqdataProt$factors()))
 }
 
