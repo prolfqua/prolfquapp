@@ -88,7 +88,7 @@ if (length(dataset.csv) > 0) {
   if ("Name" %in% colnames(annotation)) {
     annotation$sample.name <- make.unique(annotation$Name)
   } else {
-    annotation$sample.name <- gsub("^[0-9]{8,8}_[0-9]{3,3}_S[0-9]{6,6}_","", annotation$inputresource.name)
+    annotation$sample.name <- make.unique(gsub("^[0-9]{8,8}_[0-9]{3,3}_S[0-9]{6,6}_","", annotation$inputresource.name))
   }
 
   if (!any(grepl("Group", colnames(annotation)))) {
