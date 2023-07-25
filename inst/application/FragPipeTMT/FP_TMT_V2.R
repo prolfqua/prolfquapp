@@ -21,14 +21,9 @@ table(tmp)
 
 
 scores <- xx |> select(all_of(c("Expectation","Hyperscore","Nextscore","PeptideProphet Probability")))
-image(cor(scores))
-
 psm <- prolfqua::tidy_FragPipe_psm(psm_file)
-
-
 psm$qValue <- 1 - psm$PeptideProphet.Probability
 
-ds_file <- "dataset_mock_H2O2.csv"
 ds_file <- "dataset_wt_KO.csv"
 annot <- read.csv(ds_file)
 GRP2 <- prolfquapp::make_DEA_config(ZIPDIR = gsub(".csv", "", ds_file))
@@ -37,12 +32,15 @@ GRP2 <- prolfquapp::make_DEA_config(ZIPDIR = gsub(".csv", "", ds_file))
 GRP2 <- prolfquapp::dataset_extract_contrasts(annot, GRP2)
 
 channelCol  <- grep("^channel", names(annot), ignore.case = TRUE, value = TRUE)
+
 if (channelCol != "channel") {
   annot[["channel"]] <- annot[[channelCol]]
   annot[[channelCol]] <- NULL
 }
 
 nr <- sum(annot$channel %in% unique(psm$channel))
+psm$channel
+
 logger::log_info("nr : ", nr, " files annotated")
 psm <- dplyr::inner_join(annot, psm, multiple = "all")
 
@@ -69,7 +67,7 @@ head(psm)
 # CREATE protein annotation.
 prot_annot <- prolfquapp::dataset_protein_annot(
   psm,
-  "Protein",
+  c("protein_Id" = "Protein"),
   protein_annot = "Protein.Description",
   more_columns = "nrPeptides")
 
@@ -79,7 +77,6 @@ atable$set_response("abundance")
 
 config <- prolfqua::AnalysisConfiguration$new(atable)
 adata <- prolfqua::setup_analysis(psm, config)
-colnames(adata)
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$hierarchy_counts()
 lfqdata$remove_small_intensities(threshold = 1)
@@ -104,23 +101,20 @@ lfqdata$hierarchy_counts()
 
 
 #logger::log_info("AGGREGATING PEPTIDE DATA!")
-#lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
+lfqdata$config$table$hkeysDepth()
+lfqdata$config$table$hierarchyDepth <- 1
+lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 #logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 #lfqdata$factors()
 
 logger::log_info("END OF DATA TRANSFORMATION.")
 #debug(prolfquapp::generate_DEA_reports)
-GRP2$pop$remove <- FALSE
-grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
-
-saveRDS(grp, file = paste0(GRP2$zipdir, ".rds"))
-grp <- readRDS(paste0(GRP2$zipdir, ".rds"))
+protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
+grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
 
 dir.create( GRP2$zipdir)
-prolfquapp::copy_DEA_FragPipe_TMT()
 for (i in seq_along(grp)) {
   prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir )
 }
 
 
-#prolfquapp::render_DEA(grp2, outpath = ".", htmlname = "check.html")
