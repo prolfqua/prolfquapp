@@ -57,7 +57,7 @@ fasta.file <- mdir(path,
 logger::log_info(fasta.file)
 
 diann.output <- mdir(path,
-                     pattern = "diann-output.tsv")
+                     pattern = "*report.tsv$")
 logger::log_info(diann.output)
 
 dataset.csv <- mdir(path,
