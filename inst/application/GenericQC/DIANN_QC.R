@@ -53,15 +53,15 @@ mdir <- function(path, pattern){
 }
 
 fasta.file <- mdir(path,
-                   pattern = "*.fasta$")
+                   pattern = "*.fasta$")[1]
 logger::log_info(fasta.file)
 
 diann.output <- mdir(path,
-                     pattern = "*report.tsv$")
+                     pattern = "*report.tsv$")[1]
 logger::log_info(diann.output)
 
 dataset.csv <- mdir(path,
-                    pattern = "dataset.csv")
+                    pattern = "dataset.csv")[1]
 logger::log_info(dataset.csv)
 
 peptide <- read_DIANN_output(
@@ -69,6 +69,8 @@ peptide <- read_DIANN_output(
   fasta.file = fasta.file,
   nrPeptides = 1,
   Q.Value = 0.1)
+
+# fasta_annot <- get_annot_from_fasta(fasta.file)
 
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
