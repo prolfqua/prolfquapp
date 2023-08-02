@@ -4,7 +4,7 @@
 \alias{write_DEA_all}
 \title{Generate differential expression analysis reports}
 \usage{
-write_DEA_all(grp2, name, ZIPDIR, boxplot = TRUE)
+write_DEA_all(grp2, name, ZIPDIR, boxplot = TRUE, render = TRUE)
 }
 \description{
 Writes results of DEA see \code{\link{generate_DEA_reports}}
