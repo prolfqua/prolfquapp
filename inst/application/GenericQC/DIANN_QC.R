@@ -23,7 +23,8 @@ if (length(args) > 0) {
           "output_dir : folder to write the results to \n",
           "libPath.   : (optional) R library path\n"
           )
-  path = "."
+
+  path = "2340169"
   project_Id = "o3000"
   output_dir = "qc_dir"
 }
@@ -49,20 +50,32 @@ if (!dir.exists(output_dir)) {
 }
 
 mdir <- function(path, pattern){
-  dir(path, pattern, full.names = TRUE, recursive = TRUE)
+  file_info <- file.info(path)
+  if (file_info$isdir[1]) {
+    res <- dir(path, pattern, full.names = TRUE, recursive = TRUE)
+  } else {
+    stop("unsupported path. \n")
+  }
+  return(res)
 }
 
 fasta.file <- mdir(path,
-                   pattern = "*.fasta$")[1]
-logger::log_info(fasta.file)
+                   pattern = "*database[0-9]*.fasta$")
+
+logger::log_info(paste(fasta.file, collapse = "; "))
+
 
 diann.output <- mdir(path,
-                     pattern = "*report.tsv$")[1]
+                     pattern = "*report.tsv$")
 logger::log_info(diann.output)
 
 dataset.csv <- mdir(path,
-                    pattern = "dataset.csv")[1]
+                    pattern = "dataset.csv")
+
 logger::log_info(dataset.csv)
+
+c(list(a = "a"), list(a = "b"))
+
 
 peptide <- read_DIANN_output(
   diann.path = diann.output,
@@ -156,7 +169,7 @@ file.copy(system.file("application/GenericQC/QC_ProteinAbundances.Rmd", package 
           to = output_dir, overwrite = TRUE)
 
 rmarkdown::render(file.path(output_dir,"QC_ProteinAbundances.Rmd"),
-                  params = list(config = lfqdataProt$config$table,
+                  params = list(lfqdataProt = lfqdataProt,
                                 precabund = precabund,
                                 project_info = ps,
                                 factors = TRUE),

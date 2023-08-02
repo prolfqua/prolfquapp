@@ -4,8 +4,8 @@ date: "2023-03-28"
 editor_options: 
   chunk_output_type: console
 params:
+  lfqdataProt: NULL
   precabund: NULL
-  config: NULL
   factors: FALSE
   project_info: NULL
 output:
@@ -28,8 +28,10 @@ knitr::opts_chunk$set(
   fig.align = "center",
   fig.pos = "H"
 )
+
+lfqdataProt <-  params$lfqdataProt
 precabund <- params$precabund
-tableconfig <- params$config
+tableconfig <- lfqdataProt$config$table
 factors <- params$factors
 project_info <- params$project_info
 
@@ -38,6 +40,11 @@ project_info <- params$project_info
 
 - Order : `r project_info$order_Id`
 - Workunit : `r project_info$workunit_Id`
+
+```{r hierachycountspersample}
+srs <- lfqdataProt$get_Summariser()
+srs$plot_hierarchy_counts_sample()
+```
 
 ```{r createPlot}
 protID = tableconfig$hierarchy_keys_depth()
@@ -51,8 +58,6 @@ pp <- prolfquapp::plot_abundance_vs_percent(
     factors = factors,
     colors = c("^zz" = "red"),
     cumulative = FALSE)
-#pp2 <- pp + ggplot2::scale_y_continuous(trans = 'log10')
-#pp2 <- plotly::ggplotly(pp2)
 pp <- plotly::ggplotly(pp)
 ```
 
