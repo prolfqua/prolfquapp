@@ -8,13 +8,13 @@ ymlfile <- "config.yaml"
 GRP2 <- prolfquapp::read_yaml(ymlfile)
 ###
 dir.create(GRP2$zipdir)
-
-diann.path <- grep("diann-output.tsv", dir(recursive = TRUE), value = TRUE)
-fasta.file <- grep("*.fasta", dir(recursive = TRUE), value = TRUE)
+path = "."
+diann.path <- grep("report\\.tsv$", dir(path = path, recursive = TRUE), value = TRUE)
+fasta.files <- grep("database[0-9]*\\.fasta$", dir(path = path, recursive = TRUE), value = TRUE)
 
 peptide <- read_DIANN_output(
   diann.path = diann.path[1],
-  fasta.file = fasta.file[1],
+  fasta.file = fasta.file,
   nrPeptides = 1,
   Q.Value = 0.1)
 
@@ -34,6 +34,8 @@ annot <- annot |> dplyr::mutate(
                   (basename(annot$Relative.Path))
   )
 )
+
+
 GRP2 <- prolfquapp::dataset_extract_contrasts(annot, GRP2)
 
 annot$raw.file[ !annot$raw.file %in% sort(unique(peptide$raw.file)) ]
