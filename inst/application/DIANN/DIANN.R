@@ -14,7 +14,7 @@ fasta.files <- grep("database[0-9]*\\.fasta$", dir(path = path, recursive = TRUE
 
 peptide <- read_DIANN_output(
   diann.path = diann.path[1],
-  fasta.file = fasta.file,
+  fasta.file = fasta.files,
   nrPeptides = 1,
   Q.Value = 0.1)
 
