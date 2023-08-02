@@ -49,12 +49,15 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' @export
 #' @family workflow
 #' @examples
+#'
 #' library(prolfquapp)
 #' library(prolfqua)
 #' istar <- prolfqua_data('data_ionstar')$filtered()
 #' data <- istar$data |> dplyr::filter(protein_Id %in% sample(protein_Id, 100))
 #' data$Description <-"AAAAA"
-#' protein_annot <- data |> dplyr::select(protein_Id, Description) |> dplyr::distinct()
+#' protein_annot <- data |> dplyr::select(protein_Id, description = Description) |> dplyr::distinct()
+#' protein_annot2 <- prolfqua::get_UniprotID_from_fasta_header(protein_annot, idcolumn = "protein_Id")
+#' protein_annot <- protein_annot2 |> dplyr::rename(IDcolumn = UniprotID)
 #' GRP2 <- list()
 #' GRP2$Bfabric <- list()
 #' GRP2$Bfabric$projectID <- "3765"
@@ -98,6 +101,7 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' GRP2$pop$Contrasts <- c("avsb" = "dilution.a - dilution.b")
 #' GRP2$pop$revpattern = "^REV_"
 #' GRP2$pop$contpattern = "^zz|^CON__"
+#'
 #' GRP2$pop$removeCon = TRUE
 #' GRP2$pop$removeDecoys = TRUE
 #'
