@@ -5,12 +5,14 @@
 #' @param Q.Value q value threshold
 #' @export
 #'
+
 read_DIANN_output <- function(diann.path,
                               fasta.file,
                               nrPeptides = 2,
                               Q.Value = 0.01,
                               isUniprot = TRUE,
-                              rev = "REV_") {
+                              rev = "REV_"
+                              ) {
   report2 <- prolfqua::diann_read_output(diann.path, nrPeptides = nrPeptides, Q.Value = Q.Value)
   report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
   peptide <- prolfqua::diann_output_to_peptide(report2)
