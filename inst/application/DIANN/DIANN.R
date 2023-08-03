@@ -12,10 +12,19 @@ GRP2 <- prolfquapp::read_yaml(ymlfile)
 dir.create(GRP2$zipdir)
 path = "."
 diann.path <- grep("report\\.tsv$|diann-output\\.tsv", dir(path = path, recursive = TRUE), value = TRUE)
-fasta.files <- grep("database[0-9]*\\.fasta$", dir(path = path, recursive = TRUE), value = TRUE)
+fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE), value = TRUE)
+
+if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
+  fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
+}
+
+if (length(fasta.files) == 0) {
+  logger::log_error("No fasta file found!")
+  stop()
+}
 
 peptide <- read_DIANN_output(
-  diann.path = diann.path[1],
+  diann.path = diann.path,
   fasta.file = fasta.files,
   nrPeptides = 1,
   Q.Value = 0.1)
