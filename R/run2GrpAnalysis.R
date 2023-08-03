@@ -115,11 +115,11 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' bb <- st$stats()
 #' sr <- grp$RES$transformedlfqData$get_Summariser()
 #' int <- sr$interaction_missing_stats()
-#'
+#' res <- write_DEA(grp,".", write=FALSE)
 #' \dontrun{
 #' render_DEA(grp, ".")
 #' render_DEA(grp, "." ,word = TRUE)
-#' write_DEA(grp,".")
+#'
 #' }
 #'
 make_DEA_report <- function(lfqdata,
@@ -230,7 +230,7 @@ make_DEA_report <- function(lfqdata,
 #' @export
 #' @family workflow
 #'
-write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
+write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE){
   dir.create(outpath)
   rd <- GRP2$RES$lfqData
   tr <- GRP2$RES$transformedlfqData
@@ -297,7 +297,10 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults"){
   if (nrow(resultList$normalized_abundances) > 1048575) {
     resultList$normalized_abundances <- NULL
   }
-  writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
+  if (write) {
+    writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
+  }
+  return(resultList)
 }
 
 #' Render DEA analysis report
