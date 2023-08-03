@@ -2,13 +2,16 @@
 % Please edit documentation in R/run2GrpAnalysis.R
 \name{make_DEA_report}
 \alias{make_DEA_report}
+\alias{make_SummarizedExperiment}
 \alias{write_DEA}
 \alias{render_DEA}
 \title{Create DEA report in html and write data to xlsx table}
 \usage{
 make_DEA_report(lfqdata, protAnnot, GRP2)
 
-write_DEA(GRP2, outpath, xlsxname = "AnalysisResults")
+make_SummarizedExperiment(GRP2)
+
+write_DEA(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE)
 
 render_DEA(
   GRP2,
@@ -36,6 +39,9 @@ render_DEA(
 \item{atable}{AnalysisTableAnnotation annotate startdata table}
 
 \item{protein_annot}{column with protein description e.g. (fasta header)}
+}
+\value{
+SummarizedExperiment
 }
 \description{
 For use examples see run_scripts directory
@@ -107,11 +113,12 @@ st <- grp$RES$transformedlfqData$get_Stats()
 bb <- st$stats()
 sr <- grp$RES$transformedlfqData$get_Summariser()
 int <- sr$interaction_missing_stats()
-
+res <- write_DEA(grp,".", write=FALSE)
+se <- makeSummarizedExperiment(grp)
 \dontrun{
 render_DEA(grp, ".")
 render_DEA(grp, "." ,word = TRUE)
-write_DEA(grp,".")
+
 }
 
 }

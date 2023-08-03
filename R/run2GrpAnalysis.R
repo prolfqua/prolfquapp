@@ -116,6 +116,7 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' sr <- grp$RES$transformedlfqData$get_Summariser()
 #' int <- sr$interaction_missing_stats()
 #' res <- write_DEA(grp,".", write=FALSE)
+#' se <- makeSummarizedExperiment(grp)
 #' \dontrun{
 #' render_DEA(grp, ".")
 #' render_DEA(grp, "." ,word = TRUE)
@@ -220,6 +221,35 @@ make_DEA_report <- function(lfqdata,
   return(GRP2)
 }
 
+#' Convert prolfqua differential expression analysis results to SummarizedExperiment
+#'
+#' @rdname make_DEA_report
+#' @param GRP2 return value of \code{\link{make_DEA_report}}
+#' @return SummarizedExperiment
+#' @export
+#' @family workflow
+#'
+make_SummarizedExperiment <- function(GRP2){
+  resTables <- write_DEA(GRP2,".", write = FALSE)
+  matTr <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
+  matRaw <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
+  x <- SummarizedExperiment::SummarizedExperiment(
+    assays = list(rawData = matRaw$data, transformedData = matTr$data),
+    colData = matRaw$annotation, metadata = as.list(resTables$formula)
+    )
+
+  diffbyContrast <- split(resTables$diff_exp_analysis, resTables$diff_exp_analysis$contrast)
+  for (i in names(diffbyContrast)) {
+    SummarizedExperiment::rowData(x)[[paste0("constrast_",i)]] <- diffbyContrast[[i]]
+  }
+
+  SummarizedExperiment::rowData(x)$stats_normalized_wide <- resTables$stats_normalized_wide
+  SummarizedExperiment::rowData(x)$stats_raw_wide <- resTables$stats_raw_wide
+  SummarizedExperiment::rowData(x)$diff_expression_analysis
+  SummarizedExperiment::rowData(x)$stats_raw_wide
+  return(x)
+}
+
 
 #' Write differential expression analysis results
 #'
@@ -231,7 +261,7 @@ make_DEA_report <- function(lfqdata,
 #' @family workflow
 #'
 write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE){
-  dir.create(outpath)
+  if (write) {dir.create(outpath)}
   rd <- GRP2$RES$lfqData
   tr <- GRP2$RES$transformedlfqData
   ra <- GRP2$RES$rowAnnot
@@ -269,37 +299,40 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE)
   resultList$stats_raw <- st$stats()
   resultList$stats_raw_wide <- st$stats_wide()
 
-  bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
-  ff <- file.path(outpath ,"ORA_background.txt")
-  write.table(bkg,file = ff, col.names = FALSE,
-              row.names = FALSE, quote = FALSE)
-
-  fg <- GRP2$RES$contrastsData_signif
-  ora_sig <- split(fg$IDcolumn, fg$contrast)
-
-  for (i in names(ora_sig)) {
-    ff <- file.path(outpath, paste0("Ora_",i,".txt" ))
-    logger::log_info("Writing File ", ff)
-    write.table(ora_sig[[i]],file = ff, col.names = FALSE,
-                row.names = FALSE, quote = FALSE)
-  }
-
-  fg <- GRP2$RES$contrastsData
-  gsea <- fg |> dplyr::select( contrast, IDcolumn, statistic) |> dplyr::arrange( statistic )
-  gsea <- split(dplyr::select( gsea, IDcolumn, statistic ), gsea$contrast)
-
-  for (i in names(gsea)) {
-    ff <- file.path(outpath, paste0("GSEA_",i,".rnk" ))
-    logger::log_info("Writing File ", ff)
-    write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
-                row.names = FALSE, quote = FALSE, sep = "\t")
-  }
-  if (nrow(resultList$normalized_abundances) > 1048575) {
-    resultList$normalized_abundances <- NULL
-  }
   if (write) {
+
+    bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
+    ff <- file.path(outpath ,"ORA_background.txt")
+    write.table(bkg,file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE)
+
+    fg <- GRP2$RES$contrastsData_signif
+    ora_sig <- split(fg$IDcolumn, fg$contrast)
+
+    for (i in names(ora_sig)) {
+      ff <- file.path(outpath, paste0("Ora_",i,".txt" ))
+      logger::log_info("Writing File ", ff)
+      write.table(ora_sig[[i]],file = ff, col.names = FALSE,
+                  row.names = FALSE, quote = FALSE)
+    }
+
+    fg <- GRP2$RES$contrastsData
+    gsea <- fg |> dplyr::select( contrast, IDcolumn, statistic) |> dplyr::arrange( statistic )
+    gsea <- split(dplyr::select( gsea, IDcolumn, statistic ), gsea$contrast)
+
+    for (i in names(gsea)) {
+      ff <- file.path(outpath, paste0("GSEA_",i,".rnk" ))
+      logger::log_info("Writing File ", ff)
+      write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
+                  row.names = FALSE, quote = FALSE, sep = "\t")
+    }
+    if (nrow(resultList$normalized_abundances) > 1048575) {
+      resultList$normalized_abundances <- NULL
+    }
     writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
+
   }
+
   return(resultList)
 }
 
