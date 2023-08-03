@@ -6,10 +6,12 @@ prolfquapp::copy_DEA_DIANN()
 
 ymlfile <- "config.yaml"
 GRP2 <- prolfquapp::read_yaml(ymlfile)
+
+
 ###
 dir.create(GRP2$zipdir)
 path = "."
-diann.path <- grep("report\\.tsv$", dir(path = path, recursive = TRUE), value = TRUE)
+diann.path <- grep("report\\.tsv$|diann-output\\.tsv", dir(path = path, recursive = TRUE), value = TRUE)
 fasta.files <- grep("database[0-9]*\\.fasta$", dir(path = path, recursive = TRUE), value = TRUE)
 
 peptide <- read_DIANN_output(
