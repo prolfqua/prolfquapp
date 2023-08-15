@@ -15,6 +15,7 @@ r6obj_config <- ProlfquAppConfig$new(ProcessingOptions$new(), ProjectSpec$new())
 xx <- R6_extract_values(r6obj_config)
 yaml::write_yaml(xx, file = "test.yaml")
 config <- yaml::read_yaml(file = "test.yaml")
+
 }
 \seealso{
 Other ProlfquAppConfig: 

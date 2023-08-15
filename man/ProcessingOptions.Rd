@@ -38,7 +38,13 @@ Other ProlfquAppConfig:
 
 \item{\code{pattern_contaminants}}{pattern contaminants}
 
-\item{\code{nr_peptides}}{nr peptides}
+\item{\code{nr_peptides}}{number of peptides}
+
+\item{\code{interaction}}{model with interactions default FALSE}
+
+\item{\code{missing}}{model missigness, default TRUE}
+
+\item{\code{model}}{name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"}
 }
 \if{html}{\out{</div>}}
 }
