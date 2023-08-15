@@ -8,9 +8,6 @@ ymlfile <- "config.yaml"
 GRP2 <- prolfquapp::read_yaml(ymlfile)
 
 
-
-
-
 ###
 dir.create(GRP2$zipdir)
 path = "."

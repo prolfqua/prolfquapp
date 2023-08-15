@@ -11,6 +11,8 @@ fasta <- "/Users/witoldwolski/__checkout/protriple/inst/diann_DataBench/Triple_P
 
 fastadb <- prozor::readPeptideFasta(fasta)
 GRP2 <- prolfquapp::make_DEA_config(ZIPDIR = paste0("specnaut_",zipdir))
+
+
 GRP2$pop$transform = "none"
 ###
 dir.create(GRP2$zipdir)

@@ -11,19 +11,19 @@ read_yaml <- function(ymlfile, application = "FragPipeTMT" ) {
   ZIPDIR = paste0("C",ORDERID,"WU",WORKUNITID)
 
   GRP2 <- list()
-  GRP2$Bfabric <- list()
-  GRP2$Bfabric$projectID <- PROJECTID
+  GRP2$project_spec <- list()
+  GRP2$project_spec$projectID <- PROJECTID
 
 
-  GRP2$Bfabric$projectName <- "" # workunit name in the future.
-  GRP2$Bfabric$orderID <- ORDERID
+  GRP2$project_spec$projectName <- "" # workunit name in the future.
+  GRP2$project_spec$orderID <- ORDERID
 
-  GRP2$Bfabric$workunitID <- WORKUNITID
+  GRP2$project_spec$workunitID <- WORKUNITID
 
   idxzip <- grep("[0-9]{7,7}.zip",yml$application$input[[1]])
 
-  GRP2$Bfabric$inputID <- yml$job_configuration$input[[1]][[idxzip]]$resource_id
-  GRP2$Bfabric$inputURL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
+  GRP2$project_spec$inputID <- yml$job_configuration$input[[1]][[idxzip]]$resource_id
+  GRP2$project_spec$inputURL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
 
   #at least 2 peptides per protein
   GRP2$pop <- list()
@@ -72,13 +72,13 @@ make_DEA_config <- function(
 
 
   GRP2 <- list()
-  GRP2$Bfabric <- list()
-  GRP2$Bfabric$projectID <- PROJECTID
-  GRP2$Bfabric$projectName <- "" # workunit name in the future.
-  GRP2$Bfabric$orderID <- ORDERID
-  GRP2$Bfabric$workunitID <- WORKUNITID
-  GRP2$Bfabric$inputID <- NULL
-  GRP2$Bfabric$inputURL <- NULL
+  GRP2$project_spec <- list()
+  GRP2$project_spec$projectID <- PROJECTID
+  GRP2$project_spec$projectName <- "" # workunit name in the future.
+  GRP2$project_spec$orderID <- ORDERID
+  GRP2$project_spec$workunitID <- WORKUNITID
+  GRP2$project_spec$inputID <- NULL
+  GRP2$project_spec$inputURL <- NULL
 
   #at least 2 peptides per protein
   GRP2$pop <- list()

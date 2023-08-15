@@ -22,8 +22,14 @@ ProcessingOptions <- R6::R6Class(
     pattern_decoys = "^REV",
     #' @field pattern_contaminants pattern contaminants
     pattern_contaminants = "^CON|^zz",
-    #' @field nr_peptides nr peptides
-    nr_peptides = 2
+    #' @field nr_peptides number of peptides
+    nr_peptides = 2,
+    #' @field interaction model with interactions default FALSE
+    interaction = FALSE,
+    #' @field missing model missigness, default TRUE
+    missing = TRUE,
+    #' @field model name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"
+    model = "prolfqua"
   )
 )
 
@@ -61,6 +67,7 @@ ProjectSpec <- R6::R6Class(
 #' xx <- R6_extract_values(r6obj_config)
 #' yaml::write_yaml(xx, file = "test.yaml")
 #' config <- yaml::read_yaml(file = "test.yaml")
+#'
 ProlfquAppConfig <- R6::R6Class(
   "ProlfquAppConfig",
   public = list(
@@ -155,6 +162,10 @@ make_DEA_config_R6 <- function(
     patternContaminants = "zz",
     application = "FragPipeTMT" ){
 
+
+  Normalization <- match.arg(Normalization)
+  aggregation <- match.arg(aggregation)
+
   pop <- ProcessingOptions$new()
   pop$pattern_contaminants = patternContaminants
   pop$pattern_decoys = patternDecoys
@@ -177,6 +188,55 @@ make_DEA_config_R6 <- function(
   return(r6obj_config)
 }
 
+
+#' read yaml file
+#' @export
+#' @return list with applications parameters
+#' @examples
+#'
+#' yfile <- file.path(find.package("prolfquapp") , "/extdata/DIANN_BF/config1.yaml")
+#' read_BF_yamlR6(yfile)
+#'
+read_BF_yamlR6 <- function(yfile, application = "FragPipeTMT" ) {
+  yml = yaml::read_yaml(ymlfile)
+
+  WORKUNITID = yml$job_configuration$workunit_id
+  PROJECTID = yml$job_configuration$project_id
+  ORDERID = yml$job_configuration$order_id
+  ORDERID <- if (is.null(ORDERID)) { PROJECTID }else{ ORDERID }
+  ZIPDIR = paste0("C",ORDERID,"WU",WORKUNITID)
+
+  ps <- ProjectSpec$new()
+  ps$orderID = ORDERID
+  ps$projectID = PROJECTID
+  ps$workunitID = WORKUNITID
+  ps$projectName <- ""
+  idxzip <- grep("[0-9]{7,7}.zip",yml$application$input[[1]])
+
+  ps$inputID <- yml$job_configuration$input[[1]][[idxzip]]$resource_id
+  ps$inputURL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
+
+
+
+  #at least 2 peptides per protein
+  pop <- ProcessingOptions$new()
+  pop$transform <- yml$application$parameters$`3|Normalization`
+  pop$aggregate <- "medpolish"
+  pop$diff_threshold <- as.numeric(yml$application$parameters$`4|Difference_threshold`)
+  pop$FDR_threshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
+
+  pop$remove_cont <- if (yml$application$parameters$`6|remConDec` == "true") { TRUE } else { FALSE }
+  pop$remove_decoys <- if (yml$application$parameters$`6|remConDec` == "true") { TRUE } else { FALSE }
+
+  pop$pattern_decoys <- yml$application$parameters$`7|REVpattern`
+  pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
+
+  r6obj_config <- ProlfquAppConfig$new(pop, ps)
+  r6obj_config$zipdir = ZIPDIR
+  r6obj_config$software = application
+
+  return(r6obj_config)
+}
 
 
 
