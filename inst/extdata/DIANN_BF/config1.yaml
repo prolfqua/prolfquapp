@@ -1,0 +1,64 @@
+application:
+  input:
+    DIANN:
+    - bfabric@fgcz-bfabric-sys://export/bfabricexternal//container_32312/workunit_291933/qc_result.zip
+    - bfabric@fgcz-bfabric-sys://export/bfabricexternal//container_32312/workunit_291933/proteinAbundances.html
+    - bfabric@fgcz-bfabric-sys://export/bfabricexternal//container_32312/workunit_291933/WU291933_report.log.txt
+    - bfabric@fgcz-bfabric-sys://export/bfabricexternal//container_32312/workunit_291933/WU291933_report.stats.tsv
+    - bfabric@fgcz-data.uzh.ch://home/bfabric/slurmworker/log//workunitid-291933_resourceid-2340169.out
+    - bfabric@fgcz-data.uzh.ch://home/bfabric/slurmworker/log//workunitid-291933_resourceid-2340169.err
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p32312/bfabric/Proteomics/DIANN/2023/2023-07/2023-07-31/workunit_291933/2340169.zip
+  output:
+  - bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs/p32312/bfabric/Proteomics/DEA_FragPipe-DiaNN/2023/2023-08/2023-08-02//workunit_291955//2340316.zip
+  parameters:
+    1|datasetId: '46291'
+    3|Normalization: vsn
+    4|Difference_threshold: '1'
+    5|FDR_threshold: '0.1'
+    6|remConDec: 'false'
+    7|REVpattern: ^REV
+    8|CONpattern: ^CON|^zz
+    memory: 4G
+    nodelist: fgcz-r-033
+    partition: prx
+  protocol: scp
+job_configuration:
+  executable: /home/bfabric/slurmworker/bin/fgcz_slurm_DEA_FragPipeDIA_310.bash
+  external_job_id: 148985
+  fastasequence: '>sp|ADD000|iRTKit iRT-Kit_WR_fusion
+
+    LGGNEQVTRYILAGVENSKGTFIIDPGGVIRGTFIIDPAAVIRGAGSSEPVTGLDAKTPVISGGPYEYRVEATFGVDESNAKTPVITGAPYEYRDGLDAASYYAPVRADVTPADFSEWSKLFLQFGAQGSPFLK'
+  input:
+    DIANN:
+    - resource_id: 2340178
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2340178
+    - resource_id: 2340177
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2340177
+    - resource_id: 2340176
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2340176
+    - resource_id: 2340175
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2340175
+    - resource_id: 2340171
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2340171
+    - resource_id: 2340170
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2340170
+    - resource_id: 2340169
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2340169
+  inputdataset: null
+  order_id: 32312
+  output:
+    protocol: scp
+    resource_id: 2340316
+    ssh_args: -o StrictHostKeyChecking=no -2 -l bfabric -x
+  project_id: null
+  stderr:
+    protocol: file
+    resource_id: 2340317
+    url: /home/bfabric/slurmworker/log/workunitid-291955_resourceid-2340316.err
+  stdout:
+    protocol: file
+    resource_id: 2340318
+    url: /home/bfabric/slurmworker/log/workunitid-291955_resourceid-2340316.out
+  workunit_id: 291955
+  workunit_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-workunit.html?workunitId=291955
+
