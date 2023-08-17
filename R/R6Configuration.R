@@ -139,8 +139,8 @@ R6_extract_values <- function(r6class){
 
 #' create GRP2 configuration.
 #' Use this function if there is no Yaml Input.
-#' @param patternDecoys default "REV_"
-#' @param patternContaminants default "zz_"
+#' @param patternDecoys default "^REV_"
+#' @param patternContaminants default "^zz_"
 #' @export
 #' @family ProlfquAppConfig
 #' @examples
@@ -158,8 +158,8 @@ make_DEA_config_R6 <- function(
     nr_peptides = 1,
     removeContaminants = FALSE,
     removeDecoys = FALSE,
-    patternDecoys = "REV_",
-    patternContaminants = "zz",
+    patternDecoys = "^REV_",
+    patternContaminants = "^zz",
     application = "FragPipeTMT" ){
 
 
