@@ -106,7 +106,7 @@ The columns of the table below contains:
 - nrPeptides - nr of peptides per protein
 - description - protein description from fasta header
 - nrMeasured_<GroupName> - How often a protein was observed in each of the groups and overall
-- meanArea_<GroupName> - average protein abundance(1) per group.
+- meanArea_<GroupName> - average protein abundance (see 1. at the bottom of the document) per group.
 - signal_percent_<GroupName> - percent of the total signal of all identified proteins measured by the mass spectrometric instrument attributed to each protein.
 
 
@@ -136,7 +136,7 @@ colorV <- rep("black", nrow(precabund))
     colorV[grepl(names(colors)[i], precabund[[protID]])] <- colors[i]
  }
 group <- tableconfig$factor_keys_depth()
-pplotPepAbund <- ggplot(datax, aes(x = nrPeptides, y = meanArea)) + geom_point(color = colorV) +
+pplotPepAbund <- ggplot(datax, aes(x = nrPeptides, y = meanArea)) + geom_point(color = colorV, alpha = 0.4) +
   ggplot2::scale_y_continuous(trans = 'log10') +
   ggplot2::scale_x_continuous(trans = 'log10') +
   if (factors) {facet_wrap(as.formula(paste0("~", paste(group, collapse = " + "))))}
