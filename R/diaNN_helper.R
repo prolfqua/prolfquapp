@@ -21,6 +21,9 @@ read_DIANN_output <- function(diann.path,
   fasta_annot <- get_annot_from_fasta(fasta.file)
   message("Percent of Proteins with description:" ,mean(peptide$Protein.Group.2 %in% fasta_annot$proteinname) * 100)
   # add fasta headers.
+  if(nrow(peptide) == 0){
+    return(NULL)
+  }
   peptide <- dplyr::left_join(peptide, fasta_annot, by = c( Protein.Group.2 = "proteinname"))
   return(peptide)
 }

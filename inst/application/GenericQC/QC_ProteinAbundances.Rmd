@@ -51,13 +51,16 @@ protID = tableconfig$hierarchy_keys_depth()
 if (!factors) {
   precabund <- dplyr::filter(precabund , !!sym(tableconfig$factor_keys()[1]) == "ALL")
 }
+
+precabund <- precabund |> dplyr::rename(signal_percent = abundance_percent)
 pp <- prolfquapp::plot_abundance_vs_percent(
     precabund,
     cfg_table = tableconfig,
     top_N = NULL,
     factors = factors,
-    colors = c("^zz" = "red"),
-    cumulative = FALSE)
+    colors = c("^zz" = "red","Y-FGCZ" = "red"),
+    columnAb = "signal_percent",
+    alpha = 0.4)
 pp <- plotly::ggplotly(pp)
 ```
 
@@ -65,7 +68,7 @@ pp <- plotly::ggplotly(pp)
 ```{r createDT}
 n = 2
 precabund_table <- precabund |> dplyr::mutate(
-    abundance_percent = signif(abundance_percent, n ),
+    signal_percent = signif(signal_percent, n ),
     abundance_percent_cumulative = signif(abundance_percent_cumulative, n),
     percent_prot = signif(percent_prot, 3))
 
@@ -73,10 +76,10 @@ precabund_table <- precabund_table |>
     dplyr::select(
         all_of(c(protID, "nrPeptides",
                  tableconfig$factor_keys_depth(),
-                 "nrMeasured", "meanArea", "abundance_percent" ,"description")))
+                 "nrMeasured", "meanArea", "signal_percent" ,"description")))
 if (factors) {
   precabund_table <- precabund_table |> 
-    tidyr::pivot_wider(names_from = tableconfig$factor_keys_depth(), values_from = c("nrMeasured", "meanArea", "abundance_percent"))
+    tidyr::pivot_wider(names_from = tableconfig$factor_keys_depth(), values_from = c("nrMeasured", "meanArea", "signal_percent"))
 } else {
   precabund_table <- dplyr::select(precabund_table, -all_of(tableconfig$factor_keys_depth()))
 }
@@ -92,29 +95,42 @@ table <- DT::datatable(
     options = list(deferRender = TRUE,
                    scrollY = 300,
                    scrollX = 400,
-                   scroller = TRUE) )
+                   scroller = TRUE))
 
 
 ```
+
+The columns of the table below contains:
+
+- protein_Id - protein idenfier
+- nrPeptides - nr of peptides per protein
+- description - protein description from fasta header
+- nrMeasured_<GroupName> - How often a protein was observed in each of the groups and overall
+- meanArea_<GroupName> - average protein abundance(1) per group.
+- signal_percent_<GroupName> - percent of the total signal of all identified proteins measured by the mass spectrometric instrument attributed to each protein.
+
+
+
 
 
 ```{r}
 table
 ```
 
-(ref:proteinCumulative) The Y-axis presents the percentage of the total signal attributed to each protein. Along the Y-axis, proteins are organized in ascending order according to their signal proportions. Notably, calculating the total signal per protein involves summing the 'Precursor.Quantity' values across all precursors associated with that protein. An intriguing observation is that a significant share of the mass spectrometer's recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
 
 
 ```{r proteinCumulative, fig.cap = "(ref:proteinCumulative)"}
 pp
 ```
 
+(ref:proteinCumulative) The Y axis presents the percentage of the total signal attributed to each protein. Along the X axis, proteins are organized in ascending order according to their signal proportions. Notably, calculating the total signal per protein involves summing the 'Precursor.Quantity' values across all precursors associated with that protein. An intriguing observation is that a significant share of the mass spectrometer's recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
+
 
 ```{r prepPeptidePlot}
 
 datax <- crosstalk::SharedData$new(as.data.frame(precabund) , key = as.formula(paste(" ~ ", protID )), group = "BB")
 
-colors = c("^zz" = "red")
+colors = c("^zz" = "red", "Y-FGCZ" = "red")
 colorV <- rep("black", nrow(precabund))
  for (i in seq_along(colors)) {
     colorV[grepl(names(colors)[i], precabund[[protID]])] <- colors[i]
@@ -128,11 +144,16 @@ pplotPepAbund <- ggplot(datax, aes(x = nrPeptides, y = meanArea)) + geom_point(c
 pplotPepAbund <- plotly::ggplotly(pplotPepAbund)
 ```
 
-(ref:nrProtplots) Mean protein abundance as a function of the number of peptides.
+(ref:nrProtplots) Mean protein abundance per group (column meanArea_<GroupName>) as a function of the number of peptides (column nrPeptides).
 
 
 ```{r nrProtplots, fig.cap = "(ref:nrProtplots)"}
 pplotPepAbund
 ```
 
+
+
+(1) The protein abundance is computed by summing the 'Precursor.Quantity' of each peptide and then inferring the protein abundance from the peptide abundances by using the Tukeys median polish.
+This implies that the abundance of a protein is derived from the cumulative abundance of its constituent peptides.  Tukey's median polish is a statistical technique that helps extract median values from data by iteratively removing the median contributions from various factors. In this context, it's used to derive an estimate of protein abundance from the peptide-level data.
+The inferred protein abundance, as computed through the Tukey's median polish method, can be thought of as an approximation to the median of the peptide intensities within a given sample. This provides a representative measure of the protein's abundance in the sample. For more details see (prolfqua: A Comprehensive R-Package for Proteomics Differential Expression Analysis)[https://doi.org/10.1021/acs.jproteome.2c00441].
 

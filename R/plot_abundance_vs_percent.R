@@ -27,10 +27,11 @@ plot_abundance_vs_percent <- function(
     factors = TRUE ,
     colors = c("^REV_" =  "red",
                "^CON_" = "orange"),
-    cumulative = TRUE,
-    group = "BB") {
+    columnAb = "abundance_percent",
+    group = "BB",
+    alpha = 1) {
 
-  columnAb <- if (cumulative) {"abundance_percent_cumulative"} else {"abundance_percent"}
+
   protID <- cfg_table$hierarchy_keys_depth()
 
   #Select relevant columns
@@ -61,7 +62,7 @@ plot_abundance_vs_percent <- function(
   myplot <- ggplot(percInfo, aes(x = !!rlang::sym("percent_prot"),
                             y = !!rlang::sym(columnAb),
                             label = !!rlang::sym(protID))) +
-    geom_point(color = colorV) +
+    geom_point(color = colorV, alpha = alpha) +
     facet_wrap(as.formula(paste0(" ~ ", paste(cfg_table$factor_keys_depth(), collapse = " + "))))
 
   if (!is.null(top_N) ) {

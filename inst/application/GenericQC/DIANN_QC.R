@@ -24,7 +24,7 @@ if (length(args) > 0) {
           "libPath.   : (optional) R library path\n"
           )
 
-  path = "2340169"
+  path = "."
   project_Id = "o3000"
   output_dir = "qc_dir"
 }
@@ -74,17 +74,17 @@ dataset.csv <- mdir(path,
 
 logger::log_info(dataset.csv)
 
-c(list(a = "a"), list(a = "b"))
 
-
+undebug(read_DIANN_output)
 peptide <- read_DIANN_output(
   diann.path = diann.output,
   fasta.file = fasta.file,
   nrPeptides = 1,
   Q.Value = 0.1)
 
-# fasta_annot <- get_annot_from_fasta(fasta.file)
 
+
+# fasta_annot <- get_annot_from_fasta(fasta.file)
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
   c("protein_Id" = "Protein.Group"),
@@ -156,6 +156,7 @@ TABLES2WRITE$proteins_wide <- left_join(prot_annot,
 
 summarizer <- lfqdata$get_Summariser()
 precabund <- summarizer$percentage_abundance()
+
 precabund <- inner_join(
   prot_annot,
   precabund,
@@ -178,6 +179,7 @@ rmarkdown::render(file.path(output_dir,"QC_ProteinAbundances.Rmd"),
 
 
 if (nrow(lfqdata$factors()) > 1) {
+
   file.copy(system.file("application/GenericQC/QCandSSE.Rmd", package = "prolfquapp"),
             to = output_dir, overwrite = TRUE)
 
