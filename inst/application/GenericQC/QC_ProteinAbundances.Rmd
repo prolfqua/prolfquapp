@@ -102,7 +102,8 @@ table <- DT::datatable(
 table
 ```
 
-(ref:proteinCumulative) Cumulative protein abundance as function of protein Rank. We see that a large proportion of the abundance (y-axis) is assigned to very few high abundant proteins.
+(ref:proteinCumulative) The Y-axis presents the percentage of the total signal attributed to each protein. Along the Y-axis, proteins are organized in ascending order according to their signal proportions. Notably, calculating the total signal per protein involves summing the 'Precursor.Quantity' values across all precursors associated with that protein. An intriguing observation is that a significant share of the mass spectrometer's recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
+
 
 ```{r proteinCumulative, fig.cap = "(ref:proteinCumulative)"}
 pp
