@@ -59,18 +59,17 @@ mdir <- function(path, pattern){
   return(res)
 }
 
-fasta.file <- mdir(path,
-                   pattern = "*database[0-9]*.fasta$")
-
+fasta.files <- mdir(path, "*.fasta$")
+if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
+  fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
+}
 logger::log_info(paste(fasta.file, collapse = "; "))
-
-
 diann.output <- mdir(path,
-                     pattern = "*report.tsv$")
+                     pattern = "report\\.tsv$|diann-output\\.tsv")
 logger::log_info(diann.output)
-
 dataset.csv <- mdir(path,
                     pattern = "dataset.csv")
+
 
 logger::log_info(dataset.csv)
 
