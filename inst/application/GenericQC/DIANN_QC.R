@@ -65,10 +65,10 @@ if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
 }
 logger::log_info(paste(fasta.files, collapse = "; "))
 diann.output <- mdir(path,
-                     pattern = "report\\.tsv$|diann-output\\.tsv")
+                     pattern = "report\\.tsv$|diann-output\\.tsv$")
 logger::log_info(diann.output)
 dataset.csv <- mdir(path,
-                    pattern = "dataset.csv")
+                    pattern = "dataset.csv$")
 
 
 logger::log_info(dataset.csv)
@@ -79,8 +79,6 @@ peptide <- read_DIANN_output(
   nrPeptides = 1,
   Q.Value = 0.1)
 
-
-
 # fasta_annot <- get_annot_from_fasta(fasta.file)
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
@@ -88,6 +86,8 @@ prot_annot <- prolfquapp::dataset_protein_annot(
   protein_annot = "fasta.header",
   more_columns = c("nrPeptides", "fasta.id", "Protein.Group.2")
 )
+
+
 
 
 # dataset.csv must either contain columns:
@@ -102,7 +102,6 @@ if (length(dataset.csv) > 0) {
   } else {
     annotation$sample.name <- make.unique(gsub("^[0-9]{8,8}_[0-9]{3,3}_S[0-9]{6,6}_","", annotation$inputresource.name))
   }
-
   if (!any(grepl("Group", colnames(annotation)))) {
     annotation$Grouping.Var <- "None_Specified"
   }
@@ -113,6 +112,8 @@ if (length(dataset.csv) > 0) {
   annotation$sample.name <- gsub("^[0-9]{8,8}_","", annotation$inputresource.name)
   annotation$Grouping.Var <- "None_Specified"
 }
+
+
 
 
 peptide <- dplyr::inner_join(
