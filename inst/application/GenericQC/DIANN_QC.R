@@ -73,8 +73,6 @@ dataset.csv <- mdir(path,
 
 logger::log_info(dataset.csv)
 
-
-undebug(read_DIANN_output)
 peptide <- read_DIANN_output(
   diann.path = diann.output,
   fasta.file = fasta.files,
