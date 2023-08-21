@@ -63,7 +63,7 @@ fasta.files <- mdir(path, "*.fasta$")
 if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
   fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
 }
-logger::log_info(paste(fasta.file, collapse = "; "))
+logger::log_info(paste(fasta.files, collapse = "; "))
 diann.output <- mdir(path,
                      pattern = "report\\.tsv$|diann-output\\.tsv")
 logger::log_info(diann.output)
@@ -77,7 +77,7 @@ logger::log_info(dataset.csv)
 undebug(read_DIANN_output)
 peptide <- read_DIANN_output(
   diann.path = diann.output,
-  fasta.file = fasta.file,
+  fasta.file = fasta.files,
   nrPeptides = 1,
   Q.Value = 0.1)
 
