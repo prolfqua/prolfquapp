@@ -85,6 +85,9 @@ logger::log_info("END OF DATA TRANSFORMATION.")
 
 protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
+make_SummarizedExperiment(grp)
+
+
 for (i in seq_along(grp)) {
   prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir , boxplot = FALSE)
 }

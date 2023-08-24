@@ -11,8 +11,6 @@ output:
     toc: true
 params:
   sep: NULL
-  FCt: 4
-  SCt: 0.95 
 ---
 
 ```{r setup, include=FALSE}

@@ -245,8 +245,6 @@ make_SummarizedExperiment <- function(GRP2){
 
   SummarizedExperiment::rowData(x)$stats_normalized_wide <- resTables$stats_normalized_wide
   SummarizedExperiment::rowData(x)$stats_raw_wide <- resTables$stats_raw_wide
-  SummarizedExperiment::rowData(x)$diff_expression_analysis
-  SummarizedExperiment::rowData(x)$stats_raw_wide
   return(x)
 }
 
