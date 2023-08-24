@@ -24,7 +24,7 @@ if (length(args) > 0) {
           "libPath.   : (optional) R library path\n"
           )
 
-  path = "2340169"
+  path = "."
   project_Id = "o3000"
   output_dir = "qc_dir"
 }
@@ -59,38 +59,35 @@ mdir <- function(path, pattern){
   return(res)
 }
 
-fasta.file <- mdir(path,
-                   pattern = "*database[0-9]*.fasta$")
-
-logger::log_info(paste(fasta.file, collapse = "; "))
-
-
+fasta.files <- mdir(path, "*.fasta$")
+if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
+  fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
+}
+logger::log_info(paste(fasta.files, collapse = "; "))
 diann.output <- mdir(path,
-                     pattern = "*report.tsv$")
+                     pattern = "report\\.tsv$|diann-output\\.tsv$")
 logger::log_info(diann.output)
-
 dataset.csv <- mdir(path,
-                    pattern = "dataset.csv")
+                    pattern = "dataset.csv$")
+
 
 logger::log_info(dataset.csv)
 
-c(list(a = "a"), list(a = "b"))
-
-
 peptide <- read_DIANN_output(
   diann.path = diann.output,
-  fasta.file = fasta.file,
+  fasta.file = fasta.files,
   nrPeptides = 1,
   Q.Value = 0.1)
 
 # fasta_annot <- get_annot_from_fasta(fasta.file)
-
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
   c("protein_Id" = "Protein.Group"),
   protein_annot = "fasta.header",
   more_columns = c("nrPeptides", "fasta.id", "Protein.Group.2")
 )
+
+
 
 
 # dataset.csv must either contain columns:
@@ -105,7 +102,6 @@ if (length(dataset.csv) > 0) {
   } else {
     annotation$sample.name <- make.unique(gsub("^[0-9]{8,8}_[0-9]{3,3}_S[0-9]{6,6}_","", annotation$inputresource.name))
   }
-
   if (!any(grepl("Group", colnames(annotation)))) {
     annotation$Grouping.Var <- "None_Specified"
   }
@@ -116,6 +112,8 @@ if (length(dataset.csv) > 0) {
   annotation$sample.name <- gsub("^[0-9]{8,8}_","", annotation$inputresource.name)
   annotation$Grouping.Var <- "None_Specified"
 }
+
+
 
 
 peptide <- dplyr::inner_join(
@@ -156,6 +154,7 @@ TABLES2WRITE$proteins_wide <- left_join(prot_annot,
 
 summarizer <- lfqdata$get_Summariser()
 precabund <- summarizer$percentage_abundance()
+
 precabund <- inner_join(
   prot_annot,
   precabund,
@@ -178,6 +177,7 @@ rmarkdown::render(file.path(output_dir,"QC_ProteinAbundances.Rmd"),
 
 
 if (nrow(lfqdata$factors()) > 1) {
+
   file.copy(system.file("application/GenericQC/QCandSSE.Rmd", package = "prolfquapp"),
             to = output_dir, overwrite = TRUE)
 
