@@ -236,7 +236,7 @@ make_SummarizedExperiment <- function(GRP2){
   x <- SummarizedExperiment::SummarizedExperiment(
     assays = list(rawData = matRaw$data, transformedData = matTr$data),
     colData = matRaw$annotation, metadata = as.list(resTables$formula)
-    )
+  )
 
   diffbyContrast <- split(resTables$diff_exp_analysis, resTables$diff_exp_analysis$contrast)
   for (i in names(diffbyContrast)) {
@@ -328,9 +328,7 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE)
       resultList$normalized_abundances <- NULL
     }
     writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
-
   }
-
   return(resultList)
 }
 
