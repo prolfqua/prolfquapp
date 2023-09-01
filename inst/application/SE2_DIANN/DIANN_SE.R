@@ -50,7 +50,7 @@ annot <- annot |> dplyr::mutate(
 annotation <- annot
 colnames(annotation) <- tolower(make.names(colnames(annotation)))
 
-
+path = "."
 diann.path <- grep("report\\.tsv$|diann-output\\.tsv", dir(path = path, recursive = TRUE), value = TRUE)
 fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE), value = TRUE)
 
