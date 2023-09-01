@@ -11,6 +11,8 @@ output:
     toc: true
 params:
   sep: NULL
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -213,7 +215,7 @@ if (isSig) {cat("The protein abundance heatmap (Figure \\@ref(fig:heatsig)) show
 
 ```{r aChunkNamePLEASE}
 sigsub <- SEP$lfqdata_transformed$get_subset(data.frame(protein_Id = SEP$sig$Prey))
-rs <- sigsub$get_Plotter()$raster(rownames = TRUE)
+rs <- sigsub$get_Plotter()$raster(rownames = FALSE)
 
 ```
 
