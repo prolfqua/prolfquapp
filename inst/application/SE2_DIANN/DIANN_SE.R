@@ -4,7 +4,6 @@
 
 # Read b-fabric related information
 yml <- yaml::read_yaml("config.yaml")
-#yml <- yaml::read_yaml("2344830/WU292386.yaml")
 
 
 BFABRIC <- list()
@@ -212,7 +211,7 @@ rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variable
 SEP <- REPORTDATA
 
 
-rmarkdown::render("../SE2/SaintExpressReportMsFragger.Rmd",
+rmarkdown::render("SaintExpressReportMsFragger.Rmd",
                   params = list(sep = REPORTDATA),
                   output_format = bookdown::html_document2())
 
