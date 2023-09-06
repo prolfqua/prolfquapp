@@ -10,8 +10,9 @@ plot_abundance_vs_percent(
   top_N = 10,
   factors = TRUE,
   colors = c(`^REV_` = "red", `^CON_` = "orange"),
-  cumulative = TRUE,
-  group = "BB"
+  columnAb = "abundance_percent",
+  group = "BB",
+  alpha = 1
 )
 }
 \arguments{

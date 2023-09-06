@@ -16,15 +16,15 @@ make_DEA_config(
   FDRthreshold = 0.1,
   removeContaminants = FALSE,
   removeDecoys = FALSE,
-  patternDecoys = "REV_",
-  patternContaminants = "zz",
+  patternDecoys = "^REV_",
+  patternContaminants = "^zz",
   application = "FragPipeTMT"
 )
 }
 \arguments{
-\item{patternDecoys}{default "REV_"}
+\item{patternDecoys}{default "^REV_"}
 
-\item{patternContaminants}{default "zz_"}
+\item{patternContaminants}{default "^zz_"}
 }
 \description{
 create GRP2 configuration.

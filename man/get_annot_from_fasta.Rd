@@ -9,3 +9,9 @@ get_annot_from_fasta(fasta.files, rev = "REV_", isUniprot = TRUE)
 \description{
 get_annot_from_fasta
 }
+\examples{
+
+prolfquapp::get_annot_from_fasta(fasta.files)
+
+
+}
