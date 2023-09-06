@@ -13,6 +13,7 @@ params:
   sep: NULL
 editor_options: 
   chunk_output_type: console
+bibliography: bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -33,6 +34,7 @@ BFABRIC <- SEP$BFABRIC
 - Order ID: `r BFABRIC$orderID`
 
 The input data, used to compile this report, is available through the b-fabric resource: [`r BFABRIC$inputID`](`r BFABRIC$inputURL`). The b-fabric dataset `r BFABRIC$datasetID` was used to annotate the LC-MS files. The complete output, including this report, R code used for analysis and intermediate results, is available through the b-fabric workunit: [`r BFABRIC$workunitID`](`r BFABRIC$workunitURL`).
+
 
 # Introduction
 
@@ -127,7 +129,7 @@ hm
 
 ## Interaction scoring using SAINT
 
-In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html). The plots below show one subpanel for each bait present in the data set.
+In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html) [@teo2014saintexpress]. The plots below show one subpanel for each bait present in the data set.
 
 Please note, an empirical fold-change (EFC) score of e.g. 2 reported by SAINTexpress can not be interpreted as a two times higher protein abundance, because SAINTexpress internally normalizes and transforms the data.
 
@@ -272,6 +274,7 @@ if (length(xx) > 1) {
 # Additional Analysis
 
 
+
 In the zip file you will find an excel file. All the figures in this document can be recreated using the data in this excel file.
 
 The file contains several spreadsheets:
@@ -290,7 +293,7 @@ To compare the obtained results with known protein interactions we recommend the
 - `ORA_Bait_<baitname>.txt` prey proteins accepted with the BFDR and EFC specified.
 
 
-
+The analysis and report was generated using the [prolfqua](https://github.com/fgcz/prolfqua) and the zip file does contain R files to replicate the analysis. Please do include a reference to prolfqua [@prolfquawolski2023].
 
 
 # Supplement
