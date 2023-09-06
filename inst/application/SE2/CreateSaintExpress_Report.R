@@ -1,7 +1,7 @@
 # Author : Witold Wolski <wew@fgcz.ethz.ch>
 # compatible with prolfqua 3.0.0 release available from https://github.com/wolski/prolfqua/releases/tag/v0.2.9
 
-
+#prolfquapp::copy_SAINT_express()
 # Read b-fabric related information
 yml <- yaml::read_yaml("config.yaml")
 
@@ -169,8 +169,21 @@ saveRDS(REPORTDATA, file = "REPORTDATA.rds")
 rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variables not needed for rendering
 SEP <- REPORTDATA
 
+text <- c(
+"The LC-MS data was processed using the [FragPipe proteomics pipeline](https://fragpipe.nesvilab.org/).",
+"The protein quantification results were extracted from the _combined_protein.tsv_ file.",
+"We used the columns with the ",
+if(SEP$spc){'Spectral Count' }else{'Intensity'},
+" suffix, which stores the ",
+if(SEP$spc){'total number of PSMs in support of the protein identification'} else {'normalized protein intensity using the sequences after razor assignment'},
+". For more information about the _combined_protein.tsv_ file see [FragPipe output tutorial]( https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#combined_proteintsv)."
+)
+
+
+text <- paste(text, collapse="")
+
 rmarkdown::render("SaintExpressReportMsFragger.Rmd",
-                  params = list(sep = REPORTDATA),
+                  params = list(sep = REPORTDATA, textpreprocessing = text),
                   output_format = bookdown::html_document2())
                   #,envir = new.env())
 

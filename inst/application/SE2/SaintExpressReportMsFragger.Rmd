@@ -11,6 +11,7 @@ output:
     toc: true
 params:
   sep: NULL
+  textpreprocessing : NULL
 editor_options: 
   chunk_output_type: console
 bibliography: bibliography.bib
@@ -24,6 +25,8 @@ library(prolfqua)
 SEP <- params$sep
 sp_string <- if (SEP$spc) {"spectral counts"} else {"intensities"}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+textpreprocessing <- params$textpreprocessing
 
 BFABRIC <- SEP$BFABRIC
 ```
@@ -48,7 +51,10 @@ The input data, used to compile this report, is available through the b-fabric r
 - Aim
 - How to use the results
 
-The LC-MS data was processed using the [FragPipe proteomics pipeline](https://fragpipe.nesvilab.org/). The protein quantification results were extracted from the _combined_protein.tsv_ file.  We used the columns with the `r if(SEP$spc){'Spectral Count' }else{'Intensity'}` suffix, which stores the `r if(SEP$spc){'total number of PSMs in support of the protein identification'} else {'normalized protein intensity using the sequences after razor assignment'}`. For more information about the _combined_protein.tsv_ file see [FragPipe output tutorial]( https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#combined_proteintsv).
+`r textpreprocessing`
+
+The analysis and report was generated using the R package [prolfqua](https://github.com/fgcz/prolfqua) [@prolfquawolski2023].
+
 
 The table below lists the LC-MS files and their assigned annotations.
 
@@ -293,7 +299,6 @@ To compare the obtained results with known protein interactions we recommend the
 - `ORA_Bait_<baitname>.txt` prey proteins accepted with the BFDR and EFC specified.
 
 
-The analysis and report was generated using the [prolfqua](https://github.com/fgcz/prolfqua) and the zip file does contain R files to replicate the analysis. Please do include a reference to prolfqua [@prolfquawolski2023].
 
 
 # Supplement
