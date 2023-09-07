@@ -65,7 +65,8 @@ make_DEA_config <- function(
     removeDecoys = FALSE,
     patternDecoys = "^REV_",
     patternContaminants = "^zz",
-    application = "FragPipeTMT" ){
+    application = "FragPipeTMT",
+    nrPeptides = 2){
 
   Normalization <- match.arg(Normalization)
   aggregation <- match.arg(aggregation)
@@ -93,8 +94,9 @@ make_DEA_config <- function(
 
   GRP2$pop$revpattern <- patternDecoys
   GRP2$pop$contpattern <- patternContaminants
-
+  GRP2$pop$nr_peptdes <- nrPeptides
   GRP2$Software <- application
   GRP2$zipdir <- ZIPDIR
+
   return(GRP2)
 }
