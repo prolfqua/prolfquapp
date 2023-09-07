@@ -272,6 +272,8 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE)
   widetr <- dplyr::inner_join(ra$row_annot , tr$to_wide()$data, multiple = "all")
 
   ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts(), multiple = "all")
+  ctr_wide <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$to_wide(), multiple = "all")
+
   resultList <- list()
 
   resultList$annotation <- dplyr::inner_join(
@@ -284,6 +286,7 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE)
   resultList$raw_abundances_matrix = wideraw
   resultList$normalized_abundances_matrix = widetr
   resultList$diff_exp_analysis = ctr
+  resultList$diff_exp_analysis_wide = ctr_wide
   resultList$formula = formula
   resultList$summary = GRP2$RES$Summary
   resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr = 1)$data
