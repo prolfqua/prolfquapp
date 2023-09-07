@@ -211,11 +211,12 @@ saveRDS(REPORTDATA, file = "REPORTDATA.rds")
 rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variables not needed for rendering
 SEP <- REPORTDATA
 
-fragPipeDiA <- TRUE
+fragPipeDIA <- names(yml$application$input) == "FragPipeDIA-dataset"
 text <-  c( "The LC-MS data was processed using the :",
      if(fragPipeDIA){"FragPipe DIA proteomics pipeline [@citeDIA]."} else {" DIANN [@citeDIANN]"} ,
      "The protein quantification results were extracted from the DIANN tsv containing the precursor quantification results.",
      "The protein abundances were estimated by the sum of the precursor abundances (Precursor.Quantity column) grouped to a protein. ")
+
 text <- paste(text, collapse = "")
 
 rmarkdown::render("SaintExpressReportMsFragger.Rmd",
