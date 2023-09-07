@@ -87,12 +87,11 @@ protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
 
 for (i in seq_along(grp)) {
-  SE <- make_SummarizedExperiment(grp[[i]])
-  saveRDS(SE, file = file.path(GRP2$zipdir, paste0(names(grp)[i],"rds") ))
+  prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir , boxplot = FALSE)
 }
 
-
 for (i in seq_along(grp)) {
-  prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir , boxplot = FALSE)
+  SE <- make_SummarizedExperiment(grp[[i]])
+  saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", names(grp)[i]) , paste0("SummarizedExperiment",".rds") ))
 }
 
