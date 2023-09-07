@@ -208,7 +208,7 @@ prolfqua::copy_SAINTe_doc(workdir = ZIPDIR)
 SEP <- REPORTDATA
 
 saveRDS(REPORTDATA, file = "REPORTDATA.rds")
-rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat"))) # delete all variables not needed for rendering
+rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat","yml"))) # delete all variables not needed for rendering
 SEP <- REPORTDATA
 
 fragPipeDIA <- names(yml$application$input) == "FragPipeDIA-dataset"
