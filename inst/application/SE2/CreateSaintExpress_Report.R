@@ -1,6 +1,7 @@
 # Author : Witold Wolski <wew@fgcz.ethz.ch>
 # compatible with prolfqua 3.0.0 release available from https://github.com/wolski/prolfqua/releases/tag/v0.2.9
 
+prolfquapp::copy_SAINT_express(run_script = FALSE)
 #prolfquapp::copy_SAINT_express()
 # Read b-fabric related information
 yml <- yaml::read_yaml("config.yaml")
