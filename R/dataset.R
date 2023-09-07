@@ -59,8 +59,8 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
   stopifnot(sum(grepl("^group|^bait|^Experiment", colnames(msdata), ignore.case = TRUE)) >= 1)
 
   groupingVAR <- grep("^group|^bait|^Experiment", colnames(msdata), value = TRUE, ignore.case = TRUE)
-  if(grepl("^bait", groupingVAR)){
-    groupingVAR <- grep("^bait", groupingVAR,value=TRUE)
+  if(any(grepl("^bait", groupingVAR))) {
+    groupingVAR <- grep("^bait", groupingVAR,value=TRUE)[1]
   } else {
     groupingVAR <- groupingVAR[1]
   }
