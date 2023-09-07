@@ -56,8 +56,15 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
   fileName <- grep("^channel|^Relative|^raw", colnames(msdata), value = TRUE, ignore.case = TRUE)[1]
   atable$fileName <- fileName
 
-  stopifnot(sum(grepl("^group|^bait|^Experiment", colnames(msdata), ignore.case = TRUE)) == 1)
+  stopifnot(sum(grepl("^group|^bait|^Experiment", colnames(msdata), ignore.case = TRUE)) >= 1)
+
   groupingVAR <- grep("^group|^bait|^Experiment", colnames(msdata), value = TRUE, ignore.case = TRUE)
+  if(grepl("^bait", groupingVAR)){
+    groupingVAR <- grep("^bait", groupingVAR,value=TRUE)
+  } else {
+    groupingVAR <- groupingVAR[1]
+  }
+
   msdata[[groupingVAR]] <- gsub("[[:space:]]", "", msdata[[groupingVAR]])
   msdata[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", msdata[[groupingVAR]])
 
