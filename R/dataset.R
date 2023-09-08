@@ -68,7 +68,13 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
   msdata[[groupingVAR]] <- gsub("[[:space:]]", "", msdata[[groupingVAR]])
   msdata[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", msdata[[groupingVAR]])
 
-  atable$factors[["Group_"]] = groupingVAR
+  if(any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
+    atable$factors[["Bait_"]] = groupingVAR
+  } else {
+    atable$factors[["Group_"]] = groupingVAR
+  }
+
+
   atable$factorDepth <- 1
 
   if (sum(grepl("^subject|^BioReplicate", colnames(msdata), ignore.case = TRUE)) == 1 & REPEATED) {
