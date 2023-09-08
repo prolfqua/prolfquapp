@@ -60,7 +60,7 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
 
   groupingVAR <- grep("^group|^bait|^Experiment", colnames(msdata), value = TRUE, ignore.case = TRUE)
   if(any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
-    groupingVAR <- grep("^bait", groupingVAR,value=TRUE)[1]
+    groupingVAR <- grep("^bait", groupingVAR, value=TRUE, ignore.case = TRUE)[1]
   } else {
     groupingVAR <- groupingVAR[1]
   }
