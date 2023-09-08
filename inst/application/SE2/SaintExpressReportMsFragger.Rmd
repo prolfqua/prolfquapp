@@ -53,7 +53,7 @@ The input data, used to compile this report, is available through the b-fabric r
 
 `r textpreprocessing`
 
-The analysis and report was generated using the R package [prolfqua](https://github.com/fgcz/prolfqua) [@prolfquawolski2023].
+In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SAINTexpress software](http://saint-apms.sourceforge.net/Main.html) [@teo2014saintexpress]. Data conversion into SAINTexpress compatible format, and visualizations were performed using the R package [prolfqua](https://github.com/fgcz/prolfqua) [@prolfquawolski2023].
 
 
 The table below lists the LC-MS files and their assigned annotations.
@@ -135,7 +135,7 @@ hm
 
 ## Interaction scoring using SAINT
 
-In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SaintExpress software](http://saint-apms.sourceforge.net/Main.html) [@teo2014saintexpress]. The plots below show one subpanel for each bait present in the data set.
+In order to score potential interactions between observed proteins (potential prays) and the bait protein we used the [SAINTexpress software](http://saint-apms.sourceforge.net/Main.html) [@teo2014saintexpress]. The plots below show one subpanel for each bait present in the data set.
 
 Please note, an empirical fold-change (EFC) score of e.g. 2 reported by SAINTexpress can not be interpreted as a two times higher protein abundance, because SAINTexpress internally normalizes and transforms the data.
 
@@ -286,7 +286,7 @@ In the zip file you will find an excel file. All the figures in this document ca
 The file contains several spreadsheets:
 - _annotation_ - the annotation of the samples in the experiment
 - _inter_, _prey_, and _bait_ spreadsheets which are the inputs to the SAINTexpress executable.
-- _list_ spreadsheet which is the ouptut of SAINTExpress. 
+- _list_ spreadsheet which is the ouptut of SAINTexpress. 
 - _MissingInformtion_ - spreadsheet containing information in how many samples of condition a protein is observed. This information is used to create the VennDiagram figure \@ref(fig:vennProteins).
 - _inputData_ A table where each column represents a sample and each row represents a protein and the cells store the protein abundances.
 
