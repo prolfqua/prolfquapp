@@ -212,8 +212,8 @@ rm(list = setdiff(ls(), c("REPORTDATA","ZIPDIR","treat","yml"))) # delete all va
 SEP <- REPORTDATA
 
 fragPipeDIA <- names(yml$application$input) == "FragPipeDIA-dataset"
-text <-  c( "The LC-MS data was processed using the :",
-     if(fragPipeDIA){"FragPipe DIA proteomics pipeline [@citeDIA]."} else {" DIANN [@citeDIANN]"} ,
+text <-  c( "The LC-MS data was processed using the  ",
+     if(fragPipeDIA){"FragPipe-DIA proteomics pipeline [@yu2023analysis]."} else {" DIANN Software [@demichev2020dia]"} ,
      "The protein quantification results were extracted from the DIANN tsv containing the precursor quantification results.",
      "The protein abundances were estimated by the sum of the precursor abundances (Precursor.Quantity column) grouped to a protein. ")
 
