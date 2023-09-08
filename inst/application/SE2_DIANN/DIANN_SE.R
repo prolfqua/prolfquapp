@@ -40,7 +40,7 @@ REPORTDATA$FDRthreshold <- if(!is.null(as.numeric( yml$application$parameters$BF
 treat <- "DIANN_"
 # load data
 
-dataset <- dir(".", pattern = 'dataset.csv', full.names = TRUE, recursive = TRUE)
+dataset <- dir(".", pattern = 'dataset.csv', full.names = TRUE, recursive = TRUE)[1]
 annot <- read.csv(dataset)
 annot <- data.frame(lapply(annot, as.character))
 annot <- annot |> dplyr::mutate(
