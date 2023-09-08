@@ -136,7 +136,7 @@ localSAINTinput <- prolfqua::protein_2localSaint(
   proteinID = "protein_Id",
   proteinLength = "protein_length",
   IP_name = "raw.file",
-  baitCol = "Group_",
+  baitCol = "Bait_",
   CorTCol = "CONTROL")
 
 
