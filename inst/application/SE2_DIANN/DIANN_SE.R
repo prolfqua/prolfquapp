@@ -213,9 +213,9 @@ SEP <- REPORTDATA
 
 fragPipeDIA <- names(yml$application$input) == "FragPipeDIA-dataset"
 text <-  c( "The LC-MS data was processed using the ",
-     if(fragPipeDIA){"FragPipe-DIA proteomics pipeline [@yu2023analysis]."} else {"DIANN Software [@demichev2020dia]."} ,
-     "The quantification results were extracted from the DIANN file containing precursor (charged modified peptide) quantification results.",
-     "The protein abundances were estimated by the sum of all the precursor abundances (Precursor.Quantity column) assigned to a protein. ")
+            if(fragPipeDIA){"FragPipe-DIA proteomics pipeline [@yu2023analysis]."} else {"DIA-NN software [@demichev2020dia]."} ,
+            "The quantification results were extracted from the DIANN main report, containing precursor (charged modified peptide) quantification results.",
+            "The protein abundances were estimated by the sum of all the precursor abundances (Precursor.Quantity column) assigned to a protein. ")
 
 text <- paste(text, collapse = "")
 
