@@ -91,7 +91,7 @@ for (i in seq_along(grp)) {
 }
 
 for (i in seq_along(grp)) {
-  SE <- make_SummarizedExperiment(grp[[i]])
+  SE <- prolfquapp::make_SummarizedExperiment(grp[[i]])
   saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", names(grp)[i]) , paste0("SummarizedExperiment",".rds") ))
 }
 
