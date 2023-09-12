@@ -64,11 +64,15 @@ if (length(fasta.files) == 0) {
   stop()
 }
 
+
+
 peptide <- prolfquapp::read_DIANN_output(
   diann.path = diann.path,
   fasta.file = fasta.files,
   nrPeptides = 1,
   Q.Value = 0.1 )
+
+
 
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
