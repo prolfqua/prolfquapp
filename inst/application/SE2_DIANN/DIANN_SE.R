@@ -53,7 +53,7 @@ colnames(annotation) <- tolower(make.names(colnames(annotation)))
 
 path = "."
 diann.path <- grep("report\\.tsv$|diann-output\\.tsv", dir(path = path, recursive = TRUE), value = TRUE)
-fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE), value = TRUE)
+fasta.files <- grep("*\\.fasta$|*\\.fas$", dir(path = path, recursive = TRUE), value = TRUE)
 
 if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
   fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
