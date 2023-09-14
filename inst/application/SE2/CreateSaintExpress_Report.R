@@ -48,7 +48,7 @@ pp$raw.file |> unique()
 
 # attach annotation to combined_protein data
 annotation$raw.file <- basename(annotation$relative.path)
-annotation <- dplyr::mutate(annotation, raw.file = gsub(".raw", "", raw.file))
+annotation <- dplyr::mutate(annotation, raw.file = gsub("\\.raw|\\.d\\.zip", "", raw.file))
 annotation$relative.path <- NULL
 
 stopifnot(sum(annotation$raw.file %in% pp$raw.file) > 0) # check that some files are annotated, if not exit script.
