@@ -168,7 +168,7 @@ resContrasts <- cse$get_contrasts()
 
 sig <- resContrasts |>
   dplyr::filter(.data$BFDR  <  REPORTDATA$FDRthreshold &
-                .data$log2_EFCs  >  log2(REPORTDATA$FCthreshold))
+                  .data$log2_EFCs  >  log2(REPORTDATA$FCthreshold))
 
 # Transform data for PCA visualization etc
 tt <- lfqdata$get_Transformer()$log2()
@@ -192,12 +192,15 @@ REPORTDATA$resContrasts <- resContrasts
 REPORTDATA$prot_annot <- dplyr::rename(prot_annot, protein = protein_Id)
 
 tmp <- prolfqua::get_UniprotID_from_fasta_header(REPORTDATA$pups$data, "protein_Id")
+if(is.null(tmp$UniprotID)) {tmp$UniprotID <- tmp$protein_Id}
 write.table(data.frame(tmp$UniprotID), file = file.path(ZIPDIR,"ORA_background.txt"), col.names = FALSE, row.names = FALSE, quote = FALSE )
 sig |> dplyr::group_by(Bait) |> tidyr::nest() -> sigg
 
 if (nrow(sigg) > 0) {
   for (i in 1:nrow(sigg)) {
     tmp <- prolfqua::get_UniprotID_from_fasta_header(sigg$data[[i]], "Prey")
+    if(is.null(tmp$UniprotID)) {tmp$UniprotID <- tmp$Prey}
+
     filename <- paste0("ORA_Bait_", sigg$Bait[i] , ".txt")
     write.table(data.frame(tmp$UniprotID),
                 file = file.path(ZIPDIR, filename),
