@@ -207,7 +207,7 @@ if (!is.null(peptide)) {
            "</h1>",
            "</body>",
            "</html>")
-  cat(str, file = "proteinAbundances.html", sep = "\n")
+  cat(str, file = file.path(output_dir,"proteinAbundances.html"), sep = "\n")
 
 }
 
