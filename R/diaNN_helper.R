@@ -14,6 +14,9 @@ read_DIANN_output <- function(diann.path,
                               rev = "REV_"
                               ) {
   report2 <- prolfqua::diann_read_output(diann.path, nrPeptides = nrPeptides, Q.Value = Q.Value)
+  if(nrow(report2) == 0){
+    return(NULL)
+  }
   report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
   report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
 
