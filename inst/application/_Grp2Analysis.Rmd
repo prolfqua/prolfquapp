@@ -352,7 +352,8 @@ Here we use the FDR threshold of `r grp2$pop$FDRthreshold` and a difference thre
 ```{r nrsignificant, results="markup", eval=TRUE}
 library(dplyr)
 mx <- datax |> dplyr::mutate(passes = abs(diff) >  grp2$pop$Diffthreshold  & FDR < grp2$pop$FDRthreshold)
-x <- mx |> dplyr::group_by(contrast) |> summarize(n = n(), Significant = sum(passes), "Not Significant" = n() - sum(passes))
+x <- mx |> dplyr::group_by(contrast) |> 
+  summarize(n = n(), Significant = sum(passes, na.rm = TRUE), "Not Significant" = n() - sum(passes, na.rm = TRUE))
 
 mycap <- paste0("Number of not significant and significant proteins."  )
 knitr::kable(x, caption = mycap)
