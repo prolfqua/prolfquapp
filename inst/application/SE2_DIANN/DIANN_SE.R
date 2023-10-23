@@ -122,6 +122,18 @@ lfqdataProt <- prolfquapp::aggregate_data(
   lfqdata,
   agg_method = "topN")
 
+
+# transformaton on
+TRANSFORM = TRUE
+if(TRANSFORM){
+  lfqTrans <- prolfquapp::transform_lfqdata(lfqdataProt, method = "vsn")
+  tr <- lfqTrans$get_Transformer()
+  tr$intensity_array(exp, force = TRUE)
+  tr$lfq$config$table$is_response_transformed <- FALSE
+  lfqdataProt <- tr$lfq
+}
+
+
 #logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 #logger::log_info("END OF DATA TRANSFORMATION.")
 
@@ -133,7 +145,6 @@ RESULTS$annotation <- lfqdata$factors()
 
 intdata <- dplyr::inner_join(protAnnot$row_annot, lfqdata$data, multiple = "all")
 
-
 localSAINTinput <- prolfqua::protein_2localSaint(
   intdata,
   quantcolumn = lfqdata$config$table$get_response(),
@@ -143,6 +154,7 @@ localSAINTinput <- prolfqua::protein_2localSaint(
   baitCol = "Bait_",
   CorTCol = "CONTROL")
 
+localSAINTinput$inter$srm_sum_N |> summary()
 
 RESULTS <- c(RESULTS, localSAINTinput)
 resSaint <- prolfqua::runSaint(localSAINTinput, spc = REPORTDATA$spc)
@@ -165,6 +177,13 @@ cse <- prolfqua::ContrastsSAINTexpress$new(resSaint$list)
 
 
 resContrasts <- cse$get_contrasts()
+
+with(resContrasts, plot(avgAbd, log2_EFCs))
+with(resContrasts, points(avgAbd[BFDR < 0.1], log2_EFCs[BFDR < 0.1], col=2))
+with(resContrasts, plot(log(avgAbd), log2_EFCs))
+with(resContrasts, points(log(avgAbd)[BFDR < 0.1], log2_EFCs[BFDR < 0.1], col=2))
+
+
 
 sig <- resContrasts |>
   dplyr::filter(.data$BFDR  <  REPORTDATA$FDRthreshold &
@@ -190,6 +209,7 @@ REPORTDATA$lfqdata_transformed <- lfqdata_transformed
 REPORTDATA$sig <- sig
 REPORTDATA$resContrasts <- resContrasts
 REPORTDATA$prot_annot <- dplyr::rename(prot_annot, protein = protein_Id)
+
 
 tmp <- prolfqua::get_UniprotID_from_fasta_header(REPORTDATA$pups$data, "protein_Id")
 if(is.null(tmp$UniprotID)) {tmp$UniprotID <- sapply(tmp$protein_Id, function(x){strsplit(x,";")[[1]][1]})}
