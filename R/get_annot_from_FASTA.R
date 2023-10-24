@@ -3,7 +3,7 @@
 #' @export
 #' @examples
 #'
-#' prolfquapp::get_annot_from_fasta(fasta.files)
+#' #prolfquapp::get_annot_from_fasta(fasta.files)
 #'
 #'
 get_annot_from_fasta <- function(

@@ -1,0 +1,56 @@
+application:
+  input:
+    DIANN:
+    - bfabric@fgcz-bfabric-sys://export/bfabricexternal//container_31396/workunit_288243/diann-output.log.txt
+    - bfabric@fgcz-bfabric-sys://export/bfabricexternal//container_31396/workunit_288243/diann-output.stats.tsv
+    - bfabric@fgcz-data.uzh.ch://home/bfabric/slurmworker/log//workunitid-288243_resourceid-2284560.out
+    - bfabric@fgcz-data.uzh.ch://home/bfabric/slurmworker/log//workunitid-288243_resourceid-2284560.err
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p31396/bfabric/Proteomics/DIANN/2023/2023-04/2023-04-23/workunit_288243/2284560.zip
+  output:
+  - bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs/p31396/bfabric/Proteomics/DEA_FragPipe-DiaNN/2023/2023-04/2023-04-24//workunit_288256//2284636.zip
+  parameters:
+    1|datasetId: '45290'
+    3|Normalization: robscale
+    4|Difference_threshold: '1'
+    5|FDR_threshold: '0.1'
+    6|remConDec: 'false'
+    7|REVpattern: ^REV
+    8|CONpattern: ^CON|^zz
+    memory: 32G
+    nodelist: fgcz-r-033
+    partition: prx
+  protocol: scp
+job_configuration:
+  executable: /home/bfabric/slurmworker/bin/fgcz_slurm_DEA_FragPipeDIA_310.bash
+  external_job_id: 140555
+  fastasequence: ''
+  input:
+    DIANN:
+    - resource_id: 2284564
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2284564
+    - resource_id: 2284563
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2284563
+    - resource_id: 2284562
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2284562
+    - resource_id: 2284561
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2284561
+    - resource_id: 2284560
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2284560
+  inputdataset: null
+  order_id: 31396
+  output:
+    protocol: scp
+    resource_id: 2284636
+    ssh_args: -o StrictHostKeyChecking=no -2 -l bfabric -x
+  project_id: 31251
+  stderr:
+    protocol: file
+    resource_id: 2284637
+    url: /home/bfabric/slurmworker/log/workunitid-288256_resourceid-2284636.err
+  stdout:
+    protocol: file
+    resource_id: 2284638
+    url: /home/bfabric/slurmworker/log/workunitid-288256_resourceid-2284636.out
+  workunit_id: 288256
+  workunit_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-workunit.html?workunitId=288256
+

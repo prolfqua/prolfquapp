@@ -1,0 +1,53 @@
+application:
+  input:
+    FragPipeDIA-dataset:
+    - bfabric@fgcz-bfabric-sys://export/bfabricexternal//container_30188/workunit_285522/QCandSampleSize.html
+    - bfabric@fgcz-data.uzh.ch://home/bfabric/slurmworker/log//workunitid-285522_resourceid-2243242.out
+    - bfabric@fgcz-data.uzh.ch://home/bfabric/slurmworker/log//workunitid-285522_resourceid-2243242.err
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p30188/bfabric/Proteomics/FragPipeDIA-dataset/2023/2023-02/2023-02-08/workunit_285522/2243242.zip
+  output:
+  - bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs/p30188/bfabric/Proteomics/DEA_FragPipe-DiaNN/2023/2023-02/2023-02-09//workunit_285565//2243436.zip
+  parameters:
+    1|datasetId: '44515'
+    3|Normalization: robscale
+    4|Difference_threshold: '1'
+    5|FDR_threshold: '0.1'
+    6|remConDec: 'false'
+    7|REVpattern: ^REV
+    8|CONpattern: ^CON|^zz
+    memory: 4G
+    nodelist: fgcz-r-033
+    partition: prx
+  protocol: scp
+job_configuration:
+  executable: /home/bfabric/slurmworker/bin/fgcz_slurm_DEA_FragPipeDIA_310.bash
+  external_job_id: 133643
+  fastasequence: ''
+  input:
+    FragPipeDIA-dataset:
+    - resource_id: 2243435
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2243435
+    - resource_id: 2243244
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2243244
+    - resource_id: 2243243
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2243243
+    - resource_id: 2243242
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2243242
+  inputdataset: null
+  order_id: 30188
+  output:
+    protocol: scp
+    resource_id: 2243436
+    ssh_args: -o StrictHostKeyChecking=no -2 -l bfabric -x
+  project_id: 27619
+  stderr:
+    protocol: file
+    resource_id: 2243437
+    url: /home/bfabric/slurmworker/log/workunitid-285565_resourceid-2243436.err
+  stdout:
+    protocol: file
+    resource_id: 2243438
+    url: /home/bfabric/slurmworker/log/workunitid-285565_resourceid-2243436.out
+  workunit_id: 285565
+  workunit_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-workunit.html?workunitId=285565
+

@@ -193,11 +193,13 @@ make_DEA_config_R6 <- function(
 #' @export
 #' @return list with applications parameters
 #' @examples
+#' yfile <- file.path(find.package("prolfquapp") , "/inst/application/DIANN/myYamls")
+#' dir.exists(yfile)
+#' yfiles <- dir(yfile,recursive = TRUE,full.names = TRUE)
+#' config <- read_BF_yamlR6(yfiles[1])
 #'
-#' yfile <- file.path(find.package("prolfquapp") , "/extdata/DIANN_BF/config1.yaml")
-#' read_BF_yamlR6(yfile)
-#'
-read_BF_yamlR6 <- function(yfile, application = "FragPipeTMT" ) {
+
+read_BF_yamlR6 <- function(ymlfile, application = "FragPipeTMT" ) {
   yml = yaml::read_yaml(ymlfile)
 
   WORKUNITID = yml$job_configuration$workunit_id
@@ -238,6 +240,24 @@ read_BF_yamlR6 <- function(yfile, application = "FragPipeTMT" ) {
   return(r6obj_config)
 }
 
+
+
+if (FALSE ) {
+  yfile <- file.path(find.package("prolfquapp") , "/application/DIANN/myYamls")
+  yfiles <- dir(yfile,recursive = TRUE,full.names = TRUE)
+
+  file.exists(yfiles[1])
+  res <- list()
+
+  for (file in yfiles) {
+    print(file)
+    config <- read_BF_yamlR6(file)
+    x <- (R6_extract_values(config))
+    df <- data.frame(unlist(x))
+    names(df)[1] <- basename(file)
+    res[[basename(file)]] <- as.data.frame(t(df))
+  }
+}
 
 
 
