@@ -4,7 +4,7 @@
 \alias{read_BF_yamlR6}
 \title{read yaml file}
 \usage{
-read_BF_yamlR6(yfile, application = "FragPipeTMT")
+read_BF_yamlR6(ymlfile, application = "FragPipeTMT")
 }
 \value{
 list with applications parameters
@@ -13,8 +13,9 @@ list with applications parameters
 read yaml file
 }
 \examples{
-
-yfile <- file.path(find.package("prolfquapp") , "/extdata/DIANN_BF/config1.yaml")
-read_BF_yamlR6(yfile)
+yfile <- file.path(find.package("prolfquapp") , "/inst/application/DIANN/myYamls")
+dir.exists(yfile)
+yfiles <- dir(yfile,recursive = TRUE,full.names = TRUE)
+config <- read_BF_yamlR6(yfiles[1])
 
 }
