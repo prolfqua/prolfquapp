@@ -1,0 +1,242 @@
+---
+title: "Compare Total Proteome with palmitoylated proteins"
+output: html_document
+date: "2023-09-05"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+Here we compare the fold changes obtained from both datasets (diff dataset A minus diff dataset B), and test if these differences are significant.
+
+
+## Introduction
+
+```{r include=FALSE}
+minimize <- function(diffLP){
+  #diffLP$avgAbd <- NULL
+  diffLP$conf.low <- NULL
+  diffLP$conf.high <- NULL
+  diffLP$p.value <- NULL
+  diffLP$sigma <- NULL
+  diffLP$statistic <- NULL
+  diffLP$modelName <- NULL
+  diffLP$CON <- NULL
+  diffLP$REV <- NULL
+  return(diffLP)
+}
+```
+
+
+- Dataset A = Total Proteome
+- Dataset B = palmitoylated proteins
+
+```{r cars}
+library(tidyverse)
+fileD1 <- "C32983WU294892_DiaNN_total_proteome/DE_Groups_vs_Controls/DE_Groups_vs_Controls.xlsx"
+
+diffDA <- readxl::read_excel(fileD1, sheet = "diff_exp_analysis")
+diffDA$modelName |> table()
+diffDA <- diffDA |> filter(modelName == "Linear_Model_moderated", nrPeptides > 1)
+
+diffDA <- minimize(diffDA)
+```
+
+```{r dars, fig.cap = "Venn Diagram."}
+fileD2 <- "C32983WU294901_DiaNN_palmitoylated_proteins/DE_Groups_vs_Controls/DE_Groups_vs_Controls.xlsx"
+diffDB <- readxl::read_excel(fileD2, sheet = "diff_exp_analysis")
+diffDB <- diffDB |> filter(modelName == "Linear_Model_moderated", nrPeptides > 1)
+
+
+diffDB <- minimize(diffDB)
+
+listInput <- list(DA = diffDA$protein_Id |> unique(),DB =  diffDB$protein_Id |> unique())
+library(UpSetR)
+upset(fromList(listInput), order.by = "freq")
+```
+
+## Statistics used for testing differences of differences (fold changes)
+
+$$
+\Delta_I = \log_2FC_{PTM} - \log_2FC_{Protein}
+$$
+
+$$
+SE_I = \sqrt{SE_{PTM}^2 + SE_{Protein}^2}
+$$
+
+$$
+df_I = (SE_{PTM}^2 + SE_{Protein}^2)^2 \biggm/ (\frac{SE_{PTM}^4}{DF_{PTM}} + \frac{SE_{Protein}^4}{DF_{Protein}})
+$$
+
+
+
+```{r}
+
+df <- inner_join(diffDB, diffDA , by = c("protein_Id", "IDcolumn", "description", "contrast"), suffix = c(".B",".A"))
+```
+
+
+```{r, fig.cap = "diff in Exp B as function of diff in ExpA"}
+cor <- df |> group_by(contrast) |> summarize(cor = cor(diff.A, diff.B))
+plot(df$diff.A,  df$diff.B, pch = "*", main = "differences") 
+legend("topleft", legend = paste("cor = ", round(cor$cor,digits = 2)))
+abline(0,1, col = 2 )
+```
+
+
+```{r, fig.cap = "# of proteins as a function of peptides per prortein"}
+
+par(mfrow=c(1,2))
+
+plot(table(df$nrPeptides.A), xlim=c(0,50), main = "A")
+plot(table(df$nrPeptides.B), xlim=c(0,50), main = "B")
+
+```
+
+```{r}
+f_SE <- function(stdeA, stdeB){
+  sqrt(stdeA ^ 2 + stdeB ^ 2 )
+}
+
+f_df <- function(stdeA, stdeB, dfA, dfB){
+  (stdeA ^ 2 + stdeB ^ 2 )^2 / ((stdeA^4/dfA + stdeB^4/dfB ))
+}
+```
+
+```{r}
+df <- df |> mutate(
+  diffA_diffB = diff.A - diff.B,
+  SE_I = f_SE(std.error.A, std.error.B),
+  df_I = f_df(std.error.A,std.error.B,df.A,df.B) )
+
+df <- df |> mutate(tstatistic_I = diffA_diffB / SE_I)
+```
+
+```{r fig.cap="density of fold changes", include = FALSE}
+par(mfrow = c(2,1))
+plot(density(df$diff.A), xlim=c(-1,1))
+lines(density(df$diff.B),col=2)
+lines(density(df$diffA_diffB),col=3)
+```
+
+```{r fig.cap = "standard error distribution", include = FALSE}
+plot(density(df$std.error.A), xlim=c(0,0.4))
+lines(density(df$std.error.B),col=2)
+lines(density(df$SE_I),col=3)
+```
+
+```{r include = FALSE}
+par(mfrow=c(1,3))
+hist(df$df.A, breaks = 100)
+hist(df$df.B, breaks = 100)
+hist(df$df_I, breaks = 100)
+```
+
+```{r}
+
+df <- df |> mutate(pValue_I = 2*pt(q = abs(df$tstatistic_I), df = df$df_I, lower.tail = FALSE))
+df <- df |> group_by(contrast) |> mutate(FDR = p.adjust(pValue_I, method = "BH"))
+```
+
+```{r, fig.cap = "histogram of p-values."}
+df |> ggplot(aes(x = pValue_I)) + geom_histogram() + facet_wrap(~contrast)
+```
+
+
+```{r, fig.cap = "histogram of FDR"}
+df |> ggplot(aes(x = FDR)) + geom_histogram() + facet_wrap(~contrast)
+```
+
+
+```{r}
+df <- df |> mutate(sig = case_when(FDR < 0.1 & abs(diffA_diffB) > 1 ~ "sig", TRUE ~ "none"))
+
+```
+
+
+```{r}
+df <- df |> ungroup() 
+bb <- df |> select(protein_Id, starts_with("diff"), starts_with("FDR"))
+bb <- crosstalk::SharedData$new(bb, ~protein_Id, group = "BB")
+
+DT::datatable(bb, filter = "bottom",
+  extensions = "Scroller",
+  style = "auto",
+  class = "compact",
+  options = list(deferRender = TRUE,
+                 scrollY = 300,
+                 scrollX = 400,
+                 scroller = TRUE) ) |>
+  DT::formatRound(columns = grep("diff|FDR", colnames(df), value= TRUE), digits = 2)
+
+```
+
+```{r}
+
+ddf <- df |> select(protein_Id, starts_with("diff")) |> pivot_longer(cols=starts_with("diff"), names_to = "contrast", values_to = "diff")
+ddf <- ddf |> mutate(contrast = case_when(contrast == "diff.B" ~ "B", contrast == "diff.A" ~ "A", TRUE ~ "AvsB"))
+
+fdf <- df |> select(protein_Id, starts_with("FDR")) |> pivot_longer(cols=starts_with("FDR"), names_to = "contrast", values_to = "FDR")
+fdf$contrast |> unique()
+fdf <- fdf |> mutate(contrast = case_when(contrast == "FDR.B" ~ "B", contrast == "FDR.A" ~ "A", TRUE ~ "AvsB"))
+
+an <- df |> select(protein_Id, sig)
+xdf <- inner_join(ddf,fdf)
+xdf <- inner_join(an, xdf)
+
+```
+
+```{r}
+xd <- prolfqua::volcano_plotly(xdf, effect = "diff",
+                         significance = "FDR",
+                         contrast = "contrast",
+                         proteinID = "protein_Id",
+                         color = "sig",
+                         palette = c("black","red"), xintercept = c(-1, 1), group = "BB")
+
+
+xd <- lapply(xd, plotly::highlight , off = "plotly_doubleclick")
+nrow <- ceiling(length(xd) / 4)
+plotly::subplot(xd, shareX = TRUE, shareY = TRUE, nrows = nrow)
+
+```
+
+
+# Additional figures
+
+```{r fig.cap = "histogram of differences"}
+hist(df$diffA_diffB, breaks = 40)
+abline(v = 0, col = 2, lwd = 2)
+abline(v = c(-1,1), col = 3, lwd = 2)
+
+
+```
+
+```{r, fig.cap = "diff in Exp B as function of diff in ExpA. In red are proteins where diff of difference is signifant."}
+df$X <- with(df, (df_I/max(df_I))) / 10
+
+ggplot(df, aes(x = diff.A, y = diff.B, color = sig)) + 
+  geom_point(alpha = 0.2) +
+  theme_bw() + scale_color_manual(values=c('black','red')) + 
+  geom_abline(intercept = 0, slope = 1) + facet_wrap(~ contrast)
+
+```
+
+```{r, "diff of difference as function of the mean of the differences. In red are proteins where diff of difference is signifant."}
+ggplot(df, aes(x=(diff.A + diff.B)/2, y=diffA_diffB, color = sig)) + 
+  geom_point(alpha = 0.3) +
+  facet_wrap(~ contrast) + theme_bw() + scale_color_manual(values=c('black','red')) + 
+  geom_abline(intercept = 0, slope = 0)
+
+
+```
+
+```{r}
+writexl::write_xlsx(df, path = "CompareA_with_B_Analysis_2Pep.xslx")
+
+```
