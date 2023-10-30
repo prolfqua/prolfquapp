@@ -116,7 +116,7 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' sr <- grp$RES$transformedlfqData$get_Summariser()
 #' int <- sr$interaction_missing_stats()
 #' res <- write_DEA(grp,".", write=FALSE)
-#' se <- makeSummarizedExperiment(grp)
+#' se <- make_SummarizedExperiment(grp)
 #' \dontrun{
 #' render_DEA(grp, ".")
 #' render_DEA(grp, "." ,word = TRUE)

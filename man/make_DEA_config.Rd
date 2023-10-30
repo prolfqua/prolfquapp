@@ -18,7 +18,8 @@ make_DEA_config(
   removeDecoys = FALSE,
   patternDecoys = "^REV_",
   patternContaminants = "^zz",
-  application = "FragPipeTMT"
+  application = "FragPipeTMT",
+  nrPeptides = 2
 )
 }
 \arguments{

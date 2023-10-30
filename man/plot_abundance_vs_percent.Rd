@@ -36,11 +36,11 @@ sr <- lfqdata$get_Summariser()
 
 plot_abundance_vs_percent(sr$percentage_abundance(),
  lfqdata$config$table,
- top_N = 6, factors = FALSE, cumulative = TRUE)
+ top_N = 6, factors = FALSE)
 
-pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = FALSE, cumulative = FALSE)
-plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = 4, factors = TRUE, cumulative = FALSE)
-plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = TRUE, cumulative = TRUE)
+pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = FALSE)
+plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = 4, factors = TRUE)
+plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = TRUE)
 
 
 }
