@@ -243,20 +243,20 @@ read_BF_yamlR6 <- function(ymlfile, application = "FragPipeTMT" ) {
 
 
 if (FALSE ) {
-  yfile <- file.path(find.package("prolfquapp") , "/application/DIANN/myYamls")
-  yfiles <- dir(yfile,recursive = TRUE,full.names = TRUE)
+  yfile <- file.path(find.package("prolfquapp") , "/application/DIANN/myYamls.zip")
+  file.exists(yfile)
+  xx <- unzip(yfile, list= TRUE)
+  yfiles <- grep(".yml$", xx$Name, value = TRUE)
 
-  file.exists(yfiles[1])
   res <- list()
-
   for (file in yfiles) {
-    print(file)
-    config <- read_BF_yamlR6(file)
+    config <- read_BF_yamlR6(unz(yfile, file))
     x <- (R6_extract_values(config))
     df <- data.frame(unlist(x))
     names(df)[1] <- basename(file)
     res[[basename(file)]] <- as.data.frame(t(df))
   }
+
 }
 
 
