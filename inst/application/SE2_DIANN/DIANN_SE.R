@@ -123,7 +123,7 @@ lfqdataProt <- prolfquapp::aggregate_data(
   agg_method = "topN")
 
 
-# transformaton on
+# transformation on
 TRANSFORM = TRUE
 if(TRANSFORM){
   lfqTrans <- prolfquapp::transform_lfqdata(lfqdataProt, method = "vsn")
