@@ -2,31 +2,46 @@
 # does basic filtering using purity.
 #
 library(tidyverse)
+library(prolfquapp)
 GRP2 <- prolfquapp::make_DEA_config()
-###
-dir.create(GRP2$zipdir)
-###
 # reading foreign data
 REPEATED <- TRUE
 
 # sanitize peptide csv.
 psm_file <- dir(path = ".", pattern = "psm.tsv", recursive = TRUE, full.names = TRUE)
-xx <- readr::read_tsv(psm_file)
-length(grep("c",xx$`Modified Peptide`, value = TRUE))
+fasta.files <- grep("*.fasta$", dir(path = ".", recursive = TRUE), value = TRUE)
 
-xa <- xx$`Assigned Modifications`
-tmp <- gsub(" ", "", unlist(str_split(xa, ",")))
-tmp <- gsub("^[0-9]+","", tmp)
-table(tmp)
-
+if(FALSE){
+  xx <- readr::read_tsv(psm_file)
+  ### tabulate modifications
+  xa <- xx$`Assigned Modifications`
+  tmp <- gsub(" ", "", unlist(str_split(xa, ",")))
+  tmp <- gsub("^[0-9]+","", tmp)
+  table(tmp)
+}
 
 scores <- xx |> select(all_of(c("Expectation","Hyperscore","Nextscore","PeptideProphet Probability")))
 psm <- prolfqua::tidy_FragPipe_psm(psm_file)
+nrowPSM <- nrow(psm)
+fasta_annot <- get_annot_from_fasta(fasta.files)
+psm <- inner_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
+stopifnot(nrow(psm) == nrowPSM)
+
+prot_annot <- prolfquapp::dataset_protein_annot(
+  psm,
+  c("protein_Id" = "Protein"),
+  protein_annot = "fasta.header",
+  more_columns = "nrPeptides")
+prot_annot |> filter(grepl("^zz",protein_Id)) |> head()
+
 psm$qValue <- 1 - psm$PeptideProphet.Probability
 
-ds_file <- "dataset_wt_KO.csv"
+ds_file <- "datasetDEA.csv"
 annot <- read.csv(ds_file)
-GRP2 <- prolfquapp::make_DEA_config(ZIPDIR = gsub(".csv", "", ds_file))
+
+#GRP2 <- prolfquapp::read_BF_yamlR6("config.yaml")
+GRP2 <- prolfquapp::read_yaml("config.yaml")
+#GRP2 <- prolfquapp::make_DEA_config(ZIPDIR = GRP2$zipdir)
 
 
 GRP2 <- prolfquapp::dataset_extract_contrasts(annot, GRP2)
@@ -39,8 +54,6 @@ if (channelCol != "channel") {
 }
 
 nr <- sum(annot$channel %in% unique(psm$channel))
-psm$channel
-
 logger::log_info("nr : ", nr, " files annotated")
 psm <- dplyr::inner_join(annot, psm, multiple = "all")
 
@@ -61,15 +74,8 @@ tmp <- prolfquapp::dataset_set_factors(atable, psm)
 atable <- tmp$atable
 atable$factors
 psm <- tmp$msdata
-
-head(psm)
-
 # CREATE protein annotation.
-prot_annot <- prolfquapp::dataset_protein_annot(
-  psm,
-  c("protein_Id" = "Protein"),
-  protein_annot = "Protein.Description",
-  more_columns = "nrPeptides")
+
 
 
 atable$set_response("abundance")
@@ -115,6 +121,11 @@ grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
 dir.create( GRP2$zipdir)
 for (i in seq_along(grp)) {
   prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir )
+}
+
+for (i in seq_along(grp)) {
+  SE <- prolfquapp::make_SummarizedExperiment(grp[[i]])
+  saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", names(grp)[i]) , paste0("SummarizedExperiment",".rds") ))
 }
 
 

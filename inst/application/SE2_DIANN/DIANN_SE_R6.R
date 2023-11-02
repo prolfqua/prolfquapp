@@ -4,41 +4,11 @@
 
 prolfquapp::copy_SAINT_express(run_script = FALSE)
 # Read b-fabric related information
-yml <- yaml::read_yaml("config.yaml")
+ymlfile <- "config.yaml"
 
+GRP2 <- prolfquapp::make_DEA_config_R6()
 
-BFABRIC <- list()
-BFABRIC$workunitID = yml$job_configuration$workunit_id
-BFABRIC$workunitURL = paste0("https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=",BFABRIC$workunitID,"&tab=details")
-
-#BFABRIC$projectID = yml$job_configuration$project_id
-BFABRIC$orderID = yml$job_configuration$order_id
-
-BFABRIC$inputID = purrr::map_chr(yml$job_configuration$input[[1]], "resource_id")
-BFABRIC$inputID = tail(BFABRIC$inputID,n = 1)
-BFABRIC$inputURL = purrr::map_chr(yml$job_configuration$input[[1]], "resource_url")
-BFABRIC$inputURL = tail(BFABRIC$inputURL, n = 1)
-BFABRIC$datasetID <- yml$application$parameters$datasetId
-
-
-
-ZIPDIR = paste0("C",BFABRIC$orderID,"WU",BFABRIC$workunitID)
-dir.create(ZIPDIR)
-
-
-# list with data used with the markdown report
-REPORTDATA <- list()
-
-# Application parameters
-REPORTDATA$spc <- FALSE
-REPORTDATA$FCthreshold <- if(!is.null(as.numeric( yml$application$parameters$FCthreshold ))){
-  as.numeric( yml$application$parameters$FCthreshold ) } else { 2 }
-REPORTDATA$FDRthreshold <- if(!is.null(as.numeric( yml$application$parameters$BFDRsignificance ))){
-  as.numeric(yml$application$parameters$BFDRsignificance) } else {0.1}
-
-# Prefix for exported files
-treat <- "DIANN_"
-# load data
+GRP2$processing_options$other[["spc"]] <- FALSE
 
 dataset <- dir(".", pattern = 'dataset.csv', full.names = TRUE, recursive = TRUE)[1]
 annot <- read.csv(dataset)
@@ -52,6 +22,7 @@ annot <- annot |> dplyr::mutate(
 annotation <- annot
 colnames(annotation) <- tolower(make.names(colnames(annotation)))
 
+# code to find input files
 path = "."
 diann.path <- grep("report\\.tsv$|diann-output\\.tsv", dir(path = path, recursive = TRUE), value = TRUE)
 fasta.files <- grep("*\\.fasta$|*\\.fas$", dir(path = path, recursive = TRUE), value = TRUE)
@@ -65,15 +36,11 @@ if (length(fasta.files) == 0) {
   stop()
 }
 
-
-
 peptide <- prolfquapp::read_DIANN_output(
   diann.path = diann.path,
   fasta.file = fasta.files,
   nrPeptides = 1,
   Q.Value = 0.1 )
-
-
 
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
@@ -82,14 +49,17 @@ prot_annot <- prolfquapp::dataset_protein_annot(
   more_columns = c("nrPeptides", "fasta.id", "Protein.Group.2", "protein_length")
 )
 
+nr <- length(union(annot$raw.file , unique(peptide$raw.file)))
+logger::log_info("nr : ", nr, " files annotated.")
+nrNotData <- length(setdiff(annot$raw.file , unique(peptide$raw.file)))
+logger::log_info("nr : ", nrNotData, " files in annotation but not in data. " )
+nrNotInAnnot <- length(setdiff( unique(peptide$raw.file), annot$raw.file))
+logger::log_info("nr : ", nrNotInAnnot, " files in data but not in annot. " )
 
-annot$raw.file[ !annot$raw.file %in% sort(unique(peptide$raw.file)) ]
-nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
-logger::log_info("nr : ", nr, " files annotated")
 annot$Relative.Path <- NULL
 peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
 
-
+# Create config
 
 #### this comes from DIANN
 atable <- prolfqua::AnalysisTableAnnotation$new()
@@ -99,14 +69,8 @@ atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
 atable$set_response("Peptide.Quantity")
 atable$hierarchyDepth <- 1
 
+
 res <- prolfquapp::dataset_set_factors(atable, peptide)
-
-# attach annotation to combined_protein data
-# annotation$raw.file <- basename(annotation$relative.path)
-# annotation <- dplyr::mutate(annotation, raw.file = gsub(".raw", "", raw.file))
-# annotation$relative.path <- NULL
-
-
 atable <- res$atable
 peptide <- res$msdata
 
@@ -114,40 +78,32 @@ peptide <- res$msdata
 config <- prolfqua::AnalysisConfiguration$new(atable)
 adata <- prolfqua::setup_analysis(peptide, config)
 length(unique(adata$protein_Id))
-
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
-
-
 logger::log_info("AGGREGATING PEPTIDE DATA!")
 
+# aggregate data
 lfqdataProt <- prolfquapp::aggregate_data(
   lfqdata,
   agg_method = "topN")
 
 
-# transformation on
-TRANSFORM = TRUE
-if(TRANSFORM){
-  lfqTrans <- prolfquapp::transform_lfqdata(lfqdataProt, method = "vsn")
-  tr <- lfqTrans$get_Transformer()
-  tr$intensity_array(exp, force = TRUE)
-  tr$lfq$config$table$is_response_transformed <- FALSE
-  lfqdataProt <- tr$lfq
-}
+## Transformation on
+lfqTrans <- prolfquapp::transform_lfqdata(lfqdataProt, method = GRP2$processing_options$transform)
+lfqdataProt <- exp2(lfqTrans)
+lfqdataProt$response()
 
-
-#logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
-#logger::log_info("END OF DATA TRANSFORMATION.")
 
 lfqdata <- lfqdataProt
 protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
 
+
+
+# CREATING RESULTS
 RESULTS <- list() # RESULT is stored in excel table
 RESULTS$annotation <- lfqdata$factors()
 
 intdata <- dplyr::inner_join(protAnnot$row_annot, lfqdata$data, multiple = "all")
-
 localSAINTinput <- prolfqua::protein_2localSaint(
   intdata,
   quantcolumn = lfqdata$config$table$get_response(),
@@ -157,26 +113,27 @@ localSAINTinput <- prolfqua::protein_2localSaint(
   baitCol = "Bait_",
   CorTCol = "CONTROL")
 
-localSAINTinput$inter$srm_sum_N |> summary()
 
 RESULTS <- c(RESULTS, localSAINTinput)
-resSaint <- prolfqua::runSaint(localSAINTinput, spc = REPORTDATA$spc)
 
+resSaint <- prolfqua::runSaint(
+  localSAINTinput,
+  spc = GRP2$processing_options$other[["spc"]] )
 
-resSaint$list <- dplyr::inner_join(protAnnot$row_annot, resSaint$list,
-                                   by = c(protein_Id = "Prey"),
-                                   keep = TRUE , multiple = "all")
-
-#resSaint$list$protein_Id <- NULL
-
-RESULTS <- list() # RESULT is stored in excel table
-RESULTS$annotation <- lfqdata$factors()
+resSaint$list <- dplyr::inner_join(
+  protAnnot$row_annot,
+  resSaint$list,
+  by = c(protein_Id = "Prey"),
+  keep = TRUE , multiple = "all")
 
 RESULTS <- c(RESULTS, resSaint)
 # write analysis results
-
 # Prepare result visualization and render report
 cse <- prolfqua::ContrastsSAINTexpress$new(resSaint$list)
+
+
+#### THIS NEEDS TO BE CLEANED UP #####
+
 
 resContrasts <- cse$get_contrasts()
 
@@ -219,7 +176,6 @@ if (nrow(sigg) > 0) {
   for (i in 1:nrow(sigg)) {
     tmp <- prolfqua::get_UniprotID_from_fasta_header(sigg$data[[i]], "Prey")
     if(is.null(tmp$UniprotID)) {tmp$UniprotID <- sapply(tmp$Prey, function(x){strsplit(x,";")[[1]][1]})}
-
     filename <- paste0("ORA_Bait_", sigg$Bait[i] , ".txt")
     write.table(data.frame(tmp$UniprotID),
                 file = file.path(ZIPDIR, filename),
@@ -253,4 +209,6 @@ rmarkdown::render("SaintExpressReportMsFragger.Rmd",
 file.copy("SaintExpressReportMsFragger.html",
           file.path(ZIPDIR, paste0(treat, "SaintExpressReportMsFragger.html")),
           overwrite = TRUE)
+
+
 

@@ -37,6 +37,23 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
   return(transformed)
 }
 
+#' transform lfq data with x^2 - apply if non log data is needed
+#' @param lfqTrans transformed LFQData
+#' @export
+exp2 <- function( lfqTrans ){
+  if(!lfqTrans$config$table$is_response_transformed) {
+    warning("Data not transformed.")
+  }
+  tr <- lfqTrans$get_Transformer()
+  .exp2 <- function(x){
+    2^x
+  }
+  tr$intensity_array(.exp2, force = TRUE)
+  tr$lfq$config$table$is_response_transformed <- FALSE
+  lfqdataProt <- tr$lfq
+  return(lfqdataProt)
+}
+
 
 #' Create DEA report in html and write data to xlsx table
 #'

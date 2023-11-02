@@ -29,7 +29,9 @@ ProcessingOptions <- R6::R6Class(
     #' @field missing model missigness, default TRUE
     missing = TRUE,
     #' @field model name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"
-    model = "prolfqua"
+    model = "prolfqua",
+    #' @field other list with additional options
+    other = NULL
   )
 )
 
