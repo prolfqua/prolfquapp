@@ -18,9 +18,10 @@ BFABRIC$inputID = purrr::map_chr(yml$job_configuration$input[[1]], "resource_id"
 BFABRIC$inputID = tail(BFABRIC$inputID,n = 1)
 BFABRIC$inputURL = purrr::map_chr(yml$job_configuration$input[[1]], "resource_url")
 BFABRIC$inputURL = tail(BFABRIC$inputURL, n = 1)
-BFABRIC$datasetID <- yml$application$parameters$datasetId
+BFABRIC$datasetID <- yml$application$parameters$`10|datasetId`
 
-
+BFABRIC$Normalization <- yml$application$parameters$`11|Normalization`
+BFABRIC$Transformation <- yml$application$parameters$`51|Transformation`
 
 ZIPDIR = paste0("C",BFABRIC$orderID,"WU",BFABRIC$workunitID)
 dir.create(ZIPDIR)
@@ -31,9 +32,9 @@ REPORTDATA <- list()
 
 # Application parameters
 REPORTDATA$spc <- FALSE
-REPORTDATA$FCthreshold <- if(!is.null(as.numeric( yml$application$parameters$FCthreshold ))){
+REPORTDATA$FCthreshold <- if(!is.null(as.numeric( yml$application$parameters$`22|FCthreshold` ))){
   as.numeric( yml$application$parameters$FCthreshold ) } else { 2 }
-REPORTDATA$FDRthreshold <- if(!is.null(as.numeric( yml$application$parameters$BFDRsignificance ))){
+REPORTDATA$FDRthreshold <- if(!is.null(as.numeric( yml$application$parameters$`21|BFDRsignificance` ))){
   as.numeric(yml$application$parameters$BFDRsignificance) } else {0.1}
 
 # Prefix for exported files
@@ -127,18 +128,36 @@ lfqdataProt <- prolfquapp::aggregate_data(
 
 
 # transformation on
-TRANSFORM = TRUE
-if(TRANSFORM){
+
+if(BFABRIC$Normalization == "vsn"){
   lfqTrans <- prolfquapp::transform_lfqdata(lfqdataProt, method = "vsn")
   tr <- lfqTrans$get_Transformer()
   tr$intensity_array(exp, force = TRUE)
   tr$lfq$config$table$is_response_transformed <- FALSE
   lfqdataProt <- tr$lfq
+} else if (BFABRIC$Normalization == "robscale"){
+    lfqTrans <- prolfquapp::transform_lfqdata(lfqdataProt, method = "robscale")
+    tr <- lfqTrans$get_Transformer()
+    tr <- lfqTrans$get_Transformer()
+    tr$intensity_array(exp, force = TRUE)
+    tr$lfq$config$table$is_response_transformed <- FALSE
+    lfqdataProt <- tr$lfq
+} else {
+  lfqdataProt <- lfqdataProt
 }
 
+if (BFABRIC$Transformation == "sqrt") {
+  tr <- lfqdataProt$get_Transformer()
+  tr$intensity_array(sqrt, force = TRUE)
+  tr$lfq$config$table$is_response_transformed <- FALSE
+  lfqdataProt <- tr$lfq
+} else if(BFABRIC$Transformation == "log2") {
+  tr <- lfqdataProt$get_Transformer()
+  tr$intensity_array(log2, force = TRUE)
+  tr$lfq$config$table$is_response_transformed <- FALSE
+  lfqdataProt <- tr$lfq
+}
 
-#logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
-#logger::log_info("END OF DATA TRANSFORMATION.")
 
 lfqdata <- lfqdataProt
 protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)

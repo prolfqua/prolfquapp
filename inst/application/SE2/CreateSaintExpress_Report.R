@@ -17,7 +17,7 @@ BFABRIC$inputID = purrr::map_chr(yml$job_configuration$input[[1]], "resource_id"
 BFABRIC$inputID = tail(BFABRIC$inputID,n = 1)
 BFABRIC$inputURL = purrr::map_chr(yml$job_configuration$input[[1]], "resource_url")
 BFABRIC$inputURL = tail(BFABRIC$inputURL, n = 1)
-BFABRIC$datasetID <- yml$application$parameters$datasetId
+BFABRIC$datasetID <- yml$application$parameters$`10|datasetId`
 
 
 
@@ -29,9 +29,9 @@ dir.create(ZIPDIR)
 REPORTDATA <- list()
 
 # Applciation parameters
-REPORTDATA$spc <- if ( yml$application$parameters$SpcInt == "Spectral Count") { TRUE } else {FALSE}
-REPORTDATA$FCthreshold <- as.numeric( yml$application$parameters$FCthreshold )
-REPORTDATA$FDRthreshold <- as.numeric(yml$application$parameters$BFDRsignificance)
+REPORTDATA$spc <- if ( yml$application$parameters$`31|SpcInt` == "Spectral Count") { TRUE } else {FALSE}
+REPORTDATA$FCthreshold <- as.numeric( yml$application$parameters$`22|FCthreshold` )
+REPORTDATA$FDRthreshold <- as.numeric(yml$application$parameters$`21|BFDRsignificance`)
 
 # Prefix for exported files
 treat <- "FRAGPIPE_"
@@ -52,7 +52,9 @@ annotation <- dplyr::mutate(annotation, raw.file = gsub("\\.raw|\\.d\\.zip", "",
 annotation$relative.path <- NULL
 
 stopifnot(sum(annotation$raw.file %in% pp$raw.file) > 0) # check that some files are annotated, if not exit script.
-pdata <- dplyr::inner_join(annotation, pp,multiple = "all" )
+
+pdata <- dplyr::inner_join(annotation, pp, multiple = "all" , by = "raw.file")
+
 # filter for more than 2 peptides per protein
 pdata <- pdata |> dplyr::filter(combined.total.peptides > 1)
 # configure prolfqua
@@ -65,7 +67,7 @@ if (any(grepl("^name", colnames(annotation)))) {
 
 ata$fileName = "raw.file"
 ata$factors[["CorT"]] = grep("^control", colnames(annotation), value = TRUE)
-ata$factors[["bait"]] = grep("^bait", colnames(annotation), value = TRUE)
+ata$factors[["bait"]] = grep("^bait|^group", colnames(annotation), value = TRUE)
 
 ata$factorDepth <- 2
 
@@ -79,7 +81,10 @@ if (REPORTDATA$spc) {
 
 
 config <- prolfqua::AnalysisConfiguration$new(ata)
+config$table$factors
+
 sdata <- prolfqua::setup_analysis(pdata, config)
+
 lfqdata <- prolfqua::LFQData$new(sdata, config)
 lfqdata$remove_small_intensities(threshold = 0.1)
 
