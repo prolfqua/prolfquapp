@@ -17,7 +17,7 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot) {
 
   # Contrasts are already defined
   if (!is.null(GRP2$pop$Contrasts)) {
-    logger::log_info("CONTRAST : ", paste( GRP2$pop$Contrasts, collapse = " "))
+    logger::log_info("CONTRAST : ", paste( GRP2$pop$Contrasts, collapse = "\n"))
     lfqwork <- lfqdata$get_copy()
     lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ %in% levels$Group_)
 
