@@ -238,6 +238,27 @@ make_DEA_report <- function(lfqdata,
   return(GRP2)
 }
 
+#' convert tibble to data.frame with rownames
+#' @param .data a tibble or data.frame
+#' @param var name of the column with new row.names
+#' @return a data.frame with rownames
+#' @export
+#' @examples
+#' ind <- tibble::tibble(a = 1:3, rowname = letters[1:3])
+#' column_to_rownames(ind)
+column_to_rownames <- function(.data, var = "rowname"){
+  res <- as.data.frame(.data)
+  rownames(res) <- .data[[var]]
+  return(res)
+}
+
+strip_rownames <- function(.data, strip="~lfq~light$"){
+  newrnames <- gsub(strip, "", rownames(.data))
+  rownames(.data) <- newrnames
+  return(.data)
+}
+
+
 #' Convert prolfqua differential expression analysis results to SummarizedExperiment
 #'
 #' @rdname make_DEA_report
@@ -246,22 +267,23 @@ make_DEA_report <- function(lfqdata,
 #' @export
 #' @family workflow
 #'
-make_SummarizedExperiment <- function(GRP2){
+make_SummarizedExperiment <- function(GRP2, colname = "Name", rowname = "protein_Id", strip="~lfq~light"){
   resTables <- write_DEA(GRP2,".", write = FALSE)
   matTr <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
   matRaw <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
+
   x <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(rawData = matRaw$data, transformedData = matTr$data),
-    colData = matRaw$annotation, metadata = as.list(resTables$formula)
+    assays = list(rawData = strip_rownames(matRaw$data, strip), transformedData = strip_rownames(matTr$data, strip)),
+    colData = column_to_rownames(matRaw$annotation, var = colname), metadata = as.list(resTables$formula)
   )
 
   diffbyContrast <- split(resTables$diff_exp_analysis, resTables$diff_exp_analysis$contrast)
   for (i in names(diffbyContrast)) {
-    SummarizedExperiment::rowData(x)[[paste0("constrast_",i)]] <- diffbyContrast[[i]]
+    SummarizedExperiment::rowData(x)[[paste0("constrast_",i)]] <- column_to_rownames(diffbyContrast[[i]], var = rowname)
   }
 
-  SummarizedExperiment::rowData(x)$stats_normalized_wide <- resTables$stats_normalized_wide
-  SummarizedExperiment::rowData(x)$stats_raw_wide <- resTables$stats_raw_wide
+  SummarizedExperiment::rowData(x)[["stats_normalized_wide"]] <- column_to_rownames(resTables$stats_normalized_wide, var = rowname)
+  SummarizedExperiment::rowData(x)[["stats_raw_wide"]] <- column_to_rownames(resTables$stats_raw_wide, var = rowname)
   return(x)
 }
 
