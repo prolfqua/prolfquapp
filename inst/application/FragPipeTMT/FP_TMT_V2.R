@@ -3,7 +3,6 @@
 #
 library(tidyverse)
 library(prolfquapp)
-GRP2 <- prolfquapp::make_DEA_config()
 # reading foreign data
 REPEATED <- TRUE
 
@@ -11,20 +10,11 @@ REPEATED <- TRUE
 psm_file <- dir(path = ".", pattern = "psm.tsv", recursive = TRUE, full.names = TRUE)
 fasta.files <- grep("*.fasta$", dir(path = ".", recursive = TRUE), value = TRUE)
 
-if(FALSE){
-  xx <- readr::read_tsv(psm_file)
-  ### tabulate modifications
-  xa <- xx$`Assigned Modifications`
-  tmp <- gsub(" ", "", unlist(str_split(xa, ",")))
-  tmp <- gsub("^[0-9]+","", tmp)
-  table(tmp)
-}
-
-scores <- xx |> select(all_of(c("Expectation","Hyperscore","Nextscore","PeptideProphet Probability")))
 psm <- prolfqua::tidy_FragPipe_psm(psm_file)
 nrowPSM <- nrow(psm)
 fasta_annot <- get_annot_from_fasta(fasta.files)
-psm <- inner_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
+psm <- left_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
+
 stopifnot(nrow(psm) == nrowPSM)
 
 prot_annot <- prolfquapp::dataset_protein_annot(
@@ -32,18 +22,16 @@ prot_annot <- prolfquapp::dataset_protein_annot(
   c("protein_Id" = "Protein"),
   protein_annot = "fasta.header",
   more_columns = "nrPeptides")
+
 prot_annot |> filter(grepl("^zz",protein_Id)) |> head()
 
 psm$qValue <- 1 - psm$PeptideProphet.Probability
-
-ds_file <- "datasetDEA.csv"
+ds_file <- "dataset.csv"
 annot <- read.csv(ds_file)
 
-#GRP2 <- prolfquapp::read_BF_yamlR6("config.yaml")
+
+### READ YAML
 GRP2 <- prolfquapp::read_yaml("config.yaml")
-#GRP2 <- prolfquapp::make_DEA_config(ZIPDIR = GRP2$zipdir)
-
-
 GRP2 <- prolfquapp::dataset_extract_contrasts(annot, GRP2)
 
 channelCol  <- grep("^channel", names(annot), ignore.case = TRUE, value = TRUE)
@@ -120,7 +108,7 @@ grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
 
 dir.create( GRP2$zipdir)
 for (i in seq_along(grp)) {
-  prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir )
+  prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir, boxplot = FALSE )
 }
 
 for (i in seq_along(grp)) {
