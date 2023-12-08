@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 ```{r readYaml}
 pathtoZip <- if (exists("params") && !is.null(params$zipfile)) {
-  params$zipfile } else { "qcdata/FragPipeTMT_o33437_QC_mini.zip"  }
+  params$zipfile } else { "qcdata/FragPipeTMT_o33437_PRM.zip"  }
 
 files <- unzip(pathtoZip, list = TRUE)
 fyaml <- grep(".yaml", files$Name , value = TRUE)
@@ -80,9 +80,11 @@ fdataset <- grep("dataset.csv", files$Name, value = TRUE)
 dataset <- readr::read_csv(unz(pathtoZip, filename = fdataset))
 psmFuLL <- readr::read_tsv(unz(pathtoZip,filename =  fpsm))
 
+
 xx <- readr::read_tsv(unz(pathtoZip,filename =  fpsm))
 nrSpectraAll <- xx$Spectrum |> unique() |> length()
 
+#debug(prolfqua::tidy_FragPipe_psm)
 
 psm <- prolfqua::tidy_FragPipe_psm(unz(pathtoZip,filename =  fpsm), purity_threshold = 0, PeptideProphetProb = 0.9, abundance_threshold = 0)
 nrowPSM <- nrow(psm)
