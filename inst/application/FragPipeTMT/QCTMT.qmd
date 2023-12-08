@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 ```{r readYaml}
 pathtoZip <- if (exists("params") && !is.null(params$zipfile)) {
-  params$zipfile } else { "qcdata/FragPipeTMT_o33437_PRM.zip"  }
+  params$zipfile } else { "qcdata/FragPipeTMT_o33437_human.zip"  }
 
 files <- unzip(pathtoZip, list = TRUE)
 fyaml <- grep(".yaml", files$Name , value = TRUE)
@@ -96,10 +96,10 @@ For this analysis we are using all PSM (Spectra) reported in the psm.tsv file wi
 This reduces the number of PSM from `r nrSpectraAll` to `r nrSpectraPP09`.
 
 ```{r setupPROLFQUA}
+stopifnot(nrow(psm) == nrowPSM)
 
 fasta_annot <- get_annot_from_fasta(unz(pathtoZip, filename = ffasta))
-psm <- dplyr::inner_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
-
+psm <- dplyr::left_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
 stopifnot(nrow(psm) == nrowPSM)
 
 prot_annot <- prolfquapp::dataset_protein_annot(
