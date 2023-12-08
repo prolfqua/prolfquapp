@@ -14,10 +14,7 @@ params:
 #| echo: false
 #| warning: false
 #| message: false
-
 library(prolfquapp)
-
-library(tidyverse)
 library(ggplot2)
 ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
@@ -27,7 +24,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 ```{r readYaml}
 
-pathtoZip <- if( exists("params") && !is.null(params$zipfile)) {
+pathtoZip <- if (exists("params") && !is.null(params$zipfile)) {
   params$zipfile } else { "qcdata/FragPipeTMT_o33281_TMT2.zip"  }
   
 files <- unzip(pathtoZip, list = TRUE)
@@ -140,12 +137,12 @@ adata <- prolfqua::setup_analysis(psm, config)
 
 lfqdata <- prolfqua::LFQData$new(adata, config)
 
-allmods <- lfqdata$data |> select(mod_peptide_Id, Spectrum) |> distinct()
-allmods <- allmods |> dplyr::group_by(mod_peptide_Id) |> summarize(n = n())
-allmods <- allmods |> separate(mod_peptide_Id, into = c("modSeq", "Assigned.Modifications"), sep = "~")
+allmods <- lfqdata$data |> dplyr::select(mod_peptide_Id, Spectrum) |> dplyr::distinct()
+allmods <- allmods |> dplyr::group_by(mod_peptide_Id) |> dplyr::summarize(n = dplyr::n())
+allmods <- allmods |> tidyr::separate(mod_peptide_Id, into = c("modSeq", "Assigned.Modifications"), sep = "~")
 allmods <- allmods |> tidyr::separate_longer_delim("Assigned.Modifications", delim = ",")
-allmods <- allmods |> mutate(Assigned.Modifications = trimws(Assigned.Modifications))
-allmods <- allmods |> mutate(Modification = gsub("^[0-9]+","", Assigned.Modifications))
+allmods <- allmods |> dplyr::mutate(Assigned.Modifications = trimws(Assigned.Modifications))
+allmods <- allmods |> dplyr::mutate(Modification = gsub("^[0-9]+","", Assigned.Modifications))
 
 
 ```
@@ -188,9 +185,9 @@ barplot(tx, las = 2)
 
 ```{r }
 allmods$n1 <- 1
-xA <- allmods |> select(modSeq, n, n1) |> distinct()
-xN <- allmods |> filter(Modification == "N-term(229.1629)")
-xN <- xN |> select(modSeq, n, n1) |> distinct()
+xA <- allmods |> dplyr::select(modSeq, n, n1) |> dplyr::distinct()
+xN <- allmods |> dplyr::filter(Modification == "N-term(229.1629)")
+xN <- xN |> dplyr::select(modSeq, n, n1) |> dplyr::distinct()
 
 nrNtermMod <- xN$n1 |> sum()
 nrPeptides <- xA$n1 |> sum()
@@ -221,9 +218,9 @@ nrPeptides <- xA$n |> sum()
 ### Peptides
 
 ```{r}
-xL <- allmods |> filter(Modification == "K(229.1629)")
+xL <- allmods |> dplyr::filter(Modification == "K(229.1629)")
 xN <- allmods |> dplyr::select(.data$modSeq, n, n1) |> dplyr::distinct()
-xN <- xN |> filter(grepl("K", modSeq))
+xN <- xN |> dplyr::filter(grepl("K", modSeq))
 
 
 ```
@@ -264,22 +261,23 @@ nrKmod <- stringr::str_count(xN$modSeq,"K\\[")
 ```{r total, fig.cap = "Total abundance per channel (Sum of all abundances)."}
 
 xx <- lfqdata$data
-totalPerChannel <- xx |> group_by(!!sym(lfqdata$config$table$sampleName) )|> summarize(totalAbundance = sum(!!sym(lfqdata$response()), na.rm=TRUE))
+totalPerChannel <- xx |> dplyr::group_by(!!sym(lfqdata$config$table$sampleName) ) |>
+  dplyr::summarize(totalAbundance = sum(!!sym(lfqdata$response()), na.rm=TRUE))
 
-totalPerChannel |> ggplot(aes(x = sampleName, y = totalAbundance)) + 
-  geom_bar(stat = "identity", position = "dodge", colour = "black", fill = "white") + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+totalPerChannel |> ggplot2::ggplot(ggplot2::aes(x = sampleName, y = totalAbundance)) + 
+  ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black", fill = "white") + 
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
 
 ```{r relatvie, fig.cap = "Ralative to chanell 126 total abundance per chanel."}
 nudgeval = 0.1
-p126 <- totalPerChannel |> filter(grepl("126",sampleName) )
+p126 <- totalPerChannel |> dplyr::filter(grepl("126",sampleName) )
 totalPerChannel$norm126abundance <- totalPerChannel$totalAbundance / p126$totalAbundance
-totalPerChannel |> ggplot(aes(x = sampleName, y = norm126abundance)) + 
-  geom_bar(stat = "identity", position = "dodge", colour = "black", fill = "white") + 
-  ggplot2::geom_text(aes(label = round(.data$norm126abundance,2)), nudge_y = nudgeval, angle = 65) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+totalPerChannel |> ggplot2::ggplot(aes(x = sampleName, y = norm126abundance)) + 
+  ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black", fill = "white") + 
+  ggplot2::geom_text(ggplot2::aes(label = round(.data$norm126abundance,2)), nudge_y = nudgeval, angle = 65) +
+  ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 # TODO add numbers to bars and table.
 ```
 
@@ -307,7 +305,7 @@ Then we compute the number of K at the C-term
 
 
 ```{r}
-modSeqD <- allmods |> select(modSeq, n) |> distinct() 
+modSeqD <- allmods |> dplyr::select(modSeq, n) |> dplyr::distinct() 
 patterns <- list(R = "K", termR = "K$", termRmod = "K\\[[0-9]+\\]$", termR_termRmod = "K$|K\\[[0-9]+\\]$", Rmod = "K\\[[0-9]+\\]")
 modSeqD$n1 <- 1
 
