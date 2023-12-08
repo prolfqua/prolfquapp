@@ -40,7 +40,7 @@ value =  c(pconfig$job_configuration$workunit_id,
 ifelse(is.null(pconfig$job_configuration$project_id), "", pconfig$job_configuration$project_id),
 pconfig$job_configuration$order_id,
 pconfig$job_configuration$inputdataset$name,
-pconfig$job_configuration$fastasequence))
+gsub("\\n", "<br/>",pconfig$job_configuration$fastasequence)))
 
 knitr::kable(addinfo, caption = "project information")
 ```
