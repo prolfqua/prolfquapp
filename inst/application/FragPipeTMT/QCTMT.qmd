@@ -23,12 +23,10 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 # Configuration
 
 ```{r readYaml}
-
 pathtoZip <- if (exists("params") && !is.null(params$zipfile)) {
   params$zipfile } else { "qcdata/FragPipeTMT_o33281_TMT2.zip"  }
-  
-files <- unzip(pathtoZip, list = TRUE)
 
+files <- unzip(pathtoZip, list = TRUE)
 fyaml <- grep(".yaml", files$Name , value = TRUE)
 pconfig <- yaml::read_yaml(unz(pathtoZip, filename = fyaml))
 application_params <- data.frame(
@@ -49,7 +47,7 @@ knitr::kable(addinfo, caption = "project information")
 
 # FASTA summary
 
-```{r}
+```{r analyseFASTA}
 ffasta <- grep(".fasta", files$Name , value = TRUE)
 fasta <- prozor::readPeptideFasta(unz(pathtoZip,filename =  ffasta))
 fastaWithRev <- length(fasta)
@@ -62,7 +60,7 @@ x <- prozor::make_fasta_summary(fasta,as_string = TRUE)
 The FASTA database has `r fastaWithRev` sequences including decoys, and `r fastaNoRev` without decoys.
 Below are the amino acids frequencies .
 
-```{r}
+```{r printFASTA}
 #| echo: true
 cat(x)
 
@@ -70,14 +68,14 @@ cat(x)
 
 PSM files in zip archive, QC will only use the first psm file.
 
-```{r}
+```{r choosePSM}
 fpsm <- grep("psm.tsv", files$Name , value = TRUE)
 cat(paste(fpsm, seq = "\n"))
 fpsm <- fpsm[1]
 cat("using :", fpsm)
 ```
 
-```{r}
+```{r readDatafromZIP}
 fdataset <- grep("dataset.csv", files$Name, value = TRUE)
 
 dataset <- readr::read_csv(unz(pathtoZip, filename = fdataset))
@@ -96,7 +94,7 @@ nrSpectraPP09 <- psm$Spectrum |> unique() |> length()
 For this analysis we are using all PSM (Spectra) reported in the psm.tsv file with a peptide prophet probability greater than $0.9$, and an abundance value in any of the channels greater then $0$. No other filtering is enabled.
 This reduces the number of PSM from `r nrSpectraAll` to `r nrSpectraPP09`.
 
-```{r}
+```{r setupPROLFQUA}
 
 fasta_annot <- get_annot_from_fasta(unz(pathtoZip, filename = ffasta))
 psm <- dplyr::inner_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
@@ -151,29 +149,28 @@ allmods <- allmods |> dplyr::mutate(Modification = gsub("^[0-9]+","", Assigned.M
 
 # Identification Summary
 
-```{r}
-
+```{r identSummaryTable}
 knitr::kable(lfqdata$hierarchy_counts(), caption = "Nr of proteins, peptides, peptidoforms, precursors, psms")
 
 ```
 
-```{r, fig.height=10, fig.cap="Number of proteins etc per channel."}
+```{r identSummaryPlot, fig.height=10, fig.cap="Number of proteins etc per channel."}
 st <- lfqdata$get_Summariser()
 st$plot_hierarchy_counts_sample()
 ```
 
-```{r}
+```{r identSummaryTable2}
 knitr::kable(st$hierarchy_counts_sample(), caption = "Number of proteins etc per channel.")
 ```
 
 # Modifications Summary
 
-```{r}
+```{r modSummary}
 tx <- allmods$Modification |> table()
 knitr::kable(tx, caption = "Number of modifications observed in the data.")
 ```
 
-```{r fig.cap = "Number of modification observed in the data."}
+```{r modSummaryPlot,fig.cap = "Number of modification observed in the data."}
 barplot(tx, las = 2)
 ```
 
@@ -183,7 +180,7 @@ barplot(tx, las = 2)
 
 ### Peptides
 
-```{r }
+```{r LE}
 allmods$n1 <- 1
 xA <- allmods |> dplyr::select(modSeq, n, n1) |> dplyr::distinct()
 xN <- allmods |> dplyr::filter(Modification == "N-term(229.1629)")
@@ -200,7 +197,7 @@ nrPeptides <- xA$n1 |> sum()
 
 ### PSM's
 
-```{r }
+```{r LEPSM}
 
 nrNtermMod <- xN$n |> sum()
 nrPeptides <- xA$n |> sum()
@@ -217,7 +214,7 @@ nrPeptides <- xA$n |> sum()
 
 ### Peptides
 
-```{r}
+```{r LELysine}
 xL <- allmods |> dplyr::filter(Modification == "K(229.1629)")
 xN <- allmods |> dplyr::select(.data$modSeq, n, n1) |> dplyr::distinct()
 xN <- xN |> dplyr::filter(grepl("K", modSeq))
@@ -238,7 +235,7 @@ xN <- xN |> dplyr::filter(grepl("K", modSeq))
 
 ### Residues in peptidoforms
 
-```{r}
+```{r LEResiduesLysine}
 
 nrK <- stringr::str_count(xN$modSeq,"K") 
 nrKmod <- stringr::str_count(xN$modSeq,"K\\[")
@@ -258,7 +255,7 @@ nrKmod <- stringr::str_count(xN$modSeq,"K\\[")
 
 # Quantitative information per channel
 
-```{r total, fig.cap = "Total abundance per channel (Sum of all abundances)."}
+```{r totalQuant, fig.cap = "Total abundance per channel (Sum of all abundances)."}
 
 xx <- lfqdata$data
 totalPerChannel <- xx |> dplyr::group_by(!!sym(lfqdata$config$table$sampleName) ) |>
@@ -270,7 +267,7 @@ totalPerChannel |> ggplot2::ggplot(ggplot2::aes(x = sampleName, y = totalAbundan
 ```
 
 
-```{r relatvie, fig.cap = "Ralative to chanell 126 total abundance per chanel."}
+```{r relativeQuant, fig.cap = "Ralative to chanell 126 total abundance per chanel."}
 nudgeval = 0.1
 p126 <- totalPerChannel |> dplyr::filter(grepl("126",sampleName) )
 totalPerChannel$norm126abundance <- totalPerChannel$totalAbundance / p126$totalAbundance
@@ -282,7 +279,7 @@ totalPerChannel |> ggplot2::ggplot(aes(x = sampleName, y = norm126abundance)) +
 ```
 
 
-```{r density, fig.cap="Density of abundance values per channel."}
+```{r densityQuant, fig.cap="Density of abundance values per channel."}
 pl <- lfqdata$get_Plotter()
 pl$intensity_distribution_density()
 ```
@@ -304,7 +301,7 @@ We compute the total number of K residues, and the number of K cleavage sites (n
 Then we compute the number of K at the C-term 
 
 
-```{r}
+```{r missedAtLysine}
 modSeqD <- allmods |> dplyr::select(modSeq, n) |> dplyr::distinct() 
 patterns <- list(R = "K", termR = "K$", termRmod = "K\\[[0-9]+\\]$", termR_termRmod = "K$|K\\[[0-9]+\\]$", Rmod = "K\\[[0-9]+\\]")
 modSeqD$n1 <- 1
@@ -330,7 +327,7 @@ r <- lapply(patterns, match_count, modSeqD, count_col = "n")
 
 ## Missed Arginine residues
 
-```{r}
+```{r missedAtArginine}
 patterns <- list(R = "R", termR = "R$", termRmod = "R\\[[0-9]+\\]$", termR_termRmod = "R$|R\\[[0-9]+\\]$", Rmod = "R\\[[0-9]+\\]")
 modSeqD$n1 <- 1
 r <- lapply(patterns, match_count, modSeqD, count_col = "n")
