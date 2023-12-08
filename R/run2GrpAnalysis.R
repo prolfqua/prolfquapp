@@ -272,18 +272,25 @@ make_SummarizedExperiment <- function(GRP2, colname = "Name", rowname = "protein
   matTr <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
   matRaw <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
 
+  mat.raw <- strip_rownames(matRaw$data, strip)
+  mat.trans <- strip_rownames(matTr$data, strip)
+  col.data <- column_to_rownames(matRaw$annotation, var = colname)
+  col.data <- col.data[colnames(mat.raw),]
   x <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(rawData = strip_rownames(matRaw$data, strip), transformedData = strip_rownames(matTr$data, strip)),
-    colData = column_to_rownames(matRaw$annotation, var = colname), metadata = as.list(resTables$formula)
+    assays = list(rawData = mat.raw, transformedData = mat.trans),
+    colData = col.data, metadata = as.list(resTables$formula)
   )
 
   diffbyContrast <- split(resTables$diff_exp_analysis, resTables$diff_exp_analysis$contrast)
   for (i in names(diffbyContrast)) {
-    SummarizedExperiment::rowData(x)[[paste0("constrast_",i)]] <- column_to_rownames(diffbyContrast[[i]], var = rowname)
+    row.data <- column_to_rownames(diffbyContrast[[i]], var = rowname)
+    row.data <- row.data[rownames(mat.raw),]
+
+    SummarizedExperiment::rowData(x)[[paste0("constrast_",i)]] <- row.data
   }
 
-  SummarizedExperiment::rowData(x)[["stats_normalized_wide"]] <- column_to_rownames(resTables$stats_normalized_wide, var = rowname)
-  SummarizedExperiment::rowData(x)[["stats_raw_wide"]] <- column_to_rownames(resTables$stats_raw_wide, var = rowname)
+  SummarizedExperiment::rowData(x)[["stats_normalized_wide"]] <- column_to_rownames(resTables$stats_normalized_wide, var = rowname)[rownames(mat.raw),]
+  SummarizedExperiment::rowData(x)[["stats_raw_wide"]] <- column_to_rownames(resTables$stats_raw_wide, var = rowname)[rownames(mat.raw),]
   return(x)
 }
 

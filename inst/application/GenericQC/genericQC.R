@@ -62,7 +62,7 @@ ps <- prolfqua::ProjectStructure$new(outpath = ".",
 ps$create()
 
 #adapt project/order ID
-if(FALSE){
+if (FALSE) {
   prolfqua::render_MQSummary_rmd(lfqdata$data,
                                  config$clone(deep = TRUE),
                                  ps, format = "html")

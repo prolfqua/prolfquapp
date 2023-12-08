@@ -11,9 +11,14 @@ get_annot_from_fasta <- function(
     rev= "REV_",
     isUniprot = TRUE) {
   fasta <- list()
-  for (fasta.file in fasta.files) {
-    x <- seqinr::read.fasta(file = fasta.file, as.string = TRUE, seqtype = "AA")
-    fasta <- c(fasta, x)
+
+  if ("connection" %in% class(fasta.files) ) {
+    fasta <- seqinr::read.fasta(file = fasta.files, as.string = TRUE, seqtype = "AA")
+  } else {
+    for (fasta.file in fasta.files) {
+      x <- seqinr::read.fasta(file = fasta.file, as.string = TRUE, seqtype = "AA")
+      fasta <- c(fasta, x)
+    }
   }
 
   fasta_annot <- prolfqua::matrix_to_tibble(
