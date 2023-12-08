@@ -58,10 +58,9 @@ x <- prozor::make_fasta_summary(fasta,as_string = TRUE)
 ```
 
 The FASTA database has `r fastaWithRev` sequences including decoys, and `r fastaNoRev` without decoys.
-Below are the amino acids frequencies .
+Below are the amino acid frequencies .
 
 ```{r printFASTA}
-#| echo: true
 cat(x)
 
 ```
