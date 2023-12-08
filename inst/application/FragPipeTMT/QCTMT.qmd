@@ -142,10 +142,7 @@ allmods <- allmods |> tidyr::separate_longer_delim("Assigned.Modifications", del
 allmods <- allmods |> dplyr::mutate(Assigned.Modifications = trimws(Assigned.Modifications))
 allmods <- allmods |> dplyr::mutate(Modification = gsub("^[0-9]+","", Assigned.Modifications))
 
-
 ```
-
-
 
 # Identification Summary
 
