@@ -24,23 +24,24 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 ```{r readYaml}
 pathtoZip <- if (exists("params") && !is.null(params$zipfile)) {
-  params$zipfile } else { "qcdata/FragPipeTMT_o33437_human.zip"  }
+  params$zipfile } else { "qcdata/FragPipeTMT-datasetvsUP000005640.zip"  }
 
 files <- unzip(pathtoZip, list = TRUE)
 fyaml <- grep(".yaml", files$Name , value = TRUE)
 pconfig <- yaml::read_yaml(unz(pathtoZip, filename = fyaml))
 application_params <- data.frame(
   name = names(unlist(pconfig$application$parameters)),
-                             value = unlist(pconfig$application$parameters))
+  value = unlist(pconfig$application$parameters))
 rownames(application_params) <- NULL
 knitr::kable(application_params, caption = "application parameters")
 
 addinfo <- data.frame(name = c("workunit_id", "project_id", "order_id", "datasetname", "fastasequence"),
-value =  c(pconfig$job_configuration$workunit_id,
-ifelse(is.null(pconfig$job_configuration$project_id), "", pconfig$job_configuration$project_id),
-pconfig$job_configuration$order_id,
-pconfig$job_configuration$inputdataset$name,
-gsub("\\n", "<br/>",pconfig$job_configuration$fastasequence)))
+                      value =  c(
+                        ifelse(is.null(pconfig$job_configuration$workunit_id),"",pconfig$job_configuration$project_id),
+                        ifelse(is.null(pconfig$job_configuration$project_id), "", pconfig$job_configuration$project_id),
+                        ifelse(is.null(pconfig$job_configuration$order_id),"",pconfig$job_configuration$order_id),
+                        pconfig$job_configuration$inputdataset$name,
+                        gsub("\\n", "<br/>",pconfig$job_configuration$fastasequence)))
 
 knitr::kable(addinfo, caption = "project information")
 ```
