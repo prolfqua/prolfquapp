@@ -8,8 +8,6 @@ editor_options:
   chunk_output_type: console
 params:
   zipfile: NULL
-  project: 3000
-  workunit: 3000
 ---
 
 ```{r}
@@ -25,14 +23,64 @@ ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
+# Configuration
 
+```{r readYaml}
 
-```{r}
-pathtoZip <- "qcdata/FragPipeTMT_o33075_QC_mini.zip"
+pathtoZip <- if( exists("params") && !is.null(params$zipfile)) {
+  params$zipfile } else { "qcdata/FragPipeTMT_o33281_TMT2.zip"  }
+  
 files <- unzip(pathtoZip, list = TRUE)
 
+fyaml <- grep(".yaml", files$Name , value = TRUE)
+pconfig <- yaml::read_yaml(unz(pathtoZip, filename = fyaml))
+application_params <- data.frame(
+  name = names(unlist(pconfig$application$parameters)),
+                             value = unlist(pconfig$application$parameters))
+rownames(application_params) <- NULL
+knitr::kable(application_params, caption = "application parameters")
+
+addinfo <- data.frame(name = c("workunit_id", "project_id", "order_id", "datasetname", "fastasequence"),
+value =  c(pconfig$job_configuration$workunit_id,
+ifelse(is.null(pconfig$job_configuration$project_id), "", pconfig$job_configuration$project_id),
+pconfig$job_configuration$order_id,
+pconfig$job_configuration$inputdataset$name,
+pconfig$job_configuration$fastasequence))
+
+knitr::kable(addinfo, caption = "project information")
+```
+
+# FASTA summary
+
+```{r}
 ffasta <- grep(".fasta", files$Name , value = TRUE)
+fasta <- prozor::readPeptideFasta(unz(pathtoZip,filename =  ffasta))
+fastaWithRev <- length(fasta)
+fasta <- fasta[!grepl("REV_", names(fasta))]
+fastaNoRev <- length(fasta)
+x <- prozor::make_fasta_summary(fasta,as_string = TRUE)
+
+```
+
+The FASTA database has `r fastaWithRev` sequences including decoys, and `r fastaNoRev` without decoys.
+Below are the amino acids frequencies .
+
+```{r}
+#| echo: true
+cat(x)
+
+```
+
+PSM files in zip archive, QC will only use the first psm file.
+
+```{r}
 fpsm <- grep("psm.tsv", files$Name , value = TRUE)
+cat(paste(fpsm, seq = "\n"))
+fpsm <- fpsm[1]
+cat("using :", fpsm)
+```
+
+```{r}
 fdataset <- grep("dataset.csv", files$Name, value = TRUE)
 
 dataset <- readr::read_csv(unz(pathtoZip, filename = fdataset))
@@ -279,7 +327,7 @@ r <- lapply(patterns, match_count, modSeqD, count_col = "n")
 - The number of any K at C term `r r$termR_termRmod`
 - The number of any modified K: `r r$Rmod`
 - Missed cleavage sites : number of K residues - number of any K at C term = `r r$R - r$termR_termRmod`,
-- and in \% of number of K residues `r round((r$R - r$termR_termRmod)/r$R *100)`
+- and in \% of number of K residues : `r round((r$R - r$termR_termRmod)/r$R *100)`
 
 
 ## Missed Arginine residues
@@ -297,8 +345,9 @@ r <- lapply(patterns, match_count, modSeqD, count_col = "n")
 - The number of any R at C term `r r$termR_termRmod`
 - The number of any modified R: `r r$Rmod`
 - Missed cleavage sites : number of R residues - number of any R at C term = `r r$R - r$termR_termRmod`,
-- and in \%  of number of R residues`r round((r$R - r$termR_termRmod)/r$R *100)`
+- and in \%  of number of R residues : `r round((r$R - r$termR_termRmod)/r$R *100)`
 
+# Session Info
 
 ```{r}
 sessionInfo()
