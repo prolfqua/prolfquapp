@@ -35,7 +35,7 @@ REPORTDATA$spc <- FALSE
 REPORTDATA$FCthreshold <- if(!is.null(as.numeric( yml$application$parameters$`22|FCthreshold` ))){
   as.numeric( yml$application$parameters$FCthreshold ) } else { 2 }
 REPORTDATA$FDRthreshold <- if(!is.null(as.numeric( yml$application$parameters$`21|BFDRsignificance` ))){
-  as.numeric(yml$application$parameters$BFDRsignificance) } else {0.1}
+  as.numeric(yml$application$parameters$`21|BFDRsignificance`) } else {0.1}
 
 # Prefix for exported files
 treat <- "DIANN_"
