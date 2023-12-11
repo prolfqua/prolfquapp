@@ -14,6 +14,7 @@ params:
 #| echo: false
 #| warning: false
 #| message: false
+library(tidyverse)
 library(prolfquapp)
 library(ggplot2)
 ggplot2::theme_set(ggplot2::theme_bw())
@@ -206,7 +207,6 @@ nrPeptides <- xA$n1 |> sum()
 ### PSM's
 
 ```{r LEPSM}
-
 nrNtermModPSM <- xN$n |> sum()
 nrPSM <- xA$n |> sum()
 
@@ -244,23 +244,27 @@ xN <- xN |> dplyr::filter(grepl("K", modSeq))
 ### Residues in peptidoforms
 
 ```{r LEResiduesLysine}
-xN <- allmods |> dplyr::select(.data$modSeq, n, n1) |> dplyr::distinct()
+xN <- allmods |> dplyr::select(.data$modSeq, .data$n, .data$n1) |> dplyr::distinct()
 nrK <-  xN |> dplyr::mutate(nrK = stringr::str_count(modSeq,"K"))
 
 nrKmod <- allmods |> dplyr::filter(Modification == "K(229.1629)" | Modification == "K(304.2071)")
-nrKmod <- nrKmod |> dplyr::group_by(modSeq , n , n1) |> dplyr::summarize(nrKmod = dplyr::n(), .groups="drop") |> dplyr::ungroup()
+nrKmod <- nrKmod |> dplyr::group_by(.data$modSeq , n , n1) |> dplyr::summarize(nrKmod = dplyr::n(), .groups="drop") |> dplyr::ungroup()
+
+nrLys <- (nrK$nrK * nrK$n1) |> sum()
+nrLysMod <- (nrKmod$nrKmod * nrKmod$n1) |> sum()
+prcLysMod <- round( ( (nrKmod$nrKmod * nrKmod$n1) |> sum()) / ((nrK$nrK * nrK$n1) |> sum()) * 100)
 
 ```
 
-- Total number of Lysine residues: `r (nrK$nrK * nrK$n1) |> sum() `
-- Number of modified Lysine residues : `r (nrKmod$nrKmod * nrKmod$n1) |> sum()`
-- Percent modified Lysine residues: `r round( ( (nrKmod$nrKmod * nrKmod$n1) |> sum()) / ((nrK$nrK * nrK$n1) |> sum()) * 100)` \%
+- Total number of Lysine residues: `r  nrLys`
+- Number of modified Lysine residues : `r nrLysMod`
+- Percent modified Lysine residues: `r prcLysMod` \%
 
 ### Residues in PSM's
 
-- Total number of Lysine residues: `r (nrK * xN$n) |> sum() `
-- Number of modified Lysine residues : `r (nrKmod * xN$n) |> sum()`
-- Percent modified Lysine residues when taking number of PSMs into account: `r round( ((nrKmod * xN$n) |> sum()) / ((nrK * xN$n) |> sum() ) * 100 )  ` \%
+- Total number of Lysine residues: `r sum(nrK$nrK * nrK$n) `
+- Number of modified Lysine residues : `r sum(nrKmod$nrKmod * nrKmod$n)`
+- Percent modified Lysine residues when taking number of PSMs into account: `r round( sum(nrKmod$nrKmod * nrKmod$n) / sum(nrK$nrK * nrK$n) * 100 )  ` \%
 
 
 # Quantitative information per channel
@@ -269,11 +273,12 @@ nrKmod <- nrKmod |> dplyr::group_by(modSeq , n , n1) |> dplyr::summarize(nrKmod 
 
 xx <- lfqdata$data
 totalPerChannel <- xx |> dplyr::group_by(!!sym(lfqdata$config$table$sampleName) ) |>
-  dplyr::summarize(totalAbundance = sum(!!sym(lfqdata$response()), na.rm=TRUE))
+  dplyr::summarize(totalAbundance = sum(!!sym(lfqdata$response()), na.rm = TRUE))
 
 totalPerChannel |> ggplot2::ggplot(ggplot2::aes(x = sampleName, y = totalAbundance)) + 
   ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black", fill = "white") + 
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1))
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1))
+
 ```
 
 
@@ -286,6 +291,7 @@ totalPerChannel |> ggplot2::ggplot(aes(x = sampleName, y = norm126abundance)) +
   ggplot2::geom_text(ggplot2::aes(label = round(.data$norm126abundance,2)), nudge_y = nudgeval, angle = 65) +
   ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 # TODO add numbers to bars and table.
+
 ```
 
 
@@ -354,6 +360,6 @@ r <- lapply(patterns, match_count, modSeqD, count_col = "n")
 
 # Session Info
 
-```{r}
+```{r sessionInfo}
 sessionInfo()
 ```
