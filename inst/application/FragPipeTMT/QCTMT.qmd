@@ -360,5 +360,5 @@ r <- lapply(patterns, match_count, modSeqD, count_col = "n")
 # Session Info
 
 ```{r sessionInfo}
-sessionInfo()
+pander::pander(sessionInfo())
 ```
