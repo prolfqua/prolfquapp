@@ -46,6 +46,22 @@ addinfo <- data.frame(name = c("workunit_id", "project_id", "order_id", "dataset
 knitr::kable(addinfo, caption = "project information")
 ```
 
+
+There are PSM (psm.tsv) files in zip archive:
+```{r choosePSM}
+fpsm <- grep("psm.tsv", files$Name , value = TRUE)
+cat(paste(fpsm, seq = "\n"))
+
+```
+
+QC will only use the first psm file.
+
+```{r}
+fpsm <- fpsm[1]
+cat("using :", fpsm)
+```
+
+
 # FASTA summary
 
 ```{r analyseFASTA}
@@ -66,14 +82,6 @@ cat(x)
 
 ```
 
-PSM files in zip archive, QC will only use the first psm file.
-
-```{r choosePSM}
-fpsm <- grep("psm.tsv", files$Name , value = TRUE)
-cat(paste(fpsm, seq = "\n"))
-fpsm <- fpsm[1]
-cat("using :", fpsm)
-```
 
 ```{r readDatafromZIP}
 fdataset <- grep("dataset.csv", files$Name, value = TRUE)
@@ -108,7 +116,6 @@ prot_annot <- prolfquapp::dataset_protein_annot(
   c("protein_Id" = "Protein"),
   protein_annot = "fasta.header",
   more_columns = "nrPeptides")
-# prot_annot |> filter(grepl("^zz",protein_Id)) |> head()
 
 psm$qValue <- 1 - psm$PeptideProphet.Probability
 
@@ -138,11 +145,12 @@ adata <- prolfqua::setup_analysis(psm, config)
 lfqdata <- prolfqua::LFQData$new(adata, config)
 
 allmods <- lfqdata$data |> dplyr::select(mod_peptide_Id, Spectrum) |> dplyr::distinct()
-allmods <- allmods |> dplyr::group_by(mod_peptide_Id) |> dplyr::summarize(n = dplyr::n())
+allmods <- allmods |> dplyr::group_by(mod_peptide_Id) |> dplyr::summarize(n = dplyr::n()) |> dplyr::ungroup()
 allmods <- allmods |> tidyr::separate(mod_peptide_Id, into = c("modSeq", "Assigned.Modifications"), sep = "~")
 allmods <- allmods |> tidyr::separate_longer_delim("Assigned.Modifications", delim = ",")
 allmods <- allmods |> dplyr::mutate(Assigned.Modifications = trimws(Assigned.Modifications))
 allmods <- allmods |> dplyr::mutate(Modification = gsub("^[0-9]+","", Assigned.Modifications))
+allmods$n1 <- 1
 
 ```
 
@@ -180,13 +188,14 @@ barplot(tx, las = 2)
 ### Peptides
 
 ```{r LE}
-allmods$n1 <- 1
+
 xA <- allmods |> dplyr::select(modSeq, n, n1) |> dplyr::distinct()
 xN <- allmods |> dplyr::filter(Modification == "N-term(229.1629)" | Modification == "N-term(304.2071)")
 xN <- xN |> dplyr::select(modSeq, n, n1) |> dplyr::distinct()
 
 nrNtermMod <- xN$n1 |> sum()
 nrPeptides <- xA$n1 |> sum()
+
 ```
 
 - Total number of peptides : `r nrPeptides`
@@ -198,14 +207,14 @@ nrPeptides <- xA$n1 |> sum()
 
 ```{r LEPSM}
 
-nrNtermMod <- xN$n |> sum()
-nrPeptides <- xA$n |> sum()
+nrNtermModPSM <- xN$n |> sum()
+nrPSM <- xA$n |> sum()
 
 ```
 
-- Total number of PSMs : `r nrPeptides`
-- Number of PSMs with modified N-term : `r nrNtermMod`
-- Percent PSMs with modified N-term: `r round(nrNtermMod/nrPeptides*100)` \%
+- Total number of PSMs : `r nrPSM`
+- Number of PSMs with modified N-term : `r nrNtermModPSM`
+- Percent PSMs with modified N-term: `r round(nrNtermModPSM/nrPSM*100)` \%
 
 
 
@@ -215,9 +224,9 @@ nrPeptides <- xA$n |> sum()
 
 ```{r LELysine}
 xL <- allmods |> dplyr::filter(Modification == "K(229.1629)" | Modification == "K(304.2071)")
+xL <- xL |> dplyr::select(.data$modSeq, n, n1) |> dplyr::distinct()
 xN <- allmods |> dplyr::select(.data$modSeq, n, n1) |> dplyr::distinct()
 xN <- xN |> dplyr::filter(grepl("K", modSeq))
-
 
 ```
 
@@ -235,15 +244,17 @@ xN <- xN |> dplyr::filter(grepl("K", modSeq))
 ### Residues in peptidoforms
 
 ```{r LEResiduesLysine}
+xN <- allmods |> dplyr::select(.data$modSeq, n, n1) |> dplyr::distinct()
+nrK <-  xN |> dplyr::mutate(nrK = stringr::str_count(modSeq,"K"))
 
-nrK <- stringr::str_count(xN$modSeq,"K") 
-nrKmod <- stringr::str_count(xN$modSeq,"K\\[")
+nrKmod <- allmods |> dplyr::filter(Modification == "K(229.1629)" | Modification == "K(304.2071)")
+nrKmod <- nrKmod |> dplyr::group_by(modSeq , n , n1) |> dplyr::summarize(nrKmod = dplyr::n(), .groups="drop") |> dplyr::ungroup()
 
 ```
 
-- Total number of Lysine residues: `r (nrK * xN$n1) |> sum() `
-- Number of modified Lysine residues : `r (nrKmod * xN$n1) |> sum()`
-- Percent modified Lysine residues: `r round( ((nrKmod * xN$n) |> sum()) / ((nrK * xN$n) |> sum()) * 100)` \%
+- Total number of Lysine residues: `r (nrK$nrK * nrK$n1) |> sum() `
+- Number of modified Lysine residues : `r (nrKmod$nrKmod * nrKmod$n1) |> sum()`
+- Percent modified Lysine residues: `r round( ( (nrKmod$nrKmod * nrKmod$n1) |> sum()) / ((nrK$nrK * nrK$n1) |> sum()) * 100)` \%
 
 ### Residues in PSM's
 
