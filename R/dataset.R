@@ -47,7 +47,7 @@ dataset_extract_contrasts <- function(annot, GRP2) {
 #'   cat(i, " : " , length(tmp$atable$factors), "factors : ", paste(tmp$atable$factors, collapse = "; "), "\n")
 #' }
 #'
-dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
+dataset_set_factors <- function(atable, msdata, REPEATED = TRUE, SAINT = FALSE) {
   if (sum(grepl("^name", colnames(msdata), ignore.case = TRUE)) > 0) {
     atable$sampleName <- grep("^name", colnames(msdata), value = TRUE, ignore.case = TRUE)
   }
@@ -60,7 +60,7 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
 
   groupingVAR <- grep("^group|^bait|^Experiment", colnames(msdata), value = TRUE, ignore.case = TRUE)
   if (any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
-    groupingVAR <- grep("^bait", groupingVAR, value=TRUE, ignore.case = TRUE)[1]
+    groupingVAR <- grep("^bait", groupingVAR, value = TRUE, ignore.case = TRUE)[1]
   } else {
     groupingVAR <- groupingVAR[1]
   }
@@ -68,11 +68,11 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE) {
   msdata[[groupingVAR]] <- gsub("[[:space:]]", "", msdata[[groupingVAR]])
   msdata[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", msdata[[groupingVAR]])
 
-  #if(any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
-  #  atable$factors[["Bait_"]] = groupingVAR
-  #} else {
-  atable$factors[["Group_"]] = groupingVAR
-  #}
+  if (SAINT) {
+    atable$factors[["Bait_"]] = groupingVAR
+  } else {
+    atable$factors[["Group_"]] = groupingVAR
+  }
 
 
   atable$factorDepth <- 1
