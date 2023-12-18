@@ -100,7 +100,7 @@ atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
 atable$set_response("Peptide.Quantity")
 atable$hierarchyDepth <- 1
 
-res <- prolfquapp::dataset_set_factors(atable, peptide)
+res <- prolfquapp::dataset_set_factors(atable, peptide, SAINT = TRUE)
 
 # attach annotation to combined_protein data
 # annotation$raw.file <- basename(annotation$relative.path)

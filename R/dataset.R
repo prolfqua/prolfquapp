@@ -74,7 +74,7 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE, SAINT = FALSE) 
 
   groupingVAR <- grep("^group|^bait|^Experiment", colnames(msdata), value = TRUE, ignore.case = TRUE)
   if (any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
-    groupingVAR <- grep("^bait", groupingVAR, value=TRUE, ignore.case = TRUE)[1]
+    groupingVAR <- grep("^bait", groupingVAR, value = TRUE, ignore.case = TRUE)[1]
   } else {
     groupingVAR <- groupingVAR[1]
   }
@@ -82,7 +82,7 @@ dataset_set_factors <- function(atable, msdata, REPEATED = TRUE, SAINT = FALSE) 
   msdata[[groupingVAR]] <- gsub("[[:space:]]", "", msdata[[groupingVAR]])
   msdata[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", msdata[[groupingVAR]])
 
-  if(SAINT) {
+  if (SAINT) {
     atable$factors[["Bait_"]] = groupingVAR
   } else {
     atable$factors[["Group_"]] = groupingVAR
