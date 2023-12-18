@@ -40,6 +40,7 @@ prot_annot <- prolfquapp::dataset_protein_annot(
 dsf <- "dataset.csv"
 annot <- read.csv(dsf)
 annot <- data.frame(lapply(annot, as.character))
+
 annot <- annot |> dplyr::mutate(
   raw.file = gsub("^x|.d.zip$|.raw$","",
                   (basename(annot$Relative.Path))

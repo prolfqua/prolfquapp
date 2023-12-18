@@ -20,6 +20,9 @@ GRP2$pop$nrPeptides <- 2
 annot <- read.csv(dsf)
 annot <- data.frame(lapply(annot, as.character))
 
+
+
+annot <- prolfquapp::sanitize_grouping_var(annot)
 annot <- annot |> dplyr::mutate(
   raw.file = gsub(
     "^x|.d.zip$|.raw$",
