@@ -45,6 +45,8 @@ Other ProlfquAppConfig:
 \item{\code{missing}}{model missigness, default TRUE}
 
 \item{\code{model}}{name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"}
+
+\item{\code{other}}{list with additional options}
 }
 \if{html}{\out{</div>}}
 }

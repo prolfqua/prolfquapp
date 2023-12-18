@@ -4,7 +4,7 @@
 \alias{dataset_set_factors}
 \title{set factors and sample names columns}
 \usage{
-dataset_set_factors(atable, msdata, REPEATED = TRUE)
+dataset_set_factors(atable, msdata, REPEATED = TRUE, SAINT = FALSE)
 }
 \description{
 set factors and sample names columns

@@ -9,7 +9,12 @@
 \usage{
 make_DEA_report(lfqdata, protAnnot, GRP2)
 
-make_SummarizedExperiment(GRP2)
+make_SummarizedExperiment(
+  GRP2,
+  colname = "Name",
+  rowname = "protein_Id",
+  strip = "~lfq~light"
+)
 
 write_DEA(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE)
 
