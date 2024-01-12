@@ -195,11 +195,11 @@ if (grp2$pop$transform == "robscale") {
 
 pl <- grp2$RES$lfqData$get_Plotter()
 
-
-p1 <- pl$intensity_distribution_density(legend = if (nrow(grp2$RES$lfqData$factors()) > 12) {FALSE} else {TRUE})
+showlegend <- if (nrow(grp2$RES$lfqData$factors()) > 12) {FALSE} else {TRUE}
+p1 <- pl$intensity_distribution_density(legend = showlegend)
 
 plTransformed <- grp2$RES$transformedlfqData$get_Plotter()
-p2 <- plTransformed$intensity_distribution_density() +
+p2 <- plTransformed$intensity_distribution_density(legend = showlegend) +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1))
 
 gridExtra::grid.arrange(p1, p2, nrow = 1)
