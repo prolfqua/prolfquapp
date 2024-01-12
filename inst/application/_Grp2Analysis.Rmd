@@ -194,7 +194,9 @@ if (grp2$pop$transform == "robscale") {
 ```{r normalized,  fig.width=8, fig.height=5,dpi=300, fig.cap="(ref:normalized)", eval=TRUE}
 
 pl <- grp2$RES$lfqData$get_Plotter()
-p1 <- pl$intensity_distribution_density()
+
+
+p1 <- pl$intensity_distribution_density(legend = if (nrow(grp2$RES$lfqData$factors()) > 12) {FALSE} else {TRUE})
 
 plTransformed <- grp2$RES$transformedlfqData$get_Plotter()
 p2 <- plTransformed$intensity_distribution_density() +
