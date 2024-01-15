@@ -50,17 +50,17 @@ __project__: `r grp2$Bfabric$projectID`, __order__: `r grp2$Bfabric$orderID`, `r
 The protein identification and quantification were performed using: 
 `r if(!is.null(grp2$Software)){grp2$Software} else {"<Specify parameter grp2$Software>"}`. The input file can be downloaded from here : [`r grp2$Bfabric$inputID`](`r grp2$Bfabric$inputURL`). The set of parameters used to run the quantification software can be retrieved from the b-fabric workunit to which this file belongs.
 
+
 # Introduction
 
 The differential expression analysis verifies if the __difference__ between normalized empirical protein abundances measured in two groups is significantly non-zero.
 To make the test as sensitive and specific as possible, the methods used to measure [@taverna2021critical] and estimate protein abundances [@grossmann2010implementation] are optimized to minimize the biochemical and technical variance. In addition these empirical abundances $A$ are further $log_2$ transformed and scaled to make them compatible with the statistical test procedure [@valikangas2018systematic]. Therefore, we obtain a scale free $\log_2$ transformed normalized protein abundances $\log_2(A)$ for a sample.
 
-For unpaired experiments the difference $\Delta$ for a specific protein is estimated by:  
+For unpaired experiments the difference $\Delta$ between group $a$ and $b$, for a specific protein is estimated by:  
 
 $$
 \Delta = \frac{1}{n}\sum_{i=1}^n \log_2(A^a_i) - \frac{1}{m}\sum_{j=1}^{m}\log_2(A^b_j)
 $$
-
 
 
 where $A^a_i$ - is the normalized protein abundance of sample $i$ in the group $a$ of $n$ samples, while $A^b_j$ is the protein abundance of sample $j$ in group $b$ of $m$ samples.
