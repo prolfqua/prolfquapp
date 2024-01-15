@@ -43,7 +43,7 @@ grp2 <- params$grp
 
 # B-fabric related information
 
-This report is stored in the LIMS system [_bfabric_](https://fgcz-bfabric.uzh.ch) [@Trker2010] in
+This report is stored in the LIMS system [_bfabric_](https://fgcz-bfabric.uzh.ch) [@panse2022bridging] in
 __project__: `r grp2$Bfabric$projectID`, __order__: `r grp2$Bfabric$orderID`, `r if(!is.null(grp2$Bfabric$workunitID)){ "with the workunit name :" }`  `r grp2$Bfabric$workunitID`.
 
 
