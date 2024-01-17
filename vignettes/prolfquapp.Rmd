@@ -2,6 +2,12 @@
 title: "prolfquapp - an R package to report differential expression analysis results."
 output: html_document
 date: "2022-12-21"
+
+vignette: >
+  %\VignetteIndexEntry{prolfquapp - an R package to report differential expression analysis results.}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+
 ---
 
 ```{r setup, include=FALSE}

@@ -4,6 +4,11 @@ output: html_document
 date: "2023-09-05"
 editor_options: 
   chunk_output_type: console
+vignette: >
+  %\VignetteIndexEntry{Compare Total Proteome with palmitoylated proteins} 
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+
 ---
 
 ```{r setup, include=FALSE}
@@ -91,10 +96,10 @@ abline(0,1, col = 2 )
 
 ```{r, fig.cap = "# of proteins as a function of peptides per prortein"}
 
-par(mfrow=c(1,2))
+par(mfrow = c(1,2))
 
-plot(table(df$nrPeptides.A), xlim=c(0,50), main = "A")
-plot(table(df$nrPeptides.B), xlim=c(0,50), main = "B")
+plot( table(df$nrPeptides.A), xlim = c(0,50), main = "A")
+plot( table(df$nrPeptides.B), xlim = c(0,50), main = "B")
 
 ```
 
@@ -119,19 +124,19 @@ df <- df |> mutate(tstatistic_I = diffA_diffB / SE_I)
 
 ```{r fig.cap="density of fold changes", include = FALSE}
 par(mfrow = c(2,1))
-plot(density(df$diff.A), xlim=c(-1,1))
-lines(density(df$diff.B),col=2)
-lines(density(df$diffA_diffB),col=3)
+plot(density(df$diff.A), xlim = c(-1,1))
+lines(density(df$diff.B),col = 2)
+lines(density(df$diffA_diffB),col = 3)
 ```
 
 ```{r fig.cap = "standard error distribution", include = FALSE}
-plot(density(df$std.error.A), xlim=c(0,0.4))
-lines(density(df$std.error.B),col=2)
-lines(density(df$SE_I),col=3)
+plot(density(df$std.error.A), xlim = c(0,0.4))
+lines(density(df$std.error.B),col = 2)
+lines(density(df$SE_I),col = 3)
 ```
 
 ```{r include = FALSE}
-par(mfrow=c(1,3))
+par(mfrow = c(1,3))
 hist(df$df.A, breaks = 100)
 hist(df$df.B, breaks = 100)
 hist(df$df_I, breaks = 100)
@@ -172,7 +177,7 @@ DT::datatable(bb, filter = "bottom",
                  scrollY = 300,
                  scrollX = 400,
                  scroller = TRUE) ) |>
-  DT::formatRound(columns = grep("diff|FDR", colnames(df), value= TRUE), digits = 2)
+  DT::formatRound(columns = grep("diff|FDR", colnames(df), value = TRUE), digits = 2)
 
 ```
 
@@ -228,7 +233,7 @@ ggplot(df, aes(x = diff.A, y = diff.B, color = sig)) +
 ```
 
 ```{r, "diff of difference as function of the mean of the differences. In red are proteins where diff of difference is signifant."}
-ggplot(df, aes(x=(diff.A + diff.B)/2, y=diffA_diffB, color = sig)) + 
+ggplot(df, aes(x = (diff.A + diff.B)/2, y = diffA_diffB, color = sig)) + 
   geom_point(alpha = 0.3) +
   facet_wrap(~ contrast) + theme_bw() + scale_color_manual(values=c('black','red')) + 
   geom_abline(intercept = 0, slope = 0)

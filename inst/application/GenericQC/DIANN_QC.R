@@ -97,6 +97,7 @@ if (!is.null(peptide)) {
   # else the report will be generated but without this information.
   if (length(dataset.csv) > 0) {
     annotation <- read.csv(dataset.csv)
+    annotation <- lapply(annotation, as.character)
     annotation$inputresource.name <- tools::file_path_sans_ext(basename(annotation$Relative.Path))
     annotation$inputresource.name <- gsub("\\.d$","", annotation$inputresource.name) # remove .d for bruker timstof data.
     if ("Name" %in% colnames(annotation)) {
