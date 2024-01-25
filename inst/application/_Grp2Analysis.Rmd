@@ -438,7 +438,7 @@ if (length(xx) > 1) {
 
 # Additional Analysis
 
-The zip file contains an excel file __Results.xlsx__. All the figures can be recreated using the data in the excel file. The Excel file contains the following spreadsheets:
+The zip file contains an excel file __DE_Groups_vs_Controls.xlsx__. All the figures can be recreated using the data in the excel file. The Excel file contains the following spreadsheets:
 
 - __annotation__ - the annotation of the samples in the experiment
 - __raw_abundances__ table with empirical protein abundances.
@@ -449,8 +449,6 @@ The zip file contains an excel file __Results.xlsx__. All the figures can be rec
 - __missing_information__ - spreadsheet containing information if a protein is present (1) or absent in a group (0).
 - __protein_variances__ - spreadsheet which for each protein shows the variance (var) or standard deviation (sd) within a group, the number of samples (n) and the number of observations (not_na) as well as the group average intensity (mean).
 
-
-The zip file also includes an "boxplot.pdf" file which shows the boxplots of normalized protein abundances for all the proteins in the dataset.
 
 The data can be used to perform functional enrichment analysis [@monti2019proteomics]. 
 To compare the obtained results with known protein interactions we recommend the [string-db.org](https://string-db.org/) [@Szklarczyk2017], which is a curated database of protein-protein interaction networks for a large variety of organisms. To simplify the data upload to string-db we include text files containing the uniprot ids:
