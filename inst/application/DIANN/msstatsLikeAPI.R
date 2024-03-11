@@ -36,8 +36,8 @@ logger::log_info("END OF PROTEIN AGGREGATION")
 
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
-prolfquapp::write_DEA_all(grp[[1]], names(grp), GRP2$zipdir , boxplot = FALSE)
+prolfquapp::write_DEA_all(grp[[1]], names(grp)[1], GRP2$zipdir , boxplot = FALSE)
 
 SE <- prolfquapp::make_SummarizedExperiment(grp[[1]])
-saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", names(grp)[i]) , paste0("SummarizedExperiment",".rds") ))
+saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", names(grp)[1]) , paste0("SummarizedExperiment",".rds") ))
 
