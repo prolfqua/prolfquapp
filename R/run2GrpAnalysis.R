@@ -145,7 +145,7 @@ make_DEA_report <- function(lfqdata,
                             GRP2
 ) {
   ### Do some type of data normalization (or do not)
-
+  warning("DEPRECATED")
   transformed <- transform_lfqdata(
     lfqdata,
     method = GRP2$pop$transform,

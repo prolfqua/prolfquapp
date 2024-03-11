@@ -1,3 +1,4 @@
+#' check if all required columns in annotation file are there.
 check_annotation <- function(annot) {
   samples <- grep("^channel|^Relative|^raw", colnames(annot), ignore.case = TRUE, value = TRUE)
   stopifnot(length(samples) >= 1)
@@ -8,7 +9,9 @@ check_annotation <- function(annot) {
 }
 
 
-# Public interface
+#' read annotation files
+#' @return list with annot (annotation table), atable (analtysis table configuration), contrasts list with contrasts.
+#' @export
 read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE){
   if ("data.frame" %in% class(dsf) ) {
     annot <- dsf
@@ -17,14 +20,14 @@ read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE){
   }
   annot <- data.frame(lapply(annot, as.character))
   check_annotation(dsf)
-  res <- dataset_set_factors2(annot, REPEATED = REPEATED, SAINT = SAINT)
+  res <- dataset_set_factors(annot, REPEATED = REPEATED, SAINT = SAINT)
   contrasts <- extract_contrasts(res$annot)
   res[["contrasts"]] <- contrasts
   return(res)
 }
 
 
-dataset_set_factors2 <- function(annot, REPEATED = TRUE, SAINT = FALSE) {
+dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE) {
 
   atable <- prolfqua::AnalysisTableAnnotation$new()
 

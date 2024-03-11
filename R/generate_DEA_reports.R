@@ -3,6 +3,7 @@
 #' @export
 #'
 generate_DEA_reports <- function(lfqdata, GRP2, prot_annot) {
+  warning("DEPRECATED")
   # Compute all possible 2 Grps to avoid specifying reference.
   res <- list()
   levels  <- lfqdata$factors() |>
