@@ -81,6 +81,10 @@ ProlfquAppConfig <- R6::R6Class(
     software = character(),
     #' @field zipdir results should go to zipdir
     zipdir = character(),
+    #' @field pop optional processing options
+    pop = list(),
+    #' @field RES resuls
+    RES = list(),
     #' @description
     #' set procession options and project spec
     #' @param processing_options instance of ProjectOptions
@@ -155,8 +159,8 @@ make_DEA_config_R6 <- function(
     WORKUNITID ="",
     Normalization = c("vsn", "quantile", "robscale"),
     aggregation = c("medpolish" , "top3", "lmrob"),
-    Diffthreshold = 1,
-    FDRthreshold = 0.1,
+    diff_threshold = 1,
+    FDR_threshold = 0.1,
     nr_peptides = 1,
     removeContaminants = FALSE,
     removeDecoys = FALSE,
@@ -173,8 +177,8 @@ make_DEA_config_R6 <- function(
   pop$pattern_decoys = patternDecoys
   pop$remove_cont = removeContaminants
   pop$remove_decoys = removeDecoys
-  pop$FDR_threshold = FDRthreshold
-  pop$diff_threshold = Diffthreshold
+  pop$FDR_threshold = FDR_threshold
+  pop$diff_threshold = diff_threshold
   pop$aggregate = aggregation
   pop$transform = Normalization
   pop$nr_peptides = nr_peptides

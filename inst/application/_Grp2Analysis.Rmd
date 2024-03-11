@@ -110,7 +110,7 @@ knitr::kable(grp2$RES$lfqData$factors(), caption = "LC-MS samples annotation tab
 
 The protein matrix is filtered using the following threshold:
 
-- Minimum number of peptides / protein: `r grp2$pop$nrPeptides`.
+- Minimum number of peptides / protein: `r grp2$processing_options$nr_peptides`.
 
 The overall number of proteins including contaminant proteins in this experiment is: `r grp2$RES$Summary$NrOfProteinsNoDecoys`.
 The percentage of contaminant proteins is : `r grp2$RES$Summary$percentOfContaminants` %. The percentage of false positive identifications (Decoy sequences) is `r grp2$RES$Summary$percentOfFalsePositives` %.
@@ -177,13 +177,13 @@ The density plot (Figure \@ref(fig:normalized) left panel)  displays the protein
 
 
 ```{r normalization, results = 'asis'}
-if (grp2$pop$transform == "robscale") {
+if (grp2$processing_options$transform == "robscale") {
   cat("To do this the z-score of the $\\log_2$ transformed protein abundances are computed.",
       "Because we need to estimate the protein differences on the original scale, we have to multiply the $z$-score by the average standard deviation of all the $N$ samples in the experiment.",
   "After normalization all samples have an equal mean and variance and a similar distribution.")
-} else if (grp2$pop$transform == "vsn") {
+} else if (grp2$processing_options$transform == "vsn") {
   cat("To do this the variance stabilizing normalization (vsn) was applied [@HuberVSN2002].")
-} else if (grp2$pop$transform == "none") {
+} else if (grp2$processing_options$transform == "none") {
   cat("However, in some circumstances it is advisable not to normalize the data, e.g. in case of affinity purification experiments, or when the requirements of sufficient similarity among samples are not met.")
 }
 
@@ -267,7 +267,7 @@ The method used to test for differential expression consists of several steps: F
 Secondly, the difference between the group is computed (Table \@ref(tab:contrtable)).
 
 ```{r contrtable}
-df <- data.frame(name = names(grp2$pop$Contrast), contrast = grp2$pop$Contrast)
+df <- data.frame(name = names(grp2$pop$Contrasts), contrast = grp2$pop$Contrasts)
 rownames(df) <- NULL
 knitr::kable(df, caption = "Name of difference (Contrast), and formula used to compute it.")
 
@@ -280,7 +280,7 @@ If there are no abundances measured in one of the groups for some proteins, we a
 Furthermore, to make it explicit for which proteins we did impute the unobserved group mean, we label them with `Imputed_Mean` (see table in Figures \@ref(fig:tableAllProt) column `modelName`) and visualize them with gray dots in Figure \@ref(fig:volcanoplot). Finally, those proteins with a sufficiently large number of observations are labeled with `Linear_Model_Moderated`.
 
 Next, to increase the power of the analysis variance shrinkage is performed [@Smyth2004]. Finally, the false discovery rate (FDR) using the Benjamini-Hochberg procedure is computed [@benjamini1995controlling].
-The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. By filtering the proteins using a FDR threshold of `r grp2$pop$FDRthreshold*100` % we can expect this proportion of false positives in the list and `r (1 - grp2$pop$FDRthreshold) * 100` % truly differentially expressed proteins. Because we do not know which of them are true positives follow up experiments are necessary.
+The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. By filtering the proteins using a FDR threshold of `r grp2$processing_options$FDR_threshold*100` % we can expect this proportion of false positives in the list and `r (1 - grp2$processing_options$FDR_threshold) * 100` % truly differentially expressed proteins. Because we do not know which of them are true positives follow up experiments are necessary.
 
 The table (Figure \@ref(fig:tableAllProt)) summarizes the differential expression analysis results by providing the following information:
 
@@ -321,7 +321,7 @@ DT::datatable(bb, filter = "bottom",
 
 ```
 
-(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r grp2$pop$FDRthreshold`, while the green lines represent the the difference of minus and plus `r grp2$pop$Diffthreshold`. With orange dots differences and FDRs estimated using missing value imputation are shown.
+(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r grp2$processing_options$FDR_threshold`, while the green lines represent the the difference of minus and plus `r grp2$processing_options$diff_threshold`. With orange dots differences and FDRs estimated using missing value imputation are shown.
 
 
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
@@ -336,8 +336,8 @@ xd <- prolfqua::volcano_plotly(
   contrast = "contrast",
   color = "modelName",
   palette = palette,
-  xintercept =  c(-grp2$pop$Diffthreshold,grp2$pop$Diffthreshold),
-  yintercept = grp2$pop$FDRthreshold,
+  xintercept =  c(-grp2$processing_options$diff_threshold,grp2$processing_options$diff_threshold),
+  yintercept = grp2$processing_options$FDR_threshold,
   title_size = 10,
   group = "BB")
 
@@ -349,11 +349,11 @@ plotly::subplot(xd, shareX = TRUE, shareY = TRUE, nrows = nrow)
 
 ## Differentially Expressed Proteins
 
-Here we use the FDR threshold of `r grp2$pop$FDRthreshold` and a difference threshold of `r grp2$pop$Diffthreshold` to select differentially expressed proteins. Table \@ref(tab:nrsignificant) summarizes the number of significant calls.
+Here we use the FDR threshold of `r grp2$processing_options$FDR_threshold` and a difference threshold of `r grp2$processing_options$diff_threshold` to select differentially expressed proteins. Table \@ref(tab:nrsignificant) summarizes the number of significant calls.
 
 ```{r nrsignificant, results="markup", eval=TRUE}
 library(dplyr)
-mx <- datax |> dplyr::mutate(passes = abs(diff) >  grp2$pop$Diffthreshold  & FDR < grp2$pop$FDRthreshold)
+mx <- datax |> dplyr::mutate(passes = abs(diff) >  grp2$processing_options$diff_threshold  & FDR < grp2$processing_options$FDR_threshold)
 x <- mx |> dplyr::group_by(contrast) |> 
   summarize(n = n(), Significant = sum(passes, na.rm = TRUE), "Not Significant" = n() - sum(passes, na.rm = TRUE))
 
