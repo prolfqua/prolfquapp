@@ -8,9 +8,6 @@
 # dataframe or path to annotation file
 # fasta file path
 # path to DIANN result
-rm(list = ls())
-source("utils.R")
-source("utils_annotation.R")
 
 prolfquapp::copy_DEA_DIANN()
 
@@ -25,7 +22,7 @@ annotation
 
 
 files <- get_DIANN_files(path)
-xd <- preprocess_DIANN(quant_data = files$data,
+xd <- prolfquapp::preprocess_DIANN(quant_data = files$data,
                        fasta_file = files$fasta,
                        annotation = annotation)
 
@@ -37,7 +34,7 @@ logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 logger::log_info("END OF PROTEIN AGGREGATION")
 
 
-grp <- generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
+grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
 prolfquapp::write_DEA_all(grp[[1]], names(grp), GRP2$zipdir , boxplot = FALSE)
 

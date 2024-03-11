@@ -11,8 +11,8 @@ make_DEA_report(lfqdata, protAnnot, GRP2)
 
 make_SummarizedExperiment(
   GRP2,
-  colname = "Name",
-  rowname = "protein_Id",
+  colname = NULL,
+  rowname = NULL,
   strip = "~lfq~light"
 )
 
