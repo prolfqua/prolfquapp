@@ -28,8 +28,8 @@ dataset_set_factors2 <- function(annot, REPEATED = TRUE, SAINT = FALSE) {
 
   atable <- prolfqua::AnalysisTableAnnotation$new()
 
-  if (sum(grepl("^name", colnames(annot), ignore.case = TRUE)) > 0) {
-    atable$sampleName <- grep("^name", colnames(annot), value = TRUE, ignore.case = TRUE)
+  if (sum(grepl("^name|^sample", colnames(annot), ignore.case = TRUE)) > 0) {
+    atable$sampleName <- grep("^name|^sample", colnames(annot), value = TRUE, ignore.case = TRUE)[1]
   }
 
   fileName <- grep("^channel|^Relative|^raw", colnames(annot), value = TRUE, ignore.case = TRUE)[1]

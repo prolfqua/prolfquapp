@@ -176,8 +176,6 @@ generate_DEA_reports2 <- function(lfqdata, GRP2, prot_annot, Contrasts) {
     lfqwork,
     prot_annot,
     GRP2)
-  res <- list()
-  res[["Groups_vs_Controls"]] <- grp2
-  return(res)
+  return(list("Groups_vs_Controls" = grp2) )
 }
 

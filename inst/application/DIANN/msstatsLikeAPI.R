@@ -12,21 +12,17 @@ rm(list = ls())
 source("utils.R")
 source("utils_annotation.R")
 
-GRP2 <- prolfquapp::make_DEA_config_R6()
-GRP2$processing_options$aggregate
-GRP2$project_spec
-GRP2$zipdir
-GRP2$software
+prolfquapp::copy_DEA_DIANN()
 
 path = "WU298535"
-
-
-files <- get_files(path)
+ymlfile <- file.path(path,"config.yaml")
+GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
 
 dsf = "WU298535/dataset.csv"
 dsf <- readr::read_csv(dsf)
 annotation <- read_annotation(dsf)
 
+files <- get_files(path)
 xd <- preprocess_DIANN(quant_data = files$data,
                        fasta_file = files$fasta,
                        annotation = annotation)
@@ -41,13 +37,8 @@ logger::log_info("END OF PROTEIN AGGREGATION")
 
 grp <- generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
-prolfquapp::copy_DEA_DIANN()
-for (i in seq_along(grp)) {
-  prolfquapp::write_DEA_all(grp[[i]], names(grp)[i], GRP2$zipdir , boxplot = FALSE)
-}
+prolfquapp::write_DEA_all(grp, names(grp), GRP2$zipdir , boxplot = FALSE)
 
-for (i in seq_along(grp)) {
-  SE <- prolfquapp::make_SummarizedExperiment(grp[[i]])
-  saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", names(grp)[i]) , paste0("SummarizedExperiment",".rds") ))
-}
+SE <- prolfquapp::make_SummarizedExperiment(grp)
+saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", names(grp)[i]) , paste0("SummarizedExperiment",".rds") ))
 
