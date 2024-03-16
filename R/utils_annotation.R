@@ -1,6 +1,6 @@
 #' check if all required columns in annotation file are there.
 check_annotation <- function(annot) {
-  samples <- grep("^channel|^Relative|^raw", colnames(annot), ignore.case = TRUE, value = TRUE)
+  samples <- grep("^channel|^Relative|^raw|^file", colnames(annot), ignore.case = TRUE, value = TRUE)
   stopifnot(length(samples) >= 1)
   if (length(samples) > 1) {warning("there are more then one column for sample : ", paste0(samples)) }
   grouping <- grep("^group|^bait|^Experiment", colnames(annot), ignore.case = TRUE, value = TRUE)
@@ -27,7 +27,7 @@ read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE){
 }
 
 
-dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE) {
+dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE, prefix = "G_") {
 
   atable <- prolfqua::AnalysisTableAnnotation$new()
 
@@ -51,7 +51,7 @@ dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE) {
   if (SAINT) {
     atable$factors[["Bait_"]] = groupingVAR
   } else {
-    atable$factors[["Group_"]] = groupingVAR
+    atable$factors[[prefix]] = groupingVAR
   }
 
   atable$factorDepth <- 1
@@ -74,15 +74,15 @@ dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE) {
 
 
 # private interface
-extract_contrasts <- function(annot) {
+extract_contrasts <- function(annot, prefix = "G_") {
 
   levels  <- annot |>
     dplyr::select(
-      Group_ = dplyr::starts_with("group", ignore.case = TRUE),
+      !!prefix := dplyr::starts_with("group", ignore.case = TRUE),
       control = dplyr::starts_with("control", ignore.case = TRUE)) |>
     dplyr::distinct()
   logger::log_info("levels : ", paste(levels, collapse = " "))
-  if (!length(levels$Group_) > 1) {
+  if (!length(levels[[prefix]]) > 1) {
     logger::log_error("not enough group levels_ to make comparisons.")
   }
 
@@ -97,17 +97,15 @@ extract_contrasts <- function(annot) {
 
     ## Generate contrasts from dataset
     if (!is.null(levels$control)) {
-
-
       Contrasts <- character()
       Names <- character()
       for (i in 1:nrow(levels)) {
         for (j in 1:nrow(levels)) {
           if (i != j) {
             if (levels$control[j] == "C") {
-              cat(levels$Group_[i], levels$Group_[j], "\n")
-              Contrasts <- c(Contrasts, paste0("Group_",levels$Group_[i], " - ", "Group_",levels$Group_[j]))
-              Names <- c(Names, paste0(levels$Group_[i], "_vs_", levels$Group_[j]))
+              cat(levels[[prefix]][i], levels[[prefix]][j], "\n")
+              Contrasts <- c(Contrasts, paste0(prefix,levels[[prefix]][i], " - ", prefix,levels[[prefix]][j]))
+              Names <- c(Names, paste0(levels[[prefix]][i], "_vs_", levels[[prefix]][j]))
             }
           }
         }

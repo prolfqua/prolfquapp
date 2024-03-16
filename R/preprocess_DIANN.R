@@ -24,7 +24,7 @@ preprocess_DIANN <- function(quant_data,
                              nrPeptides = 1){
 
   annot <- annotation$annot
-  atable <- annotation$atable
+  atable <- annotation$atable$clone(deep = FALSE)
   annot <- annot |> dplyr::mutate(
     raw.file = gsub("^x|.d.zip$|.raw$","",
                     (basename(annot[[atable$fileName]]))
@@ -34,7 +34,7 @@ preprocess_DIANN <- function(quant_data,
   peptide <- prolfquapp::read_DIANN_output(
     diann.path = quant_data,
     fasta.file = fasta_file,
-    nrPeptides = 1,
+    nrPeptides = nrPeptides,
     Q.Value = q_value)
 
   prot_annot <- prolfquapp::dataset_protein_annot(

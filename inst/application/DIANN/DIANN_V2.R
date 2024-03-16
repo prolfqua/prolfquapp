@@ -1,26 +1,19 @@
-#library(rlang)
-#library(prolfqua)
-#library(prolfquapp)
-
-
-# function
-# input params
-# dataframe or path to annotation file
-# fasta file path
-# path to DIANN result
-
 prolfquapp::copy_DEA_DIANN()
 
 path = "."
+path = "WU298535/"
 ymlfile <- file.path(path,"config.yaml")
 GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
 
 dsf = file.path(path,"dataset.csv")
 dsf <- readr::read_csv(dsf)
+undebug(read_annotation)
 annotation <- read_annotation(dsf)
 
+annotation$atable$fileName
 
 files <- get_DIANN_files(path)
+debug(prolfquapp::preprocess_DIANN)
 xd <- prolfquapp::preprocess_DIANN(quant_data = files$data,
                        fasta_file = files$fasta,
                        annotation = annotation)

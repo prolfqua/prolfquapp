@@ -284,7 +284,11 @@ The FDR is the expected proportion of false discoveries in a list of proteins, a
 
 The table (Figure \@ref(fig:tableAllProt)) summarizes the differential expression analysis results by providing the following information:
 
-- protein_Id - unique protein identifier
+```{r}
+hkey <- grp2$RES$lfqData$config$table$hierarchy_keys()
+```
+
+- `r if(hkey == "protein_Id"){ paste0(hkey, " - unique protein identifier"} else {hkey}
 - description - information about the protein provided in the FASTA database
 - contrast - name of the comparison
 - modelName - name of the method to estimate differences : Imputed_mean or Linear_Model_Moderated
@@ -301,13 +305,13 @@ datax <- as.data.frame(grp2$RES$contrastsData)
 
 ```{r tableAllProt, fig.cap="Differential expression analysis results of all proteins."}
 bb <- datax |> dplyr::select(
-  all_of(c("protein_Id",
+  all_of(c(hkey,
            "description",
            "contrast",
            "modelName",
            "diff",
            "FDR" )))
-bb <- crosstalk::SharedData$new(bb, ~protein_Id, group = "BB")
+bb <- crosstalk::SharedData$new(bb,  as.formula(paste0("~",hkey)), group = "BB")
 
 DT::datatable(bb, filter = "bottom",
   extensions = "Scroller",
@@ -330,7 +334,7 @@ palette <- c("black","orange")
 palette <- setNames(palette, c("Linear_Model_moderated", "Imputed_Mean_moderated"))  
 xd <- prolfqua::volcano_plotly( 
   datax ,
-  proteinID = "protein_Id",
+  proteinID = hkey,
   effect = "diff",
   significance = "FDR",
   contrast = "contrast",
@@ -382,9 +386,9 @@ cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant pro
 
 
 ```{r SigPrey, fig.cap= "(ref:SigPrey)", eval = showSignificant}
-ctdata <- datax_signif |> dplyr::select(all_of(c("protein_Id" ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
+ctdata <- datax_signif |> dplyr::select(all_of(c(hkey ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
 
-sig <- crosstalk::SharedData$new(ctdata, ~protein_Id, group = "BB")
+sig <- crosstalk::SharedData$new(ctdata,  as.formula( paste0("~",hkey)), group = "BB")
 DT::datatable(sig, filter = "bottom",
   extensions = "Scroller",
   style = "auto",
@@ -428,7 +432,7 @@ sigheat
 
 
 ```{r vennDiagramSig, fig.cap="(ref:vennDiagramSig)", eval = showSignificant}
-xx <- split(datax_signif$protein_Id, datax_signif$contrast)
+xx <- split(datax_signif[[hkey]], datax_signif$contrast)
 if (length(xx) > 1) {
   UpSetR::upset(UpSetR::fromList(xx))
 }
