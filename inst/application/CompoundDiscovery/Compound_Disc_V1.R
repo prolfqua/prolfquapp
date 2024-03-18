@@ -1,20 +1,17 @@
 prolfquapp::copy_DEA_DIANN()
 
-rm(list=ls())
-library(tidyverse)
-source("utils.R")
-
 
 
 ### Annotation
-annot <- readxl::read_xlsx("input_xx/o33926_input_files.xlsx")
+path <- "input_ex/"
+annot <- readxl::read_xlsx(file.path(path,"o33926_input_files.xlsx"))
 colnames(annot) <- make.names(colnames(annot))
-annot <- annot |> select(StudyFile = Study.File.ID, File.Name, Material = Meterial,Gender,Genotype)
-annot <- annot |> unite(Group, Material, Gender, Genotype, remove = FALSE)
+annot <- annot |> dplyr::select(StudyFile = Study.File.ID, File.Name, Material = Meterial,Gender,Genotype)
+annot <- annot |> tidyr::unite(Group, Material, Gender, Genotype, remove = FALSE)
 
 annot$File.Name <- gsub("\\", "/",annot$File.Name , fixed = TRUE)
-annot <- annot |> mutate(File.Name = basename(File.Name))
-annot <- annot |> filter(Material != "none")
+annot <- annot |> dplyr::mutate(File.Name = basename(File.Name))
+annot <- annot |> dplyr::filter(Material != "none")
 
 contrast <- c(
   CFvsMR_plasma = "(G_plasma_Female_CF + G_plasma_Male_CF)/2 - (G_plasma_Female_MR + G_plasma_Male_MR)/2",
@@ -30,18 +27,17 @@ contrast <- c(
 annot$ContrastName <- c(names(contrast), rep(NA, nrow(annot) - length(contrast)))
 annot$Contrast <- c(contrast,rep(NA, nrow(annot) - length(contrast)))
 
-annot <- annot |> rename(Name = StudyFile)
+annot <- annot |> dplyr::rename(Name = StudyFile)
 writexl::write_xlsx(annot, path = "annotation.xlsx")
 
 annotation <- prolfquapp::read_annotation(annot)
 #######
 
-
 GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = "o33926_Metabo")
 dir.create(GRP2$zipdir)
 
-in_file <- "input_xx/o33926_Areas_IDs_MS1andRT_or_MS2.xlsx"
-xd <- preprocess_CD(in_file, annotation = annotation)
+in_file <- file.path(path,"o33926_Areas_IDs_MS1andRT_or_MS2.xlsx")
+xd <- prolfquapp::preprocess_CD(in_file, annotation = annotation)
 
 logger::log_info("run analysis")
 grp <- prolfquapp::generate_DEA_reports2(xd$lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)

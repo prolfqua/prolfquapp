@@ -1,7 +1,7 @@
 massage_CD <- function(in_file){
   xd <- readxl::read_excel(in_file)
   xd <- xd |> dplyr::filter(!is.na(Name), Name != "Tags", Formula != "Checked", Formula != FALSE)
-  xd <- xd |> select(1:max(grep("^Area",colnames(xd))))
+  xd <- xd |> dplyr::select(1:max(grep("^Area",colnames(xd))))
   grep("Area",colnames(xd), value = TRUE)
   xd$`Area (Max.)` <- NULL
   xd <- xd |> dplyr::select(-starts_with("Group"),
@@ -9,17 +9,17 @@ massage_CD <- function(in_file){
                             -starts_with("Log2"),
                             -starts_with("P-value"))
 
-  xd <- xd |> mutate(FormulaB = stringr::str_replace_all(Formula, " ",""))
+  xd <- xd |> dplyr::mutate(FormulaB = stringr::str_replace_all(Formula, " ",""))
   xd <- xd |> tidyr::unite("NewID", c("FormulaB", "m/z", "RT [min]"), remove = FALSE)
-  xdl <- xd |> pivot_longer(cols = starts_with("Area"),names_to = "Sample", values_to = "Area")
+  xdl <- xd |> tidyr::pivot_longer(cols = tidyselect::starts_with("Area"),names_to = "Sample", values_to = "Area")
   colnames(xdl) <- gsub("# ", "", colnames(xdl) )
   colnames(xdl) <- gsub("Annot. Source:", "Annot", colnames(xdl))
   colnames(xdl) <- make.names(colnames(xdl))
 
 
-  xdl <- xdl |> mutate(SampleS = gsub("Area: ","", Sample))
-  xdl <- xdl |> mutate(SampleS = gsub("\\(|\\)","", SampleS))
-  xdl <- xdl |> separate(SampleS, c("raw.file", "StudyFile"), sep=" ")
+  xdl <- xdl |> dplyr::mutate(SampleS = gsub("Area: ","", Sample))
+  xdl <- xdl |> dplyr::mutate(SampleS = gsub("\\(|\\)","", SampleS))
+  xdl <- xdl |> tidyr::separate(SampleS, c("raw.file", "StudyFile"), sep=" ")
   xdl$StudyFile |> unique()
   xdl$Name <- xdl$StudyFile
   xdl <- xdl
