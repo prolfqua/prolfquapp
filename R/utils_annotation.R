@@ -28,15 +28,21 @@ read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE){
 
 
 dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE, prefix = "G_") {
-
   atable <- prolfqua::AnalysisTableAnnotation$new()
 
   if (sum(grepl("^name|^sample", colnames(annot), ignore.case = TRUE)) > 0) {
     atable$sampleName <- grep("^name|^sample", colnames(annot), value = TRUE, ignore.case = TRUE)[1]
   }
+  if (any(duplicated(annot[[atable$sampleName]]))) {
+    stop("sample Names must be unique.")
+  }
 
   fileName <- grep("^channel|^Relative|^raw", colnames(annot), value = TRUE, ignore.case = TRUE)[1]
   atable$fileName <- fileName
+  if (any(duplicated(annot[[atable$fileName]]))) {
+    stop("file Names must be unique.")
+  }
+
 
   groupingVAR <- grep("^group|^bait|^Experiment", colnames(annot), value = TRUE, ignore.case = TRUE)
   if (any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
@@ -66,8 +72,14 @@ dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE, prefix = 
       atable$factorDepth <- 2
     }
   }
-  if (sum(grepl("^control", colnames(annot), ignore.case = TRUE)) == 1) {
-    atable$factors[["CONTROL"]] = grep("^control", colnames(annot), value = TRUE, ignore.case = TRUE)
+  ctrl <- grep("^control", colnames(annot), value = TRUE, ignore.case = TRUE)
+  if (length(ctrl) == 1) {
+    atable$factors[["CONTROL"]] = ctrl
+
+    stopifnot(length(setdiff(unique(annot[[ctrl]]),c("C","T"))) == 0)
+    # TODO add check that
+    tt <- table(annot[[ctrl]], annot[[groupingVAR]])
+
   }
   return(list(atable = atable , annot = annot))
 }

@@ -1,0 +1,70 @@
+massage_CD <- function(in_file){
+  xd <- readxl::read_excel(in_file)
+  xd <- xd |> dplyr::filter(!is.na(Name), Name != "Tags", Formula != "Checked", Formula != FALSE)
+  xd <- xd |> select(1:max(grep("^Area",colnames(xd))))
+  grep("Area",colnames(xd), value = TRUE)
+  xd$`Area (Max.)` <- NULL
+  xd <- xd |> dplyr::select(-starts_with("Group"),
+                            -starts_with("Ratio"),
+                            -starts_with("Log2"),
+                            -starts_with("P-value"))
+
+  xd <- xd |> mutate(FormulaB = stringr::str_replace_all(Formula, " ",""))
+  xd <- xd |> tidyr::unite("NewID", c("FormulaB", "m/z", "RT [min]"), remove = FALSE)
+  xdl <- xd |> pivot_longer(cols = starts_with("Area"),names_to = "Sample", values_to = "Area")
+  colnames(xdl) <- gsub("# ", "", colnames(xdl) )
+  colnames(xdl) <- gsub("Annot. Source:", "Annot", colnames(xdl))
+  colnames(xdl) <- make.names(colnames(xdl))
+
+
+  xdl <- xdl |> mutate(SampleS = gsub("Area: ","", Sample))
+  xdl <- xdl |> mutate(SampleS = gsub("\\(|\\)","", SampleS))
+  xdl <- xdl |> separate(SampleS, c("raw.file", "StudyFile"), sep=" ")
+  xdl$StudyFile |> unique()
+  xdl$Name <- xdl$StudyFile
+  xdl <- xdl
+  xdl$score <- 10
+  xdl$qValue <- 0
+  return(xdl)
+}
+
+#' load compound discoverer (CD) files
+#' @param in_file excel file produced by CD
+#' @param annotation list returned by `read_annotation` function
+#' @export
+preprocess_CD <- function(in_file,
+                          annotation
+){
+
+  xdl <- massage_CD(in_file)
+
+  prot_annot <- prolfquapp::dataset_protein_annot(
+    xdl,
+    c("metabolite_Id" = "NewID"),
+    protein_annot = "Formula",
+    more_columns = c("mzVault.Results", "ChemSpider.Results" )
+  )
+
+  annot <- annotation$annot
+  nr <- sum(annot$File.Name %in% sort(unique(xdl$raw.file)))
+  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(xdl$raw.file)))
+
+  atable <- annotation$atable
+  atable$ident_Score = "score"
+  atable$ident_qValue = "qValue"
+  atable$fileName = "File.Name"
+  atable$hierarchy[["metabolite_Id"]] <- c("NewID")
+  atable$set_response("Area")
+
+  byv <- c("raw.file")
+
+  names(byv) <- atable$fileName
+  peptide <- dplyr::inner_join(annot, xdl, by = byv, multiple = "all")
+
+  config <- prolfqua::AnalysisConfiguration$new(atable)
+  adata <- prolfqua::setup_analysis(peptide, config)
+  lfqdata <- prolfqua::LFQData$new(adata, config)
+  lfqdata$remove_small_intensities()
+  protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
+  return(list(lfqdata = lfqdata , protein_annotation = protAnnot))
+}
