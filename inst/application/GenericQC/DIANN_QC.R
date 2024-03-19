@@ -78,7 +78,7 @@ peptide <- read_DIANN_output(
   diann.path = diann.output,
   fasta.file = fasta.files,
   nrPeptides = 1,
-  Q.Value = 0.1)
+  Q.Value = 0.01)
 
 if (!is.null(peptide)) {
   # fasta_annot <- get_annot_from_fasta(fasta.file)
