@@ -227,17 +227,16 @@ REPORTDATA$resContrasts <- resContrasts
 REPORTDATA$prot_annot <- dplyr::rename(prot_annot, protein = protein_Id)
 
 
-tmp <- prolfqua::get_UniprotID_from_fasta_header(REPORTDATA$pups$data, "protein_Id")
-if(is.null(tmp$UniprotID)) {tmp$UniprotID <- sapply(tmp$protein_Id, function(x){strsplit(x,";")[[1]][1]})}
-
+tmp <- REPORTDATA$pups$data
+tmp$UniprotID <- sapply(tmp$protein_Id, function(x){strsplit(x,";")[[1]][1]})
 
 write.table(data.frame(tmp$UniprotID), file = file.path(ZIPDIR,"ORA_background.txt"), col.names = FALSE, row.names = FALSE, quote = FALSE )
 sig |> dplyr::group_by(Bait) |> tidyr::nest() -> sigg
 
 if (nrow(sigg) > 0) {
   for (i in 1:nrow(sigg)) {
-    tmp <- prolfqua::get_UniprotID_from_fasta_header(sigg$data[[i]], "Prey")
-    if(is.null(tmp$UniprotID)) {tmp$UniprotID <- sapply(tmp$Prey, function(x){strsplit(x,";")[[1]][1]})}
+    tmp <- sigg$data[[i]]
+    tmp$UniprotID <- sapply(tmp$Prey, function(x){strsplit(x,";")[[1]][1]})
 
     filename <- paste0("ORA_Bait_", sigg$Bait[i] , ".txt")
     write.table(data.frame(tmp$UniprotID),
