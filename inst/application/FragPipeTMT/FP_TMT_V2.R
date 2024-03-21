@@ -33,7 +33,7 @@ annot <- read.csv(ds_file)
 
 ### READ YAML
 GRP2 <- prolfquapp::read_yaml("config.yaml")
-GRP2 <- prolfquapp::dataset_extract_contrasts(annot, GRP2)
+GRP2 <- prolfquapp::dataset_set_factors_deprecated(annot, GRP2)
 
 channelCol  <- grep("^channel", names(annot), ignore.case = TRUE, value = TRUE)
 

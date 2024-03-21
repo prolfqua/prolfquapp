@@ -31,7 +31,7 @@ annot <- annot |> dplyr::mutate(
   )
 )
 
-GRP2 <- prolfquapp::dataset_extract_contrasts(annot = annot, GRP2 = GRP2)
+GRP2 <- prolfquapp::dataset_set_factors_deprecated(annot = annot, GRP2 = GRP2)
 
 nr <- sum(annot$raw.file %in% unique(protein$raw.file))
 logger::log_info("nr : ", nr, " files annotated")
