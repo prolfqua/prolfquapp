@@ -27,7 +27,7 @@ peptide <- read_DIANN_output(
   diann.path = diann.path,
   fasta.file = fasta.files,
   nrPeptides = 1,
-  Q.Value = 0.1)
+  Q.Value = 0.01)
 
 prot_annot <- prolfquapp::dataset_protein_annot(
   peptide,
