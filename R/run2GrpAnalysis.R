@@ -145,7 +145,7 @@ make_DEA_report <- function(lfqdata,
                             GRP2
 ) {
   ### Do some type of data normalization (or do not)
-
+  warning("DEPRECATED")
   transformed <- transform_lfqdata(
     lfqdata,
     method = GRP2$pop$transform,
@@ -267,7 +267,13 @@ strip_rownames <- function(.data, strip="~lfq~light$"){
 #' @export
 #' @family workflow
 #'
-make_SummarizedExperiment <- function(GRP2, colname = "Name", rowname = "protein_Id", strip="~lfq~light"){
+make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, strip="~lfq~light"){
+  if (is.null(colname)) {
+    colname <- GRP2$RES$lfqData$config$table$sampleName
+  }
+  if (is.null(rowname)) {
+    rowname <- GRP2$RES$lfqData$config$table$hierarchyKeys()
+  }
   resTables <- write_DEA(GRP2,".", write = FALSE)
   matTr <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
   matRaw <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
@@ -418,6 +424,7 @@ render_DEA <- function(GRP2,
 #' @export
 #'
 write_DEA_all <- function(grp2, name, ZIPDIR, boxplot = TRUE , render = TRUE){
+  dir.create(GRP2$zipdir)
   fname <- paste0("DE_", name)
   qcname <- paste0("QC_", name)
   outpath <- file.path( ZIPDIR, fname)

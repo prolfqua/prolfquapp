@@ -117,7 +117,7 @@ The bottom panel in Figure \@ref(fig:densityOFFoldChanges) shows the distributio
 (ref:densityOFFoldChanges) Top : distribution of the differences among groups for all the proteins in the dataset. red dotted line - median fold change, green line - expected value of the median fold change. Bottom - histogram of p-values for all the proteins in the dataset. X-axis - p-values, Y-axis - frequency of p-values.
 
 ```{r densityOFFoldChanges, fig.width=8, fig.height=4, dpi=300, fig.cap = "(ref:densityOFFoldChanges)"}
-cpl <- grp2$RES$contrMerged$get_Plotter(FCthreshold = grp2$pop$Diffthreshold, FDRthreshold = grp2$pop$FDRthreshold)
+cpl <- grp2$RES$contrMerged$get_Plotter(FCthreshold = grp2$processing_options$diff_threshold, FDRthreshold = grp2$processing_options$FDR_threshold)
 p1 <- cpl$histogram_diff() + ggplot2::labs(tag = "A")
 p2 <- cpl$histogram()$p.value  + ggplot2::labs(tag = "B")
 gridExtra::grid.arrange(p1,p2)
@@ -130,10 +130,10 @@ To identify abundant proteins with large differences or if only low abundant pro
 
 ```{r MAPlot, fig.width=8, fig.height=5,  fig.cap="(ref:MAPlot)", eval=TRUE}
 cpl <- grp2$RES$contrMerged$get_Plotter(
-  FCthreshold = grp2$pop$Diffthreshold,
-  FDRthreshold = grp2$pop$FDRthreshold)
+  FCthreshold = grp2$processing_options$diff_threshold,
+  FDRthreshold = grp2$processing_options$FDR_threshold)
 ppb <- cpl$ma_plot(rank = FALSE) + ggplot2::labs(tag = "A")
-ppc <- cpl$ma_plot(fc = GRP2$pop$Diffthreshold, rank = TRUE) + ggplot2::labs(tag = "B")
+ppc <- cpl$ma_plot(fc = GRP2$processing_options$diff_threshold, rank = TRUE) + ggplot2::labs(tag = "B")
 gridExtra::grid.arrange(ppb, ppc, ncol=1)
 
 ```

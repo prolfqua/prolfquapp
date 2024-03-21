@@ -36,6 +36,10 @@ Other ProlfquAppConfig:
 \item{\code{software}}{name of input software}
 
 \item{\code{zipdir}}{results should go to zipdir}
+
+\item{\code{pop}}{optional processing options}
+
+\item{\code{RES}}{resuls}
 }
 \if{html}{\out{</div>}}
 }

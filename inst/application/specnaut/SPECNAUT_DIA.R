@@ -79,7 +79,7 @@ logger::log_info("nr : ", nr, " files annotated")
 
 peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
 peptide$identScore <- -log10(peptide$Qvalue)
-GRP2 <- prolfquapp::dataset_extract_contrasts(annot, GRP2)
+GRP2 <- prolfquapp::dataset_set_factors_deprecated(annot, GRP2)
 
 atable <- prolfqua::AnalysisTableAnnotation$new()
 atable$fileName = "raw.file"
