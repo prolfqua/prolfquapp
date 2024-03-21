@@ -3,9 +3,9 @@
 #' @param fasta.file path to fasta file
 #' @param nrPeptides peptide threshold
 #' @param Q.Value q value threshold
+#' @import data.table
 #' @export
 #'
-
 read_DIANN_output <- function(diann.path,
                               fasta.file,
                               nrPeptides = 2,
@@ -14,7 +14,7 @@ read_DIANN_output <- function(diann.path,
                               rev = "REV_"
                               ) {
   report2 <- prolfqua::diann_read_output(diann.path, nrPeptides = nrPeptides, Q.Value = Q.Value)
-  if(nrow(report2) == 0){
+  if (nrow(report2) == 0) {
     return(NULL)
   }
   report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
@@ -26,9 +26,11 @@ read_DIANN_output <- function(diann.path,
   fasta_annot <- get_annot_from_fasta(fasta.file)
   message("Percent of Proteins with description:" ,mean(peptide$Protein.Group.2 %in% fasta_annot$proteinname) * 100)
   # add fasta headers.
-  if(nrow(peptide) == 0){
+  if (nrow(peptide) == 0) {
     return(NULL)
   }
-  peptide <- dplyr::left_join(peptide, fasta_annot, by = c( Protein.Group.2 = "proteinname"))
+  peptide <- dplyr::left_join(dtplyr::lazy_dt(peptide), dtplyr::lazy_dt(fasta_annot),
+                              by = c( Protein.Group.2 = "proteinname")) |>
+    dplyr::as_tibble()
   return(peptide)
 }

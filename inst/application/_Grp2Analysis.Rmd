@@ -288,7 +288,7 @@ The table (Figure \@ref(fig:tableAllProt)) summarizes the differential expressio
 hkey <- grp2$RES$lfqData$config$table$hierarchy_keys()
 ```
 
-- `r if(hkey == "protein_Id"){ paste0(hkey, " - unique protein identifier"} else {hkey}
+- `r if(hkey == "protein_Id"){ paste0(hkey, " - unique protein identifier"} else {hkey}`
 - description - information about the protein provided in the FASTA database
 - contrast - name of the comparison
 - modelName - name of the method to estimate differences : Imputed_mean or Linear_Model_Moderated
