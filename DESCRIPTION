@@ -1,7 +1,7 @@
 Package: prolfquapp
 Type: Package
 Title: Generating Dynamic DEA Reports with the prolfqua R Package
-Version: 0.1.8
+Version: 0.1.9
 Author: Witold E. Wolski <wew@fgcz.ethz.ch>
 Maintainer: Witold E. Wolski <wew@fgcz.ethz.ch>
 Description: The prolfquapp is a user-friendly application to streamline protein differential expression analysis (DEA)
