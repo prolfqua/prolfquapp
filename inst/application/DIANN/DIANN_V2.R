@@ -2,7 +2,6 @@ library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 
 path = "."
-path = "WU301261//"
 ymlfile <- file.path(path,"config.yaml")
 GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
 
