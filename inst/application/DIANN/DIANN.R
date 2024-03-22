@@ -76,7 +76,7 @@ length(unique(adata$protein_Id))
 
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
-GRP2$pop$nrPeptides <- 2
+GRP2$pop$nrPeptides <- 1
 
 
 logger::log_info("AGGREGATING PEPTIDE DATA!")
