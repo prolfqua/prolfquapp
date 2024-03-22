@@ -143,6 +143,10 @@ if (!is.null(peptide)) {
 
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities(threshold = 1)
+  lfqdata$hierarchy_counts()
+  lfqdata$filter_proteins_by_peptide_count()
+  lfqdata$hierarchy_counts()
+
 
   TABLES2WRITE <- list()
   TABLES2WRITE$peptide_wide <- left_join(prot_annot,
