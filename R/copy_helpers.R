@@ -48,6 +48,7 @@ copy_DEA_FragPipe_TMT <- function(workdir = getwd(), run_script = FALSE) {
 copy_DEA_DIANN <- function(workdir = getwd(), run_script = FALSE) {
   runscripts <- c(
     "application/_Grp2Analysis.Rmd",
+    "application/_Grp2Analysis_V2.Rmd",
     "application/bibliography.bib",
     "application/_DiffExpQC.Rmd",
     if (run_script) {c("application/DIANN/DIANN.R", "application/DIANN/DIANN_V2.R")}
