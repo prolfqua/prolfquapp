@@ -1,12 +1,14 @@
-zipdir: CWU
+RES: []
+pop: []
+zipdir: C33652WU300941
 software: DIANN
 project_spec:
-  inputURL: https://fgcz-bfabric.uzh.ch/bfabric/
-  inputID: []
-  workunitID: []
-  orderID: []
+  inputURL: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2417640
+  inputID: 2417640
+  workunitID: 300941
+  orderID: 33652
   projectName: ''
-  projectID: []
+  projectID: 28115
 processing_options:
   model: prolfqua
   missing: yes
@@ -14,8 +16,8 @@ processing_options:
   nr_peptides: 2.0
   pattern_contaminants: ^CON|^zz
   pattern_decoys: ^REV
-  remove_decoys: yes
-  remove_cont: yes
+  remove_decoys: no
+  remove_cont: no
   FDR_threshold: 0.1
   diff_threshold: 1.0
   aggregate: medpolish

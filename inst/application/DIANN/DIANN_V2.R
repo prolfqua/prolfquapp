@@ -2,25 +2,27 @@ library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 
 path = "."
+path = "C33652WU300941/"
 ymlfile <- file.path(path,"config.yaml")
 GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
+
+xx <- R6_extract_values(GRP2)
+yaml::write_yaml(xx, file = "test.yaml")
+
 
 dsf = file.path(path,"dataset.csv")
 dsf <- readr::read_csv(dsf)
 annotation <- prolfquapp::read_annotation(dsf)
-
+names(annotation)
 annotation$atable$fileName
 
 files <- prolfquapp::get_DIANN_files(path)
-peptide <- prolfquapp::read_DIANN_output(
-  diann.path = files$data,
-  fasta.file = files$fasta,
-  nrPeptides = 1,
-  Q.Value = 0.01)
+
 
 xd <- prolfquapp::preprocess_DIANN(quant_data = files$data,
                        fasta_file = files$fasta,
-                       annotation = annotation)
+                       annotation = annotation,q_value = 0.01)
+
 
 
 logger::log_info("AGGREGATING PEPTIDE DATA!")
@@ -34,7 +36,7 @@ grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, a
 logger::log_info("write results and html reports")
 prolfquapp::write_DEA_all(grp[[1]], names(grp)[1], GRP2$zipdir , boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
 
-  logger::log_info("write results and summarized experiment")
+logger::log_info("write results and summarized experiment")
 SE <- prolfquapp::make_SummarizedExperiment(grp[[1]])
 saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", names(grp)[1]) , paste0("SummarizedExperiment",".rds") ))
 

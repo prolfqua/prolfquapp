@@ -87,7 +87,7 @@ lfqdata$config$table$ident_qValue
 
 ag <- lfqdata$get_Aggregator()
 
-ag$sum_topN(N = 1000)
+ag$sum_topN(N = 10000)
 
 lfqdata <- ag$lfq_agg
 lfqdata$data

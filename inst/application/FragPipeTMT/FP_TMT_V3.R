@@ -8,10 +8,6 @@ dsf = file.path(path,"dataset.csv")
 dsf <- readr::read_csv(dsf)
 annotation <- read_annotation(dsf)
 
-
-
-
-
 files <- get_DIANN_files(path)
 xd <- prolfquapp::preprocess_FP_psm(quant_data = files$data,
                                    fasta_file = files$fasta,
