@@ -82,7 +82,8 @@ $$
 
 ```{r}
 
-df <- inner_join(diffDB, diffDA , by = c("protein_Id", "IDcolumn", "description", "contrast"), suffix = c(".B",".A"))
+df <- dplyr::inner_join(diffDB, diffDA ,
+                        by = c("protein_Id", "IDcolumn", "description", "contrast"), suffix = c(".B",".A"))
 ```
 
 
@@ -114,12 +115,12 @@ f_df <- function(stdeA, stdeB, dfA, dfB){
 ```
 
 ```{r}
-df <- df |> mutate(
+df <- df |> dplyr::mutate(
   diffA_diffB = diff.A - diff.B,
   SE_I = f_SE(std.error.A, std.error.B),
   df_I = f_df(std.error.A,std.error.B,df.A,df.B) )
 
-df <- df |> mutate(tstatistic_I = diffA_diffB / SE_I)
+df <- df |> dplyr::mutate(tstatistic_I = diffA_diffB / SE_I)
 ```
 
 ```{r fig.cap="density of fold changes", include = FALSE}
@@ -144,8 +145,8 @@ hist(df$df_I, breaks = 100)
 
 ```{r}
 
-df <- df |> mutate(pValue_I = 2*pt(q = abs(df$tstatistic_I), df = df$df_I, lower.tail = FALSE))
-df <- df |> group_by(contrast) |> mutate(FDR = p.adjust(pValue_I, method = "BH"))
+df <- df |> dplyr::mutate(pValue_I = 2*pt(q = abs(df$tstatistic_I), df = df$df_I, lower.tail = FALSE))
+df <- df |> dplyr::group_by(contrast) |> dplyr::mutate(FDR = p.adjust(pValue_I, method = "BH"))
 ```
 
 ```{r, fig.cap = "histogram of p-values."}
@@ -159,14 +160,14 @@ df |> ggplot(aes(x = FDR)) + geom_histogram() + facet_wrap(~contrast)
 
 
 ```{r}
-df <- df |> mutate(sig = case_when(FDR < 0.1 & abs(diffA_diffB) > 1 ~ "sig", TRUE ~ "none"))
+df <- df |> dplyr::mutate(sig = dplyr::case_when(FDR < 0.1 & abs(diffA_diffB) > 1 ~ "sig", TRUE ~ "none"))
 
 ```
 
 
 ```{r}
-df <- df |> ungroup() 
-bb <- df |> select(protein_Id, starts_with("diff"), starts_with("FDR"))
+df <- df |> dplyr::ungroup() 
+bb <- df |> dplyr::select(protein_Id, starts_with("diff"), starts_with("FDR"))
 bb <- crosstalk::SharedData$new(bb, ~protein_Id, group = "BB")
 
 DT::datatable(bb, filter = "bottom",
@@ -183,16 +184,16 @@ DT::datatable(bb, filter = "bottom",
 
 ```{r}
 
-ddf <- df |> select(protein_Id, starts_with("diff")) |> pivot_longer(cols=starts_with("diff"), names_to = "contrast", values_to = "diff")
-ddf <- ddf |> mutate(contrast = case_when(contrast == "diff.B" ~ "B", contrast == "diff.A" ~ "A", TRUE ~ "AvsB"))
+ddf <- df |> dplyr::select(protein_Id, starts_with("diff")) |> tidyr::pivot_longer(cols=starts_with("diff"), names_to = "contrast", values_to = "diff")
+ddf <- ddf |> dplyr::mutate(contrast = dplyr::case_when(contrast == "diff.B" ~ "B", contrast == "diff.A" ~ "A", TRUE ~ "AvsB"))
 
-fdf <- df |> select(protein_Id, starts_with("FDR")) |> pivot_longer(cols=starts_with("FDR"), names_to = "contrast", values_to = "FDR")
+fdf <- df |> dplyr::select(protein_Id, starts_with("FDR")) |> tidyr::pivot_longer(cols=starts_with("FDR"), names_to = "contrast", values_to = "FDR")
 fdf$contrast |> unique()
-fdf <- fdf |> mutate(contrast = case_when(contrast == "FDR.B" ~ "B", contrast == "FDR.A" ~ "A", TRUE ~ "AvsB"))
+fdf <- fdf |> dplyr::mutate(contrast = dplyr::case_when(contrast == "FDR.B" ~ "B", contrast == "FDR.A" ~ "A", TRUE ~ "AvsB"))
 
-an <- df |> select(protein_Id, sig)
-xdf <- inner_join(ddf,fdf)
-xdf <- inner_join(an, xdf)
+an <- df |> dplyr::select(protein_Id, sig)
+xdf <- dplyr::inner_join(ddf,fdf)
+xdf <- dplyr::inner_join(an, xdf)
 
 ```
 

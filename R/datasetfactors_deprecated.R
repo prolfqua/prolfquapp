@@ -16,7 +16,7 @@
 #'   #atable$fileName = "channel"
 #'   atable$hierarchy[["protein_Id"]] <- c("Protein")
 #'   atable$hierarchy[["peptide_Id"]] <- c("Peptide")
-#'   tmp <- prolfquapp::dataset_set_factors(atable, res[[i]] )
+#'   tmp <- prolfquapp::dataset_set_factors_deprecated(atable, res[[i]] )
 #'   cat(i, " : " , length(tmp$atable$factors), "factors : ", paste(tmp$atable$factors, collapse = "; "), "\n")
 #' }
 #'

@@ -1,0 +1,152 @@
+---
+title: "Comparing Two Groups with prolfqua"
+author: "Witold E. Wolski"
+date: "`r Sys.Date()`"
+output: html_document
+vignette: >
+  %\VignetteIndexEntry{Comparing Two Groups with prolfqua} 
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+bibliography:
+  - prolfqua.bib
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+conflicted::conflict_prefer("filter", "dplyr")
+```
+
+
+# Purpose
+
+This vignette demonstrates how two conditions, e.g., treatment vs. control, can be compared and the differences statistically tested. We will again use the Ionstar dataset as an example of an LFQ experiment. This dataset was preprocessed with the MaxQuant software. After first examining the data using QC plots and then normalizing the data, we compare groups of replicates with the different dilutions. The output of the comparison is the difference in the mean intensities for quantified proteins (log2 fold-change) in each group, along with statistical parameters such as degrees of freedom, standard errors, p-value and the FDR. 
+
+# Loading protein abundances from MaxQuant proteinGroups.txt
+
+```{r createConfig}
+library(prolfqua)
+```
+
+Specify the path to the MaxQuant `proteinGroups.txt` file. The function `tidyMQ_ProteinGroups` will read the `proteinGroups.txt` file and convert it into a tidy table
+
+```{r LoadDataAndConfigure}
+datadir <- file.path(find.package("prolfqua") , "samples/maxquant_txt")
+inputMQfile <-  file.path(datadir, "tiny2.zip")
+inputAnnotation <- file.path(datadir, "annotation_Ionstar2018_PXD003881.xlsx")
+startdata <- prolfquapp::tidyMQ_ProteinGroups(inputMQfile)
+```
+
+
+Read the sample annotation. The sample annotation must contain the `raw.file` name and the explanatory variables of your experiment, e.g. treatment, timepoint, genetic background, or other `factors` which you would like to check for confounding effects.
+
+
+```{r readAnnotation}
+annotation <- readxl::read_xlsx(inputAnnotation)
+head(annotation)
+```
+
+Merge the annotation with quantitative data using `inner_join` joining by `raw.file`.
+
+```{r addAnnotationToData}
+startdata <- dplyr::inner_join(annotation, startdata, by = "raw.file")
+
+```
+
+We remove all proteins identified only by a single peptide.
+
+```{r filterForAtLeastTwoPeptides}
+startdata <- dplyr::filter(startdata, nr.peptides > 1)
+```
+
+Then you need to _tell_ `prolfqua` which columns in the data frame contain what information. You do it using the `AnalysisTableAnnotation` class.
+
+```{r setupConfigs}
+atable <- AnalysisTableAnnotation$new()
+```
+
+The `AnalysisTableAnnotation` has the following fields that always need to be populated:
+
+- fileName
+- hierarchy
+- factors
+- workingIntensity
+
+
+The `fileName` is the column with the raw file names, however for labelled TMT experiments, it can be used to hold the name of the TMT channel.
+
+```{r specifyRawFile}
+atable$fileName = "raw.file"
+```
+
+The `hierarchy` field describes the structure of the MS data e.g, 
+
+- protein 
+- peptides
+- modified peptides
+- precursor
+
+In case of the MQ proteinGroups file we have the data already on protein level.
+
+```{r specifyProteinID}
+atable$hierarchy[["protein_Id"]] <- c("proteinID")
+
+```
+
+In addition you need to describe the `factors` of the analysis, i.e, the column containing the explanatory variables. 
+By setting the `factorDepth` variable to $1$ we include here only the "dilution." variable into the modelling.
+
+```{r specifyFactors}
+atable$factors[["dilution."]] = "sample"
+```
+
+We also need to specify the column containing the protein abundances.
+
+```{r specifyIntensity}
+atable$set_response("mq.protein.intensity")
+```
+
+Finally we create the `AnalysisConfiguration` which needs the `AnalysisTableAnnotation` we just created and the `AnalysisParameters`. 
+
+```{r createAnalysisConfig}
+config <- AnalysisConfiguration$new(atable)
+adata <- setup_analysis(startdata, config)
+```
+
+Create the `LFQData` class instance and remove zeros from data (MaxQuant encodes missing values with zero).
+
+```{r removeSmallIntensities}
+lfqdata <- prolfqua::LFQData$new(adata, config)
+lfqdata$remove_small_intensities()
+lfqdata$factors()
+```
+
+You can always convert the data into wide format.
+
+```{r showWide, eval = TRUE}
+lfqdata$to_wide()$data[1:3,1:7]
+```
+
+## Visualization of not normalized data
+
+After this first setting up of the analysis we show now how to normalize the proteins and the effect of normalization. Furthermore we use some functions to visualize the missing values in our data. 
+
+```{r getPlotter}
+lfqplotter <- lfqdata$get_Plotter()
+density_nn <- lfqplotter$intensity_distribution_density()
+```
+
+For more information about function of the `LFQData` object please see the vignettes in the prolfqua package.
+
+The `prolfqua` package is described in [@Wolski2022.06.07.494524].
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+
+# References
+

@@ -38,8 +38,8 @@ tidy_FragPipe_MSstats_csv <- function(file){
 #' @family FragPipe
 #' @examples
 #'
-#' prottsv <- system_file("samples/FragPipe/combined_protein_small.tsv",
-#' package = "prolfqua")
+#' prottsv <- prolfqua::find_package_file("prolfquapp", "samples/FragPipe/combined_protein_small.tsv")
+#'
 #' prot <- tidy_FragPipe_combined_protein_deprec(prottsv)
 #' stopifnot( dim(prot) ==c(19980,27))
 tidy_FragPipe_combined_protein_deprec <- function(
@@ -58,7 +58,7 @@ tidy_FragPipe_combined_protein_deprec <- function(
     subgroup = "subgroup",
     as_list = FALSE) {
   if (is.character(combprot) && file.exists(combprot)) {
-    Cprotein <- as_tibble(read.csv(combprot,
+    Cprotein <- tibble::as_tibble(read.csv(combprot,
                                    header = TRUE, sep = "\t", stringsAsFactors = FALSE))
 
   } else if ("tbl_df" %in% class(combprot)) {
@@ -92,8 +92,8 @@ tidy_FragPipe_combined_protein_deprec <- function(
     return( res )
   }
 
-  merged <- Reduce(inner_join, res)
-  merged <- inner_join(annot, merged)
+  merged <- Reduce(dplyr::inner_join, res)
+  merged <- dplyr::inner_join(annot, merged)
 
 
   return(merged)
@@ -191,7 +191,7 @@ tidy_FragPipe_combined_protein <- function(
     inner_join(x,y, multiple = "all")
   }
   merged <- Reduce( sql_inner_join , res )
-  merged <- inner_join( annot, merged , multiple = "all")
+  merged <- dplyr::inner_join( annot, merged , multiple = "all")
   colnames(merged) <- tolower(make.names(colnames(merged)))
   return( merged )
 }
@@ -212,7 +212,7 @@ tidy_FragPipe_psm <- function(psm_file,
 
   if (!"Purity" %in% colnames(psm) ) {
     warning("no Purity column in psm file!")
-    psm <- psm |> mutate(Purity = 1, .before = "Quan Usage")
+    psm <- psm |> dplyr::mutate(Purity = 1, .before = "Quan Usage")
   }
 
   x <- which(colnames(psm) == column_before_quants)

@@ -9,7 +9,7 @@ dsf <- "dataset.csv"
 REPEATED <- TRUE
 stopifnot(file.exists(peptidef), file.exists(proteinf), file.exists(dsf))
 
-protein <- prolfqua::tidyMQ_ProteinGroups(proteinf)
+protein <- prolfquapp::tidyMQ_ProteinGroups(proteinf)
 
 prot_annot <- prolfquapp::dataset_protein_annot(
   protein,

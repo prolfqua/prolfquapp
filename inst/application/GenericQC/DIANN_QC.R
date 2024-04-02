@@ -162,7 +162,7 @@ if (!is.null(peptide)) {
   summarizer <- lfqdata$get_Summariser()
   precabund <- summarizer$percentage_abundance()
 
-  precabund <- inner_join(
+  precabund <- dplyr::inner_join(
     prot_annot,
     precabund,
     multiple = "all",

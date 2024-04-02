@@ -59,8 +59,8 @@ tmp <- allmods |> separate(allmods, into = c("modSeq", "Assigned.Modifications")
 
 x <- tmp |> tidyr::separate_longer_delim("Assigned.Modifications", delim=",")
 
-x <- x |> mutate(Assigned.Modifications = trimws(Assigned.Modifications))
-x <- x |> mutate(Modification = gsub("^[0-9]+","", Assigned.Modifications))
+x <- x |> dplyr::mutate(Assigned.Modifications = trimws(Assigned.Modifications))
+x <- x |> dplyr::mutate(Modification = gsub("^[0-9]+","", Assigned.Modifications))
 x |> head()
 x |> dplyr::filter(grepl("N-term\\(42", x$Modification))
 tx <- x$Modification |> table()

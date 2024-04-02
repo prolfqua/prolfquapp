@@ -58,7 +58,7 @@ nrpepprot <- peptide |>
 plot(table(nrpepprot$nrPeptides), xlim = c(1,100))
 
 
-peptide <- inner_join(nrpepprot, peptide, multiple = "all")
+peptide <- dplyr::inner_join(nrpepprot, peptide, multiple = "all")
 peptide$raw.file <- peptide$R.FileName
 
 prot_annot <- prolfquapp::dataset_protein_annot(
@@ -68,8 +68,8 @@ prot_annot <- prolfquapp::dataset_protein_annot(
   more_columns = c("PG.ProteinAccessions","nrPeptides"))
 
 annot <- data.frame(raw.file = peptide$R.FileName |> unique())
-annot <- annot |> mutate(Name = gsub(".+_LFQ", "LFQ", raw.file))
-annot <- annot |> mutate(GroupingVar = case_when(grepl("_A_", Name) ~ "A", TRUE ~ "B"))
+annot <- annot |> dplyr::mutate(Name = gsub(".+_LFQ", "LFQ", raw.file))
+annot <- annot |> dplyr::mutate(GroupingVar = dplyr::case_when(grepl("_A_", Name) ~ "A", TRUE ~ "B"))
 annot$CONTROL <- ifelse(annot$GroupingVar == "A", "C", "T")
 
 

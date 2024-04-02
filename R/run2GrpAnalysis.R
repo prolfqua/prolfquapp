@@ -40,8 +40,8 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
 #' transform lfq data with x^2 - apply if non log data is needed
 #' @param lfqTrans transformed LFQData
 #' @export
-exp2 <- function( lfqTrans ){
-  if(!lfqTrans$config$table$is_response_transformed) {
+exp2 <- function(lfqTrans ) {
+  if (!lfqTrans$config$table$is_response_transformed) {
     warning("Data not transformed.")
   }
   tr <- lfqTrans$get_Transformer()

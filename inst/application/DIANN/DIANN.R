@@ -65,7 +65,7 @@ atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
 atable$set_response("Peptide.Quantity")
 atable$hierarchyDepth <- 1
 
-res <- prolfquapp::dataset_set_factors(atable, peptide)
+res <- prolfquapp::dataset_set_factors_deprecated(atable, peptide)
 atable <- res$atable
 peptide <- res$msdata
 
