@@ -6,6 +6,13 @@
 \usage{
 read_annotation(dsf, REPEATED = TRUE, SAINT = FALSE)
 }
+\arguments{
+\item{dsf}{annotation table}
+
+\item{REPEATED}{is this a repeated measurement}
+
+\item{SAINT}{is this a SAINTexpress analysis}
+}
 \value{
 list with annot (annotation table), atable (analtysis table configuration), contrasts list with contrasts.
 }

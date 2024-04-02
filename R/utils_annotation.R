@@ -1,16 +1,22 @@
 #' check if all required columns in annotation file are there.
 check_annotation <- function(annot) {
   samples <- grep("^channel|^Relative|^raw|^file", colnames(annot), ignore.case = TRUE, value = TRUE)
-  stopifnot(length(samples) >= 1)
-  if (length(samples) > 1) {warning("there are more then one column for sample : ", paste0(samples)) }
+  if (length(samples) < 1) { stop("column starting with channel, Relativ, raw, or file is missing.") }
+  if (length(samples) > 1) { warning("there are more then one column for sample : ", paste0(samples)) }
+
   grouping <- grep("^group|^bait|^Experiment", colnames(annot), ignore.case = TRUE, value = TRUE)
-  stopifnot(length(grouping) >= 1 )
-  if (length(grouping) > 1) {warning("there are more then one column for sample : ", paste0(grouping)) }
+  if (length(grouping) < 1) { stop("column with grouping variable (starting with group, bait, Experiment) is missing.") }
+  if (length(grouping) > 1) { warning("there are more then one column for sample : ", paste0(grouping)) }
+  contrast <- grep("ContrastName|Contrast|CONTROL", colnames(annot), ignore.case = TRUE, value = TRUE)
+  if (length(contrast) < 1) { stop(paste0("you must specify a CONTROL column.")) }
 }
 
 
 #' read annotation files
 #' @return list with annot (annotation table), atable (analtysis table configuration), contrasts list with contrasts.
+#' @param dsf annotation table
+#' @param REPEATED is this a repeated measurement
+#' @param SAINT is this a SAINTexpress analysis
 #' @export
 read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE){
   if ("data.frame" %in% class(dsf) ) {
