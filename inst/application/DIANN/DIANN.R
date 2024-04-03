@@ -48,7 +48,6 @@ annot <- annot |> dplyr::mutate(
 )
 
 
-GRP2 <- prolfquapp::dataset_set_factors_deprecated(annot, GRP2)
 
 annot$raw.file[ !annot$raw.file %in% sort(unique(peptide$raw.file)) ]
 nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
