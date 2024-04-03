@@ -23,7 +23,7 @@ ProcessingOptions <- R6::R6Class(
     #' @field pattern_contaminants pattern contaminants
     pattern_contaminants = "^CON|^zz",
     #' @field nr_peptides number of peptides
-    nr_peptides = 2,
+    nr_peptides = 1,
     #' @field interaction model with interactions default FALSE
     interaction = FALSE,
     #' @field missing model missigness, default TRUE

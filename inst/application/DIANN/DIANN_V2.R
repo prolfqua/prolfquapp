@@ -31,6 +31,7 @@ logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 logger::log_info("END OF PROTEIN AGGREGATION")
 
 logger::log_info("run analysis")
+
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
 logger::log_info("write results and html reports")
