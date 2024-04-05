@@ -119,13 +119,22 @@ We keep the contaminant proteins because, for some experiments, these contaminan
 We also keep the decoy sequences because they allow us to re-estimate the proportion of falsely identified proteins in the list of differentially expressed proteins, which might differ from that of entire dataset. The identifiers of the decoy proteins start with __REV__ or __rev__.
 
 
-Figure \@ref(fig:nrPerSample) shows the number of quantified proteins per sample.
+Figure \@ref(fig:nrPerSample) shows the number of quantified proteins with one or more peptides per sample.
 
 ```{r nrPerSample, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
 sum <- grp2$RES$lfqData$get_Summariser()
-sum$plot_hierarchy_counts_sample()
+sum$plot_hierarchy_counts_sample(nr_children = 1)
 
 ```
+
+Figure \@ref(fig:nrPerSample2) shows the number of quantified proteins with two or more peptides per sample.
+
+```{r nrPerSample, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
+sum <- grp2$RES$lfqData$get_Summariser()
+sum$plot_hierarchy_counts_sample(nr_children = 2)
+
+```
+
 
 ## Missing Value Analysis
 
@@ -144,7 +153,6 @@ allNas <- nrow(res)
 
 ```{r prepHeatmap}
 pl <- grp2$RES$lfqData$get_Plotter()
-
 nah <- pl$NA_heatmap()
 
 
