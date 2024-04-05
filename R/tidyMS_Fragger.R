@@ -202,6 +202,7 @@ tidy_FragPipe_combined_protein <- function(
 #' @param psm_file path to psm.tsv file
 #' @param purity_threshold purity threshold default = 0.5
 #' @param PeptideProphetProb default 0.9
+#' @param column_before_quants describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"
 #'
 tidy_FragPipe_psm <- function(psm_file,
                               purity_threshold = 0.5,
