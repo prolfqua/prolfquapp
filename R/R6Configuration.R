@@ -200,11 +200,12 @@ make_DEA_config_R6 <- function(
 #' @return list with applications parameters
 #' @examples
 #' if(FALSE){
-#'   yfile <- prolfqua::find_package_file("prolfquapp" , "/inst/application/DIANN/myYamls.zip")
+#'   yfile <- prolfqua::find_package_file("prolfquapp", "/inst/application/DIANN/myYamls.zip")
 #'   file.exists(yfile)
 #'   yfiles <- dir(yfile,recursive = TRUE,full.names = TRUE)
 #'   config <- read_BF_yamlR6(yfiles[1])
 #' }
+#'
 read_BF_yamlR6 <- function(ymlfile, application = "FragPipeTMT" ) {
   yml = yaml::read_yaml(ymlfile)
 
@@ -223,8 +224,6 @@ read_BF_yamlR6 <- function(ymlfile, application = "FragPipeTMT" ) {
 
   ps$inputID <- yml$job_configuration$input[[1]][[idxzip]]$resource_id
   ps$inputURL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
-
-
 
   #at least 2 peptides per protein
   pop <- ProcessingOptions$new()

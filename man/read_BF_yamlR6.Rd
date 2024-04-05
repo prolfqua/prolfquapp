@@ -14,9 +14,10 @@ read yaml file
 }
 \examples{
 if(FALSE){
-  yfile <- prolfqua::find_package_file("prolfquapp" , "/inst/application/DIANN/myYamls.zip")
+  yfile <- prolfqua::find_package_file("prolfquapp", "/inst/application/DIANN/myYamls.zip")
   file.exists(yfile)
   yfiles <- dir(yfile,recursive = TRUE,full.names = TRUE)
   config <- read_BF_yamlR6(yfiles[1])
 }
+
 }

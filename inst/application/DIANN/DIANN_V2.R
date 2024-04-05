@@ -2,13 +2,11 @@ library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 
 path = "."
-path = "C33652WU300941/"
 ymlfile <- file.path(path,"config.yaml")
 GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
 
 xx <- R6_extract_values(GRP2)
 yaml::write_yaml(xx, file = "test.yaml")
-
 
 dsf = file.path(path,"dataset.csv")
 dsf <- readr::read_csv(dsf)
