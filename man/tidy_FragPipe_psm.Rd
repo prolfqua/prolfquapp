@@ -18,6 +18,8 @@ tidy_FragPipe_psm(
 \item{purity_threshold}{purity threshold default = 0.5}
 
 \item{PeptideProphetProb}{default 0.9}
+
+\item{column_before_quants}{describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"}
 }
 \description{
 read psm.tsv produced by FragPipe and convert into long format

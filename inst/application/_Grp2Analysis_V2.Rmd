@@ -102,7 +102,21 @@ knitr::kable(tab, caption = "Nr of samples assigned to each group.")
 
 
 ```{r annotation, eval=TRUE}
-knitr::kable(grp2$RES$lfqData$factors(), caption = "LC-MS samples annotation table. The content of the sampleName column is used as a short form to plot labels. The group to which a sample is assigned to is shown in the column group.")
+ld <- grp2$RES$lfqData
+fx <- ld$factors()
+sr <- ld$get_Summariser()
+xx <- sr$hierarchy_counts_sample(nr_children = 1)
+xx$isotopeLabel <- NULL
+xx <- xx |> dplyr::rename(nr_1 = ld$config$table$hierarchy_keys())
+x2 <- sr$hierarchy_counts_sample(nr_children = 2)
+x2$isotopeLabel <- NULL
+x2 <- x2 |> dplyr::rename(nr_2 = ld$config$table$hierarchy_keys())
+
+fx <- dplyr::left_join(fx,xx, by = ld$config$table$sampleName)
+fx <- dplyr::left_join(fx,x2, by = ld$config$table$sampleName)
+
+
+knitr::kable(fx, caption = "LC-MS samples annotation table. The content of the sampleName column is used as a short form to plot labels. The group to which a sample is assigned to is shown in the column group.")
 
 ```
 
@@ -129,7 +143,7 @@ sum$plot_hierarchy_counts_sample(nr_children = 1)
 
 Figure \@ref(fig:nrPerSample2) shows the number of quantified proteins with two or more peptides per sample.
 
-```{r nrPerSample, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
+```{r nrPerSample2, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
 sum <- grp2$RES$lfqData$get_Summariser()
 sum$plot_hierarchy_counts_sample(nr_children = 2)
 

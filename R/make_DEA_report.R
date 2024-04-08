@@ -8,31 +8,34 @@ make_DEA_report2 <- function(lfqdata,
 ) {
   ### Do some type of data normalization (or do not)
 
-  transformed <- prolfquapp::transform_lfqdata(
-    lfqdata,
-    method = GRP2$pop$transform,
-    internal = GRP2$pop$internal
-  )
-
 
   allProt <- nrow( protAnnot$row_annot )
   GRP2$RES <- list()
   GRP2$RES$Summary <- data.frame(
     totalNrOfProteins = allProt,
-    percentOfContaminants = round(protAnnot$annotate_contaminants(GRP2$processing_options$pattern_contaminants)/allProt * 100 , digits = 2),
-    percentOfFalsePositives  = round(protAnnot$annotate_decoys(GRP2$processing_options$pattern_decoys)/allProt * 100 , digits = 2),
+    percentOfContaminants = round(protAnnot$annotate_contaminants(
+      GRP2$processing_options$pattern_contaminants)/allProt * 100 , digits = 2),
+    percentOfFalsePositives  = round(protAnnot$annotate_decoys(
+      GRP2$processing_options$pattern_decoys)/allProt * 100 , digits = 2),
     NrOfProteinsNoDecoys = protAnnot$nr_clean()
   )
   GRP2$RES$rowAnnot <- protAnnot
 
   if (GRP2$processing_options$remove_cont || GRP2$processing_options$remove_cont) {
-    lfqdata <- lfqdata$get_subset(protAnnot$clean(contaminants = GRP2$processing_options$remove_cont, decoys = GRP2$processing_options$remove_decoys))
-    transformed <- transformed$get_subset(protAnnot$clean())
+    lfqdata <- lfqdata$get_subset(protAnnot$clean(
+      contaminants = GRP2$processing_options$remove_cont,
+      decoys = GRP2$processing_options$remove_decoys))
     logger::log_info(
       paste0("removing contaminants and reverse sequences with patterns:",
              GRP2$processing_options$pattern_contaminants,
              GRP2$processing_options$pattern_decoys ))
   }
+
+  transformed <- prolfquapp::transform_lfqdata(
+    lfqdata,
+    method = GRP2$pop$transform,
+    internal = GRP2$pop$internal
+  )
 
   lfqdata$rename_response("protein_abundance")
   transformed$rename_response("normalized_protein_abundance")
@@ -41,8 +44,12 @@ make_DEA_report2 <- function(lfqdata,
   GRP2$RES$transformedlfqData <- transformed
 
   ################## Run Modelling ###############
-  factors <- transformed$config$table$factor_keys()[!grepl("^control", transformed$config$table$factor_keys() , ignore.case = TRUE)]
+  # remove control column from factors.
+  factors <- transformed$config$table$factor_keys()[
+    !grepl("^control", transformed$config$table$factor_keys() , ignore.case = TRUE)
+    ]
 
+  # model with or without ineractions
   if (is.null(GRP2$processing_options$interaction) || !GRP2$processing_options$interaction ) {
     formula <- paste0(transformed$config$table$get_response(), " ~ ",
                       paste(factors, collapse = " + "))

@@ -58,7 +58,7 @@ preprocess_DIANN <- function(quant_data,
   adata <- prolfqua::setup_analysis(peptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
-  protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
+  protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot, nr_children = "nrPeptides")
   return(list(lfqdata = lfqdata , protein_annotation = protAnnot))
 }
 
