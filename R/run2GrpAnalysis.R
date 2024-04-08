@@ -301,17 +301,8 @@ make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, stri
 }
 
 
-#' Write differential expression analysis results
-#'
-#' @rdname make_DEA_report
-#' @param GRP2 return value of \code{\link{make_DEA_report}}
-#' @param outpath path to place output
-#' @param xlsxname file name for xlsx
-#' @export
-#' @family workflow
-#'
-write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE){
-  if (write) {dir.create(outpath)}
+prep_result_list <- function(GRP2){
+
   rd <- GRP2$RES$lfqData
   tr <- GRP2$RES$transformedlfqData
   ra <- GRP2$RES$rowAnnot
@@ -351,38 +342,57 @@ write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE)
   st <- GRP2$RES$lfqData$get_Stats()
   resultList$stats_raw <- st$stats()
   resultList$stats_raw_wide <- st$stats_wide()
+  return(resultList)
+}
 
-  if (write) {
+write_result_list <- function(outpath, GRP2, resultList, xlsxname) {
+  workunit_id <- GRP2$project_spec$workunitID
+  dir.create(outpath)
+  bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
+  ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
+  write.table(bkg,file = ff, col.names = FALSE,
+              row.names = FALSE, quote = FALSE)
 
-    bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
-    ff <- file.path(outpath ,"ORA_background.txt")
-    write.table(bkg,file = ff, col.names = FALSE,
+  fg <- GRP2$RES$contrastsData_signif
+  ora_sig <- split(fg$IDcolumn, fg$contrast)
+
+  for (i in names(ora_sig)) {
+    ff <- file.path(outpath, paste0("ORA_",i,"_WU",workunit_id,".txt" ))
+    logger::log_info("Writing File ", ff)
+    write.table(ora_sig[[i]],file = ff, col.names = FALSE,
                 row.names = FALSE, quote = FALSE)
+  }
 
-    fg <- GRP2$RES$contrastsData_signif
-    ora_sig <- split(fg$IDcolumn, fg$contrast)
+  fg <- GRP2$RES$contrastsData
+  gsea <- dplyr::select(fg , .data$contrast, .data$IDcolumn, .data$statistic) |> dplyr::arrange( statistic )
+  gsea <- split(dplyr::select( gsea, .data$IDcolumn, .data$statistic ), gsea$contrast)
 
-    for (i in names(ora_sig)) {
-      ff <- file.path(outpath, paste0("Ora_",i,".txt" ))
-      logger::log_info("Writing File ", ff)
-      write.table(ora_sig[[i]],file = ff, col.names = FALSE,
-                  row.names = FALSE, quote = FALSE)
-    }
+  for (i in names(gsea)) {
+    ff <- file.path(outpath, paste0("GSEA_",i,"_WU",workunit_id,".rnk" ))
+    logger::log_info("Writing File ", ff)
+    write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE, sep = "\t")
+  }
+  if (nrow(resultList$normalized_abundances) > 1048575) {
+    resultList$normalized_abundances <- NULL
+  }
+  writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
+}
 
-    fg <- GRP2$RES$contrastsData
-    gsea <- fg |> dplyr::select( contrast, IDcolumn, statistic) |> dplyr::arrange( statistic )
-    gsea <- split(dplyr::select( gsea, IDcolumn, statistic ), gsea$contrast)
+#' Write differential expression analysis results
+#'
+#' @rdname make_DEA_report
+#' @param GRP2 return value of \code{\link{make_DEA_report}}
+#' @param outpath path to place output
+#' @param xlsxname file name for xlsx
+#' @export
+#' @family workflow
+#'
+write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE){
 
-    for (i in names(gsea)) {
-      ff <- file.path(outpath, paste0("GSEA_",i,".rnk" ))
-      logger::log_info("Writing File ", ff)
-      write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
-                  row.names = FALSE, quote = FALSE, sep = "\t")
-    }
-    if (nrow(resultList$normalized_abundances) > 1048575) {
-      resultList$normalized_abundances <- NULL
-    }
-    writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
+  resultList <- prep_result_list(GRP2)
+  if (write) {
+    write_result_list(outpath, GRP2, resultList, xlsxname = xlsxname)
   }
   return(resultList)
 }
@@ -425,10 +435,11 @@ render_DEA <- function(GRP2,
 #'
 write_DEA_all <- function(grp2, name, ZIPDIR, boxplot = TRUE , render = TRUE, markdown ="_Grp2Analysis.Rmd"){
   dir.create(GRP2$zipdir)
-  fname <- paste0("DE_", name)
-  qcname <- paste0("QC_", name)
+  fname <- paste0("DE_",  name, "_WU", grp2$project_spec$workunitID )
+  qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunitID )
   outpath <- file.path( ZIPDIR, fname)
   logger::log_info("writing into : ", outpath, " <<<<")
+
   prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname)
 
   if (render) {
