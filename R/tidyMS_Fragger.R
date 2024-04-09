@@ -213,7 +213,7 @@ tidy_FragPipe_psm <- function(psm_file,
 
   if (!"Purity" %in% colnames(psm) ) {
     warning("no Purity column in psm file!")
-    psm <- psm |> dplyr::mutate(Purity = 1, .before = "Quan Usage")
+    psm <- psm |> dplyr::mutate(Purity = 1, .before = column_before_quants)
   }
 
   x <- which(colnames(psm) == column_before_quants)
