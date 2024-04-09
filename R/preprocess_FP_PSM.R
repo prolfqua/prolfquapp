@@ -3,7 +3,7 @@
 #' @export
 get_FP_PSM_files <- function(path){
 
-  psm_file <- dir(path = ".", pattern = "psm.tsv", recursive = TRUE, full.names = TRUE)
+  psm_file <- dir(path = path, pattern = "psm.tsv", recursive = TRUE, full.names = TRUE)
   fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE,full.names = TRUE), value = TRUE)
   if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
     fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
