@@ -36,7 +36,7 @@ preprocess_FP_PSM <- function(quant_data,
   psm$qValue <- 1 - psm$PeptideProphet.Probability
 
   nrowPSM <- nrow(psm)
-  fasta_annot <- get_annot_from_fasta(fasta.files)
+  fasta_annot <- get_annot_from_fasta(fasta_file)
   psm <- dplyr::left_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
   stopifnot(nrow(psm) == nrowPSM)
 
