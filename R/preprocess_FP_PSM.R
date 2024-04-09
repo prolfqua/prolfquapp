@@ -32,7 +32,7 @@ preprocess_FP_PSM <- function(quant_data,
                     (basename(annot[[atable$fileName]]))
     ))
 
-  psm <- prolfqua::tidy_FragPipe_psm(quant_data, column_before_quants)
+  psm <- prolfquapp::tidy_FragPipe_psm(quant_data, column_before_quants)
   psm$qValue <- 1 - psm$PeptideProphet.Probability
 
   nrowPSM <- nrow(psm)
