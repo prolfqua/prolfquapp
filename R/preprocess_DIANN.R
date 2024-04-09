@@ -30,19 +30,11 @@ preprocess_DIANN <- function(quant_data,
                     (basename(annot[[atable$fileName]]))
     ))
 
-
   peptide <- prolfquapp::read_DIANN_output(
     diann.path = quant_data,
     fasta.file = fasta_file,
     nrPeptides = nrPeptides,
     Q.Value = q_value)
-
-  prot_annot <- prolfquapp::dataset_protein_annot(
-    peptide,
-    c("protein_Id" = "Protein.Group"),
-    protein_annot = "fasta.header",
-    more_columns = c("nrPeptides", "fasta.id", "Protein.Group.2")
-  )
 
   nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(peptide$raw.file)))
@@ -58,7 +50,16 @@ preprocess_DIANN <- function(quant_data,
   adata <- prolfqua::setup_analysis(peptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
-  protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot, nr_children = "nrPeptides")
+
+  protAnnot <- build_protein_annot(
+    lfqdata,
+    peptide,
+    c("protein_Id" = "Protein.Group"),
+    cleaned_protein_id = "Protein.Group.2",
+    protein_description = "fasta.header",
+    nr_children = "nrPeptides",
+    more_columns = c("nrPeptides", "fasta.id"))
+
   return(list(lfqdata = lfqdata , protein_annotation = protAnnot))
 }
 
