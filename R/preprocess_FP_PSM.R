@@ -22,7 +22,8 @@ preprocess_FP_PSM <- function(quant_data,
                              fasta_file,
                              annotation,
                              q_value = 0.01,
-                             nrPeptides = 1){
+                             nrPeptides = 1, 
+                             column_before_quants = "Quan Usage"){
 
   annot <- annotation$annot
   atable <- annotation$atable
@@ -31,7 +32,7 @@ preprocess_FP_PSM <- function(quant_data,
                     (basename(annot[[atable$fileName]]))
     ))
 
-  psm <- prolfqua::tidy_FragPipe_psm(quant_data)
+  psm <- prolfqua::tidy_FragPipe_psm(quant_data, column_before_quants)
   psm$qValue <- 1 - psm$PeptideProphet.Probability
 
   nrowPSM <- nrow(psm)
