@@ -18,7 +18,7 @@ check_annotation <- function(annot) {
 #' @param REPEATED is this a repeated measurement
 #' @param SAINT is this a SAINTexpress analysis
 #' @export
-read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE){
+read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE, prefix = "G_"){
   if ("data.frame" %in% class(dsf) ) {
     annot <- dsf
   } else {
@@ -26,8 +26,8 @@ read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE){
   }
   annot <- data.frame(lapply(annot, as.character))
   check_annotation(dsf)
-  res <- dataset_set_factors(annot, REPEATED = REPEATED, SAINT = SAINT)
-  contrasts <- extract_contrasts(res$annot)
+  res <- dataset_set_factors(annot, REPEATED = REPEATED, SAINT = SAINT, prefix = prefix)
+  contrasts <- extract_contrasts(res$annot, prefix = prefix)
   res[["contrasts"]] <- contrasts
   return(res)
 }

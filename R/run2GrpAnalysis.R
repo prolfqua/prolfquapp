@@ -209,7 +209,7 @@ make_DEA_report <- function(lfqdata,
   conrM <- prolfqua::ContrastsModerated$new(
     contr)
 
-  if (is.null(GRP2$pop$missing) || GRP2$pop$missing ) {
+  if (is.null(GRP2$processing_options$missing) || GRP2$processing_options$missing ) {
     mC <- prolfqua::ContrastsMissing$new(
       lfqdata = transformed,
       contrasts = GRP2$pop$Contrasts,
@@ -437,7 +437,7 @@ write_DEA_all <- function(grp2, name, ZIPDIR, boxplot = TRUE , render = TRUE, ma
   dir.create(GRP2$zipdir)
   fname <- paste0("DE_",  name, "_WU", grp2$project_spec$workunitID )
   qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunitID )
-  outpath <- file.path( ZIPDIR, fname)
+  outpath <- file.path( ZIPDIR, paste0("Results_DEA_WU", grp2$project_spec$workunitID))
   logger::log_info("writing into : ", outpath, " <<<<")
 
   prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname)

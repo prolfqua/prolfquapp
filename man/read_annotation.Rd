@@ -4,7 +4,7 @@
 \alias{read_annotation}
 \title{read annotation files}
 \usage{
-read_annotation(dsf, REPEATED = TRUE, SAINT = FALSE)
+read_annotation(dsf, REPEATED = TRUE, SAINT = FALSE, prefix = "G_")
 }
 \arguments{
 \item{dsf}{annotation table}

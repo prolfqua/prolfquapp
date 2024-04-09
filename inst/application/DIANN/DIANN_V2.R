@@ -5,6 +5,12 @@ path = "."
 ymlfile <- file.path(path,"config.yaml")
 GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
 
+
+dir.create(GRP2$zipdir)
+inputs <- file.path(GRP2$zipdir,
+paste0("Inputs_WU", GRP2$project_spec$workunitID))
+dir.create(inputs)
+
 dsf = file.path(path,"dataset.csv")
 dsf <- readr::read_csv(dsf)
 annotation <- prolfquapp::read_annotation(dsf)
@@ -34,7 +40,7 @@ logger::log_info("write results and summarized experiment")
 SE <- prolfquapp::make_SummarizedExperiment(grp[[1]])
 
 saveRDS(SE, file = file.path(GRP2$zipdir,
-                             paste0("DE_", names(grp)[1], "_WU", grp[[1]]$project_spec$workunitID) ,
+                             paste0("Results_DEA_WU", grp[[1]]$project_spec$workunitID) ,
                              paste0("SummarizedExperiment",".rds") ))
 
 
