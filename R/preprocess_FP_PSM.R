@@ -48,8 +48,8 @@ preprocess_FP_PSM <- function(quant_data,
 
 
 
-  nr <- sum(annot$raw.file %in% sort(unique(psm$raw.file)))
-  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(psm$raw.file)))
+  nr <- sum(annot$channel %in% sort(unique(psm$channel)))
+  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(psm$channel)))
 
   atable$ident_Score = "PeptideProphet.Probability"
   atable$ident_qValue = "qValue"
