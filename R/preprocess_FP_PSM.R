@@ -48,8 +48,8 @@ preprocess_FP_PSM <- function(quant_data,
 
 
 
-  nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
-  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(peptide$raw.file)))
+  nr <- sum(annot$raw.file %in% sort(unique(psm$raw.file)))
+  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(psm$raw.file)))
 
   atable$ident_Score = "PeptideProphet.Probability"
   atable$ident_qValue = "qValue"
@@ -59,9 +59,9 @@ preprocess_FP_PSM <- function(quant_data,
   atable$hierarchy[["mod_peptide_Id"]] <- c("Modified.Peptide","Assigned.Modifications")
   atable$hierarchy[["Spectrum"]] <- c("Spectrum")
 
-  peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
+  psm <- dplyr::inner_join(annot, psm, multiple = "all")
   config <- prolfqua::AnalysisConfiguration$new(atable)
-  adata <- prolfqua::setup_analysis(peptide, config)
+  adata <- prolfqua::setup_analysis(psm, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
   protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
