@@ -9,7 +9,8 @@ preprocess_FP_PSM(
   fasta_file,
   annotation,
   q_value = 0.01,
-  nrPeptides = 1
+  nrPeptides = 1,
+  column_before_quants = "Quan Usage"
 )
 }
 \value{

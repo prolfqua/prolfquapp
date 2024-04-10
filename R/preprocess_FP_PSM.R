@@ -22,7 +22,7 @@ preprocess_FP_PSM <- function(quant_data,
                              fasta_file,
                              annotation,
                              q_value = 0.01,
-                             nrPeptides = 1, 
+                             nrPeptides = 1,
                              column_before_quants = "Quan Usage"){
 
   annot <- annotation$annot
@@ -58,6 +58,7 @@ preprocess_FP_PSM <- function(quant_data,
   atable$hierarchy[["peptide_Id"]] <- c("Peptide")
   atable$hierarchy[["mod_peptide_Id"]] <- c("Modified.Peptide","Assigned.Modifications")
   atable$hierarchy[["Spectrum"]] <- c("Spectrum")
+  atable$set_response("abundance")
 
   psm <- dplyr::inner_join(annot, psm, multiple = "all")
   config <- prolfqua::AnalysisConfiguration$new(atable)
