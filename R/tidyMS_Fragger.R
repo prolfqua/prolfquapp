@@ -122,7 +122,7 @@ tidy_FragPipe_combined_protein <- function(
 ) {
   protIDcol = "Protein"
   if (is.character(combprot) && file.exists(combprot)) {
-    Cprotein <- as_tibble(
+    Cprotein <- tibble::as_tibble(
       read.csv(combprot,
                header = TRUE,
                sep = "\t",
@@ -158,7 +158,7 @@ tidy_FragPipe_combined_protein <- function(
   extractDataLong <- function(Cprotein, what = "Total Intensity", butNot = NULL){
     cols <- colnames(Cprotein)
     cols <- setdiff( grep(paste0(what,"$"), cols, value = TRUE) , if (is.null(butNot)) {NULL} else { grep(butNot, cols, value = TRUE) })
-    gg <- Cprotein |> dplyr::select( all_of(protIDcol), all_of(cols) )
+    gg <- Cprotein |> dplyr::select( dplyr::all_of(protIDcol), dplyr::all_of(cols) )
 
     gg <- gg |> tidyr::pivot_longer(cols = dplyr::ends_with(what), names_to = "raw.file",values_to = what)
     gg <- gg |> dplyr::mutate(raw.file = gsub(paste0(".",what,"$"),"", .data$raw.file))
@@ -188,7 +188,7 @@ tidy_FragPipe_combined_protein <- function(
   }
 
   sql_inner_join <- function(x, y){
-    inner_join(x,y, multiple = "all")
+    dplyr::inner_join(x,y, multiple = "all")
   }
   merged <- Reduce( sql_inner_join , res )
   merged <- dplyr::inner_join( annot, merged , multiple = "all")
