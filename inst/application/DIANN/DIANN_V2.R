@@ -10,7 +10,6 @@ dsf <- readr::read_csv(dsf)
 annotation <- prolfquapp::read_annotation(dsf)
 files <- prolfquapp::get_DIANN_files(path)
 
-undebug(prolfquapp::preprocess_DIANN)
 xd <- prolfquapp::preprocess_DIANN(
   quant_data = files$data,
   fasta_file = files$fasta,
