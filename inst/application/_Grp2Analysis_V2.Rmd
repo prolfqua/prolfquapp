@@ -44,11 +44,11 @@ grp2 <- params$grp
 # B-fabric related information
 
 This report is stored in the LIMS system [_bfabric_](https://fgcz-bfabric.uzh.ch) [@panse2022bridging] in
-__project__: `r grp2$Bfabric$projectID`, __order__: `r grp2$Bfabric$orderID`, `r if(!is.null(grp2$Bfabric$workunitID)){ "with the workunit name :" }`  `r grp2$Bfabric$workunitID`.
+__project__: `r grp2$project_spec$projectID`, __order__: `r grp2$project_spec$orderID`, `r if(!is.null(grp2$project_spec$workunitID)){ "with the workunit name :" }`  `r grp2$project_spec$workunitID`.
 
 
 The protein identification and quantification were performed using: 
-`r if(!is.null(grp2$Software)){grp2$Software} else {"<Specify parameter grp2$Software>"}`. The input file can be downloaded from here : [`r grp2$Bfabric$inputID`](`r grp2$Bfabric$inputURL`). The set of parameters used to run the quantification software can be retrieved from the b-fabric workunit to which this file belongs.
+`r if(!is.null(grp2$software)){grp2$software} else {"<Specify parameter grp2$software>"}`. The input file can be downloaded from here : [`r grp2$project_spec$inputID`](`r grp2$project_spec$inputURL`). The set of parameters used to run the quantification software can be retrieved from the b-fabric workunit to which this file belongs.
 
 
 # Introduction
