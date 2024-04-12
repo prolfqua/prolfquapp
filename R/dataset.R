@@ -59,7 +59,7 @@ build_protein_annot <- function(
     more_columns = c("fasta.id")
 ) {
   proteinID_column = names(idcol)[1]
-  msdata <- dplyr::rename(msdata, !!proteinID_column := !!rlang::sym(idcol) )
+  msdata <- dplyr::mutate(msdata, !!proteinID_column := !!rlang::sym(idcol) )
   length_protIDs <- length(unique(msdata[[proteinID_column]]))
   prot_annot <- dplyr::select(
     msdata ,

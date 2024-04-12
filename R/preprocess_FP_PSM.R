@@ -40,16 +40,11 @@ preprocess_FP_PSM <- function(quant_data,
   psm <- dplyr::left_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
   stopifnot(nrow(psm) == nrowPSM)
 
-  prot_annot <- prolfquapp::dataset_protein_annot(
-    psm,
-    c("protein_Id" = "Protein"),
-    protein_annot = "fasta.header",
-    more_columns = "nrPeptides")
-
 
 
   nr <- sum(annot$channel %in% sort(unique(psm$channel)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(psm$channel)))
+  stopifnot(nr > 0)
 
   atable$ident_Score = "PeptideProphet.Probability"
   atable$ident_qValue = "qValue"
@@ -64,9 +59,18 @@ preprocess_FP_PSM <- function(quant_data,
   config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(psm, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
+
+  prot_annot <- prolfquapp::build_protein_annot(
+    lfqdata,
+    psm,
+    idcol = c("protein_Id" = "Protein"),
+    cleaned_protein_id = "Protein",
+    protein_description = "Protein.Description",
+    nr_children = "nrPeptides",
+    more_columns = NULL)
+
   lfqdata$remove_small_intensities()
-  protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
-  return(list(lfqdata = lfqdata , protein_annotation = protAnnot))
+  return(list(lfqdata = lfqdata , protein_annotation = prot_annot))
 }
 
 
