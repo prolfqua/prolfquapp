@@ -111,7 +111,6 @@ make_DEA_report2 <- function(lfqdata,
 #' @export
 generate_DEA_reports2 <- function(lfqdata, GRP2, prot_annot, Contrasts) {
   # Compute all possible 2 Grps to avoid specifying reference.
-  res <- list()
   GRP2$pop$Contrasts <- Contrasts
   logger::log_info("CONTRAST : ", paste( GRP2$pop$Contrasts, collapse = " "))
   lfqwork <- lfqdata$get_copy()
@@ -120,6 +119,6 @@ generate_DEA_reports2 <- function(lfqdata, GRP2, prot_annot, Contrasts) {
     lfqwork,
     prot_annot,
     GRP2)
-  return(list("Groups_vs_Controls" = grp2) )
+  return(grp2)
 }
 

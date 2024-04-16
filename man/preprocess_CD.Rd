@@ -4,7 +4,7 @@
 \alias{preprocess_CD}
 \title{load compound discoverer (CD) files}
 \usage{
-preprocess_CD(in_file, annotation)
+preprocess_CD(in_file, annotation, .func_massage = prolfquapp::massage_CD)
 }
 \arguments{
 \item{in_file}{excel file produced by CD}

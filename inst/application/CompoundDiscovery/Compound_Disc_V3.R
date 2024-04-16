@@ -1,38 +1,67 @@
-path <- "input_ex/"
+library(tidyverse)
+library(prolfquapp)
+prolfquapp::copy_DEA_DIANN()
 
-annot <- readxl::read_xlsx(file.path(path,"o33926_input_files.xlsx"))
+### Annotation
+path <- "test_StudyInformation/"
+
+
+annot <- readxl::read_xlsx(file.path(path, "test_InputFiles.xlsx"))
 colnames(annot) <- make.names(colnames(annot))
-annot <- annot |> dplyr::select(StudyFile = Study.File.ID, File.Name, Material = Meterial,Gender,Genotype)
-annot <- annot |> tidyr::unite(Group, Material, Gender, Genotype, remove = FALSE)
+annot <- dplyr::select(annot, c("Study.File.ID", "File.Name","Group","SampleGroup"))
+
+annot <- dplyr::filter(annot, Group == "Sample")
+annot$Group <- NULL
+annot <- annot |> dplyr::rename(Group = SampleGroup)
+annot <- annot |> dplyr::mutate(CONTROL = case_when(Group == "a" ~ "C" , TRUE ~ "T"))
 
 annot$File.Name <- gsub("\\", "/",annot$File.Name , fixed = TRUE)
 annot <- annot |> dplyr::mutate(File.Name = basename(File.Name))
-annot <- annot |> dplyr::filter(Material != "none")
 
-contrast <- c(
-  CFvsMR_plasma = "(G_plasma_Female_CF + G_plasma_Male_CF)/2 - (G_plasma_Female_MR + G_plasma_Male_MR)/2",
-  CVvsMR_male_plasma = "G_plasma_Male_CF - G_plasma_Male_MR",
-  CVvsMR_female_plasma = "G_plasma_Female_CF - G_plasma_Female_MR",
-
-  CFvsMR_urine = "(G_urine_Female_CF + G_urine_Male_CF)/2 - (G_urine_Female_MR + G_urine_Male_MR)/2",
-  CVvsMR_male_urine = "G_urine_Male_CF - G_urine_Male_MR",
-  CVvsMR_female_urine = "G_urine_Female_CF - G_urine_Female_MR"
-
-)
-
-annot$ContrastName <- c(names(contrast), rep(NA, nrow(annot) - length(contrast)))
-annot$Contrast <- c(contrast,rep(NA, nrow(annot) - length(contrast)))
-
-annot <- annot |> dplyr::rename(Name = StudyFile)
+annot <- annot |> dplyr::rename(Name = Study.File.ID)
 writexl::write_xlsx(annot, path = "annotation.xlsx")
 
-compound <- readxl::read_xlsx("NewOutput/o33926_Areas_IDs_MS1andRT_or_MS2_Compounds.xlsx")
-nrow(compound)
-mzCloud <- readxl::read_xlsx("NewOutput/o33926_Areas_IDs_MS1andRT_or_MS2_mzCloud.xlsx")
-View(mzCloud)
+annotation <- prolfquapp::read_annotation(annot)
+annotation$annot
+#######
 
-mzVault <- readxl::read_xlsx("NewOutput/o33926_Areas_IDs_MS1andRT_or_MS2_mzVault.xlsx")
-head(mzVault)
-dim(mzVault)
+GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = "test_StudyInformationOut")
+dir.create(GRP2$zipdir)
+
+
+in_file <- file.path(path,"test_Compounds.xlsx")
+xd <- prolfquapp::preprocess_CD(in_file, annotation = annotation,.func_massage = )
+
+
+
+logger::log_info("run analysis")
+grp <- prolfquapp::generate_DEA_reports2(xd$lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
+
+
+logger::log_info("write results and html reports")
+prolfquapp::write_DEA_all(
+  grp,
+  "Groups_vs_Controls",
+  GRP2$zipdir,
+  boxplot = FALSE,
+  markdown = "_Grp2Analysis_V2.Rmd")
+
+logger::log_info("write results and summarized experiment")
+SE <- prolfquapp::make_SummarizedExperiment(grp)
+saveRDS(SE, file = file.path(GRP2$zipdir,
+                             paste0("Results_DEA_WU", grp$project_spec$workunitID) ,
+                             paste0("SummarizedExperiment",".rds") ))
+
+### put all inputs into indir
+
+inputs <- file.path(GRP2$zipdir,
+                    paste0("Inputs_DEA_WU", GRP2$project_spec$workunitID))
+dir.create(inputs)
+prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
+#file.copy(files$data, inputs)
+#file.copy(files$fasta, inputs)
+
+
+
 
 

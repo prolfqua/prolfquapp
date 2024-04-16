@@ -23,9 +23,9 @@ logger::log_info("run analysis")
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
 logger::log_info("write results and html reports")
-prolfquapp::write_DEA_all(grp[[1]], names(grp)[1], GRP2$zipdir , boxplot = FALSE)
+prolfquapp::write_DEA_all(grp, "Groups_vs_Controls", GRP2$zipdir , boxplot = FALSE)
 
 logger::log_info("write results and summarized experiment")
-SE <- prolfquapp::make_SummarizedExperiment(grp[[1]])
-saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", names(grp)[1]) , paste0("SummarizedExperiment",".rds") ))
+SE <- prolfquapp::make_SummarizedExperiment(grp)
+saveRDS(SE, file = file.path(GRP2$zipdir, paste0("DE_", "Groups_vs_Controls") , paste0("SummarizedExperiment",".rds") ))
 
