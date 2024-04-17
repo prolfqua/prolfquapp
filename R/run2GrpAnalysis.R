@@ -259,6 +259,44 @@ strip_rownames <- function(.data, strip="~lfq~light$"){
 }
 
 
+#' build bfabric urls
+#' @export
+#' @examples
+#'
+#'
+#' ps <- ProjectSpec$new()
+#' ps$projectID <- 32258
+#' ps$orderID <- 34628
+#' ps$workunitID <- 302212
+#' bfabric_url_builder(ps)
+#'
+#' ps <- ProjectSpec$new()
+#' ps$orderID <- 34628
+#' ps$workunitID <- 302212
+#' undebug(bfabric_url_builder)
+#' bfabric_url_builder(ps)
+#'
+bfabric_url_builder <- function(project_spec){
+
+  orderURL <- NULL
+  workunitURL <- NULL
+  projectURL <- NULL
+  orderID <- as.numeric(project_spec$orderID)
+  if ((length(orderID) > 0) && !is.na(orderID)) {
+    orderURL <- paste0("https://fgcz-bfabric.uzh.ch/bfabric/order/show.html?id=", orderID, "&tab=details")
+  }
+  workunitID <- as.numeric(project_spec$workunitID)
+  if ((length(workunitID) > 0) && !is.na(workunitID)) {
+    workunitURL <- paste0("https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=", orderID, "&tab=details")
+  }
+  projectID <- as.numeric(project_spec$projectID)
+  if ((length(projectID) > 0) && !is.na(projectID)) {
+    projectURL <- paste0("https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=", orderID, "&tab=details")
+  }
+
+  return(list(orderURL = orderURL, projectURL = projectURL, workunitURL = workunitURL))
+}
+
 #' Convert prolfqua differential expression analysis results to SummarizedExperiment
 #'
 #' @rdname make_DEA_report
@@ -267,7 +305,9 @@ strip_rownames <- function(.data, strip="~lfq~light$"){
 #' @export
 #' @family workflow
 #'
-make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, strip="~lfq~light"){
+#'
+#'
+make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, strip="~lfq~light", url_builder = bfabric_url_builder){
   if (is.null(colname)) {
     colname <- GRP2$RES$lfqData$config$table$sampleName
   }
@@ -284,7 +324,7 @@ make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, stri
   col.data <- col.data[colnames(mat.raw),]
   x <- SummarizedExperiment::SummarizedExperiment(
     assays = list(rawData = mat.raw, transformedData = mat.trans),
-    colData = col.data, metadata = as.list(resTables$formula)
+    colData = col.data, metadata = c(as.list(resTables$formula), bfabric_url_builder(GRP2$project_spec$workunitID) )
   )
 
   diffbyContrast <- split(resTables$diff_exp_analysis, resTables$diff_exp_analysis$contrast)
