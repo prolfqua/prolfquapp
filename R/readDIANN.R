@@ -81,5 +81,4 @@ diann_output_to_peptide <- function(report2){
                      PEP = min(.data$PEP, na.rm = TRUE)
                      ,.groups = "drop")
   return(peptide)
-
 }
