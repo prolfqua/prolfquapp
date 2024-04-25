@@ -209,7 +209,7 @@ make_DEA_report <- function(lfqdata,
   conrM <- prolfqua::ContrastsModerated$new(
     contr)
 
-  if (is.null(GRP2$processing_options$missing) || GRP2$processing_options$missing ) {
+  if (is.null(GRP2$pop$missing) || GRP2$pop$missing ) {
     mC <- prolfqua::ContrastsMissing$new(
       lfqdata = transformed,
       contrasts = GRP2$pop$Contrasts,
@@ -307,7 +307,7 @@ bfabric_url_builder <- function(project_spec){
 #'
 #'
 #'
-make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, strip="~lfq~light", url_builder = bfabric_url_builder){
+make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, strip="~lfq~light", .url_builder = bfabric_url_builder){
   if (is.null(colname)) {
     colname <- GRP2$RES$lfqData$config$table$sampleName
   }
@@ -324,7 +324,7 @@ make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, stri
   col.data <- col.data[colnames(mat.raw),]
   x <- SummarizedExperiment::SummarizedExperiment(
     assays = list(rawData = mat.raw, transformedData = mat.trans),
-    colData = col.data, metadata = c(as.list(resTables$formula), bfabric_url_builder(GRP2$project_spec$workunitID) )
+    colData = col.data, metadata = c(as.list(resTables$formula), .url_builder(GRP2$project_spec) )
   )
 
   diffbyContrast <- split(resTables$diff_exp_analysis, resTables$diff_exp_analysis$contrast)

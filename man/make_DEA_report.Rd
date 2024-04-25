@@ -14,7 +14,7 @@ make_SummarizedExperiment(
   colname = NULL,
   rowname = NULL,
   strip = "~lfq~light",
-  url_builder = bfabric_url_builder
+  .url_builder = bfabric_url_builder
 )
 
 write_DEA(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE)
