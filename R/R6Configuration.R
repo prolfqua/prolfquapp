@@ -188,7 +188,7 @@ make_DEA_config_R6 <- function(
   ps$workunitID = WORKUNITID
 
   r6obj_config <- ProlfquAppConfig$new(pop, ps)
-  r6obj_config$zipdir = ZIPDIR
+  r6obj_config$zipdir = paste0(ZIPDIR,"_OI_",ORDERID,"_WU_",WORKUNITID)
   r6obj_config$software = application
 
   return(r6obj_config)
