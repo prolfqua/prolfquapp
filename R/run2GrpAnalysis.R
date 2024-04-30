@@ -473,7 +473,13 @@ render_DEA <- function(GRP2,
 #' Writes results of DEA see \code{\link{generate_DEA_reports}}
 #' @export
 #'
-write_DEA_all <- function(grp2, name, ZIPDIR, boxplot = TRUE , render = TRUE, markdown ="_Grp2Analysis.Rmd"){
+write_DEA_all <- function(
+    grp2,
+    ZIPDIR = grp2$zipdir,
+    name = "Groups_vs_Controls",
+    boxplot = TRUE ,
+    render = TRUE,
+    markdown ="_Grp2Analysis.Rmd"){
   dir.create(GRP2$zipdir)
   fname <- paste0("DE_",  name, "_WU", grp2$project_spec$workunitID )
   qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunitID )
@@ -502,6 +508,7 @@ write_DEA_all <- function(grp2, name, ZIPDIR, boxplot = TRUE , render = TRUE, ma
       pl$write_boxplots(outpath)
     }
   }
+  return(outpath)
 }
 
 

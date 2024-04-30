@@ -6,8 +6,8 @@
 \usage{
 write_DEA_all(
   grp2,
-  name,
-  ZIPDIR,
+  ZIPDIR = grp2$zipdir,
+  name = "Groups_vs_Controls",
   boxplot = TRUE,
   render = TRUE,
   markdown = "_Grp2Analysis.Rmd"

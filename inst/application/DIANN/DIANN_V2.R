@@ -1,59 +1,47 @@
+if (!require("prolfquapp", quietly = TRUE))
+  remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
+
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 
 path = "."
-if (file.exists(file.path(path,"config.yaml"))) {
-  ymlfile <- file.path(path,"config.yaml")
-  GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
+GRP2 <- if (file.exists(file.path(path,"config.yaml"))) {
+  file.path(path,"config.yaml") |> prolfquapp::read_BF_yamlR6(application = "DIANN")
 } else {
-  GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = "DEA",PROJECTID = "1" ,ORDERID = "2", WORKUNITID = "HelloWorld" )
+  prolfquapp::make_DEA_config_R6(
+    ZIPDIR = "DEA", PROJECTID = "1" ,ORDERID = "2", WORKUNITID = "HelloWorld" )
 }
 
+annotation <- file.path(path,"dataset.csv") |>
+  readr::read_csv() |> prolfquapp::read_annotation()
 
-dsf = file.path(path,"dataset.csv")
-dsf <- readr::read_csv(dsf)
-annotation <- prolfquapp::read_annotation(dsf)
 files <- prolfquapp::get_DIANN_files(path)
-
 xd <- prolfquapp::preprocess_DIANN(
-  quant_data = files$data,
-  fasta_file = files$fasta,
-  annotation = annotation,
-  nrPeptides = 1,
+  quant_data = files$data, fasta_file = files$fasta,
+  annotation = annotation, nrPeptides =  GRP2$processing_options$nr_peptides,
   q_value = 0.01)
 
-
-logger::log_info("AGGREGATING PEPTIDE DATA!")
+logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$pop$aggregate}.")
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)
-logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 logger::log_info("END OF PROTEIN AGGREGATION")
 
-logger::log_info("run analysis")
+logger::log_info("RUN ANALYSIS")
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
-
-logger::log_info("write results and html reports")
-prolfquapp::write_DEA_all(grp, "Groups_vs_Controls", GRP2$zipdir , boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
+outdir <- prolfquapp::write_DEA_all(
+  grp, boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
 
 logger::log_info("write results and summarized experiment")
 SE <- prolfquapp::make_SummarizedExperiment(grp)
+saveRDS(SE, file = file.path( outdir, "SummarizedExperiment.rds"))
 
-saveRDS(SE, file = file.path(GRP2$zipdir,
-                             paste0("Results_DEA_WU", grp$project_spec$workunitID) ,
-                             paste0("SummarizedExperiment",".rds") ))
-
-
-### put all inputs into indir
-
-inputs <- file.path(GRP2$zipdir,
-                    paste0("Inputs_DEA_WU", GRP2$project_spec$workunitID))
+inputs <- file.path(
+  GRP2$zipdir,
+  paste0("Inputs_DEA_WU", GRP2$project_spec$workunitID))
 dir.create(inputs)
-prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
-file.copy(files$data, inputs)
-file.copy(files$fasta, inputs)
 
-file.copy(ymlfile,inputs)
-file.copy("dataset.csv",inputs)
+prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
+file.copy(c(files$data, files$fasta, ymlfile, "dataset.csv"), inputs)
 
 
 
