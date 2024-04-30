@@ -4,8 +4,6 @@
 ProcessingOptions <- R6::R6Class(
   "ProcessingOptions",
   public = list(
-    #' @field peptides_nr number of peptides
-    peptides_nr = numeric(),
     #' @field transform data transformation method
     transform = "vsn",
     #' @field aggregate protein abundance estimation method

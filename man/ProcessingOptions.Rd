@@ -20,8 +20,6 @@ Other ProlfquAppConfig:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{peptides_nr}}{number of peptides}
-
 \item{\code{transform}}{data transformation method}
 
 \item{\code{aggregate}}{protein abundance estimation method}

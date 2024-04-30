@@ -2,8 +2,13 @@ library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 
 path = "."
-ymlfile <- file.path(path,"config.yaml")
-GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
+if (file.exists(file.path(path,"config.yaml"))) {
+  ymlfile <- file.path(path,"config.yaml")
+  GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
+} else {
+  GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = "DEA",PROJECTID = "1" ,ORDERID = "2", WORKUNITID = "HelloWorld" )
+}
+
 
 dsf = file.path(path,"dataset.csv")
 dsf <- readr::read_csv(dsf)
