@@ -7,7 +7,19 @@ To learn more about the package see:
 
 [ASMS Poster pdf](https://github.com/wolski/prolfquapp/blob/master/inst/poster/prolfquapp.pdf)
 
+## How to install
 
+
+```
+export R_LIBS_SITE="/scratch/PROLFQUA/r-site-library/"
+R --vanilla << EOF
+.libPaths()
+install.packages(c("remotes","seqinr", "prozor","logger"), repos = "https://stat.ethz.ch/CRAN/")
+remotes::install_gitlab("wolski/prolfquadata", host="gitlab.bfabric.org")
+remotes::install_github("fgcz/prolfqua", build_vignettes = TRUE, dependencies = TRUE)
+remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
+EOF
+```
 
 ## ASMS poster abstract:  Streamlining Protein Differential Expression Analysis in Core Facilities
 
