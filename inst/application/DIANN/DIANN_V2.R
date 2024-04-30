@@ -52,4 +52,8 @@ prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
 file.copy(files$data, inputs)
 file.copy(files$fasta, inputs)
 
+file.copy(ymlfile,inputs)
+file.copy("dataset.csv",inputs)
+
+
 
