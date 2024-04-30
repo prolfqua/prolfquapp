@@ -5,8 +5,10 @@ library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 
 path = "."
-GRP2 <- if (file.exists(file.path(path,"config.yaml"))) {
-  file.path(path,"config.yaml") |> prolfquapp::read_BF_yamlR6(application = "DIANN")
+
+yamlfile <- file.path(path,"config.yaml")
+GRP2 <- if (file.exists(yamlfile)) {
+  yamlfile |> prolfquapp::read_BF_yamlR6(application = "DIANN")
 } else {
   prolfquapp::make_DEA_config_R6(
     ZIPDIR = "DEA", PROJECTID = "1" ,ORDERID = "2", WORKUNITID = "HelloWorld" )
