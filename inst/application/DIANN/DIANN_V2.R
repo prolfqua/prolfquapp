@@ -43,7 +43,7 @@ inputs <- file.path(
 dir.create(inputs)
 
 prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
-file.copy(c(files$data, files$fasta, ymlfile, "dataset.csv"), inputs)
+file.copy(c(files$data, files$fasta, yamlfile, "dataset.csv"), inputs)
 
 
 
