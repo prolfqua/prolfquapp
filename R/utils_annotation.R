@@ -58,7 +58,7 @@ dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE, prefix = 
   }
 
   annot[[groupingVAR]] <- gsub("[[:space:]]", "", annot[[groupingVAR]])
-  annot[[groupingVAR]] <- gsub("[-\\+\\/\\*]", "_", annot[[groupingVAR]])
+  annot[[groupingVAR]] <- gsub("[-\\+\\/\\*\\(\\)]", "_", annot[[groupingVAR]])
 
   if (SAINT) {
     atable$factors[["Bait_"]] = groupingVAR
