@@ -38,6 +38,7 @@ preprocess_DIANN <- function(quant_data,
 
   nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(peptide$raw.file)))
+  if (nr == 0) { stop("No files are annotated. The annotation file is not compatible withe quant data.") }
 
   atable$fileName = "raw.file"
   atable$hierarchy[["protein_Id"]] <- c("Protein.Group")
