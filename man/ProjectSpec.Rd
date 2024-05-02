@@ -22,13 +22,24 @@ Other ProlfquAppConfig:
 \describe{
 \item{\code{projectID}}{project ID}
 
-\item{\code{projectName}}{project name}
+\item{\code{project_name}}{project name}
 
 \item{\code{orderID}}{order ID}
 
 \item{\code{workunitID}}{workunit ID}
 
-\item{\code{inputID}}{input id}
+\item{\code{inputURL}}{input URL}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{projectID}}{project ID}
+
+\item{\code{orderID}}{order ID}
+
+\item{\code{workunitID}}{workunit ID}
 
 \item{\code{inputURL}}{input URL}
 }

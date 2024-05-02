@@ -281,15 +281,15 @@ bfabric_url_builder <- function(project_spec){
   orderURL <- NULL
   workunitURL <- NULL
   projectURL <- NULL
-  orderID <- as.numeric(project_spec$orderID)
+  orderID <- as.numeric(project_spec$order_Id)
   if ((length(orderID) > 0) && !is.na(orderID)) {
     orderURL <- paste0("https://fgcz-bfabric.uzh.ch/bfabric/order/show.html?id=", orderID, "&tab=details")
   }
-  workunitID <- as.numeric(project_spec$workunitID)
+  workunitID <- as.numeric(project_spec$workunit_Id)
   if ((length(workunitID) > 0) && !is.na(workunitID)) {
     workunitURL <- paste0("https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=", orderID, "&tab=details")
   }
-  projectID <- as.numeric(project_spec$projectID)
+  projectID <- as.numeric(project_spec$project_Id)
   if ((length(projectID) > 0) && !is.na(projectID)) {
     projectURL <- paste0("https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=", orderID, "&tab=details")
   }
@@ -386,7 +386,7 @@ prep_result_list <- function(GRP2){
 }
 
 write_result_list <- function(outpath, GRP2, resultList, xlsxname) {
-  workunit_id <- GRP2$project_spec$workunitID
+  workunit_id <- GRP2$project_spec$workunit_Id
   dir.create(outpath)
   bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
   ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
@@ -481,9 +481,9 @@ write_DEA_all <- function(
     render = TRUE,
     markdown ="_Grp2Analysis.Rmd"){
   dir.create(GRP2$zipdir)
-  fname <- paste0("DE_",  name, "_WU", grp2$project_spec$workunitID )
-  qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunitID )
-  outpath <- file.path( ZIPDIR, paste0("Results_DEA_WU", grp2$project_spec$workunitID))
+  fname <- paste0("DE_",  name, "_WU", grp2$project_spec$workunit_Id )
+  qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunit_Id )
+  outpath <- file.path( ZIPDIR, paste0("Results_DEA_WU", grp2$project_spec$workunit_Id))
   logger::log_info("writing into : ", outpath, " <<<<")
 
   prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname)

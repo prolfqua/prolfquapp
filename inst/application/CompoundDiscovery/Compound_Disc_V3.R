@@ -49,15 +49,15 @@ prolfquapp::write_DEA_all(
 logger::log_info("write results and summarized experiment")
 SE <- prolfquapp::make_SummarizedExperiment(grp)
 saveRDS(SE, file = file.path(GRP2$zipdir,
-                             paste0("Results_DEA_WU", grp$project_spec$workunitID) ,
+                             paste0("Results_DEA_WU", grp$project_spec$workunit_Id) ,
                              paste0("SummarizedExperiment",".rds") ))
 
 ### put all inputs into indir
 
 inputs <- file.path(GRP2$zipdir,
-                    paste0("Inputs_DEA_WU", GRP2$project_spec$workunitID))
+                    paste0("Inputs_DEA_WU", GRP2$project_spec$workunit_Id))
 dir.create(inputs)
-prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
+#prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
 #file.copy(files$data, inputs)
 #file.copy(files$fasta, inputs)
 

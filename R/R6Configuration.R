@@ -41,17 +41,15 @@ ProjectSpec <- R6::R6Class(
   "ProjectSpec",
   public = list(
     #' @field projectID project ID
-    projectID =  integer(),
-    #' @field projectName project name
-    projectName = "",
+    project_Id =  integer(),
+    #' @field project_name project name
+    project_name = "",
     #' @field orderID order ID
-    orderID = integer(),
+    order_Id = integer(),
     #' @field workunitID workunit ID
-    workunitID =  integer(),
-    #' @field inputID input id
-    inputID =  integer(),
+    workunit_Id =  integer(),
     #' @field inputURL input URL
-    inputURL = "https://fgcz-bfabric.uzh.ch/bfabric/"
+    input_URL = "https://fgcz-bfabric.uzh.ch/bfabric/"
   )
 )
 
@@ -94,7 +92,7 @@ ProlfquAppConfig <- R6::R6Class(
       self$zipdir <- if (!is.null(zipdir)) {
         zipdir
       } else {
-        paste0("C",project_spec$projectID ,"WU",project_spec$workunitID)
+        paste0("C",project_spec$project_Id ,"WU",project_spec$workunit_Id)
       }
       self$processing_options = processing_options
       self$project_spec = project_spec
@@ -139,6 +137,32 @@ R6_extract_values <- function(r6class){
   return(res)
 }
 
+#' read minimal yaml
+#' @export
+#' @example
+#' DEAconfig <- make_DEA_config_R6(ZIPDIR = "DEA", WORKUNITID = "3333")
+#' configList <- R6_extract_values(DEAconfig)
+#' stopifnot(class(configList) == "list")
+#' configList$zipdir
+#' config <- list_to_R6_app_config(configList)
+#' stopifnot("ProlfquAppConfig" %in% class(config))
+#' stopifnot(config$zipdir == configList$zipdir)
+list_to_R6_app_config <- function(dd){
+  popR6 <- ProcessingOptions$new()
+  pop <- dd$processing_options
+  for (i in names(pop)) {
+    popR6[[i]] <- pop[[i]]
+  }
+  psR6 <- ProjectSpec$new()
+  ps <- dd$project_spec
+  for (i in names(ps)) {
+    psR6[[i]] <- ps[[i]]
+  }
+  r6obj_config <- ProlfquAppConfig$new(popR6, psR6)
+  r6obj_config$zipdir = dd$zipdir
+  r6obj_config$software = dd$software
+  return(r6obj_config)
+}
 
 
 #' create GRP2 configuration.
@@ -181,9 +205,9 @@ make_DEA_config_R6 <- function(
   pop$transform = Normalization
   pop$nr_peptides = nr_peptides
   ps <- ProjectSpec$new()
-  ps$orderID = ORDERID
-  ps$projectID = PROJECTID
-  ps$workunitID = WORKUNITID
+  ps$order_Id = ORDERID
+  ps$project_Id = PROJECTID
+  ps$workunit_Id = WORKUNITID
 
   r6obj_config <- ProlfquAppConfig$new(pop, ps)
   r6obj_config$zipdir = paste0(ZIPDIR,"_OI_",ORDERID,"_WU_",WORKUNITID)
