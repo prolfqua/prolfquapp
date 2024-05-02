@@ -1,12 +1,26 @@
-if (!require("prolfquapp", quietly = TRUE))
+if (!require("prolfqua", quietly = TRUE))
   remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
+if (!require("prolfqua", quietly = TRUE))
+  remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
+if (!require("optparse", quietly = TRUE))
+  install.packages("optparse", dependencies = TRUE)
+
+
+library("optparse")
+parser <- OptionParser()
+parser <- add_option(parser, c("-d", "--dataset"), type = "character", default = "dataset.csv",
+                     help = "file with annotation",
+                     metavar = "character")
+parser <- add_option(parser, c("-y", "--yaml"), type = "character", default = "config.yaml",
+                     help = "yaml configuration file",
+                     metavar = "character")
+opt <- parse_args(parser)
 
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
-
 path = "."
 
-yamlfile <- file.path(path,"config.yaml")
+yamlfile <- file.path(path, opt$yaml)
 GRP2 <- if (file.exists(yamlfile)) {
   yamlfile |> prolfquapp::read_BF_yamlR6(application = "DIANN")
 } else {
@@ -14,7 +28,7 @@ GRP2 <- if (file.exists(yamlfile)) {
     ZIPDIR = "DEA", PROJECTID = "1" ,ORDERID = "2", WORKUNITID = "HelloWorld" )
 }
 
-annotation <- file.path(path,"dataset.csv") |>
+annotation <- file.path(path,opt$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation()
 
 files <- prolfquapp::get_DIANN_files(path)
@@ -44,6 +58,6 @@ dir.create(inputs)
 
 prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
 file.copy(c(files$data, files$fasta, yamlfile, "dataset.csv"), inputs)
-
+yaml::write_yaml(GRP2, file = file.path(inputs, "minimal.yaml"))
 
 

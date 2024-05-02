@@ -19,6 +19,7 @@ Imports:
   igraph,
   ggraph,
   logger,
+  optparse,
   pander,
   prolfqua,
   seqinr,

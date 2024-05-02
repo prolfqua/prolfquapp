@@ -324,7 +324,7 @@ make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, stri
   col.data <- col.data[colnames(mat.raw),]
   x <- SummarizedExperiment::SummarizedExperiment(
     assays = list(rawData = mat.raw, transformedData = mat.trans),
-    colData = col.data, metadata = c(as.list(resTables$formula), .url_builder(GRP2$project_spec) )
+    colData = col.data, metadata = list(bfabric_urls = .url_builder(GRP2$project_spec), contrasts = resTables$contrasts, formula = resTables$formula )
   )
 
   diffbyContrast <- split(resTables$diff_exp_analysis, resTables$diff_exp_analysis$contrast)
@@ -342,14 +342,13 @@ make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, stri
 
 
 prep_result_list <- function(GRP2){
-
   rd <- GRP2$RES$lfqData
   tr <- GRP2$RES$transformedlfqData
   ra <- GRP2$RES$rowAnnot
-  formula <- data.frame(
-    formula = GRP2$RES$formula,
+  contrasts <- data.frame(
     contrast_name = names(GRP2$pop$Contrasts),
-    contrast = GRP2$pop$Contrasts)
+    contrast = GRP2$pop$Contrasts
+    )
 
   wideraw <- dplyr::inner_join(ra$row_annot, rd$to_wide()$data, multiple = "all")
   widetr <- dplyr::inner_join(ra$row_annot , tr$to_wide()$data, multiple = "all")
@@ -370,9 +369,10 @@ prep_result_list <- function(GRP2){
   resultList$normalized_abundances_matrix = widetr
   resultList$diff_exp_analysis = ctr
   resultList$diff_exp_analysis_wide = ctr_wide
-  resultList$formula = formula
+  resultList$formula = data.frame(formula = GRP2$RES$formula)
   resultList$summary = GRP2$RES$Summary
   resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr = 1)$data
+  resultList$contrasts <- contrasts
 
   # add protein statistics
   st <- GRP2$RES$transformedlfqData$get_Stats()
