@@ -59,7 +59,7 @@ preprocess_DIANN <- function(quant_data,
     cleaned_protein_id = "Protein.Group.2",
     protein_description = "fasta.header",
     nr_children = "nrPeptides",
-    more_columns = c("nrPeptides", "fasta.id"))
+    more_columns = c("nrPeptides", "fasta.id", "protein_length"))
 
   return(list(lfqdata = lfqdata , protein_annotation = protAnnot))
 }
