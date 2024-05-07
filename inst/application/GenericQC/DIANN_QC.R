@@ -30,8 +30,6 @@ if (length(args) > 0) {
 }
 
 
-
-
 # this must be executed after the libPath is modified.
 
 library(dplyr)
@@ -88,9 +86,6 @@ if (!is.null(peptide)) {
     protein_annot = "fasta.header",
     more_columns = c("nrPeptides", "fasta.id", "Protein.Group.2")
   )
-
-
-
 
   # dataset.csv must either contain columns:
   # `Relative Path` Name `Grouping Var` FileType

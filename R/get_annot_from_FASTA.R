@@ -1,3 +1,36 @@
+
+.find_cleavage_sites <- function(sequence, pattern = "(K|R)(?!P|$)") {
+  # Convert sequence to uppercase
+  sequence <- toupper(sequence)
+  # Find positions of tryptic sites
+  positions <- gregexpr(pattern, sequence, perl = TRUE)[[1]]
+  cleavage_sites <- unlist(positions)
+  return(cleavage_sites)
+}
+
+.compute_peptide_lengths <- function(sequence, cleavage_sites) {
+  # Compute the lengths of the peptides
+  start_positions <- c(1, cleavage_sites + 1)
+  end_positions <- c(cleavage_sites, nchar(sequence))
+  peptide_lengths <- end_positions - start_positions + 1
+  return(peptide_lengths)
+}
+
+
+#' Compute number of tryptic peptides
+#' @export
+#' @examples
+#' # example code
+#'
+#' sequence <- "MKGLPRAKSHGSTGWGKRKRNKPK"
+#' nr_tryptic_peptides(sequence)
+nr_tryptic_peptides <- function(sequence, min_length = 7, max_length = 30){
+  peptide_lengths <- .compute_peptide_lengths(sequence, .find_cleavage_sites(sequence))
+  res <- sum(peptide_lengths >= min_length & peptide_lengths < max_length)
+  return(res)
+}
+
+
 #' get_annot_from_fasta
 #'
 #' @export
@@ -25,6 +58,7 @@ get_annot_from_fasta <- function(
     data.frame(annot = sapply(fasta, seqinr::getAnnot)), preserve_row_names = NULL
   )
   fasta_annot$protein_length <- vapply(fasta, nchar, 0)
+  fasta_annot$nr_tryptic_peptides <- vapply(fasta, nr_tryptic_peptides, 0)
 
   fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
                                                 c("fasta.id","fasta.header"),
@@ -42,3 +76,5 @@ get_annot_from_fasta <- function(
   fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
   return(fasta_annot)
 }
+
+

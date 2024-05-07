@@ -238,14 +238,13 @@ read_BF_yamlR6 <- function(ymlfile, application = "FragPipeTMT" ) {
   ZIPDIR = paste0("C",ORDERID,"WU",WORKUNITID)
 
   ps <- ProjectSpec$new()
-  ps$orderID = ORDERID
-  ps$projectID = PROJECTID
-  ps$workunitID = WORKUNITID
-  ps$projectName <- ""
+  ps$order_Id = ORDERID
+  ps$project_Id = PROJECTID
+  ps$workunit_Id = WORKUNITID
+  ps$project_name <- ""
   idxzip <- grep("[0-9]{7,7}.zip",yml$application$input[[1]])
 
-  ps$inputID <- yml$job_configuration$input[[1]][[idxzip]]$resource_id
-  ps$inputURL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
+  ps$input_URL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
 
   #at least 2 peptides per protein
   pop <- ProcessingOptions$new()

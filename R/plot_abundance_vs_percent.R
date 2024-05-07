@@ -4,16 +4,17 @@
 #' @param top_percent deprecate
 #' @return ggplot2
 #' @examples
+#'
 #' library(prolfqua)
 #' istar <- prolfqua_data('data_ionstar')
 #' istar$config <- old2new(istar$config)
 #' data <- istar$data |> dplyr::filter(protein_Id %in% sample(protein_Id, 100))
 #' lfqdata <- LFQData$new(data, istar$config)
 #' sr <- lfqdata$get_Summariser()
-#'
+#' undebug(plot_abundance_vs_percent)
 #' plot_abundance_vs_percent(sr$percentage_abundance(),
 #'  lfqdata$config$table,
-#'  top_N = 6, factors = FALSE)
+#'  top_N = 6, factors = FALSE, logY = TRUE)
 #'
 #' pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = FALSE)
 #' plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = 4, factors = TRUE)
@@ -29,17 +30,16 @@ plot_abundance_vs_percent <- function(
                "^CON_" = "orange"),
     columnAb = "abundance_percent",
     group = "BB",
-    alpha = 1) {
-
+    alpha = 1,
+    logY = TRUE) {
 
   protID <- cfg_table$hierarchy_keys_depth()
-
   #Select relevant columns
   percInfo <- percInfo |>
     dplyr::select(dplyr::all_of(c(protID,"percent_prot", columnAb, cfg_table$factor_keys_depth())))
 
   if (!factors) {
-    percInfo <- percInfo |> dplyr::filter(!!rlang::sym(cfg_table$factor_keys_depth()[1]) == "ALL")
+    percInfo <- percInfo |> dplyr::filter(!!rlang::sym(cfg_table$factor_keys_depth()[1]) == "All")
   }
   colorV <- rep("black", nrow(percInfo))
 
@@ -63,7 +63,7 @@ plot_abundance_vs_percent <- function(
                             y = !!rlang::sym(columnAb),
                             label = !!rlang::sym(protID))) +
     geom_point(color = colorV, alpha = alpha) +
-    facet_wrap(as.formula(paste0(" ~ ", paste(cfg_table$factor_keys_depth(), collapse = " + "))))
+    facet_wrap(as.formula(paste0(" ~ ", paste(cfg_table$factor_keys_depth(), collapse = " + ")))) + if(logY){ ggplot2::scale_y_log10() } else {NULL}
 
   if (!is.null(top_N) ) {
     myplot <- myplot + ggrepel::geom_label_repel(

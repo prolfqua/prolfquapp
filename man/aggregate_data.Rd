@@ -4,7 +4,7 @@
 \alias{aggregate_data}
 \title{dataset transform data}
 \usage{
-aggregate_data(lfqdata, agg_method = c("medpolish", "lmrob", "topN"))
+aggregate_data(lfqdata, agg_method = c("medpolish", "lmrob", "topN"), N = 3)
 }
 \description{
 dataset transform data

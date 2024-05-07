@@ -55,13 +55,13 @@ if (!factors) {
 
 precabund <- precabund |> dplyr::rename(signal_percent = abundance_percent)
 pp <- prolfquapp::plot_abundance_vs_percent(
-    precabund,
-    cfg_table = tableconfig,
-    top_N = NULL,
-    factors = factors,
-    colors = c("^zz" = "red","Y-FGCZ" = "red"),
-    columnAb = "signal_percent",
-    alpha = 0.4)
+  precabund,
+  cfg_table = tableconfig,
+  top_N = NULL,
+  factors = factors,
+  colors = c("^zz" = "red","Y-FGCZ" = "red"),
+  columnAb = "signal_percent",
+  alpha = 0.4, logY = TRUE)
 pp <- plotly::ggplotly(pp)
 ```
 
@@ -69,15 +69,15 @@ pp <- plotly::ggplotly(pp)
 ```{r createDT}
 n = 2
 precabund_table <- precabund |> dplyr::mutate(
-    signal_percent = signif(signal_percent, n ),
-    abundance_percent_cumulative = signif(abundance_percent_cumulative, n),
-    percent_prot = signif(percent_prot, 3))
+  signal_percent = signif(signal_percent, n ),
+  abundance_percent_cumulative = signif(abundance_percent_cumulative, n),
+  percent_prot = signif(percent_prot, 3))
 
 precabund_table <- precabund_table |>
-    dplyr::select(
-        all_of(c(protID, "nrPeptides",
-                 tableconfig$factor_keys_depth(),
-                 "nrMeasured", "meanAbundance", "signal_percent" ,"description")))
+  dplyr::select(
+    all_of(c(protID, "nrPeptides",
+             tableconfig$factor_keys_depth(),
+             "nrMeasured", "meanAbundance", "signal_percent" ,"description")))
 if (factors) {
   precabund_table <- precabund_table |> 
     tidyr::pivot_wider(names_from = tableconfig$factor_keys_depth(), values_from = c("nrMeasured", "meanAbundance", "signal_percent"))
@@ -88,22 +88,22 @@ if (factors) {
 datax <- crosstalk::SharedData$new(as.data.frame(precabund_table) , key = as.formula(paste(" ~ ", protID )), group = "BB")
 
 table <- DT::datatable(
-    datax,
-    filter = "bottom",
-    extensions = "Scroller",
-    style = "auto",
-    class = "compact",
-    options = list(deferRender = TRUE,
-                   scrollY = 300,
-                   scrollX = 400,
-                   scroller = TRUE))
+  datax,
+  filter = "bottom",
+  extensions = "Scroller",
+  style = "auto",
+  class = "compact",
+  options = list(deferRender = TRUE,
+                 scrollY = 300,
+                 scrollX = 400,
+                 scroller = TRUE))
 
 
 ```
 
 The columns of the table below contains:
 
-- protein_Id - protein idenfier
+- protein_Id - protein identifier
 - nrPeptides - nr of peptides per protein
 - description - protein description from fasta header
 - nrMeasured_<GroupName> - How often a protein was observed in each of the groups and overall
@@ -119,12 +119,13 @@ table
 ```
 
 
+(ref:proteinCumulative) The Y axis presents the percentage of the iBAQ (intensity Based Absolute Quantitation) of each protein. Along the X axis, proteins are organized in ascending order according to their signal proportions. Notably, calculating the iBAQ signal per protein involves summing the `Precursor.Quantity` values across all precursors associated with that protein and dividing by the number of theoretically observable peptides of the protein. An intriguing observation is that a significant share of the mass spectrometers recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
+
 
 ```{r proteinCumulative, fig.cap = "(ref:proteinCumulative)"}
 pp
 ```
 
-(ref:proteinCumulative) The Y axis presents the percentage of the total signal attributed to each protein. Along the X axis, proteins are organized in ascending order according to their signal proportions. Notably, calculating the total signal per protein involves summing the 'Precursor.Quantity' values across all precursors associated with that protein. An intriguing observation is that a significant share of the mass spectrometer's recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
 
 
 ```{r prepPeptidePlot}
@@ -133,11 +134,13 @@ datax <- crosstalk::SharedData$new(as.data.frame(precabund) , key = as.formula(p
 
 colors = c("^zz" = "red", "Y-FGCZ" = "red")
 colorV <- rep("black", nrow(precabund))
- for (i in seq_along(colors)) {
-    colorV[grepl(names(colors)[i], precabund[[protID]])] <- colors[i]
- }
+for (i in seq_along(colors)) {
+  colorV[grepl(names(colors)[i], precabund[[protID]])] <- colors[i]
+}
 group <- tableconfig$factor_keys_depth()
-pplotPepAbund <- ggplot(datax, aes(x = nrPeptides, y = meanAbundance)) + geom_point(color = colorV, alpha = 0.4) +
+pplotPepAbund <- ggplot(datax,
+                        aes(x = nrPeptides, y = meanAbundance,
+                            label = !!rlang::sym(protID))) + geom_point(color = colorV, alpha = 0.4) +
   ggplot2::scale_y_continuous(trans = 'log10') +
   ggplot2::scale_x_continuous(trans = 'log10') +
   if (factors) {facet_wrap(as.formula(paste0("~", paste(group, collapse = " + "))))}
@@ -147,14 +150,10 @@ pplotPepAbund <- plotly::ggplotly(pplotPepAbund)
 
 (ref:nrProtplots) Mean protein abundance per group (column meanAbundance_<GroupName>) as a function of the number of peptides (column nrPeptides).
 
-
 ```{r nrProtplots, fig.cap = "(ref:nrProtplots)"}
 pplotPepAbund
 ```
 
 
 
-(1) The protein abundance is computed by summing the 'Precursor.Quantity' of each peptide and then inferring the protein abundance from the peptide abundances by using the Tukeys median polish.
-This implies that the abundance of a protein is derived from the cumulative abundance of its constituent peptides.  Tukey's median polish is a statistical technique that helps extract median values from data by iteratively removing the median contributions from various factors. In this context, it's used to derive an estimate of protein abundance from the peptide-level data.
-The inferred protein abundance, as computed through the Tukey's median polish method, can be thought of as an approximation to the median of the peptide intensities within a given sample. This provides a representative measure of the protein's abundance in the sample. For more details see (prolfqua: A Comprehensive R-Package for Proteomics Differential Expression Analysis)[https://doi.org/10.1021/acs.jproteome.2c00441].
 

@@ -13,15 +13,14 @@ build bfabric urls
 
 
 ps <- ProjectSpec$new()
-ps$projectID <- 32258
-ps$orderID <- 34628
-ps$workunitID <- 302212
+ps$project_Id <- 32258
+ps$order_Id <- 34628
+ps$workunit_Id <- 302212
 bfabric_url_builder(ps)
 
 ps <- ProjectSpec$new()
-ps$orderID <- 34628
-ps$workunitID <- 302212
-undebug(bfabric_url_builder)
+ps$order_Id <- 34628
+ps$workunit_Id <- 302212
 bfabric_url_builder(ps)
 
 }

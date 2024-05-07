@@ -113,12 +113,12 @@ dataset_protein_annot <- function(
 #' @export
 #'
 aggregate_data <- function(lfqdata,
-                           agg_method = c("medpolish", "lmrob", "topN")) {
+                           agg_method = c("medpolish", "lmrob", "topN"), N = 3) {
   agg_method <- match.arg(agg_method)
 
   if (agg_method == "topN") {
     aggregator <- lfqdata$get_Aggregator()
-    aggregator$sum_topN()
+    aggregator$sum_topN(N = N)
     lfqdata <- aggregator$lfq_agg
   } else if (agg_method == "lmrob" || agg_method == "medpolish") {
     transformed <- lfqdata$get_Transformer()$intensity_array(log)$lfq
@@ -138,7 +138,6 @@ aggregate_data <- function(lfqdata,
   }
   return(lfqdata)
 }
-
 
 #' extract fasta header from fasta file.
 #' @export

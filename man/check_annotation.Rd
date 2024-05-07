@@ -4,7 +4,7 @@
 \alias{check_annotation}
 \title{check if all required columns in annotation file are there.}
 \usage{
-check_annotation(annot)
+check_annotation(annot, QC = FALSE)
 }
 \description{
 check if all required columns in annotation file are there.

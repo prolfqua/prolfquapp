@@ -1,5 +1,5 @@
 #' check if all required columns in annotation file are there.
-check_annotation <- function(annot) {
+check_annotation <- function(annot, QC = FALSE) {
   samples <- grep("^channel|^Relative|^raw|^file", colnames(annot), ignore.case = TRUE, value = TRUE)
   if (length(samples) < 1) { stop("column starting with channel, Relativ, raw, or file is missing.") }
   if (length(samples) > 1) { warning("there are more then one column for sample : ", paste0(samples)) }
@@ -7,8 +7,10 @@ check_annotation <- function(annot) {
   grouping <- grep("^group|^bait|^Experiment", colnames(annot), ignore.case = TRUE, value = TRUE)
   if (length(grouping) < 1) { stop("column with grouping variable (starting with group, bait, Experiment) is missing.") }
   if (length(grouping) > 1) { warning("there are more then one column for sample : ", paste0(grouping)) }
+  if (!QC) {
   contrast <- grep("ContrastName|Contrast|CONTROL", colnames(annot), ignore.case = TRUE, value = TRUE)
   if (length(contrast) < 1) { stop(paste0("you must specify a CONTROL column.")) }
+  }
 }
 
 
@@ -18,17 +20,19 @@ check_annotation <- function(annot) {
 #' @param REPEATED is this a repeated measurement
 #' @param SAINT is this a SAINTexpress analysis
 #' @export
-read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE, prefix = "G_"){
+read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE){
   if ("data.frame" %in% class(dsf) ) {
     annot <- dsf
   } else {
     annot <- read.csv(dsf)
   }
   annot <- data.frame(lapply(annot, as.character))
-  check_annotation(dsf)
+  check_annotation(dsf, QC = QC)
   res <- dataset_set_factors(annot, REPEATED = REPEATED, SAINT = SAINT, prefix = prefix)
+  if (!QC) {
   contrasts <- extract_contrasts(res$annot, prefix = prefix)
   res[["contrasts"]] <- contrasts
+  }
   return(res)
 }
 

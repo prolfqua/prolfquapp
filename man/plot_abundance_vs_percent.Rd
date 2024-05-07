@@ -12,7 +12,8 @@ plot_abundance_vs_percent(
   colors = c(`^REV_` = "red", `^CON_` = "orange"),
   columnAb = "abundance_percent",
   group = "BB",
-  alpha = 1
+  alpha = 1,
+  logY = TRUE
 )
 }
 \arguments{
@@ -27,16 +28,17 @@ ggplot2
 Plot relative protein abundance as a function of rank by abundance
 }
 \examples{
+
 library(prolfqua)
 istar <- prolfqua_data('data_ionstar')
 istar$config <- old2new(istar$config)
 data <- istar$data |> dplyr::filter(protein_Id \%in\% sample(protein_Id, 100))
 lfqdata <- LFQData$new(data, istar$config)
 sr <- lfqdata$get_Summariser()
-
+undebug(plot_abundance_vs_percent)
 plot_abundance_vs_percent(sr$percentage_abundance(),
  lfqdata$config$table,
- top_N = 6, factors = FALSE)
+ top_N = 6, factors = FALSE, logY = TRUE)
 
 pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = FALSE)
 plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = 4, factors = TRUE)
