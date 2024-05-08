@@ -46,6 +46,7 @@ logger::log_info("RUN ANALYSIS")
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
 
+
 outdir <- prolfquapp::write_DEA_all(
   grp, boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
 

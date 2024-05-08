@@ -30,7 +30,6 @@ parser <- add_option(parser, c("--libPath"), type = "character", default = NULL,
                      metavar = "string")
 
 opt <- parse_args(parser)
-opt$indir <- "2494004"
 
 # set library path
 libPath <- opt$libPath
