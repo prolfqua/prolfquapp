@@ -47,13 +47,15 @@ library(prolfquapp)
 library(logger)
 
 
-GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = opt$output, ORDERID = opt$projectId, PROJECTID =  opt$projectId, WORKUNITID = opt$workunitId )
+GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = opt$output,
+                                       ORDERID = opt$projectId,
+                                       PROJECTID =  opt$projectId,
+                                       WORKUNITID = opt$workunitId )
 if (!dir.exists(GRP2$zipdir)) {
   dir.create(GRP2$zipdir)
 }
 
 output_dir <- GRP2$zipdir
-
 
 path <- opt$indir
 files <- prolfquapp::get_DIANN_files(path)

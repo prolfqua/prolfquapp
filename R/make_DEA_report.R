@@ -8,7 +8,6 @@ make_DEA_report2 <- function(lfqdata,
 ) {
   ### Do some type of data normalization (or do not)
 
-
   allProt <- nrow( protAnnot$row_annot )
   GRP2$RES <- list()
   GRP2$RES$Summary <- data.frame(
@@ -122,3 +121,103 @@ generate_DEA_reports2 <- function(lfqdata, GRP2, prot_annot, Contrasts) {
   return(grp2)
 }
 
+prep_result_list <- function(GRP2){
+  rd <- GRP2$RES$lfqData
+  tr <- GRP2$RES$transformedlfqData
+  ra <- GRP2$RES$rowAnnot
+  contrasts <- data.frame(
+    contrast_name = names(GRP2$pop$Contrasts),
+    contrast = GRP2$pop$Contrasts
+  )
+
+  wideraw <- dplyr::inner_join(ra$row_annot, rd$to_wide()$data, multiple = "all")
+  widetr <- dplyr::inner_join(ra$row_annot , tr$to_wide()$data, multiple = "all")
+
+  ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts(), multiple = "all")
+  ctr_wide <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$to_wide(), multiple = "all")
+
+  resultList <- list()
+
+  resultList$annotation <- dplyr::inner_join(
+    rd$factors(),
+    rd$get_Summariser()$hierarchy_counts_sample(),
+    by = rd$config$table$sampleName,
+    multiple = "all")
+
+  resultList$normalized_abundances = dplyr::inner_join(ra$row_annot, tr$data, multiple = "all")
+  resultList$raw_abundances_matrix = wideraw
+  resultList$normalized_abundances_matrix = widetr
+  resultList$diff_exp_analysis = ctr
+  resultList$diff_exp_analysis_wide = ctr_wide
+  resultList$formula = data.frame(formula = GRP2$RES$formula)
+  resultList$summary = GRP2$RES$Summary
+  resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr = 1)$data
+  resultList$contrasts <- contrasts
+
+  # add protein statistics
+  st <- GRP2$RES$transformedlfqData$get_Stats()
+  resultList$stats_normalized <- st$stats()
+  resultList$stats_normalized_wide <- st$stats_wide()
+
+  st <- GRP2$RES$lfqData$get_Stats()
+  resultList$stats_raw <- st$stats()
+  resultList$stats_raw_wide <- st$stats_wide()
+  return(resultList)
+}
+
+.write_ORA <- function(fg, outpath, workunit_id) {
+  fg <- fg |> dplyr::mutate(updown = paste0(contrast, ifelse(diff > 0 , "_up", "_down")))
+  ora_sig <- split(fg$IDcolumn, fg$updown)
+
+  for (i in names(ora_sig)) {
+    ff <- file.path(outpath, paste0("ORA_",i,"_WU",workunit_id,".txt" ))
+    logger::log_info("Writing File ", ff)
+    write.table(ora_sig[[i]],file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE)
+  }
+}
+
+
+write_result_list <- function(outpath, GRP2, resultList, xlsxname) {
+  workunit_id <- GRP2$project_spec$workunit_Id
+  dir.create(outpath)
+  bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
+  ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
+  write.table(bkg,file = ff, col.names = FALSE,
+              row.names = FALSE, quote = FALSE)
+  .write_ORA(GRP2$RES$contrastsData_signif, outpath, workunit_id)
+
+  fg <- GRP2$RES$contrastsData
+  gsea <- dplyr::select(fg , .data$contrast, .data$IDcolumn, .data$statistic) |>
+    dplyr::arrange( .data$statistic )
+  gsea <- split(dplyr::select( gsea, .data$IDcolumn, .data$statistic ), gsea$contrast)
+
+  for (i in names(gsea)) {
+    ff <- file.path(outpath, paste0("GSEA_",i,"_WU",workunit_id,".rnk" ))
+    logger::log_info("Writing File ", ff)
+    write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE, sep = "\t")
+  }
+  if (nrow(resultList$normalized_abundances) > 1048575) {
+    resultList$normalized_abundances <- NULL
+  }
+  writexl::write_xlsx(resultList, path = file.path(outpath, paste0(xlsxname, ".xlsx")))
+}
+
+#' Write differential expression analysis results
+#'
+#' @rdname make_DEA_report
+#' @param GRP2 return value of \code{\link{make_DEA_report}}
+#' @param outpath path to place output
+#' @param xlsxname file name for xlsx
+#' @export
+#' @family workflow
+#'
+write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE){
+
+  resultList <- prep_result_list(GRP2)
+  if (write) {
+    write_result_list(outpath, GRP2, resultList, xlsxname = xlsxname)
+  }
+  return(resultList)
+}

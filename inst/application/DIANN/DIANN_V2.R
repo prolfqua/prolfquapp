@@ -8,6 +8,9 @@ if (!require("optparse", quietly = TRUE))
 
 library("optparse")
 parser <- OptionParser()
+parser <- add_option(parser, c("-i", "--indir"), type = "character", default = ".",
+                     help = "folder containing fasta, diann-output.tsv and dataset.tsv file",
+                     metavar = "string")
 parser <- add_option(parser, c("-d", "--dataset"), type = "character", default = "dataset.csv",
                      help = "file with annotation",
                      metavar = "character")
@@ -15,20 +18,20 @@ parser <- add_option(parser, c("-y", "--yaml"), type = "character", default = "c
                      help = "yaml configuration file",
                      metavar = "character")
 opt <- parse_args(parser)
-
+opt$indir <- "WU302903"
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
-path = "."
+path = opt$indir
 
 yamlfile <- file.path(path, opt$yaml)
 GRP2 <- if (file.exists(yamlfile)) {
   yamlfile |> prolfquapp::read_BF_yamlR6(application = "DIANN")
 } else {
   prolfquapp::make_DEA_config_R6(
-    ZIPDIR = "DEA", PROJECTID = "1" ,ORDERID = "2", WORKUNITID = "HelloWorld" )
+    ZIPDIR = "DEA", PROJECTID = "1234" ,ORDERID = "2345", WORKUNITID = "HelloWorld" )
 }
 
-annotation <- file.path(path,opt$dataset) |>
+annotation <- file.path(path, opt$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation()
 
 files <- prolfquapp::get_DIANN_files(path)
@@ -44,8 +47,7 @@ logger::log_info("END OF PROTEIN AGGREGATION")
 
 logger::log_info("RUN ANALYSIS")
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
-
-
+grp$
 
 outdir <- prolfquapp::write_DEA_all(
   grp, boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
