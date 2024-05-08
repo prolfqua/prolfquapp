@@ -8,7 +8,7 @@ if (!require("optparse", quietly = TRUE))
 
 library("optparse")
 parser <- OptionParser()
-parser <- add_option(parser, c("-d", "--indir"), type = "character", default = ".",
+parser <- add_option(parser, c("-i", "--indir"), type = "character", default = ".",
                      help = "folder containing fasta, diann-output.tsv and dataset.tsv file",
                      metavar = "string")
 parser <- add_option(parser, c("-p", "--projectId"), type = "character", default = "1234",
@@ -17,8 +17,8 @@ parser <- add_option(parser, c("-p", "--projectId"), type = "character", default
 parser <- add_option(parser, c("-w", "--workunitId"), type = "character", default = "4321",
                      help = "workunit identifier",
                      metavar = "string")
-parser <- add_option(parser, c("-w", "--dataset"), type = "character", default = "dataset.csv",
-                     help = "file annotation",
+parser <- add_option(parser, c("-d", "--dataset"), type = "character", default = "dataset.csv",
+                     help = "name of annotation",
                      metavar = "string")
 parser <- add_option(parser, c("-o", "--output"), type = "character", default = "qc_dir",
                      help = "folder to write the results to.",
@@ -28,7 +28,6 @@ parser <- add_option(parser, c("--libPath"), type = "character", default = NULL,
                      metavar = "string")
 
 opt <- parse_args(parser)
-
 
 # set library path
 libPath <- opt$libPath
@@ -53,15 +52,12 @@ if (!dir.exists(GRP2$zipdir)) {
 
 output_dir <- GRP2$zipdir
 
-source("utilities.R")
-files <- find_default_files(opt$indir)
-xx <- get_annot_from_fasta(files$fasta)
-xx$fasta.header[1:10]
-sum(grepl(".+ GN=(.+) PE=.*",xx$fasta.header))
-
 
 path <- opt$indir
-annotation <- file.path(path,files$dataset) |>
+files <- prolfquapp::get_DIANN_files(path)
+xx <- get_annot_from_fasta(files$fasta)
+
+annotation <- file.path(path, opt$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
 
 xd <- prolfquapp::preprocess_DIANN(
@@ -90,38 +86,22 @@ TABLES2WRITE$proteins_wide <- dplyr::left_join(xd$protein_annotation$row_annot,
                                         multiple = "all")
 
 
-lfqdataProtTotal <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = "topN", N = 10000)
-lfqdataProtTotal$data <- inner_join(lfqdataProtTotal$data , select(xd$protein_annotation$row_annot, protein_Id, protein_length, nr_tryptic_peptides))
-lfqdataProtTotal$data <- lfqdataProtTotal$data |> mutate(IBAQV_proteinLength = srm_sum_N / protein_length)
-lfqdataProtTotal$data <- lfqdataProtTotal$data |> mutate(IBAQV = srm_sum_N / nr_tryptic_peptides)
+lfqdataProtIBAQ <- compute_IBAQ_values(xd$lfqdata, xd$protein_annotation)
 
-if (FALSE) {
-  par(mfrow = c(2,3))
-  plot( lfqdataProtTotal$data$srm_sum_N, lfqdataProtTotal$data$IBAQV, pch = ".", log = "xy")
-  plot( lfqdataProtTotal$data$srm_sum_N, lfqdataProtTotal$data$IBAQV_proteinLength, pch = ".", log = "xy")
-  plot( lfqdataProtTotal$data$IBAQV, lfqdataProtTotal$data$IBAQV_proteinLength, pch = ".", log = "xy")
-  plot( lfqdataProtTotal$data$IBAQV, lfqdataProtTotal$data$IBAQV_proteinLength, pch = ".", log = "")
-  plot(lfqdataProtTotal$data$protein_length, lfqdataProtTotal$data$nr_tryptic_peptides)
-  xx <- with(lfqdataProtTotal$data, lm(nr_tryptic_peptides ~ protein_length))
-  abline(xx, col = 2)
-}
-
-lfqdataProtTotal$config$table$set_response("IBAQV")
-
-lfqdataProtTotal$hierarchy_counts()
-summarizer <- lfqdataProtTotal$get_Summariser()
+lfqdataProtIBAQ$hierarchy_counts()
+summarizer <- lfqdataProtIBAQ$get_Summariser()
 precabund <- summarizer$percentage_abundance()
 
 precabund <- dplyr::inner_join(
   xd$protein_annotation$row_annot,
   precabund,
   multiple = "all",
-  by = lfqdataProtTotal$config$table$hierarchy_keys_depth())
+  by = lfqdataProtIBAQ$config$table$hierarchy_keys_depth())
 
 TABLES2WRITE$proteinAbundances <- precabund
 TABLES2WRITE$IBAQ_abundances <-
   dplyr::left_join(xd$protein_annotation$row_annot,
-                   lfqdataProtTotal$to_wide()$data,
+                   lfqdataProtIBAQ$to_wide()$data,
                    multiple = "all")
 
 writexl::write_xlsx(TABLES2WRITE, path = file.path(output_dir, "proteinAbundances.xlsx"))
@@ -151,7 +131,6 @@ if (!is.null(lfqdataProt)) {
            "</body>",
            "</html>")
   cat(str, file = file.path(output_dir,"proteinAbundances.html"), sep = "\n")
-
 }
 
 
