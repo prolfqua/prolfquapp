@@ -5,6 +5,8 @@ if (!require("prolfqua", quietly = TRUE))
 if (!require("optparse", quietly = TRUE))
   install.packages("optparse", dependencies = TRUE)
 
+logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\n"))
+
 
 library("optparse")
 parser <- OptionParser()
@@ -28,14 +30,15 @@ parser <- add_option(parser, c("--libPath"), type = "character", default = NULL,
                      metavar = "string")
 
 opt <- parse_args(parser)
+opt$indir <- "2494004"
 
 # set library path
 libPath <- opt$libPath
 
 if (!is.null(libPath) && dir.exists(libPath) ) {
-  print(paste("Setting libPath:", libPath, collapse = " ;"))
+  logger::log_info(paste("Setting libPath:", libPath, collapse = " ;"))
   .libPaths(libPath)
-  cat(.libPaths(), sep = "\n")
+  logger::log_info(.libPaths(), sep = "\n")
 }
 
 
@@ -45,7 +48,7 @@ library(prolfquapp)
 library(logger)
 
 
-GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = opt$output, PROJECTID =  opt$projectId, WORKUNITID = opt$workunitId )
+GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = opt$output, ORDERID = opt$projectId, PROJECTID =  opt$projectId, WORKUNITID = opt$workunitId )
 if (!dir.exists(GRP2$zipdir)) {
   dir.create(GRP2$zipdir)
 }
@@ -57,7 +60,9 @@ path <- opt$indir
 files <- prolfquapp::get_DIANN_files(path)
 xx <- get_annot_from_fasta(files$fasta)
 
-annotation <- file.path(path, opt$dataset) |>
+annotfile <- file.path(path, opt$dataset)
+if(!file.exists(annotfile)) {stop("No annotation file found",annotfile)}
+annotation <- file.path(annotfile) |>
   readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
 
 xd <- prolfquapp::preprocess_DIANN(
@@ -67,19 +72,12 @@ xd <- prolfquapp::preprocess_DIANN(
   nrPeptides =  GRP2$processing_options$nr_peptides,
   q_value = 0.01)
 
-head(xd$protein_annotation$row_annot)
-
-xd$lfqdata$factors()
-
-
 TABLES2WRITE <- list()
 TABLES2WRITE$peptide_wide <- dplyr::left_join(xd$protein_annotation$row_annot,
                                        xd$lfqdata$to_wide()$data,
                                        multiple = "all")
 
 TABLES2WRITE$annotation <- xd$lfqdata$factors()
-
-
 lfqdataProt <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = "medpolish")
 TABLES2WRITE$proteins_wide <- dplyr::left_join(xd$protein_annotation$row_annot,
                                         lfqdataProt$to_wide()$data,
@@ -110,9 +108,9 @@ file.copy(system.file("application/GenericQC/QC_ProteinAbundances.Rmd", package 
           to = output_dir, overwrite = TRUE)
 
 
-if (!is.null(lfqdataProt)) {
+if (!is.null(lfqdataProtIBAQ)) {
   rmarkdown::render(file.path(output_dir,"QC_ProteinAbundances.Rmd"),
-                    params = list(lfqdataProt = lfqdataProt,
+                    params = list(lfqdataProt = lfqdataProtIBAQ,
                                   precabund = precabund,
                                   project_info = GRP2$project_spec,
                                   factors = TRUE),
