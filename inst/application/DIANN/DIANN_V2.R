@@ -32,6 +32,7 @@ annotation <- file.path(path,opt$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation()
 
 files <- prolfquapp::get_DIANN_files(path)
+
 xd <- prolfquapp::preprocess_DIANN(
   quant_data = files$data, fasta_file = files$fasta,
   annotation = annotation, nrPeptides =  GRP2$processing_options$nr_peptides,
@@ -44,8 +45,23 @@ logger::log_info("END OF PROTEIN AGGREGATION")
 logger::log_info("RUN ANALYSIS")
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
+write_ORA <- function(fg, outpath, workunit_id) {
+  ora_sig <- split(fg$IDcolumn, fg$contrast)
+
+  for (i in names(ora_sig)) {
+    ff <- file.path(outpath, paste0("ORA_",i,"_WU",workunit_id,".txt" ))
+    logger::log_info("Writing File ", ff)
+    write.table(ora_sig[[i]],file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE)
+  }
+}
+
+
+
 outdir <- prolfquapp::write_DEA_all(
   grp, boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
+
+
 
 logger::log_info("write results and summarized experiment")
 SE <- prolfquapp::make_SummarizedExperiment(grp)

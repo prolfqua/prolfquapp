@@ -384,16 +384,9 @@ prep_result_list <- function(GRP2){
   return(resultList)
 }
 
-write_result_list <- function(outpath, GRP2, resultList, xlsxname) {
-  workunit_id <- GRP2$project_spec$workunit_Id
-  dir.create(outpath)
-  bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
-  ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
-  write.table(bkg,file = ff, col.names = FALSE,
-              row.names = FALSE, quote = FALSE)
-
-  fg <- GRP2$RES$contrastsData_signif
-  ora_sig <- split(fg$IDcolumn, fg$contrast)
+.write_ORA <- function(fg, outpath, workunit_id) {
+  fg <- fg |> dplyr::mutate(updown = paste0(contrast, ifelse(diff > 0 , "_up", "_down")))
+  ora_sig <- split(fg$IDcolumn, fg$updown)
 
   for (i in names(ora_sig)) {
     ff <- file.path(outpath, paste0("ORA_",i,"_WU",workunit_id,".txt" ))
@@ -401,9 +394,21 @@ write_result_list <- function(outpath, GRP2, resultList, xlsxname) {
     write.table(ora_sig[[i]],file = ff, col.names = FALSE,
                 row.names = FALSE, quote = FALSE)
   }
+}
+
+
+write_result_list <- function(outpath, GRP2, resultList, xlsxname) {
+  workunit_id <- GRP2$project_spec$workunit_Id
+  dir.create(outpath)
+  bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
+  ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
+  write.table(bkg,file = ff, col.names = FALSE,
+              row.names = FALSE, quote = FALSE)
+  .write_ORA(GRP2$RES$contrastsData_signif, outpath, workunit_id)
 
   fg <- GRP2$RES$contrastsData
-  gsea <- dplyr::select(fg , .data$contrast, .data$IDcolumn, .data$statistic) |> dplyr::arrange( statistic )
+  gsea <- dplyr::select(fg , .data$contrast, .data$IDcolumn, .data$statistic) |>
+    dplyr::arrange( .data$statistic )
   gsea <- split(dplyr::select( gsea, .data$IDcolumn, .data$statistic ), gsea$contrast)
 
   for (i in names(gsea)) {
