@@ -31,6 +31,21 @@ nr_tryptic_peptides <- function(sequence, min_length = 7, max_length = 30){
 }
 
 
+#' extract gene names from uniprot 1sp fasta.headers
+#' @param fasta.headers vector with
+#' @export
+extract_GN <- function(fasta.headers){
+  res <- vector(mode = "character", length = length(fasta.headers))
+  for (i in seq_along(fasta.headers)) {
+    header <- fasta.headers[i]
+    res[i] <- if (grepl(".+ GN=(.+) PE=.+", header)) {
+      gsub(".+ GN=(.+) PE=.*","\\1",header)} else {""}
+  }
+  return(res)
+}
+
+
+
 #' get_annot_from_fasta
 #'
 #' @export
@@ -42,7 +57,9 @@ nr_tryptic_peptides <- function(sequence, min_length = 7, max_length = 30){
 get_annot_from_fasta <- function(
     fasta.files,
     rev= "REV_",
-    isUniprot = TRUE) {
+    isUniprot = TRUE,
+    min_length = 7,
+    max_length = 30) {
   fasta <- list()
 
   if ("connection" %in% class(fasta.files) ) {
@@ -58,7 +75,7 @@ get_annot_from_fasta <- function(
     data.frame(annot = sapply(fasta, seqinr::getAnnot)), preserve_row_names = NULL
   )
   fasta_annot$protein_length <- vapply(fasta, nchar, 0)
-  fasta_annot$nr_tryptic_peptides <- vapply(fasta, nr_tryptic_peptides, 0)
+  fasta_annot$nr_tryptic_peptides <- vapply(fasta, nr_tryptic_peptides, 0, min_length = min_length, max_length = max_length)
 
   fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
                                                 c("fasta.id","fasta.header"),
@@ -72,6 +89,11 @@ get_annot_from_fasta <- function(
   } else {
     fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = .data$fasta.id )
   }
+
+  if (mean(grepl(".+ GN=(.+) PE=.+",fasta_annot$fasta.header)) > 0.5) {
+    fasta_annot <- fasta_annot |> dplyr::mutate(gene_name = extract_GN(.data$fasta.header))
+  }
+
   # remove duplicated id's
   fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
   return(fasta_annot)

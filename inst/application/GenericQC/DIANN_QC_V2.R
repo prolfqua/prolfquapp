@@ -55,6 +55,12 @@ output_dir <- GRP2$zipdir
 
 source("utilities.R")
 files <- find_default_files(opt$indir)
+files$fasta
+xx <- get_annot_from_fasta(files$fasta)
+xx$fasta.header[1:10]
+sum(grepl(".+ GN=(.+) PE=.*",xx$fasta.header))
+
+
 path <- opt$indir
 annotation <- file.path(path,files$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)

@@ -4,7 +4,13 @@
 \alias{get_annot_from_fasta}
 \title{get_annot_from_fasta}
 \usage{
-get_annot_from_fasta(fasta.files, rev = "REV_", isUniprot = TRUE)
+get_annot_from_fasta(
+  fasta.files,
+  rev = "REV_",
+  isUniprot = TRUE,
+  min_length = 7,
+  max_length = 30
+)
 }
 \description{
 get_annot_from_fasta

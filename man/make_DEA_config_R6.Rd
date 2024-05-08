@@ -10,7 +10,7 @@ make_DEA_config_R6(
   PROJECTID = "",
   ORDERID = "",
   WORKUNITID = "",
-  Normalization = c("vsn", "quantile", "robscale"),
+  Normalization = c("none", "vsn", "quantile", "robscale"),
   aggregation = c("medpolish", "top3", "lmrob"),
   diff_threshold = 1,
   FDR_threshold = 0.1,

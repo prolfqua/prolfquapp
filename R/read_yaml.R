@@ -57,7 +57,7 @@ make_DEA_config <- function(
     PROJECTID = "",
     ORDERID ="",
     WORKUNITID ="",
-    Normalization = c("vsn", "quantile", "robscale"),
+    Normalization = c("none","vsn", "quantile", "robscale"),
     aggregation = c("medpolish" , "top3", "lmrob"),
     Diffthreshold = 1,
     FDRthreshold = 0.1,
@@ -67,7 +67,7 @@ make_DEA_config <- function(
     patternContaminants = "^zz",
     application = "FragPipeTMT",
     nrPeptides = 2){
-
+  warning("DEPRECATED")
   Normalization <- match.arg(Normalization)
   aggregation <- match.arg(aggregation)
 

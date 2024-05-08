@@ -52,6 +52,7 @@ preprocess_DIANN <- function(quant_data,
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
 
+
   protAnnot <- build_protein_annot(
     lfqdata,
     peptide,
@@ -59,8 +60,9 @@ preprocess_DIANN <- function(quant_data,
     cleaned_protein_id = "Protein.Group.2",
     protein_description = "fasta.header",
     nr_children = "nrPeptides",
-    more_columns = c("nrPeptides", "fasta.id", "protein_length", "nr_tryptic_peptides"))
-
+    more_columns = c("nrPeptides", "fasta.id", "protein_length", "nr_tryptic_peptides",
+                     if ("gene_name" %in% colnames(peptide)) {"gene_name"} else {NULL} ))
++
   return(list(lfqdata = lfqdata , protein_annotation = protAnnot))
 }
 
