@@ -142,7 +142,7 @@ aggregate_data <- function(lfqdata,
 #' compute ibaq values
 #' @export
 compute_IBAQ_values <- function(lfqdata, protein_annotation) {
-  stopifnot(all(c("protein_length", c("nr_tryptic_peptides") %in% colnames(protein_annotation$row_annot))))
+  stopifnot(all(c("protein_length", "nr_tryptic_peptides") %in% colnames(protein_annotation$row_annot)))
   rel_annot <- dplyr::select(protein_annotation$row_annot, protein_Id, protein_length, nr_tryptic_peptides)
   lfqdata$config$table$hierarchyDepth <- 1 # you want to roll up to portein
   lfqdataProtTotal <- prolfquapp::aggregate_data(lfqdata, agg_method = "topN", N = 10000)
