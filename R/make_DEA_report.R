@@ -32,7 +32,7 @@ make_DEA_report2 <- function(lfqdata,
 
   transformed <- prolfquapp::transform_lfqdata(
     lfqdata,
-    method = GRP2$pop$transform,
+    method = GRP2$processing_options$transform,
     internal = GRP2$pop$internal
   )
 
@@ -44,8 +44,8 @@ make_DEA_report2 <- function(lfqdata,
 
   ################## Run Modelling ###############
   # remove control column from factors.
-  factors <- transformed$config$table$factor_keys()[
-    !grepl("^control", transformed$config$table$factor_keys() , ignore.case = TRUE)
+  factors <- transformed$config$table$factor_keys_depth()[
+    !grepl("^control", transformed$config$table$factor_keys_depth() , ignore.case = TRUE)
     ]
 
   # model with or without ineractions
