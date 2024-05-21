@@ -11,6 +11,9 @@ check_annotation <- function(annot, QC = FALSE) {
   contrast <- grep("ContrastName|Contrast|CONTROL", colnames(annot), ignore.case = TRUE, value = TRUE)
   if (length(contrast) < 1) { stop(paste0("you must specify a CONTROL column.")) }
   }
+  if ("CONTROL" %in%  colnames(annot)) {
+    stopifnot(all(c("C","T") %in% annot[["CONTROL"]]))
+  }
 }
 
 
