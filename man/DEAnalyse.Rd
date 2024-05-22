@@ -11,13 +11,13 @@ will replace make_DEA_report
 \examples{
 # example code
 
-pep <- prolfqua::sim_lfq_data_protein_config()
+pep <- prolfqua::sim_lfq_data_protein_config(Nprot = 100)
 pep <- prolfqua::LFQData$new(pep$data, pep$config)
 pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
 pA <- prolfqua::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
 GRP2 <- prolfquapp::make_DEA_config_R6()
-
+GRP2$processing_options$transform <- "robscale"
 pep$factors()
 GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
 deanalyse <- DEAnalyse$new(pep, pA, GRP2)
@@ -25,6 +25,10 @@ deanalyse$cont_decoy_summary()
 deanalyse$GRP2$processing_options$remove_cont = TRUE
 deanalyse$remove_cont_decoy()
 deanalyse$transform_data()
+deanalyse$create_model_formula()
+deanalyse$build_model()
+deanalyse$compute_contrasts()
+deanalyse$filter_contrasts()
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

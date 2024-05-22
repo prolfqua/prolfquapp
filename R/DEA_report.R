@@ -6,13 +6,13 @@
 #' @examples
 #' # example code
 #'
-#' pep <- prolfqua::sim_lfq_data_protein_config()
+#' pep <- prolfqua::sim_lfq_data_protein_config(Nprot = 100)
 #' pep <- prolfqua::LFQData$new(pep$data, pep$config)
 #' pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 #' pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
 #' pA <- prolfqua::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
 #' GRP2 <- prolfquapp::make_DEA_config_R6()
-#'
+#' GRP2$processing_options$transform <- "robscale"
 #' pep$factors()
 #' GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
 #' deanalyse <- DEAnalyse$new(pep, pA, GRP2)
@@ -20,6 +20,11 @@
 #' deanalyse$GRP2$processing_options$remove_cont = TRUE
 #' deanalyse$remove_cont_decoy()
 #' deanalyse$transform_data()
+#' deanalyse$create_model_formula()
+#' deanalyse$build_model()
+#' deanalyse$compute_contrasts()
+#' deanalyse$filter_contrasts()
+#' deanalyse$RES
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(
@@ -77,11 +82,12 @@ DEAnalyse <- R6::R6Class(
       invisible(transformed)
     },
     create_model_formula = function() {
+      transformed <- self$RES$transformedlfqData
       factors <- transformed$config$table$factor_keys_depth()[
         !grepl("^control", transformed$config$table$factor_keys_depth() , ignore.case = TRUE)
       ]
       # model with or without interactions
-      if (is.null(GRP2$processing_options$interaction) || !GRP2$processing_options$interaction ) {
+      if (is.null(self$GRP2$processing_options$interaction) || !self$GRP2$processing_options$interaction ) {
         formula <- paste0(transformed$config$table$get_response(), " ~ ",
                           paste(factors, collapse = " + "))
       } else {
@@ -89,35 +95,35 @@ DEAnalyse <- R6::R6Class(
                           paste(factors, collapse = " * "))
       }
       message("FORMULA :",  formula)
-      GRP2$RES$formula <- formula
+      self$RES$formula <- formula
       return(formula)
     },
     build_model = function() {
-
-      mod <- prolfqua::build_model(
+      transformed <- self$RES$transformedlfqData
+      formula <- self$RES$formula
+      formula_Condition <-  prolfqua::strategy_lm(formula)
+      self$RES$models <- prolfqua::build_model(
         transformed,
         formula_Condition,
         subject_Id = transformed$config$table$hierarchy_keys() )
-
       logger::log_info("fitted model with formula : {formula}")
-      GRP2$RES$models <- mod
-
+      invisible(self$RES$models)
     },
     compute_contrasts = function() {
-      contr <- prolfqua::Contrasts$new(mod, GRP2$pop$Contrasts,
+      contr <- prolfqua::Contrasts$new(self$RES$models,
+                                       self$GRP2$pop$Contrasts,
                                        modelName = "Linear_Model")
       conrM <- prolfqua::ContrastsModerated$new(
         contr)
 
-      if (is.null(GRP2$processing_options$missing) || GRP2$processing_options$missing ) {
+      if (is.null(self$GRP2$processing_options$missing) || self$GRP2$processing_options$missing ) {
+        transformed <- self$RES$transformedlfqData
         mC <- prolfqua::ContrastsMissing$new(
           lfqdata = transformed,
-          contrasts = GRP2$pop$Contrasts,
+          contrasts = self$GRP2$pop$Contrasts,
           modelName = "Imputed_Mean")
-
         conMI <- prolfqua::ContrastsModerated$new(
           mC)
-
         res <- prolfqua::merge_contrasts_results(conrM, conMI)
         self$RES$contrMerged <- res$merged
         self$RES$contrMore <- res$more
@@ -126,6 +132,7 @@ DEAnalyse <- R6::R6Class(
         self$RES$contrMerged <- conrM
         self$RES$contrMore <- NULL
       }
+      invisible(self$RES$contrMerged)
     },
     filter_contrasts = function(){
       datax <- self$RES$contrMerged$get_contrasts()
@@ -133,6 +140,7 @@ DEAnalyse <- R6::R6Class(
         dplyr::filter(.data$FDR < self$GRP2$processing_options$FDR_threshold &
                         abs(.data$diff) > self$GRP2$processing_options$diff_threshold )
       GRP2$RES$contrastsData_signif <- datax
+      invisible(datax)
     })
 )
 
