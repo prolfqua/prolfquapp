@@ -2,6 +2,21 @@
 
 #' will replace make_DEA_report
 #' @export
+#'
+#' @examples
+#' # example code
+#'
+#' pep <- prolfqua::sim_lfq_data_protein_config()
+#' pep <- prolfqua::LFQData$new(pep$data, pep$config)
+#'pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
+#'pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
+#'pA <- prolfqua::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
+#'GRP2 <- prolfquapp::make_DEA_config_R6()
+#'
+#' pep$factors()
+#' GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
+#' grp <- make_DEA_report2(pep, pA, GRP2)
+#'
 make_DEA_report2 <- function(lfqdata,
                              protAnnot,
                              GRP2
@@ -48,7 +63,7 @@ make_DEA_report2 <- function(lfqdata,
     !grepl("^control", transformed$config$table$factor_keys_depth() , ignore.case = TRUE)
     ]
 
-  # model with or without ineractions
+  # model with or without interactions
   if (is.null(GRP2$processing_options$interaction) || !GRP2$processing_options$interaction ) {
     formula <- paste0(transformed$config$table$get_response(), " ~ ",
                       paste(factors, collapse = " + "))
@@ -61,7 +76,6 @@ make_DEA_report2 <- function(lfqdata,
   GRP2$RES$formula <- formula
   formula_Condition <-  prolfqua::strategy_lm(formula)
   # specify model definition
-  modelName  <- "Model"
 
   mod <- prolfqua::build_model(
     transformed,

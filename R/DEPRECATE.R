@@ -10,14 +10,10 @@
 #' @family workflow
 #' @examples
 #'
-#' library(prolfquapp)
-#' library(prolfqua)
-#' istar <- prolfqua_data('data_ionstar')$filtered()
-#' data <- istar$data |> dplyr::filter(protein_Id %in% sample(protein_Id, 100))
+#' istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
+#' data <- istar$data
 #' data$Description <-"AAAAA"
 #' protein_annot <- data |> dplyr::select(protein_Id, description = Description) |> dplyr::distinct()
-#' protein_annot2 <- prolfqua::get_UniprotID_from_fasta_header(protein_annot, idcolumn = "protein_Id")
-#' protein_annot <- protein_annot2 |> dplyr::rename(IDcolumn = UniprotID)
 #' GRP2 <- list()
 #' GRP2$Bfabric <- list()
 #' GRP2$Bfabric$projectID <- "3765"
@@ -34,22 +30,11 @@
 #' GRP2$pop$aggregate <- "medpolish"
 #' GRP2$pop$Diffthreshold <- 0.5
 #' GRP2$pop$FDRthreshold <- 0.25
-#' GRP2$pop$Contrasts <- c(b_vs_a = "dilution.b - dilution.a")
-#'
+#' GRP2$pop$Contrasts <- c(b_vs_a = "group_A - group_Ctrl")
 #' GRP2$Software <- "MaxQuant"
 #'
-#' data <- dplyr::filter(data, dilution. == "a" |  dilution. == "b")
-#' atab <- AnalysisTableAnnotation$new()
-#' atab$ident_qValue = "pep"
-#' atab$fileName = "raw.file"
-#' atab$hierarchy["protein_Id"] = "protein_Id"
-#' atab$hierarchy["peptide_Id"] = "peptide_Id"
-#' atab$factors["dilution."] = "dilution."
-#' atab$set_response("peptide.intensity")
-#' atab$isotopeLabel = "isotope"
-#' config <- prolfqua::AnalysisConfiguration$new(atab)
 #'
-#' lfqdata <- prolfqua::LFQData$new(data, config)
+#' lfqdata <- prolfqua::LFQData$new(data, istar$config)
 #' lfqdata$remove_small_intensities()
 #' aggregator <- lfqdata$get_Aggregator()
 #'
@@ -58,7 +43,6 @@
 #'
 #' GRP2$pop$nrPeptides <- 2
 #'
-#' GRP2$pop$Contrasts <- c("avsb" = "dilution.a - dilution.b")
 #' GRP2$pop$revpattern = "^REV_"
 #' GRP2$pop$contpattern = "^zz|^CON__"
 #'
@@ -88,7 +72,7 @@ make_DEA_report <- function(lfqdata,
                             GRP2
 ) {
   ### Do some type of data normalization (or do not)
-  warning("DEPRECATED")
+  warning("DEPRECATED make_DEA_report -> use make_DEA_report2")
   transformed <- transform_lfqdata(
     lfqdata,
     method = GRP2$pop$transform,

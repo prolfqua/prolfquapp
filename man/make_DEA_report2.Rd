@@ -9,3 +9,18 @@ make_DEA_report2(lfqdata, protAnnot, GRP2)
 \description{
 will replace make_DEA_report
 }
+\examples{
+# example code
+
+pep <- prolfqua::sim_lfq_data_protein_config()
+pep <- prolfqua::LFQData$new(pep$data, pep$config)
+pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
+pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
+pA <- prolfqua::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
+GRP2 <- prolfquapp::make_DEA_config_R6()
+
+pep$factors()
+GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
+grp <- make_DEA_report2(pep, pA, GRP2)
+
+}

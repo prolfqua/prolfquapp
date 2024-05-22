@@ -139,7 +139,8 @@ R6_extract_values <- function(r6class){
 
 #' read minimal yaml
 #' @export
-#' @example
+#' @examples
+#'
 #' DEAconfig <- make_DEA_config_R6(ZIPDIR = "DEA", WORKUNITID = "3333")
 #' configList <- R6_extract_values(DEAconfig)
 #' stopifnot(class(configList) == "list")
@@ -190,7 +191,6 @@ make_DEA_config_R6 <- function(
     patternContaminants = "^zz",
     application = "FragPipeTMT" ){
 
-
   Normalization <- match.arg(Normalization)
   aggregation <- match.arg(aggregation)
 
@@ -210,7 +210,8 @@ make_DEA_config_R6 <- function(
   ps$workunit_Id = WORKUNITID
 
   r6obj_config <- ProlfquAppConfig$new(pop, ps)
-  r6obj_config$zipdir = paste0(ZIPDIR,"_OI_",ORDERID,"_WU_",WORKUNITID)
+  pi <- if (PROJECTID != "") { paste0("_PI_", PROJECTID)} else {NULL}
+  r6obj_config$zipdir = paste0(ZIPDIR, pi , "_OI_",ORDERID,"_WU_",WORKUNITID, "_", Normalization)
   r6obj_config$software = application
 
   return(r6obj_config)

@@ -2,18 +2,18 @@ library(tidyverse)
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 
-### Annotation
-path <- "test_StudyInformation/"
 
+files <- dir()
 
-annot <- readxl::read_xlsx(file.path(path, "test_InputFiles.xlsx"))
+annot <- readxl::read_xlsx(grep("_InputFiles.xlsx$",files, value = TRUE))
 colnames(annot) <- make.names(colnames(annot))
-annot <- dplyr::select(annot, c("Study.File.ID", "File.Name","Group","SampleGroup"))
+str(annot)
+annot <- dplyr::select(annot, any_of(c("Study.File.ID", "File.Name","Group","SampleGroup")))
+annot$Group |> table() |> t() |> t()
 
-annot <- dplyr::filter(annot, Group == "Sample")
-annot$Group <- NULL
-annot <- annot |> dplyr::rename(Group = SampleGroup)
 annot <- annot |> dplyr::mutate(CONTROL = case_when(Group == "a" ~ "C" , TRUE ~ "T"))
+
+
 
 annot$File.Name <- gsub("\\", "/",annot$File.Name , fixed = TRUE)
 annot <- annot |> dplyr::mutate(File.Name = basename(File.Name))

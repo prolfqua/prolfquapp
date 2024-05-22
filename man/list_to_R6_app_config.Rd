@@ -9,3 +9,13 @@ list_to_R6_app_config(dd)
 \description{
 read minimal yaml
 }
+\examples{
+
+DEAconfig <- make_DEA_config_R6(ZIPDIR = "DEA", WORKUNITID = "3333")
+configList <- R6_extract_values(DEAconfig)
+stopifnot(class(configList) == "list")
+configList$zipdir
+config <- list_to_R6_app_config(configList)
+stopifnot("ProlfquAppConfig" \%in\% class(config))
+stopifnot(config$zipdir == configList$zipdir)
+}

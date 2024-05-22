@@ -1,0 +1,7 @@
+*
+!.gitignore
+!DIANN_QC_V2.R
+!DIANN_QC.R
+!genericQC.R
+!QC_ProteinAbundances.Rmd
+!QCandSSE.Rmd
