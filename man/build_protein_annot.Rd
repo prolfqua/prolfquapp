@@ -12,8 +12,8 @@ build_protein_annot(
   protein_description = "fasta.header",
   nr_children = "nrPeptides",
   more_columns = c("fasta.id"),
-  contaminant_pattern = "^zz|^CON",
-  decoy_pattern = "REV_"
+  pattern_contaminant = "^zz|^CON",
+  pattern_decoy = "REV_"
 )
 }
 \arguments{

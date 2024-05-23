@@ -10,14 +10,24 @@ Decorates LFQData with a row annotation and some protein specific functions.
 }
 \examples{
 
-istar <-prolfqua::sim_lfq_data_peptide_config()
+istar <-prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 lfqdata <- LFQData$new(istar$data, istar$config)
-pannot <- ProteinAnnotation$new( lfqdata )
-pannot$annotate_decoys()
-pannot$annotate_contaminants()
+
+lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
+pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id),value=TRUE, invert=TRUE)
+addannot <- data.frame(protein_Id = pids,
+description = stringi::stri_rand_strings(length(pids), 13))
+addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
+pannot <- ProteinAnnotation$new( lfqdata, addannot, description = "description", cleaned_ids ="cleanID",
+pattern_contaminant = "^zz", pattern_decoy="^REV" )
+
+stopifnot(pannot$annotate_decoys() == 10)
+stopifnot(pannot$annotate_contaminants() == 5)
 dd <- pannot$clean()
+pannot$nr_clean()
+pannot$get_summary()
+stopifnot(nrow(dd) == 85)
 tmp <- lfqdata$get_subset(dd)
-pannot$row_annot
 
 }
 \concept{LFQData}
@@ -60,8 +70,8 @@ initialize
   description = NULL,
   cleaned_ids = NULL,
   nr_children = "nr_peptides",
-  contaminant_pattern = "^zz|^CON",
-  decoy_pattern = "^REV_"
+  pattern_contaminant = "^zz|^CON",
+  pattern_decoy = "^REV_"
 )}\if{html}{\out{</div>}}
 }
 
