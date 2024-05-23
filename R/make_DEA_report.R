@@ -179,6 +179,12 @@ prep_result_list <- function(GRP2){
   return(resultList)
 }
 
+
+
+
+
+
+
 .write_ORA <- function(fg, outpath, workunit_id) {
   fg <- fg |> dplyr::mutate(updown = paste0(contrast, ifelse(diff > 0 , "_up", "_down")))
   ora_sig <- split(fg$IDcolumn, fg$updown)
@@ -228,7 +234,6 @@ write_result_list <- function(outpath, GRP2, resultList, xlsxname) {
 #' @family workflow
 #'
 write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE){
-
   resultList <- prep_result_list(GRP2)
   if (write) {
     write_result_list(outpath, GRP2, resultList, xlsxname = xlsxname)

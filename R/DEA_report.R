@@ -1,5 +1,21 @@
 # Load necessary libraries
 
+DEAresult <- R6::R6Class(
+  "DEAresult",
+  public = list(
+    decoy_summary = NULL,
+    lfqData = NULL,
+    transformedlfqData = NULL,
+    formula = character(),
+    models = NULL,
+    contrasts_A = NULL,
+    contrasts_B = NULL,
+    contrMerged = NULL,
+    contrastsData_signif = NULL
+
+  )
+)
+
 #' will replace make_DEA_report
 #' @export
 #'

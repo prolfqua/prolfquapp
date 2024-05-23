@@ -33,8 +33,8 @@ read_annotation <- function(dsf, REPEATED = TRUE, SAINT = FALSE, prefix = "G_", 
   check_annotation(dsf, QC = QC)
   res <- dataset_set_factors(annot, REPEATED = REPEATED, SAINT = SAINT, prefix = prefix)
   if (!QC) {
-  contrasts <- extract_contrasts(res$annot, prefix = prefix)
-  res[["contrasts"]] <- contrasts
+    contrasts <- extract_contrasts(res$annot, prefix = prefix, group = res$atable$factors[[prefix]])
+    res[["contrasts"]] <- contrasts
   }
   return(res)
 }
@@ -99,11 +99,11 @@ dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE, prefix = 
 
 
 # private interface
-extract_contrasts <- function(annot, prefix = "G_") {
+extract_contrasts <- function(annot, prefix = "G_", group = "group") {
 
   levels  <- annot |>
     dplyr::select(
-      !!prefix := dplyr::starts_with("group", ignore.case = TRUE),
+      !!prefix := dplyr::starts_with(group, ignore.case = TRUE),
       control = dplyr::starts_with("control", ignore.case = TRUE)) |>
     dplyr::distinct()
   logger::log_info("levels : ", paste(levels, collapse = " "))

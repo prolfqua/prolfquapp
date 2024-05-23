@@ -29,6 +29,7 @@ deanalyse$create_model_formula()
 deanalyse$build_model()
 deanalyse$compute_contrasts()
 deanalyse$filter_contrasts()
+deanalyse$RES
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

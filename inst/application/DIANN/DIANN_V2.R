@@ -18,7 +18,7 @@ parser <- add_option(parser, c("-y", "--yaml"), type = "character", default = "c
                      help = "yaml configuration file",
                      metavar = "character")
 opt <- parse_args(parser)
-opt$indir <- "WU302903"
+opt$indir <- "C33652WU300941/"
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 path = opt$indir
@@ -31,15 +31,20 @@ GRP2 <- if (file.exists(yamlfile)) {
     ZIPDIR = "DEA", PROJECTID = "1234" ,ORDERID = "2345", WORKUNITID = "HelloWorld" )
 }
 
+GRP2$zipdir <- paste0("rerun",GRP2$zipdir)
+
+
+undebug( prolfquapp::read_annotation)
 annotation <- file.path(path, opt$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation()
+
 
 files <- prolfquapp::get_DIANN_files(path)
 
 xd <- prolfquapp::preprocess_DIANN(
   quant_data = files$data, fasta_file = files$fasta,
   annotation = annotation, nrPeptides =  GRP2$processing_options$nr_peptides,
-  q_value = 0.01)
+  q_value = 0.1)
 
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$pop$aggregate}.")
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)
@@ -65,6 +70,9 @@ dir.create(inputs)
 
 prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
 file.copy(c(files$data, files$fasta, yamlfile, "dataset.csv"), inputs)
-yaml::write_yaml(GRP2, file = file.path(inputs, "minimal.yaml"))
+
+GRP2$RES <- NULL
+GRP2$pop <- NULL
+yaml::write_yaml(prolfquapp::R6_extract_values(GRP2), file = file.path(inputs, "minimal.yaml"))
 
 
