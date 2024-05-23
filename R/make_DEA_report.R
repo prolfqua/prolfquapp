@@ -27,10 +27,8 @@ make_DEA_report2 <- function(lfqdata,
   GRP2$RES <- list()
   GRP2$RES$Summary <- data.frame(
     totalNrOfProteins = allProt,
-    percentOfContaminants = round(protAnnot$annotate_contaminants(
-      GRP2$processing_options$pattern_contaminants)/allProt * 100 , digits = 2),
-    percentOfFalsePositives  = round(protAnnot$annotate_decoys(
-      GRP2$processing_options$pattern_decoys)/allProt * 100 , digits = 2),
+    percentOfContaminants = round(protAnnot$annotate_contaminants()/allProt * 100 , digits = 2),
+    percentOfFalsePositives  = round(protAnnot$annotate_decoys()/allProt * 100 , digits = 2),
     NrOfProteinsNoDecoys = protAnnot$nr_clean()
   )
   GRP2$RES$rowAnnot <- protAnnot
@@ -180,14 +178,9 @@ prep_result_list <- function(GRP2){
 }
 
 
-
-
-
-
-
-.write_ORA <- function(fg, outpath, workunit_id) {
+.write_ORA <- function(fg, outpath, workunit_id, id_column = "IDcolumn") {
   fg <- fg |> dplyr::mutate(updown = paste0(contrast, ifelse(diff > 0 , "_up", "_down")))
-  ora_sig <- split(fg$IDcolumn, fg$updown)
+  ora_sig <- split(fg[[id_column]], fg$updown)
 
   for (i in names(ora_sig)) {
     ff <- file.path(outpath, paste0("ORA_",i,"_WU",workunit_id,".txt" ))
@@ -198,19 +191,19 @@ prep_result_list <- function(GRP2){
 }
 
 
-write_result_list <- function(outpath, GRP2, resultList, xlsxname) {
+write_result_list <- function(outpath, GRP2, resultList, xlsxname,id_column = "IDcolumn") {
   workunit_id <- GRP2$project_spec$workunit_Id
   dir.create(outpath)
-  bkg <- GRP2$RES$rowAnnot$row_annot$IDcolumn
+  bkg <- GRP2$RES$rowAnnot$row_annot[[id_column]]
   ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
   write.table(bkg,file = ff, col.names = FALSE,
               row.names = FALSE, quote = FALSE)
   .write_ORA(GRP2$RES$contrastsData_signif, outpath, workunit_id)
 
   fg <- GRP2$RES$contrastsData
-  gsea <- dplyr::select(fg , .data$contrast, .data$IDcolumn, .data$statistic) |>
+  gsea <- dplyr::select(fg , c("contrast",id_column , "statistic")) |>
     dplyr::arrange( .data$statistic )
-  gsea <- split(dplyr::select( gsea, .data$IDcolumn, .data$statistic ), gsea$contrast)
+  gsea <- split(dplyr::select( gsea, c(id_column, "statistic")), gsea$contrast)
 
   for (i in names(gsea)) {
     ff <- file.path(outpath, paste0("GSEA_",i,"_WU",workunit_id,".rnk" ))

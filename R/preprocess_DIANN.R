@@ -21,7 +21,9 @@ preprocess_DIANN <- function(quant_data,
                              fasta_file,
                              annotation,
                              q_value = 0.01,
-                             nrPeptides = 1){
+                             nrPeptides = 1,
+                             contaminant_pattern = "^zz|^CON",
+                             decoy_pattern = "REV_"){
 
   annot <- annotation$annot
   atable <- annotation$atable$clone(deep = FALSE)
@@ -61,8 +63,10 @@ preprocess_DIANN <- function(quant_data,
     protein_description = "fasta.header",
     nr_children = "nrPeptides",
     more_columns = c("nrPeptides", "fasta.id", "protein_length", "nr_tryptic_peptides",
-                     if ("gene_name" %in% colnames(peptide)) {"gene_name"} else {NULL} ))
-+
+                     if ("gene_name" %in% colnames(peptide)) {"gene_name"} else {NULL} ),
+    contaminant_pattern = contaminant_pattern,
+    decoy_pattern = decoy_pattern
+    )
   return(list(lfqdata = lfqdata , protein_annotation = protAnnot))
 }
 

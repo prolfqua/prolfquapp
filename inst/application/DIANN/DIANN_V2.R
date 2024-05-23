@@ -18,10 +18,13 @@ parser <- add_option(parser, c("-y", "--yaml"), type = "character", default = "c
                      help = "yaml configuration file",
                      metavar = "character")
 opt <- parse_args(parser)
-opt$indir <- "C33652WU300941/"
+
+
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 path = opt$indir
+
+path = "C33652WU300941/"
 
 yamlfile <- file.path(path, opt$yaml)
 GRP2 <- if (file.exists(yamlfile)) {
@@ -44,7 +47,8 @@ files <- prolfquapp::get_DIANN_files(path)
 xd <- prolfquapp::preprocess_DIANN(
   quant_data = files$data, fasta_file = files$fasta,
   annotation = annotation, nrPeptides =  GRP2$processing_options$nr_peptides,
-  q_value = 0.1)
+  q_value = 0.1,contaminant_pattern = GRP2$processing_options$pattern_contaminants,
+  decoy_pattern = GRP2$processing_options$pattern_decoys)
 
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$pop$aggregate}.")
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)

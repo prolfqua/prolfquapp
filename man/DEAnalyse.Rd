@@ -34,11 +34,13 @@ deanalyse$RES
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{lfqdata}}{`LFQData`}
+\item{\code{lfqdata}}{LFQData}
 
-\item{\code{rowAnnot}}{`ProteinAnnotation`}
+\item{\code{rowAnnot}}{ProteinAnnotation}
 
-\item{\code{GRP2}}{`ProlfquAppConfig`
+\item{\code{GRP2}}{ProlfquAppConfig}
+
+\item{\code{reference_proteins}}{reference proteins to use for internal normalization
 initialize}
 }
 \if{html}{\out{</div>}}
@@ -53,6 +55,7 @@ initialize}
 \item \href{#method-DEAnalyse-create_model_formula}{\code{DEAnalyse$create_model_formula()}}
 \item \href{#method-DEAnalyse-build_model}{\code{DEAnalyse$build_model()}}
 \item \href{#method-DEAnalyse-compute_contrasts}{\code{DEAnalyse$compute_contrasts()}}
+\item \href{#method-DEAnalyse-compute_contrasts_missing}{\code{DEAnalyse$compute_contrasts_missing()}}
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
 \item \href{#method-DEAnalyse-clone}{\code{DEAnalyse$clone()}}
 }
@@ -82,7 +85,7 @@ initialize}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-cont_decoy_summary}{}}}
 \subsection{Method \code{cont_decoy_summary()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$cont_decoy_summary()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$cont_decoy_summary(pattern_contaminants, pattern_decoys)}\if{html}{\out{</div>}}
 }
 
 }
@@ -109,7 +112,7 @@ initialize}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-create_model_formula}{}}}
 \subsection{Method \code{create_model_formula()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$create_model_formula()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$create_model_formula(prlconfig, interaction = FALSE)}\if{html}{\out{</div>}}
 }
 
 }
@@ -118,7 +121,7 @@ initialize}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-build_model}{}}}
 \subsection{Method \code{build_model()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model(transformedlfqData, interaction = FALSE)}\if{html}{\out{</div>}}
 }
 
 }
@@ -127,7 +130,16 @@ initialize}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts}{}}}
 \subsection{Method \code{compute_contrasts()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts(models, contrasts, modelName = "Linear_Model")}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-compute_contrasts_missing"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts_missing}{}}}
+\subsection{Method \code{compute_contrasts_missing()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_missing(transformedlfqData, contrasts)}\if{html}{\out{</div>}}
 }
 
 }
@@ -136,7 +148,7 @@ initialize}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-filter_contrasts}{}}}
 \subsection{Method \code{filter_contrasts()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts(contr, FDR_threshold = 0.1, diff_threshol = 1)}\if{html}{\out{</div>}}
 }
 
 }

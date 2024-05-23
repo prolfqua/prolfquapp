@@ -41,39 +41,6 @@ sanitize_grouping_var <- function(annot){
 }
 
 
-#' Dataset protein annot
-#'
-#' @export
-#' @param msdata data frame
-#' @param idcolName name of column with ID's
-#' @param protein_annot fasta haeder column
-#' @param more_columns more columns to include
-
-build_protein_annot <- function(
-    lfqdata,
-    msdata,
-    idcol = c("protein_Id" = "Protein.Group"),
-    cleaned_protein_id = "Protein.Group.2",
-    protein_description = "fasta.header",
-    nr_children = "nrPeptides",
-    more_columns = c("fasta.id")
-) {
-  proteinID_column = names(idcol)[1]
-  msdata <- dplyr::mutate(msdata, !!proteinID_column := !!rlang::sym(idcol) )
-  length_protIDs <- length(unique(msdata[[proteinID_column]]))
-  prot_annot <- dplyr::select(
-    msdata ,
-    dplyr::all_of(c( proteinID_column, protein_description, cleaned_protein_id, nr_children, more_columns))) |>
-    dplyr::distinct()
-  stopifnot( length_protIDs == nrow(prot_annot) )
-  prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_description))
-  prot_annot <- dplyr::rename(prot_annot, IDcolumn = !!rlang::sym(cleaned_protein_id))
-  protAnnot <- prolfqua::ProteinAnnotation$new(
-    lfqdata , prot_annot,description = "description",
-    ids = "IDcolumn",
-    nr_children = nr_children)
-  return(protAnnot)
-}
 
 #' Dataset protein annot
 #'

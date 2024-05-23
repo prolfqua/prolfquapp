@@ -7,12 +7,8 @@ DEAresult <- R6::R6Class(
     lfqData = NULL,
     transformedlfqData = NULL,
     formula = character(),
-    models = NULL,
-    contrasts_A = NULL,
-    contrasts_B = NULL,
-    contrMerged = NULL,
-    contrastsData_signif = NULL
-
+    models = data.frame(),
+    contrasts = list()
   )
 )
 
@@ -44,13 +40,15 @@ DEAresult <- R6::R6Class(
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(
-    #' @field lfqdata `LFQData`
+    #' @field lfqdata LFQData
     lfqdata = NULL,
-    #' @field rowAnnot `ProteinAnnotation`
+    #' @field rowAnnot ProteinAnnotation
     rowAnnot = NULL,
-    #'@field GRP2 `ProlfquAppConfig`
+    #'@field GRP2 ProlfquAppConfig
     GRP2 = NULL,
-    RES = list(),
+    #' @field reference_proteins reference proteins to use for internal normalization
+    reference_proteins = character(),
+    RES = NULL,
     #' initialize
     #' @param lfqdata lfqdata
     #' @param rowAnnot ProteinAnnotation
@@ -61,14 +59,15 @@ DEAnalyse <- R6::R6Class(
       self$GRP2 <- GRP2
       self$RES <- list()
     },
-    cont_decoy_summary = function() {
+
+    cont_decoy_summary = function(pattern_contaminants, pattern_decoys) {
       allProt <- nrow(self$rowAnnot$row_annot)
       contdecoySummary <- data.frame(
         totalNrOfProteins = allProt,
         percentOfContaminants = round(self$rowAnnot$annotate_contaminants(
-          self$GRP2$processing_options$pattern_contaminants) / allProt * 100, digits = 2),
+          pattern_contaminants) / allProt * 100, digits = 2),
         percentOfFalsePositives = round(self$rowAnnot$annotate_decoys(
-          self$GRP2$processing_options$pattern_decoys) / allProt * 100, digits = 2),
+          pattern_decoys) / allProt * 100, digits = 2),
         NrOfProteinsNoDecoys = self$rowAnnot$nr_clean()
       )
       self$RES$Summary <- contdecoySummary
@@ -89,73 +88,62 @@ DEAnalyse <- R6::R6Class(
       transformed <- prolfquapp::transform_lfqdata(
         self$lfqdata,
         method = self$GRP2$processing_options$transform,
-        internal = self$GRP2$pop$internal
+        internal = self$reference_proteins
       )
       self$lfqdata$rename_response("protein_abundance")
       transformed$rename_response("normalized_protein_abundance")
-      self$RES$lfqData <- self$lfqdata
-      self$RES$transformedlfqData <- transformed
+      self$transformedlfqData <- transformed
       invisible(transformed)
     },
-    create_model_formula = function() {
-      transformed <- self$RES$transformedlfqData
-      factors <- transformed$config$table$factor_keys_depth()[
-        !grepl("^control", transformed$config$table$factor_keys_depth() , ignore.case = TRUE)
+    # static
+    create_model_formula = function(prlconfig, interaction = FALSE) {
+      factors <- prlconfig$table$factor_keys_depth()[
+        !grepl("^control", prlconfig$table$factor_keys_depth() , ignore.case = TRUE)
       ]
       # model with or without interactions
-      if (is.null(self$GRP2$processing_options$interaction) || !self$GRP2$processing_options$interaction ) {
-        formula <- paste0(transformed$config$table$get_response(), " ~ ",
+      if (interaction ) {
+        formula <- paste0(prlconfig$table$get_response(), " ~ ",
                           paste(factors, collapse = " + "))
       } else {
-        formula <- paste0(transformed$config$table$get_response(), " ~ ",
+        formula <- paste0(prlconfig$table$get_response(), " ~ ",
                           paste(factors, collapse = " * "))
       }
-      message("FORMULA :",  formula)
-      self$RES$formula <- formula
+      logger::log_info("fitted model with formula : {formula}")
       return(formula)
     },
-    build_model = function() {
-      transformed <- self$RES$transformedlfqData
-      formula <- self$RES$formula
+    #static
+    build_model = function(transformedlfqData, interaction = FALSE) {
+      formula <- create_model_formula(transformedlfqData$config, interaction = interaction)
       formula_Condition <-  prolfqua::strategy_lm(formula)
-      self$RES$models <- prolfqua::build_model(
+      models <- prolfqua::build_model(
         transformed,
         formula_Condition,
         subject_Id = transformed$config$table$hierarchy_keys() )
-      logger::log_info("fitted model with formula : {formula}")
-      invisible(self$RES$models)
+      return(models)
     },
-    compute_contrasts = function() {
-      contr <- prolfqua::Contrasts$new(self$RES$models,
-                                       self$GRP2$pop$Contrasts,
+    #static
+    compute_contrasts = function(models, contrasts, modelName = "Linear_Model") {
+      contr <- prolfqua::Contrasts$new(models,
+                                       contrasts,
                                        modelName = "Linear_Model")
-      conrM <- prolfqua::ContrastsModerated$new(
-        contr)
-
-      if (is.null(self$GRP2$processing_options$missing) || self$GRP2$processing_options$missing ) {
-        transformed <- self$RES$transformedlfqData
-        mC <- prolfqua::ContrastsMissing$new(
-          lfqdata = transformed,
-          contrasts = self$GRP2$pop$Contrasts,
-          modelName = "Imputed_Mean")
-        conMI <- prolfqua::ContrastsModerated$new(
-          mC)
-        res <- prolfqua::merge_contrasts_results(conrM, conMI)
-        self$RES$contrMerged <- res$merged
-        self$RES$contrMore <- res$more
-
-      } else {
-        self$RES$contrMerged <- conrM
-        self$RES$contrMore <- NULL
-      }
-      invisible(self$RES$contrMerged)
+      conrM <- prolfqua::ContrastsModerated$new(contr)
+      return(conrM)
     },
-    filter_contrasts = function(){
-      datax <- self$RES$contrMerged$get_contrasts()
+    #static
+    compute_contrasts_missing = function(transformedlfqData, contrasts){
+      mC <- prolfqua::ContrastsMissing$new(
+        lfqdata = transformedlfqData,
+        contrasts = contrasts,
+        modelName = "Imputed_Mean")
+      conMI <- prolfqua::ContrastsModerated$new(mC)
+      return(conMI)
+    },
+    #static
+    filter_contrasts = function(contr, FDR_threshold = 0.1, diff_threshol = 1){
+      datax <- contr$get_contrasts()
       datax <- datax |>
-        dplyr::filter(.data$FDR < self$GRP2$processing_options$FDR_threshold &
-                        abs(.data$diff) > self$GRP2$processing_options$diff_threshold )
-      GRP2$RES$contrastsData_signif <- datax
+        dplyr::filter(.data$FDR < FDR_threshold &
+                        abs(.data$diff) > diff_threshold )
       invisible(datax)
     })
 )
