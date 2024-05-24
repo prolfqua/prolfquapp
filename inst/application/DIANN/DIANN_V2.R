@@ -9,6 +9,8 @@ opt <- list()
 opt$yaml <- "config.yaml"
 opt$dataset <- "dataset.csv"
 opt$indir <- "."
+#opt$indir <- "C33652WU300941"
+
 
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
@@ -35,8 +37,8 @@ files <- prolfquapp::get_DIANN_files(path)
 xd <- prolfquapp::preprocess_DIANN(
   quant_data = files$data, fasta_file = files$fasta,
   annotation = annotation, nrPeptides =  GRP2$processing_options$nr_peptides,
-  q_value = 0.1,contaminant_pattern = GRP2$processing_options$pattern_contaminants,
-  decoy_pattern = GRP2$processing_options$pattern_decoys)
+  q_value = 0.1,pattern_contaminants = GRP2$processing_options$pattern_contaminants,
+  pattern_decoys = GRP2$processing_options$pattern_decoys)
 
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$pop$aggregate}.")
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)

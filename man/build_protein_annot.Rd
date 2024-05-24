@@ -12,8 +12,8 @@ build_protein_annot(
   protein_description = "fasta.header",
   nr_children = "nrPeptides",
   more_columns = c("fasta.id"),
-  pattern_contaminant = "^zz|^CON",
-  pattern_decoy = "REV_"
+  pattern_contaminants = "^zz|^CON",
+  pattern_decoys = "REV_"
 )
 }
 \arguments{
@@ -27,4 +27,8 @@ build_protein_annot(
 }
 \description{
 Dataset protein annot
+}
+\examples{
+# example code
+
 }

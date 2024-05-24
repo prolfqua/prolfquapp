@@ -4,7 +4,7 @@
 \alias{add_RevCon}
 \title{add REV and zz entries - used for testing}
 \usage{
-add_RevCon(stringsAll, pattern_decoy = "REV_", pattern_contaminant = "zz")
+add_RevCon(stringsAll, pattern_decoys = "REV_", pattern_contaminants = "zz")
 }
 \description{
 add REV and zz entries - used for testing

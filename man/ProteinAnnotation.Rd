@@ -19,7 +19,7 @@ addannot <- data.frame(protein_Id = pids,
 description = stringi::stri_rand_strings(length(pids), 13))
 addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
 pannot <- ProteinAnnotation$new( lfqdata, addannot, description = "description", cleaned_ids ="cleanID",
-pattern_contaminant = "^zz", pattern_decoy="^REV" )
+pattern_contaminants = "^zz", pattern_decoys="^REV" )
 
 stopifnot(pannot$annotate_decoys() == 10)
 stopifnot(pannot$annotate_contaminants() == 5)
@@ -32,6 +32,7 @@ dx <- pannot$clean(contaminants = TRUE, decoys = FALSE)
 stopifnot(nrow(dx) == 95)
 dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
 stopifnot(nrow(dx) == 90)
+
 }
 \concept{LFQData}
 \section{Public fields}{
@@ -73,8 +74,8 @@ initialize
   description = NULL,
   cleaned_ids = NULL,
   nr_children = "nr_peptides",
-  pattern_contaminant = "^zz|^CON",
-  pattern_decoy = "^REV_"
+  pattern_contaminants = "^zz|^CON",
+  pattern_decoys = "^REV_"
 )}\if{html}{\out{</div>}}
 }
 

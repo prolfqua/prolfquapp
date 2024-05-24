@@ -10,8 +10,8 @@ preprocess_DIANN(
   annotation,
   q_value = 0.01,
   nrPeptides = 1,
-  contaminant_pattern = "^zz|^CON",
-  decoy_pattern = "REV_"
+  pattern_contaminants = "^zz|^CON",
+  pattern_decoys = "REV_"
 )
 }
 \value{

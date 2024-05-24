@@ -1,7 +1,7 @@
 #' add REV and zz entries - used for testing
 #' @export
 #'
-add_RevCon <- function(stringsAll, pattern_decoy= "REV_", pattern_contaminant = "zz"){
+add_RevCon <- function(stringsAll, pattern_decoys= "REV_", pattern_contaminants = "zz"){
   # Set seed for reproducibility
   set.seed(123)
 
@@ -15,14 +15,14 @@ add_RevCon <- function(stringsAll, pattern_decoy= "REV_", pattern_contaminant = 
   indices_rev <- sample(1:n, num_rev, replace = FALSE)
 
   # Apply the "REV_" prefix
-  dd$tomod[indices_rev] <- paste(pattern_decoy, dd$tomod[indices_rev], sep = "")
+  dd$tomod[indices_rev] <- paste(pattern_decoys, dd$tomod[indices_rev], sep = "")
 
   # Exclude already modified strings and select indices for "ZZ" prefix
   available_indices <- setdiff(1:n, indices_rev)
   indices_zz <- sample(available_indices, num_zz, replace = FALSE)
 
   # Apply the "ZZ" prefix
-  dd$tomod[indices_zz] <- paste(pattern_contaminant, dd$tomod[indices_zz], sep = "")
+  dd$tomod[indices_zz] <- paste(pattern_contaminants, dd$tomod[indices_zz], sep = "")
 
   res <- merge(data.frame(idx = stringsAll), dd, by = "idx")
 
@@ -46,7 +46,7 @@ add_RevCon <- function(stringsAll, pattern_decoy= "REV_", pattern_contaminant = 
 #' description = stringi::stri_rand_strings(length(pids), 13))
 #' addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
 #' pannot <- ProteinAnnotation$new( lfqdata, addannot, description = "description", cleaned_ids ="cleanID",
-#' pattern_contaminant = "^zz", pattern_decoy="^REV" )
+#' pattern_contaminants = "^zz", pattern_decoys="^REV" )
 #'
 #' stopifnot(pannot$annotate_decoys() == 10)
 #' stopifnot(pannot$annotate_contaminants() == 5)
@@ -59,6 +59,7 @@ add_RevCon <- function(stringsAll, pattern_decoy= "REV_", pattern_contaminant = 
 #' stopifnot(nrow(dx) == 95)
 #' dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
 #' stopifnot(nrow(dx) == 90)
+#'
 ProteinAnnotation <-
   R6::R6Class("ProteinAnnotation",
               public = list(
@@ -72,8 +73,8 @@ ProteinAnnotation <-
                 cleaned_ids = character(),
                 #' @field nr_children name of columns with the number of peptides
                 nr_children = character(),
-                pattern_contaminant = character(),
-                pattern_decoy = character(),
+                pattern_contaminants = character(),
+                pattern_decoys = character(),
                 #' @description initialize
                 #' @param lfqdata data frame from \code{\link{setup_analysis}}
                 #' @param row_annot data frame with row annotation. Must have columns matching \code{config$table$hierarchy_keys_depth()}
@@ -86,12 +87,12 @@ ProteinAnnotation <-
                                       description = NULL,
                                       cleaned_ids = NULL,
                                       nr_children = "nr_peptides",
-                                      pattern_contaminant = "^zz|^CON",
-                                      pattern_decoy = "^REV_"){
+                                      pattern_contaminants = "^zz|^CON",
+                                      pattern_decoys = "^REV_"){
                   self$pID = lfqdata$config$table$hierarchy_keys_depth()[1]
                   self$nr_children = nr_children
-                  self$pattern_contaminant = pattern_contaminant
-                  self$pattern_decoy = pattern_decoy
+                  self$pattern_contaminants = pattern_contaminants
+                  self$pattern_decoys = pattern_decoys
                   if ( !is.null(cleaned_ids)) {self$cleaned_ids = cleaned_ids} else {self$cleaned_ids = self$pID}
                   if ( !is.null(description)) {self$description = description} else {self$description = self$pID}
 
@@ -116,7 +117,7 @@ ProteinAnnotation <-
                 #' @param pattern default "REV_"
                 annotate_decoys = function() {
                   self$row_annot <- self$row_annot |> dplyr::mutate(
-                    REV = dplyr::case_when(grepl(self$pattern_decoy, !!sym(self$pID), ignore.case = TRUE) ~ TRUE,
+                    REV = dplyr::case_when(grepl(self$pattern_decoys, !!sym(self$pID), ignore.case = TRUE) ~ TRUE,
                                            TRUE ~ FALSE))
 
                   return(sum(self$row_annot$REV))
@@ -126,7 +127,7 @@ ProteinAnnotation <-
                 #' @param pattern default "^zz|^CON"
                 annotate_contaminants = function() {
                   self$row_annot <- self$row_annot |> dplyr::mutate(
-                    CON = dplyr::case_when(grepl(self$pattern_contaminant, !!sym(self$pID), ignore.case = TRUE) ~ TRUE,
+                    CON = dplyr::case_when(grepl(self$pattern_contaminants, !!sym(self$pID), ignore.case = TRUE) ~ TRUE,
                                            TRUE ~ FALSE))
                   return(sum(self$row_annot$CON))
                 },
@@ -193,7 +194,9 @@ ProteinAnnotation <-
 #' @param idcolName name of column with ID's
 #' @param protein_annot fasta haeder column
 #' @param more_columns more columns to include
-
+#' @examples
+#' # example code
+#'
 build_protein_annot <- function(
     lfqdata,
     msdata,
@@ -202,8 +205,8 @@ build_protein_annot <- function(
     protein_description = "fasta.header",
     nr_children = "nrPeptides",
     more_columns = c("fasta.id"),
-    pattern_contaminant = "^zz|^CON",
-    pattern_decoy="REV_"
+    pattern_contaminants = "^zz|^CON",
+    pattern_decoys="REV_"
 ) {
   proteinID_column = names(idcol)[1]
   msdata <- dplyr::mutate(msdata, !!proteinID_column := !!rlang::sym(idcol) )
@@ -219,8 +222,8 @@ build_protein_annot <- function(
     lfqdata , prot_annot, description = "description",
     cleaned_ids = "IDcolumn",
     nr_children = nr_children,
-    pattern_contaminant = pattern_contaminant,
-    pattern_decoy = pattern_decoy
+    pattern_contaminants = pattern_contaminants,
+    pattern_decoys = pattern_decoys
   )
   return(protAnnot)
 }
