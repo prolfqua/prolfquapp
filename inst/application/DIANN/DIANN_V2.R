@@ -1,24 +1,14 @@
-if (!require("prolfqua", quietly = TRUE))
+if (!require("prolfqua", quietly = TRUE)) {
   remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
-if (!require("prolfqua", quietly = TRUE))
+}
+if (!require("prolfqua", quietly = TRUE)) {
   remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
-if (!require("optparse", quietly = TRUE))
-  install.packages("optparse", dependencies = TRUE)
+}
 
-
-library("optparse")
-parser <- OptionParser()
-parser <- add_option(parser, c("-i", "--indir"), type = "character", default = ".",
-                     help = "folder containing fasta, diann-output.tsv and dataset.tsv file",
-                     metavar = "string")
-parser <- add_option(parser, c("-d", "--dataset"), type = "character", default = "dataset.csv",
-                     help = "file with annotation",
-                     metavar = "character")
-parser <- add_option(parser, c("-y", "--yaml"), type = "character", default = "config.yaml",
-                     help = "yaml configuration file",
-                     metavar = "character")
-opt <- parse_args(parser)
-
+opt <- list()
+opt$yaml <- "config.yaml"
+opt$dataset <- "dataset.csv"
+opt$indir <- "."
 
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
