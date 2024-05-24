@@ -95,7 +95,7 @@ GRP2$pop$removeCon = TRUE
 GRP2$pop$removeDecoys = TRUE
 
 
-protAnnot <- prolfqua::ProteinAnnotation$new(
+protAnnot <- prolfquapp::ProteinAnnotation$new(
     lfqdata,
     row_annot = protein_annot)
 

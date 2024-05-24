@@ -10,8 +10,8 @@ Decorates LFQData with a row annotation and some protein specific functions.
 }
 \examples{
 
-istar <-prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-lfqdata <- LFQData$new(istar$data, istar$config)
+istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
+lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
 
 lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
 pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id),value=TRUE, invert=TRUE)
@@ -28,7 +28,10 @@ pannot$nr_clean()
 pannot$get_summary()
 stopifnot(nrow(dd) == 85)
 tmp <- lfqdata$get_subset(dd)
-
+dx <- pannot$clean(contaminants = TRUE, decoys = FALSE)
+stopifnot(nrow(dx) == 95)
+dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
+stopifnot(nrow(dx) == 90)
 }
 \concept{LFQData}
 \section{Public fields}{

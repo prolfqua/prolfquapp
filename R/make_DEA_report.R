@@ -10,7 +10,7 @@
 #' pep <- prolfqua::LFQData$new(pep$data, pep$config)
 #'pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 #'pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
-#'pA <- prolfqua::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
+#'pA <- prolfquapp::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
 #'GRP2 <- prolfquapp::make_DEA_config_R6()
 #'
 #' pep$factors()

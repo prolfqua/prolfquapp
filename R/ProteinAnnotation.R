@@ -37,8 +37,8 @@ add_RevCon <- function(stringsAll, pattern_decoy= "REV_", pattern_contaminant = 
 #' @family LFQData
 #' @examples
 #'
-#' istar <-prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-#' lfqdata <- LFQData$new(istar$data, istar$config)
+#' istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
+#' lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
 #'
 #' lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
 #' pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id),value=TRUE, invert=TRUE)
@@ -55,7 +55,10 @@ add_RevCon <- function(stringsAll, pattern_decoy= "REV_", pattern_contaminant = 
 #' pannot$get_summary()
 #' stopifnot(nrow(dd) == 85)
 #' tmp <- lfqdata$get_subset(dd)
-#'
+#' dx <- pannot$clean(contaminants = TRUE, decoys = FALSE)
+#' stopifnot(nrow(dx) == 95)
+#' dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
+#' stopifnot(nrow(dx) == 90)
 ProteinAnnotation <-
   R6::R6Class("ProteinAnnotation",
               public = list(
@@ -92,19 +95,19 @@ ProteinAnnotation <-
                   if ( !is.null(cleaned_ids)) {self$cleaned_ids = cleaned_ids} else {self$cleaned_ids = self$pID}
                   if ( !is.null(description)) {self$description = description} else {self$description = self$pID}
 
-                  self$row_annot <- distinct(select(lfqdata$data, self$pID))
+                  self$row_annot <- dplyr::distinct(dplyr::select(lfqdata$data, self$pID))
                   if ( !is.null(row_annot)) {
                     stopifnot(self$pID %in% colnames(row_annot))
                     #row_annot <- dplyr::filter(row_annot, !!sym(self$pID) %in% lfqdata$data[[self$pID]] )
-                    self$row_annot <- left_join(self$row_annot, row_annot, by = self$pID)
+                    self$row_annot <- dplyr::left_join(self$row_annot, row_annot, by = self$pID)
                   }
                   stopifnot(self$cleaned_ids %in% colnames(self$row_annot))
                   stopifnot(self$description %in% colnames(self$row_annot))
                   if (!self$nr_children %in% colnames(row_annot) ) {
                     warning("no nr_children column specified, computing using nr_obs_experiment function")
-                    self$row_annot <- inner_join(
+                    self$row_annot <- dplyr::inner_join(
                       self$row_annot,
-                      nr_obs_experiment(lfqdata$data, lfqdata$config, name_nr_child = self$nr_children),
+                      prolfqua::nr_obs_experiment(lfqdata$data, lfqdata$config, name_nr_child = self$nr_children),
                       by = self$pID)
                   }
                 },
@@ -168,11 +171,11 @@ ProteinAnnotation <-
                   if (contaminants && !("REV" %in% colnames(self$row_annot)) ) { stop("annotate REV") }
                   if (decoys && !("CON" %in% colnames(self$row_annot)) ) { stop("annotate CON") }
                   res <- if (decoys && contaminants) {
-                    filter(self$row_annot , !self$row_annot$REV & !self$row_annot$CON )
+                    dplyr::filter(self$row_annot , !self$row_annot$REV & !self$row_annot$CON )
                   } else if (contaminants) {
-                    filter(self$row_annot , !self$row_annot$CON)
+                    dplyr::filter(self$row_annot , !self$row_annot$CON)
                   } else if (decoys) {
-                    filter(self$row_annot , !self$row_annot$REV )
+                    dplyr::filter(self$row_annot , !self$row_annot$REV )
                   } else {
                     self$row_annot
                   }

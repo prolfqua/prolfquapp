@@ -110,7 +110,7 @@ lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 logger::log_info("data aggregated: {GRP2$pop$aggregate}.")
 logger::log_info("END OF DATA TRANSFORMATION.")
 
-prot_annot <- prolfqua::ProteinAnnotation$new(lfqdata = lfqdata, prot_annot)
+prot_annot <- prolfquapp::ProteinAnnotation$new(lfqdata = lfqdata, prot_annot)
 
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 

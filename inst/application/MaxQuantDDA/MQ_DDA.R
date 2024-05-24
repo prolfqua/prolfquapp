@@ -65,7 +65,7 @@ logger::log_info("AGGREGATING PEPTIDE DATA!")
 lfqdata <- prolfquapp::aggregate_data(lfqdata, agg_method = GRP2$pop$aggregate)
 
 ### XXX
-protAnnot <- prolfqua::ProteinAnnotation$new(lfqdata , prot_annot)
+protAnnot <- prolfquapp::ProteinAnnotation$new(lfqdata , prot_annot)
 
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, protAnnot)
 

@@ -69,7 +69,7 @@ prot_annot <- prolfquapp::dataset_protein_annot(protein,
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities()
 
-prot_annot <- prolfqua::ProteinAnnotation$new(lfqdata, prot_annot)
+prot_annot <- prolfquapp::ProteinAnnotation$new(lfqdata, prot_annot)
 
 grp <- prolfquapp::generate_DEA_reports(lfqdata, GRP2, prot_annot)
 for (i in seq_along(grp)) {

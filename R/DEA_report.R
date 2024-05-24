@@ -3,12 +3,6 @@
 DEAresult <- R6::R6Class(
   "DEAresult",
   public = list(
-    decoy_summary = NULL,
-    lfqData = NULL,
-    transformedlfqData = NULL,
-    formula = character(),
-    models = data.frame(),
-    contrasts = list()
   )
 )
 
@@ -22,11 +16,12 @@ DEAresult <- R6::R6Class(
 #' pep <- prolfqua::LFQData$new(pep$data, pep$config)
 #' pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 #' pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
-#' pA <- prolfqua::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
+#' pA <- prolfquapp::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
 #' GRP2 <- prolfquapp::make_DEA_config_R6()
 #' GRP2$processing_options$transform <- "robscale"
 #' pep$factors()
 #' GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
+#' DEAnalyse$debug("transform_data")
 #' deanalyse <- DEAnalyse$new(pep, pA, GRP2)
 #' deanalyse$cont_decoy_summary()
 #' deanalyse$GRP2$processing_options$remove_cont = TRUE
@@ -47,8 +42,14 @@ DEAnalyse <- R6::R6Class(
     #'@field GRP2 ProlfquAppConfig
     GRP2 = NULL,
     #' @field reference_proteins reference proteins to use for internal normalization
-    reference_proteins = character(),
-    RES = NULL,
+    reference_proteins = NULL,
+    decoy_summary = NULL,
+    lfqData = NULL,
+    transformedlfqData = NULL,
+    formula = character(),
+    models = data.frame(),
+    contrasts = list(),
+
     #' initialize
     #' @param lfqdata lfqdata
     #' @param rowAnnot ProteinAnnotation
@@ -60,21 +61,10 @@ DEAnalyse <- R6::R6Class(
       self$RES <- list()
     },
 
-    cont_decoy_summary = function(pattern_contaminants, pattern_decoys) {
-      allProt <- nrow(self$rowAnnot$row_annot)
-      contdecoySummary <- data.frame(
-        totalNrOfProteins = allProt,
-        percentOfContaminants = round(self$rowAnnot$annotate_contaminants(
-          pattern_contaminants) / allProt * 100, digits = 2),
-        percentOfFalsePositives = round(self$rowAnnot$annotate_decoys(
-          pattern_decoys) / allProt * 100, digits = 2),
-        NrOfProteinsNoDecoys = self$rowAnnot$nr_clean()
-      )
-      self$RES$Summary <- contdecoySummary
-      return(contdecoySummary)
+    cont_decoy_summary = function() {
+      self$rowAnnot$get_summary()
     },
     remove_cont_decoy = function() {
-      if (self$GRP2$processing_options$remove_cont || self$GRP2$processing_options$remove_decoys) {
         self$lfqdata <- self$lfqdata$get_subset(self$rowAnnot$clean(
           contaminants = self$GRP2$processing_options$remove_cont,
           decoys = self$GRP2$processing_options$remove_decoys
@@ -82,7 +72,6 @@ DEAnalyse <- R6::R6Class(
         logger::log_info("removing contaminants and reverse sequences with patterns: ",
                          self$GRP2$processing_options$pattern_contaminants,
                          self$GRP2$processing_options$pattern_decoys)
-      }
     },
     transform_data = function() {
       transformed <- prolfquapp::transform_lfqdata(

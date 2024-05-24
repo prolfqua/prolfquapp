@@ -24,7 +24,6 @@ library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
 path = opt$indir
 
-path = "C33652WU300941/"
 
 yamlfile <- file.path(path, opt$yaml)
 GRP2 <- if (file.exists(yamlfile)) {
@@ -34,7 +33,6 @@ GRP2 <- if (file.exists(yamlfile)) {
     ZIPDIR = "DEA", PROJECTID = "1234" ,ORDERID = "2345", WORKUNITID = "HelloWorld" )
 }
 
-GRP2$zipdir <- paste0("rerun",GRP2$zipdir)
 
 
 undebug( prolfquapp::read_annotation)
