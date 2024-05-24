@@ -52,7 +52,7 @@ adata <- prolfqua::setup_analysis(protein, config)
 lfqdata <- prolfqua::LFQData$new(adata, config)
 lfqdata$remove_small_intensities(threshold = 1)
 
-ps <- prolfqua::ProjectStructure$new(outpath = ".",
+ps <- prolfquapp::ProjectStructure$new(outpath = ".",
                                      project_Id = "",
                                      workunit_Id = basename(getwd()),
                                      order_Id = "",
