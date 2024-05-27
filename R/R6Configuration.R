@@ -63,8 +63,8 @@ ProjectSpec <- R6::R6Class(
 #'
 #' r6obj_config <- ProlfquAppConfig$new(ProcessingOptions$new(), ProjectSpec$new())
 #' xx <- R6_extract_values(r6obj_config)
-#' yaml::write_yaml(xx, file = "test.yaml")
-#' config <- yaml::read_yaml(file = "test.yaml")
+#' yaml::write_yaml(xx, file = file.path(tempdir(),"test.yaml"))
+#' config <- yaml::read_yaml(file = file.path(tempdir(),"test.yaml"))
 #'
 ProlfquAppConfig <- R6::R6Class(
   "ProlfquAppConfig",
@@ -175,6 +175,7 @@ list_to_R6_app_config <- function(dd){
 #' @examples
 #' DEAconfig <- make_DEA_config_R6()
 #' R6list <- R6_extract_values(DEAconfig)
+#'
 make_DEA_config_R6 <- function(
     ZIPDIR  = ".",
     PROJECTID = "",

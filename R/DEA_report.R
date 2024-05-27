@@ -1,11 +1,3 @@
-# Load necessary libraries
-
-DEAresult <- R6::R6Class(
-  "DEAresult",
-  public = list(
-  )
-)
-
 #' will replace make_DEA_report
 #' @export
 #'
@@ -21,16 +13,16 @@ DEAresult <- R6::R6Class(
 #' GRP2$processing_options$transform <- "robscale"
 #' pep$factors()
 #' GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
-#' DEAnalyse$debug("transform_data")
+#' # DEAnalyse$debug("transform_data")
 #' deanalyse <- DEAnalyse$new(pep, pA, GRP2)
 #' deanalyse$cont_decoy_summary()
 #' deanalyse$GRP2$processing_options$remove_cont = TRUE
 #' deanalyse$remove_cont_decoy()
 #' deanalyse$transform_data()
 #' deanalyse$create_model_formula()
-#' deanalyse$build_model()
-#' deanalyse$compute_contrasts()
-#' deanalyse$filter_contrasts()
+#' deanalyse$build_model_linear()
+#' deanalyse$compute_contrasts_linear()
+#' #deanalyse$filter_contrasts()
 #' deanalyse$RES
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
@@ -39,26 +31,29 @@ DEAnalyse <- R6::R6Class(
     lfqdata = NULL,
     #' @field rowAnnot ProteinAnnotation
     rowAnnot = NULL,
+    contrasts = character(),
     #'@field GRP2 ProlfquAppConfig
     GRP2 = NULL,
+
+
     #' @field reference_proteins reference proteins to use for internal normalization
-    reference_proteins = NULL,
+    reference_proteins = NULL, # to use for internal calibration
     decoy_summary = NULL,
     lfqData = NULL,
     transformedlfqData = NULL,
     formula = character(),
-    models = data.frame(),
-    contrasts = list(),
+    models = list(),
+    contrastRes = list(),
 
     #' initialize
     #' @param lfqdata lfqdata
     #' @param rowAnnot ProteinAnnotation
     #' @param GRP2 ProlfquAppConfig
-    initialize = function(lfqdata, rowAnnot, GRP2) {
+    initialize = function(lfqdata, rowAnnot, GRP2, contrasts) {
       self$lfqdata <- lfqdata
       self$rowAnnot <- rowAnnot
       self$GRP2 <- GRP2
-      self$RES <- list()
+      self$contrasts
     },
 
     cont_decoy_summary = function() {
@@ -85,7 +80,9 @@ DEAnalyse <- R6::R6Class(
       invisible(transformed)
     },
     # static
-    create_model_formula = function(prlconfig, interaction = FALSE) {
+    create_model_formula = function() {
+      prlconfig <- self$transformedlfqData$config
+      interaction <- self$GRP2$processing_options$interaction
       factors <- prlconfig$table$factor_keys_depth()[
         !grepl("^control", prlconfig$table$factor_keys_depth() , ignore.case = TRUE)
       ]
@@ -98,38 +95,43 @@ DEAnalyse <- R6::R6Class(
                           paste(factors, collapse = " * "))
       }
       logger::log_info("fitted model with formula : {formula}")
+      self$formula <- formula
       return(formula)
     },
-    #static
-    build_model = function(transformedlfqData, interaction = FALSE) {
-      formula <- create_model_formula(transformedlfqData$config, interaction = interaction)
+    build_model_linear = function(modelName = "modelLinear") {
+      formula <- self$create_model_formula()
       formula_Condition <-  prolfqua::strategy_lm(formula)
       models <- prolfqua::build_model(
-        transformed,
-        formula_Condition,
-        subject_Id = transformed$config$table$hierarchy_keys() )
+        self$transformedlfqData,
+        formula_Condition)
+      self$models[[modelName]] <- models
       return(models)
     },
-    #static
-    compute_contrasts = function(models, contrasts, modelName = "Linear_Model") {
-      contr <- prolfqua::Contrasts$new(models,
-                                       contrasts,
-                                       modelName = "Linear_Model")
+    build_model_glm = function(){
+      self$models[["glm"]] <- models
+    },
+    compute_contrasts_linear = function(modelName = "modelLinear") {
+      contr <- prolfqua::Contrasts$new(self$models[["modelLinear"]],
+                                       self$contrasts,
+                                       modelName = modelName)
       conrM <- prolfqua::ContrastsModerated$new(contr)
-      return(conrM)
+      self$contrastRes[[modelName]] <- conrM
+      invisible(conrM)
     },
     #static
-    compute_contrasts_missing = function(transformedlfqData, contrasts){
+    compute_contrasts_missing = function(modelName = "Imputed_Mean"){
       mC <- prolfqua::ContrastsMissing$new(
         lfqdata = transformedlfqData,
         contrasts = contrasts,
-        modelName = "Imputed_Mean")
+        modelName = modelName)
       conMI <- prolfqua::ContrastsModerated$new(mC)
+      self$contrastRes[[modelName]] <- conMI
       return(conMI)
     },
     #static
-    filter_contrasts = function(contr, FDR_threshold = 0.1, diff_threshol = 1){
-      datax <- contr$get_contrasts()
+    filter_contrasts = function(FDR_threshold = 0.1, diff_threshol = 1,
+                                modelName = "modelLinear"){
+      datax <- self$contrastRes[[modelName]]$get_contrasts()
       datax <- datax |>
         dplyr::filter(.data$FDR < FDR_threshold &
                         abs(.data$diff) > diff_threshold )

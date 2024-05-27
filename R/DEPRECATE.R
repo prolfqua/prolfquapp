@@ -1,3 +1,92 @@
+#' Generate differential expression analysis reports
+#' @param prot_annot ProteinAnnotation$new
+#' @export
+#'
+generate_DEA_reports <- function(lfqdata, GRP2, prot_annot) {
+  warning("DEPRECATED generate_DEA_reports -> use generate_DEA_reports2")
+  # Compute all possible 2 Grps to avoid specifying reference.
+  res <- list()
+  levels  <- lfqdata$factors() |>
+    dplyr::select(
+      Group_ = Group_,
+      control = dplyr::starts_with("control", ignore.case = TRUE)) |>
+    dplyr::distinct()
+  logger::log_info("levels : ", paste(levels, collapse = " "))
+  if (!length(levels$Group_) > 1) {
+    logger::log_error("not enough group levels_ to make comparisons.")
+  }
+
+  # Contrasts are already defined
+  if (!is.null(GRP2$pop$Contrasts)) {
+    logger::log_info("CONTRAST : ", paste( GRP2$pop$Contrasts, collapse = "\n"))
+    lfqwork <- lfqdata$get_copy()
+    lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ %in% levels$Group_)
+
+    grp2 <- prolfquapp::make_DEA_report(
+      lfqwork,
+      prot_annot,
+      GRP2)
+    res[["Groups_vs_Controls"]] <- grp2
+    return(res)
+  }
+
+  ## Generate contrasts from dataset
+  if (!is.null(levels$control)) {
+    Contrasts <- character()
+    Names <- character()
+    for (i in 1:nrow(levels)) {
+      for (j in 1:nrow(levels)) {
+        if (i != j) {
+          if (levels$control[j] == "C") {
+            cat(levels$Group_[i], levels$Group_[j], "\n")
+            Contrasts <- c(Contrasts, paste0("Group_",levels$Group_[i], " - ", "Group_",levels$Group_[j]))
+            Names <- c(Names, paste0(levels$Group_[i], "_vs_", levels$Group_[j]))
+          }
+        }
+      }
+    }
+
+    names(Contrasts) <- Names
+    GRP2$pop$Contrasts <- Contrasts
+    logger::log_info("CONTRAST : ", paste( GRP2$pop$Contrasts, collapse = " "))
+    lfqwork <- lfqdata$get_copy()
+    lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ %in% levels$Group_)
+
+    grp2 <- prolfquapp::make_DEA_report(
+      lfqwork,
+      prot_annot,
+      GRP2)
+    res[["Groups_vs_Controls"]] <- grp2
+    return(res)
+  } else {
+    # create all possible 2 grp comparisons
+    for (i in seq_along(levels$Group_)) {
+      for (j in seq_along(levels$Group_)) {
+        if (i != j) {
+          cat("COMPARING : ", levels$Group_[i], " vs " , levels$Group_[j], "\n")
+          GRP2$pop$Contrasts <- paste0("Group_",levels$Group_[i], " - ", "Group_",levels$Group_[j])
+          names(GRP2$pop$Contrasts) <- paste0(levels$Group_[i], "_vs_", levels$Group_[j])
+          logger::log_info("CONTRAST : ", GRP2$pop$Contrasts, collapse = " ")
+          lfqwork <- lfqdata$get_copy()
+          lfqwork$data <- lfqdata$data |> dplyr::filter(.data$Group_ == levels$Group_[i] | .data$Group_ == levels$Group_[j])
+          grp2 <- prolfquapp::make_DEA_report(lfqwork,
+                                              prot_annot,
+                                              GRP2)
+
+          name <- paste0(levels$Group_[i], "_vs_", levels$Group_[j])
+          res[[name]] <- grp2
+        }# end for 1
+      }# end for 2
+    }
+    return(res)
+  }
+
+
+}
+
+
+
+
 #' Create DEA report in html and write data to xlsx table
 #'
 #' For use examples see run_scripts directory
@@ -8,64 +97,6 @@
 #' @param protein_annot column with protein description e.g. (fasta header)
 #' @export
 #' @family workflow
-#' @examples
-#'
-#' istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-#' data <- istar$data
-#' data$Description <-"AAAAA"
-#' protein_annot <- data |> dplyr::select(protein_Id, description = Description) |> dplyr::distinct()
-#' GRP2 <- list()
-#' GRP2$Bfabric <- list()
-#' GRP2$Bfabric$projectID <- "3765"
-#' GRP2$Bfabric$projectName <- "Order_26863"
-#' GRP2$Bfabric$orderID <- "3765"
-#'
-#' GRP2$Bfabric$workunitID <- "2057368.zip"
-#' GRP2$Bfabric$inputID <- "2057368.zip"
-#' GRP2$Bfabric$inputURL <- "https://www.fgcz.ch"
-#'
-#' #at least 2 peptides per protein
-#' GRP2$pop <- list()
-#' GRP2$pop$transform <- "vsn"
-#' GRP2$pop$aggregate <- "medpolish"
-#' GRP2$pop$Diffthreshold <- 0.5
-#' GRP2$pop$FDRthreshold <- 0.25
-#' GRP2$pop$Contrasts <- c(b_vs_a = "group_A - group_Ctrl")
-#' GRP2$Software <- "MaxQuant"
-#'
-#'
-#' lfqdata <- prolfqua::LFQData$new(data, istar$config)
-#' lfqdata$remove_small_intensities()
-#' aggregator <- lfqdata$get_Aggregator()
-#'
-#' aggregator$sum_topN()
-#' lfqdata <- aggregator$lfq_agg
-#'
-#' GRP2$pop$nrPeptides <- 2
-#'
-#' GRP2$pop$revpattern = "^REV_"
-#' GRP2$pop$contpattern = "^zz|^CON__"
-#'
-#' GRP2$pop$removeCon = TRUE
-#' GRP2$pop$removeDecoys = TRUE
-#'
-#'
-#' protAnnot <- prolfquapp::ProteinAnnotation$new(
-#'     lfqdata,
-#'     row_annot = protein_annot)
-#'
-#' grp <- make_DEA_report(lfqdata, protAnnot, GRP2)
-#' st <- grp$RES$transformedlfqData$get_Stats()
-#' bb <- st$stats()
-#' sr <- grp$RES$transformedlfqData$get_Summariser()
-#' int <- sr$interaction_missing_stats()
-#' res <- write_DEA(grp,".", write=FALSE)
-#' se <- make_SummarizedExperiment(grp)
-#' \dontrun{
-#' render_DEA(grp, ".")
-#' render_DEA(grp, "." ,word = TRUE)
-#'
-#' }
 #'
 make_DEA_report <- function(lfqdata,
                             protAnnot,
@@ -84,8 +115,8 @@ make_DEA_report <- function(lfqdata,
   GRP2$RES <- list()
   GRP2$RES$Summary <- data.frame(
     totalNrOfProteins = allProt,
-    percentOfContaminants = round(protAnnot$annotate_contaminants(GRP2$pop$contpattern)/allProt * 100 , digits = 2),
-    percentOfFalsePositives  = round(protAnnot$annotate_decoys(GRP2$pop$revpattern)/allProt * 100 , digits = 2),
+    percentOfContaminants = round(protAnnot$annotate_contaminants()/allProt * 100 , digits = 2),
+    percentOfFalsePositives  = round(protAnnot$annotate_decoys()/allProt * 100 , digits = 2),
     NrOfProteinsNoDecoys = protAnnot$nr_clean()
   )
   GRP2$RES$rowAnnot <- protAnnot

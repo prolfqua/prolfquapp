@@ -20,16 +20,16 @@ GRP2 <- prolfquapp::make_DEA_config_R6()
 GRP2$processing_options$transform <- "robscale"
 pep$factors()
 GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
-DEAnalyse$debug("transform_data")
+# DEAnalyse$debug("transform_data")
 deanalyse <- DEAnalyse$new(pep, pA, GRP2)
 deanalyse$cont_decoy_summary()
 deanalyse$GRP2$processing_options$remove_cont = TRUE
 deanalyse$remove_cont_decoy()
 deanalyse$transform_data()
 deanalyse$create_model_formula()
-deanalyse$build_model()
-deanalyse$compute_contrasts()
-deanalyse$filter_contrasts()
+deanalyse$build_model_linear()
+deanalyse$compute_contrasts_linear()
+#deanalyse$filter_contrasts()
 deanalyse$RES
 }
 \section{Public fields}{
@@ -54,8 +54,9 @@ initialize}
 \item \href{#method-DEAnalyse-remove_cont_decoy}{\code{DEAnalyse$remove_cont_decoy()}}
 \item \href{#method-DEAnalyse-transform_data}{\code{DEAnalyse$transform_data()}}
 \item \href{#method-DEAnalyse-create_model_formula}{\code{DEAnalyse$create_model_formula()}}
-\item \href{#method-DEAnalyse-build_model}{\code{DEAnalyse$build_model()}}
-\item \href{#method-DEAnalyse-compute_contrasts}{\code{DEAnalyse$compute_contrasts()}}
+\item \href{#method-DEAnalyse-build_model_linear}{\code{DEAnalyse$build_model_linear()}}
+\item \href{#method-DEAnalyse-build_model_glm}{\code{DEAnalyse$build_model_glm()}}
+\item \href{#method-DEAnalyse-compute_contrasts_linear}{\code{DEAnalyse$compute_contrasts_linear()}}
 \item \href{#method-DEAnalyse-compute_contrasts_missing}{\code{DEAnalyse$compute_contrasts_missing()}}
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
 \item \href{#method-DEAnalyse-clone}{\code{DEAnalyse$clone()}}
@@ -66,7 +67,7 @@ initialize}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(lfqdata, rowAnnot, GRP2)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(lfqdata, rowAnnot, GRP2, contrasts)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -113,25 +114,34 @@ initialize}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-create_model_formula}{}}}
 \subsection{Method \code{create_model_formula()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$create_model_formula(prlconfig, interaction = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$create_model_formula()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-build_model"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-build_model}{}}}
-\subsection{Method \code{build_model()}}{
+\if{html}{\out{<a id="method-DEAnalyse-build_model_linear"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_linear}{}}}
+\subsection{Method \code{build_model_linear()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model(transformedlfqData, interaction = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_linear(modelName = "modelLinear")}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-compute_contrasts"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts}{}}}
-\subsection{Method \code{compute_contrasts()}}{
+\if{html}{\out{<a id="method-DEAnalyse-build_model_glm"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_glm}{}}}
+\subsection{Method \code{build_model_glm()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts(models, contrasts, modelName = "Linear_Model")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_glm()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-compute_contrasts_linear"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts_linear}{}}}
+\subsection{Method \code{compute_contrasts_linear()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_linear(modelName = "modelLinear")}\if{html}{\out{</div>}}
 }
 
 }
@@ -140,7 +150,7 @@ initialize}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts_missing}{}}}
 \subsection{Method \code{compute_contrasts_missing()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_missing(transformedlfqData, contrasts)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_missing(modelName = "Imputed_Mean")}\if{html}{\out{</div>}}
 }
 
 }
@@ -149,7 +159,11 @@ initialize}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-filter_contrasts}{}}}
 \subsection{Method \code{filter_contrasts()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts(contr, FDR_threshold = 0.1, diff_threshol = 1)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts(
+  FDR_threshold = 0.1,
+  diff_threshol = 1,
+  modelName = "modelLinear"
+)}\if{html}{\out{</div>}}
 }
 
 }

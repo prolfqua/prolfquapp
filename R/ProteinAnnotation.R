@@ -106,9 +106,11 @@ ProteinAnnotation <-
                   stopifnot(self$description %in% colnames(self$row_annot))
                   if (!self$nr_children %in% colnames(row_annot) ) {
                     warning("no nr_children column specified, computing using nr_obs_experiment function")
+                    cf <- lfqdata$config$clone(deep=TRUE)
+                    cf$table$hierarchyDepth <- 1
                     self$row_annot <- dplyr::inner_join(
                       self$row_annot,
-                      prolfqua::nr_obs_experiment(lfqdata$data, lfqdata$config, name_nr_child = self$nr_children),
+                      prolfqua::nr_obs_experiment(lfqdata$data, cf, name_nr_child = self$nr_children),
                       by = self$pID)
                   }
                 },

@@ -202,21 +202,11 @@ tidyMQ_Peptides <- function(MQPeptides, proteotypic_only = TRUE){
 #' @param inputAnnotation annotation
 #' @param fileName column name to join on.
 #' @export
-#' @examples
-#' protein_txt <- prolfqua::find_package_file("prolfquapp",
-#' "samples/maxquant_txt/tiny2.zip")
-#'
-#' inputAnnotation <- prolfqua::find_package_file("prolfquapp",
-#'     "samples/maxquant_txt/annotation_Ionstar2018_PXD003881.xlsx")
-#'
-#' startdata <- prolfquapp::tidyMQ_ProteinGroups(protein_txt)
-#' tmp <- add_annotation(startdata,inputAnnotation )
-#' stopifnot(ncol(tmp) == ncol(startdata) + 3)
-#'
 add_annotation <- function(intensityData,
                            inputAnnotation,
                            fileName = "raw.file") {
   ## read the data
+  message("Deprecated")
   {# add annotation
     if ( is.character(inputAnnotation) ) {
       annotation <- readxl::read_xlsx(inputAnnotation)

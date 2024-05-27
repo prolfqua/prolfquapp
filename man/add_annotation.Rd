@@ -18,16 +18,4 @@ add_annotation(intensityData, inputAnnotation, fileName = "raw.file")
 Add Annotation to a data.frame in long format
 for an usage example see run_script lfq_mixed_model_inference
 }
-\examples{
-protein_txt <- prolfqua::find_package_file("prolfquapp",
-"samples/maxquant_txt/tiny2.zip")
-
-inputAnnotation <- prolfqua::find_package_file("prolfquapp",
-    "samples/maxquant_txt/annotation_Ionstar2018_PXD003881.xlsx")
-
-startdata <- prolfquapp::tidyMQ_ProteinGroups(protein_txt)
-tmp <- add_annotation(startdata,inputAnnotation )
-stopifnot(ncol(tmp) == ncol(startdata) + 3)
-
-}
 \concept{setup}

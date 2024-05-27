@@ -116,7 +116,6 @@ bfabric_url_builder <- function(project_spec){
 
 #' Convert prolfqua differential expression analysis results to SummarizedExperiment
 #'
-#' @rdname make_DEA_report
 #' @param GRP2 return value of \code{\link{make_DEA_report}}
 #' @return SummarizedExperiment
 #' @export

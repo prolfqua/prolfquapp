@@ -2,12 +2,12 @@
 % Please edit documentation in R/make_DEA_report.R
 \name{make_DEA_report2}
 \alias{make_DEA_report2}
-\title{will replace make_DEA_report}
+\title{make DEA}
 \usage{
 make_DEA_report2(lfqdata, protAnnot, GRP2)
 }
 \description{
-will replace make_DEA_report
+make DEA
 }
 \examples{
 # example code

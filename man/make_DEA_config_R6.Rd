@@ -34,6 +34,7 @@ Use this function if there is no Yaml Input.
 \examples{
 DEAconfig <- make_DEA_config_R6()
 R6list <- R6_extract_values(DEAconfig)
+
 }
 \seealso{
 Other ProlfquAppConfig: 

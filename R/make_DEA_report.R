@@ -1,6 +1,6 @@
 # simplified version of
 
-#' will replace make_DEA_report
+#' make DEA
 #' @export
 #'
 #' @examples
@@ -219,7 +219,6 @@ write_result_list <- function(outpath, GRP2, resultList, xlsxname,id_column = "I
 
 #' Write differential expression analysis results
 #'
-#' @rdname make_DEA_report
 #' @param GRP2 return value of \code{\link{make_DEA_report}}
 #' @param outpath path to place output
 #' @param xlsxname file name for xlsx

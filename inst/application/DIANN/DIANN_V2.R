@@ -9,8 +9,9 @@ opt <- list()
 opt$yaml <- "config.yaml"
 opt$dataset <- "dataset.csv"
 opt$indir <- "."
-#opt$indir <- "C33652WU300941"
-
+#C31396WU295699
+opt$indir <- "/Users/witoldwolski/__checkout/prolfqua/inst/issueJG_contraste/C31396WU295462/"
+#295333, 289379
 
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()
@@ -27,7 +28,6 @@ GRP2 <- if (file.exists(yamlfile)) {
 
 
 
-undebug( prolfquapp::read_annotation)
 annotation <- file.path(path, opt$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation()
 
