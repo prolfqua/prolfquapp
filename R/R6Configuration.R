@@ -149,6 +149,7 @@ R6_extract_values <- function(r6class){
 #' stopifnot("ProlfquAppConfig" %in% class(config))
 #' stopifnot(config$zipdir == configList$zipdir)
 list_to_R6_app_config <- function(dd){
+
   popR6 <- ProcessingOptions$new()
   pop <- dd$processing_options
   for (i in names(pop)) {
@@ -162,6 +163,16 @@ list_to_R6_app_config <- function(dd){
   r6obj_config <- ProlfquAppConfig$new(popR6, psR6)
   r6obj_config$zipdir = dd$zipdir
   r6obj_config$software = dd$software
+
+  if (is.null(dd$zipdir)) {
+    pi <- if (dd$project_spec$project_Id != "") { paste0("_PI_", dd$project_spec$project_Id)} else {NULL}
+    r6obj_config$zipdir = paste0("DEA", pi ,
+                         "_OI_",
+                         dd$project_spec$order_Id,
+                         "_WU_",dd$project_spec$workunit_Id,
+                         "_", dd$processing_options$transform)
+  }
+
   return(r6obj_config)
 }
 
