@@ -111,8 +111,8 @@ dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE, prefix = 
 #' annot$Contrast <- c("G_a - G_b","G_b - G_a")
 #' annot$ContrastName <- c("a_vs_b","b_vs_a")
 #' annot$control <- NULL
-#' extract_contrasts(annot)
-#'
+#' ct <- extract_contrasts(annot)
+#' stopifnot(length(ct) == 2)
 extract_contrasts <- function(annot, prefix = "G_", group = "group") {
   levels  <- annot |>
     dplyr::select(
