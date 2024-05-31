@@ -9,9 +9,9 @@ opt <- list()
 opt$yaml <- "config.yaml"
 opt$dataset <- "dataset.csv"
 opt$indir <- "."
-#C31396WU295699
+
+
 opt$indir <- "/Users/witoldwolski/__checkout/prolfqua/inst/issueJG_contraste/C31396WU295462/"
-#295333, 289379
 
 library(prolfquapp)
 prolfquapp::copy_DEA_DIANN()

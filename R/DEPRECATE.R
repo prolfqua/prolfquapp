@@ -272,3 +272,79 @@ render_DEA <- function(GRP2,
 }
 
 
+#' extect contrasts from dataset
+#' @export
+#' @examples
+#'
+#' file <- system.file("application/dataset_csv/dataset 25.csv", package = "prolfquapp")
+#' res <- readr::read_csv(file)
+#' GRP2 <- make_DEA_config()
+#' GRP2 <- dataset_extract_contrasts(res,GRP2)
+#' stopifnot(length(GRP2$pop$Contrasts) == 0)
+#'
+#' file <- system.file("application/dataset_csv/dataset 26.csv", package = "prolfquapp")
+#' res <- readr::read_csv(file)
+#' GRP2 <- dataset_extract_contrasts(res,GRP2)
+#' stopifnot(length(GRP2$pop$Contrasts) == 3)
+#'
+dataset_extract_contrasts <- function(annot, GRP2) {
+  warning("DEPRECATED")
+  if ( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
+    contr <- annot |>
+      dplyr::select(all_of(c("ContrastName", "Contrast"))) |>
+      dplyr::filter(nchar(!!rlang::sym("Contrast")) > 0)
+    Contrasts <- contr$Contrast
+    names(Contrasts) <- contr$ContrastName
+    GRP2$pop$Contrasts <- Contrasts
+  }
+  return(GRP2)
+}
+
+#' Sanitize grouping variable in annotation file
+#' @export
+sanitize_grouping_var <- function(annot){
+  stopifnot(sum(grepl("^group|^bait|^Experiment", colnames(annot), ignore.case = TRUE)) >= 1)
+  groupingVAR <- grep("^group|^bait|^Experiment", colnames(annot), value = TRUE, ignore.case = TRUE)
+  if (any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
+    groupingVAR <- grep("^bait", groupingVAR, value = TRUE, ignore.case = TRUE)[1]
+  } else {
+    groupingVAR <- groupingVAR[1]
+  }
+  annot[[groupingVAR]] <- gsub("\\.","_",gsub("\\.\\.","\\.",make.names(annot[[groupingVAR]]))) # sanitize group variable
+  return(annot)
+}
+
+
+#' Dataset protein annot
+#'
+#' @export
+#' @param msdata data frame
+#' @param idcolName name of column with ID's
+#' @param protein_annot fasta haeder column
+#' @param more_columns more columns to include
+dataset_protein_annot <- function(
+    msdata,
+    idcol = c("protein_Id" = "Protein.Group"),
+    protein_annot = "fasta.header",
+    more_columns = c("nrPeptides", "fasta.id")) {
+  warning("deprecated! use build_protein_annot")
+  proteinID_column = names(idcol)[1]
+  msdata <- dplyr::rename(msdata, !!proteinID_column := !!rlang::sym(idcol) )
+  prot_annot <- dplyr::select(
+    msdata ,
+    dplyr::all_of(c( proteinID_column, protein_annot, more_columns))) |>
+    dplyr::distinct()
+  prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_annot))
+  # figure out if this is an uniprot database.
+
+  UNIPROT <- mean(grepl("^sp\\||^tr\\|", prot_annot[[proteinID_column]])) > 0.8
+  message("uniprot database : ", UNIPROT)
+
+  if (UNIPROT) {
+    prot_annot <- prolfqua::get_UniprotID_from_fasta_header(prot_annot, idcolumn = proteinID_column)
+    prot_annot <- prot_annot |> dplyr::rename(!!"IDcolumn" := !!rlang::sym("UniprotID"))
+  } else {
+    prot_annot$IDcolumn <- prot_annot[[proteinID_column]]
+  }
+  return(prot_annot)
+}

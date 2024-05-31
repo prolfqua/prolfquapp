@@ -2,18 +2,28 @@
 #' @export
 massage_CD <- function(in_file){
   xd <- readxl::read_excel(in_file)
+  xd$my_C_ID <- 1:nrow(xd)
   # xd <- xd |> dplyr::filter(!is.na(Name), Name != "Tags", Formula != "Checked", Formula != FALSE)
-  xd <- xd |> dplyr::select(1:max(grep("^Area",colnames(xd))))
-  grep("Area",colnames(xd), value = TRUE)
-  xd$`Area (Max.)` <- NULL
-  xd <- xd |> dplyr::select(-starts_with("Group"),
-                            -starts_with("Ratio"),
-                            -starts_with("Log2"),
-                            -starts_with("P-value"))
+  #xd <- xd |> dplyr::select(1:max(grep("^Area",colnames(xd))))
+  #grep("Area",colnames(xd), value = TRUE)
 
-  xd <- xd |> dplyr::mutate(FormulaB = stringr::str_replace_all(Formula, " ",""))
-  xd <- xd |> tidyr::unite("NewID", c("FormulaB", "m/z", "RT [min]"), remove = FALSE)
-  xdl <- xd |> tidyr::pivot_longer(cols = tidyselect::starts_with("Area"),names_to = "Sample", values_to = "Area")
+
+  annot <- xd |> dplyr::select("my_C_ID", "Checked","Tags",
+                        "Structure","Name","Formula","Annot. Source: Predicted Compositions","Annot. Source: mzCloud Search",
+                        "Annot. Source: mzVault Search","Annot. Source: ChemSpider Search","Annot. Source: MassList Search",
+                        "Annotation MW", "Calc. MW","m/z","RT [min]")
+  annot <- annot |> dplyr::mutate(FormulaB = stringr::str_replace_all(Formula, " ",""))
+  annot <- annot |> tidyr::unite("NewID", c("FormulaB", "m/z", "RT [min]"), remove = FALSE)
+
+
+  tolong <- xd |> dplyr::select("my_C_ID",tidyselect::starts_with(c("Area:","Gap Status:","Gap Fill Status:","Peak Rating:")),)
+  colnames(tolong)
+  xdl <- tolong |> tidyr::pivot_longer(
+    cols = tidyselect::starts_with(c("Area:","Gap Status:","Gap Fill Status:","Peak Rating:")),
+    names_to = c(".value","filename","file_id"),names_pattern = "(.*)\\: (.*)(\\s\\(F\\d+\\))" )
+
+
+
   colnames(xdl) <- gsub("# ", "", colnames(xdl) )
   colnames(xdl) <- gsub("Annot. Source:", "Annot", colnames(xdl))
   colnames(xdl) <- make.names(colnames(xdl))

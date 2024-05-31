@@ -206,7 +206,7 @@ gridExtra::grid.arrange(p1, p2, nrow = 1)
 
 ```
 
-The median coefficient of variation (CV) of a group of samples or all samples in the dataset, can be used to compare the experiment with other experiments [@piehowski2013sources]. For example, the median CV for high-performance liquid chromatography experiments ranges from 2% to 35% depending on the biological samples studied, the chromatography method used, label-free or labelled quantification [@taverna2021critical].
+The median coefficient of variation (CV) of a group of samples or all samples in the dataset, can be used to compare the experiment with other experiments [@piehowski2013sources]. For example, the median $CV$ for high-performance liquid chromatography experiments ranges from 2% to 35% depending on the biological samples studied, the chromatography method used.
 
 
 Figure \@ref(fig:SDViolin), show the coefficients of variations (CV) for all metabolites computed on not normalized data. Ideally the within group CV should be smaller than the CV of all samples. 

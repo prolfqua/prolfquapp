@@ -4,7 +4,7 @@ prolfquapp::copy_DEA_DIANN()
 
 
 files <- dir()
-
+files
 annot <- readxl::read_xlsx(grep("_InputFiles.xlsx$",files, value = TRUE))
 colnames(annot) <- make.names(colnames(annot))
 str(annot)

@@ -98,9 +98,22 @@ dataset_set_factors <- function(annot, REPEATED = TRUE, SAINT = FALSE, prefix = 
 }
 
 
-# private interface
+#' extract contrast from annotation file
+#' @export
+#' @example
+#'
+#' annot <- data.frame(names = c("a1","b1"), group= c("a","b"), ddd = c("T","C"))
+#' testthat::expect_error(extract_contrasts(annot))
+#' annot$control <- annot$ddd
+#' contrast <- extract_contrasts(annot)
+#' stopifnot(contrast == "G_a - G_b")
+#'
+#' annot$Contrast <- c("G_a - G_b","G_b - G_a")
+#' annot$ContrastName <- c("a_vs_b","b_vs_a")
+#' annot$control <- NULL
+#' extract_contrasts(annot)
+#'
 extract_contrasts <- function(annot, prefix = "G_", group = "group") {
-
   levels  <- annot |>
     dplyr::select(
       !!prefix := dplyr::starts_with(group, ignore.case = TRUE),
@@ -110,19 +123,25 @@ extract_contrasts <- function(annot, prefix = "G_", group = "group") {
   if (!length(levels[[prefix]]) > 1) {
     logger::log_error("not enough group levels_ to make comparisons.")
   }
-
   if ( all(c("ContrastName", "Contrast") %in% colnames(annot)) ) {
     contr <- annot |>
       dplyr::select(all_of(c("ContrastName", "Contrast"))) |>
       dplyr::filter(nchar(!!rlang::sym("Contrast")) > 0)
+
     Contrasts <- contr$Contrast
     names(Contrasts) <- contr$ContrastName
-
+    nrpr <- sum(grepl(paste0("\\b",prefix), Contrasts))
+    if ( nrpr < 1 ) {
+      stop("Group prefix should be :", prefix, "; but contrasts look like this : ", paste(Contrasts, collapse = "\n"))
+    }
+    return(Contrasts)
   } else {
-
+    if (ncol(levels) != 2) {
+      stop("either column", group, " or column control are missing. We found only column :", paste(colnames(levels), collapse = " "))
+    }
+    Contrasts <- character()
     ## Generate contrasts from dataset
     if (!is.null(levels$control)) {
-      Contrasts <- character()
       Names <- character()
       for (i in 1:nrow(levels)) {
         for (j in 1:nrow(levels)) {
@@ -135,9 +154,25 @@ extract_contrasts <- function(annot, prefix = "G_", group = "group") {
           }
         }
       }
+      names(Contrasts) <- Names
     }
-    names(Contrasts) <- Names
+    return(Contrasts)
   }
-  return(Contrasts)
-
 }
+
+#' add vector of contrasts to annotation data frame
+#' @export
+#' @examples
+#' annot <- data.frame(Group = rep(c("A","B","C"), each = 3))
+#' annot$Name
+add_contrasts_vec <- function(xx, Contrasts){
+  if (length(Contrasts) <= nrow(xx)) {
+    xx$CONTROL <- NULL
+    xx$ContrastName <- c(names(Contrasts), rep(NA, nrow(xx) - length(Contrasts) ))
+    xx$Contrast <- c(Contrasts, rep(NA, nrow(xx) - length(Contrasts) ))
+  } else {
+    warning("There are more Contrasts then samples.")
+  }
+  return(xx)
+}
+

@@ -56,4 +56,19 @@ copy_DEA_DIANN <- function(workdir = getwd(), run_script = FALSE) {
   prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
 
+#' copy Markdown and runscript for DIANN diann-output.tsv
+#' @param workdir directory where to copy file - default is current working directory.
+#' @export
+#'
+copy_DEA_Metabolomics <- function(workdir = getwd(), run_script = FALSE) {
+  runscripts <- c(
+    "application/_Grp2Analysis_Metabolomics.Rmd",
+    "application/bibliography.bib",
+    "application/_DiffExpQC.Rmd",
+    if (run_script) {c("application/CompoundDiscovery/Compound_Disc_V3.R")}
+  )
+  prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
+}
+
+
 
