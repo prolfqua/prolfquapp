@@ -10,7 +10,7 @@ dir.create(GRP2$zipdir)
 
 proteinf <- "combined_protein.tsv"
 dsf <- "dataset.csv"
-REPEATED <- TRUE
+repeated <- TRUE
 stopifnot( file.exists(proteinf), file.exists(dsf))
 protein <- prolfqua::tidy_FragPipe_combined_protein("combined_protein.tsv")
 # remove single hit wonders.

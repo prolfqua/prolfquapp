@@ -18,7 +18,7 @@ GRP2$pop$transform = "none"
 dir.create(GRP2$zipdir)
 ###
 # reading foreign data
-REPEATED <- TRUE
+repeated <- TRUE
 
 prec <- read_tsv(inputdir)
 prec$R.FileName |> unique()

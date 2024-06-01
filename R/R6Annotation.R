@@ -1,0 +1,268 @@
+library(R6)
+library(dplyr)
+
+#' AnnotationProcessor
+#' @export
+#' @examples
+#'
+#' # AnnotationProcessor$debug("read_annotation")
+#' ap <- AnnotationProcessor$new(prefix = "G_")
+#'
+#' annot <- data.frame(
+#' file = c("a1.raw","a2.raw","a3.raw","a4.raw"),
+#' group = c("a","a","b","b"),
+#' CONTROL = c("C","C","T","T"),
+#' Subject = c("X","Y","X","Y"))
+#' ap$check_annotation(annot)
+#' af <- annot
+#' af$file <- NULL
+#' testthat::expect_error(ap$check_annotation(af), "column starting with :")
+#' af <- annot
+#' af$group <- NULL
+#' testthat::expect_error(ap$check_annotation(af),"column starting with :")
+#' aa <- ap$read_annotation(annot)
+#' stopifnot(all(c("atable", "annot", "contrasts") %in% names(aa)))
+#' stopifnot(aa$contrasts == "G_b - G_a")
+#' af <- annot
+#' af$CONTROL <- NULL
+#' testthat::expect_error(ap$check_annotation(af),"you must specify a CONTROL column")
+#' af <- annot
+#' af$Subject <- NULL
+#' testthat::expect_warning(ap$check_annotation(af),"column starting with")
+#'
+#'
+#' # should not throw exception since QC does not require group or subject
+#' ap <- AnnotationProcessor$new(QC = TRUE)
+#' af <- annot
+#' # af$group <- NULL
+#' af$CONTROL <- NULL
+#' af$Subject <- NULL
+#' ap$check_annotation(af)
+#' aa <- ap$read_annotation(af)
+#'
+#' stopifnot(aa$atable$factor_keys() == "G_")
+#' stopifnot(aa$atable$factors == "group")
+#' aa <- ap$read_annotation(annot)
+#' aa$atable$fileName
+#' aa$atable$sampleName
+#' as <- annot
+#' as$sample <- c("s1","s2","s3","s4")
+#' aa <- ap$read_annotation(annot)
+#' aa$atable$sampleName
+#' stopifnot(is.null(aa$annotation))
+AnnotationProcessor <- R6Class(
+  "AnnotationProcessor",
+
+  public = list(
+    QC = FALSE,
+    prefix = "G_",
+    repeated = TRUE,
+    SAINT = FALSE,
+
+    file_pattern = "^channel|^Relative|^raw|^file",
+    grouping_pattern = "^group|^bait|^Experiment",
+    control_pattern = "ContrastName|Contrast|control",
+    sample_name_pattern = "^name|^sample",
+    subject_pattern = "^subject|^BioReplicate",
+    control_col_pattern = "^control",
+
+    initialize = function(QC = FALSE,
+                          prefix = "G_",
+                          repeated = TRUE,
+                          SAINT = FALSE) {
+      self$QC <- QC
+      self$prefix <- prefix
+      self$repeated <- repeated
+      self$SAINT <- SAINT
+    },
+
+    check_annotation = function(annot) {
+      filename <- grep(self$file_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
+      if (length(filename) < 1) { stop("column starting with :", self$file_pattern , " is missing.") }
+      if (length(filename) > 1) { warning("there are more than one column for sample: ", paste0(filename)) }
+
+      samples <- grep(self$sample_name_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
+      if (length(samples) < 1) { warning("column starting with :", self$sample_name_pattern , " is missing.") }
+      if (length(samples) > 1) { warning("there are more than one column for sample: ", paste0(samples)) }
+
+      grouping <- grep(self$grouping_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
+      if (length(grouping) < 1) {  stop("column starting with :", self$sample_name_pattern , " is missing.")  }
+      if (length(grouping) > 1) { warning("there are more than one column for sample: ", paste0(grouping)) }
+
+      if (!self$QC) {
+        contrast <- grep(self$control_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
+        if (length(contrast) < 1) { stop(paste0("you must specify a CONTROL column.")) }
+      }
+
+      if ("CONTROL" %in% colnames(annot)) {
+        stopifnot(all(c("C", "T") %in% annot[["CONTROL"]]))
+      }
+    },
+
+    read_annotation = function(dsf) {
+      if ("data.frame" %in% class(dsf)) {
+        annot <- dsf
+      } else {
+        annot <- read.csv(dsf)
+      }
+      annot <- data.frame(lapply(annot, as.character))
+      self$check_annotation(annot)
+      res <- private$dataset_set_factors(annot)
+      if (!self$QC) {
+        contrasts <- self$extract_contrasts(res$annot, group = res$atable$factors[[self$prefix]])
+        res[["contrasts"]] <- contrasts
+      }
+      return(res)
+    },
+
+    extract_contrasts = function(annot, group) {
+      levels <- private$get_levels(annot, group)
+      logger::log_info("levels: ", paste(levels, collapse = " "))
+      if (!length(levels[[self$prefix]]) > 1) {
+        logger::log_error("not enough group levels to make comparisons.")
+      }
+      if (all(c("ContrastName", "Contrast") %in% colnames(annot))) {
+        return(private$get_defined_contrasts(annot))
+      } else {
+        return(private$generate_contrasts(annot, levels, group))
+      }
+    },
+
+
+    add_contrasts_vec = function(xx, Contrasts) {
+      if (length(Contrasts) <= nrow(xx)) {
+        xx$CONTROL <- NULL
+        xx$ContrastName <- c(names(Contrasts), rep(NA, nrow(xx) - length(Contrasts)))
+        xx$Contrast <- c(Contrasts, rep(NA, nrow(xx) - length(Contrasts)))
+      } else {
+        warning("There are more Contrasts than samples.")
+      }
+      return(xx)
+    }
+  ),
+
+  private = list(
+
+    dataset_set_factors = function(annot) {
+      atable <- prolfqua::AnalysisTableAnnotation$new()
+      private$set_sample_name(annot, atable)
+      private$set_file_name(annot, atable)
+      annot <- private$set_grouping_var(annot, atable)
+      private$process_subject_var(annot, atable)
+      private$set_control_var(annot, atable)
+      return(list(atable = atable, annot = annot))
+    },
+
+    set_sample_name = function(annot, atable) {
+      if (sum(grepl(self$sample_name_pattern, colnames(annot), ignore.case = TRUE)) > 0) {
+        atable$sampleName <- grep(self$sample_name_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)[1]
+      }
+      if (any(duplicated(annot[[atable$sampleName]]))) {
+        stop("sample Names must be unique.")
+      }
+    },
+
+    set_file_name = function(annot, atable) {
+      fileName <- grep(self$file_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)[1]
+      atable$fileName <- fileName
+      if (any(duplicated(annot[[atable$fileName]]))) {
+        stop("file Names must be unique.")
+      }
+    },
+
+    set_grouping_var = function(annot, atable) {
+      groupingVAR <- grep(self$grouping_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)
+      if (any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
+        groupingVAR <- grep("^bait", groupingVAR, value = TRUE, ignore.case = TRUE)[1]
+      } else {
+        groupingVAR <- groupingVAR[1]
+      }
+
+      annot[[groupingVAR]] <- gsub("[[:space:]]", "", annot[[groupingVAR]])
+      annot[[groupingVAR]] <- gsub("[-\\+\\/\\*\\(\\)]", "_", annot[[groupingVAR]])
+
+      if (self$SAINT) {
+        atable$factors[["Bait_"]] <- groupingVAR
+      } else {
+        atable$factors[[self$prefix]] <- groupingVAR
+      }
+
+      atable$factorDepth <- 1
+      return(annot)
+    },
+
+    process_subject_var = function(annot, atable) {
+      if (sum(grepl(self$subject_pattern, colnames(annot), ignore.case = TRUE)) == 1 & self$repeated) {
+        subvar <- grep(self$subject_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)
+        atable$factors[["Subject_"]] <- subvar
+
+        fct <- dplyr::distinct(annot[, c(atable$fileName, atable$factors[[self$prefix]], subvar)])
+        tmp <- data.frame(table(fct[, c(atable$factors[[self$prefix]], subvar)]))
+        if (all(tmp$Freq > 1)) {
+          atable$factorDepth <- 2
+        }
+      }
+    },
+
+    set_control_var = function(annot, atable) {
+      ctrl <- grep(self$control_col_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)
+      if (length(ctrl) == 1) {
+        atable$factors[["CONTROL"]] <- ctrl
+
+        stopifnot(length(setdiff(unique(annot[[ctrl]]), c("C", "T"))) == 0)
+        # TODO add check that
+        tt <- table(annot[[ctrl]], annot[[atable$factors[[self$prefix]]]])
+      }
+    },
+
+
+    get_levels = function(annot, group) {
+      levels <- annot %>%
+        select(
+          !!self$prefix := starts_with(group, ignore.case = TRUE),
+          control = starts_with("control", ignore.case = TRUE)) %>%
+        distinct()
+      return(levels)
+    },
+
+    get_defined_contrasts = function(annot) {
+      contr <- annot %>%
+        select(all_of(c("ContrastName", "Contrast"))) %>%
+        filter(nchar(!!rlang::sym("Contrast")) > 0)
+
+      Contrasts <- contr$Contrast
+      names(Contrasts) <- contr$ContrastName
+      nrpr <- sum(grepl(paste0("\\b", self$prefix), Contrasts))
+      if (nrpr < 1) {
+        stop("Group prefix should be: ", self$prefix, "; but contrasts look like this: ", paste(Contrasts, collapse = "\n"))
+      }
+      return(Contrasts)
+    },
+
+    generate_contrasts = function(annot, levels, group) {
+      if (ncol(levels) != 2) {
+        stop("either column ", group, " or column control are missing. We found only column: ", paste(colnames(levels), collapse = " "))
+      }
+      Contrasts <- character()
+      Names <- character()
+      ## Generate contrasts from dataset
+      if (!is.null(levels$control)) {
+        for (i in 1:nrow(levels)) {
+          for (j in 1:nrow(levels)) {
+            if (i != j && levels$control[j] == "C") {
+              cat(levels[[self$prefix]][i], levels[[self$prefix]][j], "\n")
+              Contrasts <- c(Contrasts, paste0(self$prefix, levels[[self$prefix]][i], " - ", self$prefix, levels[[self$prefix]][j]))
+              Names <- c(Names, paste0(levels[[self$prefix]][i], "_vs_", levels[[self$prefix]][j]))
+            }
+          }
+        }
+        names(Contrasts) <- Names
+      }
+      return(Contrasts)
+    }
+  )
+)
+
+# Example of using the class
+# processor <- AnnotationProcessor$new(QC = FALSE, prefix = "G_", repeated = TRUE, SAINT = FALSE)
+# result <- processor$read_annotation(dsf)

@@ -20,7 +20,7 @@
 #'   cat(i, " : " , length(tmp$atable$factors), "factors : ", paste(tmp$atable$factors, collapse = "; "), "\n")
 #' }
 #'
-dataset_set_factors_deprecated <- function(atable, msdata, REPEATED = TRUE, SAINT = FALSE) {
+dataset_set_factors_deprecated <- function(atable, msdata, repeated = TRUE, SAINT = FALSE) {
   if (sum(grepl("^name", colnames(msdata), ignore.case = TRUE)) > 0) {
     atable$sampleName <- grep("^name", colnames(msdata), value = TRUE, ignore.case = TRUE)
   }
@@ -50,7 +50,7 @@ dataset_set_factors_deprecated <- function(atable, msdata, REPEATED = TRUE, SAIN
 
   atable$factorDepth <- 1
 
-  if (sum(grepl("^subject|^BioReplicate", colnames(msdata), ignore.case = TRUE)) == 1 & REPEATED) {
+  if (sum(grepl("^subject|^BioReplicate", colnames(msdata), ignore.case = TRUE)) == 1 & repeated) {
     subvar <- grep("^subject|^BioReplicate", colnames(msdata), value = TRUE, ignore.case = TRUE)
     atable$factors[["Subject_"]] = subvar
 

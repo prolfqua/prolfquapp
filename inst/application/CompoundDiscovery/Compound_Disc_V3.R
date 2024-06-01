@@ -8,8 +8,10 @@ files
 annot <- readxl::read_xlsx(grep("_InputFiles.xlsx$",files, value = TRUE))
 colnames(annot) <- make.names(colnames(annot))
 str(annot)
+
 annot <- dplyr::select(annot, any_of(c("Study.File.ID", "File.Name","Group","SampleGroup")))
 annot$Group |> table() |> t() |> t()
+
 
 annot <- annot |> dplyr::mutate(CONTROL = case_when(Group == "a" ~ "C" , TRUE ~ "T"))
 

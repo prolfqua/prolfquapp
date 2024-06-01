@@ -6,7 +6,7 @@ dir.create(GRP2$zipdir)
 peptidef <- "peptides.txt"
 proteinf <- "proteinGroups.txt"
 dsf <- "dataset.csv"
-REPEATED <- TRUE
+repeated <- TRUE
 stopifnot(file.exists(peptidef), file.exists(proteinf), file.exists(dsf))
 
 protein <- prolfquapp::tidyMQ_ProteinGroups(proteinf)

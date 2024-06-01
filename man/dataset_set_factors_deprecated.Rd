@@ -4,7 +4,7 @@
 \alias{dataset_set_factors_deprecated}
 \title{set factors and sample names columns}
 \usage{
-dataset_set_factors_deprecated(atable, msdata, REPEATED = TRUE, SAINT = FALSE)
+dataset_set_factors_deprecated(atable, msdata, repeated = TRUE, SAINT = FALSE)
 }
 \description{
 set factors and sample names columns

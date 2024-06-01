@@ -4,12 +4,12 @@
 \alias{read_annotation}
 \title{read annotation files}
 \usage{
-read_annotation(dsf, REPEATED = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE)
+read_annotation(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE)
 }
 \arguments{
 \item{dsf}{annotation table}
 
-\item{REPEATED}{is this a repeated measurement}
+\item{repeated}{is this a repeated measurement}
 
 \item{SAINT}{is this a SAINTexpress analysis}
 }
