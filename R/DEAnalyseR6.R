@@ -1,3 +1,15 @@
+custom_round <- function(arr) {
+  cr <- function(x){
+    if (x == 0) {
+      return(0)
+    } else if (abs(x) >= 1) {
+      return(round(x, 2))
+    } else {
+      return(signif(x, 2))
+    }}
+  return(vapply(arr, cr, numeric(1)))
+}
+
 #' will replace make_DEA_report
 #' @export
 #'
@@ -5,6 +17,7 @@
 #' # example code
 #'
 #' pep <- prolfqua::sim_lfq_data_protein_config(Nprot = 100)
+#'
 #' pep <- prolfqua::LFQData$new(pep$data, pep$config)
 #' pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 #' pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
@@ -14,23 +27,21 @@
 #' pep$factors()
 #' contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
 #' #DEAnalyse$debug("filter_contrasts")
-#' deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts)
+#' deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts, diff_threshold = 0.2)
 #' deanalyse$cont_decoy_summary()
-#' deanalyse$GRP2$processing_options$remove_cont = TRUE
+#' deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
 #' deanalyse$remove_cont_decoy()
 #' deanalyse$transform_data()
 #' deanalyse$create_model_formula()
 #' mod <- deanalyse$build_model_linear()
-#' class(mod)
 #' contlm <- deanalyse$compute_contrasts_linear()
-#' class(contlm)
-#' contlm$modelName == "modelLinear_moderated"
 #'
-#' xd <-deanalyse$filter_contrasts(FDR_threshold = 0.3, diff_threshold = 0.1)
-#' xd <- deanalyse$filter_data(FDR_threshold = 0.3, diff_threshold = 0.1)
-#' dim(xd)
+#' xd <- deanalyse$filter_data()
+#' xd <- deanalyse$contrasts_to_Grob()
 #' bb <- deanalyse$get_boxplots()
-#' bb$boxplot[[1]]
+#' bx <- deanalyse$get_boxplots_contrasts()
+#' grid::grid.draw(bx$bxpl_grobs[[1]])
+#' deanalyse$write_boxplots_contrasts("test.pdf")
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(
@@ -40,8 +51,8 @@ DEAnalyse <- R6::R6Class(
     rowAnnot = NULL,
     #' @field contrasts vector with contrasts
     contrasts = character(),
-    #'@field GRP2 ProlfquAppConfig
-    GRP2 = NULL,
+    #'@field prolfq_app_config ProlfquAppConfig
+    prolfq_app_config = NULL,
 
 
     #' @field reference_proteins reference proteins to use for internal normalization
@@ -61,22 +72,31 @@ DEAnalyse <- R6::R6Class(
     models = list(),
     #' @field contrastRes todo
     contrastRes = list(),
+    FDR_threshold = 0.1,
+    diff_threshold = 1,
 
     #' @description
     #' initialize
     #' @param lfqdata lfqdata
     #' @param rowAnnot ProteinAnnotation
-    #' @param GRP2 ProlfquAppConfig
+    #' @param prolfq_app_config ProlfquAppConfig
     #' @param contrasts vector with contrasts
-    initialize = function(lfqdata, rowAnnot, GRP2, contrasts) {
+    initialize = function(lfqdata,
+                          rowAnnot,
+                          prolfq_app_config,
+                          contrasts,
+                          FDR_threshold = 0.01,
+                          diff_threshold = 1) {
       stopifnot("LFQData" %in% class(lfqdata))
       stopifnot("ProteinAnnotation" %in% class(rowAnnot))
-      stopifnot("ProlfquAppConfig" %in% class(GRP2))
+      stopifnot("ProlfquAppConfig" %in% class(prolfq_app_config))
       stopifnot(length(contrasts) >= 1)
       self$lfqdata <- lfqdata
       self$rowAnnot <- rowAnnot
-      self$GRP2 <- GRP2
+      self$prolfq_app_config <- prolfq_app_config
       self$contrasts <- contrasts
+      self$FDR_threshold = FDR_threshold
+      self$diff_threshold = diff_threshold
     },
     #' @description
     #' count number of decoys
@@ -87,19 +107,19 @@ DEAnalyse <- R6::R6Class(
     #' remove contaminants and decoys
     remove_cont_decoy = function() {
       self$lfqdata <- self$lfqdata$get_subset(self$rowAnnot$clean(
-        contaminants = self$GRP2$processing_options$remove_cont,
-        decoys = self$GRP2$processing_options$remove_decoys
+        contaminants = self$prolfq_app_config$processing_options$remove_cont,
+        decoys = self$prolfq_app_config$processing_options$remove_decoys
       ))
       logger::log_info("removing contaminants and reverse sequences with patterns: ",
-                       self$GRP2$processing_options$pattern_contaminants,
-                       self$GRP2$processing_options$pattern_decoys)
+                       self$prolfq_app_config$processing_options$pattern_contaminants,
+                       self$prolfq_app_config$processing_options$pattern_decoys)
     },
     #' @description
     #' transform data
     transform_data = function() {
       transformed <- prolfquapp::transform_lfqdata(
         self$lfqdata,
-        method = self$GRP2$processing_options$transform,
+        method = self$prolfq_app_config$processing_options$transform,
         internal = self$reference_proteins
       )
       self$lfqdata$rename_response("protein_abundance")
@@ -111,7 +131,7 @@ DEAnalyse <- R6::R6Class(
     #' static create model formula
     create_model_formula = function() {
       prlconfig <- self$lfqData_transformed$config
-      interaction <- self$GRP2$processing_options$interaction
+      interaction <- self$prolfq_app_config$processing_options$interaction
       factors <- prlconfig$table$factor_keys_depth()[
         !grepl("^control", prlconfig$table$factor_keys_depth() , ignore.case = TRUE)
       ]
@@ -168,28 +188,21 @@ DEAnalyse <- R6::R6Class(
       return(conMI)
     },
     #' @description
-    #' filter contrasts for therehold
-    #' @param FDR_threshold FDR threshold
-    #' @param diff_threshol diff threshold
-    #' @param modelName modelLinear
-    filter_contrasts = function(FDR_threshold = 0.1, diff_threshold = 1,
-                                modelName = "modelLinear"){
+    #' filter contrasts for threshold
+    #' @param modelName default "modelLinear"
+    filter_contrasts = function(modelName = "modelLinear"){
       datax <- self$contrastRes[[modelName]]$get_contrasts()
       datax <- datax |>
-        dplyr::filter(.data$FDR < FDR_threshold &
-                        abs(.data$diff) > diff_threshold )
+        dplyr::filter(.data$FDR < self$FDR_threshold &
+                        abs(.data$diff) > self$diff_threshold )
       invisible(datax)
     },
     #' @description
     #' filter transformed lfq data for significant proteins.
-    #' @param FDR_threshold FDR threshold
-    #' @param diff_threshol diff threshold
     #' @param modelName modelLinear
-    filter_data = function(FDR_threshold = 0.1,
-                           diff_threshold = 1,
-                           modelName = "modelLinear")
+    filter_data = function(modelName = "modelLinear")
     {
-      dx <- self$filter_contrasts(FDR_threshold, diff_threshold, modelName = modelName)
+      dx <- self$filter_contrasts( modelName = modelName)
       self$lfqData_subset <- self$lfqData_transformed$get_subset(dx)
       return(self$lfqData_subset)
     },
@@ -198,10 +211,60 @@ DEAnalyse <- R6::R6Class(
     #'
     get_boxplots = function(){
       return(self$lfqData_subset$get_Plotter()$boxplots())
+    },
+    #' @description
+    #' create boxplots
+    #'
+    contrasts_to_Grob = function(){
+      datax <- self$filter_contrasts()
+      xdn <- datax |> dplyr::nest_by(protein_Id)
+
+      stats2grob <- function(data) {
+        res <- data |>
+          dplyr::select(contrast, diff, statistic, FDR) |>
+          dplyr::mutate(
+            diff = custom_round(diff),
+            statistic = custom_round(statistic),
+            FDR = custom_round(FDR)
+          )
+        res <- res |> gridExtra::tableGrob()
+        res
+      }
+      grobs <- vector(mode = "list", length = length(nrow(xdn)))
+      for (i in seq_len(nrow(xdn))) {
+        grobs[[i]] <- stats2grob(xdn$data[[i]])
+      }
+      xdn$grobs <- grobs
+      return(xdn)
+    },
+    #' @description
+    #' get box with contrast information
+    get_boxplots_contrasts = function(){
+      ctrG <- self$contrasts_to_Grob()
+      bp <- self$get_boxplots()
+      stopifnot(nrow(ctrG) == nrow(bp))
+      res <- vector(mode = "list", length = nrow(ctrG))
+      for (i in seq_len(nrow(ctrG))) {
+        res[[i]] <- gridExtra::arrangeGrob(
+          bp$boxplot[[i]],
+          ctrG$grobs[[i]], nrow = 2, heights = c(2/3, 1/3))
+      }
+      ctrG$bxpl_grobs = res
+      return(ctrG)
+    },
+    #' @description
+    #' write boxplots contrasts to file
+    #' @param filename filename to write to
+    write_boxplots_contrasts = function(filename){
+      ctrG <- self$get_boxplots_contrasts()
+      pdf(file = filename)
+      for (i in seq_along(ctrG$bxpl_grobs)) {
+        grid::grid.newpage()
+        grid::grid.draw(bx$bxpl_grobs[[i]])
+      }
+      dev.off()
     }
-
   )
-
-
 )
+
 

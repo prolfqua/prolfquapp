@@ -12,6 +12,7 @@ will replace make_DEA_report
 # example code
 
 pep <- prolfqua::sim_lfq_data_protein_config(Nprot = 100)
+
 pep <- prolfqua::LFQData$new(pep$data, pep$config)
 pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
@@ -21,23 +22,21 @@ GRP2$processing_options$transform <- "robscale"
 pep$factors()
 contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
 #DEAnalyse$debug("filter_contrasts")
-deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts)
+deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts, diff_threshold = 0.2)
 deanalyse$cont_decoy_summary()
-deanalyse$GRP2$processing_options$remove_cont = TRUE
+deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
 deanalyse$remove_cont_decoy()
 deanalyse$transform_data()
 deanalyse$create_model_formula()
 mod <- deanalyse$build_model_linear()
-class(mod)
 contlm <- deanalyse$compute_contrasts_linear()
-class(contlm)
-contlm$modelName == "modelLinear_moderated"
 
-xd <-deanalyse$filter_contrasts(FDR_threshold = 0.3, diff_threshold = 0.1)
-xd <- deanalyse$filter_data(FDR_threshold = 0.3, diff_threshold = 0.1)
-dim(xd)
+xd <- deanalyse$filter_data()
+xd <- deanalyse$contrasts_to_Grob()
 bb <- deanalyse$get_boxplots()
-bb$boxplot[[1]]
+bx <- deanalyse$get_boxplots_contrasts()
+grid::grid.draw(bx$bxpl_grobs[[1]])
+deanalyse$write_boxplots_contrasts("test.pdf")
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -48,7 +47,7 @@ bb$boxplot[[1]]
 
 \item{\code{contrasts}}{vector with contrasts}
 
-\item{\code{GRP2}}{ProlfquAppConfig}
+\item{\code{prolfq_app_config}}{ProlfquAppConfig}
 
 \item{\code{reference_proteins}}{reference proteins to use for internal normalization}
 
@@ -83,6 +82,9 @@ bb$boxplot[[1]]
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
 \item \href{#method-DEAnalyse-filter_data}{\code{DEAnalyse$filter_data()}}
 \item \href{#method-DEAnalyse-get_boxplots}{\code{DEAnalyse$get_boxplots()}}
+\item \href{#method-DEAnalyse-contrasts_to_Grob}{\code{DEAnalyse$contrasts_to_Grob()}}
+\item \href{#method-DEAnalyse-get_boxplots_contrasts}{\code{DEAnalyse$get_boxplots_contrasts()}}
+\item \href{#method-DEAnalyse-write_boxplots_contrasts}{\code{DEAnalyse$write_boxplots_contrasts()}}
 \item \href{#method-DEAnalyse-clone}{\code{DEAnalyse$clone()}}
 }
 }
@@ -92,7 +94,14 @@ bb$boxplot[[1]]
 \subsection{Method \code{new()}}{
 initialize
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(lfqdata, rowAnnot, GRP2, contrasts)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(
+  lfqdata,
+  rowAnnot,
+  prolfq_app_config,
+  contrasts,
+  FDR_threshold = 0.01,
+  diff_threshold = 1
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -102,7 +111,7 @@ initialize
 
 \item{\code{rowAnnot}}{ProteinAnnotation}
 
-\item{\code{GRP2}}{ProlfquAppConfig}
+\item{\code{prolfq_app_config}}{ProlfquAppConfig}
 
 \item{\code{contrasts}}{vector with contrasts}
 }
@@ -214,23 +223,15 @@ compute missing contrasts
 \if{html}{\out{<a id="method-DEAnalyse-filter_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-filter_contrasts}{}}}
 \subsection{Method \code{filter_contrasts()}}{
-filter contrasts for therehold
+filter contrasts for threshold
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts(
-  FDR_threshold = 0.1,
-  diff_threshold = 1,
-  modelName = "modelLinear"
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts(modelName = "modelLinear")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{FDR_threshold}}{FDR threshold}
-
-\item{\code{modelName}}{modelLinear}
-
-\item{\code{diff_threshol}}{diff threshold}
+\item{\code{modelName}}{default "modelLinear"}
 }
 \if{html}{\out{</div>}}
 }
@@ -241,21 +242,13 @@ filter contrasts for therehold
 \subsection{Method \code{filter_data()}}{
 filter transformed lfq data for significant proteins.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_data(
-  FDR_threshold = 0.1,
-  diff_threshold = 1,
-  modelName = "modelLinear"
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_data(modelName = "modelLinear")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{FDR_threshold}}{FDR threshold}
-
 \item{\code{modelName}}{modelLinear}
-
-\item{\code{diff_threshol}}{diff threshold}
 }
 \if{html}{\out{</div>}}
 }
@@ -269,6 +262,43 @@ create boxplots
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_boxplots()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-contrasts_to_Grob"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-contrasts_to_Grob}{}}}
+\subsection{Method \code{contrasts_to_Grob()}}{
+create boxplots
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$contrasts_to_Grob()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-get_boxplots_contrasts"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-get_boxplots_contrasts}{}}}
+\subsection{Method \code{get_boxplots_contrasts()}}{
+get box with contrast information
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_boxplots_contrasts()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-write_boxplots_contrasts"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-write_boxplots_contrasts}{}}}
+\subsection{Method \code{write_boxplots_contrasts()}}{
+write boxplots contrasts to file
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$write_boxplots_contrasts(filename)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filename}}{filename to write to}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-clone"></a>}}
