@@ -44,8 +44,6 @@ extract_GN <- function(fasta.headers){
   return(res)
 }
 
-
-
 #' get_annot_from_fasta
 #'
 #' @export

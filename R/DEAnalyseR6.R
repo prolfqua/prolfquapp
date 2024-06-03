@@ -12,18 +12,25 @@
 #' GRP2 <- prolfquapp::make_DEA_config_R6()
 #' GRP2$processing_options$transform <- "robscale"
 #' pep$factors()
-#' GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
-#' # DEAnalyse$debug("transform_data")
-#' deanalyse <- DEAnalyse$new(pep, pA, GRP2)
+#' contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
+#' #DEAnalyse$debug("filter_contrasts")
+#' deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts)
 #' deanalyse$cont_decoy_summary()
 #' deanalyse$GRP2$processing_options$remove_cont = TRUE
 #' deanalyse$remove_cont_decoy()
 #' deanalyse$transform_data()
 #' deanalyse$create_model_formula()
-#' deanalyse$build_model_linear()
-#' deanalyse$compute_contrasts_linear()
-#' #deanalyse$filter_contrasts()
-#' deanalyse$RES
+#' mod <- deanalyse$build_model_linear()
+#' class(mod)
+#' contlm <- deanalyse$compute_contrasts_linear()
+#' class(contlm)
+#' contlm$modelName == "modelLinear_moderated"
+#'
+#' xd <-deanalyse$filter_contrasts(FDR_threshold = 0.3, diff_threshold = 0.1)
+#' xd <- deanalyse$filter_data(FDR_threshold = 0.3, diff_threshold = 0.1)
+#' dim(xd)
+#' bb <- deanalyse$get_boxplots()
+#' bb$boxplot[[1]]
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(
@@ -43,8 +50,11 @@ DEAnalyse <- R6::R6Class(
     decoy_summary = NULL,
     #' @field lfqData lfqData
     lfqData = NULL,
-    #' @field transformedlfqData todo
-    transformedlfqData = NULL,
+    #' @field lfqData_transformed todo
+    lfqData_transformed = NULL,
+    #' @field lfqData_subset todo
+    lfqData_subset = NULL,
+
     #' @field formula todo
     formula = character(),
     #' @field models todo
@@ -59,10 +69,14 @@ DEAnalyse <- R6::R6Class(
     #' @param GRP2 ProlfquAppConfig
     #' @param contrasts vector with contrasts
     initialize = function(lfqdata, rowAnnot, GRP2, contrasts) {
+      stopifnot("LFQData" %in% class(lfqdata))
+      stopifnot("ProteinAnnotation" %in% class(rowAnnot))
+      stopifnot("ProlfquAppConfig" %in% class(GRP2))
+      stopifnot(length(contrasts) >= 1)
       self$lfqdata <- lfqdata
       self$rowAnnot <- rowAnnot
       self$GRP2 <- GRP2
-      self$contrasts
+      self$contrasts <- contrasts
     },
     #' @description
     #' count number of decoys
@@ -72,13 +86,13 @@ DEAnalyse <- R6::R6Class(
     #' @description
     #' remove contaminants and decoys
     remove_cont_decoy = function() {
-        self$lfqdata <- self$lfqdata$get_subset(self$rowAnnot$clean(
-          contaminants = self$GRP2$processing_options$remove_cont,
-          decoys = self$GRP2$processing_options$remove_decoys
-        ))
-        logger::log_info("removing contaminants and reverse sequences with patterns: ",
-                         self$GRP2$processing_options$pattern_contaminants,
-                         self$GRP2$processing_options$pattern_decoys)
+      self$lfqdata <- self$lfqdata$get_subset(self$rowAnnot$clean(
+        contaminants = self$GRP2$processing_options$remove_cont,
+        decoys = self$GRP2$processing_options$remove_decoys
+      ))
+      logger::log_info("removing contaminants and reverse sequences with patterns: ",
+                       self$GRP2$processing_options$pattern_contaminants,
+                       self$GRP2$processing_options$pattern_decoys)
     },
     #' @description
     #' transform data
@@ -90,13 +104,13 @@ DEAnalyse <- R6::R6Class(
       )
       self$lfqdata$rename_response("protein_abundance")
       transformed$rename_response("normalized_protein_abundance")
-      self$transformedlfqData <- transformed
+      self$lfqData_transformed <- transformed
       invisible(transformed)
     },
     #' @description
     #' static create model formula
     create_model_formula = function() {
-      prlconfig <- self$transformedlfqData$config
+      prlconfig <- self$lfqData_transformed$config
       interaction <- self$GRP2$processing_options$interaction
       factors <- prlconfig$table$factor_keys_depth()[
         !grepl("^control", prlconfig$table$factor_keys_depth() , ignore.case = TRUE)
@@ -120,7 +134,7 @@ DEAnalyse <- R6::R6Class(
       formula <- self$create_model_formula()
       formula_Condition <-  prolfqua::strategy_lm(formula)
       models <- prolfqua::build_model(
-        self$transformedlfqData,
+        self$lfqData_transformed,
         formula_Condition)
       self$models[[modelName]] <- models
       return(models)
@@ -134,7 +148,7 @@ DEAnalyse <- R6::R6Class(
     #' compute contrasts linear
     #' @param modelName of model default modelLinear
     compute_contrasts_linear = function(modelName = "modelLinear") {
-      contr <- prolfqua::Contrasts$new(self$models[["modelLinear"]],
+      contr <- prolfqua::Contrasts$new(self$models[[modelName]],
                                        self$contrasts,
                                        modelName = modelName)
       conrM <- prolfqua::ContrastsModerated$new(contr)
@@ -146,8 +160,8 @@ DEAnalyse <- R6::R6Class(
     #' @param modelName Imputed_Mean
     compute_contrasts_missing = function(modelName = "Imputed_Mean"){
       mC <- prolfqua::ContrastsMissing$new(
-        lfqdata = transformedlfqData,
-        contrasts = contrasts,
+        lfqdata = self$lfqData_transformed,
+        contrasts = self$contrasts,
         modelName = modelName)
       conMI <- prolfqua::ContrastsModerated$new(mC)
       self$contrastRes[[modelName]] <- conMI
@@ -158,13 +172,36 @@ DEAnalyse <- R6::R6Class(
     #' @param FDR_threshold FDR threshold
     #' @param diff_threshol diff threshold
     #' @param modelName modelLinear
-    filter_contrasts = function(FDR_threshold = 0.1, diff_threshol = 1,
+    filter_contrasts = function(FDR_threshold = 0.1, diff_threshold = 1,
                                 modelName = "modelLinear"){
       datax <- self$contrastRes[[modelName]]$get_contrasts()
       datax <- datax |>
         dplyr::filter(.data$FDR < FDR_threshold &
                         abs(.data$diff) > diff_threshold )
       invisible(datax)
-    })
+    },
+    #' @description
+    #' filter transformed lfq data for significant proteins.
+    #' @param FDR_threshold FDR threshold
+    #' @param diff_threshol diff threshold
+    #' @param modelName modelLinear
+    filter_data = function(FDR_threshold = 0.1,
+                           diff_threshold = 1,
+                           modelName = "modelLinear")
+    {
+      dx <- self$filter_contrasts(FDR_threshold, diff_threshold, modelName = modelName)
+      self$lfqData_subset <- self$lfqData_transformed$get_subset(dx)
+      return(self$lfqData_subset)
+    },
+    #' @description
+    #' create boxplots
+    #'
+    get_boxplots = function(){
+      return(self$lfqData_subset$get_Plotter()$boxplots())
+    }
+
+  )
+
+
 )
 
