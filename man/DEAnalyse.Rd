@@ -64,6 +64,14 @@ deanalyse$write_boxplots_contrasts("test.pdf")
 \item{\code{models}}{todo}
 
 \item{\code{contrastRes}}{todo}
+
+\item{\code{FDR_threshold}}{fdr threshold}
+
+\item{\code{diff_threshold}}{diff_threshold}
+
+\item{\code{m1}}{linearModel}
+
+\item{\code{m2}}{imputedModel}
 }
 \if{html}{\out{</div>}}
 }
@@ -79,6 +87,7 @@ deanalyse$write_boxplots_contrasts("test.pdf")
 \item \href{#method-DEAnalyse-build_model_glm}{\code{DEAnalyse$build_model_glm()}}
 \item \href{#method-DEAnalyse-compute_contrasts_linear}{\code{DEAnalyse$compute_contrasts_linear()}}
 \item \href{#method-DEAnalyse-compute_contrasts_missing}{\code{DEAnalyse$compute_contrasts_missing()}}
+\item \href{#method-DEAnalyse-merge_contrasts_default}{\code{DEAnalyse$merge_contrasts_default()}}
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
 \item \href{#method-DEAnalyse-filter_data}{\code{DEAnalyse$filter_data()}}
 \item \href{#method-DEAnalyse-get_boxplots}{\code{DEAnalyse$get_boxplots()}}
@@ -114,6 +123,10 @@ initialize
 \item{\code{prolfq_app_config}}{ProlfquAppConfig}
 
 \item{\code{contrasts}}{vector with contrasts}
+
+\item{\code{FDR_threshold}}{FDR_threshold}
+
+\item{\code{diff_threshold}}{diff_threshold}
 }
 \if{html}{\out{</div>}}
 }
@@ -191,33 +204,29 @@ fit generalized linear model
 \subsection{Method \code{compute_contrasts_linear()}}{
 compute contrasts linear
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_linear(modelName = "modelLinear")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_linear()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{modelName}}{of model default modelLinear}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-compute_contrasts_missing"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts_missing}{}}}
 \subsection{Method \code{compute_contrasts_missing()}}{
 compute missing contrasts
+merge contrasts
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_missing(modelName = "Imputed_Mean")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_missing()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{modelName}}{Imputed_Mean}
 }
-\if{html}{\out{</div>}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-merge_contrasts_default"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-merge_contrasts_default}{}}}
+\subsection{Method \code{merge_contrasts_default()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$merge_contrasts_default()}\if{html}{\out{</div>}}
 }
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-filter_contrasts"></a>}}
@@ -225,16 +234,9 @@ compute missing contrasts
 \subsection{Method \code{filter_contrasts()}}{
 filter contrasts for threshold
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts(modelName = "modelLinear")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{modelName}}{default "modelLinear"}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-filter_data"></a>}}
@@ -242,16 +244,9 @@ filter contrasts for threshold
 \subsection{Method \code{filter_data()}}{
 filter transformed lfq data for significant proteins.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_data(modelName = "modelLinear")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_data()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{modelName}}{modelLinear}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-get_boxplots"></a>}}

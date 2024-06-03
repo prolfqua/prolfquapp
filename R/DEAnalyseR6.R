@@ -72,8 +72,14 @@ DEAnalyse <- R6::R6Class(
     models = list(),
     #' @field contrastRes todo
     contrastRes = list(),
+    #' @field FDR_threshold fdr threshold
     FDR_threshold = 0.1,
+    #' @field diff_threshold diff_threshold
     diff_threshold = 1,
+    #' @field m1 linearModel
+    m1 = "linearModel",
+    #' @field m2 imputedModel
+    m2 = "imputedModel",
 
     #' @description
     #' initialize
@@ -81,6 +87,8 @@ DEAnalyse <- R6::R6Class(
     #' @param rowAnnot ProteinAnnotation
     #' @param prolfq_app_config ProlfquAppConfig
     #' @param contrasts vector with contrasts
+    #' @param FDR_threshold FDR_threshold
+    #' @param diff_threshold diff_threshold
     initialize = function(lfqdata,
                           rowAnnot,
                           prolfq_app_config,
@@ -166,32 +174,34 @@ DEAnalyse <- R6::R6Class(
     },
     #' @description
     #' compute contrasts linear
-    #' @param modelName of model default modelLinear
-    compute_contrasts_linear = function(modelName = "modelLinear") {
-      contr <- prolfqua::Contrasts$new(self$models[[modelName]],
+    compute_contrasts_linear = function() {
+      contr <- prolfqua::Contrasts$new(self$models[[self$m1]],
                                        self$contrasts,
-                                       modelName = modelName)
+                                       modelName = self$m1)
       conrM <- prolfqua::ContrastsModerated$new(contr)
-      self$contrastRes[[modelName]] <- conrM
+      self$contrastRes[[self$m1]] <- conrM
       invisible(conrM)
     },
     #' @description
     #' compute missing contrasts
-    #' @param modelName Imputed_Mean
-    compute_contrasts_missing = function(modelName = "Imputed_Mean"){
+    compute_contrasts_missing = function(){
       mC <- prolfqua::ContrastsMissing$new(
         lfqdata = self$lfqData_transformed,
         contrasts = self$contrasts,
-        modelName = modelName)
+        modelName = self$m2)
       conMI <- prolfqua::ContrastsModerated$new(mC)
-      self$contrastRes[[modelName]] <- conMI
+      self$contrastRes[[self$m2]] <- conMI
       return(conMI)
+    },
+    #' merge contrasts
+    merge_contrasts_default = function(){
+      prolfqua::merge_contrasts_results(self$contrastRes[[self$m1]], self$contrastRes[[slef$m2]])
+
     },
     #' @description
     #' filter contrasts for threshold
-    #' @param modelName default "modelLinear"
-    filter_contrasts = function(modelName = "modelLinear"){
-      datax <- self$contrastRes[[modelName]]$get_contrasts()
+    filter_contrasts = function(){
+      datax <- self$contrastRes[[self$m1]]$get_contrasts()
       datax <- datax |>
         dplyr::filter(.data$FDR < self$FDR_threshold &
                         abs(.data$diff) > self$diff_threshold )
@@ -199,10 +209,8 @@ DEAnalyse <- R6::R6Class(
     },
     #' @description
     #' filter transformed lfq data for significant proteins.
-    #' @param modelName modelLinear
-    filter_data = function(modelName = "modelLinear")
-    {
-      dx <- self$filter_contrasts( modelName = modelName)
+    filter_data = function(){
+      dx <- self$filter_contrasts()
       self$lfqData_subset <- self$lfqData_transformed$get_subset(dx)
       return(self$lfqData_subset)
     },
