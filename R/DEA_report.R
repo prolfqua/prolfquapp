@@ -31,6 +31,7 @@ DEAnalyse <- R6::R6Class(
     lfqdata = NULL,
     #' @field rowAnnot ProteinAnnotation
     rowAnnot = NULL,
+    #' @field contrasts vector with contrasts
     contrasts = character(),
     #'@field GRP2 ProlfquAppConfig
     GRP2 = NULL,
@@ -38,27 +39,38 @@ DEAnalyse <- R6::R6Class(
 
     #' @field reference_proteins reference proteins to use for internal normalization
     reference_proteins = NULL, # to use for internal calibration
+    #' @field decoy_summary decoy_summary
     decoy_summary = NULL,
+    #' @field lfqData lfqData
     lfqData = NULL,
+    #' @field transformedlfqData todo
     transformedlfqData = NULL,
+    #' @field formula todo
     formula = character(),
+    #' @field models todo
     models = list(),
+    #' @field contrastRes todo
     contrastRes = list(),
 
+    #' @description
     #' initialize
     #' @param lfqdata lfqdata
     #' @param rowAnnot ProteinAnnotation
     #' @param GRP2 ProlfquAppConfig
+    #' @param contrasts vector with contrasts
     initialize = function(lfqdata, rowAnnot, GRP2, contrasts) {
       self$lfqdata <- lfqdata
       self$rowAnnot <- rowAnnot
       self$GRP2 <- GRP2
       self$contrasts
     },
-
+    #' @description
+    #' count number of decoys
     cont_decoy_summary = function() {
       self$rowAnnot$get_summary()
     },
+    #' @description
+    #' remove contaminants and decoys
     remove_cont_decoy = function() {
         self$lfqdata <- self$lfqdata$get_subset(self$rowAnnot$clean(
           contaminants = self$GRP2$processing_options$remove_cont,
@@ -68,6 +80,8 @@ DEAnalyse <- R6::R6Class(
                          self$GRP2$processing_options$pattern_contaminants,
                          self$GRP2$processing_options$pattern_decoys)
     },
+    #' @description
+    #' transform data
     transform_data = function() {
       transformed <- prolfquapp::transform_lfqdata(
         self$lfqdata,
@@ -79,7 +93,8 @@ DEAnalyse <- R6::R6Class(
       self$transformedlfqData <- transformed
       invisible(transformed)
     },
-    # static
+    #' @description
+    #' static create model formula
     create_model_formula = function() {
       prlconfig <- self$transformedlfqData$config
       interaction <- self$GRP2$processing_options$interaction
@@ -98,6 +113,9 @@ DEAnalyse <- R6::R6Class(
       self$formula <- formula
       return(formula)
     },
+    #' @description
+    #' fit linear model
+    #' @param modelName modelLinear
     build_model_linear = function(modelName = "modelLinear") {
       formula <- self$create_model_formula()
       formula_Condition <-  prolfqua::strategy_lm(formula)
@@ -107,9 +125,14 @@ DEAnalyse <- R6::R6Class(
       self$models[[modelName]] <- models
       return(models)
     },
+    #' @description
+    #' fit generalized linear model
     build_model_glm = function(){
       self$models[["glm"]] <- models
     },
+    #' @description
+    #' compute contrasts linear
+    #' @param modelName of model default modelLinear
     compute_contrasts_linear = function(modelName = "modelLinear") {
       contr <- prolfqua::Contrasts$new(self$models[["modelLinear"]],
                                        self$contrasts,
@@ -118,7 +141,9 @@ DEAnalyse <- R6::R6Class(
       self$contrastRes[[modelName]] <- conrM
       invisible(conrM)
     },
-    #static
+    #' @description
+    #' compute missing contrasts
+    #' @param modelName Imputed_Mean
     compute_contrasts_missing = function(modelName = "Imputed_Mean"){
       mC <- prolfqua::ContrastsMissing$new(
         lfqdata = transformedlfqData,
@@ -128,7 +153,11 @@ DEAnalyse <- R6::R6Class(
       self$contrastRes[[modelName]] <- conMI
       return(conMI)
     },
-    #static
+    #' @description
+    #' filter contrasts for therehold
+    #' @param FDR_threshold FDR threshold
+    #' @param diff_threshol diff threshold
+    #' @param modelName modelLinear
     filter_contrasts = function(FDR_threshold = 0.1, diff_threshol = 1,
                                 modelName = "modelLinear"){
       datax <- self$contrastRes[[modelName]]$get_contrasts()

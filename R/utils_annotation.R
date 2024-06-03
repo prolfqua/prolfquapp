@@ -11,7 +11,7 @@ read_annotation <- function(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", 
 
 #' extract contrast from annotation file
 #' @export
-#' @example
+#' @examples
 #'
 #' annot <- data.frame(names = c("a1","b1"), group= c("a","b"), ddd = c("T","C"))
 #' testthat::expect_error(extract_contrasts(annot))
@@ -25,7 +25,7 @@ read_annotation <- function(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", 
 #' ct <- extract_contrasts(annot)
 #' stopifnot(length(ct) == 2)
 extract_contrasts <- function(annot, prefix = "G_", group = "group") {
-  AnnotationProcessor$new(prefix = prefix, group = group)$extract_contrasts()
+  AnnotationProcessor$new(prefix = prefix)$extract_contrasts(annot, group = group)
 }
 
 #' add vector of contrasts to annotation data frame

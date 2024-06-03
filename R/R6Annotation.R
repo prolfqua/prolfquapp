@@ -54,18 +54,32 @@ AnnotationProcessor <- R6Class(
   "AnnotationProcessor",
 
   public = list(
+    #' @field QC is it a QC run
     QC = FALSE,
+    #' @field prefix name for one factor designs
     prefix = "G_",
+    #' @field repeated is it a repeated measurement
     repeated = TRUE,
+    #' @field SAINT is it a AP MS experiment, then use Bait_ as prefix
     SAINT = FALSE,
-
+    #' @field file_pattern colnames for file
     file_pattern = "^channel|^Relative|^raw|^file",
+    #' @field grouping_pattern colnames grouping variable
     grouping_pattern = "^group|^bait|^Experiment",
-    control_pattern = "ContrastName|Contrast|control",
-    sample_name_pattern = "^name|^sample",
+    #' @field subject_pattern colnames for pairing variable
     subject_pattern = "^subject|^BioReplicate",
+    #' @field control_pattern contrast specification columns
+    control_pattern = "ContrastName|Contrast|control",
+    #' @field control_col_pattern columns which contains C or T.
     control_col_pattern = "^control",
+    #' @field sample_name_pattern sample name column
+    sample_name_pattern = "^name|^sample",
 
+    #' @description initialize
+    #' @param QC default FALSE
+    #' @param prefix default "G_"
+    #' @param repeated default TRUE
+    #' @param SAINT default FALSE
     initialize = function(QC = FALSE,
                           prefix = "G_",
                           repeated = TRUE,
@@ -75,7 +89,9 @@ AnnotationProcessor <- R6Class(
       self$repeated <- repeated
       self$SAINT <- SAINT
     },
-
+    #' @description
+    #' check annotation
+    #' @param annot annotation
     check_annotation = function(annot) {
       filename <- grep(self$file_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
       if (length(filename) < 1) { stop("column starting with :", self$file_pattern , " is missing.") }
@@ -98,7 +114,9 @@ AnnotationProcessor <- R6Class(
         stopifnot(all(c("C", "T") %in% annot[["CONTROL"]]))
       }
     },
-
+    #' @description
+    #' read annotation
+    #' @param dsf either dataframe or file path.
     read_annotation = function(dsf) {
       if ("data.frame" %in% class(dsf)) {
         annot <- dsf
@@ -114,7 +132,10 @@ AnnotationProcessor <- R6Class(
       }
       return(res)
     },
-
+    #' @description
+    #' check annotation
+    #' @param annot annotation
+    #' @param group group column e.g. group
     extract_contrasts = function(annot, group) {
       levels <- private$get_levels(annot, group)
       logger::log_info("levels: ", paste(levels, collapse = " "))
@@ -127,17 +148,19 @@ AnnotationProcessor <- R6Class(
         return(private$generate_contrasts(annot, levels, group))
       }
     },
-
-
-    add_contrasts_vec = function(xx, Contrasts) {
-      if (length(Contrasts) <= nrow(xx)) {
-        xx$CONTROL <- NULL
-        xx$ContrastName <- c(names(Contrasts), rep(NA, nrow(xx) - length(Contrasts)))
-        xx$Contrast <- c(Contrasts, rep(NA, nrow(xx) - length(Contrasts)))
+    #' @description
+    #' add vector of contrasts to annot table
+    #' @param annot annotation
+    #' @param Contrasts vector with contrasts
+    add_contrasts_vec = function(annot, Contrasts) {
+      if (length(Contrasts) <= nrow(annot)) {
+        annot$CONTROL <- NULL
+        annot$ContrastName <- c(names(Contrasts), rep(NA, nrow(annot) - length(Contrasts)))
+        annot$Contrast <- c(Contrasts, rep(NA, nrow(annot) - length(Contrasts)))
       } else {
         warning("There are more Contrasts than samples.")
       }
-      return(xx)
+      return(annot)
     }
   ),
 
@@ -263,6 +286,3 @@ AnnotationProcessor <- R6Class(
   )
 )
 
-# Example of using the class
-# processor <- AnnotationProcessor$new(QC = FALSE, prefix = "G_", repeated = TRUE, SAINT = FALSE)
-# result <- processor$read_annotation(dsf)

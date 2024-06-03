@@ -39,10 +39,23 @@ deanalyse$RES
 
 \item{\code{rowAnnot}}{ProteinAnnotation}
 
+\item{\code{contrasts}}{vector with contrasts}
+
 \item{\code{GRP2}}{ProlfquAppConfig}
 
-\item{\code{reference_proteins}}{reference proteins to use for internal normalization
-initialize}
+\item{\code{reference_proteins}}{reference proteins to use for internal normalization}
+
+\item{\code{decoy_summary}}{decoy_summary}
+
+\item{\code{lfqData}}{lfqData}
+
+\item{\code{transformedlfqData}}{todo}
+
+\item{\code{formula}}{todo}
+
+\item{\code{models}}{todo}
+
+\item{\code{contrastRes}}{todo}
 }
 \if{html}{\out{</div>}}
 }
@@ -66,6 +79,7 @@ initialize}
 \if{html}{\out{<a id="method-DEAnalyse-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-new}{}}}
 \subsection{Method \code{new()}}{
+initialize
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(lfqdata, rowAnnot, GRP2, contrasts)}\if{html}{\out{</div>}}
 }
@@ -78,6 +92,8 @@ initialize}
 \item{\code{rowAnnot}}{ProteinAnnotation}
 
 \item{\code{GRP2}}{ProlfquAppConfig}
+
+\item{\code{contrasts}}{vector with contrasts}
 }
 \if{html}{\out{</div>}}
 }
@@ -86,6 +102,7 @@ initialize}
 \if{html}{\out{<a id="method-DEAnalyse-cont_decoy_summary"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-cont_decoy_summary}{}}}
 \subsection{Method \code{cont_decoy_summary()}}{
+count number of decoys
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$cont_decoy_summary()}\if{html}{\out{</div>}}
 }
@@ -95,6 +112,7 @@ initialize}
 \if{html}{\out{<a id="method-DEAnalyse-remove_cont_decoy"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-remove_cont_decoy}{}}}
 \subsection{Method \code{remove_cont_decoy()}}{
+remove contaminants and decoys
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$remove_cont_decoy()}\if{html}{\out{</div>}}
 }
@@ -104,6 +122,7 @@ initialize}
 \if{html}{\out{<a id="method-DEAnalyse-transform_data"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-transform_data}{}}}
 \subsection{Method \code{transform_data()}}{
+transform data
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$transform_data()}\if{html}{\out{</div>}}
 }
@@ -113,6 +132,7 @@ initialize}
 \if{html}{\out{<a id="method-DEAnalyse-create_model_formula"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-create_model_formula}{}}}
 \subsection{Method \code{create_model_formula()}}{
+static create model formula
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$create_model_formula()}\if{html}{\out{</div>}}
 }
@@ -122,15 +142,24 @@ initialize}
 \if{html}{\out{<a id="method-DEAnalyse-build_model_linear"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_linear}{}}}
 \subsection{Method \code{build_model_linear()}}{
+fit linear model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_linear(modelName = "modelLinear")}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{modelName}}{modelLinear}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-build_model_glm"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_glm}{}}}
 \subsection{Method \code{build_model_glm()}}{
+fit generalized linear model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_glm()}\if{html}{\out{</div>}}
 }
@@ -140,24 +169,41 @@ initialize}
 \if{html}{\out{<a id="method-DEAnalyse-compute_contrasts_linear"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts_linear}{}}}
 \subsection{Method \code{compute_contrasts_linear()}}{
+compute contrasts linear
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_linear(modelName = "modelLinear")}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{modelName}}{of model default modelLinear}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-compute_contrasts_missing"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts_missing}{}}}
 \subsection{Method \code{compute_contrasts_missing()}}{
+compute missing contrasts
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_missing(modelName = "Imputed_Mean")}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{modelName}}{Imputed_Mean}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-filter_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-filter_contrasts}{}}}
 \subsection{Method \code{filter_contrasts()}}{
+filter contrasts for therehold
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts(
   FDR_threshold = 0.1,
@@ -166,6 +212,17 @@ initialize}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{FDR_threshold}}{FDR threshold}
+
+\item{\code{diff_threshol}}{diff threshold}
+
+\item{\code{modelName}}{modelLinear}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-clone"></a>}}

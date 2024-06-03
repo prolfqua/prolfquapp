@@ -73,15 +73,18 @@ ProteinAnnotation <-
                 cleaned_ids = character(),
                 #' @field nr_children name of columns with the number of peptides
                 nr_children = character(),
+                #' @field pattern_contaminants pattern_contaminants
                 pattern_contaminants = character(),
+                #' @field pattern_decoys pattern_decoys
                 pattern_decoys = character(),
                 #' @description initialize
                 #' @param lfqdata data frame from \code{\link{setup_analysis}}
                 #' @param row_annot data frame with row annotation. Must have columns matching \code{config$table$hierarchy_keys_depth()}
                 #' @param description name of column with description
-                #' @param ids names of columns with cleaned Ids
-                #' @param nr_peptides additional peptides
+                #' @param cleaned_ids names of columns with cleaned Ids
                 #' @param nr_children column with the number of children
+                #' @param pattern_contaminants pattern_contaminants
+                #' @param pattern_decoys pattern_decoys
                 initialize = function(lfqdata,
                                       row_annot = NULL,
                                       description = NULL,
@@ -135,7 +138,6 @@ ProteinAnnotation <-
                 },
                 #' @description
                 #' get summary
-                #' @param
                 get_summary = function() {
                   allProt <- nrow(self$row_annot)
                   contdecoySummary <- data.frame(

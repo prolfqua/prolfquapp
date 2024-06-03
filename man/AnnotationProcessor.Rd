@@ -56,6 +56,31 @@ aa <- ap$read_annotation(annot)
 aa$atable$sampleName
 stopifnot(is.null(aa$annotation))
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{QC}}{is it a QC run}
+
+\item{\code{prefix}}{name for one factor designs}
+
+\item{\code{repeated}}{is it a repeated measurement}
+
+\item{\code{SAINT}}{is it a AP MS experiment, then use Bait_ as prefix}
+
+\item{\code{file_pattern}}{colnames for file}
+
+\item{\code{grouping_pattern}}{colnames grouping variable}
+
+\item{\code{subject_pattern}}{colnames for pairing variable}
+
+\item{\code{control_pattern}}{contrast specification columns}
+
+\item{\code{control_col_pattern}}{columns which contains C or T.}
+
+\item{\code{sample_name_pattern}}{sample name column}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -71,6 +96,7 @@ stopifnot(is.null(aa$annotation))
 \if{html}{\out{<a id="method-AnnotationProcessor-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-new}{}}}
 \subsection{Method \code{new()}}{
+initialize
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$new(
   QC = FALSE,
@@ -80,42 +106,91 @@ stopifnot(is.null(aa$annotation))
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{QC}}{default FALSE}
+
+\item{\code{prefix}}{default "G_"}
+
+\item{\code{repeated}}{default TRUE}
+
+\item{\code{SAINT}}{default FALSE}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-check_annotation"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-check_annotation}{}}}
 \subsection{Method \code{check_annotation()}}{
+check annotation
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$check_annotation(annot)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{annot}}{annotation}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-read_annotation"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-read_annotation}{}}}
 \subsection{Method \code{read_annotation()}}{
+read annotation
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$read_annotation(dsf)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{dsf}}{either dataframe or file path.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-extract_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-extract_contrasts}{}}}
 \subsection{Method \code{extract_contrasts()}}{
+check annotation
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$extract_contrasts(annot, group)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{annot}}{annotation}
+
+\item{\code{group}}{group column e.g. group}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-add_contrasts_vec"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-add_contrasts_vec}{}}}
 \subsection{Method \code{add_contrasts_vec()}}{
+add vector of contrasts to annot table
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$add_contrasts_vec(xx, Contrasts)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$add_contrasts_vec(annot, Contrasts)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{annot}}{annotation}
+
+\item{\code{Contrasts}}{vector with contrasts}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-clone"></a>}}

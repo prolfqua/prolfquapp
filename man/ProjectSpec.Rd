@@ -20,28 +20,15 @@ Other ProlfquAppConfig:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{projectID}}{project ID}
+\item{\code{project_Id}}{project ID}
 
 \item{\code{project_name}}{project name}
 
-\item{\code{orderID}}{order ID}
+\item{\code{order_Id}}{order ID}
 
-\item{\code{workunitID}}{workunit ID}
+\item{\code{workunit_Id}}{workunit ID}
 
-\item{\code{inputURL}}{input URL}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{projectID}}{project ID}
-
-\item{\code{orderID}}{order ID}
-
-\item{\code{workunitID}}{workunit ID}
-
-\item{\code{inputURL}}{input URL}
+\item{\code{input_URL}}{input URL}
 }
 \if{html}{\out{</div>}}
 }

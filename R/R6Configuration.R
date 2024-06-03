@@ -40,15 +40,15 @@ ProcessingOptions <- R6::R6Class(
 ProjectSpec <- R6::R6Class(
   "ProjectSpec",
   public = list(
-    #' @field projectID project ID
+    #' @field project_Id project ID
     project_Id =  integer(),
     #' @field project_name project name
     project_name = "",
-    #' @field orderID order ID
+    #' @field order_Id order ID
     order_Id = integer(),
-    #' @field workunitID workunit ID
+    #' @field workunit_Id workunit ID
     workunit_Id =  integer(),
-    #' @field inputURL input URL
+    #' @field input_URL input URL
     input_URL = "https://fgcz-bfabric.uzh.ch/bfabric/"
   )
 )
