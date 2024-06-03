@@ -157,14 +157,13 @@ DEAnalyse <- R6::R6Class(
     },
     #' @description
     #' fit linear model
-    #' @param modelName modelLinear
-    build_model_linear = function(modelName = "modelLinear") {
+    build_model_linear = function() {
       formula <- self$create_model_formula()
       formula_Condition <-  prolfqua::strategy_lm(formula)
       models <- prolfqua::build_model(
         self$lfqData_transformed,
         formula_Condition)
-      self$models[[modelName]] <- models
+      self$models[[self$m1]] <- models
       return(models)
     },
     #' @description

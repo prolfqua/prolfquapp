@@ -177,16 +177,9 @@ static create model formula
 \subsection{Method \code{build_model_linear()}}{
 fit linear model
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_linear(modelName = "modelLinear")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_linear()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{modelName}}{modelLinear}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-build_model_glm"></a>}}
