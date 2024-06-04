@@ -21,7 +21,7 @@ GRP2 <- prolfquapp::make_DEA_config_R6()
 GRP2$processing_options$transform <- "robscale"
 pep$factors()
 contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
-#DEAnalyse$debug("filter_contrasts")
+DEAnalyse$debug("filter_contrasts")
 deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts, diff_threshold = 0.2)
 deanalyse$cont_decoy_summary()
 deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
@@ -29,14 +29,16 @@ deanalyse$remove_cont_decoy()
 deanalyse$transform_data()
 deanalyse$create_model_formula()
 mod <- deanalyse$build_model_linear()
-contlm <- deanalyse$compute_contrasts_linear()
-
+contlm <- deanalyse$get_contrasts_linear()
+deanalyse$filter_contrasts()
 xd <- deanalyse$filter_data()
 xd <- deanalyse$contrasts_to_Grob()
 bb <- deanalyse$get_boxplots()
 bx <- deanalyse$get_boxplots_contrasts()
 grid::grid.draw(bx$bxpl_grobs[[1]])
 deanalyse$write_boxplots_contrasts("test.pdf")
+deanalyse$build_model_glm_protein()
+
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -69,9 +71,11 @@ deanalyse$write_boxplots_contrasts("test.pdf")
 
 \item{\code{diff_threshold}}{diff_threshold}
 
-\item{\code{m1}}{linearModel}
+\item{\code{m1_linear}}{linearModel}
 
-\item{\code{m2}}{imputedModel}
+\item{\code{m2_missing}}{imputedModel}
+
+\item{\code{m3_merged}}{mergedModel}
 }
 \if{html}{\out{</div>}}
 }
@@ -84,10 +88,11 @@ deanalyse$write_boxplots_contrasts("test.pdf")
 \item \href{#method-DEAnalyse-transform_data}{\code{DEAnalyse$transform_data()}}
 \item \href{#method-DEAnalyse-create_model_formula}{\code{DEAnalyse$create_model_formula()}}
 \item \href{#method-DEAnalyse-build_model_linear}{\code{DEAnalyse$build_model_linear()}}
-\item \href{#method-DEAnalyse-build_model_glm}{\code{DEAnalyse$build_model_glm()}}
-\item \href{#method-DEAnalyse-compute_contrasts_linear}{\code{DEAnalyse$compute_contrasts_linear()}}
-\item \href{#method-DEAnalyse-compute_contrasts_missing}{\code{DEAnalyse$compute_contrasts_missing()}}
-\item \href{#method-DEAnalyse-merge_contrasts_default}{\code{DEAnalyse$merge_contrasts_default()}}
+\item \href{#method-DEAnalyse-build_model_glm_protein}{\code{DEAnalyse$build_model_glm_protein()}}
+\item \href{#method-DEAnalyse-build_model_glm_peptide}{\code{DEAnalyse$build_model_glm_peptide()}}
+\item \href{#method-DEAnalyse-get_contrasts_linear}{\code{DEAnalyse$get_contrasts_linear()}}
+\item \href{#method-DEAnalyse-get_contrasts_missing}{\code{DEAnalyse$get_contrasts_missing()}}
+\item \href{#method-DEAnalyse-get_merged}{\code{DEAnalyse$get_merged()}}
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
 \item \href{#method-DEAnalyse-filter_data}{\code{DEAnalyse$filter_data()}}
 \item \href{#method-DEAnalyse-get_boxplots}{\code{DEAnalyse$get_boxplots()}}
@@ -109,7 +114,8 @@ initialize
   prolfq_app_config,
   contrasts,
   FDR_threshold = 0.01,
-  diff_threshold = 1
+  diff_threshold = 1,
+  default_model = "mergedModel"
 )}\if{html}{\out{</div>}}
 }
 
@@ -182,42 +188,52 @@ fit linear model
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-build_model_glm"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_glm}{}}}
-\subsection{Method \code{build_model_glm()}}{
+\if{html}{\out{<a id="method-DEAnalyse-build_model_glm_protein"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_glm_protein}{}}}
+\subsection{Method \code{build_model_glm_protein()}}{
 fit generalized linear model
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_glm()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_glm_protein()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-compute_contrasts_linear"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts_linear}{}}}
-\subsection{Method \code{compute_contrasts_linear()}}{
+\if{html}{\out{<a id="method-DEAnalyse-build_model_glm_peptide"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_glm_peptide}{}}}
+\subsection{Method \code{build_model_glm_peptide()}}{
+fit generalized linear model
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_glm_peptide()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-get_contrasts_linear"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_linear}{}}}
+\subsection{Method \code{get_contrasts_linear()}}{
 compute contrasts linear
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_linear()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_linear()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-compute_contrasts_missing"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-compute_contrasts_missing}{}}}
-\subsection{Method \code{compute_contrasts_missing()}}{
+\if{html}{\out{<a id="method-DEAnalyse-get_contrasts_missing"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_missing}{}}}
+\subsection{Method \code{get_contrasts_missing()}}{
 compute missing contrasts
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_missing()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-get_merged"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-get_merged}{}}}
+\subsection{Method \code{get_merged()}}{
 merge contrasts
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$compute_contrasts_missing()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-merge_contrasts_default"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-merge_contrasts_default}{}}}
-\subsection{Method \code{merge_contrasts_default()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$merge_contrasts_default()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_merged()}\if{html}{\out{</div>}}
 }
 
 }

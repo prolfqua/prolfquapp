@@ -26,7 +26,7 @@ custom_round <- function(arr) {
 #' GRP2$processing_options$transform <- "robscale"
 #' pep$factors()
 #' contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
-#' #DEAnalyse$debug("filter_contrasts")
+#' DEAnalyse$debug("filter_contrasts")
 #' deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts, diff_threshold = 0.2)
 #' deanalyse$cont_decoy_summary()
 #' deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
@@ -34,14 +34,16 @@ custom_round <- function(arr) {
 #' deanalyse$transform_data()
 #' deanalyse$create_model_formula()
 #' mod <- deanalyse$build_model_linear()
-#' contlm <- deanalyse$compute_contrasts_linear()
-#'
+#' contlm <- deanalyse$get_contrasts_linear()
+#' deanalyse$filter_contrasts()
 #' xd <- deanalyse$filter_data()
 #' xd <- deanalyse$contrasts_to_Grob()
 #' bb <- deanalyse$get_boxplots()
 #' bx <- deanalyse$get_boxplots_contrasts()
 #' grid::grid.draw(bx$bxpl_grobs[[1]])
 #' deanalyse$write_boxplots_contrasts("test.pdf")
+#' deanalyse$build_model_glm_protein()
+#'
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(
@@ -76,11 +78,16 @@ DEAnalyse <- R6::R6Class(
     FDR_threshold = 0.1,
     #' @field diff_threshold diff_threshold
     diff_threshold = 1,
-    #' @field m1 linearModel
-    m1 = "linearModel",
-    #' @field m2 imputedModel
-    m2 = "imputedModel",
+    #' @field m1_linear linearModel
+    m1_linear = "linearModel",
+    #' @field m2_missing imputedModel
+    m2_missing = "imputedModel",
+    #' @field m3_merged mergedModel
+    m3_merged = "mergedModel",
 
+    m4_glm_protein = "glmModel",
+    m4_glm_peptide = "glmModel",
+    default_model = character(),
     #' @description
     #' initialize
     #' @param lfqdata lfqdata
@@ -94,7 +101,10 @@ DEAnalyse <- R6::R6Class(
                           prolfq_app_config,
                           contrasts,
                           FDR_threshold = 0.01,
-                          diff_threshold = 1) {
+                          diff_threshold = 1,
+                          default_model = "mergedModel") {
+      stopifnot(default_model %in% c(self$m3_merged, self$m2_missing, self$m1_linear, self$m4_glm))
+      self$default_model = default_model
       stopifnot("LFQData" %in% class(lfqdata))
       stopifnot("ProteinAnnotation" %in% class(rowAnnot))
       stopifnot("ProlfquAppConfig" %in% class(prolfq_app_config))
@@ -158,49 +168,92 @@ DEAnalyse <- R6::R6Class(
     #' @description
     #' fit linear model
     build_model_linear = function() {
-      formula <- self$create_model_formula()
-      formula_Condition <-  prolfqua::strategy_lm(formula)
-      models <- prolfqua::build_model(
-        self$lfqData_transformed,
-        formula_Condition)
-      self$models[[self$m1]] <- models
-      return(models)
+      if (is.null(self$models[[self$m1_linear]]) ) {
+        formula <- self$create_model_formula()
+        formula_Condition <-  prolfqua::strategy_lm(formula)
+        models <- prolfqua::build_model(
+          self$lfqData_transformed,
+          formula_Condition)
+        self$models[[self$m1_linear]] <- models
+      }
+      return(self$models[[self$m1_linear]])
     },
     #' @description
     #' fit generalized linear model
-    build_model_glm = function(){
-      self$models[["glm"]] <- models
+    build_model_glm_protein = function(){
+      if (is.null(self$models[[self$m4_glm_protein]])) {
+        formula <- self$create_model_formula()
+        modelFunction <-  prolfqua::strategy_glm(formula,
+                                       family = stats::binomial,
+                                       multiplier = 1.5,
+                                       offset = 1)
+        models <- prolfqua::build_model(self$lfqData_transformed , modelFunction)
+        self$models[[self$m4_glm_protein]] <- models
+      }
+      return(self$models[[self$m4_glm_protein]])
     },
     #' @description
+    #' fit generalized linear model
+    build_model_glm_peptide = function(){
+      if (is.null(self$models[[self$m4_glm_peptide]])) {
+        formula <- self$create_model_formula_peptide()
+        modelFunction <-  strategy_glm(formula,
+                                       family = stats::quasibinomial,
+                                       multiplier = 1.2,
+                                       offset = 1)
+        models <- prolfqua::build_model(self$lfqData_peptide , modelFunction)
+        self$models[[self$m4_glm_protein]] <- models
+      }
+      return(self$models[[self$m4_glm_protein]])
+    },
+
+    #' @description
     #' compute contrasts linear
-    compute_contrasts_linear = function() {
-      contr <- prolfqua::Contrasts$new(self$models[[self$m1]],
-                                       self$contrasts,
-                                       modelName = self$m1)
-      conrM <- prolfqua::ContrastsModerated$new(contr)
-      self$contrastRes[[self$m1]] <- conrM
-      invisible(conrM)
+    get_contrasts_linear = function() {
+      if (is.null(self$contrastRes[[self$m1_linear]])) {
+        self$build_model_linear()
+        contr <- prolfqua::Contrasts$new(self$models[[self$m1_linear]],
+                                         self$contrasts,
+                                         modelName = self$m1_linear)
+        conrM <- prolfqua::ContrastsModerated$new(contr)
+        self$contrastRes[[self$m1_linear]] <- conrM
+      }
+      invisible(self$contrastRes[[self$m1_linear]])
     },
     #' @description
     #' compute missing contrasts
-    compute_contrasts_missing = function(){
-      mC <- prolfqua::ContrastsMissing$new(
-        lfqdata = self$lfqData_transformed,
-        contrasts = self$contrasts,
-        modelName = self$m2)
-      conMI <- prolfqua::ContrastsModerated$new(mC)
-      self$contrastRes[[self$m2]] <- conMI
-      return(conMI)
+    get_contrasts_missing = function(){
+      if (is.null(self$contrastRes[[self$m2_missing]])) {
+        mC <- prolfqua::ContrastsMissing$new(
+          lfqdata = self$lfqData_transformed,
+          contrasts = self$contrasts,
+          modelName = self$m2_missing)
+        conMI <- prolfqua::ContrastsModerated$new(mC)
+        self$contrastRes[[self$m2_missing]] <- conMI
+      }
+      return(self$contrastRes[[self$m2_missing]])
     },
+    #' @description
     #' merge contrasts
-    merge_contrasts_default = function(){
-      prolfqua::merge_contrasts_results(self$contrastRes[[self$m1]], self$contrastRes[[slef$m2]])
+    get_merged = function(){
+      if (is.null(self$contrastRes[[self$m3_merged]])) {
+        self$get_contrasts_linear()
+        self$get_contrasts_missing()
 
+        self$contrastRes[[self$m3_merged]] <- prolfqua::merge_contrasts_results(
+          self$contrastRes[[self$m1_linear]],
+          self$contrastRes[[self$m2_missing]])$merged
+
+      }
+      invisible(self$contrastRes[[self$m3_merged]])
     },
     #' @description
     #' filter contrasts for threshold
     filter_contrasts = function(){
-      datax <- self$contrastRes[[self$m1]]$get_contrasts()
+      if (is.null(self$contrastRes[[self$default_model]])) {
+        self$get_merged()
+      }
+      datax <- self$contrastRes[[self$default_model]]$get_contrasts()
       datax <- datax |>
         dplyr::filter(.data$FDR < self$FDR_threshold &
                         abs(.data$diff) > self$diff_threshold )
@@ -267,7 +320,7 @@ DEAnalyse <- R6::R6Class(
       pdf(file = filename)
       for (i in seq_along(ctrG$bxpl_grobs)) {
         grid::grid.newpage()
-        grid::grid.draw(bx$bxpl_grobs[[i]])
+        grid::grid.draw(ctrG$bxpl_grobs[[i]])
       }
       dev.off()
     }
