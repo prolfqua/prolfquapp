@@ -15,6 +15,10 @@
 aggregate_data <- function(lfqdata,
                            agg_method = c("medpolish", "lmrob", "topN"), N = 3) {
   agg_method <- match.arg(agg_method)
+  if (length(lfqdata$config$table$hierarchy_keys()) == lfqdata$config$table$hierarchyDepth) {
+    warning('nothing to aggregate from, returning unchanged data.')
+    return(lfqdata)
+  }
 
   if (agg_method == "topN") {
     aggregator <- lfqdata$get_Aggregator()
@@ -43,11 +47,15 @@ aggregate_data <- function(lfqdata,
 #' @export
 #'
 #' @examples
-#' pAlf <- sim_peptdata_protAnnot()
+#' pAlf <- sim_data_protAnnot()
 #' xd <- compute_IBAQ_values(pAlf$lfqdata, pAlf$pannot)
 #' xd$response()
-#'
-compute_IBAQ_values <- function(lfqdata, protein_annotation, protein_length = "protein_length",
+#' pAlf <- sim_data_protAnnot(PROTEIN = TRUE)
+#' xd <- compute_IBAQ_values(pAlf$lfqdata, pAlf$pannot)
+#' xd$response()
+compute_IBAQ_values <- function(lfqdata,
+                                protein_annotation,
+                                protein_length = "protein_length",
                                 nr_tryptic_peptides = "nr_tryptic_peptides") {
   required <- c(protein_length, nr_tryptic_peptides)
   stopifnot(all(required %in% colnames(protein_annotation$row_annot)))
@@ -56,9 +64,9 @@ compute_IBAQ_values <- function(lfqdata, protein_annotation, protein_length = "p
   lfqdataProtTotal <- prolfquapp::aggregate_data(lfqdata, agg_method = "topN", N = 10000)
   lfqdataProtTotal$data <- dplyr::inner_join(lfqdataProtTotal$data , rel_annot, by = protein_annotation$pID)
   lfqdataProtTotal$data <- lfqdataProtTotal$data |>
-    dplyr::mutate(IBAQValue_proteinLength = .data$srm_sum_N / !!sym(protein_length))
+    dplyr::mutate(IBAQValue_proteinLength = !!sym(lfqdataProtTotal$response()) / !!sym(protein_length))
   lfqdataProtTotal$data <- lfqdataProtTotal$data |>
-    dplyr::mutate(IBAQValue = .data$srm_sum_N / !!sym(nr_tryptic_peptides))
+    dplyr::mutate(IBAQValue = !!sym(lfqdataProtTotal$response())  / !!sym(nr_tryptic_peptides))
   lfqdataProtTotal$config$table$set_response("IBAQValue")
   return(lfqdataProtTotal)
 }

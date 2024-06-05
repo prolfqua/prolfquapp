@@ -33,14 +33,18 @@ add_RevCon <- function(stringsAll, pattern_decoys= "REV_", pattern_contaminants 
 #' @export
 #' @examples
 #'
-#' res <- sim_peptdata_protAnnot()
+#' res <- sim_data_protAnnot()
+#' res <- sim_data_protAnnot(PROTEIN = TRUE)
 #'
-
-sim_peptdata_protAnnot <- function(Nprot = 100){
-  istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
+sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE){
+  if (PROTEIN) {
+    istar <- prolfqua::sim_lfq_data_protein_config(Nprot = Nprot)
+  } else {
+    istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
+  }
   lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
   lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
-  pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id), value=TRUE, invert=TRUE)
+  pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id), value = TRUE, invert = TRUE)
   addannot <- data.frame(protein_Id = pids,
                          description = stringi::stri_rand_strings(length(pids), 13))
   addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
@@ -52,9 +56,9 @@ sim_peptdata_protAnnot <- function(Nprot = 100){
   pannot <- ProteinAnnotation$new( lfqdata,
                                    addannot,
                                    description = "description",
-                                   cleaned_ids ="cleanID",
+                                   cleaned_ids = "cleanID",
                                    pattern_contaminants = "^zz",
-                                   pattern_decoys="^REV" )
+                                   pattern_decoys = "^REV" )
   pannot$row_annot$nr_tryptic_peptides <- pannot$row_annot$nr_peptides * 2
   pannot$row_annot$protein_length <- pannot$row_annot$nr_peptides*10
 
