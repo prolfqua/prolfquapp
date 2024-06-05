@@ -4,8 +4,19 @@
 \alias{compute_IBAQ_values}
 \title{compute IBAQ values}
 \usage{
-compute_IBAQ_values(lfqdata, protein_annotation)
+compute_IBAQ_values(
+  lfqdata,
+  protein_annotation,
+  protein_length = "protein_length",
+  nr_tryptic_peptides = "nr_tryptic_peptides"
+)
 }
 \description{
 compute IBAQ values
+}
+\examples{
+pAlf <- sim_peptdata_protAnnot()
+xd <- compute_IBAQ_values(pAlf$lfqdata, pAlf$pannot)
+xd$response()
+
 }

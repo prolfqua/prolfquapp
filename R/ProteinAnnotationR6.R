@@ -29,6 +29,38 @@ add_RevCon <- function(stringsAll, pattern_decoys= "REV_", pattern_contaminants 
   return(res$tomod)
 }
 
+#' simulate peptdata and fitting protein annotation for testing
+#' @export
+#' @examples
+#'
+#' res <- sim_peptdata_protAnnot()
+#'
+
+sim_peptdata_protAnnot <- function(Nprot = 100){
+  istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
+  lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
+  lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
+  pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id), value=TRUE, invert=TRUE)
+  addannot <- data.frame(protein_Id = pids,
+                         description = stringi::stri_rand_strings(length(pids), 13))
+  addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
+  # Sample protein lengths from a log-normal distribution
+  protein_lengths <- rlnorm(Nprot, meanlog = log(400), sdlog = 0.8)
+  protein_lengths <- round(pmax(50, protein_lengths))  # Ensure minimum length of 50 AA
+  nr_pep <- round(protein_lengths/20)
+
+  pannot <- ProteinAnnotation$new( lfqdata,
+                                   addannot,
+                                   description = "description",
+                                   cleaned_ids ="cleanID",
+                                   pattern_contaminants = "^zz",
+                                   pattern_decoys="^REV" )
+  pannot$row_annot$nr_tryptic_peptides <- pannot$row_annot$nr_peptides * 2
+  pannot$row_annot$protein_length <- pannot$row_annot$nr_peptides*10
+
+  return(list(pannot = pannot,lfqdata = lfqdata))
+}
+
 
 # ProteinAnnotation ----
 #' Decorates LFQData with a row annotation and some protein specific functions.
@@ -45,9 +77,13 @@ add_RevCon <- function(stringsAll, pattern_decoys= "REV_", pattern_contaminants 
 #' addannot <- data.frame(protein_Id = pids,
 #' description = stringi::stri_rand_strings(length(pids), 13))
 #' addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
-#' pannot <- ProteinAnnotation$new( lfqdata, addannot, description = "description", cleaned_ids ="cleanID",
-#' pattern_contaminants = "^zz", pattern_decoys="^REV" )
-#'
+#' pannot <- ProteinAnnotation$new( lfqdata,
+#'  addannot,
+#'  description = "description",
+#'   cleaned_ids ="cleanID",
+#' pattern_contaminants = "^zz",
+#' pattern_decoys="^REV" )
+#' pannot
 #' stopifnot(pannot$annotate_decoys() == 10)
 #' stopifnot(pannot$annotate_contaminants() == 5)
 #' dd <- pannot$clean()
@@ -194,6 +230,7 @@ ProteinAnnotation <-
 #' Dataset protein annot
 #'
 #' @export
+#' @param lfqdata LFQData
 #' @param msdata data frame
 #' @param idcolName name of column with ID's
 #' @param protein_annot fasta haeder column

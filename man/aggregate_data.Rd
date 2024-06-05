@@ -9,3 +9,15 @@ aggregate_data(lfqdata, agg_method = c("medpolish", "lmrob", "topN"), N = 3)
 \description{
 dataset transform data
 }
+\examples{
+
+xx <- prolfqua::sim_lfq_data_peptide_config()
+lfqdata <- prolfqua::LFQData$new(xx$data, xx$config)
+aggregated <- aggregate_data(lfqdata, agg_method = "medpolish")
+aggregated$response()
+aggregated <- aggregate_data(lfqdata, agg_method = "lmrob")
+aggregated$response()
+aggregated <- aggregate_data(lfqdata, agg_method = "topN")
+aggregated$response()
+
+}

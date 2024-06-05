@@ -18,9 +18,13 @@ pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id),value=TRUE, invert=TRUE)
 addannot <- data.frame(protein_Id = pids,
 description = stringi::stri_rand_strings(length(pids), 13))
 addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
-pannot <- ProteinAnnotation$new( lfqdata, addannot, description = "description", cleaned_ids ="cleanID",
-pattern_contaminants = "^zz", pattern_decoys="^REV" )
-
+pannot <- ProteinAnnotation$new( lfqdata,
+ addannot,
+ description = "description",
+  cleaned_ids ="cleanID",
+pattern_contaminants = "^zz",
+pattern_decoys="^REV" )
+pannot
 stopifnot(pannot$annotate_decoys() == 10)
 stopifnot(pannot$annotate_contaminants() == 5)
 dd <- pannot$clean()

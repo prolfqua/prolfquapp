@@ -21,7 +21,7 @@ GRP2 <- prolfquapp::make_DEA_config_R6()
 GRP2$processing_options$transform <- "robscale"
 pep$factors()
 contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
-DEAnalyse$debug("filter_contrasts")
+#DEAnalyse$debug("filter_contrasts")
 deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts, diff_threshold = 0.2)
 deanalyse$cont_decoy_summary()
 deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
@@ -76,6 +76,12 @@ deanalyse$build_model_glm_protein()
 \item{\code{m2_missing}}{imputedModel}
 
 \item{\code{m3_merged}}{mergedModel}
+
+\item{\code{m4_glm_protein}}{m4_glm_protein}
+
+\item{\code{m4_glm_peptide}}{m4_glm_peptide}
+
+\item{\code{default_model}}{default_model}
 }
 \if{html}{\out{</div>}}
 }
@@ -91,6 +97,7 @@ deanalyse$build_model_glm_protein()
 \item \href{#method-DEAnalyse-build_model_glm_protein}{\code{DEAnalyse$build_model_glm_protein()}}
 \item \href{#method-DEAnalyse-build_model_glm_peptide}{\code{DEAnalyse$build_model_glm_peptide()}}
 \item \href{#method-DEAnalyse-get_contrasts_linear}{\code{DEAnalyse$get_contrasts_linear()}}
+\item \href{#method-DEAnalyse-get_contrasts_glm}{\code{DEAnalyse$get_contrasts_glm()}}
 \item \href{#method-DEAnalyse-get_contrasts_missing}{\code{DEAnalyse$get_contrasts_missing()}}
 \item \href{#method-DEAnalyse-get_merged}{\code{DEAnalyse$get_merged()}}
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
@@ -214,6 +221,16 @@ fit generalized linear model
 compute contrasts linear
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_linear()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-get_contrasts_glm"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_glm}{}}}
+\subsection{Method \code{get_contrasts_glm()}}{
+get contrasts from glm model
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_glm()}\if{html}{\out{</div>}}
 }
 
 }

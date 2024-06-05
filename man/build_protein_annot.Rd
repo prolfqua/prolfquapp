@@ -17,6 +17,8 @@ build_protein_annot(
 )
 }
 \arguments{
+\item{lfqdata}{LFQData}
+
 \item{msdata}{data frame}
 
 \item{more_columns}{more columns to include}
