@@ -102,8 +102,6 @@ DEAnalyse <- R6::R6Class(
                           rowAnnot,
                           prolfq_app_config,
                           contrasts,
-                          FDR_threshold = 0.01,
-                          diff_threshold = 1,
                           default_model = "mergedModel") {
       stopifnot(default_model %in% c(self$m3_merged, self$m2_missing, self$m1_linear, self$m4_glm))
       self$default_model = default_model
@@ -115,8 +113,8 @@ DEAnalyse <- R6::R6Class(
       self$rowAnnot <- rowAnnot
       self$prolfq_app_config <- prolfq_app_config
       self$contrasts <- contrasts
-      self$FDR_threshold = FDR_threshold
-      self$diff_threshold = diff_threshold
+      self$FDR_threshold = prolfq_app_config$processing_options$FDR_threshold
+      self$diff_threshold = diff_threshold$processing_options$diff_threshold
     },
     #' @description
     #' count number of decoys

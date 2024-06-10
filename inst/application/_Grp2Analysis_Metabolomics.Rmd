@@ -54,9 +54,9 @@ The metabolite identification and quantification were performed using:
 # Introduction
 
 The differential expression analysis verifies if the __difference__ between normalized empirical metabolite abundances measured in two groups is significantly non-zero.
-To make the test as sensitive and specific these empirical abundances $A$ are further $log_2$ transformed and scaled to make them compatible with the statistical test procedure [@valikangas2018systematic]. Therefore, we obtain a scale free $\log_2$ transformed normalized protein abundances $\log_2(A)$ for a sample.
+To make the test as sensitive and specific these empirical abundances $A$ are further $log_2$ transformed and scaled to make them compatible with the statistical test procedure [@valikangas2018systematic]. Therefore, we obtain a scale free $\log_2$ transformed normalized metabolite abundances $\log_2(A)$ for a sample.
 
-For unpaired experiments the difference $\Delta$ between group $a$ and $b$, for a specific protein is estimated by:  
+For unpaired experiments the difference $\Delta$ between group $a$ and $b$, for a specific metabolite is estimated by:  
 
 $$
 \Delta = \frac{1}{n}\sum_{i=1}^n \log_2(A^a_i) - \frac{1}{m}\sum_{j=1}^{m}\log_2(A^b_j)
@@ -86,7 +86,7 @@ $$
 
 The estimated differences $\Delta$ have an associated error $\epsilon$. Therefore, the differential expression analysis must test if the difference is significantly nonzero. 
 
-We run a set of functions implemented in the R package _[prolfqua]_ [@prolfquawolski2023] to normalize the data, generate visualizations, and to compute differential expression analysis. To future improve the power of the differential expression test the protein variances are moderated [@Smyth2004], i.e. the individual protein variances are updated using a variance prior estimated from all the proteins in the experiment.
+We run a set of functions implemented in the R package _[prolfqua]_ [@prolfquawolski2023] to normalize the data, generate visualizations, and to compute differential expression analysis. To future improve the power of the differential expression test the metabolite variances are moderated [@Smyth2004], i.e. the individual metabolite variances are updated using a variance prior estimated from all the metabolites in the experiment.
 
 # Results
 
@@ -124,7 +124,7 @@ knitr::kable(fx, caption = "LC-MS samples annotation table. The content of the s
 
 Figure \@ref(fig:nrPerSample) shows the number of quantified metabolites.
 
-```{r nrPerSample, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
+```{r nrPerSample, fig.cap="Number of identified metabolites across samples.", fig.with=10, fig.height=7}
 sum <- grp2$RES$lfqData$get_Summariser()
 sum$plot_hierarchy_counts_sample(nr_children = 1)
 
@@ -132,7 +132,7 @@ sum$plot_hierarchy_counts_sample(nr_children = 1)
 
 ## Missing Value Analysis
 
-The absence of a metabolite measurement in a sample might be biologically relevant or might point to technical problems. Significant differences in the set of metabolites observed in the samples within a group typically indicate either technical problems or excessive biological variability. If for instance, one sample out of ten has a different set of proteins, it is likely an outlier and can be removed from the analysis. [TODO: Unclear]If the differences between the groups are significant but within the groups are small, this might systematically bias the difference estimates, i.e., produce false-positive or false-negative test results.
+The absence of a metabolite measurement in a sample might be biologically relevant or might point to technical problems. Significant differences in the set of metabolites observed in the samples within a group typically indicate either technical problems or excessive biological variability. If for instance, one sample out of ten has a different set of metabolites, it is likely an outlier and can be removed from the analysis. [TODO: Unclear]If the differences between the groups are significant but within the groups are small, this might systematically bias the difference estimates, i.e., produce false-positive or false-negative test results.
 
 
 ```{r countProtWithNAs}
@@ -150,28 +150,28 @@ pl <- grp2$RES$lfqData$get_Plotter()
 nah <- pl$NA_heatmap()
 ```
 
-A dichotomous view of the data can be constructed by transforming protein abundance estimates into present/absent calls (Figure \@ref(fig:naHeat) ). The heatmap shows only proteins with at least one missing value. There are `r allNas` proteins with at least one missing value in the data, which is (`r allNas/allrows * 100` %).
+A dichotomous view of the data can be constructed by transforming metabolite abundance estimates into present/absent calls (Figure \@ref(fig:naHeat) ). The heatmap shows only metabolites with at least one missing value. There are `r allNas` metabolites with at least one missing value in the data, which is (`r allNas/allrows * 100` %).
 
 We expect that samples in the same group are more similar and cluster together, i.e., they are in the same branch of the dendrogram.
 
-(ref:naHeat) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing missing protein abundance estimates across data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Metabolite is observed, black: Metabolite is not observed.
+(ref:naHeat) metabolite abundance heatmap (rows indicate metabolites, columns indicate samples) showing missing metabolite abundance estimates across data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Metabolite is observed, black: Metabolite is not observed.
 
 ```{r naHeat, fig.width=7, fig.height=6, dpi=300, fig.cap="(ref:naHeat)", eval=TRUE}
 nah
 ```
 
-Using Figure \@ref(fig:vennProteins) we examine if we see the same metabolite in each group. We say a metabolite is unobserved in the group if it is absent in all samples and is present otherwise. A significant overlap among groups allows more precisely estimating the metabolite abundance differences between the groups.
+Using Figure \@ref(fig:vennmetabolites) we examine if we see the same metabolite in each group. We say a metabolite is unobserved in the group if it is absent in all samples and is present otherwise. A significant overlap among groups allows more precisely estimating the metabolite abundance differences between the groups.
 
-(ref:vennProteins) Venn diagram showing the number of proteins present in each group and in all possible intersections among groups. 
+(ref:vennmetabolits) Venn diagram showing the number of metabolits present in each group and in all possible intersections among groups. 
 
-```{r vennProteins, fig.cap="(ref:vennProteins)"}
+```{r vennmetabolits, fig.cap="(ref:vennmetabolits)"}
 pups <- prolfqua::UpSet_interaction_missing_stats(grp2$RES$lfqData$data, grp2$RES$lfqData$config, tr = 1)
 UpSetR::upset(pups$data, order.by = "freq", nsets = pups$nsets)
 
 ```
 
 
-## Protein Abundance Analysis
+## Metabolite Abundance Analysis
 
 The density plot (Figure \@ref(fig:normalized) left panel)  displays the metabolite abundance distribution for all data set samples. Mayor differences between samples could hint that the individual metabolite abundance values are affected by technical biases. These biases might need to be corrected to separate them from biological effects. The right panel of Figure \@ref(fig:normalized) shows the distribution of the transformed and scaled normalized empirical metabolite abundances. Normalization is applied to remove systematic differences in metabolite abundances due to different sample concentrations or amounts of sample loaded on a column. However, in the presence of a large proportion of missing data, normalization potentially amplifies systematic errors.
 
@@ -243,7 +243,7 @@ ph <- pl$heatmap()
 The metabolite abundance heatmap (Figure \@ref(fig:heatmap)) groups the metabolite and samples using unsupervised hierarchical clustering. Distances between metabolites and samples are computed using normalized metabolite abundances. Metabolites with a large proportion of missing observations are not shown in this heatmap, because for these metabolites no distances can be computed. Metabolites and samples showing similar abundances are grouped and shown in adjacent rows and columns respectively.
 
 
-(ref:heatmap) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing the row scaled $\log_2$ transformed protein abundance value. Co-clustering (hierarchical complete linkage, euclidean distance) of samples and proteins was used.
+(ref:heatmap) Metabolite abundance heatmap (rows indicate proteins, columns indicate samples) showing the row scaled $\log_2$ transformed metabolite abundance value. Co-clustering (hierarchical complete linkage, euclidean distance) of samples and proteins was used.
 
 
 
@@ -261,7 +261,7 @@ grp2$RES$transformedlfqData$get_Plotter()$pca_plotly()
 
 # Differential Expression Analysis
 
-The method used to test for differential expression consists of several steps: First a linear model that explains the observed protein abundances using the grouping of the samples is fitted using the R function _lm_ to each protein:
+The method used to test for differential expression consists of several steps: First a linear model that explains the observed metabolite abundances using the grouping of the samples is fitted using the R function _lm_ to each metabolite:
 
 `r grp2$RES$formula`.
 
@@ -275,7 +275,7 @@ knitr::kable(df, caption = "Name of difference (Contrast), and formula used to c
 ```
 
 
-and a null hypothesis significance test (NHST) is conducted, where the null hypothesis is that the protein is not differentially expressed [@faraway2004linear]. 
+and a null hypothesis significance test (NHST) is conducted, where the null hypothesis is that the metabolite is not differentially expressed [@faraway2004linear]. 
 
 If there are no abundances measured in one of the groups for some metabolites, we assume the observations are missing because the metabolite abundance is below the detection limit. Furthermore, to make it explicit for which metabolites we did impute the unobserved group mean, we label them with `Imputed_Mean` (see table in Figures \@ref(fig:tableAllProt) column `modelName`) and visualize them with gray dots in Figure \@ref(fig:volcanoplot). Finally, those metabolites with a sufficiently large number of observations are labeled with `Linear_Model_Moderated`.
 
@@ -363,6 +363,8 @@ x <- mx |> dplyr::group_by(contrast) |>
 
 mycap <- paste0("Number of not significant and significant metabolites."  )
 knitr::kable(x, caption = mycap)
+
+
 
 ```
 
@@ -468,6 +470,6 @@ pander::pander(sessionInfo())
 # Glossary
 
 - groups - different treatments, genotypes etc.
-- diff (difference) - it is the difference of the protein abundance estimate of two groups
+- diff (difference) - it is the difference of the metabolite abundance estimate of two groups
 - FDR - false discovery rate
 

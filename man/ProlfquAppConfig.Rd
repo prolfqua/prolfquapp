@@ -40,6 +40,8 @@ Other ProlfquAppConfig:
 \item{\code{pop}}{optional processing options}
 
 \item{\code{RES}}{resuls}
+
+\item{\code{group}}{name}
 }
 \if{html}{\out{</div>}}
 }

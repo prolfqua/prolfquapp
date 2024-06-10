@@ -46,6 +46,8 @@ stopifnot(nrow(dx) == 90)
 
 \item{\code{pID}}{column with protein ids}
 
+\item{\code{full_id}}{column with protein id e.g. sp| can be same as pID}
+
 \item{\code{description}}{name of column containing descriptions}
 
 \item{\code{cleaned_ids}}{vector with columns containing addition IDs}
@@ -81,6 +83,7 @@ initialize
   row_annot = NULL,
   description = NULL,
   cleaned_ids = NULL,
+  full_id = NULL,
   nr_children = "nr_peptides",
   pattern_contaminants = "^zz|^CON",
   pattern_decoys = "^REV_"

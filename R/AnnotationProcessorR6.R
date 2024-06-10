@@ -240,18 +240,18 @@ AnnotationProcessor <- R6Class(
 
 
     get_levels = function(annot, group) {
-      levels <- annot %>%
-        select(
+      levels <- annot |>
+        dplyr::select(
           !!self$prefix := starts_with(group, ignore.case = TRUE),
-          control = starts_with("control", ignore.case = TRUE)) %>%
-        distinct()
+          control = starts_with("control", ignore.case = TRUE)) |>
+        dplyr::distinct()
       return(levels)
     },
 
     get_defined_contrasts = function(annot) {
-      contr <- annot %>%
-        select(all_of(c("ContrastName", "Contrast"))) %>%
-        filter(nchar(!!rlang::sym("Contrast")) > 0)
+      contr <- annot |>
+        dplyr::select(all_of(c("ContrastName", "Contrast"))) |>
+        dplyr::filter(nchar(!!rlang::sym("Contrast")) > 0)
 
       Contrasts <- contr$Contrast
       names(Contrasts) <- contr$ContrastName

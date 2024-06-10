@@ -2,11 +2,11 @@
 % Please edit documentation in R/transform_lfqdata.R
 \name{transform_lfqdata}
 \alias{transform_lfqdata}
-\title{transform lfq data using robscale, vsn or non,}
+\title{transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)}
 \usage{
 transform_lfqdata(
   lfqdata,
-  method = c("robscale", "vsn", "none"),
+  method = c("robscale", "vsn", "none", "log2"),
   internal = NULL
 )
 }

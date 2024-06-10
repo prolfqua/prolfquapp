@@ -107,6 +107,8 @@ ProteinAnnotation <-
                 row_annot = NULL,
                 #' @field pID column with protein ids
                 pID = character(),
+                #' @field full_id column with protein id e.g. sp| can be same as pID
+                full_id = character(),
                 #' @field description name of column containing descriptions
                 description = "description",
                 #' @field cleaned_ids vector with columns containing addition IDs
@@ -129,15 +131,17 @@ ProteinAnnotation <-
                                       row_annot = NULL,
                                       description = NULL,
                                       cleaned_ids = NULL,
+                                      full_id = NULL,
                                       nr_children = "nr_peptides",
                                       pattern_contaminants = "^zz|^CON",
                                       pattern_decoys = "^REV_"){
                   self$pID = lfqdata$config$table$hierarchy_keys_depth()[1]
                   self$nr_children = nr_children
-                  self$pattern_contaminants = pattern_contaminants
-                  self$pattern_decoys = pattern_decoys
-                  if ( !is.null(cleaned_ids)) {self$cleaned_ids = cleaned_ids} else {self$cleaned_ids = self$pID}
-                  if ( !is.null(description)) {self$description = description} else {self$description = self$pID}
+                  self$pattern_contaminants = if (is.null(pattern_contaminants)) {"a^"} else {pattern_contaminants}
+                  self$pattern_decoys = if (is.null(pattern_decoys)) {"a^"} else {pattern_contaminants}
+                  self$full_id <- if (!is.null(full_id)) { full_id } else {self$pID}
+                  self$cleaned_ids <- if ( !is.null(cleaned_ids)) { cleaned_ids} else {self$pID}
+                  self$description <- if ( !is.null(description)) { description} else {self$pID}
 
                   self$row_annot <- dplyr::distinct(dplyr::select(lfqdata$data, self$pID))
                   if ( !is.null(row_annot)) {
@@ -149,7 +153,7 @@ ProteinAnnotation <-
                   stopifnot(self$description %in% colnames(self$row_annot))
                   if (!self$nr_children %in% colnames(row_annot) ) {
                     warning("no nr_children column specified, computing using nr_obs_experiment function")
-                    cf <- lfqdata$config$clone(deep=TRUE)
+                    cf <- lfqdata$config$clone(deep = TRUE)
                     cf$table$hierarchyDepth <- 1
                     self$row_annot <- dplyr::inner_join(
                       self$row_annot,
@@ -162,7 +166,7 @@ ProteinAnnotation <-
                 #' @param pattern default "REV_"
                 annotate_decoys = function() {
                   self$row_annot <- self$row_annot |> dplyr::mutate(
-                    REV = dplyr::case_when(grepl(self$pattern_decoys, !!sym(self$pID), ignore.case = TRUE) ~ TRUE,
+                    REV = dplyr::case_when(grepl(self$pattern_decoys, as.character(!!sym(self$full_id)), ignore.case = TRUE) ~ TRUE,
                                            TRUE ~ FALSE))
 
                   return(sum(self$row_annot$REV))
@@ -172,7 +176,7 @@ ProteinAnnotation <-
                 #' @param pattern default "^zz|^CON"
                 annotate_contaminants = function() {
                   self$row_annot <- self$row_annot |> dplyr::mutate(
-                    CON = dplyr::case_when(grepl(self$pattern_contaminants, !!sym(self$pID), ignore.case = TRUE) ~ TRUE,
+                    CON = dplyr::case_when(grepl(self$pattern_contaminants, as.character(!!sym(self$full_id)), ignore.case = TRUE) ~ TRUE,
                                            TRUE ~ FALSE))
                   return(sum(self$row_annot$CON))
                 },
@@ -231,7 +235,7 @@ ProteinAnnotation <-
   )
 
 
-#' Dataset protein annot
+#' build Dataset protein annot, defaults are compatible with DIANN
 #'
 #' @export
 #' @param lfqdata LFQData
@@ -249,6 +253,7 @@ build_protein_annot <- function(
     cleaned_protein_id = "Protein.Group.2",
     protein_description = "fasta.header",
     nr_children = "nrPeptides",
+    full_id = "fasta.id",
     more_columns = c("fasta.id"),
     pattern_contaminants = "^zz|^CON",
     pattern_decoys="REV_"
@@ -258,7 +263,7 @@ build_protein_annot <- function(
   length_protIDs <- length(unique(msdata[[proteinID_column]]))
   prot_annot <- dplyr::select(
     msdata ,
-    dplyr::all_of(c( proteinID_column, protein_description, cleaned_protein_id, nr_children, more_columns))) |>
+    dplyr::all_of(unique(c( proteinID_column, protein_description, cleaned_protein_id, nr_children, full_id, more_columns)))) |>
     dplyr::distinct()
   stopifnot( length_protIDs == nrow(prot_annot) )
   prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_description))
@@ -266,6 +271,7 @@ build_protein_annot <- function(
   protAnnot <- prolfquapp::ProteinAnnotation$new(
     lfqdata , prot_annot, description = "description",
     cleaned_ids = "IDcolumn",
+    full_id = full_id,
     nr_children = nr_children,
     pattern_contaminants = pattern_contaminants,
     pattern_decoys = pattern_decoys

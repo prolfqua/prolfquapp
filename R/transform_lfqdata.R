@@ -1,4 +1,4 @@
-#' transform lfq data using robscale, vsn or non,
+#' transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)
 #'
 #' It will also run internal but then robscale must be used.
 #' @param lfqdata \code{\link{LFQData}}
@@ -15,7 +15,7 @@
 #' tmp2 <- transform_lfqdata(tmp, internal = internal)
 #' tmp2 <- transform_lfqdata(tmp)
 #'
-transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), internal = NULL) {
+transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "log2"), internal = NULL) {
   method <- match.arg(method)
   lt <- lfqdata$get_Transformer()
   if (method == "robscale") {
@@ -27,7 +27,7 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none"), in
     }
   } else if (method == "vsn") {
     transformed <- lt$intensity_matrix( .func = vsn::justvsn)$lfq
-  } else if (method == "none") {
+  } else if (method == "none" || method == "log2") {
     transformed <- lt$log2()$lfq
   } else {
     logger::log_warn("no such transformaton : {method}")

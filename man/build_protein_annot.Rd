@@ -2,7 +2,7 @@
 % Please edit documentation in R/ProteinAnnotationR6.R
 \name{build_protein_annot}
 \alias{build_protein_annot}
-\title{Dataset protein annot}
+\title{build Dataset protein annot, defaults are compatible with DIANN}
 \usage{
 build_protein_annot(
   lfqdata,
@@ -11,6 +11,7 @@ build_protein_annot(
   cleaned_protein_id = "Protein.Group.2",
   protein_description = "fasta.header",
   nr_children = "nrPeptides",
+  full_id = "fasta.id",
   more_columns = c("fasta.id"),
   pattern_contaminants = "^zz|^CON",
   pattern_decoys = "REV_"
@@ -28,7 +29,7 @@ build_protein_annot(
 \item{protein_annot}{fasta haeder column}
 }
 \description{
-Dataset protein annot
+build Dataset protein annot, defaults are compatible with DIANN
 }
 \examples{
 # example code

@@ -120,8 +120,6 @@ initialize
   rowAnnot,
   prolfq_app_config,
   contrasts,
-  FDR_threshold = 0.01,
-  diff_threshold = 1,
   default_model = "mergedModel"
 )}\if{html}{\out{</div>}}
 }

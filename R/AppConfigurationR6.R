@@ -81,6 +81,9 @@ ProlfquAppConfig <- R6::R6Class(
     pop = list(),
     #' @field RES resuls
     RES = list(),
+    #' @field group name
+    group = "G_",
+
     #' @description
     #' set procession options and project spec
     #' @param processing_options instance of ProjectOptions
@@ -137,6 +140,20 @@ R6_extract_values <- function(r6class){
   return(res)
 }
 
+
+get_zipdir_name <- function(r6obj_config) {
+  pi <- if (r6obj_config$project_spec$project_Id != "") { paste0("_PI_", r6obj_config$project_spec$project_Id)} else {NULL}
+  res <- paste0(
+    "DEA",
+    "_",format(Sys.Date(), "%Y%m%d"),
+    pi ,
+    "_OI_",
+    r6obj_config$project_spec$order_Id,
+    "_WU_",r6obj_config$project_spec$workunit_Id,
+    "_", r6obj_config$processing_options$transform)
+  return(res)
+}
+
 #' read minimal yaml
 #' @export
 #' @examples
@@ -164,14 +181,9 @@ list_to_R6_app_config <- function(dd){
   r6obj_config <- ProlfquAppConfig$new(popR6, psR6)
   r6obj_config$zipdir = dd$zipdir
   r6obj_config$software = dd$software
-
-  if (is.null(dd$zipdir)) {
-    pi <- if (dd$project_spec$project_Id != "") { paste0("_PI_", dd$project_spec$project_Id)} else {NULL}
-    r6obj_config$zipdir = paste0("DEA", pi ,
-                         "_OI_",
-                         dd$project_spec$order_Id,
-                         "_WU_",dd$project_spec$workunit_Id,
-                         "_", dd$processing_options$transform)
+  r6obj_config$group = dd$group
+  if (is.null(r6obj_config$zipdir)) {
+    r6obj_config$zipdir =  get_zipdir_name(r6obj_config)
   }
 
   return(r6obj_config)
@@ -224,7 +236,9 @@ make_DEA_config_R6 <- function(
 
   r6obj_config <- ProlfquAppConfig$new(pop, ps)
   pi <- if (PROJECTID != "") { paste0("_PI_", PROJECTID)} else {NULL}
-  r6obj_config$zipdir = paste0(ZIPDIR, pi , "_OI_",ORDERID,"_WU_",WORKUNITID, "_", Normalization)
+
+
+  r6obj_config$zipdir = get_zipdir_name(r6obj_config)
   r6obj_config$software = application
 
   return(r6obj_config)
@@ -249,7 +263,6 @@ read_BF_yamlR6 <- function(ymlfile, application = "FragPipeTMT" ) {
   PROJECTID = yml$job_configuration$project_id
   ORDERID = yml$job_configuration$order_id
   ORDERID <- if (is.null(ORDERID)) { PROJECTID }else{ ORDERID }
-  ZIPDIR = paste0("C",ORDERID,"WU",WORKUNITID)
 
   ps <- ProjectSpec$new()
   ps$order_Id = ORDERID
@@ -274,7 +287,7 @@ read_BF_yamlR6 <- function(ymlfile, application = "FragPipeTMT" ) {
   pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
 
   r6obj_config <- ProlfquAppConfig$new(pop, ps)
-  r6obj_config$zipdir = ZIPDIR
+  r6obj_config$zipdir = get_zipdir_name(r6obj_config)
   r6obj_config$software = application
 
   return(r6obj_config)
