@@ -23,11 +23,13 @@ custom_round <- function(arr) {
 #' pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
 #' pA <- prolfquapp::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
 #' GRP2 <- prolfquapp::make_DEA_config_R6()
+#' GRP2$processing_options$diff_threshold = 0.2
+#'
 #' GRP2$processing_options$transform <- "robscale"
 #' pep$factors()
 #' contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
-#' #DEAnalyse$debug("filter_contrasts")
-#' deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts, diff_threshold = 0.2)
+#' # DEAnalyse$debug("filter_contrasts")
+#' deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts)
 #' deanalyse$cont_decoy_summary()
 #' deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
 #' deanalyse$remove_cont_decoy()
@@ -35,7 +37,9 @@ custom_round <- function(arr) {
 #' deanalyse$create_model_formula()
 #' mod <- deanalyse$build_model_linear()
 #' contlm <- deanalyse$get_contrasts_linear()
+#'
 #' deanalyse$filter_contrasts()
+#'
 #' xd <- deanalyse$filter_data()
 #' xd <- deanalyse$contrasts_to_Grob()
 #' bb <- deanalyse$get_boxplots()
@@ -114,7 +118,7 @@ DEAnalyse <- R6::R6Class(
       self$prolfq_app_config <- prolfq_app_config
       self$contrasts <- contrasts
       self$FDR_threshold = prolfq_app_config$processing_options$FDR_threshold
-      self$diff_threshold = diff_threshold$processing_options$diff_threshold
+      self$diff_threshold = prolfq_app_config$processing_options$diff_threshold
     },
     #' @description
     #' count number of decoys
@@ -233,7 +237,7 @@ DEAnalyse <- R6::R6Class(
 
     #' @description
     #' merge contrasts
-    get_merged = function(){
+    get_contrasts_merged = function(){
       if (is.null(self$contrastRes[[self$m3_merged]])) {
         self$get_contrasts_linear()
         self$get_contrasts_missing()
@@ -249,7 +253,7 @@ DEAnalyse <- R6::R6Class(
     #' filter contrasts for threshold
     filter_contrasts = function(){
       if (is.null(self$contrastRes[[self$default_model]])) {
-        self$get_merged()
+        self$get_contrasts_merged()
       }
       datax <- self$contrastRes[[self$default_model]]$get_contrasts()
       datax <- datax |>

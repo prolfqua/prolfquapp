@@ -138,7 +138,7 @@ ProteinAnnotation <-
                   self$pID = lfqdata$config$table$hierarchy_keys_depth()[1]
                   self$nr_children = nr_children
                   self$pattern_contaminants = if (is.null(pattern_contaminants)) {"a^"} else {pattern_contaminants}
-                  self$pattern_decoys = if (is.null(pattern_decoys)) {"a^"} else {pattern_contaminants}
+                  self$pattern_decoys = if (is.null(pattern_decoys)) {"a^"} else {pattern_decoys}
                   self$full_id <- if (!is.null(full_id)) { full_id } else {self$pID}
                   self$cleaned_ids <- if ( !is.null(cleaned_ids)) { cleaned_ids} else {self$pID}
                   self$description <- if ( !is.null(description)) { description} else {self$pID}

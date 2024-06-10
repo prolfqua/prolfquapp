@@ -59,7 +59,7 @@ make_DEA_report2 <- function(lfqdata,
   # remove control column from factors.
   factors <- transformed$config$table$factor_keys_depth()[
     !grepl("^control", transformed$config$table$factor_keys_depth() , ignore.case = TRUE)
-    ]
+  ]
 
   # model with or without interactions
   if (is.null(GRP2$processing_options$interaction) || !GRP2$processing_options$interaction ) {
@@ -118,6 +118,7 @@ make_DEA_report2 <- function(lfqdata,
   return(GRP2)
 }
 
+
 #' will replace generate_DEA_reports
 #' @export
 generate_DEA_reports2 <- function(lfqdata, GRP2, prot_annot, Contrasts) {
@@ -132,6 +133,8 @@ generate_DEA_reports2 <- function(lfqdata, GRP2, prot_annot, Contrasts) {
     GRP2)
   return(grp2)
 }
+
+
 
 prep_result_list <- function(GRP2){
   rd <- GRP2$RES$lfqData
@@ -191,25 +194,35 @@ prep_result_list <- function(GRP2){
 }
 
 
-write_result_list <- function(outpath, GRP2, resultList, xlsxname,id_column = "IDcolumn") {
+write_result_list <- function(outpath,
+                              GRP2,
+                              resultList,
+                              xlsxname,
+                              id_column = "IDcolumn",
+                              GSEA = TRUE,
+                              ORA = TRUE) {
   workunit_id <- GRP2$project_spec$workunit_Id
   dir.create(outpath)
-  bkg <- GRP2$RES$rowAnnot$row_annot[[id_column]]
-  ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
-  write.table(bkg,file = ff, col.names = FALSE,
-              row.names = FALSE, quote = FALSE)
-  .write_ORA(GRP2$RES$contrastsData_signif, outpath, workunit_id)
 
-  fg <- GRP2$RES$contrastsData
-  gsea <- dplyr::select(fg , c("contrast",id_column , "statistic")) |>
-    dplyr::arrange( .data$statistic )
-  gsea <- split(dplyr::select( gsea, c(id_column, "statistic")), gsea$contrast)
+  if (ORA) {
+    bkg <- GRP2$RES$rowAnnot$row_annot[[id_column]]
+    ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
+    write.table(bkg,file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE)
+    .write_ORA(GRP2$RES$contrastsData_signif, outpath, workunit_id)
+  }
+  if (GSEA) {
+    fg <- GRP2$RES$contrastsData
+    gsea <- dplyr::select(fg , c("contrast",id_column , "statistic")) |>
+      dplyr::arrange( .data$statistic )
+    gsea <- split(dplyr::select( gsea, c(id_column, "statistic")), gsea$contrast)
 
-  for (i in names(gsea)) {
-    ff <- file.path(outpath, paste0("GSEA_",i,"_WU",workunit_id,".rnk" ))
-    logger::log_info("Writing File ", ff)
-    write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
-                row.names = FALSE, quote = FALSE, sep = "\t")
+    for (i in names(gsea)) {
+      ff <- file.path(outpath, paste0("GSEA_",i,"_WU",workunit_id,".rnk" ))
+      logger::log_info("Writing File ", ff)
+      write.table(na.omit(gsea[[i]]),file = ff, col.names = FALSE,
+                  row.names = FALSE, quote = FALSE, sep = "\t")
+    }
   }
   if (nrow(resultList$normalized_abundances) > 1048575) {
     resultList$normalized_abundances <- NULL
@@ -225,10 +238,88 @@ write_result_list <- function(outpath, GRP2, resultList, xlsxname,id_column = "I
 #' @export
 #' @family workflow
 #'
-write_DEA <- function(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE){
+write_DEA <- function(GRP2, outpath, ORA = TRUE, GSEA = TRUE, xlsxname = "AnalysisResults", write = TRUE){
   resultList <- prep_result_list(GRP2)
   if (write) {
-    write_result_list(outpath, GRP2, resultList, xlsxname = xlsxname)
+    write_result_list(outpath, GRP2, resultList, xlsxname = xlsxname, ORA = ORA, GSEA = GSEA)
   }
   return(resultList)
+}
+
+
+
+
+#' Generate differential expression analysis reports
+#'
+#' Writes results of DEA see \code{\link{generate_DEA_reports}}
+#' @export
+#'
+write_DEA_all <- function(
+    grp2,
+    ZIPDIR = grp2$zipdir,
+    name = "Groups_vs_Controls",
+    boxplot = TRUE ,
+    render = TRUE,
+    ORA = TRUE,
+    GSEA = TRUE,
+    markdown ="_Grp2Analysis.Rmd"){
+  dir.create(GRP2$zipdir)
+  fname <- paste0("DE_",  name, "_WU", grp2$project_spec$workunit_Id )
+  qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunit_Id )
+  outpath <- file.path( ZIPDIR, paste0("Results_DEA_WU", grp2$project_spec$workunit_Id))
+  logger::log_info("writing into : ", outpath, " <<<<")
+
+  prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname, ORA=ORA, GSEA = GSEA)
+
+  if (render) {
+    prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname, markdown = markdown)
+    prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+  }
+
+  bb <- grp2$RES$transformedlfqData
+  grsizes <- bb$factors() |>
+    dplyr::group_by(dplyr::across(bb$config$table$factor_keys_depth())) |>
+    dplyr::summarize(n = n()) |>
+    dplyr::pull(n)
+  if (boxplot) {
+    if (sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE))  > 1 &
+        all(grsizes == 1)
+    ) {
+      prolfquapp::writeLinesPaired(bb, outpath)
+    } else {
+      pl <- bb$get_Plotter()
+      pl$write_boxplots(outpath)
+    }
+  }
+  return(outpath)
+}
+
+#' Render DEA analysis report
+#' @rdname make_DEA_report
+#' @param GRP2 return value of \code{\link{make_DEA_report}}
+#' @param outpath path to place output
+#' @param htmlname name for html file
+#' @param word default FALSE, if true create word document.s
+#' @param markdown which file to render
+#' @export
+#' @family workflow
+render_DEA <- function(GRP2,
+                       outpath,
+                       htmlname="Result2Grp",
+                       word = FALSE,
+                       markdown = "_Grp2Analysis.Rmd"){
+  dir.create(outpath)
+
+  rmarkdown::render(
+    markdown,
+    params = list(grp = GRP2) ,
+    output_format = if (word) {
+      bookdown::word_document2(toc = TRUE, toc_float = TRUE) } else {
+        bookdown::html_document2(toc = TRUE, toc_float = TRUE)
+      }
+  )
+  fname <- paste0(tools::file_path_sans_ext(markdown), if (word) {".docx"} else {".html"})
+  if (file.copy(fname, file.path(outpath, paste0(htmlname,if (word) {".docx"} else {".html"})), overwrite = TRUE)) {
+    file.remove(fname)
+  }
 }

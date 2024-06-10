@@ -130,7 +130,7 @@ make_SummarizedExperiment <- function(GRP2, colname = NULL, rowname = NULL, stri
   if (is.null(rowname)) {
     rowname <- GRP2$RES$lfqData$config$table$hierarchyKeys()
   }
-  resTables <- write_DEA(GRP2,".", write = FALSE)
+  resTables <- prep_result_list(GRP2)
   matTr <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
   matRaw <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
 
