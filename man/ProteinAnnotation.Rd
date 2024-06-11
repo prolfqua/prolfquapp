@@ -52,7 +52,7 @@ stopifnot(nrow(dx) == 90)
 
 \item{\code{cleaned_ids}}{vector with columns containing addition IDs}
 
-\item{\code{nr_children}}{name of columns with the number of peptides}
+\item{\code{exp_nr_children}}{name of columns with the number of peptides}
 
 \item{\code{pattern_contaminants}}{pattern_contaminants}
 
@@ -84,7 +84,7 @@ initialize
   description = NULL,
   cleaned_ids = NULL,
   full_id = NULL,
-  nr_children = "nr_peptides",
+  exp_nr_children = "nr_peptides",
   pattern_contaminants = "^zz|^CON",
   pattern_decoys = "^REV_"
 )}\if{html}{\out{</div>}}
@@ -101,7 +101,7 @@ initialize
 
 \item{\code{cleaned_ids}}{names of columns with cleaned Ids}
 
-\item{\code{nr_children}}{column with the number of children}
+\item{\code{exp_nr_children}}{column with the number of children}
 
 \item{\code{pattern_contaminants}}{pattern_contaminants}
 

@@ -18,11 +18,13 @@ pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
 pA <- prolfquapp::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
 GRP2 <- prolfquapp::make_DEA_config_R6()
+GRP2$processing_options$diff_threshold = 0.2
+
 GRP2$processing_options$transform <- "robscale"
 pep$factors()
 contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
-#DEAnalyse$debug("filter_contrasts")
-deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts, diff_threshold = 0.2)
+# DEAnalyse$debug("filter_contrasts")
+deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts)
 deanalyse$cont_decoy_summary()
 deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
 deanalyse$remove_cont_decoy()
@@ -30,7 +32,9 @@ deanalyse$transform_data()
 deanalyse$create_model_formula()
 mod <- deanalyse$build_model_linear()
 contlm <- deanalyse$get_contrasts_linear()
+
 deanalyse$filter_contrasts()
+
 xd <- deanalyse$filter_data()
 xd <- deanalyse$contrasts_to_Grob()
 bb <- deanalyse$get_boxplots()
@@ -99,7 +103,7 @@ deanalyse$build_model_glm_protein()
 \item \href{#method-DEAnalyse-get_contrasts_linear}{\code{DEAnalyse$get_contrasts_linear()}}
 \item \href{#method-DEAnalyse-get_contrasts_glm}{\code{DEAnalyse$get_contrasts_glm()}}
 \item \href{#method-DEAnalyse-get_contrasts_missing}{\code{DEAnalyse$get_contrasts_missing()}}
-\item \href{#method-DEAnalyse-get_merged}{\code{DEAnalyse$get_merged()}}
+\item \href{#method-DEAnalyse-get_contrasts_merged}{\code{DEAnalyse$get_contrasts_merged()}}
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
 \item \href{#method-DEAnalyse-filter_data}{\code{DEAnalyse$filter_data()}}
 \item \href{#method-DEAnalyse-get_boxplots}{\code{DEAnalyse$get_boxplots()}}
@@ -243,12 +247,12 @@ compute missing contrasts
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_merged"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_merged}{}}}
-\subsection{Method \code{get_merged()}}{
+\if{html}{\out{<a id="method-DEAnalyse-get_contrasts_merged"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_merged}{}}}
+\subsection{Method \code{get_contrasts_merged()}}{
 merge contrasts
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_merged()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_merged()}\if{html}{\out{</div>}}
 }
 
 }

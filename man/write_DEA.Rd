@@ -4,7 +4,14 @@
 \alias{write_DEA}
 \title{Write differential expression analysis results}
 \usage{
-write_DEA(GRP2, outpath, xlsxname = "AnalysisResults", write = TRUE)
+write_DEA(
+  GRP2,
+  outpath,
+  ORA = TRUE,
+  GSEA = TRUE,
+  xlsxname = "AnalysisResults",
+  write = TRUE
+)
 }
 \arguments{
 \item{GRP2}{return value of \code{\link{make_DEA_report}}}

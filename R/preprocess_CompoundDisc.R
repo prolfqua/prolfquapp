@@ -64,19 +64,24 @@ preprocess_CD <- function(
   adata <- prolfqua::setup_analysis(peptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
-  xdl$nr_compounds <- 1
 
   m_annot <- xdl |>
     dplyr::select("metabolite_feature_Id","nr_compounds", "Checked", "Tags", "Structure", "description","Formula", starts_with("Annot_")) |>
     dplyr::distinct()
-  m_annot <- m_annot |> mutate(IDcolumn = metabolite_feature_Id)
+  # handle not identified
+  m_annot$nr_compounds <- ifelse(xdl$Checked, 2 ,1)
+
+  m_annot <- m_annot |> dplyr::mutate(IDcolumn = metabolite_feature_Id)
   prot_annot <- prolfquapp::ProteinAnnotation$new(
     lfqdata , m_annot, description = "description",
     cleaned_ids = "IDcolumn",
     full_id = "Checked",
-    nr_children = "nr_compounds",
+    exp_nr_children = "nr_compounds",
     pattern_contaminants = "FALSE",
     pattern_decoys = NULL
   )
   return(list(lfqdata = lfqdata , protein_annotation = prot_annot))
 }
+
+
+
