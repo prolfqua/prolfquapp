@@ -45,7 +45,7 @@ custom_round <- function(arr) {
 #' bb <- deanalyse$get_boxplots()
 #' bx <- deanalyse$get_boxplots_contrasts()
 #' grid::grid.draw(bx$bxpl_grobs[[1]])
-#' deanalyse$write_boxplots_contrasts("test.pdf")
+#' # deanalyse$write_boxplots_contrasts("test.pdf")
 #' deanalyse$build_model_glm_protein()
 #'
 DEAnalyse <- R6::R6Class(
