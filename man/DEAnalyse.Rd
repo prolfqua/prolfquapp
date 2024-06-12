@@ -40,7 +40,7 @@ xd <- deanalyse$contrasts_to_Grob()
 bb <- deanalyse$get_boxplots()
 bx <- deanalyse$get_boxplots_contrasts()
 grid::grid.draw(bx$bxpl_grobs[[1]])
-deanalyse$write_boxplots_contrasts("test.pdf")
+# deanalyse$write_boxplots_contrasts("test.pdf")
 deanalyse$build_model_glm_protein()
 
 }

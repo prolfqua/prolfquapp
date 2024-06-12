@@ -105,10 +105,10 @@ knitr::kable(tab, caption = "Nr of samples assigned to each group.")
 ld <- grp2$RES$lfqData
 fx <- ld$factors()
 sr <- ld$get_Summariser()
-xx <- sr$hierarchy_counts_sample(nr_children = 1)
+xx <- sr$hierarchy_counts_sample(nr_children = 0)
 xx$isotopeLabel <- NULL
 xx <- xx |> dplyr::rename(nr_1 = ld$config$table$hierarchy_keys())
-x2 <- sr$hierarchy_counts_sample(nr_children = 2)
+x2 <- sr$hierarchy_counts_sample(nr_children = 1)
 x2$isotopeLabel <- NULL
 x2 <- x2 |> dplyr::rename(nr_2 = ld$config$table$hierarchy_keys())
 
@@ -122,13 +122,23 @@ knitr::kable(fx, caption = "LC-MS samples annotation table. The content of the s
 
 ## Metabolite quantification and identification
 
-Figure \@ref(fig:nrPerSample) shows the number of quantified metabolites.
+Figure \@ref(fig:nrPerSample) shows the number of quantified metabolites per sample with "Gap Fill".
 
-```{r nrPerSample, fig.cap="Number of identified metabolites across samples.", fig.with=10, fig.height=7}
+```{r nrPerSample, fig.cap="Number of identified metabolites across samples including Gap Fill.", fig.with=10, fig.height=7}
+sum <- grp2$RES$lfqData$get_Summariser()
+sum$plot_hierarchy_counts_sample(nr_children = 0)
+
+```
+
+Figure \@ref(fig:nrPerSampleNotGapFill) shows the number of quantified metabolites per sample (No Gap Fill).
+
+
+```{r nrPerSampleNotGapFill, fig.cap="Number of identified metabolites across samples, excluding Gap Fill.", fig.with=10, fig.height=7}
 sum <- grp2$RES$lfqData$get_Summariser()
 sum$plot_hierarchy_counts_sample(nr_children = 1)
 
 ```
+
 
 ## Missing Value Analysis
 

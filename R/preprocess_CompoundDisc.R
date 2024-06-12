@@ -30,6 +30,15 @@ massage_CD <- function(in_file, remove = c("none", "Full gap") ){
 
 
   xdl <- xdl |> dplyr::mutate(file_id = gsub(" ","",gsub("\\(|\\)","", file_id)))
+
+  # use nr_children to encode gap status.
+  xdl <- xdl |> dplyr::mutate(
+    nr_children = dplyr::case_when(
+    Gap_Status == "Full gap" ~ 0,
+    Gap_Status == "Missing ions" ~ 1,
+    Gap_Status == "No gap" ~ 2,
+    TRUE ~ 3))
+
   xdl <- xdl |> dplyr::filter(Gap_Status != remove)
 
   xdl <- dplyr::inner_join(annot, xdl, by = "my_C_ID")
@@ -66,10 +75,10 @@ preprocess_CD <- function(
   lfqdata$remove_small_intensities()
 
   m_annot <- xdl |>
-    dplyr::select("metabolite_feature_Id","nr_compounds", "Checked", "Tags", "Structure", "description","Formula", starts_with("Annot_")) |>
+    dplyr::select("metabolite_feature_Id", "Checked", "Tags", "Structure", "description","Formula", starts_with("Annot_")) |>
     dplyr::distinct()
   # handle not identified
-  m_annot$nr_compounds <- ifelse(xdl$Checked, 2 ,1)
+  m_annot$nr_compounds <- ifelse(m_annot$Checked, 2 ,1)
 
   m_annot <- m_annot |> dplyr::mutate(IDcolumn = metabolite_feature_Id)
   prot_annot <- prolfquapp::ProteinAnnotation$new(
