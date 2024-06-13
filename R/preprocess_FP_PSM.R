@@ -66,7 +66,7 @@ preprocess_FP_PSM <- function(quant_data,
     idcol = c("protein_Id" = "Protein"),
     cleaned_protein_id = "Protein",
     protein_description = "Protein.Description",
-    nr_children = "nrPeptides",
+    exp_nr_children = "nrPeptides",
     more_columns = NULL)
 
   lfqdata$remove_small_intensities()

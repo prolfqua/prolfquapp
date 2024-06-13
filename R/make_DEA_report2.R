@@ -419,7 +419,9 @@ make_SummarizedExperiment <- function(GRP2,
   for (i in names(diffbyContrast)) {
     row.data <- column_to_rownames(diffbyContrast[[i]], var = rowname)
     row.data <- row.data[rownames(mat.raw),]
-
+    if ("nr_compounds" %in% colnames(row.data)) {
+      row.data <- dplyr::rename(nr_peptides = "nr_compounds")
+    }
     SummarizedExperiment::rowData(x)[[paste0("constrast_",i)]] <- row.data
   }
 

@@ -97,6 +97,7 @@ deanalyse$build_model_glm_protein()
 \item \href{#method-DEAnalyse-remove_cont_decoy}{\code{DEAnalyse$remove_cont_decoy()}}
 \item \href{#method-DEAnalyse-transform_data}{\code{DEAnalyse$transform_data()}}
 \item \href{#method-DEAnalyse-create_model_formula}{\code{DEAnalyse$create_model_formula()}}
+\item \href{#method-DEAnalyse-create_model_formula_peptide}{\code{DEAnalyse$create_model_formula_peptide()}}
 \item \href{#method-DEAnalyse-build_model_linear}{\code{DEAnalyse$build_model_linear()}}
 \item \href{#method-DEAnalyse-build_model_glm_protein}{\code{DEAnalyse$build_model_glm_protein()}}
 \item \href{#method-DEAnalyse-build_model_glm_peptide}{\code{DEAnalyse$build_model_glm_peptide()}}
@@ -183,6 +184,15 @@ transform data
 static create model formula
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$create_model_formula()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-create_model_formula_peptide"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-create_model_formula_peptide}{}}}
+\subsection{Method \code{create_model_formula_peptide()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$create_model_formula_peptide()}\if{html}{\out{</div>}}
 }
 
 }
@@ -312,7 +322,7 @@ get box with contrast information
 \subsection{Method \code{write_boxplots_contrasts()}}{
 write boxplots contrasts to file
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$write_boxplots_contrasts(filename)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$write_boxplots_contrasts(filename = "boxplots")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

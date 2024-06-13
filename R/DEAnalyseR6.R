@@ -169,6 +169,10 @@ DEAnalyse <- R6::R6Class(
       self$formula <- formula
       return(formula)
     },
+    create_model_formula_peptide = function() {
+
+    },
+
     #' @description
     #' fit linear model
     build_model_linear = function() {
@@ -272,6 +276,9 @@ DEAnalyse <- R6::R6Class(
     #' create boxplots
     #'
     get_boxplots = function(){
+      if (is.null(self$lfqData_subset)) {
+        self$filter_data()
+      }
       return(self$lfqData_subset$get_Plotter()$boxplots())
     },
     #' @description
@@ -279,7 +286,8 @@ DEAnalyse <- R6::R6Class(
     #'
     contrasts_to_Grob = function(){
       datax <- self$filter_contrasts()
-      xdn <- datax |> dplyr::nest_by(protein_Id)
+      hkeys <- self$lfqData_transformed$config$table$hierarchy_keys_depth()
+      xdn <- datax |> dplyr::nest_by(!!!syms(hkeys))
 
       stats2grob <- function(data) {
         res <- data |>
@@ -293,7 +301,9 @@ DEAnalyse <- R6::R6Class(
         res
       }
       grobs <- vector(mode = "list", length = length(nrow(xdn)))
+      pb <- progress::progress_bar$new(total = nrow(xdn))
       for (i in seq_len(nrow(xdn))) {
+        pb$tick()
         grobs[[i]] <- stats2grob(xdn$data[[i]])
       }
       xdn$grobs <- grobs
@@ -306,10 +316,12 @@ DEAnalyse <- R6::R6Class(
       bp <- self$get_boxplots()
       stopifnot(nrow(ctrG) == nrow(bp))
       res <- vector(mode = "list", length = nrow(ctrG))
+      pb <- progress::progress_bar$new(total = nrow(ctrG))
       for (i in seq_len(nrow(ctrG))) {
         res[[i]] <- gridExtra::arrangeGrob(
           bp$boxplot[[i]],
           ctrG$grobs[[i]], nrow = 2, heights = c(2/3, 1/3))
+        pb$tick()
       }
       ctrG$bxpl_grobs = res
       return(ctrG)
@@ -317,10 +329,14 @@ DEAnalyse <- R6::R6Class(
     #' @description
     #' write boxplots contrasts to file
     #' @param filename filename to write to
-    write_boxplots_contrasts = function(filename){
+    write_boxplots_contrasts = function(filename = "boxplots"){
       ctrG <- self$get_boxplots_contrasts()
-      pdf(file = filename)
+      filename <- paste0(filename, "_FDR_", self$FDR_threshold, "_diff_", self$diff_threshold, ".pdf")
+      logger::log_info("start writing boxplots into file : ", filename)
+      pdf(file = file.path(self$prolfq_app_config$zipdir, filename))
+      pb <- progress::progress_bar$new(total = length(ctrG$bxpl_grobs))
       for (i in seq_along(ctrG$bxpl_grobs)) {
+        pb$tick()
         grid::grid.newpage()
         grid::grid.draw(ctrG$bxpl_grobs[[i]])
       }
