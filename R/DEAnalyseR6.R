@@ -16,7 +16,7 @@ custom_round <- function(arr) {
 #' @examples
 #' # example code
 #'
-#' pep <- prolfqua::sim_lfq_data_protein_config(Nprot = 100)
+#' pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 #'
 #' pep <- prolfqua::LFQData$new(pep$data, pep$config)
 #' pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
@@ -30,9 +30,11 @@ custom_round <- function(arr) {
 #' contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
 #' # DEAnalyse$debug("filter_contrasts")
 #' deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts)
+#'
 #' deanalyse$cont_decoy_summary()
 #' deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
 #' deanalyse$remove_cont_decoy()
+#'
 #' deanalyse$transform_data()
 #' deanalyse$create_model_formula()
 #' mod <- deanalyse$build_model_linear()
@@ -51,37 +53,41 @@ custom_round <- function(arr) {
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(
-    #' @field lfqdata LFQData
-    lfqdata = NULL,
+
+    #'@field prolfq_app_config ProlfquAppConfig
+    prolfq_app_config = NULL,
+
+    #' @field lfq_data_peptide LFQData peptide level
+    lfq_data_peptide = NULL,
+    #' @field lfq_data LFQData
+    lfq_data = NULL,
+    #' @field lfq_data_transformed todo
+    lfq_data_transformed = NULL,
+    #' @field lfq_data_subset todo
+    lfq_data_subset = NULL,
+
+
     #' @field rowAnnot ProteinAnnotation
     rowAnnot = NULL,
     #' @field contrasts vector with contrasts
     contrasts = character(),
-    #'@field prolfq_app_config ProlfquAppConfig
-    prolfq_app_config = NULL,
+    #' @field FDR_threshold fdr threshold
+    FDR_threshold = 0.1,
+    #' @field diff_threshold diff_threshold
+    diff_threshold = 1,
 
 
     #' @field reference_proteins reference proteins to use for internal normalization
     reference_proteins = NULL, # to use for internal calibration
-    #' @field decoy_summary decoy_summary
-    decoy_summary = NULL,
-    #' @field lfqData lfqData
-    lfqData = NULL,
-    #' @field lfqData_transformed todo
-    lfqData_transformed = NULL,
-    #' @field lfqData_subset todo
-    lfqData_subset = NULL,
 
     #' @field formula todo
     formula = character(),
     #' @field models todo
     models = list(),
-    #' @field contrastRes todo
-    contrastRes = list(),
-    #' @field FDR_threshold fdr threshold
-    FDR_threshold = 0.1,
-    #' @field diff_threshold diff_threshold
-    diff_threshold = 1,
+    #' @field contrast_results todo
+    contrast_results = list(),
+
+    #
     #' @field m1_linear linearModel
     m1_linear = "linearModel",
     #' @field m2_missing imputedModel
@@ -91,29 +97,29 @@ DEAnalyse <- R6::R6Class(
     #' @field m4_glm_protein m4_glm_protein
     m4_glm_protein = "glmModel",
     #' @field m4_glm_peptide m4_glm_peptide
-    m4_glm_peptide = "glmModel",
+    m4_glm_peptide = "glmModelPeptide",
     #' @field default_model default_model
     default_model = character(),
     #' @description
     #' initialize
-    #' @param lfqdata lfqdata
+    #' @param lfq_data lfq_data
     #' @param rowAnnot ProteinAnnotation
     #' @param prolfq_app_config ProlfquAppConfig
     #' @param contrasts vector with contrasts
     #' @param FDR_threshold FDR_threshold
     #' @param diff_threshold diff_threshold
-    initialize = function(lfqdata,
+    initialize = function(lfq_data_peptide,
                           rowAnnot,
                           prolfq_app_config,
                           contrasts,
                           default_model = "mergedModel") {
       stopifnot(default_model %in% c(self$m3_merged, self$m2_missing, self$m1_linear, self$m4_glm))
       self$default_model = default_model
-      stopifnot("LFQData" %in% class(lfqdata))
+      stopifnot("LFQData" %in% class(lfq_data))
       stopifnot("ProteinAnnotation" %in% class(rowAnnot))
       stopifnot("ProlfquAppConfig" %in% class(prolfq_app_config))
       stopifnot(length(contrasts) >= 1)
-      self$lfqdata <- lfqdata
+      self$lfq_data_peptide <- lfq_data_peptide
       self$rowAnnot <- rowAnnot
       self$prolfq_app_config <- prolfq_app_config
       self$contrasts <- contrasts
@@ -128,7 +134,7 @@ DEAnalyse <- R6::R6Class(
     #' @description
     #' remove contaminants and decoys
     remove_cont_decoy = function() {
-      self$lfqdata <- self$lfqdata$get_subset(self$rowAnnot$clean(
+      self$lfq_data <- self$lfq_data$get_subset(self$rowAnnot$clean(
         contaminants = self$prolfq_app_config$processing_options$remove_cont,
         decoys = self$prolfq_app_config$processing_options$remove_decoys
       ))
@@ -137,22 +143,70 @@ DEAnalyse <- R6::R6Class(
                        self$prolfq_app_config$processing_options$pattern_decoys)
     },
     #' @description
+    #' aggregate data
+    aggregate_data = function(){
+      logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$pop$aggregate}.")
+      agg_method = self$prolfq_app_config$processing_options$transform
+      lfqdata_peptide <- self$lfq_data_peptide
+
+      if (length(lfqdata_peptide$config$table$hierarchy_keys()) == lfqdata_peptide$config$table$hierarchyDepth) {
+        warning('nothing to aggregate from, returning unchanged data.')
+        self$lfq_data <- lfqdata_peptide
+        invisible(self$lfq_data)
+      }
+
+      if (agg_method == "topN") {
+        self$aggregator <- lfqdata_peptide$get_Aggregator()
+        self$aggregator$sum_topN(N = N)
+        self$lfq_data <- self$aggregator$lfq_agg
+
+      } else if (agg_method == "lmrob" || agg_method == "medpolish") {
+
+        transformed_peptide <- lfqdata_peptide$get_Transformer()$intensity_array(log)$lfq
+        self$aggregator <- transformed_peptide$get_Aggregator()
+
+        if (agg_method == "lmrob" ) {
+          self$aggregator$lmrob()
+        } else if (agg_method == "medpolish") {
+          self$aggregator$medpolish()
+        }
+
+        lfq_data <- self$aggregator$lfq_agg
+        tr <- lfq_data$get_Transformer()
+        tr <- tr$intensity_array(exp, force = TRUE)
+        lfq_data <- tr$lfq
+        lfq_data$is_transformed(FALSE)
+        self$lfq_data <- lfq_data
+
+      } else {
+        logger::log_warn("no such aggregator {agg_method}.")
+      }
+      return(self$lfq_data)
+      logger::log_info("END OF PROTEIN AGGREGATION")
+    },
+    #' @description
+    #' write aggregation plots
+    write_aggregation_plots = function(){
+      self$aggregator$write_plots(self$prolfq_app_config$zipdir)
+    },
+
+    #' @description
     #' transform data
     transform_data = function() {
       transformed <- prolfquapp::transform_lfqdata(
-        self$lfqdata,
+        self$lfq_data,
         method = self$prolfq_app_config$processing_options$transform,
         internal = self$reference_proteins
       )
-      self$lfqdata$rename_response("protein_abundance")
+      self$lfq_data$rename_response("protein_abundance")
       transformed$rename_response("normalized_protein_abundance")
-      self$lfqData_transformed <- transformed
+      self$lfq_data_transformed <- transformed
       invisible(transformed)
     },
     #' @description
     #' static create model formula
     create_model_formula = function() {
-      prlconfig <- self$lfqData_transformed$config
+      prlconfig <- self$lfq_data_transformed$config
       interaction <- self$prolfq_app_config$processing_options$interaction
       factors <- prlconfig$table$factor_keys_depth()[
         !grepl("^control", prlconfig$table$factor_keys_depth() , ignore.case = TRUE)
@@ -180,7 +234,7 @@ DEAnalyse <- R6::R6Class(
         formula <- self$create_model_formula()
         formula_Condition <-  prolfqua::strategy_lm(formula)
         models <- prolfqua::build_model(
-          self$lfqData_transformed,
+          self$lfq_data_transformed,
           formula_Condition)
         self$models[[self$m1_linear]] <- models
       }
@@ -195,7 +249,7 @@ DEAnalyse <- R6::R6Class(
                                                  family = stats::binomial,
                                                  multiplier = 1.5,
                                                  offset = 1)
-        models <- prolfqua::build_model(self$lfqData_transformed , modelFunction)
+        models <- prolfqua::build_model(self$lfq_data_transformed , modelFunction)
         self$models[[self$m4_glm_protein]] <- models
       }
       return(self$models[[self$m4_glm_protein]])
@@ -228,38 +282,38 @@ DEAnalyse <- R6::R6Class(
     #' @description
     #' compute missing contrasts
     get_contrasts_missing = function(){
-      if (is.null(self$contrastRes[[self$m2_missing]])) {
+      if (is.null(self$contrast_results[[self$m2_missing]])) {
         mC <- prolfqua::ContrastsMissing$new(
-          lfqdata = self$lfqData_transformed,
+          lfqdata = self$lfq_data_transformed,
           contrasts = self$contrasts,
           modelName = self$m2_missing)
         conMI <- prolfqua::ContrastsModerated$new(mC)
-        self$contrastRes[[self$m2_missing]] <- conMI
+        self$contrast_results[[self$m2_missing]] <- conMI
       }
-      return(self$contrastRes[[self$m2_missing]])
+      return(self$contrast_results[[self$m2_missing]])
     },
 
     #' @description
     #' merge contrasts
     get_contrasts_merged = function(){
-      if (is.null(self$contrastRes[[self$m3_merged]])) {
+      if (is.null(self$contrast_results[[self$m3_merged]])) {
         self$get_contrasts_linear()
         self$get_contrasts_missing()
 
-        self$contrastRes[[self$m3_merged]] <- prolfqua::merge_contrasts_results(
-          self$contrastRes[[self$m1_linear]],
-          self$contrastRes[[self$m2_missing]])$merged
+        self$contrast_results[[self$m3_merged]] <- prolfqua::merge_contrasts_results(
+          self$contrast_results[[self$m1_linear]],
+          self$contrast_results[[self$m2_missing]])$merged
 
       }
-      invisible(self$contrastRes[[self$m3_merged]])
+      invisible(self$contrast_results[[self$m3_merged]])
     },
     #' @description
     #' filter contrasts for threshold
     filter_contrasts = function(){
-      if (is.null(self$contrastRes[[self$default_model]])) {
+      if (is.null(self$contrast_results[[self$default_model]])) {
         self$get_contrasts_merged()
       }
-      datax <- self$contrastRes[[self$default_model]]$get_contrasts()
+      datax <- self$contrast_results[[self$default_model]]$get_contrasts()
       datax <- datax |>
         dplyr::filter(.data$FDR < self$FDR_threshold &
                         abs(.data$diff) > self$diff_threshold )
@@ -269,24 +323,24 @@ DEAnalyse <- R6::R6Class(
     #' filter transformed lfq data for significant proteins.
     filter_data = function(){
       dx <- self$filter_contrasts()
-      self$lfqData_subset <- self$lfqData_transformed$get_subset(dx)
-      return(self$lfqData_subset)
+      self$lfq_data_subset <- self$lfq_data_transformed$get_subset(dx)
+      return(self$lfq_data_subset)
     },
     #' @description
     #' create boxplots
     #'
     get_boxplots = function(){
-      if (is.null(self$lfqData_subset)) {
+      if (is.null(self$lfq_data_subset)) {
         self$filter_data()
       }
-      return(self$lfqData_subset$get_Plotter()$boxplots())
+      return(self$lfq_data_subset$get_Plotter()$boxplots())
     },
     #' @description
     #' create boxplots
     #'
     contrasts_to_Grob = function(){
       datax <- self$filter_contrasts()
-      hkeys <- self$lfqData_transformed$config$table$hierarchy_keys_depth()
+      hkeys <- self$lfq_data_transformed$config$table$hierarchy_keys_depth()
       xdn <- datax |> dplyr::nest_by(!!!syms(hkeys))
 
       stats2grob <- function(data) {
@@ -345,15 +399,15 @@ DEAnalyse <- R6::R6Class(
   ),
   private = list(
     get_contrasts = function(contrastName){
-      if (is.null(self$contrastRes[[contrastName]])) {
+      if (is.null(self$contrast_results[[contrastName]])) {
         self$build_model_linear()
         contr <- prolfqua::Contrasts$new(self$models[[contrastName]],
                                          self$contrasts,
                                          modelName = contrastName)
         conrM <- prolfqua::ContrastsModerated$new(contr)
-        self$contrastRes[[contrastName]] <- conrM
+        self$contrast_results[[contrastName]] <- conrM
       }
-      invisible(self$contrastRes[[contrastName]])
+      invisible(self$contrast_results[[contrastName]])
     }
 
   )

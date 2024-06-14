@@ -11,7 +11,7 @@ will replace make_DEA_report
 \examples{
 # example code
 
-pep <- prolfqua::sim_lfq_data_protein_config(Nprot = 100)
+pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 
 pep <- prolfqua::LFQData$new(pep$data, pep$config)
 pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
@@ -25,9 +25,11 @@ pep$factors()
 contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
 # DEAnalyse$debug("filter_contrasts")
 deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts)
+
 deanalyse$cont_decoy_summary()
 deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
 deanalyse$remove_cont_decoy()
+
 deanalyse$transform_data()
 deanalyse$create_model_formula()
 mod <- deanalyse$build_model_linear()
@@ -47,33 +49,31 @@ deanalyse$build_model_glm_protein()
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{lfqdata}}{LFQData}
+\item{\code{prolfq_app_config}}{ProlfquAppConfig}
+
+\item{\code{lfq_data_peptide}}{LFQData peptide level}
+
+\item{\code{lfq_data}}{LFQData}
+
+\item{\code{lfq_data_transformed}}{todo}
+
+\item{\code{lfq_data_subset}}{todo}
 
 \item{\code{rowAnnot}}{ProteinAnnotation}
 
 \item{\code{contrasts}}{vector with contrasts}
 
-\item{\code{prolfq_app_config}}{ProlfquAppConfig}
+\item{\code{FDR_threshold}}{fdr threshold}
+
+\item{\code{diff_threshold}}{diff_threshold}
 
 \item{\code{reference_proteins}}{reference proteins to use for internal normalization}
-
-\item{\code{decoy_summary}}{decoy_summary}
-
-\item{\code{lfqData}}{lfqData}
-
-\item{\code{lfqData_transformed}}{todo}
-
-\item{\code{lfqData_subset}}{todo}
 
 \item{\code{formula}}{todo}
 
 \item{\code{models}}{todo}
 
-\item{\code{contrastRes}}{todo}
-
-\item{\code{FDR_threshold}}{fdr threshold}
-
-\item{\code{diff_threshold}}{diff_threshold}
+\item{\code{contrast_results}}{todo}
 
 \item{\code{m1_linear}}{linearModel}
 
@@ -95,6 +95,8 @@ deanalyse$build_model_glm_protein()
 \item \href{#method-DEAnalyse-new}{\code{DEAnalyse$new()}}
 \item \href{#method-DEAnalyse-cont_decoy_summary}{\code{DEAnalyse$cont_decoy_summary()}}
 \item \href{#method-DEAnalyse-remove_cont_decoy}{\code{DEAnalyse$remove_cont_decoy()}}
+\item \href{#method-DEAnalyse-aggregate_data}{\code{DEAnalyse$aggregate_data()}}
+\item \href{#method-DEAnalyse-write_aggregation_plots}{\code{DEAnalyse$write_aggregation_plots()}}
 \item \href{#method-DEAnalyse-transform_data}{\code{DEAnalyse$transform_data()}}
 \item \href{#method-DEAnalyse-create_model_formula}{\code{DEAnalyse$create_model_formula()}}
 \item \href{#method-DEAnalyse-create_model_formula_peptide}{\code{DEAnalyse$create_model_formula_peptide()}}
@@ -121,7 +123,7 @@ deanalyse$build_model_glm_protein()
 initialize
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(
-  lfqdata,
+  lfq_data_peptide,
   rowAnnot,
   prolfq_app_config,
   contrasts,
@@ -132,13 +134,13 @@ initialize
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{lfqdata}}{lfqdata}
-
 \item{\code{rowAnnot}}{ProteinAnnotation}
 
 \item{\code{prolfq_app_config}}{ProlfquAppConfig}
 
 \item{\code{contrasts}}{vector with contrasts}
+
+\item{\code{lfq_data}}{lfq_data}
 
 \item{\code{FDR_threshold}}{FDR_threshold}
 
@@ -164,6 +166,26 @@ count number of decoys
 remove contaminants and decoys
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$remove_cont_decoy()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-aggregate_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-aggregate_data}{}}}
+\subsection{Method \code{aggregate_data()}}{
+aggregate data
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$aggregate_data()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-write_aggregation_plots"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-write_aggregation_plots}{}}}
+\subsection{Method \code{write_aggregation_plots()}}{
+write aggregation plots
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$write_aggregation_plots()}\if{html}{\out{</div>}}
 }
 
 }
