@@ -28,17 +28,31 @@ custom_round <- function(arr) {
 #' GRP2$processing_options$transform <- "robscale"
 #' pep$factors()
 #' contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
-#' # DEAnalyse$debug("filter_contrasts")
-#' deanalyse <- DEAnalyse$new(pep, pA, GRP2, contrasts)
-#'
+#' #DEAnalyse$debug("get_contrasts_glm_peptide")
+#' #DEAnalyse$debug("build_model_glm_protein")
+#' deanalyse <- prolfquapp::DEAnalyse$new(pep, pA, GRP2, contrasts)
+#' deanalyse$lfq_data_peptide$hierarchy_counts()
 #' deanalyse$cont_decoy_summary()
 #' deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
 #' deanalyse$remove_cont_decoy()
-#'
+#' deanalyse$aggregate()
+#' deanalyse$aggregator$plot()
 #' deanalyse$transform_data()
+#' mod <- deanalyse$build_model_linear_protein()
+#' contlm <- deanalyse$get_contrasts_linear_protein()
+#'
+#' deanalyse$get_contrasts_merged_protein()
 #' deanalyse$create_model_formula()
-#' mod <- deanalyse$build_model_linear()
-#' contlm <- deanalyse$get_contrasts_linear()
+#' deanalyse$build_model_glm_protein()
+#' deanalyse$build_model_glm_peptide()
+#' xprot <- deanalyse$get_contrasts_glm_protein()
+#' xpep <- deanalyse$get_contrasts_glm_peptide()
+#' xprot$get_contrasts()
+#' xprot$get_Plotter()$volcano()
+#' xpep$get_Plotter()$volcano()
+#' sr <- deanalyse$lfq_data_peptide$get_Summariser()
+#'
+#'
 #'
 #' deanalyse$filter_contrasts()
 #'
@@ -48,8 +62,7 @@ custom_round <- function(arr) {
 #' bx <- deanalyse$get_boxplots_contrasts()
 #' grid::grid.draw(bx$bxpl_grobs[[1]])
 #' # deanalyse$write_boxplots_contrasts("test.pdf")
-#' deanalyse$build_model_glm_protein()
-#'
+
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(
@@ -65,7 +78,8 @@ DEAnalyse <- R6::R6Class(
     lfq_data_transformed = NULL,
     #' @field lfq_data_subset todo
     lfq_data_subset = NULL,
-
+    #' @field aggregator
+    aggregator = NULL,
 
     #' @field rowAnnot ProteinAnnotation
     rowAnnot = NULL,
@@ -82,6 +96,9 @@ DEAnalyse <- R6::R6Class(
 
     #' @field formula todo
     formula = character(),
+    #' @field formula glm peptide todo
+    formula_glm_peptide = character(),
+
     #' @field models todo
     models = list(),
     #' @field contrast_results todo
@@ -115,7 +132,7 @@ DEAnalyse <- R6::R6Class(
                           default_model = "mergedModel") {
       stopifnot(default_model %in% c(self$m3_merged, self$m2_missing, self$m1_linear, self$m4_glm))
       self$default_model = default_model
-      stopifnot("LFQData" %in% class(lfq_data))
+      stopifnot("LFQData" %in% class(lfq_data_peptide))
       stopifnot("ProteinAnnotation" %in% class(rowAnnot))
       stopifnot("ProlfquAppConfig" %in% class(prolfq_app_config))
       stopifnot(length(contrasts) >= 1)
@@ -134,7 +151,7 @@ DEAnalyse <- R6::R6Class(
     #' @description
     #' remove contaminants and decoys
     remove_cont_decoy = function() {
-      self$lfq_data <- self$lfq_data$get_subset(self$rowAnnot$clean(
+      self$lfq_data_peptide <- self$lfq_data_peptide$get_subset(self$rowAnnot$clean(
         contaminants = self$prolfq_app_config$processing_options$remove_cont,
         decoys = self$prolfq_app_config$processing_options$remove_decoys
       ))
@@ -143,10 +160,11 @@ DEAnalyse <- R6::R6Class(
                        self$prolfq_app_config$processing_options$pattern_decoys)
     },
     #' @description
-    #' aggregate data
-    aggregate_data = function(){
-      logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$pop$aggregate}.")
-      agg_method = self$prolfq_app_config$processing_options$transform
+    #' aggregate peptide data
+    aggregate = function(){
+      agg_method = self$prolfq_app_config$processing_options$aggregate
+      logger::log_info("AGGREGATING PEPTIDE DATA: {agg_method}.")
+
       lfqdata_peptide <- self$lfq_data_peptide
 
       if (length(lfqdata_peptide$config$table$hierarchy_keys()) == lfqdata_peptide$config$table$hierarchyDepth) {
@@ -181,8 +199,9 @@ DEAnalyse <- R6::R6Class(
       } else {
         logger::log_warn("no such aggregator {agg_method}.")
       }
-      return(self$lfq_data)
       logger::log_info("END OF PROTEIN AGGREGATION")
+      invisible(self$lfq_data)
+
     },
     #' @description
     #' write aggregation plots
@@ -204,32 +223,17 @@ DEAnalyse <- R6::R6Class(
       invisible(transformed)
     },
     #' @description
-    #' static create model formula
-    create_model_formula = function() {
+    #' create model formula
+    #'
+    create_model_formula = function(){
       prlconfig <- self$lfq_data_transformed$config
-      interaction <- self$prolfq_app_config$processing_options$interaction
-      factors <- prlconfig$table$factor_keys_depth()[
-        !grepl("^control", prlconfig$table$factor_keys_depth() , ignore.case = TRUE)
-      ]
-      # model with or without interactions
-      if (interaction ) {
-        formula <- paste0(prlconfig$table$get_response(), " ~ ",
-                          paste(factors, collapse = " + "))
-      } else {
-        formula <- paste0(prlconfig$table$get_response(), " ~ ",
-                          paste(factors, collapse = " * "))
-      }
-      logger::log_info("fitted model with formula : {formula}")
-      self$formula <- formula
-      return(formula)
+      return(private$create_formula(prlconfig))
     },
-    create_model_formula_peptide = function() {
 
-    },
 
     #' @description
     #' fit linear model
-    build_model_linear = function() {
+    build_model_linear_protein = function() {
       if (is.null(self$models[[self$m1_linear]]) ) {
         formula <- self$create_model_formula()
         formula_Condition <-  prolfqua::strategy_lm(formula)
@@ -244,12 +248,20 @@ DEAnalyse <- R6::R6Class(
     #' fit generalized linear model
     build_model_glm_protein = function(){
       if (is.null(self$models[[self$m4_glm_protein]])) {
-        formula <- self$create_model_formula()
+        lfq <- self$lfq_data_transformed
+
+        lfq$complete_cases()
+        lfq$data <- lfq$data |>
+          dplyr::mutate(binresp =
+                          factor(ifelse(is.na(!!sym(lfq$response())), 0, 1)))
+        formula <- private$create_formula(lfq$config, response = "binresp")
+
         modelFunction <-  prolfqua::strategy_glm(formula,
                                                  family = stats::binomial,
-                                                 multiplier = 1.5,
+                                                 multiplier = 1.2,
                                                  offset = 1)
-        models <- prolfqua::build_model(self$lfq_data_transformed , modelFunction)
+
+        models <- prolfqua::build_model(lfq , modelFunction)
         self$models[[self$m4_glm_protein]] <- models
       }
       return(self$models[[self$m4_glm_protein]])
@@ -258,30 +270,50 @@ DEAnalyse <- R6::R6Class(
     #' fit generalized linear model
     build_model_glm_peptide = function(){
       if (is.null(self$models[[self$m4_glm_peptide]])) {
-        formula <- self$create_model_formula_peptide()
-        modelFunction <-  strategy_glm(formula,
-                                       family = stats::quasibinomial,
-                                       multiplier = 1.2,
-                                       offset = 1)
-        models <- prolfqua::build_model(self$lfqData_peptide , modelFunction)
-        self$models[[self$m4_glm_protein]] <- models
+        lfq <- self$lfq_data_peptide
+
+        lfq$complete_cases()
+        lfq$data <- lfq$data |>
+          dplyr::mutate(binresp =
+                          factor(ifelse(is.na(!!sym(lfq$response())), 0, 1)))
+
+        formula <- private$create_formula(lfq$config, response = "binresp")
+        # block for peptides
+        hkey <- tail(lfq$config$table$hierarchy_keys(), n = 1)
+        formula <- paste0(formula, "+", hkey)
+
+        modelFunction <-  prolfqua::strategy_glm(
+          formula,
+          family = stats::quasibinomial,
+          multiplier = 1.2,
+          offset = 1)
+        models <- prolfqua::build_model(lfq , modelFunction)
+        self$models[[self$m4_glm_peptide]] <- models
       }
-      return(self$models[[self$m4_glm_protein]])
+      return(self$models[[self$m4_glm_peptide]])
     },
 
     #' @description
     #' compute contrasts linear
-    get_contrasts_linear = function() {
+    get_contrasts_linear_protein = function() {
+      self$build_model_linear_protein()
       private$get_contrasts(self$m1_linear)
     },
     #' @description
     #' get contrasts from glm model
-    get_contrasts_glm = function(){
+    get_contrasts_glm_peptide = function(){
+      self$build_model_glm_peptide()
+      private$get_contrasts(self$m4_glm_peptide)
+    },
+    #' @description
+    #' get contrasts from glm model for peptides
+    get_contrasts_glm_protein = function(){
+      self$build_model_glm_protein()
       private$get_contrasts(self$m4_glm_protein)
     },
     #' @description
     #' compute missing contrasts
-    get_contrasts_missing = function(){
+    get_contrasts_missing_protein = function(){
       if (is.null(self$contrast_results[[self$m2_missing]])) {
         mC <- prolfqua::ContrastsMissing$new(
           lfqdata = self$lfq_data_transformed,
@@ -295,10 +327,10 @@ DEAnalyse <- R6::R6Class(
 
     #' @description
     #' merge contrasts
-    get_contrasts_merged = function(){
+    get_contrasts_merged_protein = function(){
       if (is.null(self$contrast_results[[self$m3_merged]])) {
-        self$get_contrasts_linear()
-        self$get_contrasts_missing()
+        self$get_contrasts_linear_protein()
+        self$get_contrasts_missing_protein()
 
         self$contrast_results[[self$m3_merged]] <- prolfqua::merge_contrasts_results(
           self$contrast_results[[self$m1_linear]],
@@ -311,7 +343,7 @@ DEAnalyse <- R6::R6Class(
     #' filter contrasts for threshold
     filter_contrasts = function(){
       if (is.null(self$contrast_results[[self$default_model]])) {
-        self$get_contrasts_merged()
+        stop("no default model contrasts yet:", self$default_model)
       }
       datax <- self$contrast_results[[self$default_model]]$get_contrasts()
       datax <- datax |>
@@ -400,15 +432,37 @@ DEAnalyse <- R6::R6Class(
   private = list(
     get_contrasts = function(contrastName){
       if (is.null(self$contrast_results[[contrastName]])) {
-        self$build_model_linear()
-        contr <- prolfqua::Contrasts$new(self$models[[contrastName]],
-                                         self$contrasts,
-                                         modelName = contrastName)
-        conrM <- prolfqua::ContrastsModerated$new(contr)
-        self$contrast_results[[contrastName]] <- conrM
+        if (!is.null(self$models[[contrastName]])) {
+          contr <- prolfqua::Contrasts$new(self$models[[contrastName]],
+                                           self$contrasts,
+                                           modelName = contrastName)
+          conrM <- prolfqua::ContrastsModerated$new(contr)
+          self$contrast_results[[contrastName]] <- conrM
+        } else {
+          stop("No model for :", contrastName)
+        }
       }
       invisible(self$contrast_results[[contrastName]])
+    },
+    create_formula = function(prlconfig, response = prlconfig$table$get_response()) {
+
+      interaction <- self$prolfq_app_config$processing_options$interaction
+      factors <- prlconfig$table$factor_keys_depth()[
+        !grepl("^control", prlconfig$table$factor_keys_depth() , ignore.case = TRUE)
+      ]
+      # model with or without interactions
+      if (interaction ) {
+        formula <- paste0(response, " ~ ",
+                          paste(factors, collapse = " + "))
+      } else {
+        formula <- paste0(response, " ~ ",
+                          paste(factors, collapse = " * "))
+      }
+      logger::log_info("fitted model with formula : {formula}")
+      self$formula <- formula
+      return(formula)
     }
+
 
   )
 )
