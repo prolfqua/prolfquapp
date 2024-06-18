@@ -31,16 +31,20 @@ deanalyse$cont_decoy_summary()
 deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
 deanalyse$remove_cont_decoy()
 deanalyse$aggregate()
-deanalyse$aggregator$plot()
+pl <- deanalyse$get_aggregation_plots(exp_nr_children = 10)
+print(pl$plots[[3]])
 deanalyse$transform_data()
 mod <- deanalyse$build_model_linear_protein()
 contlm <- deanalyse$get_contrasts_linear_protein()
 
-deanalyse$get_contrasts_merged_protein()
-deanalyse$create_model_formula()
-deanalyse$build_model_glm_protein()
-deanalyse$build_model_glm_peptide()
+
+merged <- deanalyse$get_contrasts_merged_protein()
+stopifnot(nrow(merged$get_contrasts()) == 200)
+#deanalyse$create_model_formula()
+#deanalyse$build_model_glm_protein()
+#deanalyse$build_model_glm_peptide()
 xprot <- deanalyse$get_contrasts_glm_protein()
+stopifnot(nrow(merged$get_contrasts()) == 200)
 xpep <- deanalyse$get_contrasts_glm_peptide()
 xprot$get_contrasts()
 xprot$get_Plotter()$volcano()
@@ -110,6 +114,7 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 \item \href{#method-DEAnalyse-cont_decoy_summary}{\code{DEAnalyse$cont_decoy_summary()}}
 \item \href{#method-DEAnalyse-remove_cont_decoy}{\code{DEAnalyse$remove_cont_decoy()}}
 \item \href{#method-DEAnalyse-aggregate}{\code{DEAnalyse$aggregate()}}
+\item \href{#method-DEAnalyse-get_aggregation_plots}{\code{DEAnalyse$get_aggregation_plots()}}
 \item \href{#method-DEAnalyse-write_aggregation_plots}{\code{DEAnalyse$write_aggregation_plots()}}
 \item \href{#method-DEAnalyse-transform_data}{\code{DEAnalyse$transform_data()}}
 \item \href{#method-DEAnalyse-create_model_formula}{\code{DEAnalyse$create_model_formula()}}
@@ -194,14 +199,38 @@ aggregate peptide data
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-get_aggregation_plots"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-get_aggregation_plots}{}}}
+\subsection{Method \code{get_aggregation_plots()}}{
+get aggregation plots
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_aggregation_plots(exp_nr_children = 2)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{exp_nr_children}}{nr children to filter; default >=2}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-write_aggregation_plots"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-write_aggregation_plots}{}}}
 \subsection{Method \code{write_aggregation_plots()}}{
 write aggregation plots
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$write_aggregation_plots()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$write_aggregation_plots(exp_nr_children = 2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{exp_nr_children}}{nr children to filter; default >=2}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-transform_data"></a>}}

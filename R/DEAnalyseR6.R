@@ -10,6 +10,8 @@ custom_round <- function(arr) {
   return(vapply(arr, cr, numeric(1)))
 }
 
+
+# DEAnalyse ----
 #' will replace make_DEA_report
 #' @export
 #'
@@ -36,16 +38,20 @@ custom_round <- function(arr) {
 #' deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
 #' deanalyse$remove_cont_decoy()
 #' deanalyse$aggregate()
-#' deanalyse$aggregator$plot()
+#' pl <- deanalyse$get_aggregation_plots(exp_nr_children = 10)
+#' print(pl$plots[[3]])
 #' deanalyse$transform_data()
 #' mod <- deanalyse$build_model_linear_protein()
 #' contlm <- deanalyse$get_contrasts_linear_protein()
 #'
-#' deanalyse$get_contrasts_merged_protein()
-#' deanalyse$create_model_formula()
-#' deanalyse$build_model_glm_protein()
-#' deanalyse$build_model_glm_peptide()
+#'
+#' merged <- deanalyse$get_contrasts_merged_protein()
+#' stopifnot(nrow(merged$get_contrasts()) == 200)
+#' #deanalyse$create_model_formula()
+#' #deanalyse$build_model_glm_protein()
+#' #deanalyse$build_model_glm_peptide()
 #' xprot <- deanalyse$get_contrasts_glm_protein()
+#' stopifnot(nrow(merged$get_contrasts()) == 200)
 #' xpep <- deanalyse$get_contrasts_glm_peptide()
 #' xprot$get_contrasts()
 #' xprot$get_Plotter()$volcano()
@@ -204,9 +210,23 @@ DEAnalyse <- R6::R6Class(
 
     },
     #' @description
+    #' get aggregation plots
+    #'
+    #' @param exp_nr_children nr children to filter; default >=2
+    #'
+
+    get_aggregation_plots = function(exp_nr_children = 2){
+      subset <- self$rowAnnot$filter_by_nr_children(exp_nr_children = exp_nr_children)
+      res <- self$aggregator$plot(subset)
+      return(res)
+    },
+    #' @description
     #' write aggregation plots
-    write_aggregation_plots = function(){
-      self$aggregator$write_plots(self$prolfq_app_config$zipdir)
+    #' @param exp_nr_children nr children to filter; default >=2
+    #'
+    write_aggregation_plots = function(exp_nr_children = 2){
+      subset <- self$rowAnnot$filter_by_nr_children(exp_nr_children = exp_nr_children)
+      self$aggregator$write_plots(self$prolfq_app_config$zipdir, subset)
     },
 
     #' @description

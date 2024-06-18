@@ -9,3 +9,15 @@ writeLinesPaired(bb, outpath)
 \description{
 nice plot for paired analysis
 }
+\examples{
+
+
+xd <- prolfqua::sim_lfq_data_protein_config(with_missing = FALSE, paired = TRUE)
+xd <- prolfqua::LFQData$new(xd$data, xd$config)
+xa <- prolfquapp::writeLinesPaired(xd)
+xa[[1]]
+xa[[2]]
+xa[[3]]
+xa[[4]]
+
+}

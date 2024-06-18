@@ -11,20 +11,29 @@ Decorates LFQData with a row annotation and some protein specific functions.
 \examples{
 
 istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
+xd1 <- nr_obs_experiment(istar$data, istar$config, from_children = TRUE)
 
+xd2 <- nr_obs_experiment(istar$data, istar$config, from_children = FALSE)
+xd1$nr_child_exp |> table()
+
+lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
 lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
 pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id),value=TRUE, invert=TRUE)
 addannot <- data.frame(protein_Id = pids,
 description = stringi::stri_rand_strings(length(pids), 13))
+
 addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
+# ProteinAnnotation$debug("initialize")
+# debug(nr_obs_sample)
+xd4 <- nr_obs_sample(lfqdata$data, lfqdata$config)
+xd3 <- nr_obs_experiment(lfqdata$data, lfqdata$config, from_children = FALSE)
+
 pannot <- ProteinAnnotation$new( lfqdata,
  addannot,
  description = "description",
   cleaned_ids ="cleanID",
 pattern_contaminants = "^zz",
 pattern_decoys="^REV" )
-pannot
 stopifnot(pannot$annotate_decoys() == 10)
 stopifnot(pannot$annotate_contaminants() == 5)
 dd <- pannot$clean()
@@ -36,6 +45,9 @@ dx <- pannot$clean(contaminants = TRUE, decoys = FALSE)
 stopifnot(nrow(dx) == 95)
 dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
 stopifnot(nrow(dx) == 90)
+dx2 <- pannot$filter_by_nr_children(nr_children = 2)
+dx3 <- pannot$filter_by_nr_children(nr_children = 3)
+stopifnot(nrow(dx2) >= nrow(dx3))
 
 }
 \concept{LFQData}
@@ -69,6 +81,7 @@ stopifnot(nrow(dx) == 90)
 \item \href{#method-ProteinAnnotation-get_summary}{\code{ProteinAnnotation$get_summary()}}
 \item \href{#method-ProteinAnnotation-nr_clean}{\code{ProteinAnnotation$nr_clean()}}
 \item \href{#method-ProteinAnnotation-clean}{\code{ProteinAnnotation$clean()}}
+\item \href{#method-ProteinAnnotation-filter_by_nr_children}{\code{ProteinAnnotation$filter_by_nr_children()}}
 \item \href{#method-ProteinAnnotation-clone}{\code{ProteinAnnotation$clone()}}
 }
 }
@@ -192,6 +205,16 @@ remove REV and CON sequences
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ProteinAnnotation-filter_by_nr_children"></a>}}
+\if{latex}{\out{\hypertarget{method-ProteinAnnotation-filter_by_nr_children}{}}}
+\subsection{Method \code{filter_by_nr_children()}}{
+filter by number children
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$filter_by_nr_children(exp_nr_children = 2)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinAnnotation-clone"></a>}}

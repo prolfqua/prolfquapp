@@ -25,7 +25,7 @@ add_RevCon <- function(stringsAll, pattern_decoys= "REV_", pattern_contaminants 
   dd$tomod[indices_zz] <- paste(pattern_contaminants, dd$tomod[indices_zz], sep = "")
 
   res <- merge(data.frame(idx = stringsAll), dd, by = "idx")
-
+  res <- res[match(stringsAll, res$idx), ] # preserve ordering.
   return(res$tomod)
 }
 
@@ -74,20 +74,29 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE){
 #' @examples
 #'
 #' istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-#' lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
+#' xd1 <- nr_obs_experiment(istar$data, istar$config, from_children = TRUE)
 #'
+#' xd2 <- nr_obs_experiment(istar$data, istar$config, from_children = FALSE)
+#' xd1$nr_child_exp |> table()
+#'
+#' lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
 #' lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
 #' pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id),value=TRUE, invert=TRUE)
 #' addannot <- data.frame(protein_Id = pids,
 #' description = stringi::stri_rand_strings(length(pids), 13))
+#'
 #' addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
+#' # ProteinAnnotation$debug("initialize")
+#' # debug(nr_obs_sample)
+#' xd4 <- nr_obs_sample(lfqdata$data, lfqdata$config)
+#' xd3 <- nr_obs_experiment(lfqdata$data, lfqdata$config, from_children = FALSE)
+#'
 #' pannot <- ProteinAnnotation$new( lfqdata,
 #'  addannot,
 #'  description = "description",
 #'   cleaned_ids ="cleanID",
 #' pattern_contaminants = "^zz",
 #' pattern_decoys="^REV" )
-#' pannot
 #' stopifnot(pannot$annotate_decoys() == 10)
 #' stopifnot(pannot$annotate_contaminants() == 5)
 #' dd <- pannot$clean()
@@ -99,139 +108,150 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE){
 #' stopifnot(nrow(dx) == 95)
 #' dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
 #' stopifnot(nrow(dx) == 90)
+#' dx2 <- pannot$filter_by_nr_children(nr_children = 2)
+#' dx3 <- pannot$filter_by_nr_children(nr_children = 3)
+#' stopifnot(nrow(dx2) >= nrow(dx3))
 #'
 ProteinAnnotation <-
-  R6::R6Class("ProteinAnnotation",
-              public = list(
-                #' @field row_annot data.frame containing further information
-                row_annot = NULL,
-                #' @field pID column with protein ids
-                pID = character(),
-                #' @field full_id column with protein id e.g. sp| can be same as pID
-                full_id = character(),
-                #' @field description name of column containing descriptions
-                description = "description",
-                #' @field cleaned_ids vector with columns containing addition IDs
-                cleaned_ids = character(),
-                #' @field exp_nr_children name of columns with the number of peptides
-                exp_nr_children = character(),
-                #' @field pattern_contaminants pattern_contaminants
-                pattern_contaminants = character(),
-                #' @field pattern_decoys pattern_decoys
-                pattern_decoys = character(),
-                #' @description initialize
-                #' @param lfqdata data frame from \code{\link{setup_analysis}}
-                #' @param row_annot data frame with row annotation. Must have columns matching \code{config$table$hierarchy_keys_depth()}
-                #' @param description name of column with description
-                #' @param cleaned_ids names of columns with cleaned Ids
-                #' @param exp_nr_children column with the number of children
-                #' @param pattern_contaminants pattern_contaminants
-                #' @param pattern_decoys pattern_decoys
-                initialize = function(lfqdata,
-                                      row_annot = NULL,
-                                      description = NULL,
-                                      cleaned_ids = NULL,
-                                      full_id = NULL,
-                                      exp_nr_children = "nr_peptides",
-                                      pattern_contaminants = "^zz|^CON",
-                                      pattern_decoys = "^REV_"){
-                  self$pID = lfqdata$config$table$hierarchy_keys_depth()[1]
-                  self$exp_nr_children = exp_nr_children
-                  self$pattern_contaminants = if (is.null(pattern_contaminants)) {"a^"} else {pattern_contaminants}
-                  self$pattern_decoys = if (is.null(pattern_decoys)) {"a^"} else {pattern_decoys}
-                  self$full_id <- if (!is.null(full_id)) { full_id } else {self$pID}
-                  self$cleaned_ids <- if ( !is.null(cleaned_ids)) { cleaned_ids} else {self$pID}
-                  self$description <- if ( !is.null(description)) { description} else {self$pID}
+  R6::R6Class(
+    "ProteinAnnotation",
+    public = list(
+      #' @field row_annot data.frame containing further information
+      row_annot = NULL,
+      #' @field pID column with protein ids
+      pID = character(),
+      #' @field full_id column with protein id e.g. sp| can be same as pID
+      full_id = character(),
+      #' @field description name of column containing descriptions
+      description = "description",
+      #' @field cleaned_ids vector with columns containing addition IDs
+      cleaned_ids = character(),
+      #' @field exp_nr_children name of columns with the number of peptides
+      exp_nr_children = character(),
+      #' @field pattern_contaminants pattern_contaminants
+      pattern_contaminants = character(),
+      #' @field pattern_decoys pattern_decoys
+      pattern_decoys = character(),
+      #' @description initialize
+      #' @param lfqdata data frame from \code{\link{setup_analysis}}
+      #' @param row_annot data frame with row annotation. Must have columns matching \code{config$table$hierarchy_keys_depth()}
+      #' @param description name of column with description
+      #' @param cleaned_ids names of columns with cleaned Ids
+      #' @param exp_nr_children column with the number of children
+      #' @param pattern_contaminants pattern_contaminants
+      #' @param pattern_decoys pattern_decoys
+      initialize = function(lfqdata,
+                            row_annot = NULL,
+                            description = NULL,
+                            cleaned_ids = NULL,
+                            full_id = NULL,
+                            exp_nr_children = "nr_peptides",
+                            pattern_contaminants = "^zz|^CON",
+                            pattern_decoys = "^REV_"){
+        self$pID = lfqdata$config$table$hierarchy_keys_depth()[1]
+        self$exp_nr_children = exp_nr_children
+        self$pattern_contaminants = if (is.null(pattern_contaminants)) {"a^"} else {pattern_contaminants}
+        self$pattern_decoys = if (is.null(pattern_decoys)) {"a^"} else {pattern_decoys}
+        self$full_id <- if (!is.null(full_id)) { full_id } else {self$pID}
+        self$cleaned_ids <- if ( !is.null(cleaned_ids)) { cleaned_ids} else {self$pID}
+        self$description <- if ( !is.null(description)) { description} else {self$pID}
 
-                  self$row_annot <- dplyr::distinct(dplyr::select(lfqdata$data, self$pID))
-                  if ( !is.null(row_annot)) {
-                    stopifnot(self$pID %in% colnames(row_annot))
-                    #row_annot <- dplyr::filter(row_annot, !!sym(self$pID) %in% lfqdata$data[[self$pID]] )
-                    self$row_annot <- dplyr::left_join(self$row_annot, row_annot, by = self$pID)
-                  }
-                  stopifnot(self$cleaned_ids %in% colnames(self$row_annot))
-                  stopifnot(self$description %in% colnames(self$row_annot))
-                  if (!self$exp_nr_children %in% colnames(row_annot) ) {
-                    warning("no exp_nr_children column specified, computing using nr_obs_experiment function")
-                    cf <- lfqdata$config$clone(deep = TRUE)
-                    cf$table$hierarchyDepth <- 1
-                    self$row_annot <- dplyr::inner_join(
-                      self$row_annot,
-                      prolfqua::nr_obs_experiment(lfqdata$data, cf, name_nr_child = self$exp_nr_children),
-                      by = self$pID)
-                  }
-                },
-                #' @description
-                #' annotate rev sequences
-                #' @param pattern default "REV_"
-                annotate_decoys = function() {
-                  self$row_annot <- self$row_annot |> dplyr::mutate(
-                    REV = dplyr::case_when(grepl(self$pattern_decoys, as.character(!!sym(self$full_id)), ignore.case = TRUE) ~ TRUE,
-                                           TRUE ~ FALSE))
+        self$row_annot <- dplyr::distinct(dplyr::select(lfqdata$data, self$pID))
+        if ( !is.null(row_annot)) {
+          stopifnot(self$pID %in% colnames(row_annot))
+          #row_annot <- dplyr::filter(row_annot, !!sym(self$pID) %in% lfqdata$data[[self$pID]] )
+          self$row_annot <- dplyr::left_join(self$row_annot, row_annot, by = self$pID)
+        }
+        stopifnot(self$cleaned_ids %in% colnames(self$row_annot))
+        stopifnot(self$description %in% colnames(self$row_annot))
+        if (!self$exp_nr_children %in% colnames(row_annot) ) {
+          warning("no exp_nr_children column specified, computing using nr_obs_experiment function")
+          cf <- lfqdata$config$clone(deep = TRUE)
+          cf$table$hierarchyDepth <- 1
+          self$row_annot <- dplyr::inner_join(
+            self$row_annot,
+            prolfqua::nr_obs_experiment(lfqdata$data, cf, name_nr_child = self$exp_nr_children),
+            by = self$pID)
+        }
+      },
+      #' @description
+      #' annotate rev sequences
+      #' @param pattern default "REV_"
+      annotate_decoys = function() {
+        self$row_annot <- self$row_annot |> dplyr::mutate(
+          REV = dplyr::case_when(grepl(self$pattern_decoys, as.character(!!sym(self$full_id)), ignore.case = TRUE) ~ TRUE,
+                                 TRUE ~ FALSE))
 
-                  return(sum(self$row_annot$REV))
-                },
-                #' @description
-                #' annotate contaminants
-                #' @param pattern default "^zz|^CON"
-                annotate_contaminants = function() {
-                  self$row_annot <- self$row_annot |> dplyr::mutate(
-                    CON = dplyr::case_when(grepl(self$pattern_contaminants, as.character(!!sym(self$full_id)), ignore.case = TRUE) ~ TRUE,
-                                           TRUE ~ FALSE))
-                  return(sum(self$row_annot$CON))
-                },
-                #' @description
-                #' get summary
-                get_summary = function() {
-                  allProt <- nrow(self$row_annot)
-                  contdecoySummary <- data.frame(
-                    totalNrOfProteins = allProt,
-                    percentOfContaminants = round(self$annotate_contaminants() / allProt * 100, digits = 2),
-                    percentOfFalsePositives = round(self$annotate_decoys() / allProt * 100, digits = 2),
-                    NrOfProteinsNoDecoys = self$nr_clean()
-                  )
-                  return(contdecoySummary)
-                },
-                #' @description get number of neither contaminants nor decoys
-                #' @param contaminants remove contaminants
-                #' @param decoys remove decoys
-                #' return number of cleans
-                nr_clean = function(contaminants = TRUE, decoys = TRUE){
+        return(sum(self$row_annot$REV))
+      },
+      #' @description
+      #' annotate contaminants
+      #' @param pattern default "^zz|^CON"
+      annotate_contaminants = function() {
+        self$row_annot <- self$row_annot |> dplyr::mutate(
+          CON = dplyr::case_when(grepl(self$pattern_contaminants, as.character(!!sym(self$full_id)), ignore.case = TRUE) ~ TRUE,
+                                 TRUE ~ FALSE))
+        return(sum(self$row_annot$CON))
+      },
+      #' @description
+      #' get summary
+      get_summary = function() {
+        allProt <- nrow(self$row_annot)
+        contdecoySummary <- data.frame(
+          totalNrOfProteins = allProt,
+          percentOfContaminants = round(self$annotate_contaminants() / allProt * 100, digits = 2),
+          percentOfFalsePositives = round(self$annotate_decoys() / allProt * 100, digits = 2),
+          NrOfProteinsNoDecoys = self$nr_clean()
+        )
+        return(contdecoySummary)
+      },
+      #' @description get number of neither contaminants nor decoys
+      #' @param contaminants remove contaminants
+      #' @param decoys remove decoys
+      #' return number of cleans
+      nr_clean = function(contaminants = TRUE, decoys = TRUE){
 
-                  if (decoys && !("REV" %in% colnames(self$row_annot)) ) { stop("annotate REV") }
-                  if (contaminants & !("CON" %in% colnames(self$row_annot)) ) { stop("annotate CON") }
+        if (decoys && !("REV" %in% colnames(self$row_annot)) ) { stop("annotate REV") }
+        if (contaminants & !("CON" %in% colnames(self$row_annot)) ) { stop("annotate CON") }
 
-                  res <- if (decoys && contaminants) {
-                    sum(!self$row_annot$REV & !self$row_annot$CON)
-                  } else if (contaminants) {
-                    sum(!self$row_annot$CON)
-                  } else if (decoys) {
-                    sum(!self$row_annot$REV)
-                  } else {
-                    nrow(self$row_annot)
-                  }
-                  return(res)
-                },
-                #' @description remove REV and CON sequences
-                #' @param contaminants remove contaminants
-                #' @param decoys remove decoys
-                #'
-                clean = function(contaminants = TRUE, decoys = TRUE){
-                  if (contaminants && !("REV" %in% colnames(self$row_annot)) ) { stop("annotate REV") }
-                  if (decoys && !("CON" %in% colnames(self$row_annot)) ) { stop("annotate CON") }
-                  res <- if (decoys && contaminants) {
-                    dplyr::filter(self$row_annot , !self$row_annot$REV & !self$row_annot$CON )
-                  } else if (contaminants) {
-                    dplyr::filter(self$row_annot , !self$row_annot$CON)
-                  } else if (decoys) {
-                    dplyr::filter(self$row_annot , !self$row_annot$REV )
-                  } else {
-                    self$row_annot
-                  }
-                  return(res)
-                }
+        res <- if (decoys && contaminants) {
+          sum(!self$row_annot$REV & !self$row_annot$CON)
+        } else if (contaminants) {
+          sum(!self$row_annot$CON)
+        } else if (decoys) {
+          sum(!self$row_annot$REV)
+        } else {
+          nrow(self$row_annot)
+        }
+        return(res)
+      },
+      #' @description remove REV and CON sequences
+      #' @param contaminants remove contaminants
+      #' @param decoys remove decoys
+      #'
+      clean = function(contaminants = TRUE, decoys = TRUE){
+        if (contaminants && !("REV" %in% colnames(self$row_annot)) ) { stop("annotate REV") }
+        if (decoys && !("CON" %in% colnames(self$row_annot)) ) { stop("annotate CON") }
+        res <- if (decoys && contaminants) {
+          dplyr::filter(self$row_annot , !self$row_annot$REV & !self$row_annot$CON )
+        } else if (contaminants) {
+          dplyr::filter(self$row_annot , !self$row_annot$CON)
+        } else if (decoys) {
+          dplyr::filter(self$row_annot , !self$row_annot$REV )
+        } else {
+          self$row_annot
+        }
+        return(res)
+      },
+      #' @description
+      #' filter by number children
+      filter_by_nr_children = function(exp_nr_children = 2){
+        res <- self$row_annot |> dplyr::filter(!!sym(self$exp_nr_children) >= exp_nr_children)
+        res <- res |> dplyr::select(self$pID, self$exp_nr_children)
+        return(res)
+      }
 
-              )
+    )
   )
 
 
