@@ -108,8 +108,8 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE){
 #' stopifnot(nrow(dx) == 95)
 #' dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
 #' stopifnot(nrow(dx) == 90)
-#' dx2 <- pannot$filter_by_nr_children(nr_children = 2)
-#' dx3 <- pannot$filter_by_nr_children(nr_children = 3)
+#' dx2 <- pannot$filter_by_nr_children(exp_nr_children = 2)
+#' dx3 <- pannot$filter_by_nr_children(exp_nr_children = 3)
 #' stopifnot(nrow(dx2) >= nrow(dx3))
 #'
 ProteinAnnotation <-
