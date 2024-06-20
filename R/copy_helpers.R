@@ -33,7 +33,8 @@ copy_DEA_MaxQuant <- function(workdir = getwd(), run_script = FALSE) {
 #'
 copy_DEA_FragPipe_TMT <- function(workdir = getwd(), run_script = FALSE) {
   runscripts <- c(
-    "application/_Grp2Analysis.Rmd",
+    #"application/_Grp2Analysis.Rmd",
+    "application/_Grp2Analysis_V2.Rmd",
     "application/bibliography.bib",
     "application/_DiffExpQC.Rmd",
     if (run_script) { "application/FragPipeTMT/FP_TMT_V2.R" }
@@ -47,7 +48,7 @@ copy_DEA_FragPipe_TMT <- function(workdir = getwd(), run_script = FALSE) {
 #'
 copy_DEA_DIANN <- function(workdir = getwd(), run_script = FALSE) {
   runscripts <- c(
-    "application/_Grp2Analysis.Rmd",
+    #"application/_Grp2Analysis.Rmd",
     "application/_Grp2Analysis_V2.Rmd",
     "application/bibliography.bib",
     "application/_DiffExpQC.Rmd",

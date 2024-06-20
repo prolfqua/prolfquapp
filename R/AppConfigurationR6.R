@@ -1,3 +1,4 @@
+# ProcessingOptions ----
 #' processing options R6 class
 #' @export
 #' @family ProlfquAppConfig
@@ -33,7 +34,7 @@ ProcessingOptions <- R6::R6Class(
   )
 )
 
-
+# ProjectSpec -----
 #' project specification R6 class
 #' @export
 #' @family ProlfquAppConfig
@@ -53,7 +54,7 @@ ProjectSpec <- R6::R6Class(
   )
 )
 
-
+# ProlfquAppConfig -----
 #' R6 class representing
 #'
 #' @export
@@ -99,7 +100,28 @@ ProlfquAppConfig <- R6::R6Class(
       }
       self$processing_options = processing_options
       self$project_spec = project_spec
+    },
+    set_zipdir_name = function(){
+        pi <- if (is.null(self$project_spec$project_Id) || self$project_spec$project_Id != "")
+        {
+          paste0("_PI_", self$project_spec$project_Id)
+        } else { NULL }
+        res <- paste0(
+          "DEA",
+          "_",format(Sys.Date(), "%Y%m%d"),
+          pi ,
+          "_OI_",
+          self$project_spec$order_Id,
+          "_WU_",self$project_spec$workunit_Id,
+          "_", self$processing_options$transform)
+      self$zipdir = res
+      return(res)
+    },
+    as_list = function(){
+      res <- R6_extract_values(self)
+      return(res)
     }
+
   )
 )
 
@@ -141,18 +163,6 @@ R6_extract_values <- function(r6class){
 }
 
 
-get_zipdir_name <- function(r6obj_config) {
-  pi <- if (r6obj_config$project_spec$project_Id != "") { paste0("_PI_", r6obj_config$project_spec$project_Id)} else {NULL}
-  res <- paste0(
-    "DEA",
-    "_",format(Sys.Date(), "%Y%m%d"),
-    pi ,
-    "_OI_",
-    r6obj_config$project_spec$order_Id,
-    "_WU_",r6obj_config$project_spec$workunit_Id,
-    "_", r6obj_config$processing_options$transform)
-  return(res)
-}
 
 #' read minimal yaml
 #' @export
@@ -183,7 +193,7 @@ list_to_R6_app_config <- function(dd){
   r6obj_config$software = dd$software
   r6obj_config$group = dd$group
   if (is.null(r6obj_config$zipdir)) {
-    r6obj_config$zipdir =  get_zipdir_name(r6obj_config)
+    r6obj_config$zipdir =  set_zipdir_name(r6obj_config)
   }
 
   return(r6obj_config)
@@ -238,7 +248,7 @@ make_DEA_config_R6 <- function(
   pi <- if (PROJECTID != "") { paste0("_PI_", PROJECTID)} else {NULL}
 
 
-  r6obj_config$zipdir = get_zipdir_name(r6obj_config)
+  r6obj_config$set_zipdir_name()
   r6obj_config$software = application
 
   return(r6obj_config)
@@ -287,10 +297,32 @@ read_BF_yamlR6 <- function(ymlfile, application = "FragPipeTMT" ) {
   pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
 
   r6obj_config <- ProlfquAppConfig$new(pop, ps)
-  r6obj_config$zipdir = get_zipdir_name(r6obj_config)
+  r6obj_config$set_zipdir_name()
   r6obj_config$software = application
 
   return(r6obj_config)
+}
+
+
+#' get configuration from yaml if exists
+#' @export
+get_config <- function(yamlfile, WORKUNITID =  "HelloWorld") {
+  if (file.exists(yamlfile)) {
+    xx <- yaml::read_yaml(ymlfile)
+    if (!is.null(xx$project_spec)) {
+      logger::log_info("prolfquapp yaml")
+      GRP2 <- list_to_R6_app_config(xx)
+      GRP2$set_zipdir_name()
+    } else {
+      GRP2 <- yamlfile |> prolfquapp::read_BF_yamlR6(application = "DIANN")
+      GRP2$set_zipdir_name()
+      logger::log_info("bfabric yaml")
+    }
+  } else {
+    GRP2 <- prolfquapp::make_DEA_config_R6(
+      ZIPDIR = "DEA", PROJECTID = "1234" ,ORDERID = "2345", WORKUNITID = WORKUNITID )
+  }
+  return(GRP2)
 }
 
 

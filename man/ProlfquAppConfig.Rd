@@ -49,6 +49,8 @@ Other ProlfquAppConfig:
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-ProlfquAppConfig-new}{\code{ProlfquAppConfig$new()}}
+\item \href{#method-ProlfquAppConfig-set_zipdir_name}{\code{ProlfquAppConfig$set_zipdir_name()}}
+\item \href{#method-ProlfquAppConfig-as_list}{\code{ProlfquAppConfig$as_list()}}
 \item \href{#method-ProlfquAppConfig-clone}{\code{ProlfquAppConfig$clone()}}
 }
 }
@@ -79,6 +81,24 @@ set procession options and project spec
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ProlfquAppConfig-set_zipdir_name"></a>}}
+\if{latex}{\out{\hypertarget{method-ProlfquAppConfig-set_zipdir_name}{}}}
+\subsection{Method \code{set_zipdir_name()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$set_zipdir_name()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ProlfquAppConfig-as_list"></a>}}
+\if{latex}{\out{\hypertarget{method-ProlfquAppConfig-as_list}{}}}
+\subsection{Method \code{as_list()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$as_list()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-clone"></a>}}

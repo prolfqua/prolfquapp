@@ -21,9 +21,11 @@ get_FP_PSM_files <- function(path){
 preprocess_FP_PSM <- function(quant_data,
                              fasta_file,
                              annotation,
-                             q_value = 0.01,
-                             nrPeptides = 1,
-                             column_before_quants = "Quan Usage"){
+                             purity_threshold = 0.5,
+                             PeptideProphetProb = 0.9,
+                             column_before_quants = "Quan Usage",
+                             pattern_contaminants = "^zz|^CON",
+                             pattern_decoys = "REV_"){
 
   annot <- annotation$annot
   atable <- annotation$atable
@@ -33,41 +35,51 @@ preprocess_FP_PSM <- function(quant_data,
     ))
 
   psm <- prolfquapp::tidy_FragPipe_psm(quant_data, column_before_quants = column_before_quants)
+  nrPeptides_exp <- psm$nrPeptides
+  psm <- psm$data
   psm$qValue <- 1 - psm$PeptideProphet.Probability
 
-  nrowPSM <- nrow(psm)
-  fasta_annot <- get_annot_from_fasta(fasta_file)
-  psm <- dplyr::left_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
-  stopifnot(nrow(psm) == nrowPSM)
-
-
-
-  nr <- sum(annot$channel %in% sort(unique(psm$channel)))
+  nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(psm$channel)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(psm$channel)))
   stopifnot(nr > 0)
+  logger::log_info("channels in annotation which are not in psm.tsv file : ", paste(setdiff(annot[[annotation$atable$fileName]],sort(unique(psm$channel))), collapse = " ; ") )
+  logger::log_info("channels in psm.tsv which are not in annotation file : ", paste(setdiff(annot[[annotation$atable$fileName]],sort(unique(psm$channel))), collapse = " ; ") )
 
   atable$ident_Score = "PeptideProphet.Probability"
   atable$ident_qValue = "qValue"
-  atable$fileName = "channel"
   atable$hierarchy[["protein_Id"]] <- c("Protein")
   atable$hierarchy[["peptide_Id"]] <- c("Peptide")
   atable$hierarchy[["mod_peptide_Id"]] <- c("Modified.Peptide","Assigned.Modifications")
-  atable$hierarchy[["Spectrum"]] <- c("Spectrum")
+  # atable$hierarchy[["Spectrum"]] <- c("Spectrum")
   atable$set_response("abundance")
 
-  psm <- dplyr::inner_join(annot, psm, multiple = "all")
+  bycol <- c("channel")
+  names(bycol) <- atable$fileName
+  psma <- dplyr::inner_join(annot, psm, multiple = "all", by = bycol)
   config <- prolfqua::AnalysisConfiguration$new(atable)
-  adata <- prolfqua::setup_analysis(psm, config)
+  adata <- prolfqua::setup_analysis(psma, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
+  lfqdata$data
 
-  prot_annot <- prolfquapp::build_protein_annot(
-    lfqdata,
-    psm,
-    idcol = c("protein_Id" = "Protein"),
-    cleaned_protein_id = "Protein",
-    protein_description = "Protein.Description",
+  # build rowAnnotation.
+  fasta_annot <- get_annot_from_fasta(fasta_file)
+  #psm <- dplyr::left_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
+  #stopifnot(nrow(psm) == nrowPSM)
+  fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("Protein" = "fasta.id"))
+
+  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!sym("Protein"))
+  fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
+
+  prot_annot <- prolfquapp::ProteinAnnotation$new(
+    lfqdata ,
+    fasta_annot,
+    description = "description",
+    cleaned_ids = "proteinname",
+    full_id = "protein_Id",
     exp_nr_children = "nrPeptides",
-    more_columns = NULL)
+    pattern_contaminants = pattern_contaminants,
+    pattern_decoys = pattern_decoys
+  )
 
   lfqdata$remove_small_intensities()
   return(list(lfqdata = lfqdata , protein_annotation = prot_annot))

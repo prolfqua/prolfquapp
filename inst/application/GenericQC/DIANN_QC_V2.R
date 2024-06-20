@@ -62,7 +62,7 @@ files <- prolfquapp::get_DIANN_files(path)
 xx <- get_annot_from_fasta(files$fasta)
 
 annotfile <- file.path(path, opt$dataset)
-if(!file.exists(annotfile)) {stop("No annotation file found",annotfile)}
+if (!file.exists(annotfile)) {stop("No annotation file found",annotfile)}
 annotation <- file.path(annotfile) |>
   readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
 
@@ -73,11 +73,11 @@ xd <- prolfquapp::preprocess_DIANN(
   nrPeptides =  GRP2$processing_options$nr_peptides,
   q_value = 0.01)
 
+
 TABLES2WRITE <- list()
 TABLES2WRITE$peptide_wide <- dplyr::left_join(xd$protein_annotation$row_annot,
                                        xd$lfqdata$to_wide()$data,
                                        multiple = "all")
-
 TABLES2WRITE$annotation <- xd$lfqdata$factors()
 lfqdataProt <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = "medpolish")
 TABLES2WRITE$proteins_wide <- dplyr::left_join(xd$protein_annotation$row_annot,

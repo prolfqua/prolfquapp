@@ -8,9 +8,11 @@ preprocess_FP_PSM(
   quant_data,
   fasta_file,
   annotation,
-  q_value = 0.01,
-  nrPeptides = 1,
-  column_before_quants = "Quan Usage"
+  purity_threshold = 0.5,
+  PeptideProphetProb = 0.9,
+  column_before_quants = "Quan Usage",
+  pattern_contaminants = "^zz|^CON",
+  pattern_decoys = "REV_"
 )
 }
 \value{

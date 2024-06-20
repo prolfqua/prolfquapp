@@ -203,12 +203,13 @@ tidy_FragPipe_combined_protein <- function(
 #' @param purity_threshold purity threshold default = 0.5
 #' @param PeptideProphetProb default 0.9
 #' @param column_before_quants describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"
-#'
+#' @param aggregate aggregate spectra to psm level
 tidy_FragPipe_psm <- function(psm_file,
                               purity_threshold = 0.5,
                               PeptideProphetProb = 0.9,
                               abundance_threshold = 0,
-                              column_before_quants = "Quan Usage"){
+                              column_before_quants = "Quan Usage",
+                              aggregate = TRUE){
   psm <- readr::read_tsv(psm_file)
 
   if (!"Purity" %in% colnames(psm) ) {
@@ -242,12 +243,23 @@ tidy_FragPipe_psm <- function(psm_file,
     psm_long <- dplyr::filter(psm_long, abundance > abundance_threshold)
   }
 
-  nrPeptides <- psm_long |>
-    dplyr::select(Protein, Peptide) |> distinct() |> group_by(Protein) |> summarize(nrPeptides = n())
-  psm_long <- dplyr::inner_join(nrPeptides, psm_long, by = "Protein", multiple = "all")
+  nrPeptides_exp <- psm_long |>
+    dplyr::select(Protein, Peptide) |>
+    dplyr::distinct() |>
+    dplyr::group_by(Protein) |>
+    dplyr::summarize(nrPeptides = dplyr::n())
+
   colnames(psm_long) <- make.names(colnames(psm_long))
   psm_long <- dplyr::filter(psm_long, Purity > purity_threshold & PeptideProphet.Probability > PeptideProphetProb)
-  return(psm_long)
+
+  if (aggregate) {
+    psm_long <- psm_long |>
+      dplyr::select(-all_of(c("Spectrum.File","Spectrum","Intensity","Purity","Retention","Calibrated.Observed.Mass","Charge"))) |>
+      dplyr::group_by(dplyr::across(-c(abundance, PeptideProphet.Probability))) |>
+      dplyr::summarize(nr_psm = n(), abundance = sum(abundance, na.rm = TRUE), PeptideProphet.Probability = max(PeptideProphet.Probability, na.rm = TRUE))
+  }
+
+  return(list(data = psm_long, nrPeptides_exp = nrPeptides_exp))
 }
 
 

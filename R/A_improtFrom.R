@@ -3,5 +3,6 @@
 #' @importFrom dtplyr lazy_dt
 #' @importFrom rlang sym syms
 #' @importFrom tidyselect starts_with all_of
+#' @importFrom dplyr distinct n
 
 NULL

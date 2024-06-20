@@ -198,18 +198,18 @@ write_result_list <- function(outpath,
                               GRP2,
                               resultList,
                               xlsxname,
-                              id_column = "IDcolumn",
                               GSEA = TRUE,
                               ORA = TRUE) {
   workunit_id <- GRP2$project_spec$workunit_Id
   dir.create(outpath)
+  id_column = GRP2$RES$rowAnnot$cleaned_ids
 
   if (ORA) {
     bkg <- GRP2$RES$rowAnnot$row_annot[[id_column]]
     ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
     write.table(bkg,file = ff, col.names = FALSE,
                 row.names = FALSE, quote = FALSE)
-    .write_ORA(GRP2$RES$contrastsData_signif, outpath, workunit_id)
+    .write_ORA(GRP2$RES$contrastsData_signif, outpath, workunit_id,id_column = id_column)
   }
   if (GSEA) {
     fg <- GRP2$RES$contrastsData

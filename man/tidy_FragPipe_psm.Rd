@@ -9,7 +9,8 @@ tidy_FragPipe_psm(
   purity_threshold = 0.5,
   PeptideProphetProb = 0.9,
   abundance_threshold = 0,
-  column_before_quants = "Quan Usage"
+  column_before_quants = "Quan Usage",
+  aggregate = TRUE
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ tidy_FragPipe_psm(
 \item{PeptideProphetProb}{default 0.9}
 
 \item{column_before_quants}{describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"}
+
+\item{aggregate}{aggregate spectra to psm level}
 }
 \description{
 read psm.tsv produced by FragPipe and convert into long format
