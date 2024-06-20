@@ -28,6 +28,16 @@ option_list <- list(
 )
 
 
+# set library path
+libPath <- opt$libPath
+
+if (!is.null(libPath) && dir.exists(libPath) ) {
+  logger::log_info(paste("Setting libPath:", libPath, collapse = " ;"))
+  .libPaths(libPath)
+  logger::log_info(.libPaths(), sep = "\n")
+}
+
+
 library(prolfquapp)
 
 parser <- OptionParser(usage = "%prog file [options] ", option_list = option_list)
