@@ -8,7 +8,7 @@ option_list <- list(
   make_option(c("-t","--trans"), type = "character", default = "vsn",
                 help = "normalization method to use, vsn, none, or robscale",
                 metavar = "character"),
-  make_option(c("-d", "--outdir"), type = "character", default = ".",
+  make_option(c("-d", "--outdir"), type = "character", default = NULL,
               help = "folder write yaml file to",
               metavar = "string"),
   make_option(c("-y", "--yaml"), type = "character", default = "config.yaml",
@@ -28,14 +28,13 @@ option_list <- list(
 
 parser <- OptionParser(usage = "%prog [options] file", option_list = option_list, add_help_option = TRUE)
 arguments <- parse_args(parser, args = "test.yml", positional_arguments = TRUE)
+lobstr::tree(arguments)
+
 
 opt <- arguments$options
-
 ymlfile <- arguments$args
-ymlfile
-
-
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else {ymlfile}
+
 logger::log_info("writing yaml file : ", ymlfile)
 GRP2 <- prolfquapp::make_DEA_config_R6(
   ZIPDIR = "DEA",
@@ -44,4 +43,8 @@ GRP2 <- prolfquapp::make_DEA_config_R6(
   WORKUNITID = opt$workunit,
   Normalization = opt$trans
   )
+GRP2$set_zipdir_name()
+if (!is.null(opt$outdir) && dir.exists(opt$outdir)) {
+  GRP2$zipdir <- opt$outdir
+}
 yaml::write_yaml(prolfquapp::R6_extract_values(GRP2), file = file.path(opt$outdir , ymlfile))
