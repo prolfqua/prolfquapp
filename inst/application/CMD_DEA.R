@@ -21,7 +21,7 @@ option_list <- list(
               metavar = "character"),
   make_option(c("-p", "--outdir"), type = "character", default = NULL,
               help = "yaml configuration file",
-              metavar = "path"),
+              metavar = "character"),
   make_option(c("--libPath"), type = "character", default = NULL,
               help = " (optional) R library path",
               metavar = "string")
@@ -41,11 +41,12 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 ymlfile <- arguments$args
 
-if (FALSE) {
+if (TRUE) {
   opt$software = "DIANN"
   opt$indir = "2521765"
   opt$dataset = "dataset_V1.csv"
   opt$yaml = "configuration_fgcz_83333_EcoliK12.yml"
+  opt$outdir = "TESTING"
 }
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
@@ -61,11 +62,16 @@ if (!is.null(opt$workunit)) {
   GRP2$project_spec$workunit_Id <- opt$workunit
 }
 GRP2$set_zipdir_name()
+logger::log_info(">>>>>>>>> <<<<<<<<<<<<<<<<<<<")
+
 if (!is.null(opt$outdir)) {
-  GRP2$zipdir <- file.path(opt$oudir, GRP2$zipdir)
+  logger::log_info(opt$outdir)
+  dir.create(opt$outdir)
+  GRP2$zipdir <- file.path(opt$outdir, GRP2$zipdir)
 }
 logger::log_info(">>>>>>>>> Writing results to: " ,  GRP2$zipdir, "<<<<<<<<<<<<<<<<<<<")
 lobstr::tree(R6_extract_values(GRP2))
+logger::log_info(">>>>>>>>> <<<<<<<<<<<<<<<<<<<")
 
 annotation <- file.path(opt$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation(prefix = GRP2$group)
