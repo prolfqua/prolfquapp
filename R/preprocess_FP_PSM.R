@@ -43,7 +43,7 @@ preprocess_FP_PSM <- function(quant_data,
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(psm$channel)))
   stopifnot(nr > 0)
   logger::log_info("channels in annotation which are not in psm.tsv file : ", paste(setdiff(annot[[annotation$atable$fileName]],sort(unique(psm$channel))), collapse = " ; ") )
-  logger::log_info("channels in psm.tsv which are not in annotation file : ", paste(setdiff(annot[[annotation$atable$fileName]],sort(unique(psm$channel))), collapse = " ; ") )
+  logger::log_info("channels in psm.tsv which are not in annotation file : ", paste(setdiff(sort(unique(psm$channel)),annot[[annotation$atable$fileName]]), collapse = " ; ") )
 
   atable$ident_Score = "PeptideProphet.Probability"
   atable$ident_qValue = "qValue"

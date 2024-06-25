@@ -6,7 +6,7 @@
 Use this function if there is no Yaml Input.}
 \usage{
 make_DEA_config_R6(
-  ZIPDIR = ".",
+  ZIPDIR = NULL,
   PROJECTID = "",
   ORDERID = "",
   WORKUNITID = "",

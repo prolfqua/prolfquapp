@@ -33,7 +33,7 @@ make_DEA_report2 <- function(lfqdata,
   )
   GRP2$RES$rowAnnot <- protAnnot
 
-  if (GRP2$processing_options$remove_cont || GRP2$processing_options$remove_cont) {
+  if (GRP2$processing_options$remove_cont || GRP2$processing_options$remove_decoys) {
     lfqdata <- lfqdata$get_subset(protAnnot$clean(
       contaminants = GRP2$processing_options$remove_cont,
       decoys = GRP2$processing_options$remove_decoys))

@@ -7,142 +7,104 @@ if (!require("optparse", quietly = TRUE))
 
 logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\n"))
 
-
 library("optparse")
-parser <- OptionParser()
-parser <- add_option(parser, c("-i", "--indir"), type = "character", default = ".",
-                     help = "folder containing fasta, diann-output.tsv and dataset.tsv file",
-                     metavar = "string")
-parser <- add_option(parser, c("-p", "--projectId"), type = "character", default = "1234",
-                     help = "your project identifier",
-                     metavar = "string")
-parser <- add_option(parser, c("-w", "--workunitId"), type = "character", default = "4321",
-                     help = "workunit identifier",
-                     metavar = "string")
-parser <- add_option(parser, c("-d", "--dataset"), type = "character", default = "dataset.csv",
-                     help = "name of annotation",
-                     metavar = "string")
-parser <- add_option(parser, c("-o", "--output"), type = "character", default = "qc_dir",
-                     help = "folder to write the results to.",
-                     metavar = "string")
-parser <- add_option(parser, c("--libPath"), type = "character", default = NULL,
-                     help = " (optional) R library path",
-                     metavar = "string")
+option_list <- list(
+  make_option( c("-i", "--indir"), type = "character", default = ".",
+              help = "folder containing fasta, diann-output.tsv and dataset.tsv file",
+              metavar = "string"),
+  make_option( c("-p", "--projectId"), type = "character", default = "1234",
+              help = "your project identifier",
+              metavar = "string"),
+  make_option( c("-w", "--workunitId"), type = "character", default = "4321",
+              help = "workunit identifier",
+              metavar = "string"),
+  make_option( c("-d", "--dataset"), type = "character", default = "dataset.csv",
+              help = "name of annotation",
+              metavar = "string"),
 
-opt <- parse_args(parser)
+  make_option( c("-o", "--outdir"), type = "character", default = "qc_dir",
+              help = "folder to write the results to.",
+              metavar = "string"),
+  make_option(c("-s", "--software"), type = "character", default = "DIANN",
+              help = "possible options DIANN, FP_TMT, MAXQUANT",
+              metavar = "character"),
+  make_option(c("--libPath"), type = "character", default = NULL,
+              help = " (optional) R library path",
+              metavar = "string")
+  )
 
-# set library path
-libPath <- opt$libPath
+parser <- OptionParser(usage = "%prog file [options] ", option_list = option_list)
+arguments <- parse_args(parser, positional_arguments = TRUE)
+lobstr::tree(arguments)
 
-if (!is.null(libPath) && dir.exists(libPath) ) {
-  logger::log_info(paste("Setting libPath:", libPath, collapse = " ;"))
-  .libPaths(libPath)
-  logger::log_info(.libPaths(), sep = "\n")
+opt <- arguments$options
+
+if (TRUE) {
+
 }
 
-
-# this must be executed after the libPath is modified.
-library(dplyr)
+# set library path
+prolfquapp::set_lib_path(opt$libPath);
 library(prolfquapp)
 library(logger)
 
+logger::log_info("using : ", system.file(package = "prolfqua"))
+logger::log_info("using : ", system.file(package = "prolfquapp"))
 
-GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = opt$output,
+undebug(prolfquapp::make_DEA_config_R6)
+GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = opt$outdir,
                                        ORDERID = opt$projectId,
                                        PROJECTID =  opt$projectId,
-                                       WORKUNITID = opt$workunitId )
+                                       WORKUNITID = opt$workunitId,
+                                       application = opt$software)
+
+logger::log_info(GRP2$zipdir)
 if (!dir.exists(GRP2$zipdir)) {
   dir.create(GRP2$zipdir)
 }
 
 output_dir <- GRP2$zipdir
-
 path <- opt$indir
-files <- prolfquapp::get_DIANN_files(path)
-xx <- get_annot_from_fasta(files$fasta)
 
-annotfile <- file.path(path, opt$dataset)
-if (!file.exists(annotfile)) {stop("No annotation file found",annotfile)}
+annotfile <- file.path(opt$dataset)
+if (!file.exists(annotfile)) {stop("No annotation file found : ",annotfile)}
 annotation <- file.path(annotfile) |>
   readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
-
-xd <- prolfquapp::preprocess_DIANN(
-  quant_data = files$data,
-  fasta_file = files$fasta,
-  annotation = annotation,
-  nrPeptides =  GRP2$processing_options$nr_peptides,
-  q_value = 0.01)
+names(annotation)
 
 
-TABLES2WRITE <- list()
-TABLES2WRITE$peptide_wide <- dplyr::left_join(xd$protein_annotation$row_annot,
-                                       xd$lfqdata$to_wide()$data,
-                                       multiple = "all")
-TABLES2WRITE$annotation <- xd$lfqdata$factors()
-lfqdataProt <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = "medpolish")
-TABLES2WRITE$proteins_wide <- dplyr::left_join(xd$protein_annotation$row_annot,
-                                        lfqdataProt$to_wide()$data,
-                                        multiple = "all")
-
-
-lfqdataProtIBAQ <- compute_IBAQ_values(xd$lfqdata, xd$protein_annotation)
-
-lfqdataProtIBAQ$hierarchy_counts()
-summarizer <- lfqdataProtIBAQ$get_Summariser()
-precabund <- summarizer$percentage_abundance()
-
-precabund <- dplyr::inner_join(
-  xd$protein_annotation$row_annot,
-  precabund,
-  multiple = "all",
-  by = lfqdataProtIBAQ$config$table$hierarchy_keys_depth())
-
-TABLES2WRITE$proteinAbundances <- precabund
-TABLES2WRITE$IBAQ_abundances <-
-  dplyr::left_join(xd$protein_annotation$row_annot,
-                   lfqdataProtIBAQ$to_wide()$data,
-                   multiple = "all")
-
-writexl::write_xlsx(TABLES2WRITE, path = file.path(output_dir, "proteinAbundances.xlsx"))
-
-file.copy(system.file("application/GenericQC/QC_ProteinAbundances.Rmd", package = "prolfquapp"),
-          to = output_dir, overwrite = TRUE)
-
-
-if (!is.null(lfqdataProtIBAQ)) {
-  rmarkdown::render(file.path(output_dir,"QC_ProteinAbundances.Rmd"),
-                    params = list(lfqdataProt = lfqdataProtIBAQ,
-                                  precabund = precabund,
-                                  project_info = GRP2$project_spec,
-                                  factors = TRUE),
-                    output_file = "proteinAbundances.html")
+if (opt$software == "DIANN") {
+  files <- prolfquapp::get_DIANN_files(path)
+  xd <- prolfquapp::preprocess_DIANN(
+    quant_data = files$data,
+    fasta_file = files$fasta,
+    annotation = annotation,
+    nrPeptides =  GRP2$processing_options$nr_peptides,
+    q_value = 0.01)
+} else if (opt$software == "FP_TMT") {
+  files <- prolfquapp::get_FP_PSM_files(path)
+  xd <- prolfquapp::preprocess_FP_PSM(
+    quant_data = files$data,
+    fasta_file = files$fasta,
+    annotation = annotation
+    )
+} else if (opt$software == "MAXQUANT") {
 
 } else {
-  str <- c("<!DOCTYPE html>",
-           "<html>",
-           "<head>","<title>",
-           "There is a problem",
-           "</title>","</head>",
-           "<body>",
-           "<h1>",
-           paste0("the input file :" , files$data , " is empty"),
-           "</h1>",
-           "</body>",
-           "</html>")
-  cat(str, file = file.path(output_dir,"proteinAbundances.html"), sep = "\n")
+  stop("unknown software : ", opt$software)
 }
 
+pap <- ProteinAbundanceProcessor$new(xd$lfqdata, xd$protein_annotation, GRP2)
+pap$get_protein_per_group_small_wide()
+pap$get_prot_wide()
+pap$get_protein_per_group_abundance()
+tmp <- pap$get_list()
+names(tmp)
 
-if (nrow(lfqdataProt$factors()) > 1) {
-  file.copy(system.file("application/GenericQC/QCandSSE.Rmd", package = "prolfquapp"),
-            to = output_dir, overwrite = TRUE)
-  rmarkdown::render(file.path(output_dir,"QCandSSE.Rmd"),
-                    params = list(data = lfqdataProt$data,
-                                  configuration = lfqdataProt$config,
-                                  project_conf = GRP2$project_spec,
-                                  pep = FALSE),
-                    output_file = "QC_sampleSizeEstimation.html"
-  )
-} else{
-  message("only a single sample: ", nrow(lfqdataProt$factors()))
-}
+
+pap$write_xlsx()
+
+pap$render_QC_protein_abundances()
+pap$render_sample_size_QC()
+
+

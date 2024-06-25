@@ -4,7 +4,7 @@
 PACKAGE_PATH=$(Rscript --vanilla -e "cat(system.file(package = 'prolfquapp'))")
 
 # Build the path to the R script
-R_SCRIPT_PATH="${PACKAGE_PATH}/application/DIANN/TestOptparsing.R"
+R_SCRIPT_PATH="${PACKAGE_PATH}/application/CMD_DEA.R"
 
 # Check if the R script exists
 if [[ -f "$R_SCRIPT_PATH" ]]; then

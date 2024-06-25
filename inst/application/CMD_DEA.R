@@ -6,7 +6,7 @@ logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\
 
 
 option_list <- list(
-  make_option(c("-i", "--indir"), type = "character", default = NULL,
+  make_option(c("-i", "--indir"), type = "character", default = ".",
               help = "folder containing fasta and diann-output files",
               metavar = "path"),
   make_option(c("-d", "--dataset"), type = "character", default = "dataset.csv",
@@ -28,32 +28,26 @@ option_list <- list(
 )
 
 
-# set library path
-libPath <- opt$libPath
-
-if (!is.null(libPath) && dir.exists(libPath) ) {
-  logger::log_info(paste("Setting libPath:", libPath, collapse = " ;"))
-  .libPaths(libPath)
-  logger::log_info(.libPaths(), sep = "\n")
-}
-
-
-library(prolfquapp)
-
 parser <- OptionParser(usage = "%prog file [options] ", option_list = option_list)
 arguments <- parse_args(parser, positional_arguments = TRUE)
-opt <- arguments$options
 lobstr::tree(arguments)
 
+opt <- arguments$options
+
+# set library path
+prolfquapp::set_lib_path(opt$libPath);
+library(prolfquapp)
+logger::log_info("using : ", system.file(package = "prolfqua"))
+logger::log_info("using : ", system.file(package = "prolfquapp"))
 ymlfile <- arguments$args
-ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
 if (FALSE) {
-  opt$software = "FP_TMT"
-  #opt$indir = "2513659"
-  #opt$dataset = "dataset_compare_concentrations.csv"
-  #opt$yaml = "configuration_compare_concentrations.yaml"
+  opt$software = "DIANN"
+  opt$indir = "2521765"
+  opt$dataset = "dataset_V1.csv"
+  opt$yaml = "configuration_fgcz_83333_EcoliK12.yml"
 }
+ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
 
 yamlfile <- file.path(ymlfile)
@@ -82,10 +76,14 @@ if (opt$software == "DIANN") {
   prolfquapp::copy_DEA_DIANN(run_script = FALSE)
   files <- prolfquapp::get_DIANN_files(opt$indir)
   xd <- prolfquapp::preprocess_DIANN(
-    quant_data = files$data, fasta_file = files$fasta,
-    annotation = annotation, nrPeptides =  GRP2$processing_options$nr_peptides,
-    q_value = 0.1,pattern_contaminants = GRP2$processing_options$pattern_contaminants,
-    pattern_decoys = GRP2$processing_options$pattern_decoys)
+    quant_data = files$data,
+    fasta_file = files$fasta,
+    annotation = annotation,
+    nrPeptides =  GRP2$processing_options$nr_peptides,
+    q_value = 0.1,
+    pattern_contaminants = GRP2$processing_options$pattern_contaminants,
+    pattern_decoys = GRP2$processing_options$pattern_decoys
+    )
 } else if (opt$software == "FP_TMT") {
   prolfquapp::copy_DEA_FragPipe_TMT(run_script = FALSE)
   files <- prolfquapp::get_FP_PSM_files(opt$indir)
@@ -112,7 +110,7 @@ lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_o
 logger::log_info("END OF PROTEIN AGGREGATION")
 
 logger::log_info("RUN ANALYSIS")
-
+#debug(prolfquapp::make_DEA_report2)
 
 
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
@@ -131,7 +129,14 @@ inputs <- file.path(
   paste0("Inputs_DEA_WU", GRP2$project_spec$workunitID))
 dir.create(inputs)
 
-prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
+if (opt$software == "DIANN") {
+  prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
+} else if (opt$software == "FP_TMT") {
+  prolfquapp::copy_DEA_FragPipe_TMT(workdir = inputs, run_script = TRUE)
+} else {
+  stop(opt$software, " not supported.")
+}
+
 file.copy(c(files$data, files$fasta, yamlfile, opt$dataset), inputs)
 
 GRP2$RES <- NULL

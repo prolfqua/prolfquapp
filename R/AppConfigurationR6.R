@@ -211,7 +211,7 @@ list_to_R6_app_config <- function(dd){
 #' R6list <- R6_extract_values(DEAconfig)
 #'
 make_DEA_config_R6 <- function(
-    ZIPDIR  = ".",
+    ZIPDIR  = NULL,
     PROJECTID = "",
     ORDERID ="",
     WORKUNITID ="",
@@ -245,10 +245,11 @@ make_DEA_config_R6 <- function(
   ps$workunit_Id = WORKUNITID
 
   r6obj_config <- ProlfquAppConfig$new(pop, ps)
-  pi <- if (PROJECTID != "") { paste0("_PI_", PROJECTID)} else {NULL}
-
-
-  r6obj_config$set_zipdir_name()
+  if(is.null(ZIPDIR)){
+    r6obj_config$set_zipdir_name()
+  } else{
+    r6obj_config$zipdir <- ZIPDIR
+  }
   r6obj_config$software = application
 
   return(r6obj_config)

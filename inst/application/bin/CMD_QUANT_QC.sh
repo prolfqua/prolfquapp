@@ -1,0 +1,1 @@
+# Rscript --vanilla /Users/witoldwolski/__checkout/prolfquapp/inst/application/CMD_QUANT_QC.R --indir out-2024-05-03 --dataset dataset.csv --workunitId 303095 --projectId 35061 --software DIANN --outdir qc_dir_2

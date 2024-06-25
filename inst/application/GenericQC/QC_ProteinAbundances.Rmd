@@ -5,8 +5,7 @@ author : "The CompMS team"
 editor_options: 
   chunk_output_type: console
 params:
-  lfqdataProt: NULL
-  precabund: NULL
+  pap: NULL
   factors: FALSE
   project_info: NULL
 output:
@@ -30,9 +29,9 @@ knitr::opts_chunk$set(
   fig.pos = "H"
 )
 
-lfqdataProt <-  params$lfqdataProt
-precabund <- params$precabund
-tableconfig <- lfqdataProt$config$table
+pap <- params$pap
+lfqdataProt <-  pap$lfqdataProt
+tableconfig <- pap$lfqdataProt$config$table
 factors <- params$factors
 project_info <- params$project_info
 
@@ -49,42 +48,28 @@ srs$plot_hierarchy_counts_sample()
 
 ```{r createPlot}
 protID = tableconfig$hierarchy_keys_depth()
+
+precabund <- pap$get_protein_per_group_abundance()
 if (!factors) {
   precabund <- dplyr::filter(precabund , !!sym(tableconfig$factor_keys()[1]) == "ALL")
 }
 
-precabund <- precabund |> dplyr::rename(signal_percent = abundance_percent)
+
+
 pp <- prolfquapp::plot_abundance_vs_percent(
   precabund,
   cfg_table = tableconfig,
   top_N = NULL,
   factors = factors,
   colors = c("^zz" = "red","Y-FGCZ" = "red"),
-  columnAb = "signal_percent",
+  columnAb = "abundance_percent",
   alpha = 0.4, logY = TRUE)
 pp <- plotly::ggplotly(pp)
 ```
 
 
 ```{r createDT}
-n = 2
-precabund_table <- precabund |> dplyr::mutate(
-  signal_percent = signif(signal_percent, n ),
-  abundance_percent_cumulative = signif(abundance_percent_cumulative, n),
-  percent_prot = signif(percent_prot, 3))
-
-precabund_table <- precabund_table |>
-  dplyr::select(
-    all_of(c(protID, "nrPeptides",
-             tableconfig$factor_keys_depth(),
-             "nrMeasured", "meanAbundance", "signal_percent" ,"description")))
-if (factors) {
-  precabund_table <- precabund_table |> 
-    tidyr::pivot_wider(names_from = tableconfig$factor_keys_depth(), values_from = c("nrMeasured", "meanAbundance", "signal_percent"))
-} else {
-  precabund_table <- dplyr::select(precabund_table, -all_of(tableconfig$factor_keys_depth()))
-}
-
+precabund_table <- pap$get_protein_per_group_small_wide()
 datax <- crosstalk::SharedData$new(as.data.frame(precabund_table) , key = as.formula(paste(" ~ ", protID )), group = "BB")
 
 table <- DT::datatable(
@@ -119,7 +104,10 @@ table
 ```
 
 
-(ref:proteinCumulative) The Y axis presents the percentage of the iBAQ (intensity Based Absolute Quantitation) of each protein. Along the X axis, proteins are organized in ascending order according to their signal proportions. Notably, calculating the iBAQ signal per protein involves summing the `Precursor.Quantity` values across all precursors associated with that protein and dividing by the number of theoretically observable peptides of the protein. An intriguing observation is that a significant share of the mass spectrometers recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
+(ref:proteinCumulative) The Y axis presents the percentage of the iBAQ (intensity Based Absolute Quantitation) of each protein. Along the X axis, proteins are organized in ascending order according to their signal proportions. 
+
+
+Calculating the iBAQ signal per protein involves summing the `Precursor.Quantity` values across all precursors associated with that protein and dividing by the number of theoretically observable peptides of the protein. An intriguing observation is that a significant share of the mass spectrometers recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
 
 
 ```{r proteinCumulative, fig.cap = "(ref:proteinCumulative)"}
@@ -129,7 +117,7 @@ pp
 
 
 ```{r prepPeptidePlot}
-
+precabund <- pap$get_protein_per_group_abundance_with_row_annot()
 datax <- crosstalk::SharedData$new(as.data.frame(precabund) , key = as.formula(paste(" ~ ", protID )), group = "BB")
 
 colors = c("^zz" = "red", "Y-FGCZ" = "red")
