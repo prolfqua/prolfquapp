@@ -56,14 +56,14 @@ stopifnot(file.exists(yamlfile))
 
 
 GRP2 <- prolfquapp::get_config(yamlfile)
-GRP2$set_zipdir_name()
-
 if (!is.null(opt$workunit)) {
   logger::log_info("setting workunit to: " ,  opt$workunit)
   GRP2$project_spec$workunit_Id <- opt$workunit
-  GRP2$set_zipdir_name()
 }
-
+GRP2$set_zipdir_name()
+if (!is.null(opt$outdir)) {
+  GRP2$zipdir <- file.path(opt$oudir, GRP2$zipdir)
+}
 logger::log_info("Writing results to: " ,  GRP2$zipdir)
 lobstr::tree(R6_extract_values(GRP2))
 
