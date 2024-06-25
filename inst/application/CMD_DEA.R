@@ -41,7 +41,7 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 ymlfile <- arguments$args
 
-if (TRUE) {
+if (FALSE) {
   opt$software = "DIANN"
   opt$indir = "2521765"
   opt$dataset = "dataset_V1.csv"
