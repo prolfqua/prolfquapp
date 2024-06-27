@@ -4,7 +4,6 @@ if (!require("optparse", quietly = TRUE)) {
 
 logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\n"))
 
-
 option_list <- list(
   make_option(c("-i", "--indir"), type = "character", default = ".",
               help = "folder containing fasta and diann-output files",
@@ -28,7 +27,7 @@ option_list <- list(
 )
 
 
-parser <- OptionParser(usage = "%prog file [options] ", option_list = option_list)
+parser <- OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
 arguments <- parse_args(parser, positional_arguments = TRUE)
 lobstr::tree(arguments)
 
