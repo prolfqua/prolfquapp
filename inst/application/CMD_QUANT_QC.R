@@ -33,7 +33,7 @@ option_list <- list(
               metavar = "string")
 )
 
-parser <- OptionParser(usage = "%prog file [options] ", option_list = option_list)
+parser <- OptionParser(usage = "%prog --indir . ", option_list = option_list)
 arguments <- parse_args(parser, positional_arguments = TRUE)
 lobstr::tree(arguments)
 
