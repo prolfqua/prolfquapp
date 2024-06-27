@@ -6,7 +6,6 @@
 \usage{
 write_DEA_all(
   grp2,
-  ZIPDIR = grp2$zipdir,
   name = "Groups_vs_Controls",
   boxplot = TRUE,
   render = TRUE,

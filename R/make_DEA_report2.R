@@ -8,10 +8,10 @@
 #'
 #' pep <- prolfqua::sim_lfq_data_protein_config()
 #' pep <- prolfqua::LFQData$new(pep$data, pep$config)
-#'pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
-#'pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
-#'pA <- prolfquapp::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
-#'GRP2 <- prolfquapp::make_DEA_config_R6()
+#' pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
+#' pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
+#' pA <- prolfquapp::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
+#' GRP2 <- prolfquapp::make_DEA_config_R6()
 #'
 #' pep$factors()
 #' GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
@@ -256,17 +256,16 @@ write_DEA <- function(GRP2, outpath, ORA = TRUE, GSEA = TRUE, xlsxname = "Analys
 #'
 write_DEA_all <- function(
     grp2,
-    ZIPDIR = grp2$zipdir,
     name = "Groups_vs_Controls",
     boxplot = TRUE ,
     render = TRUE,
     ORA = TRUE,
     GSEA = TRUE,
     markdown ="_Grp2Analysis.Rmd"){
-  dir.create(GRP2$zipdir)
+  dir.create(grp2$get_zipdir())
   fname <- paste0("DE_",  name, "_WU", grp2$project_spec$workunit_Id )
   qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunit_Id )
-  outpath <- file.path( ZIPDIR, paste0("Results_DEA_WU", grp2$project_spec$workunit_Id))
+  outpath <- grp2$get_result_dir()
   logger::log_info("writing into : ", outpath, " <<<<")
 
   prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname, ORA = ORA, GSEA = GSEA)

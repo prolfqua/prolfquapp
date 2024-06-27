@@ -37,7 +37,6 @@ ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else {ymlfile}
 
 logger::log_info("writing yaml file : ", ymlfile)
 GRP2 <- prolfquapp::make_DEA_config_R6(
-  ZIPDIR = "DEA",
   PROJECTID = opt$project,
   ORDERID = opt$order,
   WORKUNITID = opt$workunit,

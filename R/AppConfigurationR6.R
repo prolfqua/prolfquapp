@@ -42,13 +42,13 @@ ProjectSpec <- R6::R6Class(
   "ProjectSpec",
   public = list(
     #' @field project_Id project ID
-    project_Id =  integer(),
+    project_Id =  character(),
     #' @field project_name project name
     project_name = "",
     #' @field order_Id order ID
-    order_Id = integer(),
+    order_Id = character(),
     #' @field workunit_Id workunit ID
-    workunit_Id =  integer(),
+    workunit_Id =  character(),
     #' @field input_URL input URL
     input_URL = "https://fgcz-bfabric.uzh.ch/bfabric/"
   )
@@ -67,6 +67,12 @@ ProjectSpec <- R6::R6Class(
 #' yaml::write_yaml(xx, file = file.path(tempdir(),"test.yaml"))
 #' config <- yaml::read_yaml(file = file.path(tempdir(),"test.yaml"))
 #'
+#' r6obj_config$set_zipdir_name()
+#'
+#' r6obj_config$get_zipdir()
+#' r6obj_config$get_result_dir()
+#' r6obj_config$get_input_dir()
+#'
 ProlfquAppConfig <- R6::R6Class(
   "ProlfquAppConfig",
   public = list(
@@ -76,12 +82,17 @@ ProlfquAppConfig <- R6::R6Class(
     project_spec = NULL,
     #' @field software name of input software
     software = character(),
-    #' @field zipdir results should go to zipdir
-    zipdir = character(),
+    #' @field prefix either QC or DEA
+    prefix = character(),
+    #' @field zipdir_name results should go to zipdir_name
+    zipdir_name = character(),
+    #' @field name description
+    path = character(),
     #' @field pop optional processing options
     pop = list(),
     #' @field RES resuls
     RES = list(),
+
     #' @field group name
     group = "G_",
 
@@ -89,33 +100,46 @@ ProlfquAppConfig <- R6::R6Class(
     #' set procession options and project spec
     #' @param processing_options instance of ProjectOptions
     #' @param project_spec instance of ProjectSpec
-    #' @param zipdir where to store results
+    #' @param zipdir_name where to store results
     #' @param software name of input software
-    initialize = function(processing_options, project_spec, zipdir = NULL, software = "DIANN"){
+    initialize = function(processing_options,
+                          project_spec,
+                          zipdir_name = ".",
+                          path = ".",
+                          software = "DIANN",
+                          prefix = "DEA"){
       self$software = software
-      self$zipdir <- if (!is.null(zipdir)) {
-        zipdir
-      } else {
-        paste0("C",project_spec$project_Id ,"WU",project_spec$workunit_Id)
-      }
       self$processing_options = processing_options
       self$project_spec = project_spec
+      self$zipdir_name <- zipdir_name
+      self$path = path
+      self$prefix = prefix
     },
     set_zipdir_name = function(){
-        pi <- if (is.null(self$project_spec$project_Id) || self$project_spec$project_Id != "")
-        {
+        pi <- if (length(self$project_spec$project_Id) == 0 || self$project_spec$project_Id != "") {
           paste0("_PI_", self$project_spec$project_Id)
         } else { NULL }
         res <- paste0(
-          "DEA",
+          self$prefix,
           "_",format(Sys.Date(), "%Y%m%d"),
           pi ,
           "_OI_",
           self$project_spec$order_Id,
           "_WU_",self$project_spec$workunit_Id,
           "_", self$processing_options$transform)
-      self$zipdir = res
+      self$zipdir_name = res
       return(res)
+    },
+    get_zipdir = function(){
+      return(file.path(self$path, self$zipdir_name))
+    },
+    get_result_dir = function(){
+      tmp <- file.path( self$get_zipdir() , paste0("Results_DEA_WU", self$project_spec$workunit_Id))
+      return(tmp)
+    },
+    get_input_dir = function(){
+      tmp <- file.path(self$get_zipdir(), paste0("Inputs_DEA_WU", self$project_spec$workunitID))
+      return(tmp)
     },
     as_list = function(){
       res <- R6_extract_values(self)
@@ -168,14 +192,15 @@ R6_extract_values <- function(r6class){
 #' @export
 #' @examples
 #'
-#' DEAconfig <- make_DEA_config_R6(ZIPDIR = "DEA", WORKUNITID = "3333")
+#' DEAconfig <- make_DEA_config_R6( WORKUNITID = "3333")
 #' configList <- R6_extract_values(DEAconfig)
 #' stopifnot(class(configList) == "list")
-#' old <- configList$zipdir
+#' old <- configList$zipdir_name
 #' config <- list_to_R6_app_config(configList)
-#' stopifnot(config$zipdir == old)
+#' stopifnot(config$zipdir_name == old)
 #' stopifnot("ProlfquAppConfig" %in% class(config))
-#' stopifnot(config$zipdir == configList$zipdir)
+#' stopifnot(config$zipdir_name == configList$zipdir_name)
+#'
 list_to_R6_app_config <- function(dd){
 
   popR6 <- ProcessingOptions$new()
@@ -189,11 +214,11 @@ list_to_R6_app_config <- function(dd){
     psR6[[i]] <- ps[[i]]
   }
   r6obj_config <- ProlfquAppConfig$new(popR6, psR6)
-  r6obj_config$zipdir = dd$zipdir
+  r6obj_config$zipdir_name = dd$zipdir_name
   r6obj_config$software = dd$software
   r6obj_config$group = dd$group
-  if (is.null(r6obj_config$zipdir)) {
-    r6obj_config$zipdir =  set_zipdir_name(r6obj_config)
+  if (is.null(r6obj_config$zipdir_name)) {
+    r6obj_config$zipdir_name =  set_zipdir_name(r6obj_config)
   }
 
   return(r6obj_config)
@@ -207,11 +232,17 @@ list_to_R6_app_config <- function(dd){
 #' @export
 #' @family ProlfquAppConfig
 #' @examples
-#' DEAconfig <- make_DEA_config_R6()
+#'
+#' DEAconfig <- make_DEA_config_R6(ORDERID = "1234", WORKUNITID = "1234")
+#' DEAconfig$set_zipdir_name()
+#' DEAconfig$get_zipdir()
+#' DEAconfig$get_result_dir()
+#' DEAconfig$get_input_dir()
 #' R6list <- R6_extract_values(DEAconfig)
 #'
+#'
 make_DEA_config_R6 <- function(
-    ZIPDIR  = NULL,
+    PATH = ".",
     PROJECTID = "",
     ORDERID ="",
     WORKUNITID ="",
@@ -245,13 +276,9 @@ make_DEA_config_R6 <- function(
   ps$workunit_Id = WORKUNITID
 
   r6obj_config <- ProlfquAppConfig$new(pop, ps)
-  if(is.null(ZIPDIR)){
-    r6obj_config$set_zipdir_name()
-  } else{
-    r6obj_config$zipdir <- ZIPDIR
-  }
+  r6obj_config$set_zipdir_name()
   r6obj_config$software = application
-
+  r6obj_config$path <- PATH
   return(r6obj_config)
 }
 
@@ -321,7 +348,7 @@ get_config <- function(yamlfile, WORKUNITID =  "HelloWorld") {
     }
   } else {
     GRP2 <- prolfquapp::make_DEA_config_R6(
-      ZIPDIR = "DEA", PROJECTID = "1234" ,ORDERID = "2345", WORKUNITID = WORKUNITID )
+      PROJECTID = "1234" ,ORDERID = "2345", WORKUNITID = WORKUNITID )
   }
   return(GRP2)
 }

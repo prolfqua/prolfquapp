@@ -33,7 +33,7 @@ writexl::write_xlsx(annot, path = "annotation.xlsx")
 annotation <- prolfquapp::read_annotation(annot)
 #######
 
-GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = "o33926_Metabo")
+GRP2 <- prolfquapp::make_DEA_config_R6()
 dir.create(GRP2$zipdir)
 
 in_file <- file.path(path,"o33926_Areas_IDs_MS1andRT_or_MS2.xlsx")

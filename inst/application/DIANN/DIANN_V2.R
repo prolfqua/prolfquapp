@@ -22,8 +22,7 @@ yamlfile <- file.path(path, opt$yaml)
 GRP2 <- if (file.exists(yamlfile)) {
   yamlfile |> prolfquapp::read_BF_yamlR6(application = "DIANN")
 } else {
-  prolfquapp::make_DEA_config_R6(
-    ZIPDIR = "DEA", PROJECTID = "1234" ,ORDERID = "2345", WORKUNITID = "HelloWorld" )
+  prolfquapp::make_DEA_config_R6( PROJECTID = "1234" ,ORDERID = "2345", WORKUNITID = "HelloWorld" )
 }
 
 

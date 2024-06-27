@@ -6,7 +6,7 @@
 Use this function if there is no Yaml Input.}
 \usage{
 make_DEA_config_R6(
-  ZIPDIR = NULL,
+  PATH = ".",
   PROJECTID = "",
   ORDERID = "",
   WORKUNITID = "",
@@ -32,8 +32,14 @@ create GRP2 configuration.
 Use this function if there is no Yaml Input.
 }
 \examples{
-DEAconfig <- make_DEA_config_R6()
+
+DEAconfig <- make_DEA_config_R6(ORDERID = "1234", WORKUNITID = "1234")
+DEAconfig$set_zipdir_name()
+DEAconfig$get_zipdir()
+DEAconfig$get_result_dir()
+DEAconfig$get_input_dir()
 R6list <- R6_extract_values(DEAconfig)
+
 
 }
 \seealso{

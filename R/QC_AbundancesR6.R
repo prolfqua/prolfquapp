@@ -16,7 +16,7 @@ ProteinAbundanceProcessor <- R6::R6Class(
       self$GRP2 = prolfquapp_config
       self$lfqdata = lfqdata
       self$protein_annotation = protein_annotation
-      self$output_dir = self$GRP2$zipdir
+      self$output_dir = self$GRP2$get_zipdir()
       self$TABLES2WRITE = list()
     },
     get_peptides_wide = function(){

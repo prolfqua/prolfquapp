@@ -16,6 +16,12 @@ xx <- R6_extract_values(r6obj_config)
 yaml::write_yaml(xx, file = file.path(tempdir(),"test.yaml"))
 config <- yaml::read_yaml(file = file.path(tempdir(),"test.yaml"))
 
+r6obj_config$set_zipdir_name()
+
+r6obj_config$get_zipdir()
+r6obj_config$get_result_dir()
+r6obj_config$get_input_dir()
+
 }
 \seealso{
 Other ProlfquAppConfig: 
@@ -35,7 +41,9 @@ Other ProlfquAppConfig:
 
 \item{\code{software}}{name of input software}
 
-\item{\code{zipdir}}{results should go to zipdir}
+\item{\code{zipdir_name}}{results should go to zipdir_name}
+
+\item{\code{name}}{description}
 
 \item{\code{pop}}{optional processing options}
 
@@ -45,11 +53,21 @@ Other ProlfquAppConfig:
 }
 \if{html}{\out{</div>}}
 }
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{name}}{description}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-ProlfquAppConfig-new}{\code{ProlfquAppConfig$new()}}
 \item \href{#method-ProlfquAppConfig-set_zipdir_name}{\code{ProlfquAppConfig$set_zipdir_name()}}
+\item \href{#method-ProlfquAppConfig-get_zipdir}{\code{ProlfquAppConfig$get_zipdir()}}
+\item \href{#method-ProlfquAppConfig-get_result_dir}{\code{ProlfquAppConfig$get_result_dir()}}
+\item \href{#method-ProlfquAppConfig-get_input_dir}{\code{ProlfquAppConfig$get_input_dir()}}
 \item \href{#method-ProlfquAppConfig-as_list}{\code{ProlfquAppConfig$as_list()}}
 \item \href{#method-ProlfquAppConfig-clone}{\code{ProlfquAppConfig$clone()}}
 }
@@ -63,7 +81,8 @@ set procession options and project spec
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$new(
   processing_options,
   project_spec,
-  zipdir = NULL,
+  zipdir_name = ".",
+  path = ".",
   software = "DIANN"
 )}\if{html}{\out{</div>}}
 }
@@ -75,7 +94,7 @@ set procession options and project spec
 
 \item{\code{project_spec}}{instance of ProjectSpec}
 
-\item{\code{zipdir}}{where to store results}
+\item{\code{zipdir_name}}{where to store results}
 
 \item{\code{software}}{name of input software}
 }
@@ -88,6 +107,33 @@ set procession options and project spec
 \subsection{Method \code{set_zipdir_name()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$set_zipdir_name()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ProlfquAppConfig-get_zipdir"></a>}}
+\if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_zipdir}{}}}
+\subsection{Method \code{get_zipdir()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_zipdir()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ProlfquAppConfig-get_result_dir"></a>}}
+\if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_result_dir}{}}}
+\subsection{Method \code{get_result_dir()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_result_dir()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ProlfquAppConfig-get_input_dir"></a>}}
+\if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_input_dir}{}}}
+\subsection{Method \code{get_input_dir()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_input_dir()}\if{html}{\out{</div>}}
 }
 
 }

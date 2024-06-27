@@ -55,21 +55,23 @@ yamlfile <- file.path(ymlfile)
 logger::log_info("YAML file read: ", yamlfile)
 stopifnot(file.exists(yamlfile))
 
-
 GRP2 <- prolfquapp::get_config(yamlfile)
 if (!is.null(opt$workunit)) {
   logger::log_info("setting workunit to: " ,  opt$workunit)
   GRP2$project_spec$workunit_Id <- opt$workunit
+  GRP2$set_zipdir_name()
 }
-GRP2$set_zipdir_name()
+
 logger::log_info(">>>>>>>>> <<<<<<<<<<<<<<<<<<<")
 
 if (!is.null(opt$outdir)) {
   logger::log_info(opt$outdir)
   dir.create(opt$outdir)
-  GRP2$zipdir <- file.path(opt$outdir, GRP2$zipdir)
+  GRP2$path <- opt$outdir
 }
-logger::log_info(">>>>>>>>> Writing results to: " ,  GRP2$zipdir, "<<<<<<<<<<<<<<<<<<<")
+
+
+logger::log_info(">>>>>>>>> Writing results to: " ,  GRP2$get_zipdir(), "<<<<<<<<<<<<<<<<<<<")
 lobstr::tree(R6_extract_values(GRP2))
 logger::log_info(">>>>>>>>> <<<<<<<<<<<<<<<<<<<")
 
@@ -118,35 +120,32 @@ logger::log_info("END OF PROTEIN AGGREGATION")
 logger::log_info("RUN ANALYSIS")
 #debug(prolfquapp::make_DEA_report2)
 
-
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
 outdir <- prolfquapp::write_DEA_all(
   grp, boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
+
 ibaq <- compute_IBAQ_values(xd$lfqdata, xd$protein_annotation)
-writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(outdir, "IBAQ.xlsx"))
+writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(grp$get_result_dir(), "IBAQ.xlsx"))
 
 logger::log_info("write results and summarized experiment")
 SE <- prolfquapp::make_SummarizedExperiment(grp)
-saveRDS(SE, file = file.path( outdir, "SummarizedExperiment.rds"))
+saveRDS(SE, file = file.path( grp$get_result_dir(), "SummarizedExperiment.rds"))
 
-inputs <- file.path(
-  GRP2$zipdir,
-  paste0("Inputs_DEA_WU", GRP2$project_spec$workunitID))
-dir.create(inputs)
+dir.create(GRP2$get_input_dir())
 
 if (opt$software == "DIANN") {
-  prolfquapp::copy_DEA_DIANN(workdir = inputs, run_script = TRUE)
+  prolfquapp::copy_DEA_DIANN(workdir = GRP2$get_input_dir(), run_script = TRUE)
 } else if (opt$software == "FP_TMT") {
-  prolfquapp::copy_DEA_FragPipe_TMT(workdir = inputs, run_script = TRUE)
+  prolfquapp::copy_DEA_FragPipe_TMT(workdir = GRP2$get_input_dir(), run_script = TRUE)
 } else {
   stop(opt$software, " not supported.")
 }
 
-file.copy(c(files$data, files$fasta, yamlfile, opt$dataset), inputs)
+file.copy(c(files$data, files$fasta, yamlfile, opt$dataset), GRP2$get_input_dir())
 
 GRP2$RES <- NULL
 GRP2$pop <- NULL
-yaml::write_yaml(prolfquapp::R6_extract_values(GRP2), file = file.path(inputs, "minimal.yaml"))
+yaml::write_yaml(prolfquapp::R6_extract_values(GRP2), file = file.path(GRP2$get_input_dir(), "minimal.yaml"))
 
 
