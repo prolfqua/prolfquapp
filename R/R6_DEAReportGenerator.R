@@ -1,3 +1,5 @@
+#'
+
 DEAReportGenerator <- R6::R6Class(
   "DEAReportGenerator",
   public = list(

@@ -39,7 +39,7 @@ lobstr::tree(arguments)
 
 opt <- arguments$options
 
-if (TRUE) {
+if (FALSE) {
   opt$indir <- "2521765"
 }
 
@@ -97,10 +97,10 @@ if (opt$software == "DIANN") {
 }
 
 pap <- ProteinAbundanceProcessor$new(xd$lfqdata, xd$protein_annotation, GRP2)
-pap$get_protein_per_group_small_wide()
-pap$get_prot_wide()
+#pap$get_protein_per_group_small_wide()
+#pap$get_prot_wide()
+#pap$get_protein_per_group_abundance()
 
-pap$get_protein_per_group_abundance()
 tmp <- pap$get_list()
 pap$write_xlsx()
 
