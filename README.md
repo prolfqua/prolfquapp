@@ -75,4 +75,3 @@ A data frame with the sample annotation must be provided
 - LFQAnalyst https://analyst-suite.monash-proteomics.cloud.edu.au/apps/lfq-analyst/ and https://github.com/MonashBioinformaticsPlatform/LFQ-Analyst
 - POMAShiny https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009148
 - MSDap https://github.com/ftwkoopmans/msdap
-- https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00812
