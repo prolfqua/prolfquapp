@@ -19,21 +19,25 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "lo
   method <- match.arg(method)
   lt <- lfqdata$get_Transformer()
   if (method == "robscale") {
+    logger::log_info("Transforming using robscale.")
     transformed <- lt$log2()$robscale()$lfq
     if (!is.null(internal)) {
-      logger::log_info("Attempt of internal calibration.")
+      logger::log_info("Transforming using robscale,")
+      logger::log_info("Transforming Attempt of internal calibration.")
       subset <- lfqdata$get_subset(internal)$get_Transformer()$log2()$lfq
       transformed <- lfqdata$get_Transformer()$log2()$robscale_subset(subset)$lfq
     }
   } else if (method == "vsn") {
+    logger::log_info("Transforming using vsn::justvsn")
     transformed <- lt$intensity_matrix( .func = vsn::justvsn)$lfq
   } else if (method == "none" || method == "log2") {
+    logger::log_info("Transforming using log2")
     transformed <- lt$log2()$lfq
   } else {
-    logger::log_warn("no such transformaton : {method}")
+    logger::log_warn("Transforming no such transformaton : {method}")
     return(NULL)
   }
-  logger::log_info("data transformed : {method}.")
+  logger::log_info("Transforming data : {method}.")
   return(transformed)
 }
 

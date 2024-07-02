@@ -39,7 +39,7 @@ lobstr::tree(arguments)
 
 opt <- arguments$options
 
-if (TRUE) {
+if (FALSE) {
   opt$indir <- "2532162/"
 }
 
