@@ -53,6 +53,7 @@ aggregate_data <- function(lfqdata,
 #' pAlf <- sim_data_protAnnot(PROTEIN = TRUE)
 #' xd <- compute_IBAQ_values(pAlf$lfqdata, pAlf$pannot)
 #' xd$response()
+#'
 compute_IBAQ_values <- function(lfqdata,
                                 protein_annotation,
                                 protein_length = "protein_length",
@@ -66,7 +67,7 @@ compute_IBAQ_values <- function(lfqdata,
   lfqdataProtTotal$data <- lfqdataProtTotal$data |>
     dplyr::mutate(IBAQValue_proteinLength = !!sym(lfqdataProtTotal$response()) / !!sym(protein_length))
   lfqdataProtTotal$data <- lfqdataProtTotal$data |>
-    dplyr::mutate(IBAQValue = !!sym(lfqdataProtTotal$response())  / !!sym(nr_tryptic_peptides))
+    dplyr::mutate(IBAQValue = !!sym(lfqdataProtTotal$response())  / ifelse(!!sym(nr_tryptic_peptides) > 0,!!sym(nr_tryptic_peptides), 1 ))
   lfqdataProtTotal$config$table$set_response("IBAQValue")
   return(lfqdataProtTotal)
 }

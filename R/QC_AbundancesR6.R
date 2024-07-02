@@ -23,17 +23,17 @@ ProteinAbundanceProcessor <- R6::R6Class(
       peptide_wide <- dplyr::left_join(self$protein_annotation$row_annot,
                                        self$lfqdata$to_wide()$data,
                                        multiple = "all")
-      return(peptide_wide)
+      invisible(peptide_wide)
     },
     get_annotation = function(){
       annotation <- self$lfqdata$factors()
-      return(annotation)
+      invisible(annotation)
     },
     get_prot_data = function(){
       if (is.null(self$lfqdataProt)) {
         self$lfqdataProt <- prolfquapp::aggregate_data(self$lfqdata, agg_method = "medpolish")
       }
-      return(self$lfqdataProt)
+      invisible(self$lfqdataProt)
     },
     get_prot_wide = function(){
       lfqdata_prot = self$get_prot_data()
@@ -53,12 +53,12 @@ ProteinAbundanceProcessor <- R6::R6Class(
       if ( is.null(self$lfqdataProtIBAQ ) ) {
         self$lfqdataProtIBAQ <- prolfquapp::compute_IBAQ_values(self$lfqdata, self$protein_annotation)
       }
-      return(self$lfqdataProtIBAQ )
+      invisible(self$lfqdataProtIBAQ )
     },
     get_protein_per_group_abundance = function(){
       summarizer <- self$get_prot_IBAQ()$get_Summariser()
       precabund <- summarizer$percentage_abundance()
-      return(precabund)
+      invisible(precabund)
     },
     get_protein_per_group_abundance_with_row_annot = function(){
       summarizer <- self$get_prot_IBAQ()$get_Summariser()
@@ -69,7 +69,7 @@ ProteinAbundanceProcessor <- R6::R6Class(
         multiple = "all",
         by = self$get_prot_IBAQ()$config$table$hierarchy_keys_depth()
       )
-      return(precabund)
+      invisible(precabund)
     },
     get_protein_per_group_abundance_wide = function(){
       precabund <- self$get_protein_per_group_abundance()
@@ -85,7 +85,7 @@ ProteinAbundanceProcessor <- R6::R6Class(
         multiple = "all",
         by = self$get_prot_IBAQ()$config$table$hierarchy_keys_depth())
 
-      return(precabund)
+      invisible(precabund)
     },
 
     get_prot_IBAQ_wide = function(){
@@ -107,7 +107,7 @@ ProteinAbundanceProcessor <- R6::R6Class(
       TABLES2WRITE$annotation <- self$get_annotation()
       TABLES2WRITE$prot_medpolish_estimate <- self$get_prot_wide()
       TABLES2WRITE$prot_IBAQ_estimate <- self$get_prot_IBAQ_wide()
-      TABLES2WRITE$prot_IBAQ_per_group <- self$get_protein_per_group_abundance_wide()
+      TABLES2WRITE$prot_IBAQ_per_group_stats <- self$get_protein_per_group_abundance_wide()
       return(TABLES2WRITE)
     },
     write_xlsx = function(){

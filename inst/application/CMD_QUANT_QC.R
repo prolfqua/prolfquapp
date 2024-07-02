@@ -39,8 +39,8 @@ lobstr::tree(arguments)
 
 opt <- arguments$options
 
-if (FALSE) {
-  opt$indir <- "2521765"
+if (TRUE) {
+  opt$indir <- "2532162/"
 }
 
 # set library path
@@ -97,13 +97,8 @@ if (opt$software == "DIANN") {
 }
 
 pap <- ProteinAbundanceProcessor$new(xd$lfqdata, xd$protein_annotation, GRP2)
-#pap$get_protein_per_group_small_wide()
-#pap$get_prot_wide()
-#pap$get_protein_per_group_abundance()
 
-tmp <- pap$get_list()
 pap$write_xlsx()
-
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()
 

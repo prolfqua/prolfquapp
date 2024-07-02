@@ -21,4 +21,5 @@ xd$response()
 pAlf <- sim_data_protAnnot(PROTEIN = TRUE)
 xd <- compute_IBAQ_values(pAlf$lfqdata, pAlf$pannot)
 xd$response()
+
 }

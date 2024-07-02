@@ -23,8 +23,9 @@
 #' # example code
 #'
 #' sequence <- "MKGLPRAKSHGSTGWGKRKRNKPK"
-#' nr_tryptic_peptides(sequence)
-nr_tryptic_peptides <- function(sequence, min_length = 7, max_length = 30){
+#' nr_tryptic_peptides(sequence, min_length=5)
+#'
+nr_tryptic_peptides <- function(sequence, min_length = 6, max_length = 30){
   peptide_lengths <- .compute_peptide_lengths(sequence, .find_cleavage_sites(sequence))
   res <- sum(peptide_lengths >= min_length & peptide_lengths < max_length)
   return(res)

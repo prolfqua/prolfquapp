@@ -4,7 +4,7 @@
 \alias{nr_tryptic_peptides}
 \title{Compute number of tryptic peptides}
 \usage{
-nr_tryptic_peptides(sequence, min_length = 7, max_length = 30)
+nr_tryptic_peptides(sequence, min_length = 6, max_length = 30)
 }
 \description{
 Compute number of tryptic peptides
@@ -13,5 +13,6 @@ Compute number of tryptic peptides
 # example code
 
 sequence <- "MKGLPRAKSHGSTGWGKRKRNKPK"
-nr_tryptic_peptides(sequence)
+nr_tryptic_peptides(sequence, min_length=5)
+
 }
