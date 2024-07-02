@@ -194,6 +194,17 @@ tidyMQ_Peptides <- function(MQPeptides, proteotypic_only = TRUE){
 
 
 
+preprocess_MQ_peptide <- function(quant_data,
+                                   fasta_file,
+                                   annotation,
+                                  proteotypic_only = TRUE){
+  annot <- annotation$annot
+  atable <- annotation$atable
+
+  peptide <- prolfquapp::tidyMQ_Peptides(quant_data, proteotypic_only = proteotypic_only)
+
+  }
+
 #' Add Annotation to a data.frame in long format
 #' for an usage example see run_script lfq_mixed_model_inference
 #' @family setup
@@ -229,4 +240,69 @@ add_annotation <- function(intensityData,
   }
   return(resPepProtAnnot)
 }
+
+#' preprocess MQ peptide
+#' @export
+#'
+preprocess_MQ_peptide <- function(quant_data,
+                                  fasta_file,
+                                  annotation,
+                                  pattern_contaminants = "^zz|^CON",
+                                  pattern_decoys = "REV_"){
+  annot <- annotation$annot
+  atable <- annotation$atable
+  annot <- annot |> dplyr::mutate(
+    !!annotation$atable$fileName := tolower(gsub("^x|.d.zip$|.raw$","",
+                                                 (basename(annot[[atable$fileName]])))
+    ))
+  proteotypic_only <- TRUE
+  peptide <- prolfquapp::tidyMQ_Peptides(quant_data, proteotypic_only = proteotypic_only)
+  nrPeptides_exp <- peptide |> dplyr::select(leading.razor.protein, sequence) |> distinct() |> group_by(leading.razor.protein) |> summarize(nrPeptides = n())
+
+
+  nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(peptide$raw.file)))
+  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(peptide$raw.file)))
+  stopifnot(nr > 0)
+  logger::log_info("channels in annotation which are not in psm.tsv file : ",
+                   paste(setdiff(annot[[annotation$atable$fileName]],sort(unique(peptide$raw.file))), collapse = " ; ") )
+  logger::log_info("channels in psm.tsv which are not in annotation file : ",
+                   paste(setdiff(sort(unique(peptide$raw.file)),annot[[annotation$atable$fileName]]), collapse = " ; ") )
+
+  peptide$qValue <- 1 - peptide$pep
+  atable$ident_Score = "pep"
+  atable$ident_qValue = "qValue"
+  atable$hierarchy[["protein_Id"]] <- c("leading.razor.protein")
+  atable$hierarchy[["peptide_Id"]] <- c("sequence")
+  atable$set_response("peptide.intensity")
+  atable$hierarchyDepth <- 1
+
+  bycol <- c("raw.file")
+  names(bycol) <- atable$fileName
+  apeptide <- dplyr::inner_join(annot, peptide, multiple = "all", by = bycol)
+  config <- prolfqua::AnalysisConfiguration$new(atable)
+  adata <- prolfqua::setup_analysis(apeptide, config)
+  lfqdata <- prolfqua::LFQData$new(adata, config)
+
+  fasta_annot <- get_annot_from_fasta(fasta_file)
+  fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("leading.razor.protein" = "fasta.id"))
+
+
+  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!sym("leading.razor.protein"))
+  fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
+
+
+  prot_annot <- prolfquapp::ProteinAnnotation$new(
+    lfqdata ,
+    fasta_annot,
+    description = "description",
+    cleaned_ids = "proteinname",
+    full_id = "protein_Id",
+    exp_nr_children = "nrPeptides",
+    pattern_contaminants = pattern_contaminants,
+    pattern_decoys = pattern_decoys
+  )
+  lfqdata$remove_small_intensities()
+  return(list(lfqdata = lfqdata , protein_annotation = prot_annot))
+}
+
 

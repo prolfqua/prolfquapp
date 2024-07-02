@@ -19,7 +19,7 @@ prot_annot <- prolfquapp::dataset_protein_annot(
 
 
 
-peptide <- prolfqua::tidyMQ_Peptides(peptidef)
+peptide <- prolfquapp::tidyMQ_Peptides(peptidef)
 annot <- read.csv(dsf)
 annot <- data.frame(lapply(annot, as.character))
 annot <- annot |> dplyr::mutate(
@@ -28,7 +28,7 @@ annot <- annot |> dplyr::mutate(
   )
 )
 
-GRP2 <- prolfquapp::dataset_set_factors_deprecated(annot = annot, GRP2 = GRP2)
+GRP2 <- prolfquapp::dataset_set_factors_deprecated(annot, peptide)
 
 nr <- sum(annot$raw.file %in% unique(peptide$raw.file))
 logger::log_info("nr : ", nr, " files annotated")
@@ -45,10 +45,6 @@ atable$hierarchy[["peptide_Id"]] <- c("sequence")
 atable$set_response("peptide.intensity")
 atable$hierarchyDepth <- 1
 
-res <- prolfquapp::dataset_set_factors(atable, peptide)
-atable <- res$atable
-peptide <- res$msdata
-head(peptide)
 
 
 # Preprocess data - aggregate proteins.

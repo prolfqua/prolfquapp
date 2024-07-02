@@ -303,7 +303,7 @@ preprocess_FP_PSM <- function(quant_data,
     ))
 
   psm <- prolfquapp::tidy_FragPipe_psm(quant_data, column_before_quants = column_before_quants)
-  nrPeptides_exp <- psm$nrPeptides
+  nrPeptides_exp <- psm$nrPeptides # this is a data.frame
   psm <- psm$data
   psm$qValue <- 1 - psm$PeptideProphet.Probability
 
@@ -318,7 +318,6 @@ preprocess_FP_PSM <- function(quant_data,
   atable$hierarchy[["protein_Id"]] <- c("Protein")
   atable$hierarchy[["peptide_Id"]] <- c("Peptide")
   atable$hierarchy[["mod_peptide_Id"]] <- c("Modified.Peptide","Assigned.Modifications")
-  # atable$hierarchy[["Spectrum"]] <- c("Spectrum")
   atable$set_response("abundance")
 
   bycol <- c("channel")
@@ -327,7 +326,6 @@ preprocess_FP_PSM <- function(quant_data,
   config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(psma, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
-  lfqdata$data
 
   # build rowAnnotation.
   fasta_annot <- get_annot_from_fasta(fasta_file)

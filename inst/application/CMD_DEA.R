@@ -47,14 +47,23 @@ if (FALSE) {
   opt$yaml = "configuration_fgcz_83333_EcoliK12.yml"
   opt$outdir = "TESTING"
 }
-ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
+if (TRUE) {
+  opt$software = "MAXQUANT"
+  opt$indir = "WU305157"
+  opt$dataset = "WU305157/dataset.csv"
+  opt$yaml = "WU305157/config.yaml"
+  opt$outdir = "MAXQUANT"
+}
+
+ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
 yamlfile <- file.path(ymlfile)
 logger::log_info("YAML file read: ", yamlfile)
 stopifnot(file.exists(yamlfile))
 
 GRP2 <- prolfquapp::get_config(yamlfile)
+
 if (!is.null(opt$workunit)) {
   logger::log_info("setting workunit to: " ,  opt$workunit)
   GRP2$project_spec$workunit_Id <- opt$workunit
@@ -106,6 +115,8 @@ if (opt$software == "DIANN") {
 
 } else if (opt$software == "MAXQUANT") {
   stop("support coming soon.")
+
+
 } else {
   stop("no such software.")
 }
