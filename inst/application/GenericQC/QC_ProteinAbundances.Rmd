@@ -116,7 +116,7 @@ pp
 
 
 
-```{r prepPeptidePlot}
+```{r prepPeptidePlot, eval = FALSE, include=FALSE}
 precabund <- pap$get_protein_per_group_abundance_with_row_annot()
 datax <- crosstalk::SharedData$new(as.data.frame(precabund) , key = as.formula(paste(" ~ ", protID )), group = "BB")
 
@@ -138,7 +138,7 @@ pplotPepAbund <- plotly::ggplotly(pplotPepAbund)
 
 (ref:nrProtplots) Mean protein abundance per group (column meanAbundance_<GroupName>) as a function of the number of peptides (column nrPeptides).
 
-```{r nrProtplots, fig.cap = "(ref:nrProtplots)"}
+```{r nrProtplots, fig.cap = "(ref:nrProtplots)", eval = FALSE, include=FALSE}
 pplotPepAbund
 ```
 
