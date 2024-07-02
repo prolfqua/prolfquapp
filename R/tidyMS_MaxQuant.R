@@ -241,6 +241,24 @@ add_annotation <- function(intensityData,
   return(resPepProtAnnot)
 }
 
+#' get petpide.txt and fasta file location in folder
+#' @return list with paths to data and fasta
+#' @export
+get_MQ_peptide_files <- function(path){
+  diann.path <- grep("peptides.txt", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
+  fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE,full.names = TRUE),
+                      ignore.case = TRUE, value = TRUE)
+  if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
+    fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
+  }
+  if (length(fasta.files) == 0) {
+    logger::log_error("No fasta file found!")
+    stop()
+  }
+  return(list(data = diann.path, fasta = fasta.files))
+}
+
+
 #' preprocess MQ peptide
 #' @export
 #'
