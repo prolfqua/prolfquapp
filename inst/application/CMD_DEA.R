@@ -95,7 +95,7 @@ annotation <- file.path(opt$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation(prefix = GRP2$group)
 logger::log_info("Contrasts: \n", paste(annotation$contrasts, collapse = "\n"))
 
-prolfquapp::copy_DEA_Files(run_script = FALSE)
+prolfquapp::copy_DEA_Files()
 
 logger::log_info("Software: ", opt$software)
 
