@@ -19,7 +19,7 @@ copy_DEA_Files <- function(workdir = getwd()) {
   runscripts <- c(
     "application/_Grp2Analysis_V2.Rmd",
     "application/bibliography.bib",
-    "application/_DiffExpQC.Rmd",
+    "application/_DiffExpQC.Rmd"
   )
   prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
