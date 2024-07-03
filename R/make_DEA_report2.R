@@ -266,7 +266,6 @@ write_DEA_all <- function(
   fname <- paste0("DE_",  name, "_WU", grp2$project_spec$workunit_Id )
   qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunit_Id )
   outpath <- grp2$get_result_dir()
-  logger::log_info("writing into : ", outpath, " <<<<")
 
   prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname, ORA = ORA, GSEA = GSEA)
 

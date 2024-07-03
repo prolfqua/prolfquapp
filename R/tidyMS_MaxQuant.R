@@ -281,9 +281,9 @@ preprocess_MQ_peptide <- function(quant_data,
   nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(peptide$raw.file)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(peptide$raw.file)))
   stopifnot(nr > 0)
-  logger::log_info("channels in annotation which are not in psm.tsv file : ",
+  logger::log_info("channels in annotation which are not in peptide.txt file : ",
                    paste(setdiff(annot[[annotation$atable$fileName]],sort(unique(peptide$raw.file))), collapse = " ; ") )
-  logger::log_info("channels in psm.tsv which are not in annotation file : ",
+  logger::log_info("channels in peptide.txt which are not in annotation file : ",
                    paste(setdiff(sort(unique(peptide$raw.file)),annot[[annotation$atable$fileName]]), collapse = " ; ") )
 
   peptide$qValue <- 1 - peptide$pep
