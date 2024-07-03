@@ -275,7 +275,8 @@ preprocess_MQ_peptide <- function(quant_data,
     ))
   proteotypic_only <- TRUE
   peptide <- prolfquapp::tidyMQ_Peptides(quant_data, proteotypic_only = proteotypic_only)
-  nrPeptides_exp <- peptide |> dplyr::select(leading.razor.protein, sequence) |> distinct() |> group_by(leading.razor.protein) |> summarize(nrPeptides = n())
+  nrPeptides_exp <- peptide |> dplyr::select(leading.razor.protein, sequence) |>
+    dplyr::distinct() |> dplyr::group_by(leading.razor.protein) |> dplyr::summarize(nrPeptides = n())
 
 
   nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(peptide$raw.file)))
