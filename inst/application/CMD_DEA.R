@@ -14,7 +14,7 @@ option_list <- list(
               help = "yaml configuration file",
               metavar = "character"),
   optparse::make_option("--workunit", type = "character"),
-  optparse::make_option(c("-s", "--software"), type = "character", default = "DIANN",
+  optparse::make_option(c("-s", "--software"), type = "character", default = NULL,
               help = "possible options DIANN, FP_TMT, MAXQUANT",
               metavar = "character"),
   optparse::make_option(c("-o", "--outdir"), type = "character", default = ".",
@@ -24,9 +24,6 @@ option_list <- list(
               help = " (optional) R library path",
               metavar = "string")
 )
-
-
-
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
 arguments <- optparse::parse_args(parser, positional_arguments = TRUE)
@@ -73,8 +70,12 @@ ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 yamlfile <- file.path(ymlfile)
 logger::log_info("YAML file read: ", yamlfile)
 stopifnot(file.exists(yamlfile))
-
 GRP2 <- prolfquapp::get_config(yamlfile)
+if (!is.null(opt$software)) {
+  GRP2$software <-  opt$software
+} else {
+  opt$software <- GRP2$software
+}
 
 if (!is.null(opt$workunit)) {
   logger::log_info("Setting workunit to: " ,  opt$workunit)
@@ -94,10 +95,15 @@ annotation <- file.path(opt$dataset) |>
   readr::read_csv() |> prolfquapp::read_annotation(prefix = GRP2$group)
 logger::log_info("Contrasts: \n", paste(annotation$contrasts, collapse = "\n"))
 
-logger::log_info("Software :", opt$software)
+prolfquapp::copy_DEA_Files(run_script = FALSE)
+
+logger::log_info("Software: ", opt$software)
+
 if (opt$software == "DIANN") {
-  prolfquapp::copy_DEA_DIANN(run_script = FALSE)
   files <- prolfquapp::get_DIANN_files(opt$indir)
+  logger::log_info("Files data: ", files$data)
+  logger::log_info("Files fasta: ", files$fasta)
+
   xd <- prolfquapp::preprocess_DIANN(
     quant_data = files$data,
     fasta_file = files$fasta,
@@ -108,8 +114,9 @@ if (opt$software == "DIANN") {
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
 } else if (opt$software == "FP_TMT") {
-  prolfquapp::copy_DEA_FragPipe_TMT(run_script = FALSE)
   files <- prolfquapp::get_FP_PSM_files(opt$indir)
+  logger::log_info("Files data: ", files$data)
+  logger::log_info("Files fasta: ", files$fasta)
   xd <- prolfquapp::preprocess_FP_PSM(
     quant_data = files$data,
     fasta_file = files$fasta,
@@ -120,8 +127,10 @@ if (opt$software == "DIANN") {
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
 } else if (opt$software == "MAXQUANT") {
-  prolfquapp::copy_DEA_FragPipe_TMT(run_script = FALSE)
   files <- prolfquapp::get_MQ_peptide_files(opt$indir)
+  logger::log_info("Files data: ", files$data)
+  logger::log_info("Files fasta: ", files$fasta)
+
   xd <- prolfquapp::preprocess_MQ_peptide(
     quant_data = files$data,
     fasta_file = files$fasta,
@@ -162,13 +171,8 @@ saveRDS(SE, file = file.path( grp$get_result_dir(), "SummarizedExperiment.rds"))
 logger::log_info("Creating directory with input files :", GRP2$get_input_dir())
 dir.create(GRP2$get_input_dir())
 
-if (opt$software == "DIANN") {
-  prolfquapp::copy_DEA_DIANN(workdir = GRP2$get_input_dir(), run_script = TRUE)
-} else if (opt$software == "FP_TMT" || opt$software == "MAXQUANT") {
-  prolfquapp::copy_DEA_FragPipe_TMT(workdir = GRP2$get_input_dir(), run_script = TRUE)
-} else {
-  stop(opt$software, " not supported.")
-}
+prolfquapp::copy_DEA_Files(workdir = GRP2$get_input_dir())
+prolfquapp::copy_shell_script(workdir = GRP2$get_input_dir())
 
 file.copy(c(files$data, files$fasta, yamlfile, opt$dataset), GRP2$get_input_dir())
 
