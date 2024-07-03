@@ -2,8 +2,6 @@ if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
 }
 
-logger::log_appender(logger::appender_console)
-logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\n"))
 
 option_list <- list(
   optparse::make_option(c("-i", "--indir"), type = "character", default = ".",
@@ -19,8 +17,8 @@ option_list <- list(
   optparse::make_option(c("-s", "--software"), type = "character", default = "DIANN",
               help = "possible options DIANN, FP_TMT, MAXQUANT",
               metavar = "character"),
-  optparse::make_option(c("-p", "--outdir"), type = "character", default = ".",
-              help = "yaml configuration file",
+  optparse::make_option(c("-o", "--outdir"), type = "character", default = ".",
+              help = "output directory",
               metavar = "character"),
   optparse::make_option(c("--libPath"), type = "character", default = NULL,
               help = " (optional) R library path",
@@ -32,8 +30,10 @@ option_list <- list(
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
 arguments <- optparse::parse_args(parser, positional_arguments = TRUE)
-
 opt <- arguments$options
+
+logger::log_appender(logger::appender_console)
+logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\n"))
 
 
 if (FALSE) {

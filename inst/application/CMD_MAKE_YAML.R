@@ -8,7 +8,7 @@ option_list <- list(
   make_option(c("-t","--trans"), type = "character", default = "vsn",
                 help = "normalization method to use, vsn, none, or robscale",
                 metavar = "character"),
-  make_option(c("-d", "--outdir"), type = "character", default = NULL,
+  make_option(c("-d", "--outdir"), type = "character", default = ".",
               help = "folder write yaml file to",
               metavar = "string"),
   make_option(c("-y", "--yaml"), type = "character", default = "config.yaml",
@@ -44,6 +44,9 @@ GRP2 <- prolfquapp::make_DEA_config_R6(
   )
 GRP2$set_zipdir_name()
 if (!is.null(opt$outdir) && dir.exists(opt$outdir)) {
-  GRP2$zipdir <- opt$outdir
+  GRP2$path <- opt$outdir
 }
-yaml::write_yaml(prolfquapp::R6_extract_values(GRP2), file = file.path(opt$outdir , ymlfile))
+cfg <- prolfquapp::R6_extract_values(GRP2)
+
+yaml::write_yaml(cfg, file = file.path(opt$outdir , ymlfile))
+
