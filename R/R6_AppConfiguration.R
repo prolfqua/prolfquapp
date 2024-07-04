@@ -255,7 +255,7 @@ make_DEA_config_R6 <- function(
     removeDecoys = FALSE,
     patternDecoys = "^REV_",
     patternContaminants = "^zz",
-    application = "FragPipeTMT" ){
+    application = "DIANN" ){
 
   Normalization <- match.arg(Normalization)
   aggregation <- match.arg(aggregation)
@@ -294,7 +294,7 @@ make_DEA_config_R6 <- function(
 #'   config <- read_BF_yamlR6(yfiles[1])
 #' }
 #'
-read_BF_yamlR6 <- function(ymlfile, application = "FragPipeTMT" ) {
+read_BF_yamlR6 <- function(ymlfile, application = "DIANN" ) {
   yml = yaml::read_yaml(ymlfile)
 
   WORKUNITID = yml$job_configuration$workunit_id

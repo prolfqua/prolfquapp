@@ -205,7 +205,7 @@ write_result_list <- function(outpath,
   id_column = GRP2$RES$rowAnnot$cleaned_ids
 
   if (ORA) {
-    bkg <- GRP2$RES$rowAnnot$row_annot[[id_column]]
+    bkg <- GRP2$RES$lfqData$hierarchy()
     ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
     write.table(bkg,file = ff, col.names = FALSE,
                 row.names = FALSE, quote = FALSE)

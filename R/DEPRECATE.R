@@ -344,7 +344,7 @@ make_DEA_config <- function(
     removeDecoys = FALSE,
     patternDecoys = "^REV_",
     patternContaminants = "^zz",
-    application = "FragPipeTMT",
+    application = "FP_TMT",
     nrPeptides = 2){
   warning("DEPRECATED")
   Normalization <- match.arg(Normalization)

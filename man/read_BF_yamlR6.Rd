@@ -4,7 +4,7 @@
 \alias{read_BF_yamlR6}
 \title{read yaml file}
 \usage{
-read_BF_yamlR6(ymlfile, application = "FragPipeTMT")
+read_BF_yamlR6(ymlfile, application = "DIANN")
 }
 \value{
 list with applications parameters

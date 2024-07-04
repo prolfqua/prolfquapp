@@ -2,6 +2,18 @@ if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
 }
 
+log_error_handler <- function() {
+  err <- geterrmessage()
+  logger::log_error(err)
+  if (interactive()) {
+    stop(err)
+  } else {
+    quit(save = "no", status = 1, runLast = FALSE)
+  }
+}
+
+options(error = log_error_handler)
+
 
 option_list <- list(
   optparse::make_option(c("-i", "--indir"), type = "character", default = ".",
@@ -32,6 +44,25 @@ opt <- arguments$options
 logger::log_appender(logger::appender_console)
 logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\n"))
 
+# set library path
+prolfquapp::set_lib_path(opt$libPath);
+
+appender_combined <- logger::appender_tee(file.path(opt$outdir, "prolfqua.log"))
+# Set the combined appender as the default appender
+logger::log_appender(appender_combined)
+logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(arguments))))
+
+library(prolfquapp)
+logger::log_info("using : ", system.file(package = "prolfqua"))
+logger::log_info("using : ", system.file(package = "prolfquapp"))
+ymlfile <- arguments$args
+
+
+
+if (FALSE) {
+  ymlfile <- "TESTING/DEA_20240704_PI_34855_OI_34855_WU_ECp_compare_infected_noHuman_vsn/Inputs_DEA_WU/minimal.yaml"
+  opt$indir = "./2478292/out-2024-04-13/"
+}
 
 if (FALSE) {
   opt$software = "DIANN"
@@ -47,23 +78,6 @@ if (FALSE) {
   opt$yaml = "WU305157/config.yaml"
   opt$outdir = "MAXQUANT"
 }
-
-# set library path
-prolfquapp::set_lib_path(opt$libPath);
-
-appender_combined <- logger::appender_tee(file.path(opt$outdir, "prolfqua.log"))
-# Set the combined appender as the default appender
-logger::log_appender(appender_combined)
-
-
-logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(arguments))))
-
-
-library(prolfquapp)
-logger::log_info("using : ", system.file(package = "prolfqua"))
-logger::log_info("using : ", system.file(package = "prolfquapp"))
-ymlfile <- arguments$args
-
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
@@ -157,10 +171,15 @@ grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, a
 
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
 
+undebug(prolfquapp::write_DEA_all)
 outdir <- prolfquapp::write_DEA_all(
   grp, boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
 
-ibaq <- compute_IBAQ_values(xd$lfqdata, xd$protein_annotation)
+lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
+  contaminants = GRP2$processing_options$remove_cont,
+  decoys = GRP2$processing_options$remove_decoys))
+
+ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
 writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(grp$get_result_dir(), "IBAQ.xlsx"))
 
 logger::log_info("Writing summarized experiment.")
