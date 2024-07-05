@@ -8,6 +8,7 @@ R_SCRIPT_PATH="${PACKAGE_PATH}/application/CMD_MAKE_YAML.R"
 
 # Check if the R script exists
 if [[ -f "$R_SCRIPT_PATH" ]]; then
+    echo "Rscript --vanilla \"$R_SCRIPT_PATH\" \"$@\""
     Rscript --vanilla "$R_SCRIPT_PATH" "$@"
 else
     echo "Error: R script not found at '$R_SCRIPT_PATH'"
