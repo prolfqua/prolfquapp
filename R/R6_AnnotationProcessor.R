@@ -1,5 +1,31 @@
-library(R6)
-library(dplyr)
+# Create a named list of functions
+#' read dataset file in csv, tsv or xlsx format
+#' @export
+read_dataset_file <- function(file_path) {
+  read_functions <- list(
+    csv = readr::read_csv,
+    tsv = readr::read_tsv,
+    xlsx = readxl::read_xlsx
+  )
+
+  # Get the file extension
+  file_extension <- tools::file_ext(file_path)
+
+  # Check if the file extension is supported
+  if (!file_extension %in% names(read_functions)) {
+    stop("Unsupported file extension")
+  }
+
+  # Call the appropriate reading function
+  data <- read_functions[[file_extension]](file_path)
+
+  return(data)
+}
+
+
+
+
+
 
 # AnnotationProcessor  -----
 #' AnnotationProcessor
@@ -51,7 +77,7 @@ library(dplyr)
 #' aa <- ap$read_annotation(annot)
 #' aa$atable$sampleName
 #' stopifnot(is.null(aa$annotation))
-AnnotationProcessor <- R6Class(
+AnnotationProcessor <- R6::R6Class(
   "AnnotationProcessor",
 
   public = list(

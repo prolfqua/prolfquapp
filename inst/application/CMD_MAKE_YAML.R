@@ -14,20 +14,27 @@ option_list <- list(
   make_option(c("-y", "--yaml"), type = "character", default = "config.yaml",
               help = "yaml configuration file name",
               metavar = "character"),
-  make_option(c("-w", "--workunit"), type = "character", default = "1234",
+  make_option(c("-w", "--workunit"), type = "character", default = "",
               help = "workunit ID",
               metavar = "character"),
-  make_option(c("-o", "--order"), type = "character", default = "1234",
+  make_option(c("-o", "--order"), type = "character", default = "",
               help = "order ID",
               metavar = "character"),
-  make_option(c("-p", "--project"), type = "character", default = "1234",
+  make_option(c("-p", "--project"), type = "character", default = "",
               help = "project ID",
+              metavar = "character"),
+  make_option(c("-s", "--software"), type = "character", default = "DIANN",
+              help = "either DIANN, FP_TMT, MAXQUANT",
               metavar = "character")
 
 )
 
-parser <- OptionParser(usage = "%prog [options] file", option_list = option_list)
-arguments <- parse_args(parser, args = "test.yml", positional_arguments = TRUE)
+parser <- optparse::OptionParser(usage = "%prog --trans vsn --workunit WUID332211", option_list = option_list)
+arguments <- optparse::parse_args(parser, positional_arguments = TRUE)
+
+
+#parser <- OptionParser(usage = "%prog [options] file", option_list = option_list)
+#arguments <- parse_args(parser, args = "test.yml", positional_arguments = TRUE)
 lobstr::tree(arguments)
 
 
@@ -47,6 +54,6 @@ if (!is.null(opt$outdir) && dir.exists(opt$outdir)) {
   GRP2$path <- opt$outdir
 }
 cfg <- prolfquapp::R6_extract_values(GRP2)
-
+if (!dir.exists(opt$outdir)) {dir.create(opt$outdir)}
 yaml::write_yaml(cfg, file = file.path(opt$outdir , ymlfile))
 

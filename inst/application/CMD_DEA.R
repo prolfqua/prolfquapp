@@ -14,7 +14,6 @@ log_error_handler <- function() {
 
 options(error = log_error_handler)
 
-
 option_list <- list(
   optparse::make_option(c("-i", "--indir"), type = "character", default = ".",
               help = "folder containing fasta and diann-output files",
@@ -107,7 +106,7 @@ logger::log_info("prolfquapp paramters : ")
 logger::log_info( prolfquapp::capture_output( quote(lobstr::tree(R6_extract_values(GRP2)))))
 
 annotation <- file.path(opt$dataset) |>
-  readr::read_csv() |> prolfquapp::read_annotation(prefix = GRP2$group)
+  prolfquapp::read_dataset_file() |> prolfquapp::read_annotation(prefix = GRP2$group)
 logger::log_info("Contrasts: \n", paste(annotation$contrasts, collapse = "\n"))
 
 prolfquapp::copy_DEA_Files()
