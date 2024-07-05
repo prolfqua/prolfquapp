@@ -9,7 +9,7 @@ tidy_FragPipe_psm(
   purity_threshold = 0.5,
   PeptideProphetProb = 0.9,
   abundance_threshold = 0,
-  column_before_quants = "Quan Usage",
+  column_before_quants = c("Quan Usage", "Mapped Proteins"),
   aggregate = TRUE
 )
 }

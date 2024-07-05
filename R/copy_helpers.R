@@ -5,7 +5,10 @@
 copy_shell_script <- function(workdir = getwd()) {
   runscripts <- c(
     "application/bin/CMD_DEA.sh",
-    "application/bin/CMD_DEA.bat"
+    "application/bin/CMD_DEA.bat",
+    "application/bin/CMD_MAKE_YAML.sh",
+    "application/bin/CMD_QUANT_QC.sh",
+    "application/bin/CMD_MAKE_DATASET.sh"
   )
   prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }

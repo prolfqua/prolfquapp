@@ -40,6 +40,7 @@ option_list <- list(
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
 arguments <- optparse::parse_args(parser, positional_arguments = TRUE)
 opt <- arguments$options
+ymlfile <- arguments$args
 
 logger::log_appender(logger::appender_console)
 logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\n"))
@@ -55,7 +56,6 @@ logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(arguments))))
 library(prolfquapp)
 logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
-ymlfile <- arguments$args
 
 
 
@@ -63,6 +63,7 @@ if (FALSE) {
   ymlfile <- "TESTING/DEA_20240704_PI_34855_OI_34855_WU_ECp_compare_infected_noHuman_vsn/Inputs_DEA_WU/minimal.yaml"
   opt$indir = "./2478292/out-2024-04-13/"
 }
+
 
 if (FALSE) {
   opt$software = "DIANN"

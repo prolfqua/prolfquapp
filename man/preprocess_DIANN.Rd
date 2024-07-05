@@ -9,7 +9,6 @@ preprocess_DIANN(
   fasta_file,
   annotation,
   q_value = 0.01,
-  nrPeptides = 1,
   pattern_contaminants = "^zz|^CON",
   pattern_decoys = "REV_"
 )

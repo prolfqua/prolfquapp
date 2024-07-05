@@ -26,7 +26,7 @@ option_list <- list(
 
 )
 
-parser <- OptionParser(usage = "%prog [options] file", option_list = option_list, add_help_option = TRUE)
+parser <- OptionParser(usage = "%prog [options] file", option_list = option_list)
 arguments <- parse_args(parser, args = "test.yml", positional_arguments = TRUE)
 lobstr::tree(arguments)
 

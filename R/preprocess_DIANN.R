@@ -6,34 +6,6 @@
 #' @import data.table
 #' @export
 #'
-read_DIANN_output <- function(diann.path,
-                              fasta.file,
-                              nrPeptides = 2,
-                              Q.Value = 0.01,
-                              isUniprot = TRUE,
-                              rev = "REV_"
-) {
-  report2 <- prolfquapp::diann_read_output(diann.path, nrPeptides = nrPeptides, Q.Value = Q.Value)
-  if (nrow(report2) == 0) {
-    return(NULL)
-  }
-  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
-  report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
-
-  peptide <- prolfquapp::diann_output_to_peptide(report2)
-  peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
-  # we need to add the fasta.header information.
-  fasta_annot <- get_annot_from_fasta(fasta.file, rev = rev, isUniprot = isUniprot)
-  message("Percent of Proteins with description:" ,mean(peptide$Protein.Group.2 %in% fasta_annot$proteinname) * 100)
-  # add fasta headers.
-  if (nrow(peptide) == 0) {
-    return(NULL)
-  }
-  peptide <- dplyr::left_join(dtplyr::lazy_dt(peptide), dtplyr::lazy_dt(fasta_annot),
-                              by = c( Protein.Group.2 = "proteinname")) |>
-    dplyr::as_tibble()
-  return(peptide)
-}
 
 
 #' read DiaNN diann-output.tsv file
@@ -42,20 +14,7 @@ read_DIANN_output <- function(diann.path,
 #' @import data.table
 #' @export
 #'
-diann_read_output <- function(path, nrPeptides = 2, Q.Value = 0.01){
-  add_nr_pep <- function(report){
-    nrPEP <- report |>
-      dplyr::select(all_of(c("Protein.Group", "Stripped.Sequence"))) |>
-      dplyr::distinct() |>
-      dplyr::group_by(!!sym("Protein.Group")) |>
-      dplyr::summarize(nrPeptides = dplyr::n())
-    report <- dplyr::inner_join(
-      dtplyr::lazy_dt(report), dtplyr::lazy_dt(nrPEP),
-      by = "Protein.Group") |>
-      dplyr::as_tibble()
-
-    return(list(nrPEP = nrPEP, report = report))
-  }
+diann_read_output <- function(path, Q.Value = 0.01){
 
   select_PG <- function(report){
     columns  <- c("File.Name",
@@ -75,24 +34,17 @@ diann_read_output <- function(path, nrPeptides = 2, Q.Value = 0.01){
     return(PG)
   }
 
-  filter_PG <- function(PG, nrPeptides_min = 2, Q.Value = 0.01){
-    PG <- PG |> dplyr::filter(.data$nrPeptides >= nrPeptides_min)
+  filter_PG <- function(PG,  Q.Value = 0.01){
     PG <- PG |> dplyr::filter(.data$Lib.PG.Q.Value < Q.Value)
     PG <- PG |> dplyr::filter(.data$PG.Q.Value < Q.Value)
   }
 
   ## use internal functions
   report <- readr::read_tsv(path, show_col_types = FALSE)
-  rNR <- add_nr_pep(report)
-  PG <- select_PG(rNR$report)
-  PG2 <- filter_PG(PG, nrPeptides_min = nrPeptides, Q.Value = Q.Value)
-  PG2 <- PG2 |> dplyr::select(c("File.Name", "Protein.Group", "Protein.Names", "nrPeptides"))
+  PG <- select_PG(report)
+  PG2 <- filter_PG(PG, Q.Value = Q.Value)
+  PG2 <- PG2 |> dplyr::select(c("File.Name", "Protein.Group", "Protein.Names"))
 
-  #setDT(PG2)
-  #setDT(report)
-
-  # Perform inner join
-  #report2 <- PG2[report, on = c("File.Name", "Protein.Group", "Protein.Names"), nomatch = 0] |> as_tibble()
   report2 <- dplyr::inner_join(dtplyr::lazy_dt(PG2), dtplyr::lazy_dt(report),
                                by = c("File.Name", "Protein.Group", "Protein.Names")) |>
     dplyr::as_tibble()
@@ -116,7 +68,8 @@ diann_output_to_peptide <- function(report2){
                      Peptide.Normalised = sum(.data$Precursor.Normalised, na.rm = TRUE),
                      Peptide.Translated = sum(.data$Precursor.Translated, na.rm = TRUE),
                      Peptide.Ms1.Translated = sum(.data$Ms1.Translated, na.rm = TRUE),
-                     PEP = min(.data$PEP, na.rm = TRUE)
+                     PEP = min(.data$PEP, na.rm = TRUE),
+                     nr_children = n()
                      ,.groups = "drop")
   return(peptide)
 }
@@ -145,7 +98,6 @@ preprocess_DIANN <- function(quant_data,
                              fasta_file,
                              annotation,
                              q_value = 0.01,
-                             nrPeptides = 1,
                              pattern_contaminants = "^zz|^CON",
                              pattern_decoys = "REV_"){
 
@@ -156,11 +108,12 @@ preprocess_DIANN <- function(quant_data,
                     (basename(annot[[atable$fileName]]))
     ))
 
-  peptide <- prolfquapp::read_DIANN_output(
-    diann.path = quant_data,
-    fasta.file = fasta_file,
-    nrPeptides = nrPeptides,
-    Q.Value = q_value)
+  report2 <- prolfquapp::diann_read_output(diann.path, Q.Value = q_value)
+  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
+  report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
+  report2$Protein.Group.2 <- sapply(report2$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
+
+  peptide <- prolfquapp::diann_output_to_peptide(report2)
 
   nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(peptide$raw.file)))
@@ -178,17 +131,17 @@ preprocess_DIANN <- function(quant_data,
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
 
+  nrPEP <- peptide |>
+    dplyr::select(all_of(c("Protein.Group", "Stripped.Sequence"))) |>
+    dplyr::distinct() |>
+    dplyr::group_by(!!sym("Protein.Group")) |>
+    dplyr::summarize(nrPeptides = dplyr::n())
 
-  protAnnot <- build_protein_annot(
-    lfqdata,
-    peptide,
-    c("protein_Id" = "Protein.Group"),
-    cleaned_protein_id = "Protein.Group.2",
-    protein_description = "fasta.header",
-    full_id = "fasta.id",
-    exp_nr_children = "nrPeptides",
-    more_columns = c("nrPeptides", "protein_length", "nr_tryptic_peptides",
-                     if ("gene_name" %in% colnames(peptide)) {"gene_name"} else {NULL} ),
+  protAnnot <- prolfquapp::ProteinAnnotation$new(
+    lfqdata , prot_annot, description = "description",
+    cleaned_ids = "IDcolumn",
+    full_id = full_id,
+    exp_nr_children = exp_nr_children,
     pattern_contaminants = pattern_contaminants,
     pattern_decoys = pattern_decoys
   )

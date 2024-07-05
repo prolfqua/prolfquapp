@@ -10,7 +10,7 @@ preprocess_FP_PSM(
   annotation,
   purity_threshold = 0.5,
   PeptideProphetProb = 0.9,
-  column_before_quants = "Quan Usage",
+  column_before_quants = c("Quan Usage", "Mapped Proteins"),
   pattern_contaminants = "^zz|^CON",
   pattern_decoys = "REV_"
 )

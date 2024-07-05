@@ -2,10 +2,19 @@
 % Please edit documentation in R/preprocess_DIANN.R
 \name{diann_read_output}
 \alias{diann_read_output}
-\title{read DiaNN diann-output.tsv file}
+\title{DIANN helper functions}
 \usage{
-diann_read_output(path, nrPeptides = 2, Q.Value = 0.01)
+diann_read_output(path, Q.Value = 0.01)
+}
+\arguments{
+\item{Q.Value}{q value threshold}
+
+\item{diann.path}{path to diann-output.tsv}
+
+\item{fasta.file}{path to fasta file}
+
+\item{nrPeptides}{peptide threshold}
 }
 \description{
-filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
+DIANN helper functions
 }

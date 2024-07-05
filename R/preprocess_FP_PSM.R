@@ -208,17 +208,20 @@ tidy_FragPipe_psm <- function(psm_file,
                               purity_threshold = 0.5,
                               PeptideProphetProb = 0.9,
                               abundance_threshold = 0,
-                              column_before_quants = "Quan Usage",
+                              column_before_quants =  c("Quan Usage" , "Mapped Proteins"),
                               aggregate = TRUE){
-  psm <- readr::read_tsv(psm_file)
 
+
+  psm <- readr::read_tsv(psm_file)
+  column_before_quants <- intersect(c("Quan Usage" , "Mapped Proteins"), colnames(psm))
   if (!"Purity" %in% colnames(psm) ) {
     warning("no Purity column in psm file!")
     psm <- psm |> dplyr::mutate(Purity = 1, .before = column_before_quants)
   }
-
   x <- which(colnames(psm) == column_before_quants)
   colnamesQuan <- colnames(psm)[(x + 1):ncol(psm)]
+  probability_column <- intersect(c("PeptideProphet Probability", "Probability"), colnames(psm))
+
   psm_relevant <- psm |> dplyr::select(
     dplyr::all_of(
       c(c("Spectrum",
@@ -230,7 +233,7 @@ tidy_FragPipe_psm <- function(psm_file,
           "Purity",
           "Protein",
           "Protein Description",
-          "PeptideProphet Probability",
+          Probability = probability_column,
           "Protein Description",
           "Retention",
           "Calibrated Observed Mass",
@@ -250,19 +253,17 @@ tidy_FragPipe_psm <- function(psm_file,
     dplyr::summarize(nrPeptides = dplyr::n())
 
   colnames(psm_long) <- make.names(colnames(psm_long))
-  psm_long <- dplyr::filter(psm_long, Purity > purity_threshold & PeptideProphet.Probability > PeptideProphetProb)
+  psm_long <- dplyr::filter(psm_long, Purity > purity_threshold & Probability > PeptideProphetProb)
 
   if (aggregate) {
     psm_long <- psm_long |>
       dplyr::select(-all_of(c("Spectrum.File","Spectrum","Intensity","Purity","Retention","Calibrated.Observed.Mass","Charge"))) |>
-      dplyr::group_by(dplyr::across(-c(abundance, PeptideProphet.Probability))) |>
-      dplyr::summarize(nr_psm = n(), abundance = sum(abundance, na.rm = TRUE), PeptideProphet.Probability = max(PeptideProphet.Probability, na.rm = TRUE))
+      dplyr::group_by(dplyr::across(-c(abundance, Probability))) |>
+      dplyr::summarize(nr_psm = n(), abundance = sum(abundance, na.rm = TRUE), Probability = max(Probability, na.rm = TRUE))
   }
 
   return(list(data = psm_long, nrPeptides_exp = nrPeptides_exp))
 }
-
-
 
 
 
@@ -287,14 +288,13 @@ get_FP_PSM_files <- function(path){
 #' @return list with lfqdata and protein annotation
 #' @export
 preprocess_FP_PSM <- function(quant_data,
-                             fasta_file,
-                             annotation,
-                             purity_threshold = 0.5,
-                             PeptideProphetProb = 0.9,
-                             column_before_quants = "Quan Usage",
-                             pattern_contaminants = "^zz|^CON",
-                             pattern_decoys = "REV_"){
-
+                              fasta_file,
+                              annotation,
+                              purity_threshold = 0.5,
+                              PeptideProphetProb = 0.9,
+                              column_before_quants = c("Quan Usage" , "Mapped Proteins"),
+                              pattern_contaminants = "^zz|^CON",
+                              pattern_decoys = "REV_"){
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
