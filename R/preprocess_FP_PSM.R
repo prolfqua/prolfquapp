@@ -305,7 +305,7 @@ preprocess_FP_PSM <- function(quant_data,
   psm <- prolfquapp::tidy_FragPipe_psm(quant_data, column_before_quants = column_before_quants)
   nrPeptides_exp <- psm$nrPeptides # this is a data.frame
   psm <- psm$data
-  psm$qValue <- 1 - psm$PeptideProphet.Probability
+  psm$qValue <- 1 - psm$Probability
 
   nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(psm$channel)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(psm$channel)))
@@ -313,7 +313,7 @@ preprocess_FP_PSM <- function(quant_data,
   logger::log_info("channels in annotation which are not in psm.tsv file : ", paste(setdiff(annot[[annotation$atable$fileName]],sort(unique(psm$channel))), collapse = " ; ") )
   logger::log_info("channels in psm.tsv which are not in annotation file : ", paste(setdiff(sort(unique(psm$channel)),annot[[annotation$atable$fileName]]), collapse = " ; ") )
 
-  atable$ident_Score = "PeptideProphet.Probability"
+  atable$ident_Score = "Probability"
   atable$ident_qValue = "qValue"
   atable$hierarchy[["protein_Id"]] <- c("Protein")
   atable$hierarchy[["peptide_Id"]] <- c("Peptide")
