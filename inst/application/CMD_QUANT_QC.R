@@ -81,7 +81,6 @@ if (opt$software == "DIANN") {
     quant_data = files$data,
     fasta_file = files$fasta,
     annotation = annotation,
-    nrPeptides =  GRP2$processing_options$nr_peptides,
     q_value = 0.01)
 } else if (opt$software == "FP_TMT") {
   files <- prolfquapp::get_FP_PSM_files(path)

@@ -2,19 +2,20 @@
 % Please edit documentation in R/preprocess_DIANN.R
 \name{diann_read_output}
 \alias{diann_read_output}
-\title{DIANN helper functions}
+\title{read DiaNN diann-output.tsv file}
 \usage{
-diann_read_output(path, Q.Value = 0.01)
-}
-\arguments{
-\item{Q.Value}{q value threshold}
-
-\item{diann.path}{path to diann-output.tsv}
-
-\item{fasta.file}{path to fasta file}
-
-\item{nrPeptides}{peptide threshold}
+diann_read_output(data, Q.Value = 0.01)
 }
 \description{
-DIANN helper functions
+filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
+}
+\examples{
+
+xx <- readr::read_tsv("inst/application/DIANN/2517219/out-2024-06-12/WU304486_report.tsv")
+report2 <- diann_read_output(xx)
+report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\\\\\","/",report2$File.Name)))
+report2$Protein.Group <- sub("zz\\\\|(.+)\\\\|.+", "\\\\1", report2$Protein.Group )
+report2$Protein.Group.2 <- sapply(report2$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
+peptide <- prolfquapp::diann_output_to_peptide(report2)
+
 }
