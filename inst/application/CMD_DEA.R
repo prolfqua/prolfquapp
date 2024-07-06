@@ -78,6 +78,11 @@ if (FALSE) {
   opt$yaml = "WU305157/config.yaml"
   opt$outdir = "MAXQUANT"
 }
+if (TRUE) {
+  ymlfile <- "uniprotwhole/WholeProtUniprot.yaml"
+  opt$dataset <- "dataset.xlsx"
+  opt$indir <- "o35593_prot_ionquant/"
+}
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
@@ -122,7 +127,6 @@ if (opt$software == "DIANN") {
     quant_data = files$data,
     fasta_file = files$fasta,
     annotation = annotation,
-    nrPeptides =  GRP2$processing_options$nr_peptides,
     q_value = 0.1,
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys
@@ -131,6 +135,7 @@ if (opt$software == "DIANN") {
   files <- prolfquapp::get_FP_PSM_files(opt$indir)
   logger::log_info("Files data: ", files$data)
   logger::log_info("Files fasta: ", files$fasta)
+  #debug(prolfquapp::preprocess_FP_PSM)
   xd <- prolfquapp::preprocess_FP_PSM(
     quant_data = files$data,
     fasta_file = files$fasta,
