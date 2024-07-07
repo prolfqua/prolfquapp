@@ -12,10 +12,8 @@ filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
 \examples{
 
 xx <- readr::read_tsv("inst/application/DIANN/2517219/out-2024-06-12/WU304486_report.tsv")
-report2 <- diann_read_output(xx)
-report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\\\\\","/",report2$File.Name)))
-report2$Protein.Group <- sub("zz\\\\|(.+)\\\\|.+", "\\\\1", report2$Protein.Group )
+report2 <- prolfquapp::diann_read_output(xx)
 report2$Protein.Group.2 <- sapply(report2$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
-peptide <- prolfquapp::diann_output_to_peptide(report2)
+
 
 }

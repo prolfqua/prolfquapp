@@ -32,9 +32,6 @@ read_DIANN_output <- function(diann.path,
   if (nrow(report2) == 0) {
     return(NULL)
   }
-  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
-  report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
-
   peptide <- prolfquapp::diann_output_to_peptide(report2)
   peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
   # we need to add the fasta.header information.
@@ -59,11 +56,9 @@ read_DIANN_output <- function(diann.path,
 #' @examples
 #'
 #' xx <- readr::read_tsv("inst/application/DIANN/2517219/out-2024-06-12/WU304486_report.tsv")
-#' report2 <- diann_read_output(xx)
-#' report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
-#' report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
+#' report2 <- prolfquapp::diann_read_output(xx)
 #' report2$Protein.Group.2 <- sapply(report2$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
-#' peptide <- prolfquapp::diann_output_to_peptide(report2)
+#'
 #'
 diann_read_output <- function(data, Q.Value = 0.01){
 
@@ -97,6 +92,9 @@ diann_read_output <- function(data, Q.Value = 0.01){
   report2 <- dplyr::inner_join(dtplyr::lazy_dt(PG2), dtplyr::lazy_dt(report),
                                by = c("File.Name", "Protein.Group", "Protein.Names")) |>
     dplyr::as_tibble()
+
+  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
+  report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
   return(report2)
 }
 
@@ -170,8 +168,6 @@ preprocess_DIANN <- function(quant_data,
     ))
   data <- readr::read_tsv(quant_data)
   report2 <- prolfquapp::diann_read_output(data, Q.Value = q_value)
-  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
-  report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
   nrPEP <- get_nr_pep(report2)
   nrPEP$Protein.Group.2 <- sapply(nrPEP$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
 

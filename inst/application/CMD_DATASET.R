@@ -13,13 +13,12 @@ option_list <- list(
                help = "folder containing fasta, diann-output.tsv and dataset.tsv file",
                metavar = "string"),
   make_option( c("-d", "--dataset"), type = "character", default = "dataset.csv",
-               help = "name of annotation",
+               help = "name of annotation file",
                metavar = "string"),
   make_option(c("-s", "--software"), type = "character", default = "DIANN",
               help = "possible options DIANN, FP_TMT, MAXQUANT",
               metavar = "character")
 )
-
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
 arguments <- optparse::parse_args(parser, positional_arguments = TRUE)
@@ -30,42 +29,24 @@ ymlfile <- arguments$args
 if (opt$software == "DIANN") {
   files <- prolfquapp::get_DIANN_files(opt$indir)
   logger::log_info("Files data: ", files$data)
-  logger::log_info("Files fasta: ", files$fasta)
-
-  xd <- prolfquapp::preprocess_DIANN(
-    quant_data = files$data,
-    fasta_file = files$fasta,
-    annotation = annotation,
-    nrPeptides =  GRP2$processing_options$nr_peptides,
-    q_value = 0.1,
-    pattern_contaminants = GRP2$processing_options$pattern_contaminants,
-    pattern_decoys = GRP2$processing_options$pattern_decoys
-  )
+  xx <- prolfquapp::diann_read_output(data, Q.Value = 0.01)
+  datasetannot <- data.frame(raw.file = unique(xx$raw.file), Name = NA, Group = NA, Subject = NA, Control = NA)
+  write_annotation_file(datasetannot, opt$dataset)
 } else if (opt$software == "FP_TMT") {
   files <- prolfquapp::get_FP_PSM_files(opt$indir)
   logger::log_info("Files data: ", files$data)
-  logger::log_info("Files fasta: ", files$fasta)
-  xd <- prolfquapp::preprocess_FP_PSM(
-    quant_data = files$data,
-    fasta_file = files$fasta,
-    annotation = annotation,
-    purity_threshold = 0.5,
-    PeptideProphetProb = 0.9,
-    pattern_contaminants = GRP2$processing_options$pattern_contaminants,
-    pattern_decoys = GRP2$processing_options$pattern_decoys
-  )
+  x <- prolfquapp::tidy_FragPipe_psm(files$data)
+  datasetannot <- data.frame(channel = channel, name = channel , group = NA, subject = NA, CONTROL = NA)
+  write_annotation_file(datasetannot, opt$dataset)
 } else if (opt$software == "MAXQUANT") {
+  #opt<- list()
+  #opt$indir = "inst/application/MaxQuantDDA/C26109WU305220/DEA_20240703_PI_26109_OI_26109_WU_305220_robscale"
   files <- prolfquapp::get_MQ_peptide_files(opt$indir)
   logger::log_info("Files data: ", files$data)
-  logger::log_info("Files fasta: ", files$fasta)
-
-  xd <- prolfquapp::preprocess_MQ_peptide(
-    quant_data = files$data,
-    fasta_file = files$fasta,
-    annotation = annotation,
-    pattern_contaminants = GRP2$processing_options$pattern_contaminants,
-    pattern_decoys = GRP2$processing_options$pattern_decoys
-  )
+  peptide <- prolfquapp::tidyMQ_Peptides( files$data, proteotypic_only = TRUE)
+  head(peptide)
+  datasetannot <- data.frame(raw.file = unique(peptide$raw.file), name = NA, group = NA, subject = NA, CONTROL = NA)
+  write_annotation_file(datasetannot, opt$dataset)
 } else if (opt$software == "FP_DDA") {
 
 } else {

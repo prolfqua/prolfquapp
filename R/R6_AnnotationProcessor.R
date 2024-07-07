@@ -1,7 +1,7 @@
 # Create a named list of functions
 #' read dataset file in csv, tsv or xlsx format
 #' @export
-read_dataset_file <- function(file_path) {
+read_annotation_file <- function(file_path) {
   read_functions <- list(
     csv = readr::read_csv,
     tsv = readr::read_tsv,
@@ -22,7 +22,27 @@ read_dataset_file <- function(file_path) {
   return(data)
 }
 
+# Create a named list of functions
+#' write dataset to file in csv, tsv, or xlsx format
+#' @export
+write_annotation_file <- function(data, file_path) {
+  write_functions <- list(
+    csv = readr::write_csv,
+    tsv = readr::write_tsv,
+    xlsx = writexl::write_xlsx
+  )
 
+  # Get the file extension
+  file_extension <- tools::file_ext(file_path)
+
+  # Check if the file extension is supported
+  if (!file_extension %in% names(write_functions)) {
+    stop("Unsupported file extension")
+  }
+
+  # Call the appropriate writing function
+  write_functions[[file_extension]](data, file_path)
+}
 
 
 
@@ -148,7 +168,7 @@ AnnotationProcessor <- R6::R6Class(
       if ("data.frame" %in% class(dsf)) {
         annot <- dsf
       } else {
-        annot <- read.csv(dsf)
+        annot <- read_annotation(dsf)
       }
       annot <- data.frame(lapply(annot, as.character))
       self$check_annotation(annot)
@@ -313,6 +333,7 @@ AnnotationProcessor <- R6::R6Class(
   )
 )
 
+# read_annotation -----
 #' read annotation files
 #' @return list with annot (annotation table), atable (analtysis table configuration), contrasts list with contrasts.
 #' @param dsf annotation table
