@@ -2,38 +2,27 @@ if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
 }
 
-log_error_handler <- function() {
-  err <- geterrmessage()
-  logger::log_error(err)
-  if (interactive()) {
-    stop(err)
-  } else {
-    quit(save = "no", status = 1, runLast = FALSE)
-  }
-}
-
-options(error = log_error_handler)
 
 option_list <- list(
   optparse::make_option(c("-i", "--indir"), type = "character", default = ".",
-              help = "folder containing fasta and diann-output files",
-              metavar = "path"),
+                        help = "folder containing fasta and diann-output files",
+                        metavar = "path"),
   optparse::make_option(c("-d", "--dataset"), type = "character", default = "dataset.csv",
-              help = "file with annotation",
-              metavar = "character"),
+                        help = "file with annotation",
+                        metavar = "character"),
   optparse::make_option(c("-y", "--yaml"), type = "character", default = "config.yaml",
-              help = "yaml configuration file",
-              metavar = "character"),
+                        help = "yaml configuration file",
+                        metavar = "character"),
   optparse::make_option("--workunit", type = "character"),
   optparse::make_option(c("-s", "--software"), type = "character", default = NULL,
-              help = "possible options DIANN, FP_TMT, MAXQUANT",
-              metavar = "character"),
-  optparse::make_option(c("-o", "--outdir"), type = "character", default = ".",
-              help = "output directory",
-              metavar = "character"),
+                        help = "possible options DIANN, FP_TMT, MAXQUANT",
+                        metavar = "character"),
+  optparse::make_option(c("-o", "--outdir"), type = "character", default = NULL,
+                        help = "output directory",
+                        metavar = "character"),
   optparse::make_option(c("--libPath"), type = "character", default = NULL,
-              help = " (optional) R library path",
-              metavar = "string")
+                        help = " (optional) R library path",
+                        metavar = "string")
 )
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
@@ -44,13 +33,9 @@ ymlfile <- arguments$args
 logger::log_appender(logger::appender_console)
 logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\n"))
 
-# set library path
 prolfquapp::set_lib_path(opt$libPath);
 
-appender_combined <- logger::appender_tee(file.path(opt$outdir, "prolfqua.log"))
-# Set the combined appender as the default appender
-logger::log_appender(appender_combined)
-logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(arguments))))
+
 
 library(prolfquapp)
 logger::log_info("using : ", system.file(package = "prolfqua"))
@@ -80,31 +65,26 @@ if (FALSE) {
 }
 if (TRUE) {
   ymlfile <- "uniprotwhole/WholeProtUniprot.yaml"
-  opt$dataset <- "dataset.xlsx"
+  opt$dataset <- "uniprotwhole/dataset.xlsx"
   opt$indir <- "o35593_prot_ionquant/"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
-yamlfile <- file.path(ymlfile)
-logger::log_info("YAML file read: ", yamlfile)
-stopifnot(file.exists(yamlfile))
-GRP2 <- prolfquapp::get_config(yamlfile)
-if (!is.null(opt$software)) {
-  GRP2$software <-  opt$software
-} else {
-  opt$software <- GRP2$software
-}
+logger::log_info("YAML file read: ", ymlfile)
+stopifnot(file.exists(ymlfile))
 
-if (!is.null(opt$workunit)) {
-  logger::log_info("Setting workunit to: " ,  opt$workunit)
-  GRP2$project_spec$workunit_Id <- opt$workunit
-  GRP2$set_zipdir_name()
-}
+GRP2 <- prolfquapp::get_config(ymlfile)
+res <- prolfquapp::sync_opt_config(opt, GRP2)
+opt <- res$opt
+GRP2 <- res$config
+
+appender_combined <- logger::appender_tee(file.path(opt$outdir, "prolfqua.log"))
+logger::log_appender(appender_combined)
+logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 
 logger::log_info("Writing to output directory : ", opt$outdir)
 dir.create(opt$outdir)
-GRP2$path <- opt$outdir
 
 
 logger::log_info("prolfquapp paramters : ")
@@ -135,7 +115,6 @@ if (opt$software == "DIANN") {
   files <- prolfquapp::get_FP_PSM_files(opt$indir)
   logger::log_info("Files data: ", files$data)
   logger::log_info("Files fasta: ", files$fasta)
-  #debug(prolfquapp::preprocess_FP_PSM)
   xd <- prolfquapp::preprocess_FP_PSM(
     quant_data = files$data,
     fasta_file = files$fasta,
@@ -169,14 +148,11 @@ lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_o
 logger::log_info("END OF PROTEIN AGGREGATION")
 
 logger::log_info("RUN ANALYSIS")
-#debug(prolfquapp::make_DEA_report2)
 
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
-
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
 
-undebug(prolfquapp::write_DEA_all)
 outdir <- prolfquapp::write_DEA_all(
   grp, boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
 
@@ -198,9 +174,9 @@ dir.create(GRP2$get_input_dir())
 prolfquapp::copy_DEA_Files(workdir = GRP2$get_input_dir())
 prolfquapp::copy_shell_script(workdir = GRP2$get_input_dir())
 
-file.copy(c(files$data, files$fasta, yamlfile, opt$dataset), GRP2$get_input_dir())
+file.copy(c(files$data, files$fasta, ymlfile, opt$dataset), GRP2$get_input_dir())
 
-logger::log_info("Wirte yaml with parameters: ")
+logger::log_info("Wirte yaml with parameters: ", file.path(GRP2$get_input_dir(), "minimal.yaml"))
 
 GRP2$RES <- NULL
 GRP2$pop <- NULL

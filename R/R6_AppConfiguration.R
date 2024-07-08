@@ -217,6 +217,9 @@ list_to_R6_app_config <- function(dd){
   r6obj_config$zipdir_name = dd$zipdir_name
   r6obj_config$software = dd$software
   r6obj_config$group = dd$group
+  r6obj_config$path = dd$path
+  r6obj_config$prefix = dd$prefix
+
   if (is.null(r6obj_config$zipdir_name)) {
     r6obj_config$zipdir_name =  set_zipdir_name(r6obj_config)
   }

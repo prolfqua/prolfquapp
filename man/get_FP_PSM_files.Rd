@@ -2,7 +2,7 @@
 % Please edit documentation in R/preprocess_FP_PSM.R
 \name{get_FP_PSM_files}
 \alias{get_FP_PSM_files}
-\title{get report.tsv and fasta file location in folder}
+\title{get psm.tsv and fasta file location in folder}
 \usage{
 get_FP_PSM_files(path)
 }
@@ -10,5 +10,5 @@ get_FP_PSM_files(path)
 list with paths to data and fasta
 }
 \description{
-get report.tsv and fasta file location in folder
+get psm.tsv and fasta file location in folder
 }

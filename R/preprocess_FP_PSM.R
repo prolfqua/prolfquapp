@@ -267,7 +267,7 @@ tidy_FragPipe_psm <- function(psm_file,
 
 
 
-#' get report.tsv and fasta file location in folder
+#' get psm.tsv and fasta file location in folder
 #' @return list with paths to data and fasta
 #' @export
 get_FP_PSM_files <- function(path){
@@ -284,7 +284,9 @@ get_FP_PSM_files <- function(path){
   return(list(data = psm_file, fasta = fasta.files))
 }
 
-#' preprocess DIANN ouput, filter by q_value and nr_peptides
+
+
+#' preprocess FP psm, filter by purity_threshold and PeptideProphetProb
 #' @return list with lfqdata and protein annotation
 #' @export
 preprocess_FP_PSM <- function(quant_data,
@@ -294,7 +296,8 @@ preprocess_FP_PSM <- function(quant_data,
                               PeptideProphetProb = 0.9,
                               column_before_quants = c("Quan Usage" , "Mapped Proteins"),
                               pattern_contaminants = "^zz|^CON",
-                              pattern_decoys = "REV_"){
+                              pattern_decoys = "rev_",
+                              fasta.rev = "rev_"){
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
@@ -328,7 +331,7 @@ preprocess_FP_PSM <- function(quant_data,
   lfqdata <- prolfqua::LFQData$new(adata, config)
 
   # build rowAnnotation.
-  fasta_annot <- get_annot_from_fasta(fasta_file)
+  fasta_annot <- get_annot_from_fasta(fasta_file, rev = fasta.rev)
   #psm <- dplyr::left_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
   #stopifnot(nrow(psm) == nrowPSM)
   fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("Protein" = "fasta.id"))
@@ -352,3 +355,85 @@ preprocess_FP_PSM <- function(quant_data,
 }
 
 
+#' get report.tsv and fasta file location in folder
+#' @return list with paths to data and fasta
+#' @export
+get_FP_multiSite_files <- function(path){
+  psm_file <- dir(path = path, pattern = "abundance_multi-site_None.tsv", recursive = TRUE, full.names = TRUE)
+  fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE,full.names = TRUE), value = TRUE)
+  if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
+    fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
+  }
+  if (length(fasta.files) == 0) {
+    logger::log_error("No fasta file found!")
+    stop()
+  }
+  return(list(data = psm_file, fasta = fasta.files))
+}
+
+
+#' preprocess FP multisite, filter by purity_threshold and PeptideProphetProb
+#' @return list with lfqdata and protein annotation
+#' @export
+preprocess_FP_multisite <- function(
+    quant_data,
+    fasta,
+    annotation,
+    fasta.rev = "REV_"){
+
+  annot <- annotation$annot
+  atable <- annotation$atable
+  annot <- annot |> dplyr::mutate(
+    raw.file = gsub("^x|.d.zip$|.raw$","",
+                    (basename(annot[[atable$fileName]]))
+    ))
+
+  xx <- readr::read_tsv(quant_data)
+  quant_idx_start <- grep(pattern = "ReferenceIntensity", x = colnames(xx))  + 1
+  multiSite_long <- xx |>
+    tidyr::pivot_longer(cols = all_of(quant_idx_start:ncol(xx)), values_to = "abundance", names_to = "channel")
+
+
+  # join with anno again this should work now with Name # if not all samples are used in the dataset they would be removed here (to be tested)
+  multiSite_long <- dplyr::inner_join(x = annotation$annot, y = multiSite_long)
+  # add missing required parameters (qvalue)
+  multiSite_long$qValue <- 1 - multiSite_long$MaxPepProb
+  multiSite_long$nr_children  <- 1
+
+
+  # Setup configuration manually for peptide analysis (phospho)
+  atable_phos <- prolfqua::AnalysisTableAnnotation$new()
+  atable$ident_Score = "MaxPepProb"
+  atable$ident_qValue = "qValue"
+  atable$nr_children = "nr_children"
+  atable$hierarchy[["protein_Id"]] <- c("ProteinID")
+  atable$hierarchy[["site"]] <- c("Index", "Peptide")
+  atable$set_response("abundance")
+  atable$hierarchyDepth <- 2
+
+  # Preprocess data - aggregate proteins.
+  config <- prolfqua::AnalysisConfiguration$new(atable)
+  adata <- prolfqua::setup_analysis(multiSite_long, config)
+  lfqdata <- prolfqua::LFQData$new(adata, config)
+  lfqdata$remove_small_intensities(threshold = 1)
+
+  # fasta and protein annotation part!
+  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, rev = fasta.rev)
+
+  nrPep_exp <- multiSite_long |> dplyr::select(ProteinID, Peptide) |> dplyr::distinct() |> dplyr::group_by(ProteinID) |> dplyr::summarize(exp_nr_children=dplyr::n())
+  fasta_annot <- dplyr::left_join(nrPep_exp, fasta_annot, by = c(ProteinID = "proteinname"), multiple = "all")
+  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinID"))
+  fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
+
+  prot_annot <- prolfquapp::ProteinAnnotation$new(
+    lfqdata ,
+    fasta_annot,
+    description = "description",
+    cleaned_ids = "protein_Id",
+    full_id = "protein_Id",
+    exp_nr_children = "nrPeptides",
+    pattern_contaminants = pattern_contaminants,
+    pattern_decoys = pattern_decoys
+  )
+  return(list(lfqdata = lfqdata , protein_annotation = prot_annot))
+}

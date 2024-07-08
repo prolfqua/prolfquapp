@@ -2,10 +2,16 @@
 % Please edit documentation in R/R6_AnnotationProcessor.R
 \name{write_annotation_file}
 \alias{write_annotation_file}
-\title{write dataset to file in csv, tsv, or xlsx format}
+\title{Write dataset to file in csv, tsv, or xlsx format}
 \usage{
 write_annotation_file(data, file_path)
 }
 \description{
-write dataset to file in csv, tsv, or xlsx format
+Write dataset to file in csv, tsv, or xlsx format
+}
+\examples{
+
+ds <- data.frame(channel = c("A","B","C"), Name = NA, Subject = NA, Group = NA, Control = NA)
+write_annotation_file(ds, file_path = file.path(tempdir(),"test.xlsx"))
+
 }

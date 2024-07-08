@@ -150,7 +150,7 @@ get_DIANN_files <- function(path){
 #' annotation <- file.path("inst/application/DIANN/2517219/dataset.csv") |>
 #'  readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
 #'  x$fasta
-#' debug(preprocess_DIANN)
+#' #debug(preprocess_DIANN)
 #' xd <- preprocess_DIANN(x$data, x$fasta, annotation)
 #'
 preprocess_DIANN <- function(quant_data,

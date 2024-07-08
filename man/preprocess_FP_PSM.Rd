@@ -2,7 +2,7 @@
 % Please edit documentation in R/preprocess_FP_PSM.R
 \name{preprocess_FP_PSM}
 \alias{preprocess_FP_PSM}
-\title{preprocess DIANN ouput, filter by q_value and nr_peptides}
+\title{preprocess FP psm, filter by purity_threshold and PeptideProphetProb}
 \usage{
 preprocess_FP_PSM(
   quant_data,
@@ -12,12 +12,13 @@ preprocess_FP_PSM(
   PeptideProphetProb = 0.9,
   column_before_quants = c("Quan Usage", "Mapped Proteins"),
   pattern_contaminants = "^zz|^CON",
-  pattern_decoys = "REV_"
+  pattern_decoys = "rev_",
+  fasta.rev = "rev_"
 )
 }
 \value{
 list with lfqdata and protein annotation
 }
 \description{
-preprocess DIANN ouput, filter by q_value and nr_peptides
+preprocess FP psm, filter by purity_threshold and PeptideProphetProb
 }

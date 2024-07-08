@@ -23,8 +23,13 @@ read_annotation_file <- function(file_path) {
 }
 
 # Create a named list of functions
-#' write dataset to file in csv, tsv, or xlsx format
+#' Write dataset to file in csv, tsv, or xlsx format
 #' @export
+#' @examples
+#'
+#' ds <- data.frame(channel = c("A","B","C"), Name = NA, Subject = NA, Group = NA, Control = NA)
+#' write_annotation_file(ds, file_path = file.path(tempdir(),"test.xlsx"))
+#'
 write_annotation_file <- function(data, file_path) {
   write_functions <- list(
     csv = readr::write_csv,
