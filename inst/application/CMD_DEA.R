@@ -124,6 +124,16 @@ if (opt$software == "DIANN") {
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
+} else if (opt$software == "FP_multisite") {
+  files <- prolfquapp::get_FP_multiSite_files(path)
+  logger::log_info("Files data: ", files$data)
+  logger::log_info("Files fasta: ", files$fasta)
+  xd <- prolfquapp::preprocess_FP_multisite(
+    files$data,
+    files$fasta,
+    annotation,
+    pattern_contaminants = GRP2$processing_options$pattern_contaminants,
+    pattern_decoys = GRP2$processing_options$pattern_decoys)
 } else if (opt$software == "MAXQUANT") {
   files <- prolfquapp::get_MQ_peptide_files(opt$indir)
   logger::log_info("Files data: ", files$data)

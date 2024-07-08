@@ -4,7 +4,13 @@
 \alias{preprocess_FP_multisite}
 \title{preprocess FP multisite, filter by purity_threshold and PeptideProphetProb}
 \usage{
-preprocess_FP_multisite(quant_data, fasta, annotation, fasta.rev = "REV_")
+preprocess_FP_multisite(
+  quant_data,
+  fasta,
+  annotation,
+  pattern_contaminants = "^zz|^CON",
+  pattern_decoys = "REV_"
+)
 }
 \value{
 list with lfqdata and protein annotation

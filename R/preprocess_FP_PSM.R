@@ -296,8 +296,7 @@ preprocess_FP_PSM <- function(quant_data,
                               PeptideProphetProb = 0.9,
                               column_before_quants = c("Quan Usage" , "Mapped Proteins"),
                               pattern_contaminants = "^zz|^CON",
-                              pattern_decoys = "rev_",
-                              fasta.rev = "rev_"){
+                              pattern_decoys = "REV_"){
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
@@ -331,9 +330,7 @@ preprocess_FP_PSM <- function(quant_data,
   lfqdata <- prolfqua::LFQData$new(adata, config)
 
   # build rowAnnotation.
-  fasta_annot <- get_annot_from_fasta(fasta_file, rev = fasta.rev)
-  #psm <- dplyr::left_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
-  #stopifnot(nrow(psm) == nrowPSM)
+  fasta_annot <- get_annot_from_fasta(fasta_file, rev = pattern_decoys)
   fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("Protein" = "fasta.id"))
 
   fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!sym("Protein"))
@@ -379,7 +376,8 @@ preprocess_FP_multisite <- function(
     quant_data,
     fasta,
     annotation,
-    fasta.rev = "REV_"){
+    pattern_contaminants = "^zz|^CON",
+    pattern_decoys = "REV_"){
 
   annot <- annotation$annot
   atable <- annotation$atable
@@ -418,7 +416,7 @@ preprocess_FP_multisite <- function(
   lfqdata$remove_small_intensities(threshold = 1)
 
   # fasta and protein annotation part!
-  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, rev = fasta.rev)
+  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, rev = pattern_decoys)
 
   nrPep_exp <- multiSite_long |> dplyr::select(ProteinID, Peptide) |> dplyr::distinct() |> dplyr::group_by(ProteinID) |> dplyr::summarize(exp_nr_children=dplyr::n())
   fasta_annot <- dplyr::left_join(nrPep_exp, fasta_annot, by = c(ProteinID = "proteinname"), multiple = "all")
