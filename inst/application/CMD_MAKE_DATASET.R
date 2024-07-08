@@ -21,9 +21,17 @@ option_list <- list(
 )
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
-arguments <- optparse::parse_args(parser, positional_arguments = TRUE)
+arguments <- optparse::parse_args(parser, positional_arguments = FALSE)
 opt <- arguments$options
-ymlfile <- arguments$args
+logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(arguments))))
+
+if (TRUE) {
+  opt$indir = "o35593_prot_ionquant"
+  opt$dataset = "uniprotwhole/dataset.xlsx"
+  opt$software = "FP_TMT"
+}
+
+logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 
 
 if (opt$software == "DIANN") {
@@ -31,13 +39,14 @@ if (opt$software == "DIANN") {
   logger::log_info("Files data: ", files$data)
   xx <- prolfquapp::diann_read_output(data, Q.Value = 0.01)
   datasetannot <- data.frame(raw.file = unique(xx$raw.file), Name = NA, Group = NA, Subject = NA, Control = NA)
-  write_annotation_file(datasetannot, opt$dataset)
+  prolfquapp::write_annotation_file(datasetannot, opt$dataset)
 } else if (opt$software == "FP_TMT") {
   files <- prolfquapp::get_FP_PSM_files(opt$indir)
   logger::log_info("Files data: ", files$data)
   x <- prolfquapp::tidy_FragPipe_psm(files$data)
+  channel <- unique(x$data$channel)
   datasetannot <- data.frame(channel = channel, name = channel , group = NA, subject = NA, CONTROL = NA)
-  write_annotation_file(datasetannot, opt$dataset)
+  prolfquapp::write_annotation_file(datasetannot, opt$dataset)
 } else if (opt$software == "MAXQUANT") {
   #opt<- list()
   #opt$indir = "inst/application/MaxQuantDDA/C26109WU305220/DEA_20240703_PI_26109_OI_26109_WU_305220_robscale"
@@ -46,7 +55,7 @@ if (opt$software == "DIANN") {
   peptide <- prolfquapp::tidyMQ_Peptides( files$data, proteotypic_only = TRUE)
   head(peptide)
   datasetannot <- data.frame(raw.file = unique(peptide$raw.file), name = NA, group = NA, subject = NA, CONTROL = NA)
-  write_annotation_file(datasetannot, opt$dataset)
+  prolfquapp::write_annotation_file(datasetannot, opt$dataset)
 } else if (opt$software == "FP_DDA") {
 
 } else {
