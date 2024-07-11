@@ -22,16 +22,16 @@ option_list <- list(
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
 arguments <- optparse::parse_args(parser, positional_arguments = FALSE)
-opt <- arguments$options
-logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(arguments))))
-
-if (TRUE) {
+opt <- arguments
+logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
+if (FALSE) {
   opt$indir = "o35593_prot_ionquant"
   opt$dataset = "uniprotwhole/dataset.xlsx"
   opt$software = "FP_TMT"
 }
-
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
+print(opt)
+
 
 
 if (opt$software == "DIANN") {

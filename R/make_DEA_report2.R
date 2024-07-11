@@ -330,9 +330,10 @@ render_DEA <- function(GRP2,
 #' @examples
 #' ind <- tibble::tibble(a = 1:3, rowname = letters[1:3])
 #' column_to_rownames(ind)
-column_to_rownames <- function(.data, var = "rowname"){
+column_to_rownames <- function(.data, var = "rowname", sep = "~lfq~"){
+  #.data[,var] |> tidyr::unite("id", everything, sep = sep) |> pull("id")
   res <- as.data.frame(.data)
-  rownames(res) <- .data[[var]]
+  rownames(res) <- .data[,var] |> tidyr::unite("id", everything, sep = sep) |> pull("id")
   return(res)
 }
 

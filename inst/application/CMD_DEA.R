@@ -2,7 +2,6 @@ if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
 }
 
-
 option_list <- list(
   optparse::make_option(c("-i", "--indir"), type = "character", default = ".",
                         help = "folder containing fasta and diann-output files",
@@ -35,8 +34,6 @@ logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\
 
 prolfquapp::set_lib_path(opt$libPath);
 
-
-
 library(prolfquapp)
 logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
@@ -63,10 +60,17 @@ if (FALSE) {
   opt$yaml = "WU305157/config.yaml"
   opt$outdir = "MAXQUANT"
 }
+
 if (TRUE) {
   ymlfile <- "uniprotwhole/WholeProtUniprot.yaml"
   opt$dataset <- "uniprotwhole/dataset.xlsx"
   opt$indir <- "o35593_prot_ionquant/"
+}
+
+if (TRUE) {
+  ymlfile <- "p35593_uniprotwhole/MultisiteUniprot.yaml"
+  opt$dataset <- "p35593_uniprotwhole/dataset.xlsx"
+  opt$indir <- "o35593_phos_siteLocFiltered_ionquant/"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -125,7 +129,7 @@ if (opt$software == "DIANN") {
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
 } else if (opt$software == "FP_multisite") {
-  files <- prolfquapp::get_FP_multiSite_files(path)
+  files <- prolfquapp::get_FP_multiSite_files(opt$indir)
   logger::log_info("Files data: ", files$data)
   logger::log_info("Files fasta: ", files$fasta)
   xd <- prolfquapp::preprocess_FP_multisite(
@@ -153,6 +157,9 @@ if (opt$software == "DIANN") {
   stop("no such software.")
 }
 
+xd$protein_annotation$row_annot |> nrow()
+grepl("rev_",xd$protein_annotation$row_annot$protein_Id) |> mean()
+
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.")
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)
 logger::log_info("END OF PROTEIN AGGREGATION")
@@ -174,7 +181,9 @@ ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
 writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(grp$get_result_dir(), "IBAQ.xlsx"))
 
 logger::log_info("Writing summarized experiment.")
+debug(make_SummarizedExperiment)
 SE <- prolfquapp::make_SummarizedExperiment(grp)
+
 saveRDS(SE, file = file.path( grp$get_result_dir(), "SummarizedExperiment.rds"))
 
 

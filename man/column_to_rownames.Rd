@@ -4,7 +4,7 @@
 \alias{column_to_rownames}
 \title{convert tibble to data.frame with rownames}
 \usage{
-column_to_rownames(.data, var = "rowname")
+column_to_rownames(.data, var = "rowname", sep = "~lfq~")
 }
 \arguments{
 \item{.data}{a tibble or data.frame}

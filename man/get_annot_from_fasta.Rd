@@ -9,7 +9,8 @@ get_annot_from_fasta(
   rev = "REV_",
   isUniprot = TRUE,
   min_length = 7,
-  max_length = 30
+  max_length = 30,
+  include_seq = FALSE
 )
 }
 \description{

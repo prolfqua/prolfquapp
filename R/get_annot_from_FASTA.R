@@ -58,7 +58,8 @@ get_annot_from_fasta <- function(
     rev= "REV_",
     isUniprot = TRUE,
     min_length = 7,
-    max_length = 30) {
+    max_length = 30,
+    include_seq = FALSE) {
   fasta <- list()
 
   if ("connection" %in% class(fasta.files) ) {
@@ -75,11 +76,15 @@ get_annot_from_fasta <- function(
   )
   fasta_annot$protein_length <- vapply(fasta, nchar, 0)
   fasta_annot$nr_tryptic_peptides <- vapply(fasta, nr_tryptic_peptides, 0, min_length = min_length, max_length = max_length)
+  fasta_annot$sequence <- if ( include_seq ) { as.character(fasta) } else {NULL}
 
   fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
                                                 c("fasta.id","fasta.header"),
                                                 sep = "\\s", extra = "merge")
   fasta_annot <- fasta_annot |> dplyr::mutate(fasta.id = gsub(">","", .data$fasta.id) )
+
+
+
   fasta_annot <- fasta_annot[!grepl(rev,fasta_annot$fasta.id), ]
 
 
