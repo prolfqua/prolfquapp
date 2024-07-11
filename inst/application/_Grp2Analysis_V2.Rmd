@@ -27,17 +27,14 @@ editor_options:
 always_allow_html: true
 ---
 
-```{r setup, include=FALSE}
-
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   echo = FALSE,
   message = FALSE,
   warning = FALSE
 )
-
-
-
 grp2 <- params$grp
+
 ```
 
 
@@ -307,7 +304,7 @@ The FDR is the expected proportion of false discoveries in a list of proteins, a
 The table (Figure \@ref(fig:tableAllProt)) summarizes the differential expression analysis results by providing the following information:
 
 ```{r}
-hkey <- grp2$RES$lfqData$config$table$hierarchy_keys()
+hkey <- grp2$RES$lfqData$config$table$hierarchy_keys()[1]
 ```
 
 - `r if(hkey == "protein_Id"){ paste0(hkey, " - unique protein identifier")} else {hkey}`
