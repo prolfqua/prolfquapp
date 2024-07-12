@@ -38,40 +38,28 @@ library(prolfquapp)
 logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
-
-
 if (FALSE) {
-  ymlfile <- "TESTING/DEA_20240704_PI_34855_OI_34855_WU_ECp_compare_infected_noHuman_vsn/Inputs_DEA_WU/minimal.yaml"
-  opt$indir = "./2478292/out-2024-04-13/"
-}
-
-
-if (FALSE) {
-  opt$software = "DIANN"
-  opt$indir = "2521765"
-  opt$dataset = "dataset_V1.csv"
-  opt$yaml = "configuration_fgcz_83333_EcoliK12.yml"
-  opt$outdir = "TESTING"
-}
-if (FALSE) {
-  opt$software = "MAXQUANT"
-  opt$indir = "2532667"
-  opt$dataset = "WU305157/dataset.csv"
-  opt$yaml = "WU305157/config.yaml"
-  opt$outdir = "MAXQUANT"
-}
-
-if (TRUE) {
-  ymlfile <- "uniprotwhole/WholeProtUniprot.yaml"
-  opt$dataset <- "uniprotwhole/dataset.xlsx"
+  ymlfile <- "p35593_uniprot_paired/WholeProtUniprot.yaml"
+  opt$dataset <- "p35593_uniprot_paired/dataset.xlsx"
   opt$indir <- "o35593_prot_ionquant/"
 }
 
-if (TRUE) {
-  ymlfile <- "p35593_uniprotwhole/MultisiteUniprot.yaml"
-  opt$dataset <- "p35593_uniprotwhole/dataset.xlsx"
+if (FALSE) {
+  ymlfile <- "p35593_uniprot_paired/MultisiteUniprot.yaml"
+  opt$dataset <- "p35593_uniprot_paired/dataset.xlsx"
   opt$indir <- "o35593_phos_siteLocFiltered_ionquant/"
 }
+if (FALSE) {
+  ymlfile <- "xenbaseAnalysis/WholeProtUniprot.yaml"
+  opt$dataset <- "xenbaseAnalysis/dataset.xlsx"
+  opt$indir <- "o35593_prot_ionquant_xenbase/"
+}
+if (TRUE) {
+  ymlfile <- "xenbaseAnalysis/MultisiteUniprot.yaml"
+  opt$dataset <- "xenbaseAnalysis/dataset.xlsx"
+  opt$indir <- "o35593_phos_siteLocFiltered_ionquant_xenbase/"
+}
+
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
@@ -94,18 +82,20 @@ dir.create(opt$outdir)
 logger::log_info("prolfquapp paramters : ")
 logger::log_info( prolfquapp::capture_output( quote(lobstr::tree(R6_extract_values(GRP2)))))
 
+
 annotation <- file.path(opt$dataset) |>
   prolfquapp::read_annotation_file() |> prolfquapp::read_annotation(prefix = GRP2$group)
 logger::log_info("Contrasts: \n", paste(annotation$contrasts, collapse = "\n"))
 
-prolfquapp::copy_DEA_Files()
+logger::log_info("Factors : ",paste(annotation$atable$factor_keys_depth(), collapse = "\n"))
 
+prolfquapp::copy_DEA_Files()
 logger::log_info("Software: ", opt$software)
 
 if (opt$software == "DIANN") {
   files <- prolfquapp::get_DIANN_files(opt$indir)
-  logger::log_info("Files data: ", files$data)
-  logger::log_info("Files fasta: ", files$fasta)
+  logger::log_info("Files data: ", paste(files$data, collapse = "; "))
+  logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
 
   xd <- prolfquapp::preprocess_DIANN(
     quant_data = files$data,
@@ -117,8 +107,8 @@ if (opt$software == "DIANN") {
   )
 } else if (opt$software == "FP_TMT") {
   files <- prolfquapp::get_FP_PSM_files(opt$indir)
-  logger::log_info("Files data: ", files$data)
-  logger::log_info("Files fasta: ", files$fasta)
+  logger::log_info("Files data: ", paste(files$data, collapse = "; "))
+  logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
   xd <- prolfquapp::preprocess_FP_PSM(
     quant_data = files$data,
     fasta_file = files$fasta,
@@ -129,19 +119,21 @@ if (opt$software == "DIANN") {
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
 } else if (opt$software == "FP_multisite") {
+
   files <- prolfquapp::get_FP_multiSite_files(opt$indir)
-  logger::log_info("Files data: ", files$data)
-  logger::log_info("Files fasta: ", files$fasta)
+  logger::log_info("Files data: ", paste(files$data, collapse = "; "))
+  logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
+  debug(prolfquapp::preprocess_FP_multisite)
   xd <- prolfquapp::preprocess_FP_multisite(
-    files$data,
+    files$data[1],
     files$fasta,
     annotation,
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys)
 } else if (opt$software == "MAXQUANT") {
   files <- prolfquapp::get_MQ_peptide_files(opt$indir)
-  logger::log_info("Files data: ", files$data)
-  logger::log_info("Files fasta: ", files$fasta)
+  logger::log_info("Files data: ", paste(files$data, collapse = "; "))
+  logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
 
   xd <- prolfquapp::preprocess_MQ_peptide(
     quant_data = files$data,
@@ -181,7 +173,7 @@ ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
 writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(grp$get_result_dir(), "IBAQ.xlsx"))
 
 logger::log_info("Writing summarized experiment.")
-debug(make_SummarizedExperiment)
+undebug(make_SummarizedExperiment)
 SE <- prolfquapp::make_SummarizedExperiment(grp)
 
 saveRDS(SE, file = file.path( grp$get_result_dir(), "SummarizedExperiment.rds"))

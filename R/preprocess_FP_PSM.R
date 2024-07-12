@@ -415,13 +415,37 @@ preprocess_FP_multisite <- function(
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities(threshold = 1)
 
-  # fasta and protein annotation part!
-  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, rev = pattern_decoys)
 
-  nrPep_exp <- multiSite_long |> dplyr::select(ProteinID, Peptide) |> dplyr::distinct() |> dplyr::group_by(ProteinID) |> dplyr::summarize(exp_nr_children=dplyr::n())
+  # Create fasta annotation
+
+  nrPep_exp <- multiSite_long |> dplyr::select(ProteinID, Peptide) |> dplyr::distinct() |> dplyr::group_by(ProteinID) |> dplyr::summarize(nrPeptides=dplyr::n())
+
+  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, rev = pattern_decoys)
   fasta_annot <- dplyr::left_join(nrPep_exp, fasta_annot, by = c(ProteinID = "proteinname"), multiple = "all")
   fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinID"))
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
+
+
+  # Create Site Annotation
+  site_annot <- multiSite_long |> select(Index, ProteinID, Peptide, SequenceWindow, Start, End, MaxPepProb, ReferenceIntensity) |> distinct()
+  phosSite <- site_annot |> rowwise() |> mutate(siteinfo = gsub(ProteinID, "", Index))
+  phosSite <- phosSite |>
+    tidyr::separate_wider_delim(siteinfo, names = c(NA, "startModSite", "endModSite", "NumPhos", "LocalizedNumPhos", "PhosSites"), delim = "_",
+                                too_few = "align_start")
+
+  split_codes <- function(x) {
+    if (is.na(x)) return(NA)
+    return(gsub("([A-Z]\\d+)(?=[A-Z]\\d+)", "\\1;", x, perl = TRUE))
+  }
+  phosSite$PhosSites <- sapply(phosSite$PhosSites, split_codes)
+  phosSite <- phosSite |> tidyr::separate_longer_delim(PhosSites, delim = ";")
+  phosSite <- phosSite |> dplyr::mutate(posInProtein = as.integer(str_remove(PhosSites, "^[A-Z]")))
+  phosSite <- phosSite |> dplyr::mutate(AA = str_remove(PhosSites, "\\d+"))
+
+  fasta_annot2 <- inner_join(fasta_annot, phosSite, by = "ProteinID")
+  fasta_annot2 <- fasta_annot2 |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinID"))
+  fasta_annot2 <- fasta_annot2 |> dplyr::mutate(!!lfqdata$config$table$hierarchy_keys_depth()[2] := paste(!!rlang::sym("Index"),!!rlang::sym("Peptide"), sep="~"))
+  fasta_annot2 <- fasta_annot2 |> dplyr::rename(description = fasta.header)
 
   prot_annot <- prolfquapp::ProteinAnnotation$new(
     lfqdata ,

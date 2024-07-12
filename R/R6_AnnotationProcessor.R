@@ -273,7 +273,7 @@ AnnotationProcessor <- R6::R6Class(
 
         fct <- dplyr::distinct(annot[, c(atable$fileName, atable$factors[[self$prefix]], subvar)])
         tmp <- data.frame(table(fct[, c(atable$factors[[self$prefix]], subvar)]))
-        if (all(tmp$Freq > 1)) {
+        if (all(tmp$Freq >= 1)) {
           atable$factorDepth <- 2
         }
       }

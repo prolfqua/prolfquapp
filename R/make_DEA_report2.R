@@ -333,7 +333,7 @@ render_DEA <- function(GRP2,
 column_to_rownames <- function(.data, var = "rowname", sep = "~lfq~"){
   #.data[,var] |> tidyr::unite("id", everything, sep = sep) |> pull("id")
   res <- as.data.frame(.data)
-  rownames(res) <- .data[,var] |> tidyr::unite("id", everything, sep = sep) |> pull("id")
+  rownames(res) <- .data[,var] |> tidyr::unite("id", everything(), sep = sep) |> pull("id")
   return(res)
 }
 
