@@ -12,9 +12,11 @@ option_list <- list(
   optparse::make_option(c("-y", "--yaml"), type = "character", default = "config.yaml",
                         help = "yaml configuration file",
                         metavar = "character"),
-  optparse::make_option("--workunit", type = "character"),
+  optparse::make_option(c("-w","--workunit"), type = "character", default = NULL,
+                        help = "yaml configuration file",
+                        metavar = "character"),
   optparse::make_option(c("-s", "--software"), type = "character", default = NULL,
-                        help = "possible options DIANN, FP_TMT, MAXQUANT",
+                        help = "possible options: DIANN, FP_TMT, FP_multisite, MAXQUANT, MSSTATS",
                         metavar = "character"),
   optparse::make_option(c("-o", "--outdir"), type = "character", default = NULL,
                         help = "output directory",
@@ -64,6 +66,12 @@ if (FALSE) {
   ymlfile <- "config.yaml"
   opt$dataset <- "dataset_with_contrasts.xlsx"
   opt$indir <- "DIANN_19_all_18_50_50_MBR_v01//"
+}
+if (TRUE) {
+  ymlfile <- "config.yaml"
+  opt$dataset <- "dataset.csv"
+  opt$software <- "MSSTATS"
+  opt$indir <- "2543975/"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -146,8 +154,18 @@ if (opt$software == "DIANN") {
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
-} else if (opt$software == "MSStats") {
+} else if (opt$software == "MSSTATS") {
+  files <- prolfquapp::get_MSstats_files(opt$indir)
+  logger::log_info("Files data: ", paste(files$data, collapse = "; "))
+  logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
 
+  xd <- prolfquapp::preprocess_MSstats(
+    quant_data = files$data,
+    fasta_file = files$fasta,
+    annotation = annotation,
+    pattern_contaminants = GRP2$processing_options$pattern_contaminants,
+    pattern_decoys = GRP2$processing_options$pattern_decoys
+  )
 } else {
   logger::log_error("no such software :" , opt$software)
   stop("no such software.")

@@ -410,7 +410,7 @@ cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant pro
 
 ```{r SigPrey, fig.cap= "(ref:SigPrey)", eval = showSignificant}
 ctdata <- datax_signif |> tidyr::unite("ID", hkey, sep = "~")
-ctdata <- datax_signif |> dplyr::select(all_of(c("ID" ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
+ctdata <- ctdata |> dplyr::select(all_of(c("ID" ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
 
 sig <- crosstalk::SharedData$new(ctdata,  as.formula( "~ ID"), group = "BB")
 DT::datatable(sig, filter = "bottom",

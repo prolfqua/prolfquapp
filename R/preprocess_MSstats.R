@@ -23,10 +23,13 @@ get_MSstats_files <- function(path){
 #' @export
 read_msstats <- function(file){
   msstats <- readr::read_csv(file)
-  msstats <- msstats |> select(-all_of(c("Condition","BioReplicate")))
+  msstats <- msstats |> dplyr::select(-all_of(c("Condition","BioReplicate")))
 
-  peptideLevelInt <- msstats |> dplyr::group_by(across(c("ProteinName", "PeptideSequence", "IsotopeLabelType", "Run" ))) |>
-    dplyr::summarise(nr_children = dplyr::n(),  Intensity = sum(Intensity, na.rm = TRUE), .groups = "drop")
+  peptideLevelInt <- msstats |>
+    dplyr::group_by(dplyr::across(c("ProteinName", "PeptideSequence", "IsotopeLabelType", "Run" ))) |>
+    dplyr::summarise(nr_children = dplyr::n(),
+                     Intensity = sum(Intensity, na.rm = TRUE),
+                     .groups = "drop")
   peptideLevelInt <- peptideLevelInt |> dplyr::mutate(Intensity = ifelse(Intensity < 1e-10, NA, Intensity))
   return(peptideLevelInt)
 }
@@ -52,7 +55,7 @@ preprocess_MSstats <- function(quant_data,
   nrPeptides_exp <- peptide |> dplyr::select(all_of(c("ProteinName", "PeptideSequence"))) |>
     dplyr::distinct() |>
     dplyr::group_by(dplyr::across("ProteinName")) |>
-    dplyr::summarize(nrPeptides = n())
+    dplyr::summarize(nrPeptides = dplyr::n())
 
 
   nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(peptide$Run)))
@@ -79,10 +82,10 @@ preprocess_MSstats <- function(quant_data,
   adata <- prolfqua::setup_analysis(apeptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
 
-  fasta_annot <- get_annot_from_fasta(msf$fasta)
+  fasta_annot <- get_annot_from_fasta(fasta_file,rev = pattern_decoys)
   fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("ProteinName" = "fasta.id"))
 
-  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!sym("ProteinName"))
+  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinName"))
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
   prot_annot <- prolfquapp::ProteinAnnotation$new(
     lfqdata ,
