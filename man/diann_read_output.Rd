@@ -4,7 +4,7 @@
 \alias{diann_read_output}
 \title{read DiaNN diann-output.tsv file}
 \usage{
-diann_read_output(data, Q.Value = 0.01)
+diann_read_output(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05)
 }
 \description{
 filter for 2 peptides per protein, and for Q.Value < 0.01 (default)

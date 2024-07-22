@@ -193,54 +193,6 @@ tidyMQ_Peptides <- function(MQPeptides, proteotypic_only = TRUE){
 }
 
 
-
-preprocess_MQ_peptide <- function(quant_data,
-                                   fasta_file,
-                                   annotation,
-                                  proteotypic_only = TRUE){
-  annot <- annotation$annot
-  atable <- annotation$atable
-
-  peptide <- prolfquapp::tidyMQ_Peptides(quant_data, proteotypic_only = proteotypic_only)
-
-  }
-
-#' Add Annotation to a data.frame in long format
-#' for an usage example see run_script lfq_mixed_model_inference
-#' @family setup
-#'
-#' @param intensityData data imported using ``
-#' @param inputAnnotation annotation
-#' @param fileName column name to join on.
-#' @export
-add_annotation <- function(intensityData,
-                           inputAnnotation,
-                           fileName = "raw.file") {
-  ## read the data
-  message("Deprecated")
-  {# add annotation
-    if ( is.character(inputAnnotation) ) {
-      annotation <- readxl::read_xlsx(inputAnnotation)
-    } else {
-      annotation <- inputAnnotation
-    }
-    noData <- annotation[!annotation[[fileName]] %in% intensityData[[fileName]],]
-    if (nrow(noData)) {
-      message("some files in annotation have no measurements")
-      message(paste(noData, collapse = " "))
-    }
-    measSamples <- unique(intensityData[[fileName]])
-    noAnnot <- measSamples[!measSamples %in% annotation[[fileName]] ]
-    if (length(noAnnot) > 0 ) {
-      message("some measured samples have no annotation!")
-      message(paste(noAnnot,collapse = " "))
-    }
-    resPepProtAnnot <- dplyr::inner_join(annotation, intensityData, by = fileName)
-    ###  Setup analysis ####
-  }
-  return(resPepProtAnnot)
-}
-
 #' get petpide.txt and fasta file location in folder
 #' @return list with paths to data and fasta
 #' @export

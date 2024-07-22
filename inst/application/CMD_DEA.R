@@ -50,16 +50,21 @@ if (FALSE) {
   opt$indir <- "o35593_phos_siteLocFiltered_ionquant/"
 }
 if (FALSE) {
-  ymlfile <- "xenbaseAnalysis/WholeProtUniprot.yaml"
+  ymlfile <- "xenbaseAnalysis/WholeProtXenbase.yaml"
   opt$dataset <- "xenbaseAnalysis/dataset.xlsx"
   opt$indir <- "o35593_prot_ionquant_xenbase/"
 }
-if (TRUE) {
-  ymlfile <- "xenbaseAnalysis/MultisiteUniprot.yaml"
+if (FALSE) {
+  ymlfile <- "xenbaseAnalysis/MultisiteXenbase.yaml"
   opt$dataset <- "xenbaseAnalysis/dataset.xlsx"
   opt$indir <- "o35593_phos_siteLocFiltered_ionquant_xenbase/"
 }
 
+if (FALSE) {
+  ymlfile <- "config.yaml"
+  opt$dataset <- "dataset_with_contrasts.xlsx"
+  opt$indir <- "DIANN_19_all_18_50_50_MBR_v01//"
+}
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
@@ -96,7 +101,7 @@ if (opt$software == "DIANN") {
   files <- prolfquapp::get_DIANN_files(opt$indir)
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
-
+  #debug(prolfquapp::preprocess_DIANN)
   xd <- prolfquapp::preprocess_DIANN(
     quant_data = files$data,
     fasta_file = files$fasta,
@@ -119,11 +124,10 @@ if (opt$software == "DIANN") {
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
 } else if (opt$software == "FP_multisite") {
-
   files <- prolfquapp::get_FP_multiSite_files(opt$indir)
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
-  debug(prolfquapp::preprocess_FP_multisite)
+  undebug(prolfquapp::preprocess_FP_multisite)
   xd <- prolfquapp::preprocess_FP_multisite(
     files$data[1],
     files$fasta,
@@ -142,22 +146,21 @@ if (opt$software == "DIANN") {
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
-} else if (opt$software == "FP_DDA") {
+} else if (opt$software == "MSStats") {
 
 } else {
   logger::log_error("no such software :" , opt$software)
   stop("no such software.")
 }
 
-xd$protein_annotation$row_annot |> nrow()
-grepl("rev_",xd$protein_annotation$row_annot$protein_Id) |> mean()
+logger::log_info(paste(c("Protein Annotation :\n",capture.output( print(xd$protein_annotation$get_summary()))),collapse = "\n"))
 
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.")
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)
 logger::log_info("END OF PROTEIN AGGREGATION")
 
 logger::log_info("RUN ANALYSIS")
-
+lfqdata$hierarchy()
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
@@ -169,8 +172,11 @@ lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
   contaminants = GRP2$processing_options$remove_cont,
   decoys = GRP2$processing_options$remove_decoys))
 
-ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
-writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(grp$get_result_dir(), "IBAQ.xlsx"))
+# do not write when peptide level analysis.
+if (length(xd$protein_annotation$pID) == 1) {
+  ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
+  writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(grp$get_result_dir(), "IBAQ.xlsx"))
+}
 
 logger::log_info("Writing summarized experiment.")
 undebug(make_SummarizedExperiment)

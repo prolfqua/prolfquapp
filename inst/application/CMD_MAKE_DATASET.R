@@ -24,10 +24,11 @@ parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --i
 arguments <- optparse::parse_args(parser, positional_arguments = FALSE)
 opt <- arguments
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
+
 if (FALSE) {
-  opt$indir = "o35593_prot_ionquant"
-  opt$dataset = "uniprotwhole/dataset.xlsx"
-  opt$software = "FP_TMT"
+  opt$indir = "DIANN_19_all_18_50_50_MBR_v01/"
+  opt$dataset = "dataset.xlsx"
+  opt$software = "DIANN"
 }
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 print(opt)
@@ -37,6 +38,8 @@ print(opt)
 if (opt$software == "DIANN") {
   files <- prolfquapp::get_DIANN_files(opt$indir)
   logger::log_info("Files data: ", files$data)
+  logger::log_info("Files fasta: ", files$fasta)
+  data <- readr::read_tsv(files$data)
   xx <- prolfquapp::diann_read_output(data, Q.Value = 0.01)
   datasetannot <- data.frame(raw.file = unique(xx$raw.file), Name = NA, Group = NA, Subject = NA, Control = NA)
   prolfquapp::write_annotation_file(datasetannot, opt$dataset)

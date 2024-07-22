@@ -60,7 +60,7 @@ read_DIANN_output <- function(diann.path,
 #' report2$Protein.Group.2 <- sapply(report2$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
 #'
 #'
-diann_read_output <- function(data, Q.Value = 0.01){
+diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
 
   select_PG <- function(report){
     columns  <- c("File.Name",
@@ -79,14 +79,14 @@ diann_read_output <- function(data, Q.Value = 0.01){
     return(PG)
   }
 
-  filter_PG <- function(PG,  Q.Value = 0.01){
-    PG <- PG |> dplyr::filter(.data$Lib.PG.Q.Value < Q.Value)
-    PG <- PG |> dplyr::filter(.data$PG.Q.Value < Q.Value)
+  filter_PG <- function(PG,  Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
+    PG <- PG |> dplyr::filter(.data$Lib.PG.Q.Value < Lib.PG.Q.Value)
+    PG <- PG |> dplyr::filter(.data$PG.Q.Value < PG.Q.Value)
   }
 
   report <- data
   PG <- select_PG(report)
-  PG2 <- filter_PG(PG, Q.Value = Q.Value)
+  PG2 <- filter_PG(PG, Lib.PG.Q.Value = Lib.PG.Q.Value, PG.Q.Value = PG.Q.Value)
   PG2 <- PG2 |> dplyr::select(c("File.Name", "Protein.Group", "Protein.Names"))
 
   report2 <- dplyr::inner_join(dtplyr::lazy_dt(PG2), dtplyr::lazy_dt(report),
@@ -104,6 +104,9 @@ diann_read_output <- function(data, Q.Value = 0.01){
 #' @export
 #'
 diann_output_to_peptide <- function(report2){
+
+  #columns_to_summarize <- c("Precursor.Quantity", "Precursor.Normalised", "PEP", "Ms1.Translated")
+  #if(all(c("Ms1.Translated", "Peptide.Translated")
   peptide <- report2 |>
     dplyr::group_by(!!!syms(c("raw.file",
                               "Protein.Group",
@@ -112,8 +115,8 @@ diann_output_to_peptide <- function(report2){
                               "Stripped.Sequence" ) )) |>
     dplyr::summarize(Peptide.Quantity = sum(.data$Precursor.Quantity, na.rm = TRUE),
                      Peptide.Normalised = sum(.data$Precursor.Normalised, na.rm = TRUE),
-                     Peptide.Translated = sum(.data$Precursor.Translated, na.rm = TRUE),
-                     Peptide.Ms1.Translated = sum(.data$Ms1.Translated, na.rm = TRUE),
+                     #Peptide.Translated = sum(.data$Precursor.Translated, na.rm = TRUE),
+                     #Peptide.Ms1.Translated = sum(.data$Ms1.Translated, na.rm = TRUE),
                      PEP = min(.data$PEP, na.rm = TRUE),
                      nr_children = n()
                      ,.groups = "drop")
@@ -167,7 +170,7 @@ preprocess_DIANN <- function(quant_data,
                     (basename(annot[[atable$fileName]]))
     ))
   data <- readr::read_tsv(quant_data)
-  report2 <- prolfquapp::diann_read_output(data, Q.Value = q_value)
+  report2 <- prolfquapp::diann_read_output(data, Lib.PG.Q.Value = q_value, PG.Q.Value = q_value)
   nrPEP <- get_nr_pep(report2)
   nrPEP$Protein.Group.2 <- sapply(nrPEP$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
 
