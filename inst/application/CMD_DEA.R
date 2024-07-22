@@ -67,7 +67,7 @@ if (FALSE) {
   opt$dataset <- "dataset_with_contrasts.xlsx"
   opt$indir <- "DIANN_19_all_18_50_50_MBR_v01//"
 }
-if (TRUE) {
+if (FALSE) {
   ymlfile <- "config.yaml"
   opt$dataset <- "dataset.csv"
   opt$software <- "MSSTATS"
