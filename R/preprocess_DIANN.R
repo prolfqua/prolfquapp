@@ -8,46 +8,6 @@ get_nr_pep <- function(report){
   return(nrPEP)
 }
 
-#' DIANN helper functions
-#' @param diann.path path to diann-output.tsv
-#' @param fasta.file path to fasta file
-#' @param nrPeptides peptide threshold
-#' @param Q.Value q value threshold
-#' @import data.table
-#' @export
-#' @examples
-#'
-#' x <- get_DIANN_files("inst/application/DIANN/2517219/")
-#' xd <- read_DIANN_output(x$data, x$fasta)
-#' debug(read_DIANN_output)
-read_DIANN_output <- function(diann.path,
-                              fasta.file,
-                              Q.Value = 0.01,
-                              isUniprot = TRUE,
-                              rev = "REV_"
-) {
-  warning("read_DIANN_output is being DEPRECATED")
-  data <- readr::read_tsv(diann.path)
-  report2 <- prolfquapp::diann_read_output(data, Q.Value = Q.Value)
-  if (nrow(report2) == 0) {
-    return(NULL)
-  }
-  peptide <- prolfquapp::diann_output_to_peptide(report2)
-  peptide$Protein.Group.2 <- sapply(peptide$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
-  # we need to add the fasta.header information.
-  fasta_annot <- get_annot_from_fasta(fasta.file, rev = rev, isUniprot = isUniprot)
-  message("Percent of Proteins with description:" ,mean(peptide$Protein.Group.2 %in% fasta_annot$proteinname) * 100)
-  # add fasta headers.
-  if (nrow(peptide) == 0) {
-    return(NULL)
-  }
-  peptide <- dplyr::left_join(dtplyr::lazy_dt(peptide), dtplyr::lazy_dt(fasta_annot),
-                              by = c( Protein.Group.2 = "proteinname")) |>
-    dplyr::as_tibble()
-  return(peptide)
-}
-
-
 #' read DiaNN diann-output.tsv file
 #'
 #' filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
