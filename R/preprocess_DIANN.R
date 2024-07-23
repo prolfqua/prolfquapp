@@ -39,14 +39,15 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
     return(PG)
   }
 
-  filter_PG <- function(PG,  Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
-    PG <- PG |> dplyr::filter(.data$Lib.PG.Q.Value < Lib.PG.Q.Value)
-    PG <- PG |> dplyr::filter(.data$PG.Q.Value < PG.Q.Value)
+  filter_PG <- function(PG,  .Lib.PG.Q.Value = 0.01, .PG.Q.Value = 0.05){
+    PG <- PG |> dplyr::filter(.data$Lib.PG.Q.Value < .Lib.PG.Q.Value)
+    PG <- PG |> dplyr::filter(.data$PG.Q.Value < .PG.Q.Value)
+    return(PG)
   }
 
   report <- data
   PG <- select_PG(report)
-  PG2 <- filter_PG(PG, Lib.PG.Q.Value = Lib.PG.Q.Value, PG.Q.Value = PG.Q.Value)
+  PG2 <- filter_PG(PG, .Lib.PG.Q.Value = Lib.PG.Q.Value, .PG.Q.Value = PG.Q.Value)
   PG2 <- PG2 |> dplyr::select(c("File.Name", "Protein.Group", "Protein.Names"))
 
   report2 <- dplyr::inner_join(dtplyr::lazy_dt(PG2), dtplyr::lazy_dt(report),
