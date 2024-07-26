@@ -109,7 +109,6 @@ if (opt$software == "DIANN") {
   files <- prolfquapp::get_DIANN_files(opt$indir)
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
-  #debug(prolfquapp::preprocess_DIANN)
   xd <- prolfquapp::preprocess_DIANN(
     quant_data = files$data,
     fasta_file = files$fasta,
@@ -132,11 +131,10 @@ if (opt$software == "DIANN") {
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
 } else if (opt$software == "FP_multisite") {
-  files <- prolfquapp::get_FP_multiSite_files(opt$indir)
+  files <- prolfquapp::get_FP_multi_site_files(opt$indir)
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
-  undebug(prolfquapp::preprocess_FP_multisite)
-  xd <- prolfquapp::preprocess_FP_multisite(
+  xd <- prolfquapp::preprocess_FP_multi_site(
     files$data[1],
     files$fasta,
     annotation,
