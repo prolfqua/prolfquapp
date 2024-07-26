@@ -133,14 +133,14 @@ get_FP_combined_STY_files <- function(path){
 #' @return tidy data table
 #' @export
 #'
-read_combined_STY_file <- function(files){
-  xd <- readr::read_tsv(fff$data, show_col_types = FALSE)
+read_combined_STY_file <- function(file){
+  xd <- readr::read_tsv(file, show_col_types = FALSE)
   colnames(xd) <- gsub("Localization Probability", "Localization_Probability", colnames(xd))
   colnames(xd) <- gsub("MaxLFQ Intensity", "MaxLFQ_Intensity", colnames(xd))
   xd <- xd |> dplyr::rename(BLP = "Best Localization_Probability")
   tidy_data <- xd |>
     tidyr::pivot_longer(
-      cols = contains("Localization_Probability") | contains("Intensity") | contains("MaxLFQ_Intensity"),
+      cols = tidyselect::contains("Localization_Probability") | tidyselect::contains("Intensity") | tidyselect::contains("MaxLFQ_Intensity"),
       names_to = c("SampleName", ".value"),
       names_sep = " "
     )

@@ -4,7 +4,7 @@
 \alias{read_combined_STY_file}
 \title{reads combined_site_STY file and converts to long format.}
 \usage{
-read_combined_STY_file(files)
+read_combined_STY_file(file)
 }
 \value{
 tidy data table
