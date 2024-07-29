@@ -78,9 +78,6 @@ preprocess_FP_multi_site <- function(
   }
   phosSite$PhosSites <- sapply(phosSite$PhosSites, split_codes)
 
-  # phosSite <- phosSite |> tidyr::separate_longer_delim(PhosSites, delim = ";")
-  # phosSite <- phosSite |> dplyr::mutate(posInProtein = as.integer(stringr::str_remove(PhosSites, "^[A-Z]")))
-  # phosSite <- phosSite |> dplyr::mutate(AA = stringr::str_remove(PhosSites, "\\d+"))
 
   nrPep_exp <- multiSite_long |>
     dplyr::select(ProteinID, Peptide) |>
@@ -144,6 +141,7 @@ read_combined_STY_file <- function(file){
       names_to = c("SampleName", ".value"),
       names_sep = " "
     )
+  tidy_data <- tidy_data |> dplyr::rename(ProteinID = !!sym("Protein ID"))
   return(tidy_data)
 }
 

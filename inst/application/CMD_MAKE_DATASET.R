@@ -16,7 +16,7 @@ option_list <- list(
                help = "name of annotation file",
                metavar = "string"),
   make_option(c("-s", "--software"), type = "character", default = "DIANN",
-              help = "possible options DIANN, FP_TMT, MAXQUANT",
+              help = "possible options DIANN, FP_TMT, MAXQUANT, MSSTATS, FP_multisite, FP_combined_STY",
               metavar = "character")
 )
 
@@ -32,7 +32,6 @@ if (FALSE) {
 }
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 print(opt)
-
 
 
 if (opt$software == "DIANN") {
@@ -51,17 +50,41 @@ if (opt$software == "DIANN") {
   datasetannot <- data.frame(channel = channel, name = channel , group = NA, subject = NA, CONTROL = NA)
   prolfquapp::write_annotation_file(datasetannot, opt$dataset)
 } else if (opt$software == "MAXQUANT") {
-  #opt<- list()
-  #opt$indir = "inst/application/MaxQuantDDA/C26109WU305220/DEA_20240703_PI_26109_OI_26109_WU_305220_robscale"
   files <- prolfquapp::get_MQ_peptide_files(opt$indir)
   logger::log_info("Files data: ", files$data)
   peptide <- prolfquapp::tidyMQ_Peptides( files$data, proteotypic_only = TRUE)
   head(peptide)
   datasetannot <- data.frame(raw.file = unique(peptide$raw.file), name = NA, group = NA, subject = NA, CONTROL = NA)
   prolfquapp::write_annotation_file(datasetannot, opt$dataset)
-} else if (opt$software == "FP_DDA") {
+} else if (opt$software == "MSSTATS") {
+  files <- prolfquapp::get_MSstats_files(opt$indir)
+  logger::log_info("Files data: ", paste(files$data, collapse = "; "))
+  logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
+  msstats_df <- readr::read_csv(files$data)
+  datasetannot <- msstats_df |> dplyr::select(raw.file = "Run", "Group" = "Condition", "Condition" = "BioReplicate") |> dplyr::distinct()
+  datasetannot$Control <- ""
+  prolfquapp::write_annotation_file(datasetannot, opt$dataset)
+} else if (opt$software == "FP_multisite") {
+} else if (opt$software == "FP_combined_STY") {
+  logger::log_info("FP_combined_STY")
+  fff <- prolfquapp::get_FP_combined_STY_files(opt$indir)
+  res_data <- prolfquapp::read_combined_STY_file(fff$data)
+  logger::log_info("using file: ", paste(fff, collapse = ";"))
 
-} else {
+  manifest <- readr::read_tsv(fff$fp.manifest, col_names = FALSE)
+  colnames(manifest) <- c("raw.file", "Name", "Experiment", "Data_type")
+  manifest$Experiment <- NULL
+  manifest$Data_type <- NULL
+
+  res_data <- dplyr::inner_join(manifest, res_data, by = c(Name = "SampleName" ))
+
+  datasetannot <- res_data |> dplyr::select(tidyselect::all_of(c("raw.file", "Name"))) |> dplyr::distinct()
+  datasetannot$Group <- ""
+  datasetannot$Subject <- ""
+  datasetannot$Control <- ""
+  prolfquapp::write_annotation_file(datasetannot, opt$dataset)
+
+}else {
   logger::log_error("no such software :" , opt$software)
   stop("no such software.")
 }

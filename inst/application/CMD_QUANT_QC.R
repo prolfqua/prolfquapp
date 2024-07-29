@@ -68,8 +68,7 @@ if (!dir.exists(GRP2$get_zipdir())) {
 output_dir <- GRP2$get_zipdir()
 path <- opt$indir
 
-annotfile <- file.path(path, opt$dataset)
-if (!file.exists(annotfile)) {stop("No annotation file found : ",annotfile)}
+if (!file.exists( opt$dataset)) {stop("No annotation file found : ",annotfile)}
 annotation <- file.path(annotfile) |>
   readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
 names(annotation)
