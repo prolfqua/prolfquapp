@@ -50,3 +50,27 @@ sync_opt_config <- function(opt, config){
   return(list(opt = opt, config = config))
 }
 
+
+#' Function to normalize paths for both Windows and Linux
+#' @export
+#' @param paths pathsx
+#' @return normalized path
+#' @examples
+#' exp_paths <-c("E:\\projects\\p29033\\TKOiWAT\\20240123_015_S629149_iWAT_FL1.d",
+#'   "E:\\projects\\p29033\\TKOiWAT\\20240123_016_S629150_iWAT_FL2.d",
+#'   "E:\\projects\\p29033\\TKOiWAT\\20240123_017_S629151_iWAT_FL3.d")
+#'
+#' normalize_path(exp_paths)
+#'
+normalize_path <- function(paths, os = .Platform$OS.type) {
+  # Check the operating system
+  if (os == "windows") {
+    # On Windows, use the native path
+    normalized_paths <- normalizePath(paths, winslash = "\\", mustWork = FALSE)
+  } else {
+    # On Unix-like systems (Linux, macOS), replace backslashes with forward slashes
+    normalized_paths <- gsub("\\\\", "/", paths)
+  }
+  return(normalized_paths)
+}
+

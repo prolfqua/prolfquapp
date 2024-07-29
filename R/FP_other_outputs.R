@@ -46,7 +46,6 @@ preprocess_FP_multi_site <- function(
 
 
   # Setup configuration manually for peptide analysis (phospho)
-  atable_phos <- prolfqua::AnalysisTableAnnotation$new()
   atable$ident_Score = "MaxPepProb"
   atable$ident_qValue = "qValue"
   atable$nr_children = "nr_children"
@@ -144,5 +143,97 @@ read_combined_STY_file <- function(file){
   tidy_data <- tidy_data |> dplyr::rename(ProteinID = !!sym("Protein ID"))
   return(tidy_data)
 }
+
+
+#' preprocess FP multisite, filter by purity_threshold and PeptideProphetProb
+#' @return list with lfqdata and protein annotation
+#' @export
+#' @param annotation_join_by column in annotation file
+preprocess_FP_combined_STY <- function(
+    quant_data,
+    fasta,
+    annotation,
+    pattern_contaminants = "^zz|^CON",
+    pattern_decoys = "REV_",
+    annotation_join_by = c("raw.file", "Name")
+){
+
+  use_by <- match.arg(use_by)
+  use_by <- "Name"
+  pattern_contaminants = "^zz|^CON"
+  pattern_decoys = "REV_"
+
+  annot <- annotation$annot
+  atable <- annotation$atable
+  annot <- annot |> dplyr::mutate(
+    raw.file = gsub("^x|.d.zip$|.raw$","",
+                    (basename(normalize_path(annot[[atable$fileName]])))
+    ))
+
+  multiSite_long <- prolfquapp::read_combined_STY_file(quant_data)
+  # join with anno again this should work now with Name # if not all samples are used in the dataset they would be removed here (to be tested)
+  by = "SampleName"
+  names(by) = annotation_join_by
+  multiSite_long <- dplyr::inner_join(x = annotation$annot, y = multiSite_long, by = by)
+
+  # add missing required parameters (qvalue)
+  multiSite_long$qValue <- 0
+  multiSite_long$nr_children  <- 1
+
+
+  # Setup configuration manually for peptide analysis (phospho)
+  atable$ident_Score = "Localization_Probability"
+  atable$ident_qValue = "qValue"
+  atable$nr_children = "nr_children"
+  atable$hierarchy[["protein_Id"]] <- c("ProteinID")
+  atable$hierarchy[["site"]] <- c("Index", "Peptide")
+  atable$set_response("Intensity")
+  atable$hierarchyDepth <- 2
+
+  # Preprocess data - aggregate proteins.
+  config <- prolfqua::AnalysisConfiguration$new(atable)
+  adata <- prolfqua::setup_analysis(multiSite_long, config)
+
+  lfqdata <- prolfqua::LFQData$new(adata, config)
+  lfqdata$remove_small_intensities(threshold = 1)
+
+
+  # Create fasta annotation
+  # Create Site Annotation
+  site_annot <- multiSite_long |>
+    dplyr::select(c("Index", "Protein", "ProteinID", "Peptide", "BLP")) |>
+    dplyr::distinct()
+
+  phosSite <- site_annot |> dplyr::rowwise() |> dplyr::mutate(siteinfo = gsub(ProteinID, "", Index))
+  phosSite <- phosSite |> dplyr::rowwise() |> dplyr::mutate(siteinfo = gsub("^_", "", siteinfo))
+
+  nrPep_exp <- multiSite_long |>
+    dplyr::select(ProteinID, Peptide) |>
+    dplyr::distinct() |>
+    dplyr::group_by(ProteinID) |>
+    dplyr::summarize(nrPeptides = dplyr::n()) |> dplyr::ungroup()
+
+  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, rev = pattern_decoys)
+  fasta_annot <- dplyr::left_join(nrPep_exp, fasta_annot, by = c(ProteinID = "proteinname"), multiple = "all")
+  fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
+  fasta_annot2 <- dplyr::inner_join(fasta_annot, phosSite, by = "ProteinID")
+
+  # Make names to match lfqdata
+  fasta_annot2 <- fasta_annot2 |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinID"))
+  fasta_annot2 <- fasta_annot2 |> dplyr::mutate(!!lfqdata$config$table$hierarchy_keys_depth()[2] := paste(!!rlang::sym("Index"),!!rlang::sym("Peptide"), sep = "~"))
+  prot_annot <- prolfquapp::ProteinAnnotation$new(
+    lfqdata ,
+    fasta_annot2,
+    description = "description",
+    cleaned_ids = "protein_Id",
+    full_id = "protein_Id",
+    exp_nr_children = "nrPeptides",
+    pattern_contaminants = pattern_contaminants,
+    pattern_decoys = pattern_decoys
+  )
+  return(list(lfqdata = lfqdata , protein_annotation = prot_annot))
+}
+
+
 
 

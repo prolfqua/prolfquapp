@@ -42,9 +42,16 @@ opt <- arguments$options
 if (FALSE) {
   opt$indir <- "2532162/"
 }
+if (FALSE) {
+  opt$indir <- "DIANN_1.9_tsv/"
+  opt$dataset <- "dataset.xlsx"
+}
 
 # set library path
-prolfquapp::set_lib_path(opt$libPath);
+if (!is.null(opt$libPath) && dir.exists(opt$libPath)) {
+  prolfquapp::set_lib_path(opt$libPath)
+}
+
 library(prolfquapp)
 library(logger)
 
@@ -68,10 +75,11 @@ if (!dir.exists(GRP2$get_zipdir())) {
 output_dir <- GRP2$get_zipdir()
 path <- opt$indir
 
-if (!file.exists( opt$dataset)) {stop("No annotation file found : ",annotfile)}
-annotation <- file.path(annotfile) |>
-  readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
-names(annotation)
+if (!file.exists( opt$dataset)) {stop("No annotation file found : ", opt$dataset)}
+
+annotation <- file.path( opt$dataset) |>
+  prolfquapp::read_annotation_file() |> prolfquapp::read_annotation(QC = TRUE)
+
 
 
 if (opt$software == "DIANN") {
