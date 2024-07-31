@@ -456,7 +456,7 @@ sigheat
 
 
 ```{r vennDiagramSig, fig.cap="(ref:vennDiagramSig)", eval = showSignificant}
-xx <- split(ctdata[[hkey]], ctdata$contrast)
+xx <- split(ctdata[["ID"]], ctdata$contrast)
 if (length(xx) > 1) {
   UpSetR::upset(UpSetR::fromList(xx))
 }
