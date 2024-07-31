@@ -43,16 +43,20 @@ This will place the following files into your working directory:
 
 Afterwards on the command line give the executable permission (LINUX):
 
-
-
-
 ```
 chmod a+x CMD_*
 ```
 
-These files can be run with the option --help.
+These 4 files help to exectute the following workflow:
+
+- `CMD_MAKE_DATASET.sh` creates a file where you provide the experiment annotation
+- `CMD_QUANT_QC.sh` creates QC reports for your experiment.
+- `CMD_MAKE_YAML.sh` creates the analysis configuration file, for the Differential expression analysis with default values and enables to adjust processing options (data transformation, aggregation etc)
+- `CMD_DEA.sh` runs the DEA analysis
 
 
+
+All these files can be run with the option --help.
 
 Running 
 
@@ -61,9 +65,10 @@ Running
 
 ```
 
-```
-wew-mac:2543975 witoldwolski$ ./CMD_MAKE_DATASET.sh --help
+Will produce the following output:
 
+
+```
 Rscript --vanilla "/Users/witoldwolski/RLibs/RLibs43/prolfquapp/application/CMD_MAKE_DATASET.R" "--help"
 INFO [2024-07-31 10:39:04] LIBRARY PATHS (.libPaths()):/Users/witoldwolski/RLibs/RLibs43
 /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/library
@@ -85,38 +90,6 @@ Options:
 ```
 
 This means that in order to create the Annotation file template for your data you have to run:
-
-```
-CMD_MAKE_DATASET.sh -i <input_directory> 
-```
-
-
-
-Will produce the following output:
-
-```
-Rscript --vanilla "/Users/witoldwolski/RLibs/RLibs43/prolfquapp/application/CMD_MAKE_DATASET.R" "--help"
-INFO [2024-07-31 10:39:04] LIBRARY PATHS (.libPaths()):/Users/witoldwolski/RLibs/RLibs43
-/Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/library
-Usage: /Users/witoldwolski/RLibs/RLibs43/prolfquapp/application/CMD_MAKE_DATASET.R config.yaml --software DIANN --indir .
-
-
-Options:
-        -i STRING, --indir=STRING
-                folder containing fasta file and output of the quantification software.
-
-        -d STRING, --dataset=STRING
-                name of annotation file
-
-        -s CHARACTER, --software=CHARACTER
-                possible options DIANN, FP_TMT, MAXQUANT, MSSTATS, FP_multisite, FP_combined_STY
-
-        -h, --help
-                Show this help message and exit
-
-```
-
-There when running 
 
 ```
 CMD_MAKE_DATASET.sh -i data_dir/ -s DIANN -d annotation.xlsx
