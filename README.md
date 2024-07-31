@@ -56,48 +56,26 @@ These 4 files help to exectute the following workflow:
 
 
 
-All these files can be run with the option --help.
-
-Running 
-
-```{bash}
-./CMD_MAKE_DATASET.sh --help
-
-```
-
-Will produce the following output:
+All these files can be run with the option `--help`.
 
 
-```
-Rscript --vanilla "/Users/witoldwolski/RLibs/RLibs43/prolfquapp/application/CMD_MAKE_DATASET.R" "--help"
-INFO [2024-07-31 10:39:04] LIBRARY PATHS (.libPaths()):/Users/witoldwolski/RLibs/RLibs43
-/Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/library
-Usage: /Users/witoldwolski/RLibs/RLibs43/prolfquapp/application/CMD_MAKE_DATASET.R config.yaml --software DIANN --indir .
 
 
-Options:
-        -i STRING, --indir=STRING
-                folder containing fasta, diann-output.tsv and dataset.tsv file
+# Creating Experiment Annotation using CMD_MAKE_DATASET
 
-        -d STRING, --dataset=STRING
-                name of annotation file
 
-        -s CHARACTER, --software=CHARACTER
-                possible options DIANN, FP_TMT, MAXQUANT, MSSTATS, FP_multisite, FP_combined_STY
+After running your Quantification software, DIA-NN, MAXQUANT, FragPipe-TMT, FragPipe-DIA or FragPipe-LFQ,
+the quantification results are in an `ouptut_folder` you specified and the Quant software filled with the results.
+Please add the fasta file which was used to the `output_folder`.
 
-        -h, --help
-                Show this help message and exit
-```
 
-This means that in order to create the Annotation file template for your data you have to run:
+Now, to create a `prolfquapp` compatible experiment annotation file run:
 
 ```
 CMD_MAKE_DATASET.sh -i data_dir/ -s DIANN -d annotation.xlsx
 ```
 
-The `annotation.xlsx` file will be generated, and you will need to fill out all the missing columns.
-
-
+The `annotation.xlsx` file will be generated, and you will need to fill out the missing columns.
 
 
 
