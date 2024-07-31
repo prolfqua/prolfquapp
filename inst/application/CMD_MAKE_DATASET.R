@@ -10,7 +10,7 @@ logger::log_info("LIBRARY PATHS (.libPaths()):",paste(.libPaths(), collapse = "\
 library("optparse")
 option_list <- list(
   make_option( c("-i", "--indir"), type = "character", default = ".",
-               help = "folder containing fasta, diann-output.tsv and dataset.tsv file",
+               help = "folder containing fasta file and output of the quantification software.",
                metavar = "string"),
   make_option( c("-d", "--dataset"), type = "character", default = "dataset.csv",
                help = "name of annotation file",

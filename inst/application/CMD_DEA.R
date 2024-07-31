@@ -140,6 +140,8 @@ if (opt$software == "DIANN") {
     annotation,
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys)
+} else if (opt$software == "FP_combined_STY"){
+
 } else if (opt$software == "MAXQUANT") {
   files <- prolfquapp::get_MQ_peptide_files(opt$indir)
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
@@ -170,15 +172,11 @@ if (opt$software == "DIANN") {
 }
 
 logger::log_info(paste(c("Protein Annotation :\n",capture.output( print(xd$protein_annotation$get_summary()))),collapse = "\n"))
-
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.")
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)
 logger::log_info("END OF PROTEIN AGGREGATION")
-
 logger::log_info("RUN ANALYSIS")
-lfqdata$hierarchy()
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
-
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
 
 outdir <- prolfquapp::write_DEA_all(
@@ -195,7 +193,6 @@ if (length(xd$protein_annotation$pID) == 1) {
 }
 
 logger::log_info("Writing summarized experiment.")
-undebug(make_SummarizedExperiment)
 SE <- prolfquapp::make_SummarizedExperiment(grp)
 
 saveRDS(SE, file = file.path( grp$get_result_dir(), "SummarizedExperiment.rds"))

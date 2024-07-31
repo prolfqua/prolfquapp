@@ -10,6 +10,8 @@ To learn more about the package see:
 ## How to install
 
 
+On Linux
+
 ```
 export R_LIBS_SITE="/scratch/PROLFQUA/r-site-library/"
 R --vanilla << EOF
@@ -20,6 +22,113 @@ remotes::install_github("fgcz/prolfqua", build_vignettes = TRUE, dependencies = 
 remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
 EOF
 ```
+
+
+## How To use prolfquapp
+
+After installation run from the command (bash cmd) line:
+```
+R --vanilla -e "prolfquapp::copy_shell_script()"
+```
+
+This will place the following files into your working directory:
+
+
+```
+[1] "/<working_directory>/CMD_DEA.sh"
+[3] "/<working_directory>/CMD_MAKE_YAML.sh"
+[4] "/<working_directory>/CMD_QUANT_QC.sh"
+[5] "/<working_directory>/CMD_MAKE_DATASET.sh"
+```
+
+Afterwards on the command line give the executable permission (LINUX):
+
+
+
+
+```
+chmod a+x CMD_*
+```
+
+These files can be run with the option --help.
+
+
+
+Running 
+
+```{bash}
+./CMD_MAKE_DATASET.sh --help
+
+```
+
+```
+wew-mac:2543975 witoldwolski$ ./CMD_MAKE_DATASET.sh --help
+
+Rscript --vanilla "/Users/witoldwolski/RLibs/RLibs43/prolfquapp/application/CMD_MAKE_DATASET.R" "--help"
+INFO [2024-07-31 10:39:04] LIBRARY PATHS (.libPaths()):/Users/witoldwolski/RLibs/RLibs43
+/Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/library
+Usage: /Users/witoldwolski/RLibs/RLibs43/prolfquapp/application/CMD_MAKE_DATASET.R config.yaml --software DIANN --indir .
+
+
+Options:
+        -i STRING, --indir=STRING
+                folder containing fasta, diann-output.tsv and dataset.tsv file
+
+        -d STRING, --dataset=STRING
+                name of annotation file
+
+        -s CHARACTER, --software=CHARACTER
+                possible options DIANN, FP_TMT, MAXQUANT, MSSTATS, FP_multisite, FP_combined_STY
+
+        -h, --help
+                Show this help message and exit
+```
+
+This means that in order to create the Annotation file template for your data you have to run:
+
+```
+CMD_MAKE_DATASET.sh -i <input_directory> 
+```
+
+
+
+Will produce the following output:
+
+```
+Rscript --vanilla "/Users/witoldwolski/RLibs/RLibs43/prolfquapp/application/CMD_MAKE_DATASET.R" "--help"
+INFO [2024-07-31 10:39:04] LIBRARY PATHS (.libPaths()):/Users/witoldwolski/RLibs/RLibs43
+/Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/library
+Usage: /Users/witoldwolski/RLibs/RLibs43/prolfquapp/application/CMD_MAKE_DATASET.R config.yaml --software DIANN --indir .
+
+
+Options:
+        -i STRING, --indir=STRING
+                folder containing fasta file and output of the quantification software.
+
+        -d STRING, --dataset=STRING
+                name of annotation file
+
+        -s CHARACTER, --software=CHARACTER
+                possible options DIANN, FP_TMT, MAXQUANT, MSSTATS, FP_multisite, FP_combined_STY
+
+        -h, --help
+                Show this help message and exit
+
+```
+
+There when running 
+
+```
+CMD_MAKE_DATASET.sh -i data_dir/ -s DIANN -d annotation.xlsx
+```
+
+The `annotation.xlsx` file will be generated, and you will need to fill out all the missing columns.
+
+
+
+
+
+
 
 ## ASMS poster abstract:  Streamlining Protein Differential Expression Analysis in Core Facilities
 

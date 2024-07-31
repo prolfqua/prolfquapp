@@ -336,8 +336,15 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN" ) {
 
 #' get configuration from yaml if exists
 #' @export
-get_config <- function(yamlfile, WORKUNITID =  "HelloWorld") {
-  if (file.exists(yamlfile)) {
+#' @examples
+#'
+#'
+#' get_config()
+get_config <- function(yamlfile, WORKUNITID =  "HelloWorld", ORDERID = "123") {
+  if (missing(yamlfile)) {
+    GRP2 <- prolfquapp::make_DEA_config_R6(
+      PROJECTID = as.character(ORDERID) ,ORDERID = as.character(ORDERID), WORKUNITID = WORKUNITID )
+  } else if (file.exists(yamlfile)) {
     xx <- yaml::read_yaml(ymlfile)
     if (!is.null(xx$project_spec)) {
       logger::log_info("prolfquapp yaml")
@@ -349,8 +356,7 @@ get_config <- function(yamlfile, WORKUNITID =  "HelloWorld") {
       logger::log_info("bfabric yaml")
     }
   } else {
-    GRP2 <- prolfquapp::make_DEA_config_R6(
-      PROJECTID = "1234" ,ORDERID = "2345", WORKUNITID = WORKUNITID )
+    stop("no such file :", yamlfile )
   }
   return(GRP2)
 }

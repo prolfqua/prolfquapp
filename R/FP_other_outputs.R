@@ -158,8 +158,7 @@ preprocess_FP_combined_STY <- function(
     annotation_join_by = c("raw.file", "Name")
 ){
 
-  use_by <- match.arg(use_by)
-  use_by <- "Name"
+  annotation_join_by <- match.arg(annotation_join_by)
   pattern_contaminants = "^zz|^CON"
   pattern_decoys = "REV_"
 

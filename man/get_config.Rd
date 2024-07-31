@@ -4,8 +4,13 @@
 \alias{get_config}
 \title{get configuration from yaml if exists}
 \usage{
-get_config(yamlfile, WORKUNITID = "HelloWorld")
+get_config(yamlfile, WORKUNITID = "HelloWorld", ORDERID = "123")
 }
 \description{
 get configuration from yaml if exists
+}
+\examples{
+
+
+get_config()
 }

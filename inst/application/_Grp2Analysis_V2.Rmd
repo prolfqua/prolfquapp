@@ -324,10 +324,10 @@ datax <- as.data.frame(grp2$RES$contrastsData)
 
 ```{r tableAllProt, fig.cap="Differential expression analysis results of all proteins."}
 
-datax <- datax |> tidyr::unite("ID" , hkey, sep = "~")
+datax <- datax |> tidyr::unite("ID" , tidyselect::all_of(hkey), sep = "~")
 
 bb <- datax |> dplyr::select(
-  all_of(c("ID",
+  tidyselect::all_of(c("ID",
            "description",
            "contrast",
            "modelName",
@@ -409,8 +409,8 @@ cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant pro
 
 
 ```{r SigPrey, fig.cap= "(ref:SigPrey)", eval = showSignificant}
-ctdata <- datax_signif |> tidyr::unite("ID", hkey, sep = "~")
-ctdata <- ctdata |> dplyr::select(all_of(c("ID" ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
+ctdata <- datax_signif |> tidyr::unite("ID", tidyselect::all_of(hkey), sep = "~")
+ctdata <- ctdata |> dplyr::select(tidyselect::all_of(c("ID" ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
 
 sig <- crosstalk::SharedData$new(ctdata,  as.formula( "~ ID"), group = "BB")
 DT::datatable(sig, filter = "bottom",
