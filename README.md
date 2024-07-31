@@ -59,8 +59,6 @@ These 4 files help to exectute the following workflow:
 All these files can be run with the option `--help`.
 
 
-
-
 # Creating Experiment Annotation using CMD_MAKE_DATASET
 
 
@@ -76,6 +74,23 @@ CMD_MAKE_DATASET.sh -i data_dir/ -s DIANN -d annotation.xlsx
 ```
 
 The `annotation.xlsx` file will be generated, and you will need to fill out the missing columns.
+
+
+# The prolfqapp Annotation:
+
+The `annotation.xlsx` file needs to contain the following columns:
+
+
+- Relative.Path/Path/raw.file/channel/ (unique*)
+- name - used in plots and figures (unique*)
+- group/experiment - main factor
+- subject/bioreplicate (optional) - blocking factor
+- control - used to specify the control condition (C) (optional)
+
+The column names are not case sensitive.
+
+* If each row must contain a unique value (no duplicates per column)
+
 
 
 
