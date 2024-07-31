@@ -49,10 +49,10 @@ chmod a+x CMD_*
 
 These 4 files help to exectute the following workflow:
 
-- `CMD_MAKE_DATASET.sh` creates a file where you provide the experiment annotation
-- `CMD_QUANT_QC.sh` creates QC reports for your experiment.
-- `CMD_MAKE_YAML.sh` creates the analysis configuration file, for the Differential expression analysis with default values and enables to adjust processing options (data transformation, aggregation etc)
-- `CMD_DEA.sh` runs the DEA analysis
+1. `CMD_MAKE_DATASET.sh` creates a file where you provide the experiment annotation
+2. `CMD_QUANT_QC.sh` creates QC reports for your experiment.
+3. `CMD_MAKE_YAML.sh` creates the analysis configuration file, for the Differential expression analysis with default values and enables to adjust processing options (data transformation, aggregation etc)
+4. `CMD_DEA.sh` runs the DEA analysis
 
 
 
