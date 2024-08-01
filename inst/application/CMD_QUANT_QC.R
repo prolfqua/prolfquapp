@@ -78,7 +78,7 @@ path <- opt$indir
 if (!file.exists( opt$dataset)) {stop("No annotation file found : ", opt$dataset)}
 
 annotation <- file.path( opt$dataset) |>
-  prolfquapp::read_annotation_file() |> prolfquapp::read_annotation(QC = TRUE)
+  prolfquapp::read_table_data() |> prolfquapp::read_annotation(QC = TRUE)
 
 
 

@@ -97,7 +97,7 @@ logger::log_info( prolfquapp::capture_output( quote(lobstr::tree(R6_extract_valu
 
 
 annotation <- file.path(opt$dataset) |>
-  prolfquapp::read_annotation_file() |> prolfquapp::read_annotation(prefix = GRP2$group)
+  prolfquapp::read_table_data() |> prolfquapp::read_annotation(prefix = GRP2$group)
 logger::log_info("Contrasts: \n", paste(annotation$contrasts, collapse = "\n"))
 
 logger::log_info("Factors : ",paste(annotation$atable$factor_keys_depth(), collapse = "\n"))

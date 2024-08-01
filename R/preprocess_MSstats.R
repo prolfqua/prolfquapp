@@ -2,9 +2,12 @@
 #' @return list with paths to data and fasta
 #' @export
 get_MSstats_files <- function(path){
-  msstats.path <- grep("MSstats.csv", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
+  msstats.path <- grep("msstats.*\\.(csv|tsv)$", dir(path = path, recursive = TRUE, full.names = TRUE),
+                       value = TRUE,
+                       ignore.case = TRUE)
   fasta.files <- grep("*\\.fasta$|*\\.fas$", dir(path = path, recursive = TRUE, full.names = TRUE),
                       ignore.case = TRUE, value = TRUE)
+
   if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
     fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
   }
@@ -13,7 +16,7 @@ get_MSstats_files <- function(path){
     stop()
   }
   if (length(msstats.path) > 1) {
-    logger::log_warning("more then 1 msstats.tsv file found :", length(msstats.path), ". Returning first.")
+    logger::log_warn("more then 1 msstats.tsv file found :", length(msstats.path), ". Returning first.")
   }
   return(list(data = msstats.path[1], fasta = fasta.files))
 }

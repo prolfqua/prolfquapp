@@ -1,7 +1,7 @@
 # Create a named list of functions
 #' read dataset file in csv, tsv or xlsx format
 #' @export
-read_annotation_file <- function(file_path) {
+read_table_data <- function(file_path) {
   read_functions <- list(
     csv = readr::read_csv,
     tsv = readr::read_tsv,

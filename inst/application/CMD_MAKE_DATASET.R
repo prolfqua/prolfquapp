@@ -30,6 +30,11 @@ if (FALSE) {
   opt$dataset = "dataset.xlsx"
   opt$software = "DIANN"
 }
+if (FALSE) {
+  opt$indir = "20240729_093759_o35116_SN19_outliersRemoved_MSStats_Report"
+  opt$dataset = "dataset_2.xlsx"
+  opt$software = "MSSTATS"
+}
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 print(opt)
 
@@ -60,7 +65,7 @@ if (opt$software == "DIANN") {
   files <- prolfquapp::get_MSstats_files(opt$indir)
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
-  msstats_df <- readr::read_csv(files$data)
+  msstats_df <- prolfquapp::read_table_data(files$data)
   datasetannot <- msstats_df |> dplyr::select(raw.file = "Run", "Group" = "Condition", "Condition" = "BioReplicate") |> dplyr::distinct()
   datasetannot$Control <- ""
   prolfquapp::write_annotation_file(datasetannot, opt$dataset)
