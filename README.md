@@ -72,7 +72,7 @@ Please add the `.fasta` file which was used by the quantification software to th
 Now, to create a `prolfquapp` compatible experiment annotation file run:
 
 ```
-CMD_MAKE_DATASET.sh -i data_dir/ -s DIANN -d annotation.xlsx
+./CMD_MAKE_DATASET.sh -i data_dir/ -s DIANN -d annotation.xlsx
 ```
 
 The `annotation.xlsx` file will be generated, and you will need to fill out the missing columns.
@@ -109,7 +109,6 @@ for more details about the options run './CMD_QUANT_QC.R -h'.
 
 Using the `./CMD_MAKE_YAML.R` command line tool you can create the Yaml file you can use to set the parameters needed by the prolfqapp `CMD_DEA.sh` tool.
 
-
 ```
 ./CMD_MAKE_YAML.sh -y config.yaml
 ```
@@ -128,6 +127,8 @@ After setting the parameters in teh config.yaml file you can run the DEA analysi
 ```
 
 This will generate a folder which starts with "DEA_" and writes all the analysis results and used input data into it.
+
+
 
 
 
