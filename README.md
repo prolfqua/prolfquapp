@@ -1,4 +1,4 @@
-# prolfquapp: Generating Dynamic DEA Reports with the prolfqua R Package
+# prolfquapp: Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
 
 ![prolfquapp](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/Prolfqapp_Highlight.png?raw=true)
 
