@@ -213,7 +213,8 @@ tidy_FragPipe_psm <- function(psm_file,
 
 
   psm <- readr::read_tsv(psm_file)
-  column_before_quants <- intersect(c("Quan Usage" , "Mapped Proteins"), colnames(psm))
+  column_before_quants <- intersect(colnames(psm), c("Quan Usage" , "Mapped Proteins"))
+  column_before_quants <- tail(column_before_quants, n=1)
   if (!"Purity" %in% colnames(psm) ) {
     warning("no Purity column in psm file!")
     psm <- psm |> dplyr::mutate(Purity = 1, .before = column_before_quants)

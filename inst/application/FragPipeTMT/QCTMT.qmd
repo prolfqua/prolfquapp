@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 ```{r readYaml}
 pathtoZip <- if (exists("params") && !is.null(params$zipfile)) {
-  params$zipfile } else { "qcdata/FragPipeTMT_o33075_HumanBovine.zip"  }
+  params$zipfile } else { "output-WU312869.zip"  }
 
 files <- unzip(pathtoZip, list = TRUE)
 fyaml <- grep(".yaml", files$Name , value = TRUE)
@@ -46,8 +46,8 @@ addinfo <- data.frame(name = c("workunit_id", "project_id", "order_id", "dataset
 knitr::kable(addinfo, caption = "project information")
 ```
 
-
 There are PSM (psm.tsv) files in zip archive:
+
 ```{r choosePSM}
 fpsm <- grep("psm.tsv", files$Name , value = TRUE)
 cat(paste(fpsm, seq = "\n"))
@@ -61,7 +61,6 @@ fpsm <- fpsm[1]
 cat("using :", fpsm)
 ```
 
-
 # FASTA summary
 
 ```{r analyseFASTA}
@@ -74,14 +73,12 @@ x <- prozor::make_fasta_summary(fasta,as_string = TRUE)
 
 ```
 
-The FASTA database has `r fastaWithRev` sequences including decoys, and `r fastaNoRev` without decoys.
-Below are the amino acid frequencies .
+The FASTA database has `r fastaWithRev` sequences including decoys, and `r fastaNoRev` without decoys. Below are the amino acid frequencies .
 
 ```{r printFASTA}
 cat(x)
 
 ```
-
 
 ```{r readDatafromZIP}
 fdataset <- grep("dataset.csv", files$Name, value = TRUE)
@@ -93,22 +90,29 @@ psmFuLL <- readr::read_tsv(unz(pathtoZip,filename =  fpsm))
 xx <- readr::read_tsv(unz(pathtoZip,filename =  fpsm))
 nrSpectraAll <- xx$Spectrum |> unique() |> length()
 
-#debug(prolfqua::tidy_FragPipe_psm)
+#debug(prolfquapp::tidy_FragPipe_psm)
 
-psm <- prolfqua::tidy_FragPipe_psm(unz(pathtoZip,filename =  fpsm), purity_threshold = 0, PeptideProphetProb = 0.9, abundance_threshold = 0)
+psm <- prolfquapp::tidy_FragPipe_psm(unz(pathtoZip,filename =  fpsm),
+                                   purity_threshold = 0,
+                                   PeptideProphetProb = 0.9,
+                                   abundance_threshold = 0,
+                                   aggregate = FALSE)
+
+head(psm$data)
+psm <- dplyr::inner_join(psm$data, psm$nrPeptides_exp, by = "Protein")
 nrowPSM <- nrow(psm)
 nrSpectraPP09 <- psm$Spectrum |> unique() |> length()
 
 ```
 
-For this analysis we are using all PSM (Spectra) reported in the psm.tsv file with a peptide prophet probability greater than $0.9$, and an abundance value in any of the channels greater then $0$. No other filtering is enabled.
-This reduces the number of PSM from `r nrSpectraAll` to `r nrSpectraPP09`.
+For this analysis we are using all PSM (Spectra) reported in the psm.tsv file with a peptide prophet probability greater than $0.9$, and an abundance value in any of the channels greater then $0$. No other filtering is enabled. This reduces the number of PSM from `r nrSpectraAll` to `r nrSpectraPP09`.
 
 ```{r setupPROLFQUA}
 stopifnot(nrow(psm) == nrowPSM)
 
 fasta_annot <- get_annot_from_fasta(unz(pathtoZip, filename = ffasta))
 psm <- dplyr::left_join(psm, fasta_annot, by = c(Protein = "fasta.id"), multiple = "all")
+
 stopifnot(nrow(psm) == nrowPSM)
 
 prot_annot <- prolfquapp::dataset_protein_annot(
@@ -117,10 +121,10 @@ prot_annot <- prolfquapp::dataset_protein_annot(
   protein_annot = "fasta.header",
   more_columns = "nrPeptides")
 
-psm$qValue <- 1 - psm$PeptideProphet.Probability
+psm$qValue <- 1 - psm$Probability
 
 atable <- prolfqua::AnalysisTableAnnotation$new()
-atable$ident_Score = "PeptideProphet.Probability"
+atable$ident_Score = "Probability"
 atable$ident_qValue = "qValue"
 atable$fileName = "channel"
 
@@ -198,10 +202,9 @@ nrPeptides <- xA$n1 |> sum()
 
 ```
 
-- Total number of peptides : `r nrPeptides`
-- Number of peptides with modified N-term : `r nrNtermMod`
-- Percent peptides with modified N-term: `r round(nrNtermMod/nrPeptides*100)` \%
-
+-   Total number of peptides : `r nrPeptides`
+-   Number of peptides with modified N-term : `r nrNtermMod`
+-   Percent peptides with modified N-term: `r round(nrNtermMod/nrPeptides*100)` %
 
 ### PSM's
 
@@ -211,11 +214,9 @@ nrPSM <- xA$n |> sum()
 
 ```
 
-- Total number of PSMs : `r nrPSM`
-- Number of PSMs with modified N-term : `r nrNtermModPSM`
-- Percent PSMs with modified N-term: `r round(nrNtermModPSM/nrPSM*100)` \%
-
-
+-   Total number of PSMs : `r nrPSM`
+-   Number of PSMs with modified N-term : `r nrNtermModPSM`
+-   Percent PSMs with modified N-term: `r round(nrNtermModPSM/nrPSM*100)` %
 
 ## Lysine
 
@@ -229,16 +230,15 @@ xN <- xN |> dplyr::filter(grepl("K", modSeq))
 
 ```
 
-- Total number of peptides with Lysine: `r xN$n1 |> sum()`
-- Number of peptides with modified Lysine residues : `r xL$n1 |> sum()`
-- Percent peptides with modified Lysine residues: `r round((xL$n1 |> sum())/(xN$n1 |> sum())*100)` \%
+-   Total number of peptides with Lysine: `r xN$n1 |> sum()`
+-   Number of peptides with modified Lysine residues : `r xL$n1 |> sum()`
+-   Percent peptides with modified Lysine residues: `r round((xL$n1 |> sum())/(xN$n1 |> sum())*100)` %
 
 ### PSM's
 
-- Total number of PSMs with Lysine: `r xN$n |> sum()`
-- Number of PSMs with modified Lysine residues : `r xL$n |> sum()`
-- Percent PSMs with modified Lysine residues: `r round((xL$n |> sum())/(xN$n |> sum())*100)` \%
-
+-   Total number of PSMs with Lysine: `r xN$n |> sum()`
+-   Number of PSMs with modified Lysine residues : `r xL$n |> sum()`
+-   Percent PSMs with modified Lysine residues: `r round((xL$n |> sum())/(xN$n |> sum())*100)` %
 
 ### Residues in peptidoforms
 
@@ -255,24 +255,23 @@ prcLysMod <- round( ( (nrKmod$nrKmod * nrKmod$n1) |> sum()) / ((nrK$nrK * nrK$n1
 
 ```
 
-- Total number of Lysine residues: `r  nrLys`
-- Number of modified Lysine residues : `r nrLysMod`
-- Percent modified Lysine residues: `r prcLysMod` \%
+-   Total number of Lysine residues: `r  nrLys`
+-   Number of modified Lysine residues : `r nrLysMod`
+-   Percent modified Lysine residues: `r prcLysMod` %
 
 ### Residues in PSM's
 
-- Total number of Lysine residues: `r sum(nrK$nrK * nrK$n) `
-- Number of modified Lysine residues : `r sum(nrKmod$nrKmod * nrKmod$n)`
-- Percent modified Lysine residues when taking number of PSMs into account: `r round( sum(nrKmod$nrKmod * nrKmod$n) / sum(nrK$nrK * nrK$n) * 100 )  ` \%
-
+-   Total number of Lysine residues: `r sum(nrK$nrK * nrK$n)`
+-   Number of modified Lysine residues : `r sum(nrKmod$nrKmod * nrKmod$n)`
+-   Percent modified Lysine residues when taking number of PSMs into account: `r round( sum(nrKmod$nrKmod * nrKmod$n) / sum(nrK$nrK * nrK$n) * 100 )` %
 
 # Quantitative information per channel
 
 ```{r totalQuant, fig.cap = "Total abundance per channel (Sum of all abundances)."}
 
 xx <- lfqdata$data
-totalPerChannel <- xx |> dplyr::group_by(!!sym(lfqdata$config$table$sampleName) ) |>
-  dplyr::summarize(totalAbundance = sum(!!sym(lfqdata$response()), na.rm = TRUE))
+totalPerChannel <- xx |> dplyr::group_by(!!rlang::sym(lfqdata$config$table$sampleName) ) |>
+  dplyr::summarize(totalAbundance = sum(!!rlang::sym(lfqdata$response()), na.rm = TRUE))
 
 totalPerChannel |> ggplot2::ggplot(ggplot2::aes(x = sampleName, y = totalAbundance)) + 
   ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black", fill = "white") + 
@@ -280,12 +279,11 @@ totalPerChannel |> ggplot2::ggplot(ggplot2::aes(x = sampleName, y = totalAbundan
 
 ```
 
-
 ```{r relativeQuant, fig.cap = "Ralative to chanell 126 total abundance per chanel."}
 nudgeval = 0.1
 p126 <- totalPerChannel |> dplyr::filter(grepl("126",sampleName) )
 totalPerChannel$norm126abundance <- totalPerChannel$totalAbundance / p126$totalAbundance
-totalPerChannel |> ggplot2::ggplot(aes(x = sampleName, y = norm126abundance)) + 
+totalPerChannel |> ggplot2::ggplot(ggplot2::aes(x = sampleName, y = norm126abundance)) + 
   ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black", fill = "white") + 
   ggplot2::geom_text(ggplot2::aes(label = round(.data$norm126abundance,2)), nudge_y = nudgeval, angle = 65) +
   ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
@@ -293,28 +291,20 @@ totalPerChannel |> ggplot2::ggplot(aes(x = sampleName, y = norm126abundance)) +
 
 ```
 
-
 ```{r densityQuant, fig.cap="Density of abundance values per channel."}
 pl <- lfqdata$get_Plotter()
 pl$intensity_distribution_density()
 ```
 
-
 # Missed cleavage
 
-Missed cleavage site: Is a resdiue after which trypsin should have cleaved but did not. 
+Missed cleavage site: Is a resdiue after which trypsin should have cleaved but did not.
 
-To detrmine the number of missed cleavages we comptue:
-- the number of all potential cleavage site, i.e. number of residues, e.g. K
-- the number of not missed cleavage sites, that is all K at the C term plus those K which are modified and therefore not recognized by trypsin.
-
+To detrmine the number of missed cleavages we comptue: - the number of all potential cleavage site, i.e. number of residues, e.g. K - the number of not missed cleavage sites, that is all K at the C term plus those K which are modified and therefore not recognized by trypsin.
 
 ## Missed Lysine residues
 
-
-We compute the total number of K residues, and the number of K cleavage sites (nr of potential cleavage sites).
-Then we compute the number of K at the C-term 
-
+We compute the total number of K residues, and the number of K cleavage sites (nr of potential cleavage sites). Then we compute the number of K at the C-term
 
 ```{r missedAtLysine}
 modSeqD <- allmods |> dplyr::select(modSeq, n) |> dplyr::distinct() 
@@ -331,14 +321,13 @@ match_count <- function(p, data, count_col = "n") {
 r <- lapply(patterns, match_count, modSeqD, count_col = "n")
 ```
 
-- The number of K residues `r r$R`
-- The number of unmodified K at C term `r r$termR`
-- The number of modified K at C term `r r$termRmod`
-- The number of any K at C term `r r$termR_termRmod`
-- The number of any modified K: `r r$Rmod`
-- Missed cleavage sites : number of K residues - number of any K at C term = `r r$R - r$termR_termRmod`,
-- and in \% of number of K residues : `r round((r$R - r$termR_termRmod)/r$R *100)`
-
+-   The number of K residues `r r$R`
+-   The number of unmodified K at C term `r r$termR`
+-   The number of modified K at C term `r r$termRmod`
+-   The number of any K at C term `r r$termR_termRmod`
+-   The number of any modified K: `r r$Rmod`
+-   Missed cleavage sites : number of K residues - number of any K at C term = `r r$R - r$termR_termRmod`,
+-   and in % of number of K residues : `r round((r$R - r$termR_termRmod)/r$R *100)`
 
 ## Missed Arginine residues
 
@@ -349,13 +338,13 @@ r <- lapply(patterns, match_count, modSeqD, count_col = "n")
 
 ```
 
-- The number of R residues `r r$R`
-- The number of unmodified R at C term `r r$termR`
-- The number of modified R at C term `r r$termRmod`
-- The number of any R at C term `r r$termR_termRmod`
-- The number of any modified R: `r r$Rmod`
-- Missed cleavage sites : number of R residues - number of any R at C term = `r r$R - r$termR_termRmod`,
-- and in \%  of number of R residues : `r round((r$R - r$termR_termRmod)/r$R *100)`
+-   The number of R residues `r r$R`
+-   The number of unmodified R at C term `r r$termR`
+-   The number of modified R at C term `r r$termRmod`
+-   The number of any R at C term `r r$termR_termRmod`
+-   The number of any modified R: `r r$Rmod`
+-   Missed cleavage sites : number of R residues - number of any R at C term = `r r$R - r$termR_termRmod`,
+-   and in % of number of R residues : `r round((r$R - r$termR_termRmod)/r$R *100)`
 
 # Session Info
 
