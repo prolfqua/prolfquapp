@@ -12,7 +12,7 @@ copy_shell_script <- function(workdir = getwd()) {
   prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
 
-#' copy shellscript to run the DEA app
+#' copy bat files to run the DEA app on windows
 #' @param workdir directory where to copy file - default is current working directory.
 #' @export
 #'
