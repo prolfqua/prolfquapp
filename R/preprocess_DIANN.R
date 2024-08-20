@@ -15,13 +15,12 @@ get_nr_pep <- function(report){
 #' @export
 #' @examples
 #'
-#' xx <- readr::read_tsv("inst/application/DIANN/2517219/out-2024-06-12/WU304486_report.tsv")
-#' report2 <- prolfquapp::diann_read_output(xx)
-#' report2$Protein.Group.2 <- sapply(report2$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
+#' xx <- readr::read_tsv("WU292720_report.tsv")
+#' report2 <- prolfquapp::diann_read_output_deprec(xx)
+#' nrow(report2)
 #'
-#'
-diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
-
+diann_read_output_deprec <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
+  warning("DEPRECATED")
   select_PG <- function(report){
     columns  <- c("File.Name",
                   "Protein.Group",
@@ -58,6 +57,33 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
   report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
   return(report2)
 }
+
+#' read DiaNN diann-output.tsv file
+#'
+#' filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
+#' @import data.table
+#' @export
+#' @examples
+#'
+#' xx <- readr::read_tsv("WU292720_report.tsv")
+#' report2 <- prolfquapp::diann_read_output(xx)
+#' nrow(report2)
+#'
+diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
+  filter_PG <- function(PG,  .Lib.PG.Q.Value = 0.01, .PG.Q.Value = 0.05){
+    PG <- PG |> dplyr::filter(.data$Lib.PG.Q.Value < .Lib.PG.Q.Value)
+    PG <- PG |> dplyr::filter(.data$PG.Q.Value < .PG.Q.Value)
+    return(PG)
+  }
+
+  report <- data
+  report2 <- filter_PG(report, .Lib.PG.Q.Value = Lib.PG.Q.Value, .PG.Q.Value = PG.Q.Value)
+  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
+  report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
+  return(report2)
+}
+
+
 
 #' Create peptide level (stripped sequences) report by aggregating Precursor abundances.
 #'
@@ -156,7 +182,9 @@ preprocess_DIANN <- function(quant_data,
   lfqdata$remove_small_intensities()
 
   # build protein annotation
+  logger::log_info("start reading fasta.")
   fasta_annot <- get_annot_from_fasta(fasta_file, rev = pattern_contaminants, isUniprot = TRUE)
+  logger::log_info("reading fasta done, creating protein annotation.")
   prot_annot <- dplyr::left_join(nrPEP, fasta_annot, by = c(Protein.Group.2 = "proteinname"))
   prot_annot <- dplyr::rename(prot_annot, IDcolumn = "Protein.Group.2",description = "fasta.header",protein_Id = "Protein.Group" )
 
@@ -168,6 +196,7 @@ preprocess_DIANN <- function(quant_data,
     pattern_contaminants = pattern_contaminants,
     pattern_decoys = pattern_decoys
   )
+  logger::log_info("protein annotation done.")
   return(list(lfqdata = lfqdata , protein_annotation = protAnnot))
 }
 

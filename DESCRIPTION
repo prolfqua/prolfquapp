@@ -15,7 +15,6 @@ License: WTFPL https://en.wikipedia.org/wiki/WTFPL
 Encoding: UTF-8
 LazyData: true
 Imports:
-  data.table,
   igraph,
   ggraph,
   lobstr,

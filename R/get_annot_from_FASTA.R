@@ -45,6 +45,77 @@ extract_GN <- function(fasta.headers){
   return(res)
 }
 
+
+
+#' get_annot_from_fasta
+#'
+#' @export
+#' @examples
+#'
+#' #prolfquapp::get_annot_from_fasta(fasta.files)
+#'
+#'
+get_annot_from_fasta_V2 <- function(
+    fasta.files,
+    rev= "REV_",
+    isUniprot = TRUE,
+    min_length = 7,
+    max_length = 30,
+    include_seq = FALSE) {
+  fasta <- list()
+
+  if ("connection" %in% class(fasta.files) ) {
+    fasta <- seqinr::read.fasta(file = fasta.files, as.string = TRUE, seqtype = "AA")
+  } else {
+    for (fasta.file in fasta.files) {
+      logger::log_info("get_annot : ", fasta.file)
+      x <- seqinr::read.fasta(file = fasta.file, as.string = TRUE, seqtype = "AA")
+      fasta <- c(fasta, x)
+    }
+  }
+
+  logger::log_info("get_annot : finished reading")
+  fasta_annot <- data.frame(annot = vapply(fasta, seqinr::getAnnot, ""), sequence = as.character(fasta))
+  fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
+                                                c("fasta.id","fasta.header"),
+                                                sep = "\\s", extra = "merge")
+  fasta_annot <- fasta_annot |> dplyr::mutate(fasta.id = gsub("^>","", .data$fasta.id, perl = TRUE) )
+
+  logger::log_info("get_annot : extract headers")
+  logger::log_info("get_annot : all seq : ", nrow(fasta_annot))
+  fasta_annot <- fasta_annot[!grepl(rev,fasta_annot$fasta.id), ]
+  logger::log_info("get_annot : seq no rev: ", nrow(fasta_annot))
+
+  if (isUniprot) {
+    fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = gsub(".+\\|(.+)\\|.*","\\1", .data$fasta.id) )
+  } else {
+    fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = .data$fasta.id )
+  }
+
+
+  if (mean(grepl(".+ GN=(.+) PE=.+",fasta_annot$fasta.header)) > 0.5) {
+    fasta_annot <- fasta_annot |> dplyr::mutate(gene_name = extract_GN(.data$fasta.header))
+  }
+  logger::log_info("get_annot : extract gene names")
+  # remove duplicated id's
+  fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
+
+  fasta_annot$protein_length <- vapply(fasta_annot$sequence, nchar, 0)
+  logger::log_info("get_annot : protein length")
+
+  fasta_annot$nr_tryptic_peptides <- vapply(fasta_annot$sequence, nr_tryptic_peptides, 0, min_length = min_length, max_length = max_length)
+  logger::log_info("get_annot : nr of tryptic peptides per protein computed.")
+
+  if ( !include_seq ) {
+    fasta_annot$sequence <- NULL
+  }
+
+  return(fasta_annot)
+}
+
+
+
+
 #' get_annot_from_fasta
 #'
 #' @export
@@ -66,16 +137,23 @@ get_annot_from_fasta <- function(
     fasta <- seqinr::read.fasta(file = fasta.files, as.string = TRUE, seqtype = "AA")
   } else {
     for (fasta.file in fasta.files) {
+      message("reading", fasta.file)
       x <- seqinr::read.fasta(file = fasta.file, as.string = TRUE, seqtype = "AA")
       fasta <- c(fasta, x)
     }
   }
 
+  message("finished reading")
   fasta_annot <- prolfqua::matrix_to_tibble(
     data.frame(annot = sapply(fasta, seqinr::getAnnot)), preserve_row_names = NULL
   )
+
   fasta_annot$protein_length <- vapply(fasta, nchar, 0)
+  message("protein length")
+
   fasta_annot$nr_tryptic_peptides <- vapply(fasta, nr_tryptic_peptides, 0, min_length = min_length, max_length = max_length)
+  message("nr peptides")
+
   fasta_annot$sequence <- if ( include_seq ) { as.character(fasta) } else {NULL}
 
   fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
@@ -84,9 +162,8 @@ get_annot_from_fasta <- function(
   fasta_annot <- fasta_annot |> dplyr::mutate(fasta.id = gsub(">","", .data$fasta.id) )
 
 
-
   fasta_annot <- fasta_annot[!grepl(rev,fasta_annot$fasta.id), ]
-
+  message("extract headers, filter rev")
 
   if (isUniprot) {
     fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = gsub(".+\\|(.+)\\|.*","\\1", .data$fasta.id) )
@@ -94,10 +171,11 @@ get_annot_from_fasta <- function(
     fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = .data$fasta.id )
   }
 
+
   if (mean(grepl(".+ GN=(.+) PE=.+",fasta_annot$fasta.header)) > 0.5) {
     fasta_annot <- fasta_annot |> dplyr::mutate(gene_name = extract_GN(.data$fasta.header))
   }
-
+  message("extract gene names")
   # remove duplicated id's
   fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
   return(fasta_annot)
