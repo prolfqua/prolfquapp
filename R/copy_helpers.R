@@ -2,27 +2,19 @@
 #' @param workdir directory where to copy file - default is current working directory.
 #' @export
 #'
-copy_shell_script <- function(workdir = getwd()) {
+copy_shell_script <- function(workdir = getwd() ) {
   runscripts <- c(
-    "application/bin/CMD_DEA.sh",
-    "application/bin/CMD_MAKE_YAML.sh",
-    "application/bin/CMD_QUANT_QC.sh",
-    "application/bin/CMD_MAKE_DATASET.sh"
+    "application/bin/prolfqua_dea",
+    "application/bin/prolfqua_yaml",
+    "application/bin/prolfqua_qc",
+    "application/bin/prolfqua_dataset"
   )
-  prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
-}
-
-#' copy bat files to run the DEA app on windows
-#' @param workdir directory where to copy file - default is current working directory.
-#' @export
-#'
-copy_bat_files <- function(workdir = getwd()) {
-  runscripts <- c(
-    "application/bin/CMD_DEA.bat",
-    "application/bin/CMD_MAKE_YAML.bat",
-    "application/bin/CMD_QUANT_QC.bat",
-    "application/bin/CMD_MAKE_DATASET.bat"
-  )
+  # Check the operating system and add the appropriate extension
+  if (.Platform$OS.type == "windows") {
+    runscripts <- paste0(runscripts, ".bat")
+  } else {
+    runscripts <- paste0(runscripts, ".sh")
+  }
   prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
 
