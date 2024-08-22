@@ -80,7 +80,7 @@ get_annot_from_fasta_V2 <- function(
   fasta_annot <- fasta_annot |> tidyr::separate(.data$annot,
                                                 c("fasta.id","fasta.header"),
                                                 sep = "\\s", extra = "merge")
-  fasta_annot <- fasta_annot |> dplyr::mutate(fasta.id = gsub("^>","", .data$fasta.id, perl = TRUE) )
+  fasta_annot <- fasta_annot |> dplyr::mutate(fasta.id = stringr::str_replace_all(.data$fasta.id, "^>", "") )
 
   logger::log_info("get_annot : extract headers")
 
