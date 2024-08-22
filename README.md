@@ -1,4 +1,4 @@
-# prolfquapp: Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
+﻿# prolfquapp: Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
 
 ![prolfquapp](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/Prolfqapp_Highlight.png?raw=true)
 
@@ -63,12 +63,12 @@ All these files can be run with the option `--help`.
 
 ## Creating Experiment Annotation using CMD_MAKE_DATASET
 
-CMD_MAKE_DATASET can be used to help you to create an prolfqua compatible annotation file.
+CMD_MAKE_DATASET can be used to help you to create a prolfqua compatible annotation file.
 It will look into the analysis results and extract the file/sample names.
 
 After running your Quantification software, DIA-NN, MAXQUANT, FragPipe-TMT, FragPipe-DIA or FragPipe-LFQ,
-the quantification results are in an `ouptut_folder`.
-Please add the `.fasta` file which was used by the quantification software to the `output_folder`.
+the quantification results are in an `data_dir`.
+Please add the `.fasta` file which was used by the quantification software to the `data_dir`.
 
 
 Now, to create a `prolfquapp` compatible experiment annotation file run:
@@ -80,14 +80,14 @@ Now, to create a `prolfquapp` compatible experiment annotation file run:
 The `annotation.xlsx` file will be generated, and you will need to fill out the missing columns.
 
 
-### The prolfqapp Annotation
+### The prolfquapp Annotation
 
 The `annotation.xlsx` file needs to contain the following columns:
 
 - Relative.Path/Path/raw.file/channel/ (unique*)
 - name - used in plots and figures (unique*)
 - group/experiment - main factor
-- subject/bioreplicate (optional) - blocking factor
+- subject/bioreplicate (optional; but has to be set to some value even if same for all) - blocking factor
 - control - used to specify the control condition (C) (optional)
 
 The column names are not case sensitive.
@@ -101,15 +101,15 @@ If the experiment is not paired, or has no blocking factor (e.g. batch, cell lin
 The `CMD_QUANT_QC.sh` script will create a QC report for your data. The report consists of two HTML documents and XLSX file. 
 
 ```
-./CMD_QUANT_QC.R -i data_dir/ -p ProjectName -w WorkunitName -d annotation.xlsx -s DIANN -o where_to_write_results
+./CMD_QUANT_QC.sh -i data_dir/ -p ProjectName -w WorkunitName -d annotation.xlsx -s DIANN -o where_to_write_results
 ```
 
-for more details about the options run './CMD_QUANT_QC.R -h'.
+for more details about the options run './CMD_QUANT_QC.sh -h'.
 
 
 ## Creating the prolfquapp configuration file
 
-Using the `./CMD_MAKE_YAML.R` command line tool you can create the Yaml file you can use to set the parameters needed by the prolfqapp `CMD_DEA.sh` tool.
+Using the `./CMD_MAKE_YAML.R` command line tool you can create the Yaml file you can use to set the parameters needed by the prolfquapp `CMD_DEA.sh` tool.
 
 ```
 ./CMD_MAKE_YAML.sh -y config.yaml
@@ -122,10 +122,10 @@ Using the `./CMD_MAKE_YAML.R` command line tool you can create the Yaml file you
 
 Using the `./CMD_DEA.sh` you can analyse your data. The tool will generate an output folder containing, HTML documents, an XLSX file with the data, SummarizedExperiment.rds file, and txt or csv file which can be used to run GSEA or ORA analysis.
 
-After setting the parameters in teh config.yaml file you can run the DEA analysis by:
+After setting the parameters in the config.yaml file you can run the DEA analysis by:
 
 ```
-./CMD_DEA.sh -i diann_output_dir/ -d annotation.xlsx -y conifg.yaml -w NameOfAnalysis -s DIANN
+./CMD_DEA.sh -i data_dir/ -d annotation.xlsx -y config.yaml -w NameOfAnalysis -s DIANN
 ```
 
 This will generate a folder which starts with "DEA_" and writes all the analysis results and used input data into it.
