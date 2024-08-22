@@ -3,16 +3,17 @@
   # Convert sequence to uppercase
   sequence <- toupper(sequence)
   # Find positions of tryptic sites
-  positions <- gregexpr(pattern, sequence, perl = TRUE)[[1]]
-  cleavage_sites <- unlist(positions)
-  return(cleavage_sites)
+  positions <- stringr::str_locate_all(sequence, pattern)[[1]][,"end"] # gregexpr(pattern, sequence, perl = TRUE)[[1]]
+  # stri_locate_all_regex(sequence, pattern)
+  # cleavage_sites <- unlist(positions)
+  return(positions)
 }
 
 .compute_peptide_lengths <- function(sequence, cleavage_sites) {
   # Compute the lengths of the peptides
-  start_positions <- c(1, cleavage_sites + 1)
+  start_positions <- c(0, cleavage_sites)
   end_positions <- c(cleavage_sites, nchar(sequence))
-  peptide_lengths <- end_positions - start_positions + 1
+  peptide_lengths <- end_positions - start_positions
   return(peptide_lengths)
 }
 
@@ -82,21 +83,24 @@ get_annot_from_fasta_V2 <- function(
   fasta_annot <- fasta_annot |> dplyr::mutate(fasta.id = gsub("^>","", .data$fasta.id, perl = TRUE) )
 
   logger::log_info("get_annot : extract headers")
+
   logger::log_info("get_annot : all seq : ", nrow(fasta_annot))
-  fasta_annot <- fasta_annot[!grepl(rev,fasta_annot$fasta.id), ]
+  logger::log_info("removing decoy sequences usin patter : ", rev)
+  fasta_annot <- fasta_annot |> dplyr::filter( !grepl(rev, .data$fasta.id))
   logger::log_info("get_annot : seq no rev: ", nrow(fasta_annot))
 
+  logger::log_info("get_annot : isUniprot : ", isUniprot)
   if (isUniprot) {
     fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = gsub(".+\\|(.+)\\|.*","\\1", .data$fasta.id) )
   } else {
     fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = .data$fasta.id )
   }
 
-
   if (mean(grepl(".+ GN=(.+) PE=.+",fasta_annot$fasta.header)) > 0.5) {
     fasta_annot <- fasta_annot |> dplyr::mutate(gene_name = extract_GN(.data$fasta.header))
+    logger::log_info("get_annot : extracted gene names")
   }
-  logger::log_info("get_annot : extract gene names")
+
   # remove duplicated id's
   fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
 
@@ -109,11 +113,8 @@ get_annot_from_fasta_V2 <- function(
   if ( !include_seq ) {
     fasta_annot$sequence <- NULL
   }
-
   return(fasta_annot)
 }
-
-
 
 
 #' get_annot_from_fasta
