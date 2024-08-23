@@ -355,7 +355,7 @@ Table \@ref(tab:sampleSize) and Figure \@ref(fig:figSampleSize) summarizes how m
 
 (ref:figSampleSize) Graphical representation of the sample size needed to detect a log fold change greater than delta with a significance level of $0.05$ and power 0.8 when using a t-test to compare means, in $X\%$ of `r  if(params$pep){"peptides"}else{"proteins"}` (x - axis).
 
-```{r figSampleSize, fig.cap="(ref:figSampleSize)", fig.width=8}
+```{r figSampleSize, fig.cap="(ref:figSampleSize)", fig.width=8, fig.alt=""}
 
 sampleSize2 <- st$power_t_test_quantiles(probs = c(0.5,0.75), delta = c(0.59,1,2))
 nudgeval <- max(sampleSize2$N) * 0.05
