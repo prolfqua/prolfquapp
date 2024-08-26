@@ -21,7 +21,9 @@ option_list <- list(
   make_option( c("-d", "--dataset"), type = "character", default = "dataset.csv",
                help = "name of annotation",
                metavar = "string"),
-
+  make_option(c("-O", "--order"), type = "character", default = "",
+              help = "order ID",
+              metavar = "character"),
   make_option( c("-o", "--outdir"), type = "character", default = "qc_dir",
                help = "folder to write the results to.",
                metavar = "string"),
@@ -65,7 +67,7 @@ logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 GRP2 <- prolfquapp::make_DEA_config_R6(
   PATH = opt$outdir,
-  ORDERID = opt$project,
+  ORDERID = opt$order,
   PROJECTID =  opt$project,
   WORKUNITID = opt$workunit,
   application = opt$software,
