@@ -36,10 +36,6 @@ option_list <- list(
 )
 
 parser <- OptionParser(usage = "%prog --indir . ", option_list = option_list)
-if (length(commandArgs(TRUE)) == 0) {
-  optparse::print_help(parser)
-  quit(status = 1)
-}
 arguments <- parse_args(parser, positional_arguments = TRUE)
 
 lobstr::tree(arguments)
@@ -53,6 +49,12 @@ if (FALSE) {
   opt$indir <- "DIANN_1.9_tsv/"
   opt$dataset <- "dataset.xlsx"
 }
+
+if (FALSE) {
+  opt$indir <- "."
+  opt$dataset <- "dataset.csv"
+}
+
 
 # set library path
 if (!is.null(opt$libPath) && dir.exists(opt$libPath)) {
