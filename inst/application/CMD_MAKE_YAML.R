@@ -5,10 +5,10 @@ if (!require("optparse", quietly = TRUE)) {
 
 
 option_list <- list(
-  make_option(c("-t","--trans"), type = "character", default = "vsn",
+  make_option(c("-n","--norm"), type = "character", default = "vsn",
                 help = "normalization method to use, vsn, none, or robscale",
                 metavar = "character"),
-  make_option(c("-d", "--outdir"), type = "character", default = ".",
+  make_option(c("-o", "--outdir"), type = "character", default = ".",
               help = "folder write yaml file to",
               metavar = "string"),
   make_option(c("-y", "--yaml"), type = "character", default = "config.yaml",
@@ -17,7 +17,7 @@ option_list <- list(
   make_option(c("-w", "--workunit"), type = "character", default = "",
               help = "workunit ID",
               metavar = "character"),
-  make_option(c("-o", "--order"), type = "character", default = "",
+  make_option(c("-O", "--order"), type = "character", default = "",
               help = "order ID",
               metavar = "character"),
   make_option(c("-p", "--project"), type = "character", default = "",
@@ -29,7 +29,7 @@ option_list <- list(
 
 )
 
-parser <- optparse::OptionParser(usage = "%prog --trans vsn --workunit WUID332211", option_list = option_list)
+parser <- optparse::OptionParser(usage = "%prog --norm vsn --workunit WUID332211", option_list = option_list)
 arguments <- optparse::parse_args(parser, positional_arguments = TRUE)
 
 
@@ -47,7 +47,7 @@ GRP2 <- prolfquapp::make_DEA_config_R6(
   PROJECTID = opt$project,
   ORDERID = opt$order,
   WORKUNITID = opt$workunit,
-  Normalization = opt$trans
+  Normalization = opt$norm
   )
 GRP2$set_zipdir_name()
 if (!is.null(opt$outdir) && dir.exists(opt$outdir)) {
