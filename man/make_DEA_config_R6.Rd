@@ -19,7 +19,8 @@ make_DEA_config_R6(
   removeDecoys = FALSE,
   patternDecoys = "^REV_",
   patternContaminants = "^zz",
-  application = "DIANN"
+  application = "DIANN",
+  prefix = "DEA"
 )
 }
 \arguments{

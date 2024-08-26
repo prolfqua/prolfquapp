@@ -257,7 +257,8 @@ make_DEA_config_R6 <- function(
     removeDecoys = FALSE,
     patternDecoys = "^REV_",
     patternContaminants = "^zz",
-    application = "DIANN" ){
+    application = "DIANN",
+    prefix = "DEA"){
 
   Normalization <- match.arg(Normalization)
   aggregation <- match.arg(aggregation)
@@ -277,7 +278,7 @@ make_DEA_config_R6 <- function(
   ps$project_Id = PROJECTID
   ps$workunit_Id = WORKUNITID
 
-  r6obj_config <- ProlfquAppConfig$new(pop, ps)
+  r6obj_config <- ProlfquAppConfig$new(pop, ps, prefix = prefix)
   r6obj_config$set_zipdir_name()
   r6obj_config$software = application
   r6obj_config$path <- PATH
