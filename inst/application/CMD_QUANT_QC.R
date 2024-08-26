@@ -12,10 +12,10 @@ option_list <- list(
   make_option( c("-i", "--indir"), type = "character", default = ".",
                help = "folder containing fasta file and output of the quantification software.",
                metavar = "string"),
-  make_option( c("-p", "--projectId"), type = "character", default = "1234",
+  make_option( c("-p", "--projectId"), type = "character", default = "",
                help = "your project identifier",
                metavar = "string"),
-  make_option( c("-w", "--workunitId"), type = "character", default = "4321",
+  make_option( c("-w", "--workunitId"), type = "character", default = "",
                help = "workunit identifier",
                metavar = "string"),
   make_option( c("-d", "--dataset"), type = "character", default = "dataset.csv",
@@ -34,7 +34,12 @@ option_list <- list(
 )
 
 parser <- OptionParser(usage = "%prog --indir . ", option_list = option_list)
+if (length(commandArgs(TRUE)) == 0) {
+  optparse::print_help(parser)
+  quit(status = 1)
+}
 arguments <- parse_args(parser, positional_arguments = TRUE)
+
 lobstr::tree(arguments)
 
 opt <- arguments$options
@@ -63,7 +68,9 @@ GRP2 <- prolfquapp::make_DEA_config_R6(
   ORDERID = opt$projectId,
   PROJECTID =  opt$projectId,
   WORKUNITID = opt$workunitId,
-  application = opt$software)
+  application = opt$software,
+  prefix = "QC"
+  )
 
 dir.create(GRP2$path)
 
