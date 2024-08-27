@@ -161,30 +161,6 @@ Most importantly, the user receives all the data and code to reproduce the analy
 The prolfquapp can be tightly integrated with the LIMS system, and, at the same time, You can replicate the analysis on your laptop computer. 
 
 
-# Implementation
-
-- Yaml file is generated either using a Shiny application or a command line application.
-- The parameters of the application are stored in an R list
-
-## Yaml file
-
-
-
-## Annotation file
-
-A data frame with the sample annotation must be provided
-
-- column which allows to map channel or raw file names to the sample name and explanatory variables.
-  - if TMT analysis workflow one column starting with "channel" (either upper or lower case), with the channel (FragPipeTMT)
-  - if DIA or DDA workflow then one column named exactly "Relative.Path", containing the raw filenames. Eeach  file name must be unique.
-- one column starting with "^name" which is a unique sample name. These names will be used to label figures.
-- one column starting with "group|^bait|^Experiment" (either upper or lower case). 
-- Optional : no or exactly one column name starting with "^subject|^BioReplicate" (either upper or lower case)
-- Optional : no or exactly one column name starting with "Contrast" (either upper or lower case)
-
-## Raw input files
-
-
 # Related software
 
 - Einprot https://github.com/fmicompbio/einprot
