@@ -5,12 +5,7 @@
 Uses preprocessing and statistical models implemented in the R package [prolfqua](https://github.com/fgcz/prolfqua)
 [doi.org/10.1021/acs.jproteome.2c00441](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441)
 
-To learn more about the package see:
-
-[ASMS Poster pdf](https://github.com/wolski/prolfquapp/blob/master/inst/poster/prolfquapp.pdf)
-
 ## How to install
-
 
 On Linux
 
@@ -28,12 +23,15 @@ EOF
 
 ## How To use prolfquapp
 
-After installation run from the command (bash cmd) line:
-```
+prolfquapp is a command line tool. To use it open you shell (linux, mac), or command window (windows).
+Change into the directory with the identification/quantification results coming from FragPipe, MaxQuant, DIA-NN, Spectronaut etc.
+In the directory execute:
+
+```bash
 R --vanilla -e "prolfquapp::copy_shell_script(workdir = '.')"
 ```
 
-This will place the following files into your working directory:
+This will place the following four shell script files (linux), or bat files (windows) into your working directory:
 
 
 ```
@@ -43,65 +41,65 @@ This will place the following files into your working directory:
 [5] "/<working_directory>/prolfqua_dataset.sh"
 ```
 
-Afterwards on the command line give the executable permission (LINUX):
+On Linux give the executables LINUX permissions:
 
 ```
 chmod a+x prolfqua_*
 ```
 
-These 4 files help to exectute the following workflow:
-
-1. `prolfqua_dataset.sh` creates a file where you provide the experiment annotation
-2. `prolfqua_qc.sh` creates QC reports for your experiment.
-3. `prolfqua_yaml.sh` creates the analysis configuration file, for the Differential expression analysis with default values and enables to adjust processing options (data transformation, aggregation etc)
-4. `prolfqua_dea.sh` runs the DEA analysis
+All scripts can be run with the option `--help`.
 
 
-
-All these files can be run with the option `--help`.
-
-
-## Creating Experiment Annotation using CMD_MAKE_DATASET
-
-CMD_MAKE_DATASET can be used to help you to create a prolfqua compatible annotation file.
-It will look into the analysis results and extract the file/sample names.
+# Differential Expression Analysis Workflow
 
 After running your Quantification software, DIA-NN, MAXQUANT, FragPipe-TMT, FragPipe-DIA or FragPipe-LFQ,
 the quantification results are in an `data_dir`.
 Please add the `.fasta` file which was used by the quantification software to the `data_dir`.
 
+## Workflow Overview
 
-Now, to create a `prolfquapp` compatible experiment annotation file run:
+1. [Create Dataset](#1-create-dataset)
+2. [Generate Quality Control (QC)](#2-generate-quality-control-qc)
+3. [Generate prolfqua YAML](#3-generate-prolfqua-yaml)
+4. [Run Differential Expression Analysis](#4-run-differential-expression-analysis)
 
-```
+
+## 1. Create Dataset
+
+The first step involves preparing the dataset by providing the experiment annotation. This is done using the `prolfqua_dataset.sh` script.
+
+- **Input**: directory containing identification/quantification software outputs
+- **Output**: csv, tsv or xlsx file template,
+
+To create a `prolfquapp` compatible experiment annotation file run:
+
+```bash
 ./prolfqua_dataset.sh -i data_dir/ -s DIANN -d annotation.xlsx
 ```
 
-The `annotation.xlsx` file will be generated, and you will need to fill out the missing columns.
-
-
-### The prolfquapp Annotation
-
-The `annotation.xlsx` file needs to contain the following columns:
+The `annotation.xlsx` file will be generated, and will contain 5 columns. 
 
 - Relative.Path/Path/raw.file/channel/ (unique*)
-- name - used in plots and figures (unique*)
-- group/experiment - main factor
-- subject/bioreplicate (optional; but has to be set to some value even if same for all) - blocking factor
+- name - used in tables and figures (unique*)
+- group/experiment/ - main factor
+- subject/bioreplicate (optional**) - blocking factor
 - control - used to specify the control condition (C) (optional)
 
-The column names are not case sensitive.
+* The rows must contain a unique value (no duplicates per column)
+** If the experiment is not paired, or has no blocking factor (e.g. batch, cell line) delete the subject column.
 
-* If each row must contain a unique value (no duplicates per column)
+The column raw.file is already filled out, based on the information available in the input directory.
+You will need to fill out the missing columns, e.g. group, subject, control. The column names are not case sensitive.
 
-If the experiment is not paired, or has no blocking factor (e.g. batch, cell line) delete the subject column.
 
-## Running the QC.
+The `annotation.xlsx` file will be generated, and you will need to fill out the empty cells.
+
+##2 Generate Quality Control (QC)
 
 The `prolfqua_qc.sh` script will create a QC report for your data. The report consists of two HTML documents and XLSX file. 
 
 ```
-./prolfqua_qc.sh -i data_dir/ -p ProjectName -w WorkunitName -d annotation.xlsx -s DIANN -o where_to_write_results
+./prolfqua_qc.sh -i data_dir/ -p ProjectName -O ordername -w WorkunitName -d annotation.xlsx -s DIANN -o where_to_write_results
 ```
 
 for more details about the options run './prolfqua_qc.sh -h'.
