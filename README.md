@@ -94,11 +94,14 @@ You will need to fill out the missing columns, e.g. group, subject, control. The
 
 The `annotation.xlsx` file will be generated, and you will need to fill out the empty cells.
 
-##2 Generate Quality Control (QC)
+## 2. Generate Quality Control (QC)
 
-The `prolfqua_qc.sh` script will create a QC report for your data. The report consists of two HTML documents and XLSX file. 
+The `prolfqua_qc.sh` script will create a QC report. The report consists of two HTML documents and XLSX file. 
 
-```
+- **Input**: Dataset from step 1 and directory containing identification/quantification software outputs
+- **Output**: QC report and visualizations
+
+```bash
 ./prolfqua_qc.sh -i data_dir/ -p ProjectName -O ordername -w WorkunitName -d annotation.xlsx -s DIANN -o where_to_write_results
 ```
 
