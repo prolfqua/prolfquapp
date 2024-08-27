@@ -105,23 +105,28 @@ The `prolfqua_qc.sh` script will create a QC report. The report consists of two 
 ./prolfqua_qc.sh -i data_dir/ -p ProjectName -O ordername -w WorkunitName -d annotation.xlsx -s DIANN -o where_to_write_results
 ```
 
-for more details about the options run './prolfqua_qc.sh -h'.
+This will generate a subfolder which starts with "QC_" with all the analysis results.
 
+## 3. Generate prolfquapp yaml
 
-## Creating the prolfquapp configuration file
+Using the `./prolfqua_yaml.R` command line tool you can set the parameters of the DEA and create a configuration file in YAML format.
 
-Using the `./prolfqua_yaml.R` command line tool you can create the Yaml file you can use to set the parameters needed by the prolfquapp `CMD_DEA.sh` tool.
+- **Output**: Yaml file 
+
 
 ```
 ./prolfqua_yaml.sh -y config.yaml
 ```
 
-`prolfqua_yaml.sh` has many more parameters which you can explore by running it with the `-h` option. They can be used to present values in the generated yaml file.
+To see which parameters can be set using `prolfqua_yaml.sh` use the `-h` switch. Other parameters you can set by editing the yaml file.
 
 
-## Differential expression analysis using prolfquapp
+## 4. Run Differential Expression Analysis
 
-Using the `./prolfqua_dea.sh` you can analyse your data. The tool will generate an output folder containing, HTML documents, an XLSX file with the data, SummarizedExperiment.rds file, and txt or csv file which can be used to run GSEA or ORA analysis.
+Finally, the `prolfqua_dea.sh` script runs the differential expression analysis using the configuration file generated in the previous step.
+
+- **Input**: directory containing identification/quantification software outputs, dataset from step 1, configuration file from step 3.
+- **Output**: folder containing differential expression analysis results (html files, excel tables, rank files, SummarizedExperiment.rds).
 
 After setting the parameters in the config.yaml file you can run the DEA analysis by:
 
@@ -129,7 +134,7 @@ After setting the parameters in the config.yaml file you can run the DEA analysi
 ./prolfqua_dea.sh -i data_dir/ -d annotation.xlsx -y config.yaml -w NameOfAnalysis -s DIANN
 ```
 
-This will generate a folder which starts with "DEA_" and writes all the analysis results and used input data into it.
+This will generate a subfolder which starts with "DEA_" and writes all the analysis results as well as the input data.
 
 
 ## ASMS poster:  Streamlining Protein Differential Expression Analysis in Core Facilities
