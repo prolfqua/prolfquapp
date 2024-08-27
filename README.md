@@ -7,6 +7,8 @@ Generate dynamic HTML reports, versatile file formats, and dive into interactive
 
 Prolfquapp implements a command line interface to run protein differential expression analysis, that can be integrated into your LIMS system or workflow manager.
 
+![prolfquapp](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/Prolfqapp_Highlight.png?raw=true)
+
 ## How to install
 
 On Linux
