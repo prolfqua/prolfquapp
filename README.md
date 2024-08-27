@@ -1,10 +1,11 @@
 # prolfquapp: Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
 
-![prolfquapp](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/Prolfqapp_Highlight.png?raw=true)
+Welcome to prolfquapp on GitHub! Here, you'll find everything you need to elevate your protein differential expression analysis.
+Prolfquapp integrates powerful preprocessing methods and advanced statistical models from the prolfqua R package [prolfqua](https://github.com/fgcz/prolfqua)
+[doi.org/10.1021/acs.jproteome.2c00441](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441) to deliver insightful, clear visualizations and robust data outputs. 
+Generate dynamic HTML reports, versatile file formats, and dive into interactive data visualization with ExploreDE.
 
-Provides a command line interface to run protein differential expression analysis.
-Uses preprocessing and statistical models implemented in the R package [prolfqua](https://github.com/fgcz/prolfqua)
-[doi.org/10.1021/acs.jproteome.2c00441](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441)
+Prolfquapp implements a command line interface to run protein differential expression analysis, that can be integrated into your LIMS system or workflow manager.
 
 ## How to install
 
