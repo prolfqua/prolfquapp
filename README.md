@@ -9,7 +9,11 @@ Prolfquapp implements a command line interface to run protein differential expre
 ![prolfquapp](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/Prolfqapp_Highlight.png?raw=true)
 
 
-## How To use prolfquapp
+# Differential Expression Analysis Workflow with prolfquapp
+
+After running your Quantification software, DIA-NN, MAXQUANT, FragPipe-TMT, FragPipe-DIA or FragPipe-LFQ,
+the quantification results are in an `data_dir`.
+Please add the `.fasta` file which was used by the quantification software to the `data_dir`.
 
 prolfquapp is a set of command line tool. To use it open you shell (linux, mac), or command window (windows).
 Change into the directory with the identification/quantification results coming from FragPipe, MaxQuant, DIA-NN, Spectronaut etc.
@@ -22,7 +26,7 @@ R --vanilla -e "prolfquapp::copy_shell_script(workdir = '.')"
 This will place the following four shell script files (linux), or bat files (windows) into your working directory:
 
 
-```
+```bash
 [1] "/<working_directory>/prolfqua_dea.sh"
 [3] "/<working_directory>/prolfqua_yaml.sh"
 [4] "/<working_directory>/prolfqua_qc.sh"
@@ -36,13 +40,6 @@ chmod a+x prolfqua_*
 ```
 
 All scripts can be run with the option `--help`.
-
-
-# Differential Expression Analysis Workflow
-
-After running your Quantification software, DIA-NN, MAXQUANT, FragPipe-TMT, FragPipe-DIA or FragPipe-LFQ,
-the quantification results are in an `data_dir`.
-Please add the `.fasta` file which was used by the quantification software to the `data_dir`.
 
 ## Workflow Overview
 
