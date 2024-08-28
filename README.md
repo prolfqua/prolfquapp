@@ -1,19 +1,17 @@
 # prolfquapp: Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
 
-Welcome to prolfquapp on GitHub! Here, you'll find everything you need to elevate your protein differential expression analysis.
+Welcome to *prolfquapp* on GitHub! Here, you'll find everything you need to elevate your protein differential expression analysis.
 Prolfquapp integrates powerful preprocessing methods and advanced statistical models from the prolfqua R package [prolfqua](https://github.com/fgcz/prolfqua)
 [doi.org/10.1021/acs.jproteome.2c00441](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441) to deliver insightful, clear visualizations and robust data outputs. 
 Generate dynamic HTML reports, versatile file formats, and dive into interactive data visualization with ExploreDE.
-
-Prolfquapp implements a command line interface to run protein differential expression analysis, that can be integrated into your LIMS system or workflow manager.
+Prolfquapp implements a command line interface to run protein differential expression analysis, that can be integrated into your workflow manager.
 
 ![prolfquapp](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/Prolfqapp_Highlight.png?raw=true)
 
 
-
 ## How To use prolfquapp
 
-prolfquapp is a command line tool. To use it open you shell (linux, mac), or command window (windows).
+prolfquapp is a set of command line tool. To use it open you shell (linux, mac), or command window (windows).
 Change into the directory with the identification/quantification results coming from FragPipe, MaxQuant, DIA-NN, Spectronaut etc.
 In the directory execute:
 
