@@ -126,14 +126,9 @@ After setting the parameters in the config.yaml file you can run the DEA analysi
 
 This will generate a subfolder which starts with "DEA_" and writes all the analysis results as well as the input data.
 
-
-## ASMS poster:  Streamlining Protein Differential Expression Analysis in Core Facilities
-
-![prolfquapp_ASMS_poster](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/prolfquapp_PosterPNG.png?raw=true)
-
 ## How to install
 
-On Linux
+**Linux**
 
 ```bash
 export R_LIBS_SITE="/scratch/PROLFQUA/r-site-library/"
@@ -145,6 +140,13 @@ remotes::install_github("fgcz/prolfqua", build_vignettes = TRUE, dependencies = 
 remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
 EOF
 ```
+
+**Docker**
+
+## ASMS poster:  Streamlining Protein Differential Expression Analysis in Core Facilities
+
+![prolfquapp_ASMS_poster](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/prolfquapp_PosterPNG.png?raw=true)
+
 
 # Related software
 
