@@ -67,7 +67,7 @@ The `annotation.xlsx` file will be generated, and will contain 5 columns.
 - Relative.Path/Path/raw.file/channel/ (unique*)
 - name - used in tables and figures (unique*)
 - group/experiment/ - main factor
-- subject/bioreplicate (optional**) - blocking factor
+- subject/bioreplicate (optional** or keep cells empty) - blocking factor
 - control - used to specify the control condition (C) (optional)
 
 * The rows must contain a unique value (no duplicates per column)
