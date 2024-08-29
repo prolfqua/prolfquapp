@@ -1,8 +1,8 @@
-# ProteinAbundanceProcessor------
-#' ProteinAbundanceProcessor
+# QC_generator------
+#' QC_generator
 #' @export
-ProteinAbundanceProcessor <- R6::R6Class(
-  "ProteinAbundanceProcessor",
+QC_generator <- R6::R6Class(
+  "QC_generator",
   public = list(
     lfqdata = NULL,
     lfqdataProt = NULL,

@@ -16,7 +16,7 @@ option_list <- list(
                         help = "yaml configuration file",
                         metavar = "character"),
   optparse::make_option(c("-s", "--software"), type = "character", default = NULL,
-                        help = "possible options: DIANN, FP_TMT, FP_multisite, MAXQUANT, MSSTATS",
+                        help = "possible options: DIANN, FP_TMT, FP_multisite, FP_combined_STY, MAXQUANT, MSSTATS",
                         metavar = "character"),
   optparse::make_option(c("-o", "--outdir"), type = "character", default = NULL,
                         help = "output directory",
@@ -45,41 +45,12 @@ if (FALSE) {
   opt$dataset <- "p35593_uniprot_paired/dataset.xlsx"
   opt$indir <- "o35593_prot_ionquant/"
 }
-
-if (FALSE) {
-  ymlfile <- "p35593_uniprot_paired/MultisiteUniprot.yaml"
-  opt$dataset <- "p35593_uniprot_paired/dataset.xlsx"
-  opt$indir <- "o35593_phos_siteLocFiltered_ionquant/"
+if (TRUE) {
+  ymlfile <- "minimalPhosphoAnalysis.yaml"
+  opt$dataset <- "p35540_WU313409_annotationTableXLSX.xlsx"
+  opt$indir <- "Fragpipe_o35920_phospho/"
+  opt$software <- "FP_multisite"
 }
-if (FALSE) {
-  ymlfile <- "xenbaseAnalysis/WholeProtXenbase.yaml"
-  opt$dataset <- "xenbaseAnalysis/dataset.xlsx"
-  opt$indir <- "o35593_prot_ionquant_xenbase/"
-}
-if (FALSE) {
-  ymlfile <- "xenbaseAnalysis/MultisiteXenbase.yaml"
-  opt$dataset <- "xenbaseAnalysis/dataset.xlsx"
-  opt$indir <- "o35593_phos_siteLocFiltered_ionquant_xenbase/"
-}
-
-if (FALSE) {
-  ymlfile <- "config.yaml"
-  opt$dataset <- "dataset_with_contrasts.xlsx"
-  opt$indir <- "DIANN_19_all_18_50_50_MBR_v01//"
-}
-if (FALSE) {
-  ymlfile <- "config.yaml"
-  opt$dataset <- "dataset.csv"
-  opt$software <- "MSSTATS"
-  opt$indir <- "2543975/"
-}
-if (FALSE) {
-  ymlfile <- "config.yaml"
-  opt$dataset <- "dataset.csv"
-  opt$indir <- "."
-}
-
-
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
@@ -147,7 +118,7 @@ if (opt$software == "DIANN") {
     annotation,
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys)
-} else if (opt$software == "FP_combined_STY"){
+} else if (opt$software == "FP_combined_STY") {
 
 } else if (opt$software == "MAXQUANT") {
   files <- prolfquapp::get_MQ_peptide_files(opt$indir)
@@ -186,6 +157,8 @@ logger::log_info("RUN ANALYSIS")
 grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
 
+
+debug(prolfquapp::write_DEA_all)
 outdir <- prolfquapp::write_DEA_all(
   grp, boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
 
@@ -201,7 +174,6 @@ if (length(xd$protein_annotation$pID) == 1) {
 
 logger::log_info("Writing summarized experiment.")
 SE <- prolfquapp::make_SummarizedExperiment(grp)
-
 saveRDS(SE, file = file.path( grp$get_result_dir(), "SummarizedExperiment.rds"))
 
 

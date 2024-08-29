@@ -112,7 +112,7 @@ if (opt$software == "DIANN") {
   stop("unknown software : ", opt$software)
 }
 
-pap <- ProteinAbundanceProcessor$new(xd$lfqdata, xd$protein_annotation, GRP2)
+pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
 
 pap$write_xlsx()
 pap$render_QC_protein_abundances()
