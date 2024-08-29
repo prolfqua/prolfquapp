@@ -49,7 +49,6 @@ if (FALSE) {
   opt$indir <- "DIANN_1.9_tsv/"
   opt$dataset <- "dataset.xlsx"
 }
-
 if (FALSE) {
   opt$indir <- "."
   opt$dataset <- "dataset.csv"
