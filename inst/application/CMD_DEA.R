@@ -51,7 +51,7 @@ if (FALSE) {
   opt$indir <- "Fragpipe_o35920_phospho/"
   opt$software <- "FP_multisite"
 }
-if (FALSE) {
+if (TRUE) {
   ymlfile <- "minimal.yaml"
   opt$indir <- "."
   opt$software <- "MSSTATS"
