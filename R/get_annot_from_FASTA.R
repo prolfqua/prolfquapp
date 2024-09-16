@@ -102,7 +102,7 @@ get_annot_from_fasta <- function(
   }
 
   # remove duplicated id's
-  fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
+  # fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
 
   fasta_annot$protein_length <- vapply(fasta_annot$sequence, nchar, 0)
   logger::log_info("get_annot : protein length")

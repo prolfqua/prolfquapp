@@ -45,11 +45,17 @@ if (FALSE) {
   opt$dataset <- "p35593_uniprot_paired/dataset.xlsx"
   opt$indir <- "o35593_prot_ionquant/"
 }
-if (TRUE) {
+if (FALSE) {
   ymlfile <- "minimalPhosphoAnalysis.yaml"
   opt$dataset <- "p35540_WU313409_annotationTableXLSX.xlsx"
   opt$indir <- "Fragpipe_o35920_phospho/"
   opt$software <- "FP_multisite"
+}
+if (TRUE) {
+  ymlfile <- "minimal.yaml"
+  opt$indir <- "."
+  opt$software <- "MSSTATS"
+  opt$dataset <- "dataset.csv"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -62,12 +68,13 @@ res <- prolfquapp::sync_opt_config(opt, GRP2)
 opt <- res$opt
 GRP2 <- res$config
 
+dir.create(opt$outdir)
 appender_combined <- logger::appender_tee(file.path(opt$outdir, "prolfqua.log"))
 logger::log_appender(appender_combined)
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 
 logger::log_info("Writing to output directory : ", opt$outdir)
-dir.create(opt$outdir)
+
 
 
 logger::log_info("prolfquapp paramters : ")
@@ -136,7 +143,7 @@ if (opt$software == "DIANN") {
   files <- prolfquapp::get_MSstats_files(opt$indir)
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
-
+  debug(prolfquapp::preprocess_MSstats)
   xd <- prolfquapp::preprocess_MSstats(
     quant_data = files$data,
     fasta_file = files$fasta,
