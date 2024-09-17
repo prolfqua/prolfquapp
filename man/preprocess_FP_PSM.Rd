@@ -11,8 +11,8 @@ preprocess_FP_PSM(
   purity_threshold = 0.5,
   PeptideProphetProb = 0.9,
   column_before_quants = c("Quan Usage", "Mapped Proteins"),
-  pattern_contaminants = "^zz|^CON",
-  pattern_decoys = "REV_"
+  pattern_contaminants = "^zz|^CON|Cont_",
+  pattern_decoys = "^REV_|^rev_"
 )
 }
 \value{

@@ -3,7 +3,7 @@
 #'
 preprocess_software <- function(indir,
                                 annotation,
-                                pattern_contaminants ="^zz|^CON" , pattern_decoys = "^rev_|^REV_",
+                                pattern_contaminants ="^zz|^CON|Cont_" , pattern_decoys = "^rev_|^REV_",
                                 software = c("DIANN", "FP_TMT", "FP_multisite", "MAXQUANT", "MSSTATS")) {
   software <- match.arg(software)
   if (software == "DIANN") {
@@ -18,7 +18,6 @@ preprocess_software <- function(indir,
       pattern_contaminants = pattern_contaminants,
       pattern_decoys = pattern_decoys
     )
-    return(xd)
   } else if (software == "FP_TMT") {
     files <- prolfquapp::get_FP_PSM_files(indir)
     logger::log_info("Files data: ", paste(files$data, collapse = "; "))
@@ -32,7 +31,6 @@ preprocess_software <- function(indir,
       pattern_contaminants = pattern_contaminants,
       pattern_decoys = pattern_decoys
     )
-    return(xd)
   } else if (software == "FP_multisite") {
     files <- prolfquapp::get_FP_multi_site_files(indir)
     logger::log_info("Files data: ", paste(files$data, collapse = "; "))
@@ -43,7 +41,6 @@ preprocess_software <- function(indir,
       annotation,
       pattern_contaminants = pattern_contaminants,
       pattern_decoys = pattern_decoys)
-    return(xd)
   } else if (software == "FP_combined_STY") {
     return(NULL)
   } else if (software == "MAXQUANT") {
@@ -58,12 +55,10 @@ preprocess_software <- function(indir,
       pattern_contaminants = pattern_contaminants,
       pattern_decoys = pattern_decoys
     )
-    return(xd)
   } else if (software == "MSSTATS") {
     files <- prolfquapp::get_MSstats_files(indir)
     logger::log_info("Files data: ", paste(files$data, collapse = "; "))
     logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
-    debug(prolfquapp::preprocess_MSstats)
     xd <- prolfquapp::preprocess_MSstats(
       quant_data = files$data,
       fasta_file = files$fasta,
@@ -71,10 +66,11 @@ preprocess_software <- function(indir,
       pattern_contaminants = pattern_contaminants,
       pattern_decoys = pattern_decoys
     )
-    return(xd)
   } else {
     logger::log_error("no such software :" , software)
     stop("no such software.")
+    return(NULL)
+
   }
-  return(NULL)
+  return(list(xd = xd, files = files))
 }

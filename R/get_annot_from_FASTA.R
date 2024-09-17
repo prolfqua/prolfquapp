@@ -58,7 +58,7 @@ extract_GN <- function(fasta.headers){
 #'
 get_annot_from_fasta <- function(
     fasta.files,
-    rev= "REV_",
+    pattern_decoys = NULL,
     isUniprot = TRUE,
     min_length = 7,
     max_length = 30,
@@ -85,9 +85,17 @@ get_annot_from_fasta <- function(
   logger::log_info("get_annot : extract headers")
 
   logger::log_info("get_annot : all seq : ", nrow(fasta_annot))
-  logger::log_info("removing decoy sequences usin patter : ", rev)
-  fasta_annot <- fasta_annot |> dplyr::filter( !grepl(rev, .data$fasta.id))
-  logger::log_info("get_annot : seq no rev: ", nrow(fasta_annot))
+  if (!is.null(pattern_decoys)) {
+    logger::log_info("removing decoy sequences usin patter : ", rev)
+    pcdecoy <- mean(grepl(pattern_decoys, fasta_annot$fasta.id))
+    if (pcdecoy < 0.1) {
+      logger::log_error("Only ", pcdecoy, " found using pattern : ", pattern_decoys)
+      lotter::log_error("Please specify empty string if no decoy's in fasta.")
+    }
+    fasta_annot <- fasta_annot |> dplyr::filter( !grepl(pattern_decoys, .data$fasta.id))
+    logger::log_info("get_annot nr seq after decoy removal: ", nrow(fasta_annot))
+
+  }
 
   logger::log_info("get_annot : isUniprot : ", isUniprot)
   if (isUniprot) {

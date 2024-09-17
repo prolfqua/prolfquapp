@@ -9,8 +9,8 @@ preprocess_DIANN(
   fasta_file,
   annotation,
   q_value = 0.01,
-  pattern_contaminants = "^zz|^CON",
-  pattern_decoys = "REV_"
+  pattern_contaminants = "^zz|^CON|Cont_",
+  pattern_decoys = "^REV_|^rev_"
 )
 }
 \value{

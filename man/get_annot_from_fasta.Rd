@@ -6,7 +6,7 @@
 \usage{
 get_annot_from_fasta(
   fasta.files,
-  rev = "REV_",
+  pattern_decoys = NULL,
   isUniprot = TRUE,
   min_length = 7,
   max_length = 30,

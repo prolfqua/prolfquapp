@@ -98,8 +98,8 @@ initialize
   cleaned_ids = NULL,
   full_id = NULL,
   exp_nr_children = "nr_peptides",
-  pattern_contaminants = "^zz|^CON",
-  pattern_decoys = "^REV_"
+  pattern_contaminants = NULL,
+  pattern_decoys = NULL
 )}\if{html}{\out{</div>}}
 }
 

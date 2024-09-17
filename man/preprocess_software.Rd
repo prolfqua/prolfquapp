@@ -7,7 +7,7 @@
 preprocess_software(
   indir,
   annotation,
-  pattern_contaminants = "^zz|^CON",
+  pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^rev_|^REV_",
   software = c("DIANN", "FP_TMT", "FP_multisite", "MAXQUANT", "MSSTATS")
 )

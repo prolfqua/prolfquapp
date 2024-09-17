@@ -146,8 +146,8 @@ ProteinAnnotation <-
                             cleaned_ids = NULL,
                             full_id = NULL,
                             exp_nr_children = "nr_peptides",
-                            pattern_contaminants = "^zz|^CON",
-                            pattern_decoys = "^REV_"){
+                            pattern_contaminants = NULL,
+                            pattern_decoys = NULL){
         self$pID = lfqdata$config$table$hierarchy_keys_depth()
         self$exp_nr_children = exp_nr_children
         self$pattern_contaminants = if (is.null(pattern_contaminants)) {"a^"} else {pattern_contaminants}
@@ -159,7 +159,6 @@ ProteinAnnotation <-
         self$row_annot <- dplyr::distinct(dplyr::select(lfqdata$data, self$pID))
         if ( !is.null(row_annot)) {
           stopifnot(self$pID %in% colnames(row_annot))
-          #row_annot <- dplyr::filter(row_annot, !!sym(self$pID) %in% lfqdata$data[[self$pID]] )
           self$row_annot <- dplyr::left_join(self$row_annot, row_annot, by = self$pID)
         }
         stopifnot(self$cleaned_ids %in% colnames(self$row_annot))

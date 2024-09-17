@@ -93,15 +93,15 @@ logger::log_info("Software: ", opt$software)
 
 result <- tryCatch({
   # Attempt to run the function
-  xd <- preprocess_software(
+  procsoft <- preprocess_software(
     opt$indir,
     annotation,
-    GRP2$processing_options$pattern_contaminants,
-    GRP2$processing_options$pattern_decoys,
+    pattern_contaminants = GRP2$processing_options$pattern_contaminants,
+    pattern_decoys = GRP2$processing_options$pattern_decoys,
     software = opt$software
   )
   # Return the result if successful
-  list(value = xd, error = NULL, stack_trace = NULL)
+  list(value = procsoft, error = NULL, stack_trace = NULL)
 }, error = function(e) {
   # On error, capture the stack trace as text
   stack_trace <- capture.output(traceback())
@@ -119,19 +119,13 @@ if (!is.null(result$error)) {
   logger::log_error("Stack trace:\n")
   logger::log_error(result$stack_trace, "\n")
 } else {
-  xd <- result$value  # Proceed with the result
+  procsoft <- result$procsoft  # Proceed with the result
+  xd <- procsoft$xd
+  files <- procsoft$files
 }
-
-# add code to
-xd <- preprocess_software(opt$indir,
-                    annotation,
-                    GRP2$processing_options$pattern_contaminants,
-                    GRP2$processing_options$pattern_decoys,
-                    software = opt$software)
 
 
 logger::log_info("Processing done:", opt$software)
-
 logger::log_info(paste(c("Protein Annotation :\n",capture.output( print(xd$protein_annotation$get_summary()))),collapse = "\n"))
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.")
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)

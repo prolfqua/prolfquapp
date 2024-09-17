@@ -147,8 +147,8 @@ preprocess_DIANN <- function(quant_data,
                              fasta_file,
                              annotation,
                              q_value = 0.01,
-                             pattern_contaminants = "^zz|^CON",
-                             pattern_decoys = "REV_"){
+                             pattern_contaminants = "^zz|^CON|Cont_",
+                             pattern_decoys = "^REV_|^rev_"){
 
   annot <- annotation$annot
   atable <- annotation$atable$clone(deep = FALSE)
@@ -183,7 +183,7 @@ preprocess_DIANN <- function(quant_data,
 
   # build protein annotation
   logger::log_info("start reading fasta.")
-  fasta_annot <- get_annot_from_fasta(fasta_file, rev = pattern_contaminants, isUniprot = TRUE)
+  fasta_annot <- get_annot_from_fasta(fasta_file, pattern_decoys = pattern_decoys, isUniprot = TRUE)
   logger::log_info("reading fasta done, creating protein annotation.")
   prot_annot <- dplyr::left_join(nrPEP, fasta_annot, by = c(Protein.Group.2 = "proteinname"))
   prot_annot <- dplyr::rename(prot_annot, IDcolumn = "Protein.Group.2",description = "fasta.header",protein_Id = "Protein.Group" )

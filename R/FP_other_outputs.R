@@ -22,8 +22,8 @@ preprocess_FP_multi_site <- function(
     quant_data,
     fasta,
     annotation,
-    pattern_contaminants = "^zz|^CON",
-    pattern_decoys = "REV_"){
+    pattern_contaminants = "^zz|^CON|Cont_",
+    pattern_decoys = "^REV_|^rev_"){
 
   annot <- annotation$annot
   atable <- annotation$atable
@@ -84,7 +84,7 @@ preprocess_FP_multi_site <- function(
     dplyr::group_by(ProteinID) |>
     dplyr::summarize(nrPeptides = dplyr::n()) |> dplyr::ungroup()
 
-  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, rev = pattern_decoys)
+  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, pattern_decoys = pattern_decoys)
   fasta_annot <- dplyr::left_join(nrPep_exp, fasta_annot, by = c(ProteinID = "proteinname"), multiple = "all")
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
   fasta_annot2 <- dplyr::inner_join(fasta_annot, phosSite, by = "ProteinID")
@@ -212,7 +212,7 @@ preprocess_FP_combined_STY <- function(
     dplyr::group_by(ProteinID) |>
     dplyr::summarize(nrPeptides = dplyr::n()) |> dplyr::ungroup()
 
-  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, rev = pattern_decoys)
+  fasta_annot <- prolfquapp::get_annot_from_fasta(fasta, pattern_decoys = pattern_decoys)
   fasta_annot <- dplyr::left_join(nrPep_exp, fasta_annot, by = c(ProteinID = "proteinname"), multiple = "all")
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
   fasta_annot2 <- dplyr::inner_join(fasta_annot, phosSite, by = "ProteinID")

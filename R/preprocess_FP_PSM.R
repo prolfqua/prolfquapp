@@ -296,8 +296,8 @@ preprocess_FP_PSM <- function(quant_data,
                               purity_threshold = 0.5,
                               PeptideProphetProb = 0.9,
                               column_before_quants = c("Quan Usage" , "Mapped Proteins"),
-                              pattern_contaminants = "^zz|^CON",
-                              pattern_decoys = "REV_"){
+                              pattern_contaminants = "^zz|^CON|Cont_",
+                              pattern_decoys = "^REV_|^rev_"){
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
@@ -331,7 +331,7 @@ preprocess_FP_PSM <- function(quant_data,
   lfqdata <- prolfqua::LFQData$new(adata, config)
 
   # build rowAnnotation.
-  fasta_annot <- get_annot_from_fasta(fasta_file, rev = pattern_decoys)
+  fasta_annot <- get_annot_from_fasta(fasta_file, pattern_decoys = pattern_decoys)
   fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("Protein" = "fasta.id"))
 
   fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!sym("Protein"))

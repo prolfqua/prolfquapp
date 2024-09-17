@@ -8,8 +8,8 @@ preprocess_MQ_peptide(
   quant_data,
   fasta_file,
   annotation,
-  pattern_contaminants = "^zz|^CON",
-  pattern_decoys = "REV_"
+  pattern_contaminants = "^zz|^CON|Cont_",
+  pattern_decoys = "^REV_|^rev_"
 )
 }
 \description{

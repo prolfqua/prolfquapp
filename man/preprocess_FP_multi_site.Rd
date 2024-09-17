@@ -8,8 +8,8 @@ preprocess_FP_multi_site(
   quant_data,
   fasta,
   annotation,
-  pattern_contaminants = "^zz|^CON",
-  pattern_decoys = "REV_"
+  pattern_contaminants = "^zz|^CON|Cont_",
+  pattern_decoys = "^REV_|^rev_"
 )
 }
 \value{
