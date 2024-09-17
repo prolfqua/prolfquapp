@@ -222,7 +222,7 @@ AnnotationProcessor <- R6::R6Class(
 
     dataset_set_factors = function(annot) {
       atable <- prolfqua::AnalysisTableAnnotation$new()
-      private$set_sample_name(annot, atable)
+      annot <- private$set_sample_name(annot, atable)
       private$set_file_name(annot, atable)
       annot <- private$set_grouping_var(annot, atable)
       private$process_subject_var(annot, atable)
@@ -243,7 +243,7 @@ AnnotationProcessor <- R6::R6Class(
           tidyr::unite("name",c("xx","count")) |>
           dplyr::pull("name")
       } else {}
-
+      return(annot)
     },
 
     set_file_name = function(annot, atable) {
