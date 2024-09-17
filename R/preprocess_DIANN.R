@@ -150,7 +150,7 @@ preprocess_DIANN <- function(quant_data,
                              annotation,
                              q_value = 0.01,
                              pattern_contaminants = "^zz|^CON|Cont_",
-                             pattern_decoys = "^REV_|^rev_"){
+                             pattern_decoys = NULL){
 
   annot <- annotation$annot
   atable <- annotation$atable$clone(deep = FALSE)

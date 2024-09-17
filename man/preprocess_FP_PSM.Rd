@@ -12,7 +12,7 @@ preprocess_FP_PSM(
   PeptideProphetProb = 0.9,
   column_before_quants = c("Quan Usage", "Mapped Proteins"),
   pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = "^REV_|^rev_"
+  pattern_decoys = NULL
 )
 }
 \value{
