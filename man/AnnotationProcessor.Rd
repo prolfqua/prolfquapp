@@ -78,6 +78,8 @@ stopifnot(is.null(aa$annotation))
 \item{\code{control_col_pattern}}{columns which contains C or T.}
 
 \item{\code{sample_name_pattern}}{sample name column}
+
+\item{\code{strict}}{should name check be strict}
 }
 \if{html}{\out{</div>}}
 }

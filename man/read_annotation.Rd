@@ -19,3 +19,11 @@ list with annot (annotation table), atable (analtysis table configuration), cont
 \description{
 read annotation files
 }
+\examples{
+annot <- data.frame(
+file = c("a1.raw","a2.raw","a3.raw","a4.raw"),
+name = c("aa","ba","aa","ba"),
+group = c("a","a","b","b"))
+read_annotation(annot, QC = TRUE)
+
+}

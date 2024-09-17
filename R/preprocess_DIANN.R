@@ -14,11 +14,11 @@ get_nr_pep <- function(report){
 #' @import data.table
 #' @export
 #' @examples
-#'
+#' \dontrun{
 #' xx <- readr::read_tsv("WU292720_report.tsv")
 #' report2 <- prolfquapp::diann_read_output_deprec(xx)
 #' nrow(report2)
-#'
+#' }
 diann_read_output_deprec <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
   warning("DEPRECATED")
   select_PG <- function(report){
@@ -65,9 +65,11 @@ diann_read_output_deprec <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0
 #' @export
 #' @examples
 #'
+#' \dontrun{
 #' xx <- readr::read_tsv("WU292720_report.tsv")
 #' report2 <- prolfquapp::diann_read_output(xx)
 #' nrow(report2)
+#' }
 #'
 diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
   filter_PG <- function(PG,  .Lib.PG.Q.Value = 0.01, .PG.Q.Value = 0.05){
@@ -115,8 +117,9 @@ diann_output_to_peptide <- function(report2){
 #' @return list with paths to data and fasta
 #' @export
 #' @examples
+#' \dontrun{
 #' x <- get_DIANN_files("inst/application/DIANN/2517219/")
-#'
+#' }
 get_DIANN_files <- function(path){
   diann.path <- grep("report\\.tsv$|diann-output\\.tsv", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
   fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE,full.names = TRUE), value = TRUE)
@@ -134,15 +137,14 @@ get_DIANN_files <- function(path){
 #' @return list with lfqdata and protein annotation
 #' @export
 #' @examples
-#'
+#' \dontrun{
 #' x <- get_DIANN_files("inst/application/DIANN/2517219/")
 #'
 #' annotation <- file.path("inst/application/DIANN/2517219/dataset.csv") |>
 #'  readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
 #'  x$fasta
-#' #debug(preprocess_DIANN)
 #' xd <- preprocess_DIANN(x$data, x$fasta, annotation)
-#'
+#' }
 preprocess_DIANN <- function(quant_data,
                              fasta_file,
                              annotation,

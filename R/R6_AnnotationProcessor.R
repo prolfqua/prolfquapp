@@ -126,6 +126,8 @@ AnnotationProcessor <- R6::R6Class(
     control_col_pattern = "^control",
     #' @field sample_name_pattern sample name column
     sample_name_pattern = "^name|^sample",
+    #' @field strict should name check be strict
+    strict = FALSE,
 
     #' @description initialize
     #' @param QC default FALSE
@@ -173,7 +175,7 @@ AnnotationProcessor <- R6::R6Class(
       if ("data.frame" %in% class(dsf)) {
         annot <- dsf
       } else {
-        annot <- read_annotation(dsf)
+        annot <- prolfquapp::read_table_data(dsf)
       }
       annot <- data.frame(lapply(annot, as.character))
       self$check_annotation(annot)
@@ -232,9 +234,16 @@ AnnotationProcessor <- R6::R6Class(
       if (sum(grepl(self$sample_name_pattern, colnames(annot), ignore.case = TRUE)) > 0) {
         atable$sampleName <- grep(self$sample_name_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)[1]
       }
-      if (any(duplicated(annot[[atable$sampleName]]))) {
+      if (self$strict && any(duplicated(annot[[atable$sampleName]]))) {
         stop("sample Names must be unique.")
-      }
+      }else if (any(duplicated(annot[[atable$sampleName]]))) {
+        annot[[atable$sampleName]] <- data.frame(xx = annot[[atable$sampleName]]) |>
+          dplyr::group_by(xx) |>
+          dplyr::mutate(count = dplyr::row_number()) |>
+          tidyr::unite("name",c("xx","count")) |>
+          dplyr::pull("name")
+      } else {}
+
     },
 
     set_file_name = function(annot, atable) {
@@ -345,6 +354,13 @@ AnnotationProcessor <- R6::R6Class(
 #' @param repeated is this a repeated measurement
 #' @param SAINT is this a SAINTexpress analysis
 #' @export
+#' @examples
+#' annot <- data.frame(
+#' file = c("a1.raw","a2.raw","a3.raw","a4.raw"),
+#' name = c("aa","ba","aa","ba"),
+#' group = c("a","a","b","b"))
+#' read_annotation(annot, QC = TRUE)
+#'
 read_annotation <- function(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE){
   res <- AnnotationProcessor$new(repeated = repeated, SAINT = SAINT, prefix = prefix,QC = QC)$read_annotation(dsf)
   return(res)

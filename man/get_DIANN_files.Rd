@@ -13,6 +13,7 @@ list with paths to data and fasta
 get report.tsv and fasta file location in folder
 }
 \examples{
+\dontrun{
 x <- get_DIANN_files("inst/application/DIANN/2517219/")
-
+}
 }
