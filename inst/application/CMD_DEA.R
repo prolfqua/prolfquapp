@@ -114,14 +114,13 @@ result <- tryCatch({
 })
 
 if (!is.null(result$error)) {
-  logger::log_error("An error occurred:\n")
   logger::log_error(result$error, "\n")
   logger::log_error("Stack trace:\n")
   logger::log_error(result$stack_trace, "\n")
+  stop("error occured")
 } else {
-  procsoft <- result$procsoft  # Proceed with the result
-  xd <- procsoft$xd
-  files <- procsoft$files
+  xd <- result$value$xd
+  files <- result$value$files
 }
 
 
