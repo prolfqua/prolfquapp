@@ -57,6 +57,12 @@ if (FALSE) {
   opt$software <- "MSSTATS"
   opt$dataset <- "dataset.csv"
 }
+if (FALSE) {
+  ymlfile <- "config.yaml"
+  opt$indir <- "."
+  opt$software <- "DIANN"
+  opt$dataset <- "dataset.csv"
+}
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 

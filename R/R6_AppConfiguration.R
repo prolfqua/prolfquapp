@@ -325,8 +325,9 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN" ) {
   pop$remove_decoys <- if (yml$application$parameters$`6|remConDec` == "true") { TRUE } else { FALSE }
 
   pop$pattern_decoys <- yml$application$parameters$`7|REVpattern`
+  pop$pattern_decoys <- if (pop$pattern_decoys == "") { NULL } else {pop$pattern_decoys}
   pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
-
+  pop$pattern_contaminants <- if (pop$pattern_contaminants == "") { NULL } else (pop$pattern_contaminants)
   r6obj_config <- ProlfquAppConfig$new(pop, ps)
   r6obj_config$set_zipdir_name()
   r6obj_config$software = application
