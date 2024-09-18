@@ -104,6 +104,11 @@ get_annot_from_fasta <- function(
   } else {
     fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = .data$fasta.id )
   }
+  if (any(duplicated(fasta_annot$proteinname))) {
+    logger::log_error("there are duplicated protein ID's , mean duplicate :", mean(duplicated(fasta_annot$proteinname)))
+    logger::log_error("the pattern_decoys is : ", pattern_decoys)
+    stop("wrong decoys pattern.")
+  }
 
   if (mean(grepl(".+ GN=(.+) PE=.+",fasta_annot$fasta.header)) > 0.5) {
     fasta_annot <- fasta_annot |> dplyr::mutate(gene_name = extract_GN(.data$fasta.header))

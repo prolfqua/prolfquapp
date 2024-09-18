@@ -255,8 +255,8 @@ make_DEA_config_R6 <- function(
     nr_peptides = 1,
     removeContaminants = FALSE,
     removeDecoys = FALSE,
-    patternDecoys = "^REV_",
-    patternContaminants = "^zz",
+    patternDecoys = "",
+    patternContaminants = "",
     application = "DIANN",
     prefix = "DEA"){
 

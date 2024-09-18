@@ -10,7 +10,7 @@ preprocess_DIANN(
   annotation,
   q_value = 0.01,
   pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = NULL
+  pattern_decoys = "^REV_|^rev"
 )
 }
 \value{

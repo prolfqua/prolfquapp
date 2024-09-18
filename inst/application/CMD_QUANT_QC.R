@@ -53,6 +53,10 @@ if (FALSE) {
   opt$indir <- "."
   opt$dataset <- "dataset.csv"
 }
+if (TRUE) {
+  opt$indir <- "."
+  opt$dataset <- "dataset.csv"
+}
 
 
 # set library path
@@ -98,7 +102,8 @@ if (opt$software == "DIANN") {
     quant_data = files$data,
     fasta_file = files$fasta,
     annotation = annotation,
-    q_value = 0.01)
+    q_value = 0.01,
+    pattern_decoys = opt$pattern_decoys)
 } else if (opt$software == "FP_TMT") {
   files <- prolfquapp::get_FP_PSM_files(path)
   xd <- prolfquapp::preprocess_FP_PSM(
@@ -112,8 +117,9 @@ if (opt$software == "DIANN") {
   stop("unknown software : ", opt$software)
 }
 
+QC_generator$debug("get_prot_IBAQ")
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
-
+pap$get_prot_IBAQ()
 pap$write_xlsx()
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()
