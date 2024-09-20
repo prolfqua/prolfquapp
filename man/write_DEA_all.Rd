@@ -6,7 +6,7 @@
 \usage{
 write_DEA_all(
   grp2,
-  name = "Groups_vs_Controls",
+  name = "",
   boxplot = TRUE,
   render = TRUE,
   ORA = TRUE,

@@ -256,15 +256,16 @@ write_DEA <- function(GRP2, outpath, ORA = TRUE, GSEA = TRUE, xlsxname = "Analys
 #'
 write_DEA_all <- function(
     grp2,
-    name = "Groups_vs_Controls",
+    name = "",
     boxplot = TRUE ,
     render = TRUE,
     ORA = TRUE,
     GSEA = TRUE,
     markdown ="_Grp2Analysis.Rmd"){
   dir.create(grp2$get_zipdir())
-  fname <- paste0("DE_",  name, "_WU", grp2$project_spec$workunit_Id )
-  qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunit_Id )
+  name <- if (name != "") {paste0(name,"_")}
+  fname <- paste0("DE_",  name, "WU", grp2$project_spec$workunit_Id )
+  qcname <- paste0("QC_", name, "WU", grp2$project_spec$workunit_Id )
   outpath <- grp2$get_result_dir()
 
   prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname, ORA = ORA, GSEA = GSEA)

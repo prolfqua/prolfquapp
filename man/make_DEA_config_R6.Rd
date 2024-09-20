@@ -17,8 +17,8 @@ make_DEA_config_R6(
   nr_peptides = 1,
   removeContaminants = FALSE,
   removeDecoys = FALSE,
-  patternDecoys = "",
-  patternContaminants = "",
+  patternDecoys = "^REV_|^rev_",
+  patternContaminants = "^zz|^CON|Cont_",
   application = "DIANN",
   prefix = "DEA"
 )

@@ -48,17 +48,49 @@ extract_GN <- function(fasta.headers){
 
 
 
+.getSequences <- function(x){
+
+  fasta_str <- ">sp|A0A385XJL2|YGDT_ECOLI Protein YgdT OS=Escherichia coli (strain K12) OX=83333 GN=ygdT PE=4 SV=1
+MLSTESWDNCEKPPLLFPFTALTCDETPVFSGSVLNLVAHSVDKYGIG
+>sp|A5A615|YNCL_ECOLI Uncharacterized protein YncL OS=Escherichia coli (strain K12) OX=83333 GN=yncL PE=1 SV=1
+MNVSSRTVVLINFFAAVGLFTLISMRFGWFI
+>sp|P03018|UVRD_ECOLI DNA helicase II OS=Escherichia coli (strain K12) OX=83333 GN=uvrD PE=1 SV=1
+MDVSYLLDSLNDKQREAVAAPRSNLLVLAGAGSGKTRVLVHRIAWLMSVENCSPYSIMAV
+>sp|P04982|RBSD_ECOLI D-ribose pyranase OS=Escherichia coli (strain K12) OX=83333 GN=rbsD PE=1 SV=3
+MKKGTVLNSDISSVISRLGHTDTLVVCDAGLPIPKSTTRIDMALTQGVPSFMQVLGVVTN
+>sp|P04994|EX7L_ECOLI Exodeoxyribonuclease 7 large subunit OS=Escherichia coli (strain K12) OX=83333 GN=xseA PE=1 SV=2
+MLPSQSPAIFTVSRLNQTVRLLLEHEMGQVWISGEISNFTQPASGHWYFTLKDDTAQVRC
+>zz|Y-FGCZCont00001|  zz_FGCZCont0000_P61626_LYSC_HUMAN blastpHomologue_5.0e-107
+MKALIVLGLVLLSVTVQGKVFERCELARTLKRLGMDGYRGISLANWMCLAKWESGYNTRA
+>zz|Y-FGCZCont00002|  zz_FGCZCont0001_P02534_K1M1_SHEEP blastpHomologue_0.0
+SFNFCLPNLSFRSSCSSRPCVPSSCCGTTLPGACNIPANVGSCNWFCEGSFDGNEKETMQ
+>REV_sp|Q13515|BFSP2_HUMAN Phakinin OS=Homo sapiens OX=9606 GN=BFSP2 PE=1 SV=1
+GSEERDLLAHYSAVDKQLQCKRALLHAREQQQQEAEARIERLEAELRGVVAGLNQLEMDH
+>REV_sp|Q14183|DOC2A_HUMAN Double C2-like domain-containing protein alpha OS=Homo sapiens OX=9606 GN=DOC2A PE=1 SV=5
+ASSLAGAAPPLESTLTHWRELAADPQQLCDSWHKRAEGRAGPGLSVGGIFDNSKGIDYDW
+>REV_tr|A0A075B6W8|A0A075B6W8_HUMAN T cell receptor alpha joining 17 (Fragment) OS=Homo sapiens OX=9606 GN=TRAJ17 PE=4 SV=1
+PKVLVRTGGGFTLKNGAAKIX
+>REV_sp|A0A385XJL2|YGDT_ECOLI Protein YgdT OS=Escherichia coli (strain K12) OX=83333 GN=ygdT PE=4 SV=1
+GIGYKDVSHAVLNLVSGSFVPTEDCTLATFPFLLPPKECNDWSETSLM
+"
+  return(fasta_str)
+}
+
 #' get_annot_from_fasta
 #'
 #' @export
 #' @examples
 #'
-#' #prolfquapp::get_annot_from_fasta(fasta.files)
-#'
+#' fasta_conn <- textConnection(prolfquapp:::.getSequences())
+#' testthat::expect_error(prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "" ))
+#' close(fasta_conn)
+#' fasta_conn <- textConnection(prolfquapp:::.getSequences())
+#' prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "^REV_|^rev" )
+#' close(fasta_conn)
 #'
 get_annot_from_fasta <- function(
     fasta.files,
-    pattern_decoys = NULL,
+    pattern_decoys = "^REV_|^rev_",
     isUniprot = TRUE,
     min_length = 7,
     max_length = 30,
@@ -85,17 +117,16 @@ get_annot_from_fasta <- function(
   logger::log_info("get_annot : extract headers")
 
   logger::log_info("get_annot : all seq : ", nrow(fasta_annot))
-  if (!is.null(pattern_decoys)) {
+  if (!is.null(pattern_decoys) && pattern_decoys != "") {
     logger::log_info("removing decoy sequences usin patter : ", pattern_decoys)
     pcdecoy <- mean(grepl(pattern_decoys, fasta_annot$fasta.id))
     if (pcdecoy < 0.1) {
-      logger::log_error("Only ", pcdecoy, " found using pattern : ", pattern_decoys)
-      logger::log_error("Please specify empty string if no decoy's in fasta.")
-      stop("no decoys found")
+      logger::log_warn("Only ", pcdecoy, " found using pattern : ", pattern_decoys)
+      logger::log_warn("Please specify empty string if no decoy's in fasta.")
+      warning("no decoys found")
     }
     fasta_annot <- fasta_annot |> dplyr::filter( !grepl(pattern_decoys, .data$fasta.id))
     logger::log_info("get_annot nr seq after decoy removal: ", nrow(fasta_annot))
-
   }
 
   logger::log_info("get_annot : isUniprot : ", isUniprot)
@@ -106,8 +137,8 @@ get_annot_from_fasta <- function(
   }
   if (any(duplicated(fasta_annot$proteinname))) {
     logger::log_error("there are duplicated protein ID's , mean duplicate :", mean(duplicated(fasta_annot$proteinname)))
-    logger::log_error("the pattern_decoys is : ", pattern_decoys)
-    stop("wrong decoys pattern.")
+    logger::log_error("the pattern_decoys is : [", pattern_decoys, "]")
+    stop("wrong decoys pattern.", pattern_decoys, "\n")
   }
 
   if (mean(grepl(".+ GN=(.+) PE=.+",fasta_annot$fasta.header)) > 0.5) {

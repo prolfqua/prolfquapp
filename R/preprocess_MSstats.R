@@ -85,7 +85,7 @@ preprocess_MSstats <- function(quant_data,
   adata <- prolfqua::setup_analysis(apeptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   logger::log_info("Start reading fasta: ", fasta_file )
-  fasta_annot <- get_annot_from_fasta(fasta_file,pattern_decoys = pattern_decoys)
+  fasta_annot <- get_annot_from_fasta(fasta_file, pattern_decoys = pattern_decoys)
   logger::log_info("Finished reading fasta: ", fasta_file )
 
   fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("ProteinName" = "fasta.id"))

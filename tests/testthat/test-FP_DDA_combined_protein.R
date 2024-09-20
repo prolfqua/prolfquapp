@@ -10,7 +10,7 @@ test_that("FP_DDA_combined_protein", {
   curdir <- getwd()
   setwd(file.path(tmpdir,"TESTDATA"))
   source(xd[4])
-  tmp <- dir(file.path(tmpdir,"TESTDATA","C28350WU277930","DE_Groups_vs_Controls"))
+  tmp <- dir(file.path(tmpdir,"TESTDATA","C28350WU277930","DEA_"))
   testthat::expect_true(any(grepl(".rnk",tmp)))
   testthat::expect_true(any(grepl(".html",tmp)))
   testthat::expect_true(any(grepl(".xlsx",tmp)))

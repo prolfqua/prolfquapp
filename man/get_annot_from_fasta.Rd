@@ -6,7 +6,7 @@
 \usage{
 get_annot_from_fasta(
   fasta.files,
-  pattern_decoys = NULL,
+  pattern_decoys = "^REV_|^rev_",
   isUniprot = TRUE,
   min_length = 7,
   max_length = 30,
@@ -18,7 +18,11 @@ get_annot_from_fasta
 }
 \examples{
 
-#prolfquapp::get_annot_from_fasta(fasta.files)
-
+fasta_conn <- textConnection(prolfquapp:::.getSequences())
+testthat::expect_error(prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "" ))
+close(fasta_conn)
+fasta_conn <- textConnection(prolfquapp:::.getSequences())
+prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "^REV_|^rev" )
+close(fasta_conn)
 
 }

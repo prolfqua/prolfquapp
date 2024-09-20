@@ -12,6 +12,9 @@ option_list <- list(
   make_option( c("-i", "--indir"), type = "character", default = ".",
                help = "folder containing fasta file and output of the quantification software.",
                metavar = "string"),
+  make_option(c("-t","--pattern_decoys"), type = "character", default = "^REV_|^rev_",
+              help = " (optional) R library path",
+              metavar = "string"),
   make_option( c("-p", "--project"), type = "character", default = "",
                help = "your project identifier",
                metavar = "string"),
@@ -55,7 +58,7 @@ if (FALSE) {
 }
 if (TRUE) {
   opt$indir <- "."
-  opt$dataset <- "dataset.csv"
+  opt$dataset <- "dataset2.csv"
 }
 
 
@@ -98,6 +101,8 @@ annotation <- file.path( opt$dataset) |>
 
 if (opt$software == "DIANN") {
   files <- prolfquapp::get_DIANN_files(path)
+  #debug(prolfquapp::get_annot_from_fasta)
+  #undebug(prolfquapp::preprocess_DIANN)
   xd <- prolfquapp::preprocess_DIANN(
     quant_data = files$data,
     fasta_file = files$fasta,
@@ -109,7 +114,8 @@ if (opt$software == "DIANN") {
   xd <- prolfquapp::preprocess_FP_PSM(
     quant_data = files$data,
     fasta_file = files$fasta,
-    annotation = annotation
+    annotation = annotation,
+    pattern_decoys = opt$pattern_decoys
   )
 } else if (opt$software == "MAXQUANT") {
 
@@ -117,9 +123,7 @@ if (opt$software == "DIANN") {
   stop("unknown software : ", opt$software)
 }
 
-QC_generator$debug("get_prot_IBAQ")
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
-pap$get_prot_IBAQ()
 pap$write_xlsx()
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()

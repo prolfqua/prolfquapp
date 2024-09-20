@@ -297,7 +297,7 @@ preprocess_FP_PSM <- function(quant_data,
                               PeptideProphetProb = 0.9,
                               column_before_quants = c("Quan Usage" , "Mapped Proteins"),
                               pattern_contaminants = "^zz|^CON|Cont_",
-                              pattern_decoys = NULL){
+                              pattern_decoys = "^REV_|^rev_"){
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(

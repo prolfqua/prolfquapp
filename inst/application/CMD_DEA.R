@@ -63,6 +63,14 @@ if (FALSE) {
   opt$software <- "DIANN"
   opt$dataset <- "dataset.csv"
 }
+if (FALSE) {
+  ymlfile <- "dea.yaml"
+  opt$indir <- "Input_Dir/"
+  opt$software <- "DIANN"
+  opt$dataset <- "datasetWContrasts.xlsx"
+}
+
+
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
@@ -70,6 +78,7 @@ logger::log_info("YAML file read: ", ymlfile)
 stopifnot(file.exists(ymlfile))
 
 GRP2 <- prolfquapp::get_config(ymlfile)
+
 res <- prolfquapp::sync_opt_config(opt, GRP2)
 opt <- res$opt
 GRP2 <- res$config
@@ -141,7 +150,7 @@ logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
 
 
 outdir <- prolfquapp::write_DEA_all(
-  grp, boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
+  grp, name = "", boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
 
 lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
   contaminants = GRP2$processing_options$remove_cont,
@@ -150,7 +159,7 @@ lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
 # do not write when peptide level analysis.
 if (length(xd$protein_annotation$pID) == 1) {
   ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
-  writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(grp$get_result_dir(), "IBAQ.xlsx"))
+  writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(grp$get_result_dir(), paste0("IBAQ_",opt$workunit,".xlsx")))
 }
 
 logger::log_info("Writing summarized experiment.")

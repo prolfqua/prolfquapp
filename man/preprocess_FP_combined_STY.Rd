@@ -8,8 +8,8 @@ preprocess_FP_combined_STY(
   quant_data,
   fasta,
   annotation,
-  pattern_contaminants = "^zz|^CON",
-  pattern_decoys = "REV_",
+  pattern_contaminants = "^zz|^CON|Cont_",
+  pattern_decoys = "^REV_|^rev_",
   annotation_join_by = c("raw.file", "Name")
 )
 }

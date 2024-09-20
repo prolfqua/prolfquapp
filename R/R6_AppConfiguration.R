@@ -116,16 +116,21 @@ ProlfquAppConfig <- R6::R6Class(
       self$prefix = prefix
     },
     set_zipdir_name = function(){
-        pi <- if (length(self$project_spec$project_Id) == 0 || self$project_spec$project_Id != "") {
-          paste0("_PI_", self$project_spec$project_Id)
-        } else { NULL }
+        pi <- if (length(self$project_spec$project_Id) == 0 || self$project_spec$project_Id == "") {
+          NULL
+        } else { paste0("_PI", self$project_spec$project_Id) }
+        oi <- if (length(self$project_spec$order_Id) == 0 || self$project_spec$order_Id == "") {
+          NULL
+        } else { paste0("_O",self$project_spec$order_Id) }
+        wu <- if (length(self$project_spec$workunit_Id) == 0 || self$project_spec$workunit_Id == "") {
+          NULL
+        } else {paste0("_WU",self$project_spec$workunit_Id)}
         res <- paste0(
           self$prefix,
           "_",format(Sys.Date(), "%Y%m%d"),
-          pi ,
-          "_OI_",
-          self$project_spec$order_Id,
-          "_WU_",self$project_spec$workunit_Id,
+          pi,
+          oi,
+          wu,
           "_", self$processing_options$transform)
       self$zipdir_name = res
       return(res)
@@ -134,11 +139,11 @@ ProlfquAppConfig <- R6::R6Class(
       return(file.path(self$path, self$zipdir_name))
     },
     get_result_dir = function(){
-      tmp <- file.path( self$get_zipdir() , paste0("Results_DEA_WU", self$project_spec$workunit_Id))
+      tmp <- file.path( self$get_zipdir() , paste0("Results_WU_", self$project_spec$workunit_Id))
       return(tmp)
     },
     get_input_dir = function(){
-      tmp <- file.path(self$get_zipdir(), paste0("Inputs_DEA_WU", self$project_spec$workunitID))
+      tmp <- file.path(self$get_zipdir(), paste0("Inputs_WU_", self$project_spec$workunit_Id))
       return(tmp)
     },
     as_list = function(){
@@ -255,8 +260,8 @@ make_DEA_config_R6 <- function(
     nr_peptides = 1,
     removeContaminants = FALSE,
     removeDecoys = FALSE,
-    patternDecoys = "",
-    patternContaminants = "",
+    patternDecoys = "^REV_|^rev_",
+    patternContaminants = "^zz|^CON|Cont_",
     application = "DIANN",
     prefix = "DEA"){
 
