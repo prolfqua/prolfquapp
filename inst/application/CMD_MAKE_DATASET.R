@@ -65,9 +65,12 @@ if (opt$software == "DIANN") {
   files <- prolfquapp::get_MSstats_files(opt$indir)
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
+  logger::log_info("Read data:", files$data)
+
   msstats_df <- prolfquapp::read_table_data(files$data)
   datasetannot <- msstats_df |> dplyr::select(raw.file = "Run", "Group" = "Condition", "Subject" = "BioReplicate") |> dplyr::distinct()
   datasetannot$Control <- ""
+  datasetannot <- datasetannot |> tidyr::unite("Name", "Group", "Subject", sep = "_", remove = FALSE)
   prolfquapp::write_annotation_file(datasetannot, opt$dataset)
 } else if (opt$software == "FP_multisite") {
 } else if (opt$software == "FP_combined_STY") {

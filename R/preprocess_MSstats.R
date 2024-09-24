@@ -55,6 +55,8 @@ preprocess_MSstats <- function(quant_data,
     ))
 
   peptide <- read_msstats(quant_data)
+  peptide$nr_peptides <- 1
+
   nrPeptides_exp <- peptide |> dplyr::select(all_of(c("ProteinName", "PeptideSequence"))) |>
     dplyr::distinct() |>
     dplyr::group_by(dplyr::across("ProteinName")) |>
@@ -74,6 +76,7 @@ preprocess_MSstats <- function(quant_data,
   atable$ident_qValue = "qValue"
   atable$hierarchy[["protein_Id"]] <- c("ProteinName")
   atable$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
+  atable$nr_children = "nr_peptides"
   atable$set_response("Intensity")
   atable$hierarchyDepth <- 1
 
