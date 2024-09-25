@@ -63,7 +63,7 @@ if (FALSE) {
   opt$software <- "DIANN"
   opt$dataset <- "dataset.csv"
 }
-if (FALSE) {
+if (TRUE) {
   ymlfile <- "MSstats_CSV20/msstats20.yaml"
   opt$indir <- "MSstats_CSV20/"
   opt$software <- "MSSTATS_FP_DIA"
@@ -91,12 +91,9 @@ current_time <- Sys.time()
 formatted_time <- format(current_time, "%Y%m%d%H%M")
 logfile <- paste0("prolfqua_", formatted_time, ".log")
 appender_combined <- logger::appender_tee(file.path(GRP2$get_zipdir(), logfile))
-
-
 logger::log_appender(appender_combined)
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
-
-logger::log_info("Writing to output directory : ", opt$get_zipdir(), " and file :", logfile)
+logger::log_info("Writing to output directory : ", GRP2$get_zipdir(), " and file :", logfile)
 
 
 
