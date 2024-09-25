@@ -84,11 +84,19 @@ opt <- res$opt
 GRP2 <- res$config
 
 dir.create(opt$outdir)
-appender_combined <- logger::appender_tee(file.path(opt$outdir, "prolfqua.log"))
+dir.create(GRP2$get_zipdir())
+
+current_time <- Sys.time()
+
+formatted_time <- format(current_time, "%Y%m%d%H%M")
+logfile <- paste0("prolfqua_", formatted_time, ".log")
+appender_combined <- logger::appender_tee(file.path(GRP2$get_zipdir(), logfile))
+
+
 logger::log_appender(appender_combined)
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 
-logger::log_info("Writing to output directory : ", opt$outdir)
+logger::log_info("Writing to output directory : ", opt$get_zipdir(), " and file :", logfile)
 
 
 
