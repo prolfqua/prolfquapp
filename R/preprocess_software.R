@@ -4,7 +4,7 @@
 preprocess_software <- function(indir,
                                 annotation,
                                 pattern_contaminants ="^zz|^CON|Cont_" , pattern_decoys = "^rev_|^REV_",
-                                software = c("DIANN", "FP_TMT", "FP_multisite", "MAXQUANT", "MSSTATS")) {
+                                software = c("DIANN", "FP_TMT", "FP_multisite", "MAXQUANT", "MSSTATS", "MSSTATS_FP_DIA")) {
   software <- match.arg(software)
   if (software == "DIANN") {
     files <- prolfquapp::get_DIANN_files(indir)
@@ -60,6 +60,17 @@ preprocess_software <- function(indir,
     logger::log_info("Files data: ", paste(files$data, collapse = "; "))
     logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
     xd <- prolfquapp::preprocess_MSstats(
+      quant_data = files$data,
+      fasta_file = files$fasta,
+      annotation = annotation,
+      pattern_contaminants = pattern_contaminants,
+      pattern_decoys = pattern_decoys
+    )
+  } else if (software == "MSSTATS_FP_DIA") {
+    files <- prolfquapp::get_MSstats_files(indir)
+    logger::log_info("Files data: ", paste(files$data, collapse = "; "))
+    logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
+    xd <- prolfquapp::preprocess_MSstats_FPDIA(
       quant_data = files$data,
       fasta_file = files$fasta,
       annotation = annotation,

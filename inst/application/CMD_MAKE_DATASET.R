@@ -17,7 +17,11 @@ option_list <- list(
                metavar = "string"),
   make_option(c("-s", "--software"), type = "character", default = "DIANN",
               help = "possible options DIANN, FP_TMT, MAXQUANT, MSSTATS, FP_multisite, FP_combined_STY",
+              metavar = "character"),
+  make_option(c("-f", "--function"), type = "character", default = "",
+              help = "possible options: packagename::processing_function",
               metavar = "character")
+
 )
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)

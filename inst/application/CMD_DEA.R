@@ -16,7 +16,7 @@ option_list <- list(
                         help = "yaml configuration file",
                         metavar = "character"),
   optparse::make_option(c("-s", "--software"), type = "character", default = NULL,
-                        help = "possible options: DIANN, FP_TMT, FP_multisite, FP_combined_STY, MAXQUANT, MSSTATS",
+                        help = "possible options: DIANN, FP_TMT, FP_multisite, FP_combined_STY, MAXQUANT, MSSTATS, MSSTATS_FP_DIA",
                         metavar = "character"),
   optparse::make_option(c("-o", "--outdir"), type = "character", default = NULL,
                         help = "output directory",
@@ -64,10 +64,10 @@ if (FALSE) {
   opt$dataset <- "dataset.csv"
 }
 if (FALSE) {
-  ymlfile <- "dea.yaml"
-  opt$indir <- "Input_Dir/"
-  opt$software <- "DIANN"
-  opt$dataset <- "datasetWContrasts.xlsx"
+  ymlfile <- "MSstats_CSV20/msstats20.yaml"
+  opt$indir <- "MSstats_CSV20/"
+  opt$software <- "MSSTATS_FP_DIA"
+  opt$dataset <- "MSstats_CSV20/dataset_msstats20.xlsx"
 }
 
 
@@ -105,6 +105,7 @@ logger::log_info("Factors : ",paste(annotation$atable$factor_keys_depth(), colla
 prolfquapp::copy_DEA_Files()
 logger::log_info("Software: ", opt$software)
 
+undebug(preprocess_MSstats_FPDIA)
 
 result <- tryCatch({
   # Attempt to run the function
@@ -145,9 +146,12 @@ logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)
 logger::log_info("END OF PROTEIN AGGREGATION")
 logger::log_info("RUN ANALYSIS")
-grp <- prolfquapp::generate_DEA_reports2(lfqdata, GRP2, xd$protein_annotation, annotation$contrasts)
+grp <- prolfquapp::generate_DEA_reports2(
+  lfqdata,
+  GRP2,
+  xd$protein_annotation,
+  annotation$contrasts)
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
-
 
 outdir <- prolfquapp::write_DEA_all(
   grp, name = "", boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
@@ -156,10 +160,12 @@ lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
   contaminants = GRP2$processing_options$remove_cont,
   decoys = GRP2$processing_options$remove_decoys))
 
-# do not write when peptide level analysis.
+# do not write when peptide level analysis
 if (length(xd$protein_annotation$pID) == 1) {
   ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
-  writexl::write_xlsx(ibaq$to_wide()$data, path = file.path(grp$get_result_dir(), paste0("IBAQ_",opt$workunit,".xlsx")))
+  writexl::write_xlsx(
+    ibaq$to_wide()$data,
+    path = file.path(grp$get_result_dir(), paste0("IBAQ_",opt$workunit,".xlsx")))
 }
 
 logger::log_info("Writing summarized experiment.")

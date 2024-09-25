@@ -9,7 +9,8 @@ preprocess_software(
   annotation,
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^rev_|^REV_",
-  software = c("DIANN", "FP_TMT", "FP_multisite", "MAXQUANT", "MSSTATS")
+  software = c("DIANN", "FP_TMT", "FP_multisite", "MAXQUANT", "MSSTATS",
+    "MSSTATS_FP_DIA")
 )
 }
 \description{

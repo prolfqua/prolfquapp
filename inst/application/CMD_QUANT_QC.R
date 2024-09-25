@@ -56,11 +56,17 @@ if (FALSE) {
   opt$indir <- "."
   opt$dataset <- "dataset.csv"
 }
-if (TRUE) {
+if (FALSE) {
   opt$indir <- "."
   opt$dataset <- "dataset2.csv"
 }
-
+if (FALSE) {
+  # ./prolfqua_qc.sh -s MSSTATS_FP_DIA -i MSstats_CSV20 -d MSstats_CSV20/dataset_msstats20.xlsx -o qc_dir_msstats20
+  opt$indir <- "MSstats_CSV20"
+  opt$software <- "MSSTATS_FP_DIA"
+  opt$dataset <- "MSstats_CSV20/dataset_msstats20.xlsx"
+  opt$outdir <- "qc_dir_msstats20"
+}
 
 # set library path
 if (!is.null(opt$libPath) && dir.exists(opt$libPath)) {
@@ -97,33 +103,41 @@ if (!file.exists( opt$dataset)) {stop("No annotation file found : ", opt$dataset
 annotation <- file.path( opt$dataset) |>
   prolfquapp::read_table_data() |> prolfquapp::read_annotation(QC = TRUE)
 
-
-
-if (opt$software == "DIANN") {
-  files <- prolfquapp::get_DIANN_files(path)
-  #debug(prolfquapp::get_annot_from_fasta)
-  #undebug(prolfquapp::preprocess_DIANN)
-  xd <- prolfquapp::preprocess_DIANN(
-    quant_data = files$data,
-    fasta_file = files$fasta,
-    annotation = annotation,
-    q_value = 0.01,
-    pattern_decoys = opt$pattern_decoys)
-} else if (opt$software == "FP_TMT") {
-  files <- prolfquapp::get_FP_PSM_files(path)
-  xd <- prolfquapp::preprocess_FP_PSM(
-    quant_data = files$data,
-    fasta_file = files$fasta,
-    annotation = annotation,
-    pattern_decoys = opt$pattern_decoys
+result <- tryCatch({
+  # Attempt to run the function
+  procsoft <- preprocess_software(
+    opt$indir,
+    annotation,
+    pattern_contaminants = GRP2$processing_options$pattern_contaminants,
+    pattern_decoys = GRP2$processing_options$pattern_decoys,
+    software = opt$software
   )
-} else if (opt$software == "MAXQUANT") {
+  # Return the result if successful
+  list(value = procsoft, error = NULL, stack_trace = NULL)
+}, error = function(e) {
+  # On error, capture the stack trace as text
+  stack_trace <- capture.output(traceback())
+  # Return the error message and stack trace
+  list(
+    value = NULL,
+    error = conditionMessage(e),
+    stack_trace = paste(stack_trace, collapse = "\n")
+  )
+})
 
+if (!is.null(result$error)) {
+  logger::log_error(result$error, "\n")
+  logger::log_error("Stack trace:\n")
+  logger::log_error(result$stack_trace, "\n")
+  stop("error occured")
 } else {
-  stop("unknown software : ", opt$software)
+  xd <- result$value$xd
+  files <- result$value$files
 }
 
+GRP2$get_zipdir()
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
+
 pap$write_xlsx()
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()
