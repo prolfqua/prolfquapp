@@ -2,8 +2,9 @@ ARG R_VERSION=4.4.1
 
 FROM r-base:${R_VERSION} AS base
 RUN apt-get update \
-  && apt-get install -y pandoc \
+  && apt-get install -y pandoc pipx \
   && rm -rf /var/lib/apt/lists/*
+RUN pipx install quarto-cli
 
 
 
@@ -28,5 +29,5 @@ RUN R -e 'options(warn=2); pak::pkg_install("/opt/prolfqua", upgrade = FALSE)'
 FROM base
 COPY --from=build /opt/r-libs-site /opt/r-libs-site
 ENV R_LIBS_USER=/opt/r-libs-site
-ENV PATH="/opt/r-libs-site/prolfquapp/application/bin:${PATH}"
+ENV PATH="/opt/r-libs-site/prolfquapp/application/bin:/root/.local/bin:${PATH}"
 ENTRYPOINT ["/bin/bash"]
