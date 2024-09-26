@@ -126,7 +126,7 @@ get_DIANN_files <- function(path){
   if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
     fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
   }
-  fasta.files <- fasta.files[!grepl("first-pass")]
+  fasta.files <- fasta.files[!grepl("first-pass",fasta.files)]
 
   if (length(fasta.files) == 0) {
     logger::log_error("No fasta file found!")
