@@ -63,7 +63,7 @@ if (FALSE) {
   opt$software <- "DIANN"
   opt$dataset <- "dataset.csv"
 }
-if (TRUE) {
+if (FALSE) {
   ymlfile <- "MSstats_CSV20/msstats20.yaml"
   opt$indir <- "MSstats_CSV20/"
   opt$software <- "MSSTATS_FP_DIA"

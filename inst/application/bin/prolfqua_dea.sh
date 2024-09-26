@@ -2,12 +2,11 @@
 
 
 # Function to extract the directory of the dataset argument
-get_dataset_dir() {
+get_indir() {
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -d|--dataset)
-                dataset_path="$2"
-                dataset_dir=$(dirname "$dataset_path")
+            -i|--indir)
+                indir_dir="$2"
                 return 0
                 ;;
         esac
@@ -17,22 +16,45 @@ get_dataset_dir() {
 }
 
 
-# Get the path to the installed R package
-PACKAGE_PATH=$(Rscript --vanilla -e "cat(system.file(package = 'prolfquapp'))")
+# Function to rename the log file if it exists by adding a number (1, 2, 3, ...)
+rename_log_file_if_exists() {
+    local file="$1"
+    local counter=1
+    local new_file="${file%.log}_$counter.log"
 
-# Build the path to the R script
-R_SCRIPT_PATH="${PACKAGE_PATH}/application/CMD_DEA.R"
+    while [[ -f "$new_file" ]]; do
+        counter=$((counter + 1))
+        new_file="${file%.log}_$counter.log"
+    done
+
+    if [[ -f "$file" ]]; then
+        mv "$file" "$new_file"
+        echo "Renamed existing log file to $new_file"
+    fi
+}
+
+
+
 
 # Default log file path
 log_file="prolfqua_logMemUsage_dea.log"
 
 # Extract dataset directory if -d or --dataset argument is provided
-if get_dataset_dir "$@"; then
-    log_file="${dataset_dir}/prolfqua_logMemUsage_dea.log"
+if get_indir "$@"; then
+    log_file="${indir_dir}/prolfqua_logMemUsage_dea.log"
     echo $log_file
     # Create the directory if it does not exist
-    mkdir -p "$dataset_dir"
+    mkdir -p "$indir_dir"
 fi
+
+rename_log_file_if_exists $log_file
+
+
+# Get the path to the installed R package
+PACKAGE_PATH=$(Rscript --vanilla -e "cat(system.file(package = 'prolfquapp'))")
+# Build the path to the R script
+R_SCRIPT_PATH="${PACKAGE_PATH}/application/CMD_DEA.R"
+
 
 if [[ -f "$R_SCRIPT_PATH" ]]; then
     echo "Rscript --vanilla \"$R_SCRIPT_PATH\" \"$@\""

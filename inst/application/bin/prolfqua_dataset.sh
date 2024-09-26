@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Function to extract the directory of the dataset argument
-get_dataset_dir() {
+get_indir() {
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -d|--dataset)
-                dataset_path="$2"
-                dataset_dir=$(dirname "$dataset_path")
+            -i|--indir)
+                indir_dir="$2"
+                echo $indir_dir
                 return 0
                 ;;
         esac
@@ -26,15 +26,18 @@ R_SCRIPT_PATH="${PACKAGE_PATH}/application/CMD_MAKE_DATASET.R"
 log_file="prolfqua_logMemUsage_dataset.log"
 
 # Extract dataset directory if -d or --dataset argument is provided
-if get_dataset_dir "$@"; then
-    log_file="${dataset_dir}/prolfqua_logMemUsage_dataset.log"
+if get_indir "$@"; then
+    log_file="${indir_dir}/prolfqua_logMemUsage_dataset.log"
     echo $log_file
     # Create the directory if it does not exist
-    mkdir -p "$dataset_dir"
+    mkdir -p "$indir_dir"
 fi
 
 # Check if the R script exists
 rm -f "$log_file"
+echo $log_file
+
+
 
 if [[ -f "$R_SCRIPT_PATH" ]]; then
     echo "Rscript --vanilla \"$R_SCRIPT_PATH\" \"$@\""
