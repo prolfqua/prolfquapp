@@ -6,3 +6,9 @@
 inst/doc
 /doc/
 /Meta/
+Dockerfile
+.dockerignore
+.git
+.github
+.gitignore
+inst/poster
