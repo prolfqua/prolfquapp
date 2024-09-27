@@ -1,10 +1,19 @@
 ARG R_VERSION=4.4.1
 
 FROM r-base:${R_VERSION} AS base
+ARG TARGETPLATFORM
+ARG QUARTO_VERSION=1.5.57
+
 RUN apt-get update \
-  && apt-get install -y pandoc pipx \
+  && apt-get install -y pandoc gdebi \
   && rm -rf /var/lib/apt/lists/*
-RUN pipx install quarto-cli
+
+RUN apt-get update
+
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; else ARCHITECTURE=amd64; fi \
+  && wget "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${ARCHITECTURE}.deb" -O /tmp/quarto.deb \
+  && gdebi --non-interactive /tmp/quarto.deb \
+  && rm /tmp/quarto.deb
 
 
 
@@ -12,6 +21,7 @@ FROM base AS build
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update \
+  && apt-get upgrade -y \
   && apt-get install -y libcurl4-openssl-dev cmake libglpk-dev libxml2-dev libfontconfig1-dev libfreetype6-dev \
   && rm -rf /var/lib/apt/lists/*
 ENV R_LIBS_USER=/opt/r-libs-site
