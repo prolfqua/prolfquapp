@@ -38,6 +38,8 @@ RUN R -e 'options(warn=2); pak::pkg_install("/opt/prolfqua", upgrade = FALSE)'
 
 FROM base
 COPY --from=build /opt/r-libs-site /opt/r-libs-site
+RUN mkdir -p /tmp/quarto-cache && chmod 0777 /tmp/quarto-cache
+ENV XDG_CACHE_HOME=/tmp/quarto-cache
 ENV R_LIBS_USER=/opt/r-libs-site
 ENV PATH="/opt/r-libs-site/prolfquapp/application/bin:/root/.local/bin:${PATH}"
 ENTRYPOINT ["/bin/bash"]
