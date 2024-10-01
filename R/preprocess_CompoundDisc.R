@@ -1,45 +1,50 @@
 #' massage CD output compound table.
 #' @export
-massage_CD <- function(in_file, remove = c("none", "Full gap") ){
-  remove <- match.arg(remove)
+massage_CD <- function(in_file ){
+
   xd <- if (is.character(in_file) && file.exists(in_file)) {
     readxl::read_excel(in_file)
   } else if (is.data.frame(in_file)) {
     in_file
   } else { stopifnot("expecting data frame or path got : ", class(in_file))}
   xd$my_C_ID <- 1:nrow(xd)
-  annot <- xd |> dplyr::select("my_C_ID", "Checked","Tags",
-                        "Structure","description" = "Name","Formula","Annot. Source: Predicted Compositions","Annot. Source: mzCloud Search",
-                        "Annot. Source: mzVault Search","Annot. Source: ChemSpider Search","Annot. Source: MassList Search",
-                        "Annotation MW", "Calc. MW","m/z","RT [min]")
+  annot <- xd |> dplyr::select(any_of(c("my_C_ID", "Checked","Tags",
+                                        "Structure","description" = "Name","Formula","Annot Source Predicted Compositions","Annot Source mzCloud Search",
+                                        "Annot Source mzVault Search","Annot Source ChemSpider Search","Annot Source MassList Search",
+                                        "Annotation MW", "Calc MW","mz",RT_min = "RT in min")))
   colnames(annot) <- gsub("[[:space:].:/]+", "_",colnames(annot))
   colnames(annot) <- gsub("\\[|\\]","",colnames(annot))
   annot <- annot |> dplyr::mutate(FormulaB = stringr::str_replace_all(Formula, " ",""))
-  annot <- annot |> tidyr::unite("metabolite_feature_Id", c("my_C_ID","FormulaB", "m_z", "RT_min"), sep = "_", remove = FALSE)
+  annot <- annot |> tidyr::unite(
+    "metabolite_feature_Id",
+    c("my_C_ID","FormulaB", "mz", "RT_min"), sep = "_", remove = FALSE)
 
+  columns <- c("Area","Gap Status","Gap Fill Status","Peak Rating")
 
-  tolong <- xd |> dplyr::select("my_C_ID",tidyselect::starts_with(c("Area:","Gap Status:","Gap Fill Status:","Peak Rating:")),)
+  tolong <- xd |> dplyr::select("my_C_ID",tidyselect::starts_with(columns))
+  tolong <- select(tolong, -all_of(c("Area Max", "Area SD", "Area CV in Percent")))
+
+  sum(grepl(columns[1], colnames(tolong)))
+  sum(grepl(columns[2], colnames(tolong)))
+  sum(grepl(columns[3], colnames(tolong)))
+  sum(grepl(columns[4], colnames(tolong)))
+
   xdl <- tolong |> tidyr::pivot_longer(
-    cols = tidyselect::starts_with(c("Area:","Gap Status:","Gap Fill Status:","Peak Rating:")),
-    names_to = c(".value","filename","file_id"),names_pattern = "(.*)\\: (.*)(\\s\\(F\\d+\\))" )
-
-
+    cols = tidyselect::starts_with(c("Area","Gap Status","Gap Fill Status","Peak Rating")),
+    names_to = c(".value","filename","file_id"),names_pattern = "(.*)\\s(.*)\\s(F\\d+)" )
+  xdl$`Gap Fill Status` |> table()
 
   colnames(xdl) <- gsub("# ", "", colnames(xdl) )
   colnames(xdl) <- gsub("[[:space:]]","_",colnames(xdl))
-
-
   xdl <- xdl |> dplyr::mutate(file_id = gsub(" ","",gsub("\\(|\\)","", file_id)))
 
   # use nr_children to encode gap status.
   xdl <- xdl |> dplyr::mutate(
     nr_children = dplyr::case_when(
-    Gap_Status == "Full gap" ~ 0,
-    Gap_Status == "Missing ions" ~ 1,
-    Gap_Status == "No gap" ~ 2,
-    TRUE ~ 3))
-
-  xdl <- xdl |> dplyr::filter(Gap_Status != remove)
+      Gap_Status == "Full gap" ~ 0,
+      Gap_Status == "Missing ions" ~ 1,
+      Gap_Status == "No gap" ~ 2,
+      TRUE ~ 3))
 
   xdl <- dplyr::inner_join(annot, xdl, by = "my_C_ID")
   return(xdl)

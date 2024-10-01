@@ -110,8 +110,6 @@ logger::log_info("Factors : ",paste(annotation$atable$factor_keys_depth(), colla
 prolfquapp::copy_DEA_Files()
 logger::log_info("Software: ", opt$software)
 
-undebug(preprocess_MSstats_FPDIA)
-
 result <- tryCatch({
   # Attempt to run the function
   procsoft <- preprocess_software(

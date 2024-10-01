@@ -4,15 +4,12 @@ prolfquapp::copy_DEA_DIANN()
 
 
 files <- dir()
-files
 annot <- readxl::read_xlsx(grep("_InputFiles.xlsx$",files, value = TRUE))
 colnames(annot) <- make.names(colnames(annot))
 str(annot)
 
 annot <- dplyr::select(annot, any_of(c("Study.File.ID", "File.Name","Group","SampleGroup")))
 annot$Group |> table() |> t() |> t()
-
-
 annot <- annot |> dplyr::mutate(CONTROL = case_when(Group == "a" ~ "C" , TRUE ~ "T"))
 
 
@@ -27,7 +24,7 @@ annotation <- prolfquapp::read_annotation(annot)
 annotation$annot
 #######
 
-GRP2 <- prolfquapp::make_DEA_config_R6(ZIPDIR = "test_StudyInformationOut")
+GRP2 <- prolfquapp::make_DEA_config_R6()
 dir.create(GRP2$zipdir)
 
 

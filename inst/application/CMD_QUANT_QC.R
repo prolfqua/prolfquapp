@@ -61,11 +61,10 @@ if (FALSE) {
   opt$dataset <- "dataset2.csv"
 }
 if (FALSE) {
-  # ./prolfqua_qc.sh -s MSSTATS_FP_DIA -i MSstats_CSV20 -d MSstats_CSV20/dataset_msstats20.xlsx -o qc_dir_msstats20
-  opt$indir <- "MSstats_CSV20"
-  opt$software <- "MSSTATS_FP_DIA"
-  opt$dataset <- "MSstats_CSV20/dataset_msstats20.xlsx"
-  opt$outdir <- "qc_dir_msstats20"
+  opt$indir <- "FragPipe_all"
+  opt$software <- "DIANN"
+  opt$dataset <- "FragPipe_all/dataset_msstats_all.xlsx"
+  opt$outdir <- "qc_dir_diann"
 }
 
 # set library path
@@ -124,6 +123,7 @@ result <- tryCatch({
     stack_trace = paste(stack_trace, collapse = "\n")
   )
 })
+
 
 if (!is.null(result$error)) {
   logger::log_error(result$error, "\n")

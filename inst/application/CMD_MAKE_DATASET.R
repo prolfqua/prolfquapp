@@ -48,6 +48,7 @@ if (opt$software == "DIANN") {
   logger::log_info("Files data: ", files$data)
   logger::log_info("Files fasta: ", files$fasta)
   data <- readr::read_tsv(files$data)
+  logger::log_info("Files: ", files$data, " loaded. Starting filtering.")
   xx <- prolfquapp::diann_read_output(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.01)
   datasetannot <- data.frame(raw.file = unique(xx$raw.file), Name = NA, Group = NA, Subject = NA, Control = NA)
   prolfquapp::write_annotation_file(datasetannot, opt$dataset)

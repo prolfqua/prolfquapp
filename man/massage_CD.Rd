@@ -4,7 +4,7 @@
 \alias{massage_CD}
 \title{massage CD output compound table.}
 \usage{
-massage_CD(in_file, remove = c("none", "Full gap"))
+massage_CD(in_file)
 }
 \description{
 massage CD output compound table.
