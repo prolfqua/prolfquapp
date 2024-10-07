@@ -64,19 +64,28 @@ if (FALSE) {
   opt$dataset <- "dataset.csv"
 }
 if (FALSE) {
-  ymlfile <- "MSstats_CSV20/msstats20.yaml"
-  opt$indir <- "MSstats_CSV20/"
-  opt$software <- "MSSTATS_FP_DIA"
-  opt$dataset <- "MSstats_CSV20/dataset_msstats20.xlsx"
+  ymlfile <- "FragPipe_f20/msstats20.yaml"
+  opt$indir <- "FragPipe_f20"
+  opt$software <- "MSSTATS_FP_DIA_PEPTIDE"
+  opt$dataset <- "FragPipe_f20/dataset_msstats20_parallel.xlsx"
+  opt$workunit <- "testing_peptide"
 }
+if (FALSE) {
+  ymlfile <- "FragPipe_all/msstatsall.yml"
+  opt$indir <- "FragPipe_f20_diann"
+  opt$software <- "DIANN_PEPTIDE"
+  opt$dataset <- "FragPipe_all/dataset_msstats_all_interaction_no_Subject.xlsx"
+  opt$workunit <- "f20_diann_PEPTIDE_with_subject"
 
-
+}
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 
 logger::log_info("YAML file read: ", ymlfile)
 stopifnot(file.exists(ymlfile))
 
+#undebug(get_config)
+#undebug(list_to_R6_app_config)
 GRP2 <- prolfquapp::get_config(ymlfile)
 
 res <- prolfquapp::sync_opt_config(opt, GRP2)
@@ -103,6 +112,7 @@ logger::log_info( prolfquapp::capture_output( quote(lobstr::tree(R6_extract_valu
 
 annotation <- file.path(opt$dataset) |>
   prolfquapp::read_table_data() |> prolfquapp::read_annotation(prefix = GRP2$group)
+
 logger::log_info("Contrasts: \n", paste(annotation$contrasts, collapse = "\n"))
 
 logger::log_info("Factors : ",paste(annotation$atable$factor_keys_depth(), collapse = "\n"))
@@ -115,6 +125,7 @@ result <- tryCatch({
   procsoft <- preprocess_software(
     opt$indir,
     annotation,
+    prolfquapp::prolfq_preprocess_functions,
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys,
     software = opt$software
@@ -184,7 +195,7 @@ prolfquapp::copy_shell_script(workdir = GRP2$get_input_dir())
 
 file.copy(c(files$data, files$fasta, ymlfile, opt$dataset), GRP2$get_input_dir())
 
-logger::log_info("Wirte yaml with parameters: ", file.path(GRP2$get_input_dir(), "minimal.yaml"))
+logger::log_info("Write yaml with parameters: ", file.path(GRP2$get_input_dir(), "minimal.yaml"))
 
 GRP2$RES <- NULL
 GRP2$pop <- NULL

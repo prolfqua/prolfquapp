@@ -4,14 +4,25 @@
 QC_generator <- R6::R6Class(
   "QC_generator",
   public = list(
+    #' @field lfqdata lfqdata
     lfqdata = NULL,
+    #' @field lfqdataProt lfqdataProt
     lfqdataProt = NULL,
+    #' @field lfqdataProtIBAQ lfqdataProtIBAQ
     lfqdataProtIBAQ = NULL,
+    #' @field protein_annotation protein_annotation
     protein_annotation = NULL,
+    #' @field output_dir output_dir
     output_dir = NULL,
+    #' @field GRP2 GRP2
     GRP2 = NULL,
+    #' @field TABLES2WRITE TABLES2WRITE
     TABLES2WRITE = list(),
-
+    #' @description
+    #' initialize
+    #' @param lfq_data lfq_data
+    #' @param protein_annotation protein_annotation
+    #' @param prolfquapp_config prolfquapp_config
     initialize = function(lfqdata, protein_annotation, prolfquapp_config) {
       self$GRP2 = prolfquapp_config
       self$lfqdata = lfqdata

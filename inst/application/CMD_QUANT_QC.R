@@ -61,10 +61,10 @@ if (FALSE) {
   opt$dataset <- "dataset2.csv"
 }
 if (FALSE) {
-  opt$indir <- "FragPipe_all"
-  opt$software <- "DIANN"
-  opt$dataset <- "FragPipe_all/dataset_msstats_all.xlsx"
-  opt$outdir <- "qc_dir_diann"
+  opt$indir <- "FragPipe_f20"
+  opt$software <- "MSSTATS_FP_DIA"
+  opt$dataset <- "FragPipe_f20/dataset_msstats20_parallel.xlsx"
+  opt$outdir <- "qc_dir_msstats20"
 }
 
 # set library path
@@ -102,11 +102,13 @@ if (!file.exists( opt$dataset)) {stop("No annotation file found : ", opt$dataset
 annotation <- file.path( opt$dataset) |>
   prolfquapp::read_table_data() |> prolfquapp::read_annotation(QC = TRUE)
 
+#debug(preprocess_software)
 result <- tryCatch({
   # Attempt to run the function
   procsoft <- preprocess_software(
     opt$indir,
     annotation,
+    prolfquapp::prolfq_preprocess_functions,
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys,
     software = opt$software

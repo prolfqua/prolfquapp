@@ -73,15 +73,20 @@ Panel B of Figure \@ref(fig:SDViolin) shows the distribution of the standard dev
 
 ```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)", eval=TRUE}
 stR <- grp2$RES$lfqData$get_Stats()
-pA <- stR$violin() + ggplot2::theme_classic() + ggplot2::labs(tag="A")
+pA <- stR$violin() + ggplot2::theme_classic() +
+  ggplot2::labs(tag = "A") +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 st <- grp2$RES$transformedlfqData$get_Stats()
-pC <- st$violin() + ggplot2::theme_classic() + ggplot2::labs(tag="C")
+pC <- st$violin() +
+  ggplot2::theme_classic() +
+  ggplot2::labs(tag = "C") +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
 lfqData <- grp2$RES$lfqData
 tr <- lfqData$get_Transformer()
 tmp <- tr$log2()$lfq
 stback <- tmp$get_Stats()
-pB <- stback$violin() + ggplot2::theme_classic() + ggplot2::labs(tag="B")
+pB <- stback$violin() + ggplot2::theme_classic() + ggplot2::labs(tag = "B") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
 gridExtra::grid.arrange(pA, pB, pC, nrow = 1)
 

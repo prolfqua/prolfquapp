@@ -7,12 +7,21 @@
 preprocess_software(
   indir,
   annotation,
+  software,
+  preprocess_functions_str,
   pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = "^rev_|^REV_",
-  software = c("DIANN", "FP_TMT", "FP_multisite", "MAXQUANT", "MSSTATS",
-    "MSSTATS_FP_DIA")
+  pattern_decoys = "^rev_|^REV_"
 )
 }
 \description{
 collects preprocess methods for various software
+}
+\examples{
+# example code
+annot <- data.frame(
+file = c("a1.raw","a2.raw","a3.raw","a4.raw"),
+name = c("aa","ba","aa","ba"),
+group = c("a","a","b","b"))
+annot <- read_annotation(annot, QC = TRUE)
+res <- preprocess_software(".",annot, prolfq_preprocess_functions, software = "DUMMY" )
 }

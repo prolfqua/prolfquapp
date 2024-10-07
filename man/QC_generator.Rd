@@ -8,6 +8,25 @@ QC_generator
 
 QC_generator
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{lfqdata}}{lfqdata}
+
+\item{\code{lfqdataProt}}{lfqdataProt}
+
+\item{\code{lfqdataProtIBAQ}}{lfqdataProtIBAQ}
+
+\item{\code{protein_annotation}}{protein_annotation}
+
+\item{\code{output_dir}}{output_dir}
+
+\item{\code{GRP2}}{GRP2}
+
+\item{\code{TABLES2WRITE}}{TABLES2WRITE}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -33,10 +52,22 @@ QC_generator
 \if{html}{\out{<a id="method-QC_generator-new"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-new}{}}}
 \subsection{Method \code{new()}}{
+initialize
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{QC_generator$new(lfqdata, protein_annotation, prolfquapp_config)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{protein_annotation}}{protein_annotation}
+
+\item{\code{prolfquapp_config}}{prolfquapp_config}
+
+\item{\code{lfq_data}}{lfq_data}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_peptides_wide"></a>}}

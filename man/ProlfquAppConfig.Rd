@@ -25,6 +25,7 @@ r6obj_config$get_input_dir()
 }
 \seealso{
 Other ProlfquAppConfig: 
+\code{\link{ExternalReader}},
 \code{\link{ProcessingOptions}},
 \code{\link{ProjectSpec}},
 \code{\link{R6_extract_values}()},
@@ -52,6 +53,8 @@ Other ProlfquAppConfig:
 \item{\code{RES}}{resuls}
 
 \item{\code{group}}{name}
+
+\item{\code{pp_name}}{Name of input}
 }
 \if{html}{\out{</div>}}
 }
@@ -59,6 +62,8 @@ Other ProlfquAppConfig:
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
 \item{\code{name}}{description}
+
+\item{\code{pp_name}}{Name of input}
 }
 \if{html}{\out{</div>}}
 }
@@ -83,6 +88,7 @@ set procession options and project spec
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$new(
   processing_options,
   project_spec,
+  ext_reader,
   zipdir_name = ".",
   path = ".",
   software = "DIANN",

@@ -25,14 +25,15 @@ ProcessingOptions <- R6::R6Class(
     nr_peptides = 1,
     #' @field interaction model with interactions default FALSE
     interaction = FALSE,
-    #' @field missing model missigness, default TRUE
-    missing = TRUE,
+    #' @field model_missing model missigness, default TRUE
+    model_missing = TRUE,
     #' @field model name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"
     model = "prolfqua",
     #' @field other list with additional options
     other = NULL
   )
 )
+
 
 # ProjectSpec -----
 #' project specification R6 class
@@ -53,6 +54,26 @@ ProjectSpec <- R6::R6Class(
     input_URL = "https://fgcz-bfabric.uzh.ch/bfabric/"
   )
 )
+
+# ExternalReader -----
+#' project specification R6 class
+#' @export
+#' @family ProlfquAppConfig
+#' @examples
+#' ExternalReader$new()
+#'
+ExternalReader <- R6::R6Class(
+  "ExternalReader",
+  public = list(
+    #' @field get_files get_files
+    get_files = character(),
+    #' @field get_files preprocess
+    preprocess = character(),
+    #' @field extra_args extra_args
+    extra_args = "list()"
+    )
+)
+
 
 # ProlfquAppConfig -----
 #' R6 class representing
@@ -96,6 +117,8 @@ ProlfquAppConfig <- R6::R6Class(
     #' @field group name
     group = "G_",
 
+    #' @field pp_name Name of input
+    ext_reader = NULL,
     #' @description
     #' set procession options and project spec
     #' @param processing_options instance of ProjectOptions
@@ -104,6 +127,7 @@ ProlfquAppConfig <- R6::R6Class(
     #' @param software name of input software
     initialize = function(processing_options,
                           project_spec,
+                          ext_reader,
                           zipdir_name = ".",
                           path = ".",
                           software = "DIANN",
@@ -111,6 +135,7 @@ ProlfquAppConfig <- R6::R6Class(
       self$software = software
       self$processing_options = processing_options
       self$project_spec = project_spec
+      self$ext_reader = ext_reader
       self$zipdir_name <- zipdir_name
       self$path = path
       self$prefix = prefix
@@ -218,7 +243,12 @@ list_to_R6_app_config <- function(dd){
   for (i in names(ps)) {
     psR6[[i]] <- ps[[i]]
   }
-  r6obj_config <- ProlfquAppConfig$new(popR6, psR6)
+  extR6 <- ExternalReader$new()
+  ext <- dd$ext_reader
+  for (i in names(ext)) {
+    extR6[[i]] <- ext[[i]]
+  }
+  r6obj_config <- ProlfquAppConfig$new(popR6, psR6, extR6)
   r6obj_config$zipdir_name = dd$zipdir_name
   r6obj_config$software = dd$software
   r6obj_config$group = dd$group
@@ -263,10 +293,13 @@ make_DEA_config_R6 <- function(
     patternDecoys = "^REV_|^rev_",
     patternContaminants = "^zz|^CON|Cont_",
     application = "DIANN",
-    prefix = "DEA"){
+    prefix = "DEA"
+    ){
 
   Normalization <- match.arg(Normalization)
   aggregation <- match.arg(aggregation)
+
+  ext <- ExternalReader$new()
 
   pop <- ProcessingOptions$new()
   pop$pattern_contaminants = patternContaminants
@@ -283,7 +316,7 @@ make_DEA_config_R6 <- function(
   ps$project_Id = PROJECTID
   ps$workunit_Id = WORKUNITID
 
-  r6obj_config <- ProlfquAppConfig$new(pop, ps, prefix = prefix)
+  r6obj_config <- ProlfquAppConfig$new(pop, ps, ext, prefix = prefix)
   r6obj_config$set_zipdir_name()
   r6obj_config$software = application
   r6obj_config$path <- PATH
@@ -370,10 +403,10 @@ get_config <- function(yamlfile, WORKUNITID =  "HelloWorld", ORDERID = "123") {
 
 
 
-if (FALSE ) {
+if (FALSE) {
   yfile <- file.path(find.package("prolfquapp") , "/application/DIANN/myYamls.zip")
   file.exists(yfile)
-  xx <- unzip(yfile, list= TRUE)
+  xx <- unzip(yfile, list = TRUE)
   yfiles <- grep(".yml$", xx$Name, value = TRUE)
 
   res <- list()

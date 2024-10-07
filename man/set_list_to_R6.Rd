@@ -11,6 +11,7 @@ set arguments in list config to r6obj
 }
 \seealso{
 Other ProlfquAppConfig: 
+\code{\link{ExternalReader}},
 \code{\link{ProcessingOptions}},
 \code{\link{ProjectSpec}},
 \code{\link{ProlfquAppConfig}},

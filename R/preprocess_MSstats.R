@@ -41,10 +41,11 @@ read_msstats <- function(file){
 #' @export
 #'
 preprocess_MSstats_FPDIA <- function(quant_data,
-                                  fasta_file,
-                                  annotation,
-                                  pattern_contaminants = "",
-                                  pattern_decoys = ""){
+                                     fasta_file,
+                                     annotation,
+                                     pattern_contaminants = "",
+                                     pattern_decoys = "",
+                                     hierarchy_depth = 1){
 
   annot <- annotation$annot
   atable <- annotation$atable
@@ -77,7 +78,7 @@ preprocess_MSstats_FPDIA <- function(quant_data,
   atable$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
   atable$nr_children = "nr_peptides"
   atable$set_response("Intensity")
-  atable$hierarchyDepth <- 1
+  atable$hierarchyDepth <- hierarchy_depth
 
   bycol <- c("Run")
   names(bycol) <- atable$fileName
@@ -116,10 +117,11 @@ preprocess_MSstats_FPDIA <- function(quant_data,
 #' @export
 #'
 preprocess_MSstats <- function(quant_data,
-                                  fasta_file,
-                                  annotation,
-                                  pattern_contaminants = "^zz|^CON|Cont_",
-                                  pattern_decoys = "^REV_|^rev_"){
+                               fasta_file,
+                               annotation,
+                               pattern_contaminants = "^zz|^CON|Cont_",
+                               pattern_decoys = "^REV_|^rev_",
+                               hierarchy_depth = 1){
 
   annot <- annotation$annot
   atable <- annotation$atable
@@ -152,7 +154,7 @@ preprocess_MSstats <- function(quant_data,
   atable$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
   atable$nr_children = "nr_peptides"
   atable$set_response("Intensity")
-  atable$hierarchyDepth <- 1
+  atable$hierarchyDepth <- hierarchy_depth
 
   bycol <- c("Run")
   names(bycol) <- atable$fileName

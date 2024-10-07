@@ -148,7 +148,8 @@ ProteinAnnotation <-
                             exp_nr_children = "nr_peptides",
                             pattern_contaminants = NULL,
                             pattern_decoys = NULL){
-        self$pID = lfqdata$config$table$hierarchy_keys_depth()
+
+        self$pID = lfqdata$config$table$hierarchy_keys_depth()[[1]]
         self$exp_nr_children = exp_nr_children
         self$pattern_contaminants = if (is.null(pattern_contaminants)) {"a^"} else {pattern_contaminants}
         self$pattern_decoys = if (is.null(pattern_decoys)) {"a^"} else {pattern_decoys}

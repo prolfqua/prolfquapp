@@ -75,6 +75,8 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 
 \item{\code{lfq_data_subset}}{todo}
 
+\item{\code{aggregator}}{aggregator}
+
 \item{\code{rowAnnot}}{ProteinAnnotation}
 
 \item{\code{contrasts}}{vector with contrasts}

@@ -9,7 +9,8 @@ preprocess_MSstats_FPDIA(
   fasta_file,
   annotation,
   pattern_contaminants = "",
-  pattern_decoys = ""
+  pattern_decoys = "",
+  hierarchy_depth = 1
 )
 }
 \description{

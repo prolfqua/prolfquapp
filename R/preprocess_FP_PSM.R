@@ -293,11 +293,13 @@ get_FP_PSM_files <- function(path){
 preprocess_FP_PSM <- function(quant_data,
                               fasta_file,
                               annotation,
-                              purity_threshold = 0.5,
-                              PeptideProphetProb = 0.9,
                               column_before_quants = c("Quan Usage" , "Mapped Proteins"),
                               pattern_contaminants = "^zz|^CON|Cont_",
-                              pattern_decoys = "^REV_|^rev_"){
+                              pattern_decoys = "^REV_|^rev_",
+                              purity_threshold = 0.5,
+                              PeptideProphetProb = 0.9,
+                              hierarchy_depth = 1
+){
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
@@ -322,6 +324,7 @@ preprocess_FP_PSM <- function(quant_data,
   atable$hierarchy[["peptide_Id"]] <- c("Peptide")
   atable$hierarchy[["mod_peptide_Id"]] <- c("Modified.Peptide","Assigned.Modifications")
   atable$set_response("abundance")
+  atable$hierarchyDepth <- hierarchy_depth
 
   bycol <- c("channel")
   names(bycol) <- atable$fileName

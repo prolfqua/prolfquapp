@@ -54,6 +54,16 @@ if (!is.null(opt$outdir) && dir.exists(opt$outdir)) {
   GRP2$path <- opt$outdir
 }
 cfg <- prolfquapp::R6_extract_values(GRP2)
+cfg <- GRP2$as_list()
+
+# Define the fields that should be moved to the bottom
+fields_to_move <- c("ext_reader", "group", "RES", "pop")
+# Separate the fields into 'main' and 'bottom'
+main_fields <- cfg[!names(cfg) %in% fields_to_move]
+bottom_fields <- cfg[names(cfg) %in% fields_to_move]
+# Combine the main fields and bottom fields in the desired order
+cfg <- c(main_fields, bottom_fields)
+
 if (!dir.exists(opt$outdir)) {dir.create(opt$outdir)}
 yaml::write_yaml(cfg, file = file.path(opt$outdir , ymlfile))
 

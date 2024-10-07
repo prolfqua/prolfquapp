@@ -84,7 +84,7 @@ DEAnalyse <- R6::R6Class(
     lfq_data_transformed = NULL,
     #' @field lfq_data_subset todo
     lfq_data_subset = NULL,
-    #' @field aggregator
+    #' @field aggregator aggregator
     aggregator = NULL,
 
     #' @field rowAnnot ProteinAnnotation

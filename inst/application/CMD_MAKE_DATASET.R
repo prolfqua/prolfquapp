@@ -40,7 +40,7 @@ if (FALSE) {
   opt$software = "MSSTATS"
 }
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
-print(opt)
+
 
 
 if (opt$software == "DIANN") {

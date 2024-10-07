@@ -11,6 +11,7 @@ extract R6 class fields as list
 }
 \seealso{
 Other ProlfquAppConfig: 
+\code{\link{ExternalReader}},
 \code{\link{ProcessingOptions}},
 \code{\link{ProjectSpec}},
 \code{\link{ProlfquAppConfig}},

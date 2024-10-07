@@ -45,6 +45,7 @@ R6list <- R6_extract_values(DEAconfig)
 }
 \seealso{
 Other ProlfquAppConfig: 
+\code{\link{ExternalReader}},
 \code{\link{ProcessingOptions}},
 \code{\link{ProjectSpec}},
 \code{\link{ProlfquAppConfig}},

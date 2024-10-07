@@ -9,8 +9,7 @@ preprocess_dummy(
   fasta_file,
   annotation,
   pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = "^REV_|^rev",
-  dummy_arg = "XYZ"
+  pattern_decoys = "^REV_|^rev"
 )
 }
 \description{

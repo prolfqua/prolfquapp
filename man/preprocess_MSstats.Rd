@@ -9,7 +9,8 @@ preprocess_MSstats(
   fasta_file,
   annotation,
   pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = "^REV_|^rev_"
+  pattern_decoys = "^REV_|^rev_",
+  hierarchy_depth = 1
 )
 }
 \description{

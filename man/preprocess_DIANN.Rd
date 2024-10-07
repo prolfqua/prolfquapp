@@ -8,9 +8,10 @@ preprocess_DIANN(
   quant_data,
   fasta_file,
   annotation,
-  q_value = 0.01,
   pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = "^REV_|^rev"
+  pattern_decoys = "^REV_|^rev",
+  q_value = 0.01,
+  hierarchy_depth = 1
 )
 }
 \value{

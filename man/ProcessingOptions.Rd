@@ -10,6 +10,7 @@ processing options R6 class
 }
 \seealso{
 Other ProlfquAppConfig: 
+\code{\link{ExternalReader}},
 \code{\link{ProjectSpec}},
 \code{\link{ProlfquAppConfig}},
 \code{\link{R6_extract_values}()},
@@ -40,7 +41,7 @@ Other ProlfquAppConfig:
 
 \item{\code{interaction}}{model with interactions default FALSE}
 
-\item{\code{missing}}{model missigness, default TRUE}
+\item{\code{model_missing}}{model missigness, default TRUE}
 
 \item{\code{model}}{name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"}
 

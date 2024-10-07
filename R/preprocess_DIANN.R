@@ -135,6 +135,7 @@ get_DIANN_files <- function(path){
   return(list(data = diann.path, fasta = fasta.files))
 }
 
+
 #' preprocess DIANN ouput, filter by q_value and nr_peptides
 #' @return list with lfqdata and protein annotation
 #' @export
@@ -150,9 +151,10 @@ get_DIANN_files <- function(path){
 preprocess_DIANN <- function(quant_data,
                              fasta_file,
                              annotation,
-                             q_value = 0.01,
                              pattern_contaminants = "^zz|^CON|Cont_",
-                             pattern_decoys = "^REV_|^rev"){
+                             pattern_decoys = "^REV_|^rev",
+                             q_value = 0.01,
+                             hierarchy_depth = 1){
 
   annot <- annotation$annot
   atable <- annotation$atable$clone(deep = FALSE)
@@ -177,7 +179,7 @@ preprocess_DIANN <- function(quant_data,
   atable$hierarchy[["protein_Id"]] <- c("Protein.Group")
   atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
   atable$set_response("Peptide.Quantity")
-  atable$hierarchyDepth <- 1
+  atable$hierarchyDepth <- hierarchy_depth
 
   peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
   config <- prolfqua::AnalysisConfiguration$new(atable)

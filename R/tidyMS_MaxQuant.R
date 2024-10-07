@@ -218,7 +218,8 @@ preprocess_MQ_peptide <- function(quant_data,
                                   fasta_file,
                                   annotation,
                                   pattern_contaminants = "^zz|^CON|Cont_",
-                                  pattern_decoys = "^REV_|^rev_"){
+                                  pattern_decoys = "^REV_|^rev_",
+                                  hierarchy_depth = 1){
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
@@ -245,7 +246,7 @@ preprocess_MQ_peptide <- function(quant_data,
   atable$hierarchy[["protein_Id"]] <- c("leading.razor.protein")
   atable$hierarchy[["peptide_Id"]] <- c("sequence")
   atable$set_response("peptide.intensity")
-  atable$hierarchyDepth <- 1
+  atable$hierarchyDepth <- hierarchy_depth
 
   bycol <- c("raw.file")
   names(bycol) <- atable$fileName

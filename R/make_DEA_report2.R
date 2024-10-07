@@ -88,7 +88,7 @@ make_DEA_report2 <- function(lfqdata,
   conrM <- prolfqua::ContrastsModerated$new(
     contr)
 
-  if (is.null(GRP2$processing_options$missing) || GRP2$processing_options$missing ) {
+  if (is.null(GRP2$processing_options$model_missing) || GRP2$processing_options$model_missing ) {
     mC <- prolfqua::ContrastsMissing$new(
       lfqdata = transformed,
       contrasts = GRP2$pop$Contrasts,
