@@ -11,7 +11,7 @@ R6 class representing
 \examples{
 
 
-r6obj_config <- ProlfquAppConfig$new(ProcessingOptions$new(), ProjectSpec$new())
+r6obj_config <- ProlfquAppConfig$new(ProcessingOptions$new(), ProjectSpec$new(), ExternalReader$new())
 xx <- R6_extract_values(r6obj_config)
 yaml::write_yaml(xx, file = file.path(tempdir(),"test.yaml"))
 config <- yaml::read_yaml(file = file.path(tempdir(),"test.yaml"))
