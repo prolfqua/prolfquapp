@@ -57,7 +57,7 @@ QC_generator <- R6::R6Class(
         proteins_wide,
         lfqdata_prot$to_wide(value = "nr_children")$data,
         by = c(lfqdata_prot$config$table$hierarchy_keys_depth(),"isotopeLabel")
-        , suffix = c("","_nr_children"))
+        , suffix = c("_abundance","_nr_children"))
       return(proteins_wide)
     },
     get_prot_IBAQ = function(){
@@ -108,7 +108,7 @@ QC_generator <- R6::R6Class(
         IBAQ_abundances,
         self$get_prot_IBAQ()$to_wide(value = "nr_children")$data,
         by = c(self$get_prot_IBAQ()$config$table$hierarchy_keys_depth(),"isotopeLabel")
-        , suffix = c("","_nr_children"))
+        , suffix = c("_iBAQ","_nr_children"))
       return(IBAQ_abundances)
     },
 
