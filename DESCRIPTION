@@ -6,8 +6,7 @@ Authors@R: c(person("Witold", "Wolski",
         email = c("wew@fgcz.ethz.ch", "wewolski@gmail.com"),
         role = c("aut", "cre"),
         comment = c(ORCID = "0000-0002-6468-120X")),
-        person("Leonardo", "Schwarz",
-            role = "aut")))
+        person("Leonardo", "Schwarz",role = "aut"))
 Description: The prolfquapp is a user-friendly application to streamline protein differential expression analysis (DEA)
   in core facilities. The application leverages the preprocessing methods and statistical models implemented in the R package prolfqua.
   It generates dynamic HTML reports that contain quality control plots and visualizations of the DEA results.
