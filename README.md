@@ -10,7 +10,7 @@ Read on bioRxiv <https://www.biorxiv.org/content/10.1101/2024.10.09.617391v1> "p
 
 Welcome to *prolfquapp* on GitHub!
 Here, you'll find everything you need to elevate your protein differential expression analysis.
-*Prolfquapp* integrates powerful preprocessing methods and advanced statistical models from the prolfqua R package [prolfqua](https://github.com/fgcz/prolfqua) [doi.org/10.1021/acs.jproteome.2c00441](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441) to deliver insightful, clear visualizations and robust data outputs.
+*Prolfquapp* integrates powerful preprocessing methods and advanced statistical models from the *prolfqua* R package [prolfqua](https://github.com/fgcz/prolfqua) [doi.org/10.1021/acs.jproteome.2c00441](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441) to deliver insightful, clear visualizations and robust data outputs.
 Generate dynamic HTML reports, versatile file formats, and dive into interactive data visualization with *ExploreDE*.
 *Prolfquapp* implements a command line interface to run protein differential expression analysis, that can be integrated into your workflow manager.
 
