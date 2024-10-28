@@ -60,12 +60,13 @@ get_BGS_files <- function(path, bgs_pattern = "*BGS Factory Report \\(Normal\\).
 #' @export
 #' @examples
 #' \dontrun{
-#' x <- get_BGS_files("otherparsing")
+#' x <- get_BGS_files("DefaultParsing")
 #' bgs <- readBGS(x$data)
 #' annot <- data.frame(raw.file = bgs$R.FileName |> unique(),
 #'  Name = paste(c(rep("A",3),rep("B",3)),1:6, sep="_"),
 #' group = c(rep("A",3),rep("B",3)))
 #' annotation <- annot |> prolfquapp::read_annotation(QC = TRUE)
+#' debug(preprocess_BGS)
 #' xd <- preprocess_BGS(x$data, x$fasta, annotation)
 #' }
 preprocess_BGS <- function(quant_data,
@@ -82,28 +83,29 @@ preprocess_BGS <- function(quant_data,
     raw.file = gsub("^x|.d.zip$|.raw$","",
                     (basename(annot[[atable$fileName]]))
     ))
-  data <- readr::read_tsv(quant_data)
-  report2 <- prolfquapp::diann_read_output(data, Lib.PG.Q.Value = q_value, PG.Q.Value = q_value)
-  nrPEP <- get_nr_pep(report2)
-  nrPEP$Protein.Group.2 <- sapply(nrPEP$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
+  report2 <- read_BGS(quant_data)
 
-  peptide <- prolfquapp::diann_output_to_peptide(report2)
-  peptide$qValue <- 1 - peptide$PEP
-  nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
-  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(peptide$raw.file)))
+  nrPEP <- report2 |> dplyr::select("PG.ProteinGroups", "PEP.GroupingKey") |> dplyr::distinct() |>
+    dplyr::group_by(dplyr::across("PG.ProteinGroups")) |> dplyr::summarize(nr_peptides = n())
+
+  nrPEP$Protein.Group.2 <- sapply(nrPEP$PG.ProteinGroups, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
+
+  nr <- sum(annot$raw.file %in% sort(unique(report2$R.FileName)))
+  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(report2$R.FileName)))
   if (nr == 0) { stop("No files are annotated. The annotation file is not compatible withe quant data.") }
 
   atable$fileName = "raw.file"
-  atable$nr_children = "nr_children"
-  atable$ident_qValue = "qValue"
-  atable$hierarchy[["protein_Id"]] <- c("Protein.Group")
-  atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
-  atable$set_response("Peptide.Quantity")
+  #atable$nr_children = "nr_children"
+  atable$ident_qValue = "FG.Qvalue"
+  atable$hierarchy[["protein_Id"]] <- c("PG.ProteinGroups")
+  atable$hierarchy[["peptide_Id"]] <- c("PEP.GroupingKey")
+  atable$hierarchy[["elution_group"]] <- c("EG.ModifiedSequence", "FG.Charge")
+  atable$set_response("FG.Quantity")
   atable$hierarchyDepth <- hierarchy_depth
 
-  peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
+  report2 <- dplyr::inner_join(annot, report2, multiple = "all", by=c("raw.file" = "R.FileName"))
   config <- prolfqua::AnalysisConfiguration$new(atable)
-  adata <- prolfqua::setup_analysis(peptide, config)
+  adata <- prolfqua::setup_analysis(report2, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
 
@@ -113,13 +115,15 @@ preprocess_BGS <- function(quant_data,
   logger::log_info("reading fasta done, creating protein annotation.")
 
   prot_annot <- dplyr::left_join(nrPEP, fasta_annot, by = c(Protein.Group.2 = "proteinname"))
-  prot_annot <- dplyr::rename(prot_annot, IDcolumn = "Protein.Group.2",description = "fasta.header",protein_Id = "Protein.Group" )
+  prot_annot <- dplyr::rename(prot_annot, IDcolumn = "Protein.Group.2",
+                              description = "fasta.header",
+                              protein_Id = "PG.ProteinGroups" )
 
   protAnnot <- prolfquapp::ProteinAnnotation$new(
     lfqdata , prot_annot, description = "description",
     cleaned_ids = "IDcolumn",
     full_id = "fasta.id",
-    exp_nr_children = "nrPeptides",
+    exp_nr_children = "nr_peptides",
     pattern_contaminants = pattern_contaminants,
     pattern_decoys = pattern_decoys
   )

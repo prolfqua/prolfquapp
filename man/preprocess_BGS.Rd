@@ -22,12 +22,13 @@ preprocess DIANN ouput, filter by q_value and nr_peptides
 }
 \examples{
 \dontrun{
-x <- get_BGS_files("otherparsing")
+x <- get_BGS_files("DefaultParsing")
 bgs <- readBGS(x$data)
 annot <- data.frame(raw.file = bgs$R.FileName |> unique(),
  Name = paste(c(rep("A",3),rep("B",3)),1:6, sep="_"),
 group = c(rep("A",3),rep("B",3)))
 annotation <- annot |> prolfquapp::read_annotation(QC = TRUE)
+debug(preprocess_BGS)
 xd <- preprocess_BGS(x$data, x$fasta, annotation)
 }
 }
