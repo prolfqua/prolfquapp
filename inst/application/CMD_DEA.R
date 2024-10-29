@@ -16,7 +16,7 @@ option_list <- list(
                         help = "yaml configuration file",
                         metavar = "character"),
   optparse::make_option(c("-s", "--software"), type = "character", default = NULL,
-                        help = "possible options: DIANN, FP_TMT, FP_multisite, FP_combined_STY, MAXQUANT, MSSTATS, MSSTATS_FP_DIA",
+                        help = paste0("possible options: ", paste(names(prolfquapp::prolfq_preprocess_functions), collapse = ", ")),
                         metavar = "character"),
   optparse::make_option(c("-o", "--outdir"), type = "character", default = NULL,
                         help = "output directory",
@@ -71,12 +71,11 @@ if (FALSE) {
   opt$workunit <- "testing_peptide"
 }
 if (FALSE) {
-  ymlfile <- "FragPipe_all/msstatsall.yml"
-  opt$indir <- "FragPipe_f20_diann"
-  opt$software <- "DIANN_PEPTIDE"
-  opt$dataset <- "FragPipe_all/dataset_msstats_all_interaction_no_Subject.xlsx"
-  opt$workunit <- "f20_diann_PEPTIDE_with_subject"
-
+  ymlfile <- "config.yaml"
+  opt$indir <- "DefaultParsing"
+  opt$software <- "BGS_DEFAULT_PEPTIDE"
+  opt$dataset <- "annotation.xlsx"
+  opt$workunit <- "f20_bgs"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }

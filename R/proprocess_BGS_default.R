@@ -61,7 +61,7 @@ get_BGS_files <- function(path, bgs_pattern = "*BGS Factory Report \\(Normal\\).
 #' @examples
 #' \dontrun{
 #' x <- get_BGS_files("DefaultParsing")
-#' bgs <- readBGS(x$data)
+#' bgs <- read_BGS(x$data)
 #' annot <- data.frame(raw.file = bgs$R.FileName |> unique(),
 #'  Name = paste(c(rep("A",3),rep("B",3)),1:6, sep="_"),
 #' group = c(rep("A",3),rep("B",3)))
@@ -86,7 +86,7 @@ preprocess_BGS <- function(quant_data,
   report2 <- read_BGS(quant_data)
 
   nrPEP <- report2 |> dplyr::select("PG.ProteinGroups", "PEP.GroupingKey") |> dplyr::distinct() |>
-    dplyr::group_by(dplyr::across("PG.ProteinGroups")) |> dplyr::summarize(nr_peptides = n())
+    dplyr::group_by(dplyr::across("PG.ProteinGroups")) |> dplyr::summarize(nrPeptides = n())
 
   nrPEP$Protein.Group.2 <- sapply(nrPEP$PG.ProteinGroups, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
 
@@ -123,7 +123,7 @@ preprocess_BGS <- function(quant_data,
     lfqdata , prot_annot, description = "description",
     cleaned_ids = "IDcolumn",
     full_id = "fasta.id",
-    exp_nr_children = "nr_peptides",
+    exp_nr_children = "nrPeptides",
     pattern_contaminants = pattern_contaminants,
     pattern_decoys = pattern_decoys
   )

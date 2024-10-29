@@ -27,6 +27,7 @@ aggregate_data <- function(lfqdata,
   } else if (agg_method == "lmrob" || agg_method == "medpolish") {
     transformed <- lfqdata$get_Transformer()$intensity_array(log)$lfq
     aggregator <- transformed$get_Aggregator()
+
     if (agg_method == "lmrob" ) {
       aggregator$lmrob()
     } else if (agg_method == "medpolish") {

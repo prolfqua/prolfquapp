@@ -23,7 +23,7 @@ preprocess DIANN ouput, filter by q_value and nr_peptides
 \examples{
 \dontrun{
 x <- get_BGS_files("DefaultParsing")
-bgs <- readBGS(x$data)
+bgs <- read_BGS(x$data)
 annot <- data.frame(raw.file = bgs$R.FileName |> unique(),
  Name = paste(c(rep("A",3),rep("B",3)),1:6, sep="_"),
 group = c(rep("A",3),rep("B",3)))

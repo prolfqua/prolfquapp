@@ -6,7 +6,7 @@
 \title{Mapping of software to string representations of functions and arguments
 Preprocess Functions Mapping}
 \format{
-An object of class \code{list} of length 11.
+An object of class \code{list} of length 13.
 }
 \usage{
 prolfq_preprocess_functions

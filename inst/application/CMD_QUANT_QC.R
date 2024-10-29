@@ -31,7 +31,7 @@ option_list <- list(
                help = "folder to write the results to.",
                metavar = "string"),
   make_option(c("-s", "--software"), type = "character", default = "DIANN",
-              help = "possible options DIANN, FP_TMT, MAXQUANT",
+              help = paste0("possible options: ", paste(names(prolfquapp::prolfq_preprocess_functions)[!grepl("PEPTIDE",names(prolfquapp::prolfq_preprocess_functions) )], collapse = ", ")),,
               metavar = "character"),
   make_option(c("--libPath"), type = "character", default = NULL,
               help = " (optional) R library path",
@@ -60,11 +60,11 @@ if (FALSE) {
   opt$indir <- "."
   opt$dataset <- "dataset2.csv"
 }
-if (FALSE) {
-  opt$indir <- "FragPipe_f20"
-  opt$software <- "MSSTATS_FP_DIA"
-  opt$dataset <- "FragPipe_f20/dataset_msstats20_parallel.xlsx"
-  opt$outdir <- "qc_dir_msstats20"
+if (TRUE) {
+  opt$indir <- "DefaultParsing"
+  opt$software <- "BGS_DEFAULT_PEPTIDE"
+  opt$dataset <- "annotation.xlsx"
+  opt$outdir <- "test2"
 }
 
 # set library path
@@ -138,8 +138,10 @@ if (!is.null(result$error)) {
 }
 
 GRP2$get_zipdir()
-pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
+QC_generator$debug("get_list")
 
+pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
+pap$get_list()
 pap$write_xlsx()
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()
