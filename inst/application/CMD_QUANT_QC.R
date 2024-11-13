@@ -60,7 +60,7 @@ if (FALSE) {
   opt$indir <- "."
   opt$dataset <- "dataset2.csv"
 }
-if (TRUE) {
+if (FALSE) {
   opt$indir <- "DefaultParsing"
   opt$software <- "BGS_DEFAULT_PEPTIDE"
   opt$dataset <- "annotation.xlsx"
