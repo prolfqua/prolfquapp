@@ -1,6 +1,6 @@
 #' massage CD output compound table.
 #' @export
-massage_CD <- function(in_file ){
+massage_CD <- function(in_file, EXCEL = TRUE ){
 
   xd <- if (is.character(in_file) && file.exists(in_file)) {
     readxl::read_excel(in_file)
@@ -8,30 +8,47 @@ massage_CD <- function(in_file ){
     in_file
   } else { stopifnot("expecting data frame or path got : ", class(in_file))}
   xd$my_C_ID <- 1:nrow(xd)
-  annot <- xd |> dplyr::select(any_of(c("my_C_ID", "Checked","Tags",
-                                        "Structure","description" = "Name","Formula","Annot Source Predicted Compositions","Annot Source mzCloud Search",
-                                        "Annot Source mzVault Search","Annot Source ChemSpider Search","Annot Source MassList Search",
-                                        "Annotation MW", "Calc MW","mz",RT_min = "RT in min")))
+
+  if (EXCEL) {
+    annot <- xd |> dplyr::select("my_C_ID", "Checked","Tags",
+                                 "Structure","description" = "Name","Formula","Annot. Source: Predicted Compositions","Annot. Source: mzCloud Search",
+                                 "Annot. Source: mzVault Search","Annot. Source: ChemSpider Search","Annot. Source: MassList Search",
+                                 "Annotation MW", "Calc. MW", mz = "m/z",RT_min = "RT [min]")
+    columns <- c("Area:","Gap Status:","Gap Fill Status:","Peak Rating:")
+    deselect <- NULL
+    npatt <- "(.*)\\: (.*)(\\s\\(F\\d+\\))"
+  } else {
+
+    annot <- xd |> dplyr::select(dplyr::any_of(c("my_C_ID", "Checked","Tags",
+                                          "Structure","description" = "Name","Formula","Annot Source Predicted Compositions","Annot Source mzCloud Search",
+                                          "Annot Source mzVault Search","Annot Source ChemSpider Search","Annot Source MassList Search",
+                                          "Annotation MW", "Calc MW","mz",RT_min = "RT in min")))
+    columns <- c("Area","Gap Status","Gap Fill Status","Peak Rating")
+    deselect <- c("Area Max", "Area SD", "Area CV in Percent")
+    npatt <- "(.*)\\s(.*)\\s(F\\d+)"
+  }
   colnames(annot) <- gsub("[[:space:].:/]+", "_",colnames(annot))
   colnames(annot) <- gsub("\\[|\\]","",colnames(annot))
   annot <- annot |> dplyr::mutate(FormulaB = stringr::str_replace_all(Formula, " ",""))
+
+  #annot <- annot |> tidyr::unite("metabolite_feature_Id", c("my_C_ID","FormulaB", "m_z", "RT_min"), sep = "_", remove = FALSE)
+
   annot <- annot |> tidyr::unite(
     "metabolite_feature_Id",
     c("my_C_ID","FormulaB", "mz", "RT_min"), sep = "_", remove = FALSE)
 
-  columns <- c("Area","Gap Status","Gap Fill Status","Peak Rating")
-
   tolong <- xd |> dplyr::select("my_C_ID",tidyselect::starts_with(columns))
-  tolong <- select(tolong, -all_of(c("Area Max", "Area SD", "Area CV in Percent")))
-
+  if(!is.null(deselect)){
+    tolong <- dplyr::select(tolong, -all_of(deselect))
+  }
   sum(grepl(columns[1], colnames(tolong)))
   sum(grepl(columns[2], colnames(tolong)))
   sum(grepl(columns[3], colnames(tolong)))
   sum(grepl(columns[4], colnames(tolong)))
 
   xdl <- tolong |> tidyr::pivot_longer(
-    cols = tidyselect::starts_with(c("Area","Gap Status","Gap Fill Status","Peak Rating")),
-    names_to = c(".value","filename","file_id"),names_pattern = "(.*)\\s(.*)\\s(F\\d+)" )
+    cols = tidyselect::starts_with(columns),
+    names_to = c(".value","filename","file_id"), names_pattern = npatt )
   xdl$`Gap Fill Status` |> table()
 
   colnames(xdl) <- gsub("# ", "", colnames(xdl) )
@@ -66,7 +83,7 @@ preprocess_CD <- function(
 
 
   atable <- annotation$atable
-  atable$sampleName = "file_id"
+  # atable$sampleName = "file_id"
   atable$hierarchy[["metabolite_feature_Id"]] <- c("metabolite_feature_Id")
   atable$set_response("Area")
   byv <- c("filename")

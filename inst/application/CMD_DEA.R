@@ -72,9 +72,9 @@ if (FALSE) {
 }
 if (FALSE) {
   ymlfile <- "config.yaml"
-  opt$indir <- "DefaultParsing"
-  opt$software <- "BGS_DEFAULT_PEPTIDE"
-  opt$dataset <- "annotation.xlsx"
+  opt$indir <- "inputJG"
+  opt$software <- "BGS_DEFAULT_PROTEIN"
+  opt$dataset <- "dataset1.xlsx"
   opt$workunit <- "f20_bgs"
 }
 
@@ -159,12 +159,20 @@ logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)
 logger::log_info("END OF PROTEIN AGGREGATION")
 logger::log_info("RUN ANALYSIS")
+
+
+# prolfqua::Contrasts$debug("get_linfct")
 grp <- prolfquapp::generate_DEA_reports2(
   lfqdata,
   GRP2,
   xd$protein_annotation,
   annotation$contrasts)
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
+
+
+sr <- lfqdata$get_Summariser()
+
+
 
 outdir <- prolfquapp::write_DEA_all(
   grp, name = "", boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")

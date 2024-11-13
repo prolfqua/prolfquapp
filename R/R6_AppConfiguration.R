@@ -67,7 +67,7 @@ ExternalReader <- R6::R6Class(
   public = list(
     #' @field get_files get_files
     get_files = character(),
-    #' @field get_files preprocess
+    #' @field preprocess preprocess
     preprocess = character(),
     #' @field extra_args extra_args
     extra_args = "list()"

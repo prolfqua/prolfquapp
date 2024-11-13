@@ -60,10 +60,10 @@ if (FALSE) {
   opt$indir <- "."
   opt$dataset <- "dataset2.csv"
 }
-if (FALSE) {
-  opt$indir <- "DefaultParsing"
-  opt$software <- "BGS_DEFAULT_PEPTIDE"
-  opt$dataset <- "annotation.xlsx"
+if (TRUE) {
+  opt$indir <- "2729992/"
+  opt$software <- "DIANN"
+  opt$dataset <- "Dataset_55388_item_.xlsx"
   opt$outdir <- "test2"
 }
 
@@ -138,7 +138,10 @@ if (!is.null(result$error)) {
 }
 
 GRP2$get_zipdir()
-QC_generator$debug("get_list")
+QC_generator$undebug("get_list")
+
+QC_generator$debug("get_peptides_wide")
+
 
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
 pap$get_list()

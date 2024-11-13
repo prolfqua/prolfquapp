@@ -4,7 +4,7 @@
 \alias{massage_CD}
 \title{massage CD output compound table.}
 \usage{
-massage_CD(in_file)
+massage_CD(in_file, EXCEL = TRUE)
 }
 \description{
 massage CD output compound table.

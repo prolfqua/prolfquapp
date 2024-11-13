@@ -27,7 +27,7 @@ Other ProlfquAppConfig:
 \describe{
 \item{\code{get_files}}{get_files}
 
-\item{\code{get_files}}{preprocess}
+\item{\code{preprocess}}{preprocess}
 
 \item{\code{extra_args}}{extra_args}
 }

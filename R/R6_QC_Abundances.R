@@ -32,7 +32,7 @@ QC_generator <- R6::R6Class(
     },
     get_peptides_wide = function(){
       lfqdata <- self$lfqdata$get_copy()
-      lfqdata$config$table$hierarchy_depth <- 2
+      lfqdata$config$table$hierarchyDepth <- 2
       self$lfqdataPeptide <- prolfquapp::aggregate_data(lfqdata, agg_method = "medpolish")
       peptide_wide <- dplyr::left_join(self$protein_annotation$row_annot,
                                        self$lfqdata$to_wide()$data,

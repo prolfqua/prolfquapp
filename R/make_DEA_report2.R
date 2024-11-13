@@ -55,26 +55,11 @@ make_DEA_report2 <- function(lfqdata,
   GRP2$RES$lfqData <- lfqdata
   GRP2$RES$transformedlfqData <- transformed
 
-  ################## Run Modelling ###############
-  # remove control column from factors.
-  factors <- transformed$config$table$factor_keys_depth()[
-    !grepl("^control", transformed$config$table$factor_keys_depth() , ignore.case = TRUE)
-  ]
-
-  # model with or without interactions
-  if (is.null(GRP2$processing_options$interaction) || !GRP2$processing_options$interaction ) {
-    formula <- paste0(transformed$config$table$get_response(), " ~ ",
-                      paste(factors, collapse = " + "))
-  } else {
-    formula <- paste0(transformed$config$table$get_response(), " ~ ",
-                      paste(factors, collapse = " * "))
-  }
-
+  formula <- get_formula(transformed$config$table, interaction = GRP2$processing_options$interaction)
   message("FORMULA :",  formula)
   GRP2$RES$formula <- formula
   formula_Condition <-  prolfqua::strategy_lm(formula)
   # specify model definition
-
   mod <- prolfqua::build_model(
     transformed,
     formula_Condition,
@@ -119,9 +104,32 @@ make_DEA_report2 <- function(lfqdata,
 }
 
 
+#' will generates formula
+#' @export
+get_formula = function(table, interaction = FALSE){
+  ################## Run Modelling ###############
+  # remove control column from factors.
+  factors <- table$factor_keys_depth()[
+    !grepl("^control", table$factor_keys_depth() , ignore.case = TRUE)
+  ]
+
+  # model with or without interactions
+  if (is.null(interaction) || !interaction ) {
+    formula <- paste0(table$get_response(), " ~ ",
+                      paste(factors, collapse = " + "))
+  } else {
+    formula <- paste0(table$get_response(), " ~ ",
+                      paste(factors, collapse = " * "))
+  }
+}
+
+
 #' will replace generate_DEA_reports
 #' @export
-generate_DEA_reports2 <- function(lfqdata, GRP2, prot_annot, Contrasts) {
+generate_DEA_reports2 <- function(lfqdata,
+                                  GRP2,
+                                  prot_annot,
+                                  Contrasts) {
   # Compute all possible 2 Grps to avoid specifying reference.
   GRP2$pop$Contrasts <- Contrasts
   logger::log_info("CONTRAST : ", paste( GRP2$pop$Contrasts, collapse = " "))
