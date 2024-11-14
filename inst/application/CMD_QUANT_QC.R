@@ -60,7 +60,7 @@ if (FALSE) {
   opt$indir <- "."
   opt$dataset <- "dataset2.csv"
 }
-if (TRUE) {
+if (FALSE) {
   opt$indir <- "2729992/"
   opt$software <- "DIANN"
   opt$dataset <- "Dataset_55388_item_.xlsx"
@@ -138,13 +138,12 @@ if (!is.null(result$error)) {
 }
 
 GRP2$get_zipdir()
+
 QC_generator$undebug("get_list")
-
-QC_generator$debug("get_peptides_wide")
-
+QC_generator$undebug("get_peptides_wide")
 
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
-pap$get_list()
+pap$get_peptides_wide()
 pap$write_xlsx()
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()

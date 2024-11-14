@@ -30,8 +30,8 @@ knitr::opts_chunk$set(
 )
 
 pap <- params$pap
-lfqdataProt <-  pap$lfqdataProt
-tableconfig <- pap$lfqdataProt$config$table
+lfqdataProt <-  pap$lfqdata_prot
+tableconfig <- pap$lfqdata_prot$config$table
 factors <- params$factors
 project_info <- params$project_info
 

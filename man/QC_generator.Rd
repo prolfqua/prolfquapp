@@ -13,11 +13,13 @@ QC_generator
 \describe{
 \item{\code{lfqdata}}{lfqdata}
 
-\item{\code{lfqdataProt}}{lfqdataProt}
+\item{\code{lfqdata_prot}}{lfqdata_prot}
 
-\item{\code{lfqdataProtIBAQ}}{lfqdataProtIBAQ}
+\item{\code{lfqdata_prot_IBAQ}}{lfqdata_prot_IBAQ}
 
 \item{\code{protein_annotation}}{protein_annotation}
+
+\item{\code{lfqdata_peptide}}{lfqdata_peptide}
 
 \item{\code{output_dir}}{output_dir}
 

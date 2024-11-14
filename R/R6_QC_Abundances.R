@@ -6,12 +6,14 @@ QC_generator <- R6::R6Class(
   public = list(
     #' @field lfqdata lfqdata
     lfqdata = NULL,
-    #' @field lfqdataProt lfqdataProt
-    lfqdataProt = NULL,
-    #' @field lfqdataProtIBAQ lfqdataProtIBAQ
-    lfqdataProtIBAQ = NULL,
+    #' @field lfqdata_prot lfqdata_prot
+    lfqdata_prot = NULL,
+    #' @field lfqdata_prot_IBAQ lfqdata_prot_IBAQ
+    lfqdata_prot_IBAQ = NULL,
     #' @field protein_annotation protein_annotation
     protein_annotation = NULL,
+    #' @field lfqdata_peptide lfqdata_peptide
+    lfqdata_peptide = NULL,
     #' @field output_dir output_dir
     output_dir = NULL,
     #' @field GRP2 GRP2
@@ -33,7 +35,7 @@ QC_generator <- R6::R6Class(
     get_peptides_wide = function(){
       lfqdata <- self$lfqdata$get_copy()
       lfqdata$config$table$hierarchyDepth <- 2
-      self$lfqdataPeptide <- prolfquapp::aggregate_data(lfqdata, agg_method = "medpolish")
+      self$lfqdata_peptide <- prolfquapp::aggregate_data(lfqdata, agg_method = "medpolish")
       peptide_wide <- dplyr::left_join(self$protein_annotation$row_annot,
                                        self$lfqdata$to_wide()$data,
                                        multiple = "all")
@@ -44,10 +46,10 @@ QC_generator <- R6::R6Class(
       invisible(annotation)
     },
     get_prot_data = function(){
-      if (is.null(self$lfqdataProt)) {
-        self$lfqdataProt <- prolfquapp::aggregate_data(self$lfqdata, agg_method = "medpolish")
+      if (is.null(self$lfqdata_prot)) {
+        self$lfqdata_prot <- prolfquapp::aggregate_data(self$lfqdata, agg_method = "medpolish")
       }
-      invisible(self$lfqdataProt)
+      invisible(self$lfqdata_prot)
     },
     get_prot_wide = function(){
       lfqdata_prot = self$get_prot_data()
@@ -64,10 +66,10 @@ QC_generator <- R6::R6Class(
       return(proteins_wide)
     },
     get_prot_IBAQ = function(){
-      if ( is.null(self$lfqdataProtIBAQ ) ) {
-        self$lfqdataProtIBAQ <- prolfquapp::compute_IBAQ_values(self$lfqdata, self$protein_annotation)
+      if ( is.null(self$lfqdata_prot_IBAQ ) ) {
+        self$lfqdata_prot_IBAQ <- prolfquapp::compute_IBAQ_values(self$lfqdata, self$protein_annotation)
       }
-      invisible(self$lfqdataProtIBAQ )
+      invisible(self$lfqdata_prot_IBAQ )
     },
     get_protein_per_group_abundance = function(){
       summarizer <- self$get_prot_IBAQ()$get_Summariser()
