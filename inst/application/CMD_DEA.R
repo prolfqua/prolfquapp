@@ -27,6 +27,12 @@ option_list <- list(
 )
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
+
+if (length(commandArgs(TRUE)) == 0) {
+  optparse::print_help(parser)
+  quit(status = 1)
+}
+
 arguments <- optparse::parse_args(parser, positional_arguments = TRUE)
 opt <- arguments$options
 ymlfile <- arguments$args
@@ -124,7 +130,7 @@ result <- tryCatch({
   procsoft <- preprocess_software(
     opt$indir,
     annotation,
-    prolfquapp::prolfq_preprocess_functions,
+    prolfquapp::prolfqua_preprocess_functions,
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys,
     software = opt$software

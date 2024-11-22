@@ -25,6 +25,12 @@ option_list <- list(
 )
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
+
+if (length(commandArgs(TRUE)) == 0) {
+  optparse::print_help(parser)
+  quit(status = 1)
+}
+
 arguments <- optparse::parse_args(parser, positional_arguments = FALSE)
 opt <- arguments
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))

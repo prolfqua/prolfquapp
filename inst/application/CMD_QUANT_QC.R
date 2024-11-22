@@ -39,6 +39,12 @@ option_list <- list(
 )
 
 parser <- OptionParser(usage = "%prog --indir . ", option_list = option_list)
+
+if (length(commandArgs(TRUE)) == 0) {
+  optparse::print_help(parser)
+  quit(status = 1)
+}
+
 arguments <- parse_args(parser, positional_arguments = TRUE)
 
 lobstr::tree(arguments)
@@ -108,7 +114,7 @@ result <- tryCatch({
   procsoft <- preprocess_software(
     opt$indir,
     annotation,
-    prolfquapp::prolfq_preprocess_functions,
+    prolfquapp::prolfqua_preprocess_functions,
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys,
     software = opt$software

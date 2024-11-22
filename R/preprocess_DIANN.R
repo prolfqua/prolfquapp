@@ -8,55 +8,7 @@ get_nr_pep <- function(report){
   return(nrPEP)
 }
 
-#' read DiaNN diann-output.tsv file
-#'
-#' filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
-#' @import data.table
-#' @export
-#' @examples
-#' \dontrun{
-#' xx <- readr::read_tsv("WU292720_report.tsv")
-#' report2 <- prolfquapp::diann_read_output_deprec(xx)
-#' nrow(report2)
-#' }
-diann_read_output_deprec <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
-  warning("DEPRECATED")
-  select_PG <- function(report){
-    columns  <- c("File.Name",
-                  "Protein.Group",
-                  "Protein.Names",
-                  "PG.Quantity",
-                  "PG.MaxLFQ",
-                  "PG.Q.Value",
-                  "Global.PG.Q.Value",
-                  "Lib.PG.Q.Value")
-    columns %in% names(report)
 
-    PG <- report |> dplyr::select( dplyr::all_of( columns )) |>
-      dplyr::distinct() |>
-      dplyr::ungroup()
-    return(PG)
-  }
-
-  filter_PG <- function(PG,  .Lib.PG.Q.Value = 0.01, .PG.Q.Value = 0.05){
-    PG <- PG |> dplyr::filter(.data$Lib.PG.Q.Value < .Lib.PG.Q.Value)
-    PG <- PG |> dplyr::filter(.data$PG.Q.Value < .PG.Q.Value)
-    return(PG)
-  }
-
-  report <- data
-  PG <- select_PG(report)
-  PG2 <- filter_PG(PG, .Lib.PG.Q.Value = Lib.PG.Q.Value, .PG.Q.Value = PG.Q.Value)
-  PG2 <- PG2 |> dplyr::select(c("File.Name", "Protein.Group", "Protein.Names"))
-
-  report2 <- dplyr::inner_join(dtplyr::lazy_dt(PG2), dtplyr::lazy_dt(report),
-                               by = c("File.Name", "Protein.Group", "Protein.Names")) |>
-    dplyr::as_tibble()
-
-  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
-  report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
-  return(report2)
-}
 
 #' read DiaNN diann-output.tsv file
 #'

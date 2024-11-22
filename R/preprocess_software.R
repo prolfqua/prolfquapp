@@ -6,7 +6,7 @@
 #'
 #' @export
 #'
-prolfq_preprocess_functions <- list(
+prolfqua_preprocess_functions <- list(
   DIANN = list(
     get_files = "prolfquapp::get_DIANN_files",
     preprocess = "prolfquapp::preprocess_DIANN",
