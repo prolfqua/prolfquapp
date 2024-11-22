@@ -16,7 +16,7 @@ option_list <- list(
                         help = "yaml configuration file",
                         metavar = "character"),
   optparse::make_option(c("-s", "--software"), type = "character", default = NULL,
-                        help = paste0("possible options: ", paste(names(prolfquapp::prolfq_preprocess_functions), collapse = ", ")),
+                        help = paste0("possible options: ", paste(names(prolfquapp::prolfqua_preprocess_functions), collapse = ", ")),
                         metavar = "character"),
   optparse::make_option(c("-o", "--outdir"), type = "character", default = NULL,
                         help = "output directory",
