@@ -328,11 +328,10 @@ make_DEA_config_R6 <- function(
 #' @export
 #' @return list with applications parameters
 #' @examples
-#' if(FALSE){
-#'   yfile <- prolfqua::find_package_file("prolfquapp", "/inst/application/DIANN/myYamls.zip")
+#' if (FALSE) {
+#'   yfile <- prolfqua::find_package_file("prolfquapp", "application/DIANN/config.yaml")
 #'   file.exists(yfile)
-#'   yfiles <- dir(yfile,recursive = TRUE,full.names = TRUE)
-#'   config <- read_BF_yamlR6(yfiles[1])
+#'   config <- read_BF_yamlR6(yfile)
 #' }
 #'
 read_BF_yamlR6 <- function(ymlfile, application = "DIANN" ) {
@@ -366,7 +365,8 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN" ) {
   pop$pattern_decoys <- if (pop$pattern_decoys == "") { NULL } else {pop$pattern_decoys}
   pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
   pop$pattern_contaminants <- if (pop$pattern_contaminants == "") { NULL } else (pop$pattern_contaminants)
-  r6obj_config <- ProlfquAppConfig$new(pop, ps)
+  ext <- ExternalReader$new()
+  r6obj_config <- ProlfquAppConfig$new(pop, ps, ext)
   r6obj_config$set_zipdir_name()
   r6obj_config$software = application
 
