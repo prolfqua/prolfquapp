@@ -172,12 +172,17 @@ https://github.com/wolski/prolfquapp
 
 ```{r url, out.width="65%",fig.show='hold', fig.align="center"}
 library(qrcode)
-par(mfrow = c(1,2))
+
+png("QRcodesProlfqua.png", width = 800, height=800)
 code1 <- qrcode::qr_code("https://github.com/fgcz/prolfqua")
-par(mai = rep(0, 4), mar = c(0,0,1.5,0))
-image(code1, asp = 1, col = c("white","black"), axes = FALSE, main = "prolfqua")
-code2 <- qrcode::qr_code("https://github.com/wolski/prolfquapp")
-image(code2, asp = 1, col = c("white","black"), axes = FALSE, main = "prolfquapp")
+image(code1, asp = 1, col = c("white","black"), axes = FALSE)
+dev.off()
+
+png("QRcodesProlfquapp.png", width = 800, height=800)
+code2 <- qrcode::qr_code("https://github.com/prolfqua/prolfquapp")
+image(code2, asp = 1, col = c("white","black"), axes = FALSE)
+dev.off()
+
 
 ```
 
