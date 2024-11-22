@@ -106,6 +106,7 @@ get_annot_from_fasta <- function(
       fasta <- c(fasta, x)
     }
   }
+  fasta <- fasta[!(duplicated(names(fasta)))]
 
   logger::log_info("get_annot : finished reading")
   fasta_annot <- data.frame(annot = vapply(fasta, seqinr::getAnnot, ""), sequence = as.character(fasta))
