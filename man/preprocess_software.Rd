@@ -8,9 +8,10 @@ preprocess_software(
   indir,
   annotation,
   software,
-  preprocess_functions_str,
+  preprocess_functions_str = NULL,
   pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = "^rev_|^REV_"
+  pattern_decoys = "^rev_|^REV_",
+  extreader = NULL
 )
 }
 \description{
@@ -23,5 +24,13 @@ file = c("a1.raw","a2.raw","a3.raw","a4.raw"),
 name = c("aa","ba","aa","ba"),
 group = c("a","a","b","b"))
 annot <- read_annotation(annot, QC = TRUE)
-res <- preprocess_software(".",annot, prolfq_preprocess_functions, software = "DUMMY" )
+res <- preprocess_software(".",annot, software = "DUMMY" )
+
+xx <- prolfquapp::ExternalReader$new()
+xx$extra_args = "list()"
+xx$get_files = "prolfquapp::get_dummy_files"
+xx$preprocess = "prolfquapp::preprocess_dummy"
+res <- preprocess_software(".",annot, xx, software = "FUNNY" )
+xx <- prolfquapp::ExternalReader$new()
+res <- preprocess_software(".",annot, xx, software = "DUMMY" )
 }

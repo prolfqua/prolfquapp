@@ -13,11 +13,10 @@ list with applications parameters
 read yaml file
 }
 \examples{
-if(FALSE){
-  yfile <- prolfqua::find_package_file("prolfquapp", "/inst/application/DIANN/myYamls.zip")
+if (FALSE) {
+  yfile <- prolfqua::find_package_file("prolfquapp", "application/DIANN/config.yaml")
   file.exists(yfile)
-  yfiles <- dir(yfile,recursive = TRUE,full.names = TRUE)
-  config <- read_BF_yamlR6(yfiles[1])
+  config <- read_BF_yamlR6(yfile)
 }
 
 }

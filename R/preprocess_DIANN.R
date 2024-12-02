@@ -93,12 +93,16 @@ get_DIANN_files <- function(path){
 #' @export
 #' @examples
 #' \dontrun{
-#' x <- get_DIANN_files("inst/application/DIANN/2517219/")
+#' x <- get_DIANN_files("inst/application/DIANN/2706527/")
 #'
-#' annotation <- file.path("inst/application/DIANN/2517219/dataset.csv") |>
+#' annotation <- file.path("inst/application/DIANN/2706527/dataset.csv") |>
 #'  readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
 #'  x$fasta
+#' undebug(preprocess_DIANN)
 #' xd <- preprocess_DIANN(x$data, x$fasta, annotation)
+#' xd$lfqdata$hierarchy_counts()
+#' xd <- preprocess_DIANN(x$data, x$fasta, annotation, nr_peptides = 2)
+#' xd$lfqdata$hierarchy_counts()
 #' }
 preprocess_DIANN <- function(quant_data,
                              fasta_file,
@@ -106,7 +110,9 @@ preprocess_DIANN <- function(quant_data,
                              pattern_contaminants = "^zz|^CON|Cont_",
                              pattern_decoys = "^REV_|^rev",
                              q_value = 0.01,
-                             hierarchy_depth = 1){
+                             hierarchy_depth = 1,
+                             nr_peptides = 1
+                             ){
 
   annot <- annotation$annot
   atable <- annotation$atable$clone(deep = FALSE)
@@ -120,7 +126,7 @@ preprocess_DIANN <- function(quant_data,
   nrPEP$Protein.Group.2 <- sapply(nrPEP$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
 
   peptide <- prolfquapp::diann_output_to_peptide(report2)
-  peptide$qValue <- 1 - peptide$PEP
+  peptide$qValue <- peptide$PEP
   nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(peptide$raw.file)))
   if (nr == 0) { stop("No files are annotated. The annotation file is not compatible withe quant data.") }
@@ -132,6 +138,13 @@ preprocess_DIANN <- function(quant_data,
   atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
   atable$set_response("Peptide.Quantity")
   atable$hierarchyDepth <- hierarchy_depth
+
+  if (nr_peptides > 1) {
+    nrPEP <- nrPEP |> dplyr::filter(nrPeptides >= nr_peptides)
+    peptide <- peptide[peptide$Protein.Group %in% nrPEP$Protein.Group,]
+  }
+
+
 
   peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
   config <- prolfqua::AnalysisConfiguration$new(atable)
@@ -145,7 +158,7 @@ preprocess_DIANN <- function(quant_data,
   logger::log_info("reading fasta done, creating protein annotation.")
 
   prot_annot <- dplyr::left_join(nrPEP, fasta_annot, by = c(Protein.Group.2 = "proteinname"))
-  prot_annot <- dplyr::rename(prot_annot, IDcolumn = "Protein.Group.2",description = "fasta.header",protein_Id = "Protein.Group" )
+  prot_annot <- dplyr::rename(prot_annot, IDcolumn = "Protein.Group.2", description = "fasta.header",protein_Id = "Protein.Group" )
 
   protAnnot <- prolfquapp::ProteinAnnotation$new(
     lfqdata , prot_annot, description = "description",

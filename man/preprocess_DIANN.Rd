@@ -11,7 +11,8 @@ preprocess_DIANN(
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^REV_|^rev",
   q_value = 0.01,
-  hierarchy_depth = 1
+  hierarchy_depth = 1,
+  nr_peptides = 1
 )
 }
 \value{
@@ -22,11 +23,15 @@ preprocess DIANN ouput, filter by q_value and nr_peptides
 }
 \examples{
 \dontrun{
-x <- get_DIANN_files("inst/application/DIANN/2517219/")
+x <- get_DIANN_files("inst/application/DIANN/2706527/")
 
-annotation <- file.path("inst/application/DIANN/2517219/dataset.csv") |>
+annotation <- file.path("inst/application/DIANN/2706527/dataset.csv") |>
  readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
  x$fasta
+undebug(preprocess_DIANN)
 xd <- preprocess_DIANN(x$data, x$fasta, annotation)
+xd$lfqdata$hierarchy_counts()
+xd <- preprocess_DIANN(x$data, x$fasta, annotation, nr_peptides = 2)
+xd$lfqdata$hierarchy_counts()
 }
 }

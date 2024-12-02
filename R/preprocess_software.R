@@ -83,42 +83,59 @@ prolfqua_preprocess_functions <- list(
 #' name = c("aa","ba","aa","ba"),
 #' group = c("a","a","b","b"))
 #' annot <- read_annotation(annot, QC = TRUE)
-#' res <- preprocess_software(".",annot, prolfq_preprocess_functions, software = "DUMMY" )
+#' res <- preprocess_software(".",annot, software = "DUMMY" )
+#'
+#' xx <- prolfquapp::ExternalReader$new()
+#' xx$extra_args = "list()"
+#' xx$get_files = "prolfquapp::get_dummy_files"
+#' xx$preprocess = "prolfquapp::preprocess_dummy"
+#' res <- preprocess_software(".",annot, xx, software = "FUNNY" )
+#' xx <- prolfquapp::ExternalReader$new()
+#' res <- preprocess_software(".",annot, xx, software = "DUMMY" )
 preprocess_software <- function(indir,
                                 annotation,
                                 software,
-                                preprocess_functions_str,
+                                preprocess_functions_str = NULL,
                                 pattern_contaminants = "^zz|^CON|Cont_",
-                                pattern_decoys = "^rev_|^REV_"
+                                pattern_decoys = "^rev_|^REV_",
+                                extreader = NULL
                                 ) {
-
-  preprocess_functions <-
-    lapply(preprocess_functions_str, function(x) {
-      list(
-        get_files = getFromNamespace(sub(".*::", "", x$get_files), sub("^(.*)::.*", "\\1", x$get_files)),
-        preprocess = getFromNamespace(sub(".*::", "", x$preprocess), sub("^(.*)::.*", "\\1", x$preprocess)),
-        extra_args = eval(parse(text = x$extra_args))
-      )
-    })
-
-  # Check if software has a corresponding preprocess function
-  if (!software %in% names(preprocess_functions)) {
-    logger::log_error("No such software: ", software)
-    logger::log_error("Available readers are: ", names(preprocess_functions))
-    stop("No such software.")
-    return(NULL)
+  to_function <- function(x) {
+    list(
+      get_files = getFromNamespace(sub(".*::", "", x$get_files), sub("^(.*)::.*", "\\1", x$get_files)),
+      preprocess = getFromNamespace(sub(".*::", "", x$preprocess), sub("^(.*)::.*", "\\1", x$preprocess)),
+      extra_args = eval(parse(text = x$extra_args))
+    )
   }
 
+  if (!is.null(preprocess_functions_str) && length(preprocess_functions_str$preprocess) == 1) {
+    preprocess_functions <- to_function(preprocess_functions_str)
+  }else{
+    preprocess_functions_str <- prolfquapp::prolfqua_preprocess_functions
+      # Check if software has a corresponding preprocess function
+      if (!software %in% names(preprocess_functions_str)) {
+        logger::log_error("No such software: ", software)
+        logger::log_error("Available readers are: ", names(preprocess_functions_str))
+        stop("No such software.")
+        return(NULL)
+      }
+
+    preprocess_functions <-
+      to_function(preprocess_functions_str[[software]])
+  }
   # Fetch files
-  files_fn <- preprocess_functions[[software]]$get_files
+  files_fn <- preprocess_functions$get_files
+
+  # Preprocess the data
+  preprocess_fn <- preprocess_functions$preprocess
+  extra_args <- preprocess_functions$extra_args
+
+
   files <- files_fn(indir)
+
   # Log files information
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
-
-  # Preprocess the data
-  preprocess_fn <- preprocess_functions[[software]]$preprocess
-  extra_args <- preprocess_functions[[software]]$extra_args
 
   xd <- do.call(preprocess_fn, c(list(
     quant_data = files$data,
