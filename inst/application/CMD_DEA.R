@@ -83,12 +83,15 @@ if (FALSE) {
   opt$dataset <- "dataset1.xlsx"
   opt$workunit <- "f20_bgs"
 }
-if (TRUE) {
-  ymlfile <- "config.yaml"
-  opt$indir <- "2747171"
+if (FALSE) {
+  ymlfile <- "config_2_or_more.yaml"
+  opt$indir <- "FragPipe_f20_diann"
   opt$software <- "DIANN"
-  opt$dataset <- "dataset_Diet_Subgroup.csv"
-  opt$workunit <- "Diet_Subgroup"
+  opt$dataset <- "dataset_all_interaction_no_Subject.xlsx"
+  opt$workunit <- "Diet_Subgroup_2PEP"
+  #./prolfqua_dea.sh -s DIANN -i FragPipe_f20_diann \
+  #-d dataset_all_interaction_no_Subject.xlsx \
+  #-y config_2_or_more.yaml -w f20_diann_with_interaction
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -132,7 +135,7 @@ logger::log_info("Factors : ",paste(annotation$atable$factor_keys_depth(), colla
 prolfquapp::copy_DEA_Files()
 logger::log_info("Software: ", opt$software)
 
-debug(preprocess_DIANN)
+#debug(preprocess_software)
 
 result <- tryCatch({
   # Attempt to run the function
@@ -168,16 +171,12 @@ if (!is.null(result$error)) {
   xd <- result$value$xd
   files <- result$value$files
 }
-
-debug(prolfquapp::aggregate_data)
+#debug(prolfquapp::aggregate_data)
 logger::log_info("Processing done:", opt$software)
 logger::log_info(paste(c("Protein Annotation :\n",capture.output( print(xd$protein_annotation$get_summary()))),collapse = "\n"))
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.")
 lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_options$aggregate)
 
-prolfqua::LFQDataAggregator$debug("medpolish")
-agg <- xd$lfqdata$get_Aggregator()
-agg$medpolish()
 
 logger::log_info("END OF PROTEIN AGGREGATION")
 logger::log_info("RUN ANALYSIS")
