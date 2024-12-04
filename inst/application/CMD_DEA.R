@@ -99,8 +99,6 @@ ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
 logger::log_info("YAML file read: ", ymlfile)
 stopifnot(file.exists(ymlfile))
 
-#undebug(get_config)
-#undebug(list_to_R6_app_config)
 GRP2 <- prolfquapp::get_config(ymlfile)
 
 
@@ -135,7 +133,6 @@ logger::log_info("Factors : ",paste(annotation$atable$factor_keys_depth(), colla
 prolfquapp::copy_DEA_Files()
 logger::log_info("Software: ", opt$software)
 
-#debug(preprocess_software)
 
 result <- tryCatch({
   # Attempt to run the function
@@ -171,7 +168,8 @@ if (!is.null(result$error)) {
   xd <- result$value$xd
   files <- result$value$files
 }
-#debug(prolfquapp::aggregate_data)
+
+
 logger::log_info("Processing done:", opt$software)
 logger::log_info(paste(c("Protein Annotation :\n",capture.output( print(xd$protein_annotation$get_summary()))),collapse = "\n"))
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.")
@@ -182,7 +180,6 @@ logger::log_info("END OF PROTEIN AGGREGATION")
 logger::log_info("RUN ANALYSIS")
 
 
-# prolfqua::Contrasts$debug("get_linfct")
 grp <- prolfquapp::generate_DEA_reports2(
   lfqdata,
   GRP2,
