@@ -23,18 +23,15 @@ Please add the `.fasta` file which was used by the quantification software to th
 
 _prolfquapp_ is a set of command line tools.
 
-To use it open you shell (linux, mac), or command window (windows).
+To use it open your shell (linux, mac, or the linux subsystem on windows).
 Change into the directory with the identification/quantification results coming from FragPipe, MaxQuant, DIA-NN, Spectronaut etc.
 In the directory (in the terminal Linux or MAC) execute:
-
 
 ``` bash
 R --vanilla -e "prolfquapp::copy_shell_script(workdir = '.')" # if you have R on you system
 ```
 
-or, if you have Docker on you system download [prolfquapp_docker.sh](https://raw.githubusercontent.com/prolfqua/prolfquapp/refs/heads/master/inst/application/bin/prolfquapp_docker.sh)
-
-and execute:
+or, if you have [Docker](https://www.docker.com/products/docker-desktop/) on you system, you can also download [prolfquapp_docker.sh](https://raw.githubusercontent.com/prolfqua/prolfquapp/refs/heads/master/inst/application/bin/prolfquapp_docker.sh) and execute:
 
 ``` bash
 prolfquapp_docker.sh R --vanilla -e "prolfquapp::copy_shell_script(workdir = '.')" # if you wan to use the prolfqua docker image and container
