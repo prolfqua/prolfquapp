@@ -76,10 +76,10 @@ To create a `prolfquapp` compatible experiment annotation file run:
 ./prolfqua_dataset.sh -i data_dir/ -s DIANN -d annotation.xlsx # if R and prolfuqapp is installed on your computer
 ```
 
-or if you use _prolfquapp_ docker container
+or if you use our _prolfquapp_ docker container
 
 ``` bash
-./prolfquapp_docker.sh prolfqua_dataset.sh -i data_dir/ -s DIANN -d annotation.xlsx
+./prolfquapp_docker.sh prolfqua_dataset.sh -i data_dir/ -s DIANN -d annotation.xlsx # if R you use the prolfquapp docker container
 ```
 
 The `annotation.xlsx` file will be generated, and will contain 5 columns.
@@ -112,6 +112,7 @@ The report consists of two HTML documents and XLSX file.
 
 ``` bash
 ./prolfqua_qc.sh -i data_dir/ -p ProjectName -O ordername -w WorkunitName -d annotation.xlsx -s DIANN -o where_to_write_results
+# or prefix with ./prolfquapp_docker.sh to run the docker container
 ```
 
 This will generate a subfolder which starts with "QC\_" with all the analysis results.
@@ -124,6 +125,8 @@ Using the `./prolfqua_yaml.R` command line tool you can set the parameters of th
 
 ```         
 ./prolfqua_yaml.sh -y config.yaml
+# or prefix with ./prolfquapp_docker.sh to run the docker container
+# ./prolfquapp_docker.sh ./prolfqua_yaml.sh -y config.yaml
 ```
 
 To see which parameters can be set using `prolfqua_yaml.sh` use the `-h` switch.
