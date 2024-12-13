@@ -49,7 +49,7 @@ This will place the following four shell script files (linux), or bat files (win
 
 On Linux give the executables LINUX permissions:
 
-```         
+``` bash         
 chmod a+x prolfqua_*
 ```
 
@@ -123,7 +123,7 @@ Using the `./prolfqua_yaml.R` command line tool you can set the parameters of th
 
 -   **Output**: Yaml file
 
-```         
+``` bash        
 ./prolfqua_yaml.sh -y config.yaml
 # or prefix with ./prolfquapp_docker.sh to run the docker container
 # ./prolfquapp_docker.sh ./prolfqua_yaml.sh -y config.yaml
@@ -141,7 +141,7 @@ Finally, the `prolfqua_dea.sh` script runs the differential expression analysis 
 
 After setting the parameters in the config.yaml file you can run the DEA analysis by:
 
-```         
+``` bash        
 ./prolfqua_dea.sh -i data_dir/ -d annotation.xlsx -y config.yaml -w NameOfAnalysis -s DIANN
 ```
 
