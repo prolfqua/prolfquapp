@@ -21,14 +21,25 @@ Generate dynamic HTML reports, versatile file formats, and dive into interactive
 After running your Quantification software, DIA-NN, MAXQUANT, FragPipe-TMT, FragPipe-DIA or FragPipe-LFQ, the quantification results are in an `data_dir`.
 Please add the `.fasta` file which was used by the quantification software to the `data_dir`.
 
-prolfquapp is a set of command line tool.
+_prolfquapp_ is a set of command line tools.
+
 To use it open you shell (linux, mac), or command window (windows).
 Change into the directory with the identification/quantification results coming from FragPipe, MaxQuant, DIA-NN, Spectronaut etc.
-In the directory execute:
+In the directory (in the terminal Linux or MAC) execute:
+
 
 ``` bash
-R --vanilla -e "prolfquapp::copy_shell_script(workdir = '.')"
+R --vanilla -e "prolfquapp::copy_shell_script(workdir = '.')" # if you have R on you system
 ```
+
+or, if you have Docker on you system download [prolfquapp_docker.sh](https://raw.githubusercontent.com/prolfqua/prolfquapp/refs/heads/master/inst/application/bin/prolfquapp_docker.sh)
+
+and execute:
+
+``` bash
+prolfquapp_docker.sh R --vanilla -e "prolfquapp::copy_shell_script(workdir = '.')" # if you wan to use the prolfqua docker image and container
+```
+
 
 This will place the following four shell script files (linux), or bat files (windows) into your working directory:
 
@@ -65,7 +76,13 @@ This is done using the `prolfqua_dataset.sh` script.
 To create a `prolfquapp` compatible experiment annotation file run:
 
 ``` bash
-./prolfqua_dataset.sh -i data_dir/ -s DIANN -d annotation.xlsx
+./prolfqua_dataset.sh -i data_dir/ -s DIANN -d annotation.xlsx # if R and prolfuqapp is installed on your computer
+```
+
+or if you use _prolfquapp_ docker container
+
+``` bash
+./prolfquapp_docker.sh prolfqua_dataset.sh -i data_dir/ -s DIANN -d annotation.xlsx
 ```
 
 The `annotation.xlsx` file will be generated, and will contain 5 columns.
