@@ -82,8 +82,15 @@ run() {
         echo "$DOCKER pull $image"
     fi
 
+    # Check if running in a TTY
+    if [ -t 0 ]; then
+        docker_args="-it"
+    else
+        docker_args="-i"
+    fi
+
     # Run the container with current user UID/GID and mount the current working directory
-    $DOCKER run --user "$(id -u):$(id -g)" --rm -it --mount "type=bind,source=$(pwd),target=/work" -w /work "$image" "${container_args[@]}"
+    $DOCKER run --user "$(id -u):$(id -g)" --rm $docker_args --mount "type=bind,source=$(pwd),target=/work" -w /work "$image" "${container_args[@]}"
 }
 
 # Call the run function with the parsed arguments
