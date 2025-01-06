@@ -5,7 +5,7 @@ ARG TARGETPLATFORM
 ARG QUARTO_VERSION=1.5.57
 
 RUN apt-get update \
-  && apt-get install -y pandoc gdebi \
+  && apt-get install -y pandoc gdebi r-cran-tinytex \
   && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update
