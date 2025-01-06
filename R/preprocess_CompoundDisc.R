@@ -97,10 +97,14 @@ preprocess_CD <- function(
   lfqdata$remove_small_intensities()
 
   m_annot <- xdl |>
-    dplyr::select("metabolite_feature_Id", "Checked", "Tags", "Structure", "description","Formula", starts_with("Annot_")) |>
+    dplyr::select("metabolite_feature_Id",
+                  #"Checked",
+                  #"Tags",
+                  #"Structure",
+                  "description","Formula", starts_with("Annot_")) |>
     dplyr::distinct()
   # handle not identified
-  m_annot$nr_compounds <- ifelse(m_annot$Checked, 2 ,1)
+  # m_annot$nr_compounds <- ifelse(m_annot$Checked, 2 ,1)
 
   m_annot <- m_annot |> dplyr::mutate(IDcolumn = metabolite_feature_Id)
   prot_annot <- prolfquapp::ProteinAnnotation$new(

@@ -166,7 +166,7 @@ We expect that samples in the same group are more similar and cluster together, 
 
 (ref:naHeat) metabolite abundance heatmap (rows indicate metabolites, columns indicate samples) showing missing metabolite abundance estimates across data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Metabolite is observed, black: Metabolite is not observed.
 
-```{r naHeat, fig.width=7, fig.height=6, dpi=300, fig.cap="(ref:naHeat)", eval=TRUE}
+```{r naHeat, fig.width=7, fig.height=6, dpi=300, fig.cap="(ref:naHeat)", fig.alt="", eval=TRUE}
 nah
 ```
 
@@ -257,7 +257,7 @@ The metabolite abundance heatmap (Figure \@ref(fig:heatmap)) groups the metaboli
 
 
 
-```{r heatmap, fig.width=7, fig.height=8, dpi=300, fig.cap="(ref:heatmap)", eval=TRUE}
+```{r heatmap, fig.width=7, fig.height=8, dpi=300, fig.cap="(ref:heatmap)", fig.alt="", eval=TRUE}
 ph
 ```
 

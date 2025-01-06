@@ -175,7 +175,7 @@ We expect that samples in the same group are more similar and cluster together, 
 
 (ref:naHeat) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing missing protein abundance estimates across data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Protein is observed, black: Protein is not observed.
 
-```{r naHeat, fig.width=7, fig.height=6, dpi=300, fig.cap="(ref:naHeat)", eval=TRUE}
+```{r naHeat, fig.width=7, fig.height=6, dpi=300, fig.cap="(ref:naHeat)", fig.alt="", eval=TRUE}
 nah
 ```
 
@@ -265,7 +265,7 @@ The protein abundance heatmap (Figure \@ref(fig:heatmap)) groups the protein and
 
 
 
-```{r heatmap, fig.width=7, fig.height=8, dpi=300, fig.cap="(ref:heatmap)", eval=TRUE}
+```{r heatmap, fig.width=7, fig.height=8, dpi=300, fig.cap="(ref:heatmap)",fig.alt="", eval=TRUE}
 ph
 ```
 

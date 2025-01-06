@@ -43,7 +43,7 @@ parser <- OptionParser(usage = "%prog --indir . ", option_list = option_list)
 
 if (length(commandArgs(TRUE)) == 0) {
   optparse::print_help(parser)
-  quit(status = 1)
+  #quit(status = 1)
 }
 
 arguments <- parse_args(parser, positional_arguments = TRUE)
@@ -68,9 +68,9 @@ if (FALSE) {
   opt$dataset <- "dataset2.csv"
 }
 if (FALSE) {
-  opt$indir <- "2729992/"
+  opt$indir <- "2713981/"
   opt$software <- "DIANN"
-  opt$dataset <- "Dataset_55388_item_.xlsx"
+  opt$dataset <- "2713981/dataset.csv"
   opt$outdir <- "test2"
 }
 
