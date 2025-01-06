@@ -51,7 +51,7 @@ The analysis of missing values can be an essential indicator of potential proble
 (ref:missingProtein) Left panel - number of proteins with $n$ missing values (nrNA), Right panel - distribution of average intensity within group, of proteins with 1 to N missing values.
 
 
-```{r missingProtein, eval=TRUE, fig.cap="(ref:missingProtein)", fig.height=5, fig.width=8}
+```{r missingProtein, eval=TRUE, fig.cap="(ref:missingProtein)", fig.alt = "",fig.height=5, fig.width=8}
 
 pl <- grp2$RES$lfqData$get_Plotter()
 p2 <- pl$missigness_histogram()
@@ -71,7 +71,7 @@ Panel B of Figure \@ref(fig:SDViolin) shows the distribution of the standard dev
 
 (ref:SDViolin) Left panel - Distribution of coefficient of variation (CV) within groups and in entire experiment (all), Center panel - Distribution of standard deviations (sd) of $\log_2$ transformed data. Right panel - Distribution of protein standard deviation (sd), after data normalization within groups and in entire experiment. The black dot indicates the median CV.
 
-```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)", eval=TRUE}
+```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)", fig.alt="", eval=TRUE}
 stR <- grp2$RES$lfqData$get_Stats()
 pA <- stR$violin() + ggplot2::theme_classic() +
   ggplot2::labs(tag = "A") +
@@ -121,7 +121,7 @@ The bottom panel in Figure \@ref(fig:densityOFFoldChanges) shows the distributio
 
 (ref:densityOFFoldChanges) Top : distribution of the differences among groups for all the proteins in the dataset. red dotted line - median fold change, green line - expected value of the median fold change. Bottom - histogram of p-values for all the proteins in the dataset. X-axis - p-values, Y-axis - frequency of p-values.
 
-```{r densityOFFoldChanges, fig.width=8, fig.height=4, dpi=300, fig.cap = "(ref:densityOFFoldChanges)"}
+```{r densityOFFoldChanges, fig.width=8, fig.height=4, dpi=300, fig.cap = "(ref:densityOFFoldChanges)", fig.alt=""}
 cpl <- grp2$RES$contrMerged$get_Plotter(FCthreshold = grp2$processing_options$diff_threshold, FDRthreshold = grp2$processing_options$FDR_threshold)
 p1 <- cpl$histogram_diff() + ggplot2::labs(tag = "A")
 p2 <- cpl$histogram()$p.value  + ggplot2::labs(tag = "B")
@@ -133,7 +133,7 @@ To identify abundant proteins with large differences or if only low abundant pro
 
 (ref:MAPlot) MA plot: x - axis: average protein abundance (Panel A) or rank of average protein abundance (Panel B), y - axis: difference between the groups. 
 
-```{r MAPlot, fig.width=8, fig.height=5,  fig.cap="(ref:MAPlot)", eval=TRUE}
+```{r MAPlot, fig.width=8, fig.height=5,  fig.cap="(ref:MAPlot)", eval=TRUE, fig.alt=""}
 cpl <- grp2$RES$contrMerged$get_Plotter(
   FCthreshold = grp2$processing_options$diff_threshold,
   FDRthreshold = grp2$processing_options$FDR_threshold)

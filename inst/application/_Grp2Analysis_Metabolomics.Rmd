@@ -174,7 +174,7 @@ Using Figure \@ref(fig:vennmetabolites) we examine if we see the same metabolite
 
 (ref:vennmetabolits) Venn diagram showing the number of metabolits present in each group and in all possible intersections among groups. 
 
-```{r vennmetabolits, fig.cap="(ref:vennmetabolits)"}
+```{r vennmetabolits, fig.cap="(ref:vennmetabolits)", fig.alt=""}
 pups <- prolfqua::UpSet_interaction_missing_stats(grp2$RES$lfqData$data, grp2$RES$lfqData$config, tr = 1)
 UpSetR::upset(pups$data, order.by = "freq", nsets = pups$nsets)
 
@@ -201,7 +201,7 @@ if (grp2$processing_options$transform == "robscale") {
 
 (ref:normalized) Kernel density function showing the distribution of metabolite abundances in all samples. Left panel : Empirical metabolite abundance of all samples in the dataset. Right panel: Normalized empirical metabolite abundances of all samples in the dataset.
 
-```{r normalized,  fig.width=8, fig.height=5,dpi=300, fig.cap="(ref:normalized)", eval=TRUE}
+```{r normalized,  fig.width=8, fig.height=5,dpi=300, fig.cap="(ref:normalized)", fig.alt="", eval=TRUE}
 
 pl <- grp2$RES$lfqData$get_Plotter()
 
@@ -224,7 +224,7 @@ Figure \@ref(fig:SDViolin), show the coefficients of variations (CV) for all met
 
 (ref:SDViolin) Distribution of coefficient of variation (CV) within each groups and in the entire experiment (all).
 
-```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)", eval=TRUE}
+```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)", fig.alt="",eval=TRUE}
 stR <- grp2$RES$lfqData$get_Stats()
 pA <- stR$violin() + ggplot2::theme_classic() + ggplot2::labs(tag = "A")
 pA
@@ -265,7 +265,7 @@ We use principal component analysis (PCA) to transform the high dimensional spac
 
 (ref:pca)  Plot of first and second principal component (PC1 and PC2) of principal component analysis (PCA). Normalized abundances were used as input.
 
-```{r pca, fig.cap = "(ref:pca)" , fig.width=7, fig.height=7 }
+```{r pca, fig.cap = "(ref:pca)", fig.alt="" , fig.width=7, fig.height=7 }
 grp2$RES$transformedlfqData$get_Plotter()$pca_plotly()
 ```
 
@@ -338,7 +338,7 @@ DT::datatable(bb, filter = "bottom",
 (ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r grp2$processing_options$FDR_threshold`, while the green lines represent the the difference of minus and plus `r grp2$processing_options$diff_threshold`. With orange dots differences and FDRs estimated using missing value imputation are shown.
 
 
-```{r volcanoplot, fig.cap = "(ref:volcanoplot)", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
+```{r volcanoplot, fig.cap = "(ref:volcanoplot)", fig.alt="", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
 
 palette <- c("black","orange")
 palette <- setNames(palette, c("Linear_Model_moderated", "Imputed_Mean_moderated"))  
@@ -397,7 +397,7 @@ cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant met
 (ref:SigPrey) Significant metabolites obtained by applying the difference and FDR thresholds.
 
 
-```{r SigPrey, fig.cap= "(ref:SigPrey)", eval = showSignificant}
+```{r SigPrey, fig.cap= "(ref:SigPrey)", fig.alt="", eval = showSignificant}
 ctdata <- datax_signif |> dplyr::select(all_of(c(hkey ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
 
 sig <- crosstalk::SharedData$new(ctdata,  as.formula( paste0("~",hkey)), group = "BB")
@@ -436,14 +436,14 @@ cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 tr
 
 (ref:sigroteins) Heatmap showing the $\log_2$ transformed metabolite abundances for metabolites which pass the FDR and difference thresholds.
 
-```{r sigroteins, fig.cap="(ref:sigroteins)", eval = showSignificant}
+```{r sigroteins, fig.cap="(ref:sigroteins)", fig.alt="",eval = showSignificant}
 sigheat
 ```
 
 (ref:vennDiagramSig) Venn diagram showing the number of significant metabolites for each contrast and their intersections.
 
 
-```{r vennDiagramSig, fig.cap="(ref:vennDiagramSig)", eval = showSignificant}
+```{r vennDiagramSig, fig.cap="(ref:vennDiagramSig)", fig.alt="", eval = showSignificant}
 xx <- split(datax_signif[[hkey]], datax_signif$contrast)
 if (length(xx) > 1) {
   UpSetR::upset(UpSetR::fromList(xx))
