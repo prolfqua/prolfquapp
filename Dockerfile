@@ -31,13 +31,13 @@ RUN R -e 'options(warn=2); install.packages("pak", repos = "https://stat.ethz.ch
 RUN R -e 'options(warn=2); pak::pkg_install(c("any::seqinr", "any::prozor", "any::logger", "any::lubridate", "git::https://gitlab.bfabric.org/wolski/prolfquadata.git", "github::fgcz/prolfqua"))'
 COPY ./DESCRIPTION /opt/prolfqua/DESCRIPTION
 RUN R -e 'options(warn=2); pak::local_install_deps("/opt/prolfqua", upgrade = FALSE)'
-RUN R -e 'options(warn=2); tinytex::install_tinytex()'
 COPY . /opt/prolfqua
 RUN R -e 'options(warn=2); pak::pkg_install("/opt/prolfqua", upgrade = FALSE)'
 
 
 FROM base
-RUN quarto install tinytex
+ENV HOME=/home/user
+RUN quarto install tinytex && chmod -R 777 /home/user
 COPY --from=build /opt/r-libs-site /opt/r-libs-site
 RUN mkdir -p /tmp/quarto-cache && chmod 0777 /tmp/quarto-cache
 ENV XDG_CACHE_HOME=/tmp/quarto-cache
