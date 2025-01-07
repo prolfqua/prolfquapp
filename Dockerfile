@@ -37,6 +37,7 @@ RUN R -e 'options(warn=2); pak::pkg_install("/opt/prolfqua", upgrade = FALSE)'
 
 
 FROM base
+RUN quarto install tinytex
 COPY --from=build /opt/r-libs-site /opt/r-libs-site
 RUN mkdir -p /tmp/quarto-cache && chmod 0777 /tmp/quarto-cache
 ENV XDG_CACHE_HOME=/tmp/quarto-cache
