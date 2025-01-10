@@ -172,6 +172,7 @@ cat("Without applying any intensity scaling and data preprocessing, the peptide 
 ```{r plotDistributions, fig.cap="Density plot of peptide level Coefficient of Variations (CV).", fig.height=6, fig.width=8 , eval = show_text}
 
 moreThanOneSample <- nrow(lfqdata$factors()) > 1
+
 if ( moreThanOneSample ) {
   stats <- lfqdata$get_Stats()
   if (params$plot_density) {

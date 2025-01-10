@@ -68,9 +68,9 @@ if (FALSE) {
   opt$dataset <- "dataset2.csv"
 }
 if (FALSE) {
-  opt$indir <- "2713981/"
+  opt$indir <- "output-WU320379"
   opt$software <- "DIANN"
-  opt$dataset <- "2713981/dataset.csv"
+  opt$dataset <- "output-WU320379/dataset.csv"
   opt$outdir <- "test2"
 }
 
@@ -146,8 +146,8 @@ if (!is.null(result$error)) {
 
 GRP2$get_zipdir()
 
-QC_generator$undebug("get_list")
-QC_generator$undebug("get_peptides_wide")
+#QC_generator$undebug("get_list")
+#QC_generator$undebug("get_peptides_wide")
 
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
 pap$get_peptides_wide()
