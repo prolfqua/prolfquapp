@@ -8,7 +8,7 @@
 set -euo pipefail
 
 # Default values for arguments
-IMAGE_VERSION="0.0.8"
+IMAGE_VERSION="0.1.0"
 IMAGE_REPO="docker.io/prolfqua/prolfquapp"
 
 # Function to print usage/help message
