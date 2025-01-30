@@ -4,7 +4,10 @@
 \alias{get_BGS_files}
 \title{get BGS and fasta file location in folder}
 \usage{
-get_BGS_files(path, bgs_pattern = "*BGS Factory Report \\\\(Normal\\\\).tsv")
+get_BGS_files(
+  path,
+  bgs_pattern = "*BGS Factory Report \\\\(Normal\\\\).tsv|_Report.tsv"
+)
 }
 \value{
 list with paths to data and fasta
