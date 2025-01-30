@@ -47,51 +47,11 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 if (FALSE) {
-  ymlfile <- "p35593_uniprot_paired/WholeProtUniprot.yaml"
-  opt$dataset <- "p35593_uniprot_paired/dataset.xlsx"
-  opt$indir <- "o35593_prot_ionquant/"
-}
-if (FALSE) {
-  ymlfile <- "minimalPhosphoAnalysis.yaml"
-  opt$dataset <- "p35540_WU313409_annotationTableXLSX.xlsx"
-  opt$indir <- "Fragpipe_o35920_phospho/"
-  opt$software <- "FP_multisite"
-}
-if (FALSE) {
-  ymlfile <- "minimal.yaml"
-  opt$indir <- "."
-  opt$software <- "MSSTATS"
-  opt$dataset <- "dataset.csv"
-}
-if (FALSE) {
-  ymlfile <- "config.yaml"
-  opt$indir <- "."
-  opt$software <- "DIANN"
-  opt$dataset <- "dataset.csv"
-}
-if (FALSE) {
-  ymlfile <- "FragPipe_f20/msstats20.yaml"
-  opt$indir <- "FragPipe_f20"
-  opt$software <- "MSSTATS_FP_DIA_PEPTIDE"
-  opt$dataset <- "FragPipe_f20/dataset_msstats20_parallel.xlsx"
-  opt$workunit <- "testing_peptide"
-}
-if (FALSE) {
   ymlfile <- "config.yaml"
   opt$indir <- "inputJG"
   opt$software <- "BGS_DEFAULT_PROTEIN"
   opt$dataset <- "dataset1.xlsx"
   opt$workunit <- "f20_bgs"
-}
-if (FALSE) {
-  ymlfile <- "config_2_or_more.yaml"
-  opt$indir <- "FragPipe_f20_diann"
-  opt$software <- "DIANN"
-  opt$dataset <- "dataset_all_interaction_no_Subject.xlsx"
-  opt$workunit <- "Diet_Subgroup_2PEP"
-  #./prolfqua_dea.sh -s DIANN -i FragPipe_f20_diann \
-  #-d dataset_all_interaction_no_Subject.xlsx \
-  #-y config_2_or_more.yaml -w f20_diann_with_interaction
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -127,7 +87,8 @@ logger::log_info( prolfquapp::capture_output( quote(lobstr::tree(R6_extract_valu
 annotation <- file.path(opt$dataset) |>
   prolfquapp::read_table_data() |> prolfquapp::read_annotation(prefix = GRP2$group)
 
-logger::log_info("Contrasts: \n", paste(annotation$contrasts, collapse = "\n"))
+logger::log_info("ContrastNames: \n", paste(names(annotation$contrasts), collapse = "\n"))
+logger::log_info("Contrast: \n", paste(annotation$contrasts, collapse = "\n"))
 
 logger::log_info("Factors : ",paste(annotation$atable$factor_keys_depth(), collapse = "\n"))
 prolfquapp::copy_DEA_Files()
@@ -136,8 +97,6 @@ logger::log_info("Software: ", opt$software)
 
 result <- tryCatch({
   # Attempt to run the function
-
-
   procsoft <- preprocess_software(
     opt$indir,
     annotation,
@@ -185,6 +144,11 @@ grp <- prolfquapp::generate_DEA_reports2(
   GRP2,
   xd$protein_annotation,
   annotation$contrasts)
+
+lfqdata$factors()$G_ |> unique()
+annotation$contrasts
+
+
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
 
 
