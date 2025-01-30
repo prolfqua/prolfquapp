@@ -39,7 +39,7 @@ read_BGS <- function(file = "Experiment1_Report_BGS Factory Report (Normal).tsv"
 #' \dontrun{
 #' x <- get_DIANN_files("inst/application/DIANN/2517219/")
 #' }
-get_BGS_files <- function(path, bgs_pattern = "*BGS Factory Report \\(Normal\\).tsv"){
+get_BGS_files <- function(path, bgs_pattern = "*BGS Factory Report \\(Normal\\).tsv|_Report.tsv"){
   diann.path <- grep(bgs_pattern, dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
   fasta.files <- grep("*.fasta$|*.fas$", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
   if (any(grepl("database[0-9]*.fasta$", fasta.files))) {

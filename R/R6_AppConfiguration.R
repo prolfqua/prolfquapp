@@ -385,7 +385,7 @@ get_config <- function(yamlfile, WORKUNITID =  "HelloWorld", ORDERID = "123") {
     GRP2 <- prolfquapp::make_DEA_config_R6(
       PROJECTID = as.character(ORDERID) ,ORDERID = as.character(ORDERID), WORKUNITID = WORKUNITID )
   } else if (file.exists(yamlfile)) {
-    xx <- yaml::read_yaml(ymlfile)
+    xx <- yaml::read_yaml(yamlfile)
     if (!is.null(xx$project_spec)) {
       logger::log_info("prolfquapp yaml")
       GRP2 <- list_to_R6_app_config(xx)
