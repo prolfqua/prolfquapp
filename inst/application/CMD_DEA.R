@@ -47,11 +47,11 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 if (FALSE) {
-  ymlfile <- "config.yaml"
-  opt$indir <- "inputJG"
-  opt$software <- "BGS_DEFAULT_PROTEIN"
-  opt$dataset <- "dataset1.xlsx"
-  opt$workunit <- "f20_bgs"
+  ymlfile <- "configPTM.yaml"
+  opt$indir <- "o37142_FP_TMTiOutput"
+  opt$software <- ""
+  opt$dataset <- "DEA_annotation.xlsx"
+  opt$workunit <- "o37142_Ignacio"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -144,10 +144,6 @@ grp <- prolfquapp::generate_DEA_reports2(
   GRP2,
   xd$protein_annotation,
   annotation$contrasts)
-
-lfqdata$factors()$G_ |> unique()
-annotation$contrasts
-
 
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
 

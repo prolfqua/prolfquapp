@@ -13,30 +13,33 @@ option_list <- list(
                help = "folder containing fasta file and output of the quantification software.",
                metavar = "string"),
   make_option(c("-t","--pattern_decoys"), type = "character", default = "^REV_|^rev_",
-              help = " (optional) R library path",
+              help = "decoy pattern in fasta file",
               metavar = "string"),
-  make_option( c("-p", "--project"), type = "character", default = "",
-               help = "your project identifier",
-               metavar = "string"),
   make_option( c("-w", "--workunit"), type = "character", default = "",
                help = "workunit identifier",
                metavar = "string"),
   make_option( c("-d", "--dataset"), type = "character", default = "dataset.csv",
-               help = "name of annotation",
+               help = "annotation file",
                metavar = "string"),
-  make_option(c("-O", "--order"), type = "character", default = "",
-              help = "order ID",
-              metavar = "character"),
   make_option( c("-o", "--outdir"), type = "character", default = "qc_dir",
                help = "folder to write the results to.",
                metavar = "string"),
   make_option(c("-s", "--software"), type = "character", default = "DIANN",
               help = paste0("possible options: ",
-                            paste(names(prolfquapp::prolfqua_preprocess_functions)[!grepl("PEPTIDE",names(prolfquapp::prolfqua_preprocess_functions) )], collapse = ", ")),,
+                            paste(names(prolfquapp::prolfqua_preprocess_functions)[!grepl("PEPTIDE",names(prolfquapp::prolfqua_preprocess_functions) )], collapse = ", ")),
+              metavar = "character"),
+  make_option( c("-p", "--project"), type = "character", default = "",
+               help = "your project identifier",
+               metavar = "string"),
+  make_option(c("-O", "--order"), type = "character", default = "",
+              help = "order ID",
               metavar = "character"),
   make_option(c("--libPath"), type = "character", default = NULL,
               help = " (optional) R library path",
-              metavar = "string")
+              metavar = "string"),
+  optparse::make_option(c("-y", "--yaml"), type = "character", default = "config.yaml",
+                        help = "yaml configuration file",
+                        metavar = "character")
 )
 
 parser <- OptionParser(usage = "%prog --indir . ", option_list = option_list)
@@ -51,28 +54,19 @@ arguments <- parse_args(parser, positional_arguments = TRUE)
 lobstr::tree(arguments)
 
 opt <- arguments$options
+ymlfile <- arguments$args
 
-if (FALSE) {
-  opt$indir <- "2532162/"
-}
-if (FALSE) {
-  opt$indir <- "DIANN_1.9_tsv/"
-  opt$dataset <- "dataset.xlsx"
-}
-if (FALSE) {
-  opt$indir <- "."
-  opt$dataset <- "dataset.csv"
-}
-if (FALSE) {
-  opt$indir <- "."
-  opt$dataset <- "dataset2.csv"
-}
-if (FALSE) {
-  opt$indir <- "output-WU320379"
+if (TRUE) {
+  opt$indir <- "o37142_FP_TMTiOutput"
   opt$software <- "DIANN"
-  opt$dataset <- "output-WU320379/dataset.csv"
-  opt$outdir <- "test2"
+  opt$dataset <- "QC_annotation.xlsx"
+  opt$outdir <- "test2QC"
+  opt$yaml <-"configPTM.yaml"
+  opt$workunit <- "helloW"
 }
+
+ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
+
 
 # set library path
 if (!is.null(opt$libPath) && dir.exists(opt$libPath)) {
@@ -85,14 +79,19 @@ library(logger)
 logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
-GRP2 <- prolfquapp::make_DEA_config_R6(
-  PATH = opt$outdir,
-  ORDERID = opt$order,
-  PROJECTID =  opt$project,
-  WORKUNITID = opt$workunit,
-  application = opt$software,
-  prefix = "QC"
+
+if (file.exists(ymlfile)) {
+  GRP2 <- prolfquapp::get_config(ymlfile)
+} else {
+  GRP2 <- prolfquapp::make_DEA_config_R6(
+    PATH = opt$outdir,
+    ORDERID = opt$order,
+    PROJECTID =  opt$project,
+    WORKUNITID = opt$workunit,
+    application = opt$software,
+    prefix = "QC"
   )
+}
 
 dir.create(GRP2$path)
 
@@ -109,14 +108,14 @@ if (!file.exists( opt$dataset)) {stop("No annotation file found : ", opt$dataset
 annotation <- file.path( opt$dataset) |>
   prolfquapp::read_table_data() |> prolfquapp::read_annotation(QC = TRUE)
 
-#debug(preprocess_software)
+
 result <- tryCatch({
   # Attempt to run the function
   procsoft <- preprocess_software(
     opt$indir,
     annotation,
-    prolfquapp::prolfqua_preprocess_functions,
-    pattern_contaminants = GRP2$processing_options$pattern_contaminants,
+    preprocess_functions_str = GRP2$ext_reader,
+    pattern_contaminants = (GRP2$processing_options$pattern_contaminants),
     pattern_decoys = GRP2$processing_options$pattern_decoys,
     software = opt$software
   )
@@ -144,13 +143,21 @@ if (!is.null(result$error)) {
   files <- result$value$files
 }
 
+xd$lfqdata$config$table$hierarchyDepth <- 1
+
 GRP2$get_zipdir()
 
 #QC_generator$undebug("get_list")
 #QC_generator$undebug("get_peptides_wide")
+#QC_generator$debug("get_prot_IBAQ")
 
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
-pap$get_peptides_wide()
+
+# pap$get_peptides_wide()
+# pap$get_list
+# dd <- pap$get_prot_wide()
+# pap$get_prot_IBAQ_wide()
+
 pap$write_xlsx()
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()

@@ -16,7 +16,7 @@ option_list <- list(
                help = "name of annotation file",
                metavar = "string"),
   make_option(c("-s", "--software"), type = "character", default = "DIANN",
-              help = "possible options DIANN, FP_TMT, MAXQUANT, MSSTATS, FP_multisite, FP_combined_STY",
+              help = "importer : DIANN, FP_TMT, MSSTATS, BGS_DEFAULT, FP_combined_STY",
               metavar = "character"),
   make_option(c("-f", "--function"), type = "character", default = "",
               help = "possible options: packagename::processing_function",
@@ -25,13 +25,12 @@ option_list <- list(
 )
 
 parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
-
 if (length(commandArgs(TRUE)) == 0) {
   optparse::print_help(parser)
-  quit(status = 1)
 }
 
 arguments <- optparse::parse_args(parser, positional_arguments = FALSE)
+
 opt <- arguments
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 
@@ -45,8 +44,16 @@ if (FALSE) {
   opt$dataset = "dataset_2.xlsx"
   opt$software = "MSSTATS"
 }
+if (FALSE) {
+  opt$indir = "20241223_111611_SN19_BGSReport_20240923_Astral_HYE_Evosep80SPDwz_NoNorm/"
+  opt$dataset = "dataset_Astral.xlsx"
+  opt$software = "BGS_DEFAULT"
+}
+
+
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 
+prolfquapp::prolfqua_preprocess_functions[["BGS_DEFAULT_PROTEIN"]]
 
 
 if (opt$software == "DIANN") {
@@ -83,7 +90,14 @@ if (opt$software == "DIANN") {
   datasetannot$Control <- ""
   datasetannot <- datasetannot |> tidyr::unite("Name", "Group", "Subject", sep = "_", remove = FALSE)
   prolfquapp::write_annotation_file(datasetannot, opt$dataset)
-} else if (opt$software == "FP_multisite") {
+} else if(opt$software == "BGS_DEFAULT"){
+  files <- prolfquapp::get_BGS_files(opt$indir)
+  xt <- readr::read_tsv(files$data)
+  ds <- xt |> dplyr::select(raw.file = R.FileName, Group = R.Condition, name = R.Replicate)
+  ds <- ds |> tidyr::unite("Name", c(Group, name), remove = FALSE) |> dplyr::distinct()
+  ds$name <- NULL
+  prolfquapp::write_annotation_file(ds, opt$dataset)
+}else if (opt$software == "FP_multisite") {
 } else if (opt$software == "FP_combined_STY") {
   logger::log_info("FP_combined_STY")
   fff <- prolfquapp::get_FP_combined_STY_files(opt$indir)
