@@ -47,11 +47,11 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 if (FALSE) {
-  ymlfile <- "configPTM.yaml"
-  opt$indir <- "o37142_FP_TMTiOutput"
-  opt$software <- ""
-  opt$dataset <- "DEA_annotation.xlsx"
-  opt$workunit <- "o37142_Ignacio"
+  ymlfile <- "config.yaml"
+  opt$indir <- "DIANNv1_9_p35134_o36327_HYE_ASTRAL/"
+  opt$software <- "DIANN"
+  opt$dataset <- "astral1ng.xlsx"
+  opt$workunit <- "ASTRAL1ng"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }

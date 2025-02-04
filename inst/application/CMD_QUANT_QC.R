@@ -56,7 +56,7 @@ lobstr::tree(arguments)
 opt <- arguments$options
 ymlfile <- arguments$args
 
-if (TRUE) {
+if (FALSE) {
   opt$indir <- "o37142_FP_TMTiOutput"
   opt$software <- "DIANN"
   opt$dataset <- "QC_annotation.xlsx"
