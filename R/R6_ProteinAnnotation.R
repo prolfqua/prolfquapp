@@ -65,6 +65,26 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE){
   return(list(pannot = pannot,lfqdata = lfqdata))
 }
 
+#' make lfqdata with row annotation
+#' @export
+make_annotated_experiment <- function(Nprot = 100){
+  istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
+  lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
+  lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
+  pids <- grep("^zz|^REV",unique(lfqdata$data$protein_Id),value = TRUE, invert = TRUE)
+  addannot <- data.frame(protein_Id = pids,
+                         description = stringi::stri_rand_strings(length(pids), 13))
+  addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
+  pannot <- ProteinAnnotation$new(
+    lfqdata,
+    addannot,
+    description = "description",
+    cleaned_ids = "cleanID",
+    pattern_contaminants = "^zz",
+    pattern_decoys = "^REV" )
+  return(list(lfqdata = lfqdata, pannot = pannot))
+}
+
 
 # ProteinAnnotation ----
 #' Decorates LFQData with a row annotation and some protein specific functions.
@@ -74,9 +94,9 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE){
 #' @examples
 #'
 #' istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-#' xd1 <- nr_obs_experiment(istar$data, istar$config, from_children = TRUE)
+#' xd1 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = TRUE)
 #'
-#' xd2 <- nr_obs_experiment(istar$data, istar$config, from_children = FALSE)
+#' xd2 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = FALSE)
 #' xd1$nr_child_exp |> table()
 #'
 #' lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
@@ -88,8 +108,8 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE){
 #' addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
 #' # ProteinAnnotation$debug("initialize")
 #' # debug(nr_obs_sample)
-#' xd4 <- nr_obs_sample(lfqdata$data, lfqdata$config)
-#' xd3 <- nr_obs_experiment(lfqdata$data, lfqdata$config, from_children = FALSE)
+#' xd4 <- prolfqua::nr_obs_sample(lfqdata$data, lfqdata$config)
+#' xd3 <- prolfqua::nr_obs_experiment(lfqdata$data, lfqdata$config, from_children = FALSE)
 #'
 #' pannot <- ProteinAnnotation$new( lfqdata,
 #'  addannot,

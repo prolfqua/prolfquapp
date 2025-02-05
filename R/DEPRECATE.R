@@ -85,8 +85,6 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot) {
 }
 
 
-
-
 #' Create DEA report in html and write data to xlsx table
 #'
 #' For use examples see run_scripts directory

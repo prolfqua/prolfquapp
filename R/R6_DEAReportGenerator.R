@@ -1,4 +1,9 @@
+#' DEAReportGenerator
 #'
+#' @examples
+#'
+#'
+# tmp <-  make_annotated_experiment()
 
 DEAReportGenerator <- R6::R6Class(
   "DEAReportGenerator",

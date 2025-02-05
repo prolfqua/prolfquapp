@@ -47,11 +47,11 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 if (FALSE) {
-  ymlfile <- "config.yaml"
-  opt$indir <- "DIANNv1_9_p35134_o36327_HYE_ASTRAL/"
-  opt$software <- "DIANN"
-  opt$dataset <- "astral1ng.xlsx"
-  opt$workunit <- "ASTRAL1ng"
+  ymlfile <- "configPTM.yaml"
+  opt$indir <- "o37142_FP_TMTiOutput/"
+  # opt$software <- "DIANN"
+  opt$dataset <- "DEA_annotation_Starve.xlsx"
+  opt$workunit <- "Ignacio_again"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -160,7 +160,7 @@ lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
   decoys = GRP2$processing_options$remove_decoys))
 
 # do not write when peptide level analysis
-if (length(xd$protein_annotation$pID) == 1) {
+if (length(xd$lfqdata$config$table$hierarchy_keys_depth()) == 1) {
   ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
   writexl::write_xlsx(
     ibaq$to_wide()$data,
@@ -170,7 +170,6 @@ if (length(xd$protein_annotation$pID) == 1) {
 logger::log_info("Writing summarized experiment.")
 SE <- prolfquapp::make_SummarizedExperiment(grp)
 saveRDS(SE, file = file.path( grp$get_result_dir(), "SummarizedExperiment.rds"))
-
 
 logger::log_info("Creating directory with input files :", GRP2$get_input_dir())
 dir.create(GRP2$get_input_dir())

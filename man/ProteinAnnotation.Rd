@@ -11,9 +11,9 @@ Decorates LFQData with a row annotation and some protein specific functions.
 \examples{
 
 istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-xd1 <- nr_obs_experiment(istar$data, istar$config, from_children = TRUE)
+xd1 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = TRUE)
 
-xd2 <- nr_obs_experiment(istar$data, istar$config, from_children = FALSE)
+xd2 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = FALSE)
 xd1$nr_child_exp |> table()
 
 lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
@@ -25,8 +25,8 @@ description = stringi::stri_rand_strings(length(pids), 13))
 addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID",NA), remove=FALSE)
 # ProteinAnnotation$debug("initialize")
 # debug(nr_obs_sample)
-xd4 <- nr_obs_sample(lfqdata$data, lfqdata$config)
-xd3 <- nr_obs_experiment(lfqdata$data, lfqdata$config, from_children = FALSE)
+xd4 <- prolfqua::nr_obs_sample(lfqdata$data, lfqdata$config)
+xd3 <- prolfqua::nr_obs_experiment(lfqdata$data, lfqdata$config, from_children = FALSE)
 
 pannot <- ProteinAnnotation$new( lfqdata,
  addannot,
