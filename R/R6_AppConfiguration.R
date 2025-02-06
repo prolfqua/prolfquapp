@@ -347,7 +347,7 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN" ) {
   ps$project_Id = PROJECTID
   ps$workunit_Id = WORKUNITID
   ps$project_name <- ""
-  idxzip <- grep("[0-9]{7,7}.zip|DIANN_Result_WU[0-9]{6,6}.zip",yml$application$input[[1]])
+  idxzip <- grep("[0-9]{7,7}.zip|DIANN_Result_WU[0-9]{6,6}.zip",yml$application$input[[1]], ignore.case = TRUE)
 
   ps$input_URL <- yml$job_configuration$input[[1]][[idxzip]]$resource_url
 
