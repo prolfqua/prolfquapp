@@ -56,12 +56,10 @@ lobstr::tree(arguments)
 opt <- arguments$options
 ymlfile <- arguments$args
 
-if (FALSE) {
-  opt$indir <- "o37142_FP_TMTiOutput"
+if (TRUE) {
+  opt$indir <- "out-DIANN"
   opt$software <- "DIANN"
-  opt$dataset <- "QC_annotation.xlsx"
-  opt$outdir <- "test2QC"
-  opt$yaml <-"configPTM.yaml"
+  opt$dataset <- "dataset.csv"
   opt$workunit <- "helloW"
 }
 
@@ -108,6 +106,7 @@ if (!file.exists( opt$dataset)) {stop("No annotation file found : ", opt$dataset
 annotation <- file.path( opt$dataset) |>
   prolfquapp::read_table_data() |> prolfquapp::read_annotation(QC = TRUE)
 
+debug(preprocess_DIANN)
 
 result <- tryCatch({
   # Attempt to run the function

@@ -51,7 +51,9 @@ custom_round <- function(arr) {
 #' #deanalyse$build_model_glm_protein()
 #' #deanalyse$build_model_glm_peptide()
 #' xprot <- deanalyse$get_contrasts_glm_protein()
+#'
 #' stopifnot(nrow(merged$get_contrasts()) == 200)
+#'
 #' xpep <- deanalyse$get_contrasts_glm_peptide()
 #' xprot$get_contrasts()
 #' xprot$get_Plotter()$volcano()
@@ -66,9 +68,10 @@ custom_round <- function(arr) {
 #' xd <- deanalyse$contrasts_to_Grob()
 #' bb <- deanalyse$get_boxplots()
 #' bx <- deanalyse$get_boxplots_contrasts()
+#' dev.off()
 #' grid::grid.draw(bx$bxpl_grobs[[1]])
 #' # deanalyse$write_boxplots_contrasts("test.pdf")
-
+#'
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(
@@ -170,7 +173,6 @@ DEAnalyse <- R6::R6Class(
     aggregate = function(){
       agg_method = self$prolfq_app_config$processing_options$aggregate
       logger::log_info("AGGREGATING PEPTIDE DATA: {agg_method}.")
-
       lfqdata_peptide <- self$lfq_data_peptide
 
       if (length(lfqdata_peptide$config$table$hierarchy_keys()) == lfqdata_peptide$config$table$hierarchyDepth) {
@@ -265,6 +267,18 @@ DEAnalyse <- R6::R6Class(
       return(self$models[[self$m1_linear]])
     },
     #' @description
+    #' get strategy
+    #'
+    get_strategy_glm_prot = function(){
+      lfq <- self$lfq_data_transformed
+      formula <- private$create_formula(lfq$config, response = "binresp")
+      modelFunction <-  prolfqua::strategy_glm(formula,
+                                               family = stats::binomial,
+                                               multiplier = 1.2,
+                                               offset = 1)
+      return(modelFunction)
+    },
+    #' @description
     #' fit generalized linear model
     build_model_glm_protein = function(){
       if (is.null(self$models[[self$m4_glm_protein]])) {
@@ -273,14 +287,8 @@ DEAnalyse <- R6::R6Class(
         lfq$complete_cases()
         lfq$data <- lfq$data |>
           dplyr::mutate(binresp =
-                          factor(ifelse(is.na(!!sym(lfq$response())), 0, 1)))
-        formula <- private$create_formula(lfq$config, response = "binresp")
-
-        modelFunction <-  prolfqua::strategy_glm(formula,
-                                                 family = stats::binomial,
-                                                 multiplier = 1.2,
-                                                 offset = 1)
-
+                          ifelse(is.na(!!sym(lfq$response())), 0, 1))
+        modelFunction <- self$get_strategy_glm_prot()
         models <- prolfqua::build_model(lfq , modelFunction)
         self$models[[self$m4_glm_protein]] <- models
       }
@@ -299,17 +307,48 @@ DEAnalyse <- R6::R6Class(
 
         formula <- private$create_formula(lfq$config, response = "binresp")
         # block for peptides
-        hkey <- tail(lfq$config$table$hierarchy_keys(), n = 1)
-        formula <- paste0(formula, "+", hkey)
 
-        modelFunction <-  prolfqua::strategy_glm(
-          formula,
-          family = stats::quasibinomial,
-          multiplier = 1.2,
-          offset = 1)
-        models <- prolfqua::build_model(lfq , modelFunction)
-        self$models[[self$m4_glm_peptide]] <- models
+        # this model can only be fitted if 2 or more peptides
+        df <- pep$summarize_hierarchy()
+        df2 <- df[df[[ncol(df)]] > 1,  ]
+
+        if (nrow(df2) > 0) {
+          hkey <- tail(lfq$config$table$hierarchy_keys(), n = 1)
+          lfq2 <- lfq$get_subset(df2)
+          formula2 <- paste0(formula, "+", hkey)
+          modelFunction2 <-  prolfqua::strategy_glm(
+            formula2,
+            family = stats::quasibinomial,
+            multiplier = 1.2,
+            offset = 1)
+          models2 <- prolfqua::build_model(lfq2 , modelFunction2)
+        }
+
+        df1 <- df[df[[ncol(df)]] == 1,]
+        if (nrow(df1) > 0) {
+          lfq1 <- lfq$get_subset(df1)
+
+          modelFunction1 <-  prolfqua::strategy_glm(
+            formula,
+            family = stats::quasibinomial,
+            multiplier = 1.2,
+            offset = 1)
+          models1 <- prolfqua::build_model(lfq1 , modelFunction1)
+        }
+
+        if(exists("models1") & exists("models2")){
+          models2$modelDF <- dplyr::bind_rows(models1$modelDF,models2$modelDF)
+        } else if (exists("models1")) {
+          models2 <- models1
+        } else if (exists('models2')) {
+          models2 <- models2
+        } else {
+          models2 <- NULL
+        }
+
+        self$models[[self$m4_glm_peptide]] <- models2
       }
+
       return(self$models[[self$m4_glm_peptide]])
     },
 
@@ -482,8 +521,6 @@ DEAnalyse <- R6::R6Class(
       self$formula <- formula
       return(formula)
     }
-
-
   )
 )
 

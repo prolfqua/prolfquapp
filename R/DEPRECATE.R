@@ -278,7 +278,7 @@ dataset_protein_annot <- function(
 #' read yaml file
 #' @export
 #' @return list with applications parameters
-read_yaml <- function(ymlfile, application = "FragPipeTMT" ) {
+read_yaml_deprec <- function(ymlfile, application = "FragPipeTMT" ) {
   yml = yaml::read_yaml(ymlfile)
 
   WORKUNITID = yml$job_configuration$workunit_id

@@ -47,11 +47,11 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 if (FALSE) {
-  ymlfile <- "configPTM.yaml"
-  opt$indir <- "o37142_FP_TMTiOutput/"
-  # opt$software <- "DIANN"
-  opt$dataset <- "DEA_annotation_Starve.xlsx"
-  opt$workunit <- "Ignacio_again"
+  ymlfile <- "config.yaml"
+  opt$indir <- "DIANN_RESULT_WU321590//"
+  opt$software <- "DIANN"
+  opt$dataset <- "MI800vsMI200vsMI.xlsx"
+  opt$workunit <- "MI800vsMI200vsMI.xlsx"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -77,8 +77,6 @@ appender_combined <- logger::appender_tee(file.path(GRP2$get_zipdir(), logfile))
 logger::log_appender(appender_combined)
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 logger::log_info("Writing to output directory : ", GRP2$get_zipdir(), " and file :", logfile)
-
-
 
 logger::log_info("prolfquapp paramters : ")
 logger::log_info( prolfquapp::capture_output( quote(lobstr::tree(R6_extract_values(GRP2)))))

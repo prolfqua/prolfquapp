@@ -44,7 +44,9 @@ stopifnot(nrow(merged$get_contrasts()) == 200)
 #deanalyse$build_model_glm_protein()
 #deanalyse$build_model_glm_peptide()
 xprot <- deanalyse$get_contrasts_glm_protein()
+
 stopifnot(nrow(merged$get_contrasts()) == 200)
+
 xpep <- deanalyse$get_contrasts_glm_peptide()
 xprot$get_contrasts()
 xprot$get_Plotter()$volcano()
@@ -59,8 +61,10 @@ xd <- deanalyse$filter_data()
 xd <- deanalyse$contrasts_to_Grob()
 bb <- deanalyse$get_boxplots()
 bx <- deanalyse$get_boxplots_contrasts()
+dev.off()
 grid::grid.draw(bx$bxpl_grobs[[1]])
 # deanalyse$write_boxplots_contrasts("test.pdf")
+
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -121,6 +125,7 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 \item \href{#method-DEAnalyse-transform_data}{\code{DEAnalyse$transform_data()}}
 \item \href{#method-DEAnalyse-create_model_formula}{\code{DEAnalyse$create_model_formula()}}
 \item \href{#method-DEAnalyse-build_model_linear_protein}{\code{DEAnalyse$build_model_linear_protein()}}
+\item \href{#method-DEAnalyse-get_strategy_glm_prot}{\code{DEAnalyse$get_strategy_glm_prot()}}
 \item \href{#method-DEAnalyse-build_model_glm_protein}{\code{DEAnalyse$build_model_glm_protein()}}
 \item \href{#method-DEAnalyse-build_model_glm_peptide}{\code{DEAnalyse$build_model_glm_peptide()}}
 \item \href{#method-DEAnalyse-get_contrasts_linear_protein}{\code{DEAnalyse$get_contrasts_linear_protein()}}
@@ -261,6 +266,16 @@ create model formula
 fit linear model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_linear_protein()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-get_strategy_glm_prot"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-get_strategy_glm_prot}{}}}
+\subsection{Method \code{get_strategy_glm_prot()}}{
+get strategy
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_strategy_glm_prot()}\if{html}{\out{</div>}}
 }
 
 }
