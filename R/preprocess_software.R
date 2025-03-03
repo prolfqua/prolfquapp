@@ -57,12 +57,12 @@ prolfqua_preprocess_functions <- list(
     preprocess = "prolfquapp::preprocess_MSstats_FPDIA",
     extra_args = "list(hierarchy_depth = 2)"
   ),
-  BGS_DEFAULT_PROTEIN = list(
+  BGS = list(
     get_files = "prolfquapp::get_BGS_files",
     preprocess = "prolfquapp::preprocess_BGS",
     extra_args = "list(hierarchy_depth = 1)"
   ),
-  BGS_DEFAULT_PEPTIDE = list(
+  BGS_PEPTIDE = list(
     get_files = "prolfquapp::get_BGS_files",
     preprocess = "prolfquapp::preprocess_BGS",
     extra_args = "list(hierarchy_depth = 2)"
