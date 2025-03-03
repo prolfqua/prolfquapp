@@ -4,7 +4,8 @@ editor_options:
     wrap: sentence
 ---
 
-# prolfquapp: Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
+# prolfquapp (ˌproʊˈlɛf.kə.ˌæp): Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
+
 
 Read on bioRxiv <https://www.biorxiv.org/content/10.1101/2024.10.09.617391v1> "prolfquapp - A User-Friendly Command-Line Tool Simplifying Differential Expression Analysis in Quantitative Proteomics"
 
