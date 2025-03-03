@@ -1,7 +1,7 @@
 Package: prolfquapp
 Type: Package
 Title: Generating Dynamic DEA Reports with the prolfqua R Package
-Version: 0.1.3
+Version: 0.1.4
 Authors@R: c(person("Witold", "Wolski",
         email = c("wew@fgcz.ethz.ch", "wewolski@gmail.com"),
         role = c("aut", "cre"),
