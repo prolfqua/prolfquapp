@@ -136,7 +136,11 @@ if (!is.null(result$error)) {
   logger::log_error(result$error, "\n")
   logger::log_error("Stack trace:\n")
   logger::log_error(result$stack_trace, "\n")
-  stop("error occured")
+  if (interactive()) {
+    stop("error occured")
+  } else {
+    quit(save = "no", status = 1)
+  }
 } else {
   xd <- result$value$xd
   files <- result$value$files
