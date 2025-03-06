@@ -113,7 +113,7 @@ preprocess_MSstats_FPDIA <- function(quant_data,
 
 
 
-#' preprocess MQ peptide
+#' preprocess MSstats file coming from FragPipe
 #' @export
 #'
 preprocess_MSstats <- function(quant_data,

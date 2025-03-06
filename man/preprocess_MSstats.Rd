@@ -2,7 +2,7 @@
 % Please edit documentation in R/preprocess_MSstats.R
 \name{preprocess_MSstats}
 \alias{preprocess_MSstats}
-\title{preprocess MQ peptide}
+\title{preprocess MSstats file coming from FragPipe}
 \usage{
 preprocess_MSstats(
   quant_data,
@@ -14,5 +14,5 @@ preprocess_MSstats(
 )
 }
 \description{
-preprocess MQ peptide
+preprocess MSstats file coming from FragPipe
 }
