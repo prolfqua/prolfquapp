@@ -12,7 +12,7 @@ R6 class representing
 
 
 r6obj_config <- ProlfquAppConfig$new(ProcessingOptions$new(), ProjectSpec$new(), ExternalReader$new())
-xx <- R6_extract_values(r6obj_config)
+xx <- prolfqua::R6_extract_values(r6obj_config)
 yaml::write_yaml(xx, file = file.path(tempdir(),"test.yaml"))
 config <- yaml::read_yaml(file = file.path(tempdir(),"test.yaml"))
 
@@ -28,7 +28,6 @@ Other ProlfquAppConfig:
 \code{\link{ExternalReader}},
 \code{\link{ProcessingOptions}},
 \code{\link{ProjectSpec}},
-\code{\link{R6_extract_values}()},
 \code{\link{make_DEA_config_R6}()},
 \code{\link{set_list_to_R6}()}
 }

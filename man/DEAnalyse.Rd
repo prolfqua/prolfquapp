@@ -40,16 +40,15 @@ contlm <- deanalyse$get_contrasts_linear_protein()
 
 merged <- deanalyse$get_contrasts_merged_protein()
 stopifnot(nrow(merged$get_contrasts()) == 200)
+stopifnot(nrow(merged$get_contrasts()) == 200)
 #deanalyse$create_model_formula()
 #deanalyse$build_model_glm_protein()
 #deanalyse$build_model_glm_peptide()
 xprot <- deanalyse$get_contrasts_glm_protein()
-
-stopifnot(nrow(merged$get_contrasts()) == 200)
-
-xpep <- deanalyse$get_contrasts_glm_peptide()
+xprot
 xprot$get_contrasts()
 xprot$get_Plotter()$volcano()
+xpep <- deanalyse$get_contrasts_glm_peptide()
 xpep$get_Plotter()$volcano()
 sr <- deanalyse$lfq_data_peptide$get_Summariser()
 

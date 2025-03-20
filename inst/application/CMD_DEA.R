@@ -47,11 +47,11 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 if (FALSE) {
-  ymlfile <- "config.yaml"
-  opt$indir <- "DIANN_RESULT_WU321590//"
-  opt$software <- "DIANN"
-  opt$dataset <- "MI800vsMI200vsMI.xlsx"
-  opt$workunit <- "MI800vsMI200vsMI.xlsx"
+  ymlfile <- "config_combined.yaml"
+  opt$indir <- "o37875_FP_enriched_completeOutput/"
+  opt$software <- "FP"
+  opt$dataset <- "annotation_enriched.xlsx"
+  opt$workunit <- "Enriched"
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -79,7 +79,7 @@ logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 logger::log_info("Writing to output directory : ", GRP2$get_zipdir(), " and file :", logfile)
 
 logger::log_info("prolfquapp paramters : ")
-logger::log_info( prolfquapp::capture_output( quote(lobstr::tree(R6_extract_values(GRP2)))))
+logger::log_info( prolfquapp::capture_output( quote(lobstr::tree(prolfqua::R6_extract_values(GRP2)))))
 
 
 annotation <- file.path(opt$dataset) |>
@@ -92,6 +92,7 @@ logger::log_info("Factors : ",paste(annotation$atable$factor_keys_depth(), colla
 prolfquapp::copy_DEA_Files()
 logger::log_info("Software: ", opt$software)
 
+#debug(prolfquappPTMreaders::preprocess_FP_combined_STY)
 
 result <- tryCatch({
   # Attempt to run the function
@@ -185,6 +186,6 @@ logger::log_info("Write yaml with parameters: ", file.path(GRP2$get_input_dir(),
 
 GRP2$RES <- NULL
 GRP2$pop <- NULL
-yaml::write_yaml(prolfquapp::R6_extract_values(GRP2), file = file.path(GRP2$get_input_dir(), "minimal.yaml"))
+yaml::write_yaml(prolfqua::R6_extract_values(GRP2), file = file.path(GRP2$get_input_dir(), "minimal.yaml"))
 
 

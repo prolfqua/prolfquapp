@@ -53,7 +53,7 @@ GRP2$set_zipdir_name()
 if (!is.null(opt$outdir) && dir.exists(opt$outdir)) {
   GRP2$path <- opt$outdir
 }
-cfg <- prolfquapp::R6_extract_values(GRP2)
+cfg <- prolfqua::R6_extract_values(GRP2)
 cfg <- GRP2$as_list()
 
 # Define the fields that should be moved to the bottom

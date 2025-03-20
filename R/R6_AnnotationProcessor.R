@@ -115,7 +115,7 @@ AnnotationProcessor <- R6::R6Class(
     #' @field SAINT is it a AP MS experiment, then use Bait_ as prefix
     SAINT = FALSE,
     #' @field file_pattern colnames for file
-    file_pattern = "^channel|^Relative|^raw|^file",
+    file_pattern = "^channel|^Relative|^raw|^file|^run",
     #' @field grouping_pattern colnames grouping variable
     grouping_pattern = "^group|^bait|^Experiment",
     #' @field subject_pattern colnames for pairing variable

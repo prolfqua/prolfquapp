@@ -57,9 +57,9 @@ opt <- arguments$options
 ymlfile <- arguments$args
 
 if (FALSE) {
-  opt$indir <- "out-DIANN"
+  opt$indir <- "DIANN_Result_WU322189/out-2025-02-25/"
   opt$software <- "DIANN"
-  opt$dataset <- "dataset.csv"
+  opt$dataset <- "DIANN_Result_WU322189/dataset.csv"
   opt$workunit <- "helloW"
 }
 
@@ -106,7 +106,7 @@ if (!file.exists( opt$dataset)) {stop("No annotation file found : ", opt$dataset
 annotation <- file.path( opt$dataset) |>
   prolfquapp::read_table_data() |> prolfquapp::read_annotation(QC = TRUE)
 
-#debug(preprocess_DIANN)
+debug(preprocess_DIANN)
 
 result <- tryCatch({
   # Attempt to run the function
@@ -161,7 +161,21 @@ pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
 # dd <- pap$get_prot_wide()
 # pap$get_prot_IBAQ_wide()
 
+# wirte parquet
 pap$write_xlsx()
+
+library(arrow)
+arrow::write_parquet(pap$lfqdata$data, sink = "lfqdata.parquet")
+cfg <- prolfqua::R6_extract_values(pap$lfqdata$config)
+yaml::write_yaml(prolfqua::R6_extract_values(pap$lfqdata$config), "lfqdata.yaml")
+yaml::read_yaml("lfqdata.yaml")
+
+
+arrow::write_parquet(pap$lfqdata_peptide$data, sink = "lfqdata_peptide.parquet")
+yaml::write_yaml(prolfqua::R6_extract_values(pap$lfqdata_peptide$config), "lfqdata_peptide.yaml")
+
+
+
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()
 

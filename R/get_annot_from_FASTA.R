@@ -114,6 +114,7 @@ get_annot_from_fasta <- function(
                                                 c("fasta.id","fasta.header"),
                                                 sep = "\\s", extra = "merge")
   fasta_annot <- fasta_annot |> dplyr::mutate(fasta.id = stringr::str_replace_all(.data$fasta.id, "^>", "") )
+  fasta_annot <- fasta_annot |> dplyr::mutate(fasta.id = stringr::str_replace_all(.data$fasta.id, ";", "") )
 
   logger::log_info("get_annot : extract headers")
 
@@ -142,7 +143,7 @@ get_annot_from_fasta <- function(
     stop("wrong decoys pattern.", pattern_decoys, "\n")
   }
 
-  if (mean(grepl(".+ GN=(.+) PE=.+",fasta_annot$fasta.header)) > 0.5) {
+  if (sum(grepl(".+ GN=(.+) PE=.+",fasta_annot$fasta.header)) > 1) {
     fasta_annot <- fasta_annot |> dplyr::mutate(gene_name = extract_GN(.data$fasta.header))
     logger::log_info("get_annot : extracted gene names")
   }

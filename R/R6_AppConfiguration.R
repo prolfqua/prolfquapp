@@ -84,7 +84,7 @@ ExternalReader <- R6::R6Class(
 #'
 #'
 #' r6obj_config <- ProlfquAppConfig$new(ProcessingOptions$new(), ProjectSpec$new(), ExternalReader$new())
-#' xx <- R6_extract_values(r6obj_config)
+#' xx <- prolfqua::R6_extract_values(r6obj_config)
 #' yaml::write_yaml(xx, file = file.path(tempdir(),"test.yaml"))
 #' config <- yaml::read_yaml(file = file.path(tempdir(),"test.yaml"))
 #'
@@ -172,7 +172,7 @@ ProlfquAppConfig <- R6::R6Class(
       return(tmp)
     },
     as_list = function(){
-      res <- R6_extract_values(self)
+      res <- prolfqua::R6_extract_values(self)
       return(res)
     }
 
@@ -199,22 +199,6 @@ set_list_to_R6 <- function(config_list, r6obj_config){
   }
 }
 
-#' extract R6 class fields as list
-#' @export
-#' @family ProlfquAppConfig
-R6_extract_values <- function(r6class){
-  tmp <- sapply(r6class, class)
-  slots <- tmp[ !tmp %in% c("environment", "function")]
-  res <- list()
-  for (i in names(slots)) {
-    if ("R6" %in% class(r6class[[i]])) {
-      res[[i]]  <- R6_extract_values(r6class[[i]])
-    }else{
-      res[[i]] <- r6class[[i]]
-    }
-  }
-  return(res)
-}
 
 
 
@@ -223,7 +207,7 @@ R6_extract_values <- function(r6class){
 #' @examples
 #'
 #' DEAconfig <- make_DEA_config_R6( WORKUNITID = "3333")
-#' configList <- R6_extract_values(DEAconfig)
+#' configList <- prolfqua::R6_extract_values(DEAconfig)
 #' stopifnot(class(configList) == "list")
 #' old <- configList$zipdir_name
 #' config <- list_to_R6_app_config(configList)
@@ -275,7 +259,7 @@ list_to_R6_app_config <- function(dd){
 #' DEAconfig$get_zipdir()
 #' DEAconfig$get_result_dir()
 #' DEAconfig$get_input_dir()
-#' R6list <- R6_extract_values(DEAconfig)
+#' R6list <- prolfqua::R6_extract_values(DEAconfig)
 #'
 #'
 make_DEA_config_R6 <- function(
@@ -411,7 +395,7 @@ if (FALSE) {
   res <- list()
   for (file in yfiles) {
     config <- read_BF_yamlR6(unz(yfile, file))
-    x <- (R6_extract_values(config))
+    x <- (prolfqua::R6_extract_values(config))
     df <- data.frame(unlist(x))
     names(df)[1] <- basename(file)
     res[[basename(file)]] <- as.data.frame(t(df))
