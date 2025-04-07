@@ -22,6 +22,6 @@ tidy_mzMineFeatures <- function(file_path) {
   return(xl)
 }
 
-file_path = "outputs-20250407T1707/mzmine/result_features.csv"
-res <- tidy_mzMineFeatures(file_path)
+#file_path = "outputs-20250407T1707/mzmine/result_features.csv"
+#res <- tidy_mzMineFeatures(file_path)
 
