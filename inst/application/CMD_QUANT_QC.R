@@ -57,9 +57,9 @@ opt <- arguments$options
 ymlfile <- arguments$args
 
 if (FALSE) {
-  opt$indir <- "DIANN_Result_WU322189/out-2025-02-25/"
+  opt$indir <- "DIANN_Result_WU321864/out-2025-02-14/"
   opt$software <- "DIANN"
-  opt$dataset <- "DIANN_Result_WU322189/dataset.csv"
+  opt$dataset <- "DIANN_Result_WU321864/dataset.csv"
   opt$workunit <- "helloW"
 }
 

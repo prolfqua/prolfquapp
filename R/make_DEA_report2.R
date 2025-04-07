@@ -196,7 +196,7 @@ prep_result_list <- function(GRP2){
   for (i in names(ora_sig)) {
     ff <- file.path(outpath, paste0("ORA_",i,"_WU",workunit_id,".txt" ))
     logger::log_info("Writing File ", ff)
-    write.table(ora_sig[[i]],file = ff, col.names = FALSE,
+    write.table(unique(ora_sig[[i]]),file = ff, col.names = FALSE,
                 row.names = FALSE, quote = FALSE)
   }
 }
@@ -213,9 +213,9 @@ write_result_list <- function(outpath,
   id_column = GRP2$RES$rowAnnot$cleaned_ids
 
   if (ORA) {
-    bkg <- GRP2$RES$lfqData$hierarchy()
+    #bkg <- GRP2$RES$lfqData$hierarchy()
     ff <- file.path(outpath ,paste0("ORA_background_WU",workunit_id,".txt"))
-    write.table(bkg,file = ff, col.names = FALSE,
+    write.table(GRP2$RES$rowAnnot$row_annot[[id_column]],file = ff, col.names = FALSE,
                 row.names = FALSE, quote = FALSE)
     .write_ORA(GRP2$RES$contrastsData_signif, outpath, workunit_id,id_column = id_column)
   }
@@ -223,7 +223,10 @@ write_result_list <- function(outpath,
     fg <- GRP2$RES$contrastsData
     gsea <- dplyr::select(fg , c("contrast",id_column , "statistic")) |>
       dplyr::arrange( .data$statistic )
-    gsea <- split(dplyr::select( gsea, c(id_column, "statistic")), gsea$contrast)
+    gsea <- gsea |> dplyr::group_by(dplyr::across(c("contrast",id_column))) |>
+      dplyr::summarize(statistic = mean(.data$statistic)) |>
+      dplyr::ungroup()
+    gsea <- split(dplyr::select(gsea, c(id_column, "statistic")), gsea$contrast)
 
     for (i in names(gsea)) {
       ff <- file.path(outpath, paste0("GSEA_",i,"_WU",workunit_id,".rnk" ))

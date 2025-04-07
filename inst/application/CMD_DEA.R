@@ -150,11 +150,9 @@ grp <- prolfquapp::generate_DEA_reports2(
 
 logger::log_info("Writing results to: " ,  GRP2$get_zipdir())
 
-
-sr <- lfqdata$get_Summariser()
-
-
-
+#debug(prolfquapp::write_DEA_all)
+#saveRDS(grp, "grp.rds")
+#grp <- readRDS("grp.rds")
 outdir <- prolfquapp::write_DEA_all(
   grp, name = "", boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd")
 
