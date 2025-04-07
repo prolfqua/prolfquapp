@@ -16,12 +16,12 @@ tidy_mzMineFeatures <- function(file_path) {
 
   xl <- x |> pivot_longer(cols = starts_with("datafile_"),
                           names_to = c("datafile", ".value"),
-                          names_sep = "\\.raw:" )
+                          names_pattern = "^(.+?):(.+)$" )
   colnames(xl) <- gsub(":","_", colnames(xl))
-
+  xl$datafile <- gsub("^datafile_","",xl$datafile)
   return(xl)
 }
 
-# file_path = "outputs-20250407T1707/mzmine/result_features.csv"
-# res <- tidy_mzMineFeatures(file_path)
+file_path = "outputs-20250407T1707/mzmine/result_features.csv"
+res <- tidy_mzMineFeatures(file_path)
 
