@@ -1,27 +1,181 @@
-library(tidyr)
-library(dplyr)
+#' convert mzmine features to tidy table
+#' @export
+#' @examples
+#' # example code
+#' if(FALSE){
+#' file_path = "outputs-20250407T1707/mzmine/result_features.csv"
+#' raw_df <- read_csv(file_path)
+#' res <- tidy_mzMineFeatures(raw_df)
+#' file_path = "WU323671_mzMine_o35537_WpH9V2_neg_v2_result/mzmine/result_features.csv"
+#' raw_df <- read_csv(file_path)
+#' res <- tidy_mzMineFeatures(raw_df)
+#' head(res)
+#' }
+tidy_mzMineFeatures <- function(data) {
+  if(class(file_path) == "string"){
+    x <- readr::read_csv(data)
+  } else if ("data.frame" %in% class(data)){
+    x <- data
+  }
 
-
-tidy_mzMineFeatures <- function(file_path) {
-  x <- readr::read_csv(file_path)
-  xdrop <- x |> dplyr::select(starts_with("alignment_scores"),
-                              starts_with("ion_identities"), starts_with("compound_db_identity"), starts_with("lipid_annotations"), starts_with("molecular_networking"))
+  xdrop <- x |> dplyr::select(
+    starts_with("alignment_scores"),
+    starts_with("ion_identities"),
+    starts_with("compound_db_identity"),
+    starts_with("lipid_annotations"),
+    starts_with("molecular_networking"))
   stopifnot(nrow(na.omit(xdrop)) == 0)
 
-  x <- x |> dplyr::select(-starts_with("alignment_scores"),-starts_with("ion_identities"), -starts_with("compound_db_identity"), -starts_with("lipid_annotations"), -starts_with("molecular_networking"))
+  x <- x |> dplyr::select(
+    -starts_with("alignment_scores"),
+    -starts_with("ion_identities"),
+    -starts_with("compound_db_identity"),
+    -starts_with("lipid_annotations"),
+    -starts_with("molecular_networking"))
 
   colnames(x) <- gsub("^datafile:", "datafile_", colnames(x))
-  paste0("feature_",colnames(x)[!grepl("^datafile_",colnames(x))])
   colnames(x)[!grepl("^datafile_",colnames(x))] <- paste0("feature_",colnames(x)[!grepl("^datafile_",colnames(x))])
 
-  xl <- x |> pivot_longer(cols = starts_with("datafile_"),
-                          names_to = c("datafile", ".value"),
-                          names_pattern = "^(.+?):(.+)$" )
+  xl <- x |> tidyr::pivot_longer(cols = starts_with("datafile_"),
+                                 names_to = c("datafile", ".value"),
+                                 names_pattern = "^(.+?):(.+)$" )
   colnames(xl) <- gsub(":","_", colnames(xl))
   xl$datafile <- gsub("^datafile_","",xl$datafile)
+  xl <- xl |> tidyr::unite("metabolite_feature_Id", feature_id, feature_mz, feature_rt, feature_charge, remove = FALSE )
+
   return(xl)
 }
 
-#file_path = "outputs-20250407T1707/mzmine/result_features.csv"
-#res <- tidy_mzMineFeatures(file_path)
+#' get best feature annotation.
+#' @export
+feature_annotation_get_best_score <- function(x){
+  best_per_id <- x |>
+    dplyr::group_by(id) |>
+    dplyr::slice_max(score, n = 1, with_ties = FALSE) |>
+    dplyr::ungroup()
+  return(best_per_id)
+}
 
+#' get best feature annotation.
+#' @examples
+#' if (FALSE) {
+#'   x <- readr::read_csv("WU323671_mzMine_o35537_WpH9V2_neg_v2_result/mzmine/result_annotations.csv")
+#'   feature_annotation_collapse_to_single_row(x)
+#' }
+#' @export
+feature_annotation_collapse_to_single_row <- function(x){
+  collapsed_df <- x %>%
+    group_by(id) %>%
+    summarise(
+      across(
+        .cols = setdiff(names(x), "id"),
+        ~ str_c(as.character(.x), collapse = ", ")
+      ),
+      .groups = "drop"
+    )
+  return(collapsed_df)
+}
+
+#'
+#' get feature annotation.
+#' @export
+#' @examples
+#' if (FALSE) {
+#' x <- readr::read_csv("outputs-20250407T1707/mzmine/result_annotations.csv")
+#' bestscore <- make_feature_annotation(x)
+#' dim(bestscore)
+#' file_path = "outputs-20250407T1707/mzmine/result_features.csv"
+#' raw_df <- read_csv(file_path)
+#' res <- tidy_mzMineFeatures(raw_df)
+#' intersect(colnames(res), colnames(bestscore))
+#'
+#' xx <- inner_join(bestscore, res, by = c("id" = "feature_id"),relationship = "many-to-many")
+#'
+#' dim(xx)
+#' }
+#' @export
+#'
+make_feature_annotation <- function(x, .loader = feature_annotation_get_best_score){
+  res <- .loader(x)
+  res <- res |> rename(annotation_rt = rt)
+  res <- res |> unite("description", compound_name, adduct, score, mol_formula, sep = ";", remove = FALSE)
+}
+
+
+
+#' get mzmine fliles
+#' @examples
+#'
+#' path <- "WU323671_mzMine_o35537_WpH9V2_neg_v2_result"
+#'
+get_mzMine_files <- function(path){
+  feature <- grep("*_features.csv$", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
+  annot <- grep("*_annotations.csv$", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
+  return(list(data = diann.path, fasta = annot))
+}
+
+
+#' preprocess mzMine input
+#' @export
+#' @examples
+#' xd <- "outputs-20250407T1707/bfabric/input_dataset.tsv"
+#' annot <- readr::read_tsv(xd)
+#' # annot$sample_type <- NULL
+#' annotation <- read_annotation(annot, QC = TRUE)
+#' annotation$annot
+#'
+#' res <- preprocess_mzMine("outputs-20250407T1707/mzmine/result_features.csv", NULL , annotation)
+#'
+preprocess_mzMine <- function(
+    quant_data,
+    fasta_file,
+    annotation
+){
+  xdl <- readr::read_csv(quant_data)
+  xdl <- tidy_mzMineFeatures(xdl)
+  annot <- make_feature_annotation(fasta_file)
+  xdl <- dlyr::inner_join(annot,xdl, by = c("id" = "feature_id"),relationship = "many-to-many")
+
+  annot <- annotation$annot
+  annot$relative_path <- basename(annot$relative_path)
+  nr <- sum(annot$relative_path %in% sort(unique(xdl$datafile)))
+  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(xdl$datafile)))
+  stopifnot( nr > 0)
+  # atable$sampleName = "file_id"
+  atable$hierarchy[["metabolite_feature_Id"]] <- c("metabolite_feature_Id")
+  atable$set_response("area")
+  byv <- c("datafile")
+  names(byv) <- atable$fileName
+  byv <- c(byv, intersect(colnames(annot), colnames(xdl)))
+
+  feature <- dplyr::inner_join(annot, xdl, by = byv, multiple = "all")
+  config <- prolfqua::AnalysisConfiguration$new(atable)
+  adata <- prolfqua::setup_analysis(peptide, config)
+  lfqdata <- prolfqua::LFQData$new(adata, config)
+  lfqdata$remove_small_intensities()
+
+  m_annot <- xdl |>
+    dplyr::select("metabolite_feature_Id",
+                  "feature_id",
+                  "feature_rt",
+                  "feature_mz",
+                  "feature_charge") |>
+    dplyr::distinct()
+  m_annot$exp_children <- 1
+  # handle not identified
+  # m_annot$nr_compounds <- ifelse(m_annot$Checked, 2 ,1)
+
+  m_annot <- m_annot |> dplyr::mutate(IDcolumn = metabolite_feature_Id)
+  ProteinAnnotation$undebug("initialize")
+  prot_annot <- prolfquapp::ProteinAnnotation$new(
+    lfqdata ,
+    m_annot,
+    description = "description",
+    cleaned_ids = "IDcolumn",
+    full_id = "metabolite_feature_Id",
+    exp_nr_children = "exp_children",
+    pattern_contaminants = NULL,
+    pattern_decoys = NULL
+  )
+  return(list(lfqdata = lfqdata , protein_annotation = prot_annot))
+}

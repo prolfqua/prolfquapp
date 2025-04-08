@@ -125,7 +125,7 @@ AnnotationProcessor <- R6::R6Class(
     #' @field control_col_pattern columns which contains C or T.
     control_col_pattern = "^control",
     #' @field sample_name_pattern sample name column
-    sample_name_pattern = "^name|^sample",
+    sample_name_pattern = "^name",
     #' @field strict should name check be strict
     strict = FALSE,
 
@@ -149,15 +149,15 @@ AnnotationProcessor <- R6::R6Class(
     check_annotation = function(annot) {
       filename <- grep(self$file_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
       if (length(filename) < 1) { stop("column starting with :", self$file_pattern , " is missing.") }
-      if (length(filename) > 1) { warning("there are more than one column for sample: ", paste0(filename)) }
+      if (length(filename) > 1) { warning("there are more than one column for sample: ", paste(filename, collapse = ", ")) }
 
       samples <- grep(self$sample_name_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
       if (length(samples) < 1) { warning("column starting with :", self$sample_name_pattern , " is missing.") }
-      if (length(samples) > 1) { warning("there are more than one column for sample: ", paste0(samples)) }
+      if (length(samples) > 1) { warning("there are more than one column for sample: ", paste(samples, collapse = ", ")) }
 
       grouping <- grep(self$grouping_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
       if (length(grouping) < 1) {  stop("column starting with :", self$sample_name_pattern , " is missing.")  }
-      if (length(grouping) > 1) { warning("there are more than one column for sample: ", paste0(grouping)) }
+      if (length(grouping) > 1) { warning("there are more than one column for sample: ", paste(grouping, collapse = ", ")) }
 
       if (!self$QC) {
         contrast <- grep(self$control_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)

@@ -71,7 +71,18 @@ prolfqua_preprocess_functions <- list(
     get_files = "prolfquapp::get_dummy_files",
     preprocess = "prolfquapp::preprocess_dummy",
     extra_args = "list()"
+  ),
+  MZMINE = list(
+    get_files = "prolfquapp::get_mzMine_files",
+    preprocess = "prolfquapp::preprocess_mzMine",
+    extra_args = "list()"
+  ),
+  MZMINEannot = list(
+    get_files = "prolfquapp::get_mzMine_files",
+    preprocess = "prolfquapp::preprocess_mzMine",
+    extra_args = "list()"
   )
+
 )
 
 #' collects preprocess methods for various software
