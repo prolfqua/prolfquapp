@@ -31,10 +31,11 @@ QC_generator <- R6::R6Class(
       self$protein_annotation = protein_annotation
       self$output_dir = self$GRP2$get_zipdir()
       self$TABLES2WRITE = list()
+
     },
     get_peptides_wide = function(){
       lfqdata <- self$lfqdata$get_copy()
-      lfqdata$config$table$hierarchyDepth <- 2
+      lfqdata$config$table$hierarchyDepth <- min(2, length(self$lfqdata$config$table$hierarchyKeys()))
       self$lfqdata_peptide <- prolfquapp::aggregate_data(lfqdata, agg_method = "medpolish")
       peptide_wide <- dplyr::left_join(self$protein_annotation$row_annot,
                                        self$lfqdata$to_wide()$data,
@@ -66,8 +67,11 @@ QC_generator <- R6::R6Class(
       return(proteins_wide)
     },
     get_prot_IBAQ = function(){
-      if ( is.null(self$lfqdata_prot_IBAQ ) ) {
+      relevant_columns <- c("protein_length", "nr_tryptic_peptides")
+      if ( is.null(self$lfqdata_prot_IBAQ ) && all(relevant_columns %in% colnames(self$protein_annotation$row_annot)) ) {
         self$lfqdata_prot_IBAQ <- prolfquapp::compute_IBAQ_values(self$lfqdata, self$protein_annotation)
+      } else if (!all(relevant_columns %in% colnames(self$protein_annotation$row_annot)) ) {
+        warning("skipping IBAQ computation, no:", paste(relevant_columns, collapse = "; "))
       }
       invisible(self$lfqdata_prot_IBAQ )
     },
@@ -91,7 +95,7 @@ QC_generator <- R6::R6Class(
       precabund <- self$get_protein_per_group_abundance()
       precabund_data_wide <- precabund |>
         tidyr::pivot_wider(
-          id_cols = protein_Id,
+          id_cols = self$lfqdata$config$table$hierarchy_keys()[1],
           names_from = interaction,
           values_from = c(nrReplicates, nrMeasured, nrNAs, sd, var, meanAbundance, medianAbundance, CV, id, abundance_percent, abundance_percent_cumulative, percent_prot)
         )
@@ -105,6 +109,7 @@ QC_generator <- R6::R6Class(
     },
 
     get_prot_IBAQ_wide = function(){
+      if (!is.null(self$get_prot_IBAQ())) {
       IBAQ_abundances <-
         dplyr::left_join(self$protein_annotation$row_annot,
                          self$get_prot_IBAQ()$to_wide()$data,
@@ -115,6 +120,7 @@ QC_generator <- R6::R6Class(
         by = c(self$get_prot_IBAQ()$config$table$hierarchy_keys_depth(),"isotopeLabel")
         , suffix = c("_iBAQ","_nr_children"))
       return(IBAQ_abundances)
+      } else {return(NULL)}
     },
 
     get_list = function(){

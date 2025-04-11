@@ -75,12 +75,12 @@ prolfqua_preprocess_functions <- list(
   MZMINE = list(
     get_files = "prolfquapp::get_mzMine_files",
     preprocess = "prolfquapp::preprocess_mzMine",
-    extra_args = "list()"
+    extra_args = "list(annotated = FALSE)"
   ),
   MZMINEannot = list(
     get_files = "prolfquapp::get_mzMine_files",
     preprocess = "prolfquapp::preprocess_mzMine",
-    extra_args = "list()"
+    extra_args = "list(annotated = TRUE)"
   )
 
 )

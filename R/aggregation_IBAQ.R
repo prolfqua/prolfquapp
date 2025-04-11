@@ -55,10 +55,11 @@ aggregate_data <- function(lfqdata,
 #' xd <- compute_IBAQ_values(pAlf$lfqdata, pAlf$pannot)
 #' xd$response()
 #'
-compute_IBAQ_values <- function(lfqdata,
-                                protein_annotation,
-                                protein_length = "protein_length",
-                                nr_tryptic_peptides = "nr_tryptic_peptides") {
+compute_IBAQ_values <- function(
+    lfqdata,
+    protein_annotation,
+    protein_length = "protein_length",
+    nr_tryptic_peptides = "nr_tryptic_peptides") {
   required <- c(protein_length, nr_tryptic_peptides)
   stopifnot(all(required %in% colnames(protein_annotation$row_annot)))
   rel_annot <- dplyr::select(protein_annotation$row_annot, c(protein_annotation$pID, required))
