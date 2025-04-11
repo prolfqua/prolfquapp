@@ -4,22 +4,22 @@
 #' # example code
 #' if(FALSE){
 #' file_path = "outputs-20250407T1707/mzmine/result_features.csv"
-#' raw_df <- read_csv(file_path)
+#' raw_df <- readr::read_csv(file_path)
 #' res <- tidy_mzMineFeatures(raw_df)
 #' file_path = "WU323671_mzMine_o35537_WpH9V2_neg_v2_result/mzmine/result_features.csv"
-#' raw_df <- read_csv(file_path)
+#' raw_df <- readr::read_csv(file_path)
 #' res <- tidy_mzMineFeatures(raw_df)
 #' head(res)
 #' }
 tidy_mzMineFeatures <- function(data) {
-  if(class(file_path) == "string"){
+  if("character" %in% class(data)){
     x <- readr::read_csv(data)
-  } else if ("data.frame" %in% class(data)){
+  } else if ("data.frame" %in% class(data)) {
     x <- data
   }
 
   xdrop <- x |> dplyr::select(
-    starts_with("alignment_scores"),
+    #starts_with("alignment_scores"),
     starts_with("ion_identities"),
     starts_with("compound_db_identity"),
     starts_with("lipid_annotations"),
@@ -27,7 +27,7 @@ tidy_mzMineFeatures <- function(data) {
   stopifnot(nrow(na.omit(xdrop)) == 0)
 
   x <- x |> dplyr::select(
-    -starts_with("alignment_scores"),
+    #-starts_with("alignment_scores"),
     -starts_with("ion_identities"),
     -starts_with("compound_db_identity"),
     -starts_with("lipid_annotations"),
@@ -64,9 +64,9 @@ feature_annotation_get_best_score <- function(x){
 #' }
 #' @export
 feature_annotation_collapse_to_single_row <- function(x){
-  collapsed_df <- x %>%
-    group_by(id) %>%
-    summarise(
+  collapsed_df <- x |>
+    dplyr::group_by(id) |>
+    dplyr::summarise(
       across(
         .cols = setdiff(names(x), "id"),
         ~ str_c(as.character(.x), collapse = ", ")
@@ -97,46 +97,64 @@ feature_annotation_collapse_to_single_row <- function(x){
 #'
 make_feature_annotation <- function(x, .loader = feature_annotation_get_best_score){
   res <- .loader(x)
-  res <- res |> rename(annotation_rt = rt)
-  res <- res |> unite("description", compound_name, adduct, score, mol_formula, sep = ";", remove = FALSE)
+  res <- res |> dplyr::rename(annotation_rt = rt)
+  res <- res |> tidyr::unite("description", compound_name, adduct, score, mol_formula, sep = ";", remove = FALSE)
+  return(res)
 }
 
 
 
 #' get mzmine fliles
+#' @export
 #' @examples
 #'
 #' path <- "WU323671_mzMine_o35537_WpH9V2_neg_v2_result"
-#'
+#' files <- get_mzMine_files(path)
 get_mzMine_files <- function(path){
   feature <- grep("*_features.csv$", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
   annot <- grep("*_annotations.csv$", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
-  return(list(data = diann.path, fasta = annot))
+  return(list(data = feature, fasta = annot))
 }
 
 
 #' preprocess mzMine input
 #' @export
 #' @examples
+#'
 #' xd <- "outputs-20250407T1707/bfabric/input_dataset.tsv"
 #' annot <- readr::read_tsv(xd)
-#' # annot$sample_type <- NULL
-#' annotation <- read_annotation(annot, QC = TRUE)
-#' annotation$annot
 #'
-#' res <- preprocess_mzMine("outputs-20250407T1707/mzmine/result_features.csv", NULL , annotation)
+#' annotation <- read_annotation(annot, QC = TRUE)
+#' xd <- "outputs-20250407T1707/"
+#' files <- get_mzMine_files(path)
+#' files
+#' undebug(preprocess_mzMine)
+#' res <- preprocess_mzMine(files$data, files$fasta , annotation)
+#' dim(res$lfqdata$data)
+#' res <- preprocess_mzMine(files$data, files$fasta , annotation, annotated = TRUE)
+#' dim(res$lfqdata$data)
 #'
 preprocess_mzMine <- function(
     quant_data,
     fasta_file,
-    annotation
+    annotation,
+    pattern_contaminants = NULL,
+    pattern_decoys = NULL,
+    annotated = FALSE
 ){
   xdl <- readr::read_csv(quant_data)
   xdl <- tidy_mzMineFeatures(xdl)
-  annot <- make_feature_annotation(fasta_file)
-  xdl <- dlyr::inner_join(annot,xdl, by = c("id" = "feature_id"),relationship = "many-to-many")
+  annot <- readr::read_csv(fasta_file)
+  annot <- make_feature_annotation(annot)
+
+  if (annotated) {
+    xdl <- dplyr::inner_join(annot,xdl, by = c("id" = "feature_id"),relationship = "many-to-many")
+  } else{
+    xdl <- dplyr::right_join(annot,xdl, by = c("id" = "feature_id"),relationship = "many-to-many")
+  }
 
   annot <- annotation$annot
+  atable <- annotation$atable
   annot$relative_path <- basename(annot$relative_path)
   nr <- sum(annot$relative_path %in% sort(unique(xdl$datafile)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(xdl$datafile)))
@@ -150,18 +168,24 @@ preprocess_mzMine <- function(
 
   feature <- dplyr::inner_join(annot, xdl, by = byv, multiple = "all")
   config <- prolfqua::AnalysisConfiguration$new(atable)
-  adata <- prolfqua::setup_analysis(peptide, config)
+  adata <- prolfqua::setup_analysis(feature, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
 
   m_annot <- xdl |>
     dplyr::select("metabolite_feature_Id",
-                  "feature_id",
+                  "id",
                   "feature_rt",
                   "feature_mz",
-                  "feature_charge") |>
+                  "feature_charge",
+                  "description") |>
     dplyr::distinct()
+
   m_annot$exp_children <- 1
+  m_annot$nrPeptides <- 1
+  # c("protein_length", "nr_tryptic_peptides")
+  m_annot$protein_length <- 1
+  m_annot$nr_tryptic_peptides <- 1
   # handle not identified
   # m_annot$nr_compounds <- ifelse(m_annot$Checked, 2 ,1)
 
