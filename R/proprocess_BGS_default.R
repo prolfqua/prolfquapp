@@ -66,7 +66,7 @@ get_BGS_files <- function(path, bgs_pattern = "*BGS Factory Report \\(Normal\\).
 #'  Name = paste(c(rep("A",3),rep("B",3)),1:6, sep="_"),
 #' group = c(rep("A",3),rep("B",3)))
 #' annotation <- annot |> prolfquapp::read_annotation(QC = TRUE)
-#' debug(preprocess_BGS)
+#' #debug(preprocess_BGS)
 #' xd <- preprocess_BGS(x$data, x$fasta, annotation)
 #' }
 preprocess_BGS <- function(quant_data,
