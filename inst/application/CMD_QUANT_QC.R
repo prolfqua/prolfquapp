@@ -61,6 +61,12 @@ if (FALSE) {
   opt$software <- "DIANN"
   opt$dataset <- "DIANN_Result_WU321864/dataset.csv"
   opt$workunit <- "helloW"
+} else if (FALSE) {
+  opt$indir <- "outputs-20250407T1707/mzmine/"
+  opt$software <- "MZMINEannot"
+  opt$dataset <- "outputs-20250407T1707/bfabric/input_dataset.tsv"
+  opt$workunit <- "helloWannot"
+
 }
 
 ymlfile <- if ( length(ymlfile) == 0 ) { opt$yaml } else { ymlfile }
@@ -106,7 +112,7 @@ if (!file.exists( opt$dataset)) {stop("No annotation file found : ", opt$dataset
 annotation <- file.path( opt$dataset) |>
   prolfquapp::read_table_data() |> prolfquapp::read_annotation(QC = TRUE)
 
-debug(preprocess_DIANN)
+undebug(preprocess_software)
 
 result <- tryCatch({
   # Attempt to run the function
@@ -150,13 +156,19 @@ xd$lfqdata$config$table$hierarchyDepth <- 1
 
 GRP2$get_zipdir()
 
-#QC_generator$undebug("get_list")
-#QC_generator$undebug("get_peptides_wide")
+#QC_generator$debug("get_list")
+#QC_generator$debug("get_protein_per_group_small_wide")
 #QC_generator$debug("get_prot_IBAQ")
+#QC_generator$undebug("initialize")
+
+#xd$lfqdata$hierarchy_counts()
 
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
+#pap$get_protein_per_group_small_wide()
+#pap$lfqdata
 
-# pap$get_peptides_wide()
+#pap$get_list()
+#pap$get_peptides_wide()
 # pap$get_list
 # dd <- pap$get_prot_wide()
 # pap$get_prot_IBAQ_wide()
