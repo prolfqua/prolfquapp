@@ -21,7 +21,7 @@ QC_generator <- R6::R6Class(
     #' @field TABLES2WRITE TABLES2WRITE
     TABLES2WRITE = list(),
 
-    #' @field links
+    #' @field links links
     links = list(),
     #' @description
     #' initialize

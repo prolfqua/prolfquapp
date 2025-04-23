@@ -26,6 +26,8 @@ QC_generator
 \item{\code{GRP2}}{GRP2}
 
 \item{\code{TABLES2WRITE}}{TABLES2WRITE}
+
+\item{\code{links}}{links}
 }
 \if{html}{\out{</div>}}
 }
