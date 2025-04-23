@@ -11,7 +11,8 @@ get best feature annotation.
 }
 \examples{
 if (FALSE) {
-  x <- readr::read_csv("WU323671_mzMine_o35537_WpH9V2_neg_v2_result/mzmine/result_annotations.csv")
+  x <- readr::read_csv("test/out_results_zip/mzmine/result_annotations.csv")
+  x
   feature_annotation_collapse_to_single_row(x)
 }
 }

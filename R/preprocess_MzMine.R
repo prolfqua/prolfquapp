@@ -6,10 +6,13 @@
 #' file_path = "outputs-20250407T1707/mzmine/result_features.csv"
 #' raw_df <- readr::read_csv(file_path)
 #' res <- tidy_mzMineFeatures(raw_df)
-#' file_path = "WU323671_mzMine_o35537_WpH9V2_neg_v2_result/mzmine/result_features.csv"
-#' raw_df <- readr::read_csv(file_path)
+#'  file_path <- "/Users/witoldwolski/__checkout/prolfquapp/inst/application/mzMine/out_results_zip/mzmine/result_features.csv"
+#' #file_path = "WU323671_mzMine_o35537_WpH9V2_neg_v2_result/mzmine/result_features.csv"
+#' x <- readr::read_csv(file_path)
+#' raw_df
 #' res <- tidy_mzMineFeatures(raw_df)
 #' head(res)
+#'
 #' }
 tidy_mzMineFeatures <- function(data) {
   if("character" %in% class(data)){
@@ -25,6 +28,7 @@ tidy_mzMineFeatures <- function(data) {
     starts_with("lipid_annotations"),
     starts_with("molecular_networking"))
   stopifnot(nrow(na.omit(xdrop)) == 0)
+
 
   x <- x |> dplyr::select(
     #-starts_with("alignment_scores"),
@@ -59,7 +63,8 @@ feature_annotation_get_best_score <- function(x){
 #' get best feature annotation.
 #' @examples
 #' if (FALSE) {
-#'   x <- readr::read_csv("WU323671_mzMine_o35537_WpH9V2_neg_v2_result/mzmine/result_annotations.csv")
+#'   x <- readr::read_csv("test/out_results_zip/mzmine/result_annotations.csv")
+#'   x
 #'   feature_annotation_collapse_to_single_row(x)
 #' }
 #' @export
@@ -67,9 +72,9 @@ feature_annotation_collapse_to_single_row <- function(x){
   collapsed_df <- x |>
     dplyr::group_by(id) |>
     dplyr::summarise(
-      across(
+      dplyr::across(
         .cols = setdiff(names(x), "id"),
-        ~ str_c(as.character(.x), collapse = ", ")
+        ~ stringr::str_c(as.character(.x), collapse = "; ")
       ),
       .groups = "drop"
     )

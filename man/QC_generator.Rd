@@ -46,6 +46,7 @@ QC_generator
 \item \href{#method-QC_generator-write_xlsx}{\code{QC_generator$write_xlsx()}}
 \item \href{#method-QC_generator-render_QC_protein_abundances}{\code{QC_generator$render_QC_protein_abundances()}}
 \item \href{#method-QC_generator-render_sample_size_QC}{\code{QC_generator$render_sample_size_QC()}}
+\item \href{#method-QC_generator-render_index_html}{\code{QC_generator$render_index_html()}}
 \item \href{#method-QC_generator-get_protein_per_group_small_wide}{\code{QC_generator$get_protein_per_group_small_wide()}}
 \item \href{#method-QC_generator-clone}{\code{QC_generator$clone()}}
 }
@@ -185,6 +186,15 @@ initialize
 \subsection{Method \code{render_sample_size_QC()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{QC_generator$render_sample_size_QC()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-QC_generator-render_index_html"></a>}}
+\if{latex}{\out{\hypertarget{method-QC_generator-render_index_html}{}}}
+\subsection{Method \code{render_index_html()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{QC_generator$render_index_html()}\if{html}{\out{</div>}}
 }
 
 }

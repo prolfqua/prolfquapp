@@ -20,6 +20,9 @@ QC_generator <- R6::R6Class(
     GRP2 = NULL,
     #' @field TABLES2WRITE TABLES2WRITE
     TABLES2WRITE = list(),
+
+    #' @field links
+    links = list(),
     #' @description
     #' initialize
     #' @param lfq_data lfq_data
@@ -136,13 +139,14 @@ QC_generator <- R6::R6Class(
       xlsxfile = file.path(self$output_dir,
                            paste0("proteinAbundances_",self$GRP2$project_spec$workunit_Id,".xlsx"))
       writexl::write_xlsx(self$get_list(), path = xlsxfile)
+      self$links[["QC_XLSX"]] = xlsxfile
     },
 
     render_QC_protein_abundances = function(){
       file.copy(system.file("application/GenericQC/QC_ProteinAbundances.Rmd", package = "prolfquapp"),
-                to = output_dir, overwrite = TRUE)
+                to = self$output_dir, overwrite = TRUE)
       if (TRUE) {
-        rmarkdown::render(file.path(output_dir,"QC_ProteinAbundances.Rmd"),
+        rmarkdown::render(file.path(self$output_dir,"QC_ProteinAbundances.Rmd"),
                           params = list(pap = self,
                                         project_info = self$GRP2$project_spec,
                                         factors = TRUE),
@@ -159,14 +163,15 @@ QC_generator <- R6::R6Class(
                  "</h1>",
                  "</body>",
                  "</html>")
-        cat(str, file = file.path(output_dir,"proteinAbundances.html"), sep = "\n")
+        cat(str, file = file.path(self$output_dir,"proteinAbundances.html"), sep = "\n")
       }
+      self$links[["QC_ABUNDANCES"]] = file.path(self$output_dir,"proteinAbundances.html")
     },
     render_sample_size_QC = function(){
       if (nrow(self$get_prot_data()$factors()) > 1) {
         file.copy(system.file("application/GenericQC/QCandSSE.Rmd", package = "prolfquapp"),
-                  to = output_dir, overwrite = TRUE)
-        rmarkdown::render(file.path(output_dir,"QCandSSE.Rmd"),
+                  to = self$output_dir, overwrite = TRUE)
+        rmarkdown::render(file.path(self$output_dir,"QCandSSE.Rmd"),
                           params = list(data = self$get_prot_data()$data,
                                         configuration = self$get_prot_data()$config,
                                         project_conf = GRP2$project_spec,
@@ -176,7 +181,40 @@ QC_generator <- R6::R6Class(
       } else{
         message("only a single sample: ", nrow(self$get_prot_data()$factors()))
       }
+      self$links[["QC_SAMPLE_SIZE"]] = file.path(self$output_dir,"QC_sampleSizeEstimation.html")
     },
+
+    render_index_html = function(){
+      str <- c("<!DOCTYPE html>",
+               "<html>",
+               "<head>",
+               "<title>QC Results</title>",
+               "</head>",
+               "<body>",
+               "<h1>Analysis Results</h1>",
+               "<ul>")
+      # Sort links to ensure QC_XLSX is last
+      sorted_links <- names(self$links)
+      if ("QC_XLSX" %in% sorted_links) {
+        sorted_links <- c(sorted_links[sorted_links != "QC_XLSX"], "QC_XLSX")
+        self$links <- self$links[sorted_links]
+      }
+      # Add links
+      for(name in names(self$links)) {
+        link_path <- basename(self$links[[name]])
+        str <- c(str,
+                paste0("<li><a href='", link_path, "'>", name, "</a></li>"))
+      }
+      
+      str <- c(str,
+               "</ul>",
+               "</body>",
+               "</html>")
+      
+      cat(str, file = file.path(self$output_dir, "index.html"), sep = "\n")
+      self$links[["INDEX"]] = file.path(self$output_dir, "index.html")
+    },
+
     get_protein_per_group_small_wide = function(){
       n = 2
       precabund = self$get_protein_per_group_abundance()

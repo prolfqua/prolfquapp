@@ -187,5 +187,6 @@ pap$write_xlsx()
 
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()
+pap$render_index_html()
 
 
