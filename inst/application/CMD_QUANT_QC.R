@@ -183,10 +183,8 @@ pap$write_xlsx()
 #arrow::write_parquet(pap$lfqdata_peptide$data, sink = "lfqdata_peptide.parquet")
 #yaml::write_yaml(prolfqua::R6_extract_values(pap$lfqdata_peptide$config), "lfqdata_peptide.yaml")
 
-
-
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()
 pap$render_index_html()
-
+pap$render_index_md()
 

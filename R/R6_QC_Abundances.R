@@ -185,13 +185,14 @@ QC_generator <- R6::R6Class(
     },
 
     render_index_html = function(){
+
       str <- c("<!DOCTYPE html>",
                "<html>",
                "<head>",
-               "<title>QC Results</title>",
+               paste0("<title>QC Results for ", self$GRP2$project_spec$workunit_Id, " and ", self$GRP2$software, "</title>"),
                "</head>",
                "<body>",
-               "<h1>Analysis Results</h1>",
+               paste0("<h1>QC Results for ", self$GRP2$project_spec$workunit_Id, " and ", self$GRP2$software, "</h1>"),
                "<ul>")
       # Sort links to ensure QC_XLSX is last
       sorted_links <- names(self$links)
@@ -205,14 +206,35 @@ QC_generator <- R6::R6Class(
         str <- c(str,
                 paste0("<li><a href='", link_path, "'>", name, "</a></li>"))
       }
-      
+
       str <- c(str,
                "</ul>",
                "</body>",
                "</html>")
-      
+
       cat(str, file = file.path(self$output_dir, "index.html"), sep = "\n")
-      self$links[["INDEX"]] = file.path(self$output_dir, "index.html")
+      #self$links[["INDEX"]] = file.path(self$output_dir, "index.html")
+    },
+
+
+    render_index_md = function(){
+      str <- c(paste0("# QC Results for ", self$GRP2$project_spec$workunit_Id,  " and ", self$GRP2$software, "\n"),
+               "\n## Available Reports\n")
+
+      sorted_links <- names(self$links)
+      if ("QC_XLSX" %in% sorted_links) {
+        sorted_links <- c(sorted_links[sorted_links != "QC_XLSX"], "QC_XLSX")
+        self$links <- self$links[sorted_links]
+      }
+
+      # Add links
+      for(name in names(self$links)) {
+        link_path <- basename(self$links[[name]])
+        str <- c(str,
+                paste0("- [", name, "](", link_path, ")"))
+      }
+
+      cat(str, file = file.path(self$output_dir, "index.md"), sep = "\n")
     },
 
     get_protein_per_group_small_wide = function(){
