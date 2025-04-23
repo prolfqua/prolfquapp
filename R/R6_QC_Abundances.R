@@ -189,10 +189,10 @@ QC_generator <- R6::R6Class(
       str <- c("<!DOCTYPE html>",
                "<html>",
                "<head>",
-               paste0("<title>QC Results for ", self$GRP2$project_spec$workunit_Id, " and ", self$GRP2$software, "</title>"),
+               paste0("<title>QC Results for WU : ", self$GRP2$project_spec$workunit_Id, " and input : ", self$GRP2$software, "</title>"),
                "</head>",
                "<body>",
-               paste0("<h1>QC Results for ", self$GRP2$project_spec$workunit_Id, " and ", self$GRP2$software, "</h1>"),
+               paste0("<h1>QC Results for WU : ", self$GRP2$project_spec$workunit_Id, " and input : ", self$GRP2$software, "</h1>"),
                "<ul>")
       # Sort links to ensure QC_XLSX is last
       sorted_links <- names(self$links)
@@ -218,7 +218,7 @@ QC_generator <- R6::R6Class(
 
 
     render_index_md = function(){
-      str <- c(paste0("# QC Results for ", self$GRP2$project_spec$workunit_Id,  " and ", self$GRP2$software, "\n"),
+      str <- c(paste0("# QC Results for WU : ", self$GRP2$project_spec$workunit_Id,  ", and input : ", self$GRP2$software, "\n"),
                "\n## Available Reports\n")
 
       sorted_links <- names(self$links)
