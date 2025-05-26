@@ -15,7 +15,7 @@ params:
   data: !r quote(prolfqua::prolfqua_data('data_ionstar')$filtered()$data)
   plot_density: TRUE
   plot_sd_vs_mean: FALSE
-  pep: TRUE
+  target_type: "peptide"
 vignette: >
   %\VignetteIndexEntry{Quality Control & Sample Size Estimation}
   %\VignetteEncoding{UTF-8}
@@ -44,7 +44,6 @@ knitr::opts_chunk$set(
   fig.pos = "H"
 )
 
-#params <- prr
 data <- eval(params$data)
 
 local_project_conf <- params$project_conf
@@ -63,6 +62,22 @@ if (is.null(params$plot_sd_vs_mean)) {
 }
 old.theme <- ggplot2::theme_set(ggplot2::theme_classic())
 
+
+target_mapping <- list(
+  "metabolite" = list(
+    "peptide" = "metabolite",
+    "peptides" = "metabolites",
+    "proteins and peptides" = "metabolites"
+  ),
+  "peptide" = list(
+    "peptide" = "peptide",
+    "peptides" = "peptides",
+    "proteins and peptides" = "proteins and peptides"
+  ),
+  "protein" = list("peptide" = "protein", "protein" = "proteins", "proteins and peptides" = "proteins"),
+)
+
+strings <- target_mapping[[params$target_type]]
 ```
 
 \clearpage
@@ -76,13 +91,28 @@ old.theme <- ggplot2::theme_set(ggplot2::theme_classic())
 <!--This document does not contain any specific conclusion since it was generated automatically. Hence, please discuss this document with your project bioinformatician/statistician which typically is not the project coach.-->
 
 You were asked to hand in 4 QC samples, to asses the biological, biochemical, and technical variability of your experiments. We did run your samples through the same analysis pipeline, which will be applied in the main experiment.
-This document summarizes the `r if(params$pep){"peptide"}else{"protein"}` variability to asses the reproducibility of the biological samples and estimates the sample sizes needed for the main experiment. 
+This document summarizes the `r strings[["peptide"]]` variability to asses the reproducibility of the biological samples and estimates the sample sizes needed for the main experiment. 
 
 
 # Quality Control: Identifications and Quantifications
 
-Here we summarize the number of `r if(params$pep){"peptides"}else{"proteins"}` measured in the QC experiment. Depending on the type of your sample (e.g., pull-down, supernatant, whole cell lysate) we observe some dozens up to a few thousands of proteins `r if(params$pep){", and between a few hundred to up to some few tens of thousands of peptides"}else{""}`.
-While the overall number of `r if(params$pep){"proteins and peptides"}else{"proteins"}` can highly vary depending of the type of experiment, it is crucial that the number of `r  if(params$pep){"proteins and peptides"}else{"proteins"}`  between your biological replicates is similar (reproducibility).
+```{r typicalObservations, echo=FALSE}
+if (params$target_type == "protein" || params$target_type == "peptide") {
+  typical_observations <- "Depending on the type of your sample (e.g., pull-down, supernatant, whole cell lysate) we observe some dozens up to a few thousands of proteins"
+  if (params$target_type == "protein") {
+    typical_observations <- paste0(typical_observations, ", and between a few hundred up to some few tens of thousands of peptides.")
+  } else {
+    typical_observations <- paste0(typical_observations, ".")
+  }
+} else {
+  # Not defined for metabolite
+  typical_observations <- ""
+}
+```
+
+Here we summarize the number of `r strings[["peptide"]]` measured in the QC experiment.
+`r typical_observations`
+While the overall number of `r strings[["proteins and peptides"]]` can highly vary depending of the type of experiment, it is crucial that the number of `r strings[["proteins and peptides"]]`  between your biological replicates is similar (reproducibility).
 
 
 ```{r hierarchyCounts}
@@ -91,15 +121,9 @@ library(prolfqua)
 lfqdata <- LFQData$new(data, local_config)
 
 x <- lfqdata$hierarchy_counts()
-#knitr::kable(data.frame(NR = x), caption =paste0("Nr of" , if(params$pep){"proteins and peptides"}else{"proteins"} , " detected in all samples."),format="html") 
-
 prolfqua::table_facade( 
   data.frame(NR = x),
-  caption = paste0("Nr of ",
-                   if (params$pep) {"proteins and peptides"}
-                   else
-                   {"proteins"} ,
-                   " detected in all samples."))
+  caption = paste0("Nr of ", strings[["proteins and peptides"]], " detected in all samples."))
 
 ```
 
@@ -111,7 +135,8 @@ nrSamples <- nrow(lfqdata$factors())
 width = max(8, nrSamples*0.2)
 ```
 
-(ref:hierarchyCountsSampleBarplot) Number of quantified `r if(params$pep){"peptides"}else{"proteins"}` per sample.
+(ref:hierarchyCountsSampleBarplot) Number of quantified `r strings[["peptides"]]` per sample.
+
 
 ```{r hierarchyCountsSampleBarplot, fig.cap="(ref:hierarchyCountsSampleBarplot)", fig.width=width, fig.height=6}
 summarizer <- lfqdata$get_Summariser()
@@ -127,13 +152,13 @@ plotter$upset_missing()
 
 
 
-Ideally, we identify each `r if(params$pep){"peptide"}else{"protein"}` in all of the samples. However, because of the limit of detection (LOD) low-intensity `r if(params$pep){"peptides"}else{"proteins"}` might not be observed in all samples. Ideally, the LOD should be the only source of missingness in biological replicates. The following figures help us to verify the reproducibility of the measurement at the level of missing data.
+Ideally, we identify each `r strings[["peptide"]]` in all of the samples. However, because of the limit of detection (LOD) low-intensity `r strings[["peptides"]]` might not be observed in all samples. Ideally, the LOD should be the only source of missingness in biological replicates. The following figures help us to verify the reproducibility of the measurement at the level of missing data.
 
 ```{r}
 height <- max(7, nrSamples * 0.1)
 ```
 
-(ref:missingFigIntensityHistorgram) Top - intensity distribution of `r if(params$pep){"peptides"}else{"proteins"}` with 0, 1 etc. missing values. B - number of `r if(params$pep){"peptides"}else{"proteins"}` with 0, 1, 2 etc. missing value.
+(ref:missingFigIntensityHistorgram) Top - intensity distribution of `r strings[["peptides"]]` with 0, 1 etc. missing values. B - number of `r strings[["peptides"]]` with 0, 1, 2 etc. missing value.
 
 ```{r missingFigIntensityHistorgram, fig.width=height, fig.height=height, fig.cap="(ref:missingFigIntensityHistorgram)"}
 
@@ -144,7 +169,7 @@ gridExtra::grid.arrange(p, xx3, xx4, ncol = 1)
 
 ```
 
-(ref:missingnessHeatmap) Heatmap of missing `r if(params$pep){"peptide"}else{"protein"}` quantifications clustered by sample.
+(ref:missingnessHeatmap) Heatmap of missing `r strings[["peptide"]]` quantifications clustered by sample.
 
 ```{r preparemissingnessHeatmap, include=FALSE}
 pNAmap <- plotter$NA_heatmap()
@@ -165,7 +190,7 @@ show_text <- !lfqdata$is_transformed()
 ```{r variability, eval = show_text, results='asis' }
 cat("## Variablity of the raw intensities\n\n")
 
-cat("Without applying any intensity scaling and data preprocessing, the peptide intensities in all samples should be similar. To asses this we plotted the distribution of the peptide intensities in the samples (Figure \\@ref(fig:plotDistributions)) as well as the distribution of the coefficient of variation CV for all peptides in the samples (Figure \\@ref(fig:intensityDistribution)). Table \\@ref(tab:printTable) summarises the CV.")
+cat("Without applying any intensity scaling and data preprocessing, the ", strings[["peptide"]], " intensities in all samples should be similar. To assess this we plotted the distribution of the ", strings[["peptide"]], " intensities in the samples (Figure \\@ref(fig:plotDistributions)) as well as the distribution of the coefficient of variation CV for all ", strings[["peptides"]], " in the samples (Figure \\@ref(fig:intensityDistribution)). Table \\@ref(tab:printTable) summarises the CV.")
 
 ```
 
@@ -229,7 +254,7 @@ if (params$plot_density) {
 
 ## Variability of transformed intensities
 
-We applied the `vsn::justvsn` normalization to the data, which should remove systematic differences among the samples and reduce the variance within the groups (Figure \@ref(fig:plotTransformedIntensityDistributions)). Because of this transformation, we can't report $CV's$ anymore but report standard deviations ($sd$). Figure \@ref(fig:sdviolinplots) shows the distribution of the `r if(params$pep){"peptide"}else{"protein"}` standard deviations while Figure \@ref(fig:sdecdf) shows the empirical cumulative distribution function ($ecdf$). Table \@ref(tab:printSDTable) summarises the $sd$. The heatmap in Figure \@ref(fig:correlationHeat) shows the correlation among the QC samples.
+We applied the `vsn::justvsn` normalization to the data, which should remove systematic differences among the samples and reduce the variance within the groups (Figure \@ref(fig:plotTransformedIntensityDistributions)). Because of this transformation, we can't report $CV's$ anymore but report standard deviations ($sd$). Figure \@ref(fig:sdviolinplots) shows the distribution of the `r strings[["peptide"]]` standard deviations while Figure \@ref(fig:sdecdf) shows the empirical cumulative distribution function ($ecdf$). Table \@ref(tab:printSDTable) summarises the $sd$. The heatmap in Figure \@ref(fig:correlationHeat) shows the correlation among the QC samples.
 
 
 ```{r transformIntensities}
@@ -244,7 +269,7 @@ if (show_text) {
 ```
 
 
-(ref:plotTransformedIntensityDistributions) `r if(params$pep){"Peptide"}else{"Protein"}` intensity distribution after transformation.
+(ref:plotTransformedIntensityDistributions) `r strings[["peptide"]]` intensity distribution after transformation.
 
 ```{r plotTransformedIntensityDistributions, fig.cap="(ref:plotTransformedIntensityDistributions)", fig.height = 6, fig.width= width}
 plotter <- dataTransformed$get_Plotter()
@@ -257,7 +282,7 @@ if (params$plot_density) {
 }
 ```
 
-(ref:correlationHeat) Heatmap of `r if(params$pep){"peptide"}else{"protein"}` intensity correlation between samples.
+(ref:correlationHeat) Heatmap of `r strings[["peptide"]]` intensity correlation between samples.
 
 ```{r preparecorrelationHeat, include= FALSE}
 chmap <- plotter$heatmap_cor()
@@ -276,7 +301,7 @@ plotter$pairs_smooth(max = 10)
 
 
 
-(ref:sdviolinplots) Visualization of `r if(params$pep){"peptide"}else{"protein"}` standard deviations. A) all. B) - for low (bottom 50) and high intensity (top 50).
+(ref:sdviolinplots) Visualization of `r strings[["peptide"]]` standard deviations. A) all. B) - for low (bottom 50) and high intensity (top 50).
 
 ```{r sdviolinplots,fig.cap="(ref:sdviolinplots)", fig.height=6, fig.width=8}
 
@@ -301,7 +326,7 @@ if (params$plot_density) {
 ```
 
 
-(ref:sdecdf) Visualization of `r if(params$pep){"peptide"}else{"protein"}` standard deviations as empirical cumulative distribution function. A) all. B) - for low (bottom 50) and high intensity (top 50).
+(ref:sdecdf) Visualization of `r strings[["peptide"]]` standard deviations as empirical cumulative distribution function. A) all. B) - for low (bottom 50) and high intensity (top 50).
 
 ```{r sdecdf,fig.cap="(ref:sdecdf)", fig.height=6, fig.width=8}
   p1 <- st$density(ggstat = "ecdf")
@@ -332,7 +357,7 @@ prolfqua::table_facade(sd_quantile_res2,
 
 ```
 
-(ref:overviewHeat) Sample and `r if(params$pep){"peptide"}else{"protein"}` Heatmap.
+(ref:overviewHeat) Sample and `r strings[["peptide"]]` Heatmap.
 
 ```{r prepareoverviewHeat, include = FALSE}
 
@@ -347,14 +372,14 @@ print(hm)
 # Sample Size Calculation
 
 
-In the previous section, we estimated the `r  if(params$pep){"peptide"}else{"protein"}` variance using the QC samples. Figure \@ref(fig:sdviolinplots) shows the distribution of the standard deviations. We are using this information, as well as some typical values for the size and the power of the test to estimate the required sample sizes for your main experiment. 
+In the previous section, we estimated the `r  strings[["peptide"]]` variance using the QC samples. Figure \@ref(fig:sdviolinplots) shows the distribution of the standard deviations. We are using this information, as well as some typical values for the size and the power of the test to estimate the required sample sizes for your main experiment. 
 
 An important factor in estimating the sample sizes is the smallest effect size (difference) you are interested in detecting between two conditions, e.g. a reference and a treatment. Smaller biologically significant effect sizes require more samples to obtain a statistically significant result. Typical $log_2$ fold change thresholds are $0.59, 1, 2$ which correspond to a fold change of $1.5, 2, 4$.
 
 
-Table \@ref(tab:sampleSize) and Figure \@ref(fig:figSampleSize) summarizes how many samples are needed to detect a fold change of $0.5, 1, 2$ at a confidence level of $95\%$ and power of $80\%$, for $50, 60, 70, 80$ and $90\%$ percent of the measured `r if(params$pep){"peptides"}else{"proteins"}`.
+Table \@ref(tab:sampleSize) and Figure \@ref(fig:figSampleSize) summarizes how many samples are needed to detect a fold change of $0.5, 1, 2$ at a confidence level of $95\%$ and power of $80\%$, for $50, 60, 70, 80$ and $90\%$ percent of the measured `r strings[["peptides"]]`.
 
-(ref:figSampleSize) Graphical representation of the sample size needed to detect a log fold change greater than delta with a significance level of $0.05$ and power 0.8 when using a t-test to compare means, in $X\%$ of `r  if(params$pep){"peptides"}else{"proteins"}` (x - axis).
+(ref:figSampleSize) Graphical representation of the sample size needed to detect a log fold change greater than delta with a significance level of $0.05$ and power 0.8 when using a t-test to compare means, in $X\%$ of `r strings[["peptides"]]` (x - axis).
 
 ```{r figSampleSize, fig.cap="(ref:figSampleSize)", fig.width=8, fig.alt=""}
 
@@ -402,9 +427,7 @@ prolfqua::table_facade(
 ```
 
 ```{r hierarchyCountsSample}
-caption <- paste("Number of quantified ",
-                 if (params$pep) { "peptides and proteins" } else {"peptides" }, " per sample.")
-
+caption <- paste("Number of quantified ", strings[["proteins and peptides"]], " per sample.")
 st <- dataTransformed$get_Summariser()
 prolfqua::table_facade(
   st$hierarchy_counts_sample()
@@ -416,6 +439,3 @@ prolfqua::table_facade(
 ```{r resetTheme, include=FALSE}
 ggplot2::theme_set(old.theme)
 ```
-
-
-
