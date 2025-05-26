@@ -63,7 +63,7 @@ if (is.null(params$plot_sd_vs_mean)) {
 old.theme <- ggplot2::theme_set(ggplot2::theme_classic())
 
 
-target_mapping <- list(
+strings_translations <- list(
   "metabolite" = list(
     "peptide" = "metabolite",
     "peptides" = "metabolites",
@@ -76,8 +76,7 @@ target_mapping <- list(
   ),
   "protein" = list("peptide" = "protein", "protein" = "proteins", "proteins and peptides" = "proteins"),
 )
-
-strings <- target_mapping[[params$target_type]]
+strings <- string_translations[[params$target_type]]
 ```
 
 \clearpage
@@ -143,8 +142,9 @@ summarizer <- lfqdata$get_Summariser()
 summarizer$plot_hierarchy_counts_sample()
 ```
 
-```{r upsetMissing, fig.width=9, fig.height=9, fig.cap= "The plot shows the relationships between sets of proteins through their intersections, as well as the size of each set. The elements that are present in each intersection are shown as circles or dots in the matrix, and the size of each set is represented by the height of the corresponding row."}
+(ref:hierarchyCountsSample) The plot shows the relationships between sets of `r strings[["peptides"]]` through their intersections, as well as the size of each set. The elements that are present in each intersection are shown as circles or dots in the matrix, and the size of each set is represented by the height of the corresponding row.
 
+```{r upsetMissing, fig.width=9, fig.height=9, fig.cap="(ref:hierarchyCountsSample)"}
 plotter <- lfqdata$get_Plotter()
 plotter$upset_missing()
 
