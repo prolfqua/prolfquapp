@@ -93,7 +93,7 @@ strings <- string_translations[[params$target_type]]
 
 <!--This document does not contain any specific conclusion since it was generated automatically. Hence, please discuss this document with your project bioinformatician/statistician which typically is not the project coach.-->
 
-You were asked to hand in 4 QC samples, to asses the biological, biochemical, and technical variability of your experiments. We did run your samples through the same analysis pipeline, which will be applied in the main experiment.
+We did run your samples through the same analysis pipeline, which will be applied in the main experiment.
 This document summarizes the `r strings[["target"]]` variability to asses the reproducibility of the biological samples and estimates the sample sizes needed for the main experiment. 
 
 
