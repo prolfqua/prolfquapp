@@ -198,7 +198,9 @@ cat("Without applying any intensity scaling and data preprocessing, the ", strin
 
 ```
 
-```{r plotDistributions, fig.cap="Density plot of peptide level Coefficient of Variations (CV).", fig.height=6, fig.width=8 , eval = show_text}
+(ref:plotDistributions) Density plot of `r strings[["target"]]` level Coefficient of Variations (CV).
+
+```{r plotDistributions, fig.cap="(ref:plotDistributions)", fig.height=6, fig.width=8 , eval = show_text}
 
 moreThanOneSample <- nrow(lfqdata$factors()) > 1
 
