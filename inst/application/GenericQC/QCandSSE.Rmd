@@ -74,7 +74,7 @@ strings_translations <- list(
     "peptides" = "peptides",
     "proteins and peptides" = "proteins and peptides"
   ),
-  "protein" = list("peptide" = "protein", "protein" = "proteins", "proteins and peptides" = "proteins"),
+  "protein" = list("peptide" = "protein", "proteins" = "proteins", "proteins and peptides" = "proteins"),
 )
 strings <- string_translations[[params$target_type]]
 ```
