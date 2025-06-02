@@ -15,7 +15,7 @@ params:
   data: !r quote(prolfqua::prolfqua_data('data_ionstar')$filtered()$data)
   plot_density: TRUE
   plot_sd_vs_mean: FALSE
-  target_type: "peptide"
+  target_type: "protein"
 vignette: >
   %\VignetteIndexEntry{Quality Control & Sample Size Estimation}
   %\VignetteEncoding{UTF-8}
@@ -63,18 +63,22 @@ if (is.null(params$plot_sd_vs_mean)) {
 old.theme <- ggplot2::theme_set(ggplot2::theme_classic())
 
 
-strings_translations <- list(
+string_translations <- list(
   "metabolite" = list(
-    "peptide" = "metabolite",
-    "peptides" = "metabolites",
+    "target" = "metabolite",
+    "targets" = "metabolites",
     "proteins and peptides" = "metabolites"
   ),
   "peptide" = list(
-    "peptide" = "peptide",
-    "peptides" = "peptides",
+    "target" = "peptide",
+    "targets" = "peptides",
     "proteins and peptides" = "proteins and peptides"
   ),
-  "protein" = list("peptide" = "protein", "proteins" = "proteins", "proteins and peptides" = "proteins"),
+  "protein" = list(
+    "target" = "protein",
+    "targets" = "proteins",
+    "proteins and peptides" = "proteins"
+  ),
 )
 strings <- string_translations[[params$target_type]]
 ```
@@ -90,7 +94,7 @@ strings <- string_translations[[params$target_type]]
 <!--This document does not contain any specific conclusion since it was generated automatically. Hence, please discuss this document with your project bioinformatician/statistician which typically is not the project coach.-->
 
 You were asked to hand in 4 QC samples, to asses the biological, biochemical, and technical variability of your experiments. We did run your samples through the same analysis pipeline, which will be applied in the main experiment.
-This document summarizes the `r strings[["peptide"]]` variability to asses the reproducibility of the biological samples and estimates the sample sizes needed for the main experiment. 
+This document summarizes the `r strings[["target"]]` variability to asses the reproducibility of the biological samples and estimates the sample sizes needed for the main experiment. 
 
 
 # Quality Control: Identifications and Quantifications
@@ -109,7 +113,7 @@ if (params$target_type == "protein" || params$target_type == "peptide") {
 }
 ```
 
-Here we summarize the number of `r strings[["peptide"]]` measured in the QC experiment.
+Here we summarize the number of `r strings[["targets"]]` measured in the QC experiment.
 `r typical_observations`
 While the overall number of `r strings[["proteins and peptides"]]` can highly vary depending of the type of experiment, it is crucial that the number of `r strings[["proteins and peptides"]]`  between your biological replicates is similar (reproducibility).
 
@@ -134,7 +138,7 @@ nrSamples <- nrow(lfqdata$factors())
 width = max(8, nrSamples*0.2)
 ```
 
-(ref:hierarchyCountsSampleBarplot) Number of quantified `r strings[["peptides"]]` per sample.
+(ref:hierarchyCountsSampleBarplot) Number of quantified `r strings[["targets"]]` per sample.
 
 
 ```{r hierarchyCountsSampleBarplot, fig.cap="(ref:hierarchyCountsSampleBarplot)", fig.width=width, fig.height=6}
@@ -142,7 +146,7 @@ summarizer <- lfqdata$get_Summariser()
 summarizer$plot_hierarchy_counts_sample()
 ```
 
-(ref:hierarchyCountsSample) The plot shows the relationships between sets of `r strings[["peptides"]]` through their intersections, as well as the size of each set. The elements that are present in each intersection are shown as circles or dots in the matrix, and the size of each set is represented by the height of the corresponding row.
+(ref:hierarchyCountsSample) The plot shows the relationships between sets of `r strings[["targets"]]` through their intersections, as well as the size of each set. The elements that are present in each intersection are shown as circles or dots in the matrix, and the size of each set is represented by the height of the corresponding row.
 
 ```{r upsetMissing, fig.width=9, fig.height=9, fig.cap="(ref:hierarchyCountsSample)"}
 plotter <- lfqdata$get_Plotter()
@@ -152,13 +156,13 @@ plotter$upset_missing()
 
 
 
-Ideally, we identify each `r strings[["peptide"]]` in all of the samples. However, because of the limit of detection (LOD) low-intensity `r strings[["peptides"]]` might not be observed in all samples. Ideally, the LOD should be the only source of missingness in biological replicates. The following figures help us to verify the reproducibility of the measurement at the level of missing data.
+Ideally, we identify each `r strings[["target"]]` in all of the samples. However, because of the limit of detection (LOD) low-intensity `r strings[["targets"]]` might not be observed in all samples. Ideally, the LOD should be the only source of missingness in biological replicates. The following figures help us to verify the reproducibility of the measurement at the level of missing data.
 
 ```{r}
 height <- max(7, nrSamples * 0.1)
 ```
 
-(ref:missingFigIntensityHistorgram) Top - intensity distribution of `r strings[["peptides"]]` with 0, 1 etc. missing values. B - number of `r strings[["peptides"]]` with 0, 1, 2 etc. missing value.
+(ref:missingFigIntensityHistorgram) Top - intensity distribution of `r strings[["targets"]]` with 0, 1 etc. missing values. B - number of `r strings[["targets"]]` with 0, 1, 2 etc. missing value.
 
 ```{r missingFigIntensityHistorgram, fig.width=height, fig.height=height, fig.cap="(ref:missingFigIntensityHistorgram)"}
 
@@ -169,7 +173,7 @@ gridExtra::grid.arrange(p, xx3, xx4, ncol = 1)
 
 ```
 
-(ref:missingnessHeatmap) Heatmap of missing `r strings[["peptide"]]` quantifications clustered by sample.
+(ref:missingnessHeatmap) Heatmap of missing `r strings[["target"]]` quantifications clustered by sample.
 
 ```{r preparemissingnessHeatmap, include=FALSE}
 pNAmap <- plotter$NA_heatmap()
@@ -190,7 +194,7 @@ show_text <- !lfqdata$is_transformed()
 ```{r variability, eval = show_text, results='asis' }
 cat("## Variablity of the raw intensities\n\n")
 
-cat("Without applying any intensity scaling and data preprocessing, the ", strings[["peptide"]], " intensities in all samples should be similar. To assess this we plotted the distribution of the ", strings[["peptide"]], " intensities in the samples (Figure \\@ref(fig:plotDistributions)) as well as the distribution of the coefficient of variation CV for all ", strings[["peptides"]], " in the samples (Figure \\@ref(fig:intensityDistribution)). Table \\@ref(tab:printTable) summarises the CV.")
+cat("Without applying any intensity scaling and data preprocessing, the ", strings[["target"]], " intensities in all samples should be similar. To assess this we plotted the distribution of the ", strings[["target"]], " intensities in the samples (Figure \\@ref(fig:plotDistributions)) as well as the distribution of the coefficient of variation CV for all ", strings[["targets"]], " in the samples (Figure \\@ref(fig:intensityDistribution)). Table \\@ref(tab:printTable) summarises the CV.")
 
 ```
 
@@ -254,7 +258,7 @@ if (params$plot_density) {
 
 ## Variability of transformed intensities
 
-We applied the `vsn::justvsn` normalization to the data, which should remove systematic differences among the samples and reduce the variance within the groups (Figure \@ref(fig:plotTransformedIntensityDistributions)). Because of this transformation, we can't report $CV's$ anymore but report standard deviations ($sd$). Figure \@ref(fig:sdviolinplots) shows the distribution of the `r strings[["peptide"]]` standard deviations while Figure \@ref(fig:sdecdf) shows the empirical cumulative distribution function ($ecdf$). Table \@ref(tab:printSDTable) summarises the $sd$. The heatmap in Figure \@ref(fig:correlationHeat) shows the correlation among the QC samples.
+We applied the `vsn::justvsn` normalization to the data, which should remove systematic differences among the samples and reduce the variance within the groups (Figure \@ref(fig:plotTransformedIntensityDistributions)). Because of this transformation, we can't report $CV's$ anymore but report standard deviations ($sd$). Figure \@ref(fig:sdviolinplots) shows the distribution of the `r strings[["target"]]` standard deviations while Figure \@ref(fig:sdecdf) shows the empirical cumulative distribution function ($ecdf$). Table \@ref(tab:printSDTable) summarises the $sd$. The heatmap in Figure \@ref(fig:correlationHeat) shows the correlation among the QC samples.
 
 
 ```{r transformIntensities}
@@ -269,7 +273,7 @@ if (show_text) {
 ```
 
 
-(ref:plotTransformedIntensityDistributions) `r strings[["peptide"]]` intensity distribution after transformation.
+(ref:plotTransformedIntensityDistributions) `r strings[["target"]]` intensity distribution after transformation.
 
 ```{r plotTransformedIntensityDistributions, fig.cap="(ref:plotTransformedIntensityDistributions)", fig.height = 6, fig.width= width}
 plotter <- dataTransformed$get_Plotter()
@@ -282,7 +286,7 @@ if (params$plot_density) {
 }
 ```
 
-(ref:correlationHeat) Heatmap of `r strings[["peptide"]]` intensity correlation between samples.
+(ref:correlationHeat) Heatmap of `r strings[["target"]]` intensity correlation between samples.
 
 ```{r preparecorrelationHeat, include= FALSE}
 chmap <- plotter$heatmap_cor()
@@ -301,7 +305,7 @@ plotter$pairs_smooth(max = 10)
 
 
 
-(ref:sdviolinplots) Visualization of `r strings[["peptide"]]` standard deviations. A) all. B) - for low (bottom 50) and high intensity (top 50).
+(ref:sdviolinplots) Visualization of `r strings[["target"]]` standard deviations. A) all. B) - for low (bottom 50) and high intensity (top 50).
 
 ```{r sdviolinplots,fig.cap="(ref:sdviolinplots)", fig.height=6, fig.width=8}
 
@@ -326,7 +330,7 @@ if (params$plot_density) {
 ```
 
 
-(ref:sdecdf) Visualization of `r strings[["peptide"]]` standard deviations as empirical cumulative distribution function. A) all. B) - for low (bottom 50) and high intensity (top 50).
+(ref:sdecdf) Visualization of `r strings[["target"]]` standard deviations as empirical cumulative distribution function. A) all. B) - for low (bottom 50) and high intensity (top 50).
 
 ```{r sdecdf,fig.cap="(ref:sdecdf)", fig.height=6, fig.width=8}
   p1 <- st$density(ggstat = "ecdf")
@@ -357,7 +361,7 @@ prolfqua::table_facade(sd_quantile_res2,
 
 ```
 
-(ref:overviewHeat) Sample and `r strings[["peptide"]]` Heatmap.
+(ref:overviewHeat) Sample and `r strings[["target"]]` Heatmap.
 
 ```{r prepareoverviewHeat, include = FALSE}
 
@@ -372,14 +376,14 @@ print(hm)
 # Sample Size Calculation
 
 
-In the previous section, we estimated the `r  strings[["peptide"]]` variance using the QC samples. Figure \@ref(fig:sdviolinplots) shows the distribution of the standard deviations. We are using this information, as well as some typical values for the size and the power of the test to estimate the required sample sizes for your main experiment. 
+In the previous section, we estimated the `r  strings[["target"]]` variance using the QC samples. Figure \@ref(fig:sdviolinplots) shows the distribution of the standard deviations. We are using this information, as well as some typical values for the size and the power of the test to estimate the required sample sizes for your main experiment. 
 
 An important factor in estimating the sample sizes is the smallest effect size (difference) you are interested in detecting between two conditions, e.g. a reference and a treatment. Smaller biologically significant effect sizes require more samples to obtain a statistically significant result. Typical $log_2$ fold change thresholds are $0.59, 1, 2$ which correspond to a fold change of $1.5, 2, 4$.
 
 
-Table \@ref(tab:sampleSize) and Figure \@ref(fig:figSampleSize) summarizes how many samples are needed to detect a fold change of $0.5, 1, 2$ at a confidence level of $95\%$ and power of $80\%$, for $50, 60, 70, 80$ and $90\%$ percent of the measured `r strings[["peptides"]]`.
+Table \@ref(tab:sampleSize) and Figure \@ref(fig:figSampleSize) summarizes how many samples are needed to detect a fold change of $0.5, 1, 2$ at a confidence level of $95\%$ and power of $80\%$, for $50, 60, 70, 80$ and $90\%$ percent of the measured `r strings[["targets"]]`.
 
-(ref:figSampleSize) Graphical representation of the sample size needed to detect a log fold change greater than delta with a significance level of $0.05$ and power 0.8 when using a t-test to compare means, in $X\%$ of `r strings[["peptides"]]` (x - axis).
+(ref:figSampleSize) Graphical representation of the sample size needed to detect a log fold change greater than delta with a significance level of $0.05$ and power 0.8 when using a t-test to compare means, in $X\%$ of `r strings[["targets"]]` (x - axis).
 
 ```{r figSampleSize, fig.cap="(ref:figSampleSize)", fig.width=8, fig.alt=""}
 
