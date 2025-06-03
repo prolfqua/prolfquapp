@@ -136,21 +136,30 @@ QC_generator <- R6::R6Class(
       return(TABLES2WRITE)
     },
     write_xlsx = function(){
+      target_type = private$get_target_type()
+      # TODO this should be discussed (does it break existing stuff if we omit the line?)
+      target_type <- ifelse(target_type == "peptide", "protein", target_type)
       xlsxfile = file.path(self$output_dir,
-                           paste0("proteinAbundances_",self$GRP2$project_spec$workunit_Id,".xlsx"))
+                           paste0(target_type, "Abundances_",self$GRP2$project_spec$workunit_Id,".xlsx"))
       writexl::write_xlsx(self$get_list(), path = xlsxfile)
       self$links[["QC_XLSX"]] = xlsxfile
     },
 
-    render_QC_protein_abundances = function(){
-      file.copy(system.file("application/GenericQC/QC_ProteinAbundances.Rmd", package = "prolfquapp"),
-                to = self$output_dir, overwrite = TRUE)
+    render_QC_protein_abundances = function() {
+      source_path <- system.file("application/GenericQC/QC_ProteinAbundances.Rmd", package = "prolfquapp")
+      target_type <- private$get_target_type()
+      target_filename_rmd <- ifelse(target_type == "metabolite", "QC_MetaboliteAbundances.Rmd", "QC_ProteinAbundances.Rmd")
+      target_filename_html <- ifelse(target_type == "metabolite", "metaboliteAbundances.html", "proteinAbundances.html")
+      target_path_rmd <- file.path(self$output_dir, target_filename_rmd)
+      target_path_html <- file.path(self$output_dir, target_filename_html)
+      file.copy(source_path, target_path_rmd, overwrite = TRUE)
       if (TRUE) {
-        rmarkdown::render(file.path(self$output_dir,"QC_ProteinAbundances.Rmd"),
+        rmarkdown::render(target_path_rmd,
                           params = list(pap = self,
                                         project_info = self$GRP2$project_spec,
-                                        factors = TRUE),
-                          output_file = "proteinAbundances.html")
+                                        factors = TRUE,
+                                        target_type = target_type),
+                          output_file = target_filename_html)
       } else {
         str <- c("<!DOCTYPE html>",
                  "<html>",
@@ -163,9 +172,9 @@ QC_generator <- R6::R6Class(
                  "</h1>",
                  "</body>",
                  "</html>")
-        cat(str, file = file.path(self$output_dir,"proteinAbundances.html"), sep = "\n")
+        cat(str, file = target_path_html, sep = "\n")
       }
-      self$links[["QC_ABUNDANCES"]] = file.path(self$output_dir,"proteinAbundances.html")
+      self$links[["QC_ABUNDANCES"]] = target_path_html
     },
     render_sample_size_QC = function(){
       if (nrow(self$get_prot_data()$factors()) > 1) {
