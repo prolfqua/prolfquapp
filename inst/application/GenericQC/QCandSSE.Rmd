@@ -67,17 +67,17 @@ string_translations <- list(
   "metabolite" = list(
     "target" = "metabolite",
     "targets" = "metabolites",
-    "proteins and peptides" = "metabolites"
+    ".analyzed_target_types" = "metabolites"
   ),
   "peptide" = list(
     "target" = "peptide",
     "targets" = "peptides",
-    "proteins and peptides" = "proteins and peptides"
+    ".analyzed_target_types" = "proteins and peptides"
   ),
   "protein" = list(
     "target" = "protein",
     "targets" = "proteins",
-    "proteins and peptides" = "proteins"
+    ".analyzed_target_types" = "proteins"
   )
 )
 strings <- string_translations[[params$target_type]]
@@ -102,7 +102,7 @@ This document summarizes the `r strings[["target"]]` variability to asses the re
 ```{r typicalObservations, echo=FALSE}
 if (params$target_type == "protein" || params$target_type == "peptide") {
   typical_observations <- "Depending on the type of your sample (e.g., pull-down, supernatant, whole cell lysate) we observe some dozens up to a few thousands of proteins"
-  if (params$target_type == "protein") {
+  if (params$target_type == "peptide") {
     typical_observations <- paste0(typical_observations, ", and between a few hundred up to some few tens of thousands of peptides.")
   } else {
     typical_observations <- paste0(typical_observations, ".")
@@ -115,7 +115,7 @@ if (params$target_type == "protein" || params$target_type == "peptide") {
 
 Here we summarize the number of `r strings[["targets"]]` measured in the QC experiment.
 `r typical_observations`
-While the overall number of `r strings[["proteins and peptides"]]` can highly vary depending of the type of experiment, it is crucial that the number of `r strings[["proteins and peptides"]]`  between your biological replicates is similar (reproducibility).
+While the overall number of `r strings[[".analyzed_target_types"]]` can highly vary depending of the type of experiment, it is crucial that the number of `r strings[[".analyzed_target_types"]]`  between your biological replicates is similar (reproducibility).
 
 
 ```{r hierarchyCounts}
@@ -126,7 +126,7 @@ lfqdata <- LFQData$new(data, local_config)
 x <- lfqdata$hierarchy_counts()
 prolfqua::table_facade( 
   data.frame(NR = x),
-  caption = paste0("Nr of ", strings[["proteins and peptides"]], " detected in all samples."))
+  caption = paste0("Nr of ", strings[[".analyzed_target_types"]], " detected in all samples."))
 
 ```
 
@@ -433,7 +433,7 @@ prolfqua::table_facade(
 ```
 
 ```{r hierarchyCountsSample}
-caption <- paste("Number of quantified ", strings[["proteins and peptides"]], " per sample.")
+caption <- paste("Number of quantified ", strings[[".analyzed_target_types"]], " per sample.")
 st <- dataTransformed$get_Summariser()
 prolfqua::table_facade(
   st$hierarchy_counts_sample()
