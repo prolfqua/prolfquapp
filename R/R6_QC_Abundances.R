@@ -175,7 +175,7 @@ QC_generator <- R6::R6Class(
                           params = list(data = self$get_prot_data()$data,
                                         configuration = self$get_prot_data()$config,
                                         project_conf = GRP2$project_spec,
-                                        pep = FALSE),
+                                        target_type = private$get_target_type()),
                           output_file = "QC_sampleSizeEstimation.html"
         )
       } else{
@@ -265,6 +265,17 @@ QC_generator <- R6::R6Class(
         precabund_table <- dplyr::select(precabund_table, -all_of(tableconfig$factor_keys_depth()))
       }
       return(precabund_table)
+    }
+  ),
+  private = list(
+    get_target_type = function() {
+      if (grepl("MZMINE", self$GRP2$software)) {
+        return("metabolite")
+      } else if (grepl("PEPTIDE", self$GRP2$software)) {
+        return("peptide")
+      } else {
+        return("protein")
+      }
     }
   )
 )
