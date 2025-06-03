@@ -1,6 +1,6 @@
 ---
-title: "Protein Signal Intensities within Groups"
-date: "2023-03-28"
+title: "`r tools::toTitleCase(params$target_type)` Signal Intensities within Groups"
+date: "`r Sys.Date()`"
 author : "The CompMS team"
 editor_options: 
   chunk_output_type: console
@@ -8,6 +8,7 @@ params:
   pap: NULL
   factors: FALSE
   project_info: NULL
+  target_type: "protein"
 output:
   bookdown::html_document2:
     toc: yes
@@ -35,13 +36,38 @@ tableconfig <- pap$lfqdata_prot$config$table
 factors <- params$factors
 project_info <- params$project_info
 
+string_translations <- list(
+  "metabolite" = list(
+    "target" = "metabolite",
+    "targets" = "metabolites",
+    "proteins and peptides" = "metabolites",
+    "feature_id" = "metabolite_feature_Id",
+    "target:description" = "metabolite description"
+  ),
+  "peptide" = list(
+    "target" = "peptide",
+    "targets" = "peptides",
+    "proteins and peptides" = "proteins and peptides"
+  ),
+  "protein" = list(
+    "target" = "protein",
+    "targets" = "proteins",
+    "proteins and peptides" = "proteins",
+    "feature_id" = "protein_Id",
+    "target:description" = "protein description from fasta header"
+  )
+)
+strings <- string_translations[[params$target_type]]
+
 ```
 
 
 - Order : `r project_info$order_Id`
 - Workunit : `r project_info$workunit_Id`
 
-```{r hierachycountspersample, fig.cap="Number of proteins per Sample."}
+(ref:hierachycountspersample) Number of `r strings[["targets"]]` per Sample.
+
+```{r hierachycountspersample, fig.cap="(ref:hierachycountspersample)"}
 srs <- lfqdataProt$get_Summariser()
 srs$plot_hierarchy_counts_sample()
 ```
@@ -69,8 +95,12 @@ pp <- plotly::ggplotly(pp)
 
 
 ```{r createDT}
-precabund_table <- pap$get_protein_per_group_small_wide()
-datax <- crosstalk::SharedData$new(as.data.frame(precabund_table) , key = as.formula(paste(" ~ ", protID )), group = "BB")
+precabund_table <- as.data.frame(pap$get_protein_per_group_small_wide())
+if (params$target_type == "metabolite") {
+  # drop nrPeptides for metabolite
+  precabund_table <- dplyr::select(precabund_table, -nrPeptides)
+}
+datax <- crosstalk::SharedData$new(precabund_table , key = as.formula(paste(" ~ ", protID )), group = "BB")
 
 table <- DT::datatable(
   datax,
@@ -88,12 +118,14 @@ table <- DT::datatable(
 
 The columns of the table below contains:
 
-- protein_Id - protein identifier
-- nrPeptides - nr of peptides per protein
-- description - protein description from fasta header
-- nrMeasured_<GroupName> - How often a protein was observed in each of the groups and overall
-- meanAbundance_<GroupName> - average protein abundance (see 1. at the bottom of the document) per group.
-- signal_percent_<GroupName> - percent of the total signal of all identified proteins measured by the mass spectrometric instrument attributed to each protein.
+- `r strings[["feature_id"]]` - `r strings[["target"]]` identifier
+`r cat(ifelse(params$target_type == "metabolite", "", "- nrPeptides - nr of peptides per protein"))`
+- description - `r strings[["target:description"]]`
+- nrMeasured_<GroupName> - How often a `r strings[["target"]]` was observed in each of the groups and overall
+- meanAbundance_<GroupName> - average `r strings[["target"]]` abundance (see 1. at the bottom of the document) per group.
+
+-> TODO does this one actually still exist?
+- signal_percent_<GroupName> - percent of the total signal of all identified `r strings[["targets"]]` measured by the mass spectrometric instrument attributed to each `r strings[["target"]]`.
 
 
 
@@ -104,10 +136,11 @@ table
 ```
 
 
-(ref:proteinCumulative) The Y axis presents the percentage of the iBAQ (intensity Based Absolute Quantitation) of each protein. Along the X axis, proteins are organized in ascending order according to their signal proportions. 
+(ref:proteinCumulative) The Y axis presents the percentage of the iBAQ (intensity Based Absolute Quantitation) of each `r strings[["target"]]`. Along the X axis, `r strings[["targets"]]` are organized in ascending order according to their signal proportions. 
 
 
-Calculating the iBAQ signal per protein involves summing the `Precursor.Quantity` values across all precursors associated with that protein and dividing by the number of theoretically observable peptides of the protein. An intriguing observation is that a significant share of the mass spectrometers recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
+
+Calculating the iBAQ signal per `r strings[["target"]]` involves summing the `Precursor.Quantity` values across all precursors associated with that protein and dividing by the number of theoretically observable peptides of the protein. An intriguing observation is that a significant share of the mass spectrometers recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
 
 
 ```{r proteinCumulative, fig.cap = "(ref:proteinCumulative)"}
@@ -136,7 +169,7 @@ pplotPepAbund <- ggplot(datax,
 pplotPepAbund <- plotly::ggplotly(pplotPepAbund)
 ```
 
-(ref:nrProtplots) Mean protein abundance per group (column meanAbundance_<GroupName>) as a function of the number of peptides (column nrPeptides).
+(ref:nrProtplots) Mean `r strings[["target"]]` abundance per group (column meanAbundance_<GroupName>) as a function of the number of peptides (column nrPeptides).
 
 ```{r nrProtplots, fig.cap = "(ref:nrProtplots)", eval = FALSE, include=FALSE}
 pplotPepAbund
