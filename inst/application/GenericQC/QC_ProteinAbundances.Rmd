@@ -119,7 +119,7 @@ table <- DT::datatable(
 The columns of the table below contains:
 
 - `r strings[["feature_id"]]` - `r strings[["target"]]` identifier
-`r cat(ifelse(params$target_type == "metabolite", "", "- nrPeptides - nr of peptides per protein"))`
+`r cat(ifelse(params$target_type == "metabolite", "", "- nrPeptides \n- nr of peptides per protein"))`
 - description - `r strings[["target:description"]]`
 - nrMeasured_<GroupName> - How often a `r strings[["target"]]` was observed in each of the groups and overall
 - meanAbundance_<GroupName> - average `r strings[["target"]]` abundance (see 1. at the bottom of the document) per group.
