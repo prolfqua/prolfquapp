@@ -136,9 +136,9 @@ QC_generator <- R6::R6Class(
       return(TABLES2WRITE)
     },
     write_xlsx = function(){
-      target_type = private$get_target_type()
-      report_prefix = ifelse(target_type == "metabolite", "metabolite", "protein")
-      xlsxfile = file.path(self$output_dir,
+      target_type <- private$get_target_type()
+      report_prefix <- ifelse(target_type == "metabolite", "metabolite", "protein")
+      xlsxfile <- file.path(self$output_dir,
                            paste0(report_prefix, "Abundances_", self$GRP2$project_spec$workunit_Id, ".xlsx"))
       writexl::write_xlsx(self$get_list(), path = xlsxfile)
       self$links[["QC_XLSX"]] = xlsxfile
