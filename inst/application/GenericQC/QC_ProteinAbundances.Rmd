@@ -124,12 +124,6 @@ The columns of the table below contains:
 - nrMeasured_<GroupName> - How often a `r strings[["target"]]` was observed in each of the groups and overall
 - meanAbundance_<GroupName> - average `r strings[["target"]]` abundance (see 1. at the bottom of the document) per group.
 
--> TODO does this one actually still exist?
-- signal_percent_<GroupName> - percent of the total signal of all identified `r strings[["targets"]]` measured by the mass spectrometric instrument attributed to each `r strings[["target"]]`.
-
-
-
-
 
 ```{r}
 table
