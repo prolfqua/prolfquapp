@@ -347,29 +347,13 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN") {
   pop$diff_threshold <- as.numeric(yml$application$parameters$`4|Difference_threshold`)
   pop$FDR_threshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
 
-  pop$remove_cont <- if (yml$application$parameters$`6|remConDec` == "true") {
-    TRUE
-  } else {
-    FALSE
-  }
-  pop$remove_decoys <- if (yml$application$parameters$`6|remConDec` == "true") {
-    TRUE
-  } else {
-    FALSE
-  }
-
+  pop$remove_cont <- yml$application$parameters$`6|remConDec` == "true"
+  pop$remove_decoys <- yml$application$parameters$`6|remConDec` == "true"
   pop$pattern_decoys <- yml$application$parameters$`7|REVpattern`
-  pop$pattern_decoys <- if (pop$pattern_decoys == "") {
-    NULL
-  } else {
-    pop$pattern_decoys
-  }
+  pop$pattern_decoys <- ifelse(pop$pattern_decoys == "", NULL, pop$pattern_decoys)
   pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
-  pop$pattern_contaminants <- if (pop$pattern_contaminants == "") {
-    NULL
-  } else {
-    (pop$pattern_contaminants)
-  }
+  pop$pattern_contaminants <- ifelse(pop$pattern_contaminants == "", NULL, pop$pattern_contaminants)
+
   ext <- ExternalReader$new()
   r6obj_config <- ProlfquAppConfig$new(pop, ps, ext)
   r6obj_config$set_zipdir_name()

@@ -172,7 +172,7 @@ pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
 # dd <- pap$get_prot_wide()
 # pap$get_prot_IBAQ_wide()
 
-# write parquet
+# wirte parquet
 pap$write_xlsx()
 
 #library(arrow)
