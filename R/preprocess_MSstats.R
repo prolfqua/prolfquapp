@@ -37,6 +37,19 @@ read_msstats <- function(file){
   return(peptideLevelInt)
 }
 
+#' create dataset template from MSStats data.
+#' @export
+#'
+dataset_template_MSSTATS <- function(files){
+  msstats_df <- prolfquapp::read_table_data(files$data)
+  datasetannot <- msstats_df |>
+    dplyr::select(raw.file = "Run", "Group" = "Condition", "Subject" = "BioReplicate") |>
+    dplyr::distinct()
+  datasetannot$Control <- ""
+  datasetannot <- datasetannot |> tidyr::unite("Name", "Group", "Subject", sep = "_", remove = FALSE)
+  return(datasetannot)
+}
+
 #' preprocess MSstats fragpipe
 #' @export
 #'

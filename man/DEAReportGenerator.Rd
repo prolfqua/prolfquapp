@@ -8,6 +8,27 @@ DEAReportGenerator
 
 DEAReportGenerator
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{lfqdata}}{LFQData object containing the quantitative data}
+
+\item{\code{GRP2}}{ProlfquAppConfig object containing analysis configuration}
+
+\item{\code{prot_annot}}{ProteinAnnotation object}
+
+\item{\code{Contrasts}}{list of contrasts for differential expression analysis}
+
+\item{\code{fname}}{filename for DEA results}
+
+\item{\code{qcname}}{filename for QC results}
+
+\item{\code{resultdir}}{directory for storing results}
+
+\item{\code{ZIPDIR}}{zip directory path}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -24,15 +45,30 @@ DEAReportGenerator
 \if{html}{\out{<a id="method-DEAReportGenerator-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize DEAReportGenerator with data and configuration
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$new(lfqdata, GRP2, prot_annot, Contrasts)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{lfqdata}}{LFQData object containing quantitative data}
+
+\item{\code{GRP2}}{ProlfquAppConfig object with analysis configuration}
+
+\item{\code{prot_annot}}{ProteinAnnotation object}
+
+\item{\code{Contrasts}}{list of contrasts for differential expression analysis}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-write_DEA_all"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_DEA_all}{}}}
 \subsection{Method \code{write_DEA_all()}}{
+Write all DEA results to files
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_DEA_all()}\if{html}{\out{</div>}}
 }
@@ -42,6 +78,7 @@ DEAReportGenerator
 \if{html}{\out{<a id="method-DEAReportGenerator-render_DEA"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-render_DEA}{}}}
 \subsection{Method \code{render_DEA()}}{
+Render DEA report using R Markdown
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$render_DEA(
   htmlname,
@@ -50,11 +87,23 @@ DEAReportGenerator
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{htmlname}}{name for the output HTML file}
+
+\item{\code{markdown}}{path to the R Markdown template file}
+
+\item{\code{word}}{logical, if TRUE output Word document, otherwise HTML}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-make_boxplots"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-make_boxplots}{}}}
 \subsection{Method \code{make_boxplots()}}{
+Generate boxplots for quality control
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$make_boxplots()}\if{html}{\out{</div>}}
 }
@@ -64,15 +113,20 @@ DEAReportGenerator
 \if{html}{\out{<a id="method-DEAReportGenerator-prep_result_list"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-prep_result_list}{}}}
 \subsection{Method \code{prep_result_list()}}{
+Prepare result list with all analysis outputs
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$prep_result_list()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+list containing all analysis results
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-make_SummarizedExperiment"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-make_SummarizedExperiment}{}}}
 \subsection{Method \code{make_SummarizedExperiment()}}{
+Create SummarizedExperiment object from analysis results
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$make_SummarizedExperiment(
   strip = "~lfq~light",
@@ -80,6 +134,18 @@ DEAReportGenerator
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{strip}}{pattern to strip from rownames}
+
+\item{\code{.url_builder}}{function to build URLs for bfabric}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+SummarizedExperiment object
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-clone"></a>}}

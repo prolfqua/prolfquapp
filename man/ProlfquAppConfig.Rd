@@ -2,19 +2,19 @@
 % Please edit documentation in R/R6_AppConfiguration.R
 \name{ProlfquAppConfig}
 \alias{ProlfquAppConfig}
-\title{R6 class representing}
+\title{R6 class representing ProlfquApp configuration}
 \description{
-R6 class representing
+R6 class representing ProlfquApp configuration
 
-R6 class representing
+R6 class representing ProlfquApp configuration
 }
 \examples{
 
 
 r6obj_config <- ProlfquAppConfig$new(ProcessingOptions$new(), ProjectSpec$new(), ExternalReader$new())
 xx <- prolfqua::R6_extract_values(r6obj_config)
-yaml::write_yaml(xx, file = file.path(tempdir(),"test.yaml"))
-config <- yaml::read_yaml(file = file.path(tempdir(),"test.yaml"))
+yaml::write_yaml(xx, file = file.path(tempdir(), "test.yaml"))
+config <- yaml::read_yaml(file = file.path(tempdir(), "test.yaml"))
 
 r6obj_config$set_zipdir_name()
 
@@ -45,24 +45,15 @@ Other ProlfquAppConfig:
 
 \item{\code{zipdir_name}}{results should go to zipdir_name}
 
-\item{\code{name}}{description}
+\item{\code{path}}{path to working directory}
 
 \item{\code{pop}}{optional processing options}
 
-\item{\code{RES}}{resuls}
+\item{\code{RES}}{results}
 
-\item{\code{group}}{name}
+\item{\code{group}}{group prefix}
 
-\item{\code{pp_name}}{Name of input}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{name}}{description}
-
-\item{\code{pp_name}}{Name of input}
+\item{\code{ext_reader}}{external reader configuration}
 }
 \if{html}{\out{</div>}}
 }
@@ -82,7 +73,7 @@ Other ProlfquAppConfig:
 \if{html}{\out{<a id="method-ProlfquAppConfig-new"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-new}{}}}
 \subsection{Method \code{new()}}{
-set procession options and project spec
+Initialize ProlfquAppConfig with processing options, project spec, and external reader
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$new(
   processing_options,
@@ -98,13 +89,19 @@ set procession options and project spec
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{processing_options}}{instance of ProjectOptions}
+\item{\code{processing_options}}{instance of ProcessingOptions}
 
 \item{\code{project_spec}}{instance of ProjectSpec}
 
+\item{\code{ext_reader}}{instance of ExternalReader}
+
 \item{\code{zipdir_name}}{where to store results}
 
+\item{\code{path}}{working directory path}
+
 \item{\code{software}}{name of input software}
+
+\item{\code{prefix}}{either QC or DEA}
 }
 \if{html}{\out{</div>}}
 }
@@ -113,46 +110,66 @@ set procession options and project spec
 \if{html}{\out{<a id="method-ProlfquAppConfig-set_zipdir_name"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-set_zipdir_name}{}}}
 \subsection{Method \code{set_zipdir_name()}}{
+Set zip directory name based on project information and date
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$set_zipdir_name()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+the generated zip directory name
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-get_zipdir"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_zipdir}{}}}
 \subsection{Method \code{get_zipdir()}}{
+Get the full path to the zip directory
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_zipdir()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+full path to zip directory
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-get_result_dir"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_result_dir}{}}}
 \subsection{Method \code{get_result_dir()}}{
+Get the results directory path
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_result_dir()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+path to results directory
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-get_input_dir"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_input_dir}{}}}
 \subsection{Method \code{get_input_dir()}}{
+Get the input directory path
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_input_dir()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+path to input directory
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-as_list"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-as_list}{}}}
 \subsection{Method \code{as_list()}}{
+Convert R6 object to list
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$as_list()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+list representation of the R6 object
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-clone"></a>}}

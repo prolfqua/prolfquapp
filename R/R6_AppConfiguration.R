@@ -56,7 +56,7 @@ ProjectSpec <- R6::R6Class(
 )
 
 # ExternalReader -----
-#' project specification R6 class
+#' external reader R6 class for handling external data sources
 #' @export
 #' @family ProlfquAppConfig
 #' @examples
@@ -65,18 +65,20 @@ ProjectSpec <- R6::R6Class(
 ExternalReader <- R6::R6Class(
   "ExternalReader",
   public = list(
-    #' @field get_files get_files
+    #' @field get_files function name for getting files
     get_files = character(),
-    #' @field preprocess preprocess
+    #' @field preprocess function name for preprocessing
     preprocess = character(),
-    #' @field extra_args extra_args
-    extra_args = "list()"
+    #' @field extra_args extra arguments as string
+    extra_args = "list()",
+    #' @field dataset function name for getting dataset
+    dataset = character()
   )
 )
 
 
 # ProlfquAppConfig -----
-#' R6 class representing
+#' R6 class representing ProlfquApp configuration
 #'
 #' @export
 #' @family ProlfquAppConfig
@@ -107,24 +109,28 @@ ProlfquAppConfig <- R6::R6Class(
     prefix = character(),
     #' @field zipdir_name results should go to zipdir_name
     zipdir_name = character(),
-    #' @field name description
+    #' @field path path to working directory
     path = character(),
     #' @field pop optional processing options
     pop = list(),
-    #' @field RES resuls
+    #' @field RES results
     RES = list(),
 
-    #' @field group name
+    #' @field group group prefix
     group = "G_",
 
-    #' @field pp_name Name of input
+    #' @field ext_reader external reader configuration
     ext_reader = NULL,
+
     #' @description
-    #' set procession options and project spec
-    #' @param processing_options instance of ProjectOptions
+    #' Initialize ProlfquAppConfig with processing options, project spec, and external reader
+    #' @param processing_options instance of ProcessingOptions
     #' @param project_spec instance of ProjectSpec
+    #' @param ext_reader instance of ExternalReader
     #' @param zipdir_name where to store results
+    #' @param path working directory path
     #' @param software name of input software
+    #' @param prefix either QC or DEA
     initialize = function(processing_options,
                           project_spec,
                           ext_reader,
@@ -140,6 +146,10 @@ ProlfquAppConfig <- R6::R6Class(
       self$path <- path
       self$prefix <- prefix
     },
+
+    #' @description
+    #' Set zip directory name based on project information and date
+    #' @return the generated zip directory name
     set_zipdir_name = function() {
       pi <- if (length(self$project_spec$project_Id) == 0 || self$project_spec$project_Id == "") {
         NULL
@@ -167,17 +177,33 @@ ProlfquAppConfig <- R6::R6Class(
       self$zipdir_name <- res
       return(res)
     },
+
+    #' @description
+    #' Get the full path to the zip directory
+    #' @return full path to zip directory
     get_zipdir = function() {
       return(file.path(self$path, self$zipdir_name))
     },
+
+    #' @description
+    #' Get the results directory path
+    #' @return path to results directory
     get_result_dir = function() {
       tmp <- file.path(self$get_zipdir(), paste0("Results_WU_", self$project_spec$workunit_Id))
       return(tmp)
     },
+
+    #' @description
+    #' Get the input directory path
+    #' @return path to input directory
     get_input_dir = function() {
       tmp <- file.path(self$get_zipdir(), paste0("Inputs_WU_", self$project_spec$workunit_Id))
       return(tmp)
     },
+
+    #' @description
+    #' Convert R6 object to list
+    #' @return list representation of the R6 object
     as_list = function() {
       res <- prolfqua::R6_extract_values(self)
       return(res)
@@ -189,6 +215,8 @@ ProlfquAppConfig <- R6::R6Class(
 
 
 #' set arguments in list config to r6obj
+#' @param config_list list containing configuration parameters
+#' @param r6obj_config R6 object to set configuration in
 #' @export
 #' @family ProlfquAppConfig
 #'
@@ -208,7 +236,9 @@ set_list_to_R6 <- function(config_list, r6obj_config) {
 
 
 
-#' read minimal yaml
+#' read minimal yaml and convert to R6 object
+#' @param dd list containing configuration data
+#' @return ProlfquAppConfig R6 object
 #' @export
 #' @examples
 #'
@@ -251,10 +281,24 @@ list_to_R6_app_config <- function(dd) {
 }
 
 
-#' create GRP2 configuration.
+#' create GRP2 configuration for differential expression analysis
 #' Use this function if there is no Yaml Input.
-#' @param patternDecoys default "^REV_"
-#' @param patternContaminants default "^zz_"
+#' @param PATH working directory path
+#' @param PROJECTID project identifier
+#' @param ORDERID order identifier
+#' @param WORKUNITID workunit identifier
+#' @param Normalization normalization method: "none", "vsn", "quantile", "robscale"
+#' @param aggregation aggregation method: "medpolish", "top3", "lmrob"
+#' @param diff_threshold difference threshold
+#' @param FDR_threshold FDR threshold
+#' @param nr_peptides number of peptides required
+#' @param removeContaminants should contaminants be removed
+#' @param removeDecoys should decoys be removed
+#' @param patternDecoys pattern for decoy proteins
+#' @param patternContaminants pattern for contaminant proteins
+#' @param application software application name
+#' @param prefix analysis prefix (DEA or QC)
+#' @return ProlfquAppConfig R6 object
 #' @export
 #' @family ProlfquAppConfig
 #' @examples
@@ -310,9 +354,11 @@ make_DEA_config_R6 <- function(
 }
 
 
-#' read yaml file
+#' read yaml file and convert to R6 configuration object
+#' @param ymlfile path to yaml configuration file
+#' @param application software application name
+#' @return ProlfquAppConfig R6 object
 #' @export
-#' @return list with applications parameters
 #' @examples
 #' if (FALSE) {
 #'   yfile <- prolfqua::find_package_file("prolfquapp", "application/DIANN/config.yaml")
@@ -363,7 +409,11 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN") {
 }
 
 
-#' get configuration from yaml if exists
+#' get configuration from yaml file or create default configuration
+#' @param yamlfile path to yaml configuration file (optional)
+#' @param WORKUNITID workunit identifier for default configuration
+#' @param ORDERID order identifier for default configuration
+#' @return ProlfquAppConfig R6 object
 #' @export
 #' @examples
 #'

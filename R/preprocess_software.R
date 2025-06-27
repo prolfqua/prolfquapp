@@ -10,62 +10,80 @@ prolfqua_preprocess_functions <- list(
   DIANN = list(
     get_files = "prolfquapp::get_DIANN_files",
     preprocess = "prolfquapp::preprocess_DIANN",
-    extra_args = "list(q_value = 0.01, hierarchy_depth = 1)"
+    extra_args = "list(q_value = 0.01, hierarchy_depth = 1)",
+    dataset = "proflquapp::dataset_template_diann"
   ),
   DIANN_PEPTIDE = list(
     get_files = "prolfquapp::get_DIANN_files",
     preprocess = "prolfquapp::preprocess_DIANN",
-    extra_args = "list(q_value = 0.01, hierarchy_depth = 2)"
+    extra_args = "list(q_value = 0.01, hierarchy_depth = 2)",
+    dataset = "proflquapp::dataset_template_diann"
   ),
   FP_TMT = list(
     get_files = "prolfquapp::get_FP_PSM_files",
     preprocess = "prolfquapp::preprocess_FP_PSM",
-    extra_args = "list(purity_threshold = 0.5, PeptideProphetProb = 0.9, hierarchy_depth = 1)"
+    extra_args = "list(purity_threshold = 0.5, PeptideProphetProb = 0.9, hierarchy_depth = 1)",
+    dataset = "proflquapp::dataset_template_FP_TMT"
   ),
   FP_TMT_PEPTIDE = list(
     get_files = "prolfquapp::get_FP_PSM_files",
     preprocess = "prolfquapp::preprocess_FP_PSM",
-    extra_args = "list(purity_threshold = 0.5, PeptideProphetProb = 0.9, hierarchy_depth = 2)"
+    extra_args = "list(purity_threshold = 0.5, PeptideProphetProb = 0.9, hierarchy_depth = 2)",
+    dataset = "proflquapp::dataset_template_FP_TMT"
   ),
   MAXQUANT = list(
     get_files = "prolfquapp::get_MQ_peptide_files",
     preprocess = "prolfquapp::preprocess_MQ_peptide",
-    extra_args = "list(hierarchy_depth = 1)"
+    extra_args = "list(hierarchy_depth = 1)",
+    dataset = "prolfquapp::dataset_template_MAXQUANT"
   ),
   MAXQUANT_PEPTIDE = list(
     get_files = "prolfquapp::get_MQ_peptide_files",
     preprocess = "prolfquapp::preprocess_MQ_peptide",
-    extra_args = "list(hierarchy_depth = 2)"
+    extra_args = "list(hierarchy_depth = 2)",
+    dataset = "prolfquapp::dataset_template_MAXQUANT"
   ),
   MSSTATS = list(
     get_files = "prolfquapp::get_MSstats_files",
     preprocess = "prolfquapp::preprocess_MSstats",
-    extra_args = "list(hierarchy_depth = 1)"
+    extra_args = "list(hierarchy_depth = 1)",
+    dataset = "prolfquapp::dataset_template_MSSTATS"
+
   ),
   MSSTATS_PEPTIDE = list(
     get_files = "prolfquapp::get_MSstats_files",
     preprocess = "prolfquapp::preprocess_MSstats",
-    extra_args = "list(hierarchy_depth = 2)"
+    extra_args = "list(hierarchy_depth = 2)",
+    dataset = "prolfquapp::dataset_template_MSSTATS"
+
   ),
   MSSTATS_FP_DIA = list(
     get_files = "prolfquapp::get_MSstats_files",
     preprocess = "prolfquapp::preprocess_MSstats_FPDIA",
-    extra_args = "list(hierarchy_depth = 1)"
+    extra_args = "list(hierarchy_depth = 1)",
+    dataset = "prolfquapp::dataset_template_MSSTATS"
+
   ),
   MSSTATS_FP_DIA_PEPTIDE = list(
     get_files = "prolfquapp::get_MSstats_files",
     preprocess = "prolfquapp::preprocess_MSstats_FPDIA",
-    extra_args = "list(hierarchy_depth = 2)"
+    extra_args = "list(hierarchy_depth = 2)",
+    dataset = "prolfquapp::dataset_template_MSSTATS"
+
   ),
   BGS = list(
     get_files = "prolfquapp::get_BGS_files",
     preprocess = "prolfquapp::preprocess_BGS",
-    extra_args = "list(hierarchy_depth = 1)"
+    extra_args = "list(hierarchy_depth = 1)",
+    dataset = "prolfquapp::dataset_template_BGS"
+
   ),
   BGS_PEPTIDE = list(
     get_files = "prolfquapp::get_BGS_files",
     preprocess = "prolfquapp::preprocess_BGS",
-    extra_args = "list(hierarchy_depth = 2)"
+    extra_args = "list(hierarchy_depth = 2)",
+    dataset = "prolfquapp::dataset_template_BGS"
+
   ),
   DUMMY = list(
     get_files = "prolfquapp::get_dummy_files",
@@ -82,7 +100,6 @@ prolfqua_preprocess_functions <- list(
     preprocess = "prolfquapp::preprocess_mzMine",
     extra_args = "list(annotated = TRUE)"
   )
-
 )
 
 #' collects preprocess methods for various software
@@ -90,27 +107,28 @@ prolfqua_preprocess_functions <- list(
 #' @examples
 #' # example code
 #' annot <- data.frame(
-#' file = c("a1.raw","a2.raw","a3.raw","a4.raw"),
-#' name = c("aa","ba","aa","ba"),
-#' group = c("a","a","b","b"))
+#'   file = c("a1.raw", "a2.raw", "a3.raw", "a4.raw"),
+#'   name = c("aa", "ba", "aa", "ba"),
+#'   group = c("a", "a", "b", "b")
+#' )
+#'
 #' annot <- read_annotation(annot, QC = TRUE)
-#' res <- preprocess_software(".",annot, software = "DUMMY" )
+#' preprocess_functions <- prolfquapp::prolfqua_preprocess_functions[["DUMMY"]]
+#' res <- preprocess_software(".", annot, preprocess_functions)
 #'
 #' xx <- prolfquapp::ExternalReader$new()
-#' xx$extra_args = "list()"
-#' xx$get_files = "prolfquapp::get_dummy_files"
-#' xx$preprocess = "prolfquapp::preprocess_dummy"
-#' res <- preprocess_software(".",annot, xx, software = "FUNNY" )
+#' xx$extra_args <- "list()"
+#' xx$get_files <- "prolfquapp::get_dummy_files"
+#' xx$preprocess <- "prolfquapp::preprocess_dummy"
+#' res <- preprocess_software(".", annotation = annot, preprocess_functions = xx)
 #' xx <- prolfquapp::ExternalReader$new()
-#' res <- preprocess_software(".",annot, xx, software = "DUMMY" )
+#'
 preprocess_software <- function(indir,
                                 annotation,
-                                software,
-                                preprocess_functions_str = NULL,
+                                preprocess_functions,
                                 pattern_contaminants = "^zz|^CON|Cont_",
                                 pattern_decoys = "^rev_|^REV_",
-                                extreader = NULL
-                                ) {
+                                extreader = NULL) {
   to_function <- function(x) {
     list(
       get_files = getFromNamespace(sub(".*::", "", x$get_files), sub("^(.*)::.*", "\\1", x$get_files)),
@@ -119,28 +137,14 @@ preprocess_software <- function(indir,
     )
   }
 
-  if (!is.null(preprocess_functions_str) && length(preprocess_functions_str$preprocess) == 1) {
-    preprocess_functions <- to_function(preprocess_functions_str)
-  }else{
-    preprocess_functions_str <- prolfquapp::prolfqua_preprocess_functions
-      # Check if software has a corresponding preprocess function
-      if (!software %in% names(preprocess_functions_str)) {
-        logger::log_error("No such software: ", software)
-        logger::log_error("Available readers are: ", names(preprocess_functions_str))
-        stop("No such software.")
-        return(NULL)
-      }
+  preprocess_functions <- to_function(preprocess_functions)
 
-    preprocess_functions <-
-      to_function(preprocess_functions_str[[software]])
-  }
   # Fetch files
   files_fn <- preprocess_functions$get_files
 
   # Preprocess the data
   preprocess_fn <- preprocess_functions$preprocess
   extra_args <- preprocess_functions$extra_args
-
 
   files <- files_fn(indir)
 
@@ -157,4 +161,31 @@ preprocess_software <- function(indir,
   ), extra_args))
 
   return(list(xd = xd, files = files))
+}
+
+
+#' get functions for creating datasets
+#' @export
+#' @examples
+#'
+#' # Get dataset functions for DIANN
+#' preprocess_functions <- prolfquapp::prolfqua_preprocess_functions[["DIANN"]]
+#' dataset_funcs <- dataset_get_functions(preprocess_functions)
+#'
+#' # Use the functions
+#' \dontrun{
+#' files <- dataset_funcs$files_fn("path/to/data")
+#' dataset <- dataset_funcs$dataset_fn(files, "output_file.csv")
+#' }
+dataset_get_functions <- function(preprocess_functions) {
+  to_function <- function(x) {
+    list(
+      files_fn = getFromNamespace(sub(".*::", "", x$get_files), sub("^(.*)::.*", "\\1", x$get_files)),
+      dataset_fn = getFromNamespace(sub(".*::", "", x$dataset), sub("^(.*)::.*", "\\1", x$dataset)),
+      extra_args = eval(parse(text = x$extra_args))
+    )
+  }
+
+  preprocess_functions <- to_function(preprocess_functions)
+  return(preprocess_functions)
 }

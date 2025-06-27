@@ -16,19 +16,19 @@ pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 pep <- prolfqua::LFQData$new(pep$data, pep$config)
 pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
-pA <- prolfquapp::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
+pA <- prolfquapp::ProteinAnnotation$new(pep, row_annot = pA, description = "fasta.annot")
 GRP2 <- prolfquapp::make_DEA_config_R6()
-GRP2$processing_options$diff_threshold = 0.2
+GRP2$processing_options$diff_threshold <- 0.2
 
 GRP2$processing_options$transform <- "robscale"
 pep$factors()
-contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
-#DEAnalyse$debug("get_contrasts_glm_peptide")
-#DEAnalyse$debug("build_model_glm_protein")
+contrasts <- c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
+# DEAnalyse$debug("get_contrasts_glm_peptide")
+# DEAnalyse$debug("build_model_glm_protein")
 deanalyse <- prolfquapp::DEAnalyse$new(pep, pA, GRP2, contrasts)
 deanalyse$lfq_data_peptide$hierarchy_counts()
 deanalyse$cont_decoy_summary()
-deanalyse$prolfq_app_config$processing_options$remove_cont = TRUE
+deanalyse$prolfq_app_config$processing_options$remove_cont <- TRUE
 deanalyse$remove_cont_decoy()
 deanalyse$aggregate()
 pl <- deanalyse$get_aggregation_plots(exp_nr_children = 10)
@@ -41,11 +41,10 @@ contlm <- deanalyse$get_contrasts_linear_protein()
 merged <- deanalyse$get_contrasts_merged_protein()
 stopifnot(nrow(merged$get_contrasts()) == 200)
 stopifnot(nrow(merged$get_contrasts()) == 200)
-#deanalyse$create_model_formula()
-#deanalyse$build_model_glm_protein()
-#deanalyse$build_model_glm_peptide()
+# deanalyse$create_model_formula()
+# deanalyse$build_model_glm_protein()
+# deanalyse$build_model_glm_peptide()
 xprot <- deanalyse$get_contrasts_glm_protein()
-xprot
 xprot$get_contrasts()
 xprot$get_Plotter()$volcano()
 xpep <- deanalyse$get_contrasts_glm_peptide()
@@ -74,9 +73,9 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 
 \item{\code{lfq_data}}{LFQData}
 
-\item{\code{lfq_data_transformed}}{todo}
+\item{\code{lfq_data_transformed}}{transformed LFQData}
 
-\item{\code{lfq_data_subset}}{todo}
+\item{\code{lfq_data_subset}}{subset of LFQData}
 
 \item{\code{aggregator}}{aggregator}
 
@@ -90,13 +89,13 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 
 \item{\code{reference_proteins}}{reference proteins to use for internal normalization}
 
-\item{\code{formula}}{todo}
+\item{\code{formula}}{model formula}
 
-\item{\code{formula}}{glm peptide todo}
+\item{\code{formula_glm_peptide}}{glm peptide formula}
 
-\item{\code{models}}{todo}
+\item{\code{models}}{list of fitted models}
 
-\item{\code{contrast_results}}{todo}
+\item{\code{contrast_results}}{list of contrast results}
 
 \item{\code{m1_linear}}{linearModel}
 
@@ -145,7 +144,7 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 \if{html}{\out{<a id="method-DEAnalyse-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-new}{}}}
 \subsection{Method \code{new()}}{
-initialize
+initialize DEAnalyse with data and configuration
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(
   lfq_data_peptide,
@@ -159,17 +158,15 @@ initialize
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{rowAnnot}}{ProteinAnnotation}
+\item{\code{lfq_data_peptide}}{LFQData object at peptide level}
 
-\item{\code{prolfq_app_config}}{ProlfquAppConfig}
+\item{\code{rowAnnot}}{ProteinAnnotation object}
+
+\item{\code{prolfq_app_config}}{ProlfquAppConfig object}
 
 \item{\code{contrasts}}{vector with contrasts}
 
-\item{\code{lfq_data}}{lfq_data}
-
-\item{\code{FDR_threshold}}{FDR_threshold}
-
-\item{\code{diff_threshold}}{diff_threshold}
+\item{\code{default_model}}{default model to use}
 }
 \if{html}{\out{</div>}}
 }

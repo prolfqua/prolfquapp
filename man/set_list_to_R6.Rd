@@ -6,6 +6,11 @@
 \usage{
 set_list_to_R6(config_list, r6obj_config)
 }
+\arguments{
+\item{config_list}{list containing configuration parameters}
+
+\item{r6obj_config}{R6 object to set configuration in}
+}
 \description{
 set arguments in list config to r6obj
 }

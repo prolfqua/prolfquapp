@@ -2,7 +2,7 @@
 % Please edit documentation in R/R6_AppConfiguration.R
 \name{make_DEA_config_R6}
 \alias{make_DEA_config_R6}
-\title{create GRP2 configuration.
+\title{create GRP2 configuration for differential expression analysis
 Use this function if there is no Yaml Input.}
 \usage{
 make_DEA_config_R6(
@@ -24,12 +24,41 @@ make_DEA_config_R6(
 )
 }
 \arguments{
-\item{patternDecoys}{default "^REV_"}
+\item{PATH}{working directory path}
 
-\item{patternContaminants}{default "^zz_"}
+\item{PROJECTID}{project identifier}
+
+\item{ORDERID}{order identifier}
+
+\item{WORKUNITID}{workunit identifier}
+
+\item{Normalization}{normalization method: "none", "vsn", "quantile", "robscale"}
+
+\item{aggregation}{aggregation method: "medpolish", "top3", "lmrob"}
+
+\item{diff_threshold}{difference threshold}
+
+\item{FDR_threshold}{FDR threshold}
+
+\item{nr_peptides}{number of peptides required}
+
+\item{removeContaminants}{should contaminants be removed}
+
+\item{removeDecoys}{should decoys be removed}
+
+\item{patternDecoys}{pattern for decoy proteins}
+
+\item{patternContaminants}{pattern for contaminant proteins}
+
+\item{application}{software application name}
+
+\item{prefix}{analysis prefix (DEA or QC)}
+}
+\value{
+ProlfquAppConfig R6 object
 }
 \description{
-create GRP2 configuration.
+create GRP2 configuration for differential expression analysis
 Use this function if there is no Yaml Input.
 }
 \examples{
@@ -40,7 +69,6 @@ DEAconfig$get_zipdir()
 DEAconfig$get_result_dir()
 DEAconfig$get_input_dir()
 R6list <- prolfqua::R6_extract_values(DEAconfig)
-
 
 }
 \seealso{

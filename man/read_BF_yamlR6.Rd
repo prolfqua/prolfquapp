@@ -2,15 +2,20 @@
 % Please edit documentation in R/R6_AppConfiguration.R
 \name{read_BF_yamlR6}
 \alias{read_BF_yamlR6}
-\title{read yaml file}
+\title{read yaml file and convert to R6 configuration object}
 \usage{
 read_BF_yamlR6(ymlfile, application = "DIANN")
 }
+\arguments{
+\item{ymlfile}{path to yaml configuration file}
+
+\item{application}{software application name}
+}
 \value{
-list with applications parameters
+ProlfquAppConfig R6 object
 }
 \description{
-read yaml file
+read yaml file and convert to R6 configuration object
 }
 \examples{
 if (FALSE) {

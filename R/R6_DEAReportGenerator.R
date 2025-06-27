@@ -1,6 +1,6 @@
 #' DEAReportGenerator
 #'
-#' @examples
+#' @export
 #'
 #'
 # tmp <-  make_annotated_experiment()
@@ -8,70 +8,105 @@
 DEAReportGenerator <- R6::R6Class(
   "DEAReportGenerator",
   public = list(
+    #' @field lfqdata LFQData object containing the quantitative data
     lfqdata = NULL,
+    #' @field GRP2 ProlfquAppConfig object containing analysis configuration
     GRP2 = NULL,
+    #' @field prot_annot ProteinAnnotation object
     prot_annot = NULL,
+    #' @field Contrasts list of contrasts for differential expression analysis
     Contrasts = NULL,
+    #' @field fname filename for DEA results
     fname = "",
+    #' @field qcname filename for QC results
     qcname = "",
+    #' @field resultdir directory for storing results
     resultdir = "",
+    #' @field ZIPDIR zip directory path
+    ZIPDIR = "",
+
+    #' @description
+    #' Initialize DEAReportGenerator with data and configuration
+    #' @param lfqdata LFQData object containing quantitative data
+    #' @param GRP2 ProlfquAppConfig object with analysis configuration
+    #' @param prot_annot ProteinAnnotation object
+    #' @param Contrasts list of contrasts for differential expression analysis
     initialize = function(lfqdata,
                           GRP2,
                           prot_annot,
-                          Contrasts
-                          ) {
-      self$lfqdata = lfqdata
-      self$GRP2 = GRP2
-      self$prot_annot = prot_annot
-      self$Contrasts = Contrasts
-      self$ZIPDIR = GRP2$zipdir
-      self$fname = paste0("DE_",  name, "_WU", grp2$project_spec$workunit_Id )
-      self$qcname = paste0("QC_", name, "_WU", grp2$project_spec$workunit_Id )
-      self$resultdir =  file.path( self$ZIPDIR, paste0("Results_DEA_WU", grp2$project_spec$workunit_Id))
+                          Contrasts) {
+      self$lfqdata <- lfqdata
+      self$GRP2 <- GRP2
+      self$prot_annot <- prot_annot
+      self$Contrasts <- Contrasts
+      self$ZIPDIR <- GRP2$zipdir
+      self$fname <- paste0("DE_", name, "_WU", grp2$project_spec$workunit_Id)
+      self$qcname <- paste0("QC_", name, "_WU", grp2$project_spec$workunit_Id)
+      self$resultdir <- file.path(self$ZIPDIR, paste0("Results_DEA_WU", grp2$project_spec$workunit_Id))
       logger::log_info("writing into : ", self$resultdir, " <<<<")
-      dir.create( self$ZIPDIR )
-      dir.create( self$resultdir )
+      dir.create(self$ZIPDIR)
+      dir.create(self$resultdir)
     },
 
-    write_DEA_all = function(){
+    #' @description
+    #' Write all DEA results to files
+    write_DEA_all = function() {
 
     },
 
-    render_DEA = function(htmlname ,markdown = "_Grp2Analysis.Rmd", word = FALSE){
-
+    #' @description
+    #' Render DEA report using R Markdown
+    #' @param htmlname name for the output HTML file
+    #' @param markdown path to the R Markdown template file
+    #' @param word logical, if TRUE output Word document, otherwise HTML
+    render_DEA = function(htmlname, markdown = "_Grp2Analysis.Rmd", word = FALSE) {
       rmarkdown::render(
         markdown,
-        params = list(grp = self$GRP2) ,
+        params = list(grp = self$GRP2),
         output_format = if (word) {
-          bookdown::word_document2(toc = TRUE, toc_float = TRUE) } else {
-            bookdown::html_document2(toc = TRUE, toc_float = TRUE)
-          }
+          bookdown::word_document2(toc = TRUE, toc_float = TRUE)
+        } else {
+          bookdown::html_document2(toc = TRUE, toc_float = TRUE)
+        }
       )
-      tmpname <- paste0(tools::file_path_sans_ext(markdown), if (word) {".docx"} else {".html"})
-      if (file.copy(tmpname, file.path(self$resultdir, paste0(htmlname , if (word) {".docx"} else {".html"})), overwrite = TRUE)) {
+      tmpname <- paste0(tools::file_path_sans_ext(markdown), if (word) {
+        ".docx"
+      } else {
+        ".html"
+      })
+      if (file.copy(tmpname, file.path(self$resultdir, paste0(htmlname, if (word) {
+        ".docx"
+      } else {
+        ".html"
+      })), overwrite = TRUE)) {
         file.remove(tmpname)
       }
     },
 
-    make_boxplots = function(){
+    #' @description
+    #' Generate boxplots for quality control
+    make_boxplots = function() {
       bb <- self$GRP2$RES$transformedlfqData
       grsizes <- bb$factors() |>
         dplyr::group_by(dplyr::across(bb$config$table$factor_keys_depth())) |>
         dplyr::summarize(n = n()) |>
-        dplyr::pull( n )
+        dplyr::pull(n)
       if (boxplot) {
-        if (sum(!grepl("^control",bb$config$table$factor_keys(), ignore.case = TRUE))  > 1 &
-            all(grsizes == 1)
+        if (sum(!grepl("^control", bb$config$table$factor_keys(), ignore.case = TRUE)) > 1 &
+          all(grsizes == 1)
         ) {
           prolfquapp::writeLinesPaired(bb, self$resultdir)
         } else {
           pl <- bb$get_Plotter()
-          pl$write_boxplots( self$resultdir)
+          pl$write_boxplots(self$resultdir)
         }
       }
     },
 
-    prep_result_list = function(){
+    #' @description
+    #' Prepare result list with all analysis outputs
+    #' @return list containing all analysis results
+    prep_result_list = function() {
       rd <- self$GRP2$RES$lfqData
       tr <- self$GRP2$RES$transformedlfqData
       ra <- self$GRP2$RES$rowAnnot
@@ -82,10 +117,10 @@ DEAReportGenerator <- R6::R6Class(
       )
 
       wideraw <- dplyr::inner_join(ra$row_annot, rd$to_wide()$data, multiple = "all")
-      widetr <- dplyr::inner_join(ra$row_annot , tr$to_wide()$data, multiple = "all")
+      widetr <- dplyr::inner_join(ra$row_annot, tr$to_wide()$data, multiple = "all")
 
-      ctr <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$get_contrasts(), multiple = "all")
-      ctr_wide <- dplyr::inner_join(ra$row_annot , GRP2$RES$contrMerged$to_wide(), multiple = "all")
+      ctr <- dplyr::inner_join(ra$row_annot, GRP2$RES$contrMerged$get_contrasts(), multiple = "all")
+      ctr_wide <- dplyr::inner_join(ra$row_annot, GRP2$RES$contrMerged$to_wide(), multiple = "all")
 
       resultList <- list()
 
@@ -93,16 +128,17 @@ DEAReportGenerator <- R6::R6Class(
         rd$factors(),
         rd$get_Summariser()$hierarchy_counts_sample(),
         by = rd$config$table$sampleName,
-        multiple = "all")
+        multiple = "all"
+      )
 
-      resultList$normalized_abundances = dplyr::inner_join(ra$row_annot, tr$data, multiple = "all")
-      resultList$raw_abundances_matrix = wideraw
-      resultList$normalized_abundances_matrix = widetr
-      resultList$diff_exp_analysis = ctr
-      resultList$diff_exp_analysis_wide = ctr_wide
-      resultList$formula = data.frame(formula = GRP2$RES$formula)
-      resultList$summary = GRP2$RES$Summary
-      resultList$missing_information = prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr = 1)$data
+      resultList$normalized_abundances <- dplyr::inner_join(ra$row_annot, tr$data, multiple = "all")
+      resultList$raw_abundances_matrix <- wideraw
+      resultList$normalized_abundances_matrix <- widetr
+      resultList$diff_exp_analysis <- ctr
+      resultList$diff_exp_analysis_wide <- ctr_wide
+      resultList$formula <- data.frame(formula = GRP2$RES$formula)
+      resultList$summary <- GRP2$RES$Summary
+      resultList$missing_information <- prolfqua::UpSet_interaction_missing_stats(rd$data, rd$config, tr = 1)$data
       resultList$contrasts <- contrasts
 
       # add protein statistics
@@ -116,9 +152,13 @@ DEAReportGenerator <- R6::R6Class(
       return(resultList)
     },
 
-    make_SummarizedExperiment = function(strip="~lfq~light",
-                                          .url_builder = bfabric_url_builder){
-
+    #' @description
+    #' Create SummarizedExperiment object from analysis results
+    #' @param strip pattern to strip from rownames
+    #' @param .url_builder function to build URLs for bfabric
+    #' @return SummarizedExperiment object
+    make_SummarizedExperiment = function(strip = "~lfq~light",
+                                         .url_builder = bfabric_url_builder) {
       colname <- self$GRP2$RES$lfqData$config$table$sampleName
       rowname <- self$GRP2$RES$lfqData$config$table$hierarchyKeys()
       resTables <- self$prep_result_list(GRP2)
@@ -129,28 +169,23 @@ DEAReportGenerator <- R6::R6Class(
       mat.raw <- strip_rownames(matRaw$data, strip)
       mat.trans <- strip_rownames(matTr$data, strip)
       col.data <- column_to_rownames(matRaw$annotation, var = colname)
-      col.data <- col.data[colnames(mat.raw),]
+      col.data <- col.data[colnames(mat.raw), ]
       x <- SummarizedExperiment::SummarizedExperiment(
         assays = list(rawData = mat.raw, transformedData = mat.trans),
-        colData = col.data, metadata = list(bfabric_urls = .url_builder(self$GRP2$project_spec), contrasts = resTables$contrasts, formula = resTables$formula )
+        colData = col.data, metadata = list(bfabric_urls = .url_builder(self$GRP2$project_spec), contrasts = resTables$contrasts, formula = resTables$formula)
       )
 
       diffbyContrast <- split(resTables$diff_exp_analysis, resTables$diff_exp_analysis$contrast)
       for (i in names(diffbyContrast)) {
         row.data <- column_to_rownames(diffbyContrast[[i]], var = rowname)
-        row.data <- row.data[rownames(mat.raw),]
+        row.data <- row.data[rownames(mat.raw), ]
 
-        SummarizedExperiment::rowData(x)[[paste0("constrast_",i)]] <- row.data
+        SummarizedExperiment::rowData(x)[[paste0("constrast_", i)]] <- row.data
       }
 
-      SummarizedExperiment::rowData(x)[["stats_normalized_wide"]] <- column_to_rownames(resTables$stats_normalized_wide, var = rowname)[rownames(mat.raw),]
-      SummarizedExperiment::rowData(x)[["stats_raw_wide"]] <- column_to_rownames(resTables$stats_raw_wide, var = rowname)[rownames(mat.raw),]
+      SummarizedExperiment::rowData(x)[["stats_normalized_wide"]] <- column_to_rownames(resTables$stats_normalized_wide, var = rowname)[rownames(mat.raw), ]
+      SummarizedExperiment::rowData(x)[["stats_raw_wide"]] <- column_to_rownames(resTables$stats_raw_wide, var = rowname)[rownames(mat.raw), ]
       return(x)
     }
-
-
-
-
-
-
-  ))
+  )
+)

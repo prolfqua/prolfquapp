@@ -1,0 +1,12 @@
+{
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/build/**": true,
+        "**/.git/**": true,
+        "**/Meta/**": true,
+        "**/doc/**": true,
+        "**/inst/doc/**": true,
+        "**/.Rproj.user/**": true
+    }
+} 

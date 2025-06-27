@@ -2,12 +2,22 @@
 % Please edit documentation in R/R6_AppConfiguration.R
 \name{get_config}
 \alias{get_config}
-\title{get configuration from yaml if exists}
+\title{get configuration from yaml file or create default configuration}
 \usage{
 get_config(yamlfile, WORKUNITID = "HelloWorld", ORDERID = "123")
 }
+\arguments{
+\item{yamlfile}{path to yaml configuration file (optional)}
+
+\item{WORKUNITID}{workunit identifier for default configuration}
+
+\item{ORDERID}{order identifier for default configuration}
+}
+\value{
+ProlfquAppConfig R6 object
+}
 \description{
-get configuration from yaml if exists
+get configuration from yaml file or create default configuration
 }
 \examples{
 

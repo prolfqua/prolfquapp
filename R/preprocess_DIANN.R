@@ -1,4 +1,4 @@
-get_nr_pep <- function(report){
+get_nr_pep <- function(report) {
   nrPEP <- report |>
     dplyr::select(all_of(c("Protein.Group", "Stripped.Sequence"))) |>
     dplyr::distinct() |>
@@ -16,15 +16,14 @@ get_nr_pep <- function(report){
 #' @import data.table
 #' @export
 #' @examples
-#'
 #' \dontrun{
 #' xx <- readr::read_tsv("WU292720_report.tsv")
 #' report2 <- prolfquapp::diann_read_output(xx)
 #' nrow(report2)
 #' }
 #'
-diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
-  filter_PG <- function(PG,  .Lib.PG.Q.Value = 0.01, .PG.Q.Value = 0.05){
+diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05) {
+  filter_PG <- function(PG, .Lib.PG.Q.Value = 0.01, .PG.Q.Value = 0.05) {
     PG <- PG |> dplyr::filter(.data$Lib.PG.Q.Value < .Lib.PG.Q.Value)
     PG <- PG |> dplyr::filter(.data$PG.Q.Value < .PG.Q.Value)
     return(PG)
@@ -32,8 +31,8 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
 
   report <- data
   report2 <- filter_PG(report, .Lib.PG.Q.Value = Lib.PG.Q.Value, .PG.Q.Value = PG.Q.Value)
-  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
-  report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
+  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$", "", basename(gsub("\\\\", "/", report2$File.Name)))
+  report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group)
   return(report2)
 }
 
@@ -44,23 +43,26 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05){
 #' \code{\link{diann_read_output}}
 #' @export
 #'
-diann_output_to_peptide <- function(report2){
-
-  #columns_to_summarize <- c("Precursor.Quantity", "Precursor.Normalised", "PEP", "Ms1.Translated")
-  #if(all(c("Ms1.Translated", "Peptide.Translated")
+diann_output_to_peptide <- function(report2) {
+  # columns_to_summarize <- c("Precursor.Quantity", "Precursor.Normalised", "PEP", "Ms1.Translated")
+  # if(all(c("Ms1.Translated", "Peptide.Translated")
   peptide <- report2 |>
-    dplyr::group_by(!!!syms(c("raw.file",
-                              "Protein.Group",
-                              "Protein.Names",
-                              "PG.Quantity",
-                              "Stripped.Sequence" ) )) |>
-    dplyr::summarize(Peptide.Quantity = sum(.data$Precursor.Quantity, na.rm = TRUE),
-                     Peptide.Normalised = sum(.data$Precursor.Normalised, na.rm = TRUE),
-                     #Peptide.Translated = sum(.data$Precursor.Translated, na.rm = TRUE),
-                     #Peptide.Ms1.Translated = sum(.data$Ms1.Translated, na.rm = TRUE),
-                     PEP = min(.data$PEP, na.rm = TRUE),
-                     nr_children = n()
-                     ,.groups = "drop")
+    dplyr::group_by(!!!syms(c(
+      "raw.file",
+      "Protein.Group",
+      "Protein.Names",
+      "PG.Quantity",
+      "Stripped.Sequence"
+    ))) |>
+    dplyr::summarize(
+      Peptide.Quantity = sum(.data$Precursor.Quantity, na.rm = TRUE),
+      Peptide.Normalised = sum(.data$Precursor.Normalised, na.rm = TRUE),
+      # Peptide.Translated = sum(.data$Precursor.Translated, na.rm = TRUE),
+      # Peptide.Ms1.Translated = sum(.data$Ms1.Translated, na.rm = TRUE),
+      PEP = min(.data$PEP, na.rm = TRUE),
+      nr_children = n(),
+      .groups = "drop"
+    )
   return(peptide)
 }
 
@@ -72,13 +74,13 @@ diann_output_to_peptide <- function(report2){
 #' \dontrun{
 #' x <- get_DIANN_files("inst/application/DIANN/2517219/")
 #' }
-get_DIANN_files <- function(path){
+get_DIANN_files <- function(path) {
   diann.path <- grep("report\\.tsv$|diann-output\\.tsv", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
   fasta.files <- grep("*.fasta$|*.fas$", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
   if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
     fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
   }
-  fasta.files <- fasta.files[!grepl("first-pass",fasta.files)]
+  fasta.files <- fasta.files[!grepl("first-pass", fasta.files)]
 
   if (length(fasta.files) == 0) {
     logger::log_error("No fasta file found!")
@@ -96,8 +98,9 @@ get_DIANN_files <- function(path){
 #' x <- get_DIANN_files("inst/application/DIANN/2706527/")
 #'
 #' annotation <- file.path("inst/application/DIANN/2706527/dataset.csv") |>
-#'  readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
-#'  x$fasta
+#'   readr::read_csv() |>
+#'   prolfquapp::read_annotation(QC = TRUE)
+#' x$fasta
 #' undebug(preprocess_DIANN)
 #' xd <- preprocess_DIANN(x$data, x$fasta, annotation)
 #' xd$lfqdata$hierarchy_counts()
@@ -111,29 +114,33 @@ preprocess_DIANN <- function(quant_data,
                              pattern_decoys = "^REV_|^rev",
                              q_value = 0.01,
                              hierarchy_depth = 1,
-                             nr_peptides = 1
-                             ){
-
+                             nr_peptides = 1) {
   annot <- annotation$annot
   atable <- annotation$atable$clone(deep = FALSE)
   annot <- annot |> dplyr::mutate(
-    raw.file = gsub("^x|.d.zip$|.raw$","",
-                    (basename(annot[[atable$fileName]]))
-    ))
+    raw.file = gsub(
+      "^x|.d.zip$|.raw$", "",
+      (basename(annot[[atable$fileName]]))
+    )
+  )
   data <- readr::read_tsv(quant_data)
   report2 <- prolfquapp::diann_read_output(data, Lib.PG.Q.Value = q_value, PG.Q.Value = q_value)
   nrPEP <- get_nr_pep(report2)
-  nrPEP$Protein.Group.2 <- sapply(nrPEP$Protein.Group, function(x){ unlist(strsplit(x, "[ ;]"))[1]} )
+  nrPEP$Protein.Group.2 <- sapply(nrPEP$Protein.Group, function(x) {
+    unlist(strsplit(x, "[ ;]"))[1]
+  })
 
   peptide <- prolfquapp::diann_output_to_peptide(report2)
   peptide$qValue <- peptide$PEP
   nr <- sum(annot$raw.file %in% sort(unique(peptide$raw.file)))
   logger::log_info("nr : ", nr, " files annotated out of ", length(unique(peptide$raw.file)))
-  if (nr == 0) { stop("No files are annotated. The annotation file is not compatible withe quant data.") }
+  if (nr == 0) {
+    stop("No files are annotated. The annotation file is not compatible withe quant data.")
+  }
 
-  atable$fileName = "raw.file"
-  atable$nr_children = "nr_children"
-  atable$ident_qValue = "qValue"
+  atable$fileName <- "raw.file"
+  atable$nr_children <- "nr_children"
+  atable$ident_qValue <- "qValue"
   atable$hierarchy[["protein_Id"]] <- c("Protein.Group")
   atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
   atable$set_response("Peptide.Quantity")
@@ -141,7 +148,7 @@ preprocess_DIANN <- function(quant_data,
 
   if (nr_peptides > 1) {
     nrPEP <- nrPEP |> dplyr::filter(nrPeptides >= nr_peptides)
-    peptide <- peptide[peptide$Protein.Group %in% nrPEP$Protein.Group,]
+    peptide <- peptide[peptide$Protein.Group %in% nrPEP$Protein.Group, ]
   }
 
 
@@ -157,10 +164,14 @@ preprocess_DIANN <- function(quant_data,
   fasta_annot <- get_annot_from_fasta(fasta_file, pattern_decoys = pattern_decoys, isUniprot = TRUE)
   logger::log_info("reading fasta done, creating protein annotation.")
   prot_annot <- dplyr::left_join(nrPEP, fasta_annot, by = c(Protein.Group.2 = "proteinname"))
-  prot_annot <- dplyr::rename(prot_annot, IDcolumn = "Protein.Group.2", description = "fasta.header",protein_Id = "Protein.Group" )
+  prot_annot <- dplyr::rename(prot_annot,
+    IDcolumn = "Protein.Group.2",
+    description = "fasta.header", protein_Id = "Protein.Group"
+  )
 
   protAnnot <- prolfquapp::ProteinAnnotation$new(
-    lfqdata , prot_annot, description = "description",
+    lfqdata, prot_annot,
+    description = "description",
     cleaned_ids = "IDcolumn",
     full_id = "fasta.id",
     exp_nr_children = "nrPeptides",
@@ -168,7 +179,15 @@ preprocess_DIANN <- function(quant_data,
     pattern_decoys = pattern_decoys
   )
   logger::log_info("protein annotation done.")
-  return(list(lfqdata = lfqdata , protein_annotation = protAnnot))
+  return(list(lfqdata = lfqdata, protein_annotation = protAnnot))
 }
 
-
+#' create dataset template from DIANN outputs
+#' @export
+dataset_template_diann <- function(files) {
+  data <- readr::read_tsv(files$data)
+  logger::log_info("Files: ", files$data, " loaded. Starting filtering.")
+  xx <- prolfquapp::diann_read_output(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.01)
+  datasetannot <- data.frame(raw.file = unique(xx$raw.file), Name = NA, Group = NA, Subject = NA, Control = NA)
+  return(datasetannot)
+}

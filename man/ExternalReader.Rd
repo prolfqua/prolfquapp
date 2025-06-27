@@ -2,11 +2,11 @@
 % Please edit documentation in R/R6_AppConfiguration.R
 \name{ExternalReader}
 \alias{ExternalReader}
-\title{project specification R6 class}
+\title{external reader R6 class for handling external data sources}
 \description{
-project specification R6 class
+external reader R6 class for handling external data sources
 
-project specification R6 class
+external reader R6 class for handling external data sources
 }
 \examples{
 ExternalReader$new()
@@ -24,11 +24,13 @@ Other ProlfquAppConfig:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{get_files}}{get_files}
+\item{\code{get_files}}{function name for getting files}
 
-\item{\code{preprocess}}{preprocess}
+\item{\code{preprocess}}{function name for preprocessing}
 
-\item{\code{extra_args}}{extra_args}
+\item{\code{extra_args}}{extra arguments as string}
+
+\item{\code{dataset}}{function name for getting dataset}
 }
 \if{html}{\out{</div>}}
 }
