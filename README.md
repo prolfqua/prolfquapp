@@ -7,7 +7,7 @@ editor_options:
 # prolfquapp (ˌproʊˈlɛf.kə.ˌæp): Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
 
 
-Read on bioRxiv <https://www.biorxiv.org/content/10.1101/2024.10.09.617391v1> "prolfquapp - A User-Friendly Command-Line Tool Simplifying Differential Expression Analysis in Quantitative Proteomics"
+Read on JPR <https://pubs.acs.org/doi/10.1021/acs.jproteome.4c00911> "prolfquapp ─ A User-Friendly Command-Line Tool Simplifying Differential Expression Analysis in Quantitative Proteomics"
 
 Welcome to *prolfquapp* on GitHub!
 Here, you'll find everything you need to elevate your protein differential expression analysis.
