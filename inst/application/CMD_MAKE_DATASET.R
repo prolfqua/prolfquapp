@@ -64,7 +64,7 @@ logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 prolfqua_preprocess_functions <- get_procfuncs()
 
 if (opt$software %in% names(prolfqua_preprocess_functions)) {
-  preprocess_functions <- prolfqua_preprocess_functions[["opt$software"]]
+  preprocess_functions <- prolfqua_preprocess_functions[[opt$software]]
   preprocess_functions <- dataset_get_functions(preprocess_functions)
   files <- preprocess_functions$get_files(opt$indir)
   datasettemplate <- preprocess_functions$dataset_fn(files)
