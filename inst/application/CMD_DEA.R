@@ -25,7 +25,8 @@ option_list <- list(
   ),
   optparse::make_option(c("-s", "--software"),
     type = "character", default = NULL,
-    help = paste0("possible options: ", prolfquapp::get_procfuncs(), collapse = ", "),
+    help = paste0("possible options: ", paste(names(prolfquapp::get_procfuncs()),
+                  collapse = ", ")),
     metavar = "character"
   ),
   optparse::make_option(c("-o", "--outdir"),
@@ -61,10 +62,10 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 if (FALSE) {
-  ymlfile <- "config_combined.yaml"
-  opt$indir <- "o37875_FP_enriched_completeOutput/"
-  opt$software <- "FP"
-  opt$dataset <- "annotation_enriched.xlsx"
+  ymlfile <- "config.yaml"
+  opt$indir <- "FP_22/"
+  opt$software <- "prolfquappPTMreaders.FP_multisite"
+  opt$dataset <- "total_dataset_with_contrasts.tsv"
   opt$workunit <- "Enriched"
 }
 
@@ -112,6 +113,7 @@ logger::log_info("Software: ", opt$software)
 
 # debug(prolfquappPTMreaders::preprocess_FP_combined_STY)
 
+# debug(prolfquappPTMreaders::preprocess_FP_multi_site)
 
 result <- tryCatch(
   {

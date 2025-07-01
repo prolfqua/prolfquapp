@@ -73,6 +73,7 @@ write_annotation_file <- function(data, file_path) {
 #' af$group <- NULL
 #' testthat::expect_error(ap$check_annotation(af),"column starting with :")
 #' aa <- ap$read_annotation(annot)
+#' stopifnot(length(aa$atable$factor_keys_depth()) == 2)
 #' stopifnot(all(c("atable", "annot", "contrasts") %in% names(aa)))
 #' stopifnot(aa$contrasts == "G_b - G_a")
 #' af <- annot
@@ -102,6 +103,15 @@ write_annotation_file <- function(data, file_path) {
 #' aa <- ap$read_annotation(annot)
 #' aa$atable$sampleName
 #' stopifnot(is.null(aa$annotation))
+#'
+#' annot <- data.frame(
+#' file = c("a1.raw","a2.raw","a3.raw","a4.raw"),
+#' Name = c("a1.raw","a2.raw","a3.raw","a4.raw"),
+#' "Grouping Var" = c("a","a","b","b"),
+#' CONTROL = c("C","C","T","T"),
+#' Subject = c("X","Y","X","Y"))
+#' ax <- ap$read_annotation(annot)
+
 AnnotationProcessor <- R6::R6Class(
   "AnnotationProcessor",
 

@@ -204,7 +204,7 @@ tidy_FragPipe_combined_protein <- function(
 #' @param PeptideProphetProb default 0.9
 #' @param column_before_quants describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"
 #' @param aggregate aggregate spectra to psm level
-tidy_FragPipe_psm <- function(psm_file,
+tidy_FragPipe_psm <- function(psm_files,
                               purity_threshold = 0.5,
                               PeptideProphetProb = 0.9,
                               abundance_threshold = 0,
@@ -212,37 +212,45 @@ tidy_FragPipe_psm <- function(psm_file,
                               aggregate = TRUE){
 
 
-  psm <- readr::read_tsv(psm_file)
-  column_before_quants <- intersect(colnames(psm), c("Quan Usage" , "Mapped Proteins"))
-  column_before_quants <- tail(column_before_quants, n=1)
-  if (!"Purity" %in% colnames(psm) ) {
-    warning("no Purity column in psm file!")
-    psm <- psm |> dplyr::mutate(Purity = 1, .before = column_before_quants)
+  psm_data_frames_long <- list()
+  for(psm_file in psm_files){
+    psm <- readr::read_tsv(psm_file)
+
+
+    column_before_quants <- intersect(colnames(psm), c("Quan Usage" , "Mapped Proteins"))
+    column_before_quants <- tail(column_before_quants, n=1)
+    if (!"Purity" %in% colnames(psm) ) {
+      warning("no Purity column in psm file!")
+      psm <- psm |> dplyr::mutate(Purity = 1, .before = column_before_quants)
+    }
+    x <- which(colnames(psm) == column_before_quants)
+    colnamesQuan <- colnames(psm)[(x + 1):ncol(psm)]
+    probability_column <- intersect(c("PeptideProphet Probability", "Probability"), colnames(psm))
+
+    psm_relevant <- psm |> dplyr::select(
+      dplyr::all_of(
+        c(c("Spectrum",
+            "Spectrum File",
+            "Peptide",
+            "Modified Peptide",
+            "Charge",
+            "Intensity",
+            "Purity",
+            "Protein",
+            "Protein Description",
+            Probability = probability_column,
+            "Protein Description",
+            "Retention",
+            "Calibrated Observed Mass",
+            "Assigned Modifications",
+            "Charge"),
+          colnamesQuan) ))
+
+    psm_long <- psm_relevant |> tidyr::pivot_longer( tidyselect::all_of(colnamesQuan), values_to = "abundance", names_to = "channel")
+    psm_data_frames_long[[psm_file]] <- psm_long
   }
-  x <- which(colnames(psm) == column_before_quants)
-  colnamesQuan <- colnames(psm)[(x + 1):ncol(psm)]
-  probability_column <- intersect(c("PeptideProphet Probability", "Probability"), colnames(psm))
 
-  psm_relevant <- psm |> dplyr::select(
-    dplyr::all_of(
-      c(c("Spectrum",
-          "Spectrum File",
-          "Peptide",
-          "Modified Peptide",
-          "Charge",
-          "Intensity",
-          "Purity",
-          "Protein",
-          "Protein Description",
-          Probability = probability_column,
-          "Protein Description",
-          "Retention",
-          "Calibrated Observed Mass",
-          "Assigned Modifications",
-          "Charge"),
-        colnamesQuan) ))
-
-  psm_long <- psm_relevant |> tidyr::pivot_longer( tidyselect::all_of(colnamesQuan), values_to = "abundance", names_to = "channel")
+  psm_long <- dplyr::bind_rows(psm_data_frames_long)
   if (!is.null(abundance_threshold)) {
     psm_long <- dplyr::filter(psm_long, abundance > abundance_threshold)
   }

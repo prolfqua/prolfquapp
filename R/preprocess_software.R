@@ -11,25 +11,25 @@ prolfqua_preprocess_functions <- list(
     get_files = "prolfquapp::get_DIANN_files",
     preprocess = "prolfquapp::preprocess_DIANN",
     extra_args = "list(q_value = 0.01, hierarchy_depth = 1)",
-    dataset = "proflquapp::dataset_template_diann"
+    dataset = "prolfquapp::dataset_template_diann"
   ),
   DIANN_PEPTIDE = list(
     get_files = "prolfquapp::get_DIANN_files",
     preprocess = "prolfquapp::preprocess_DIANN",
     extra_args = "list(q_value = 0.01, hierarchy_depth = 2)",
-    dataset = "proflquapp::dataset_template_diann"
+    dataset = "prolfquapp::dataset_template_diann"
   ),
   FP_TMT = list(
     get_files = "prolfquapp::get_FP_PSM_files",
     preprocess = "prolfquapp::preprocess_FP_PSM",
     extra_args = "list(purity_threshold = 0.5, PeptideProphetProb = 0.9, hierarchy_depth = 1)",
-    dataset = "proflquapp::dataset_template_FP_TMT"
+    dataset = "prolfquapp::dataset_template_FP_TMT"
   ),
   FP_TMT_PEPTIDE = list(
     get_files = "prolfquapp::get_FP_PSM_files",
     preprocess = "prolfquapp::preprocess_FP_PSM",
     extra_args = "list(purity_threshold = 0.5, PeptideProphetProb = 0.9, hierarchy_depth = 2)",
-    dataset = "proflquapp::dataset_template_FP_TMT"
+    dataset = "prolfquapp::dataset_template_FP_TMT"
   ),
   MAXQUANT = list(
     get_files = "prolfquapp::get_MQ_peptide_files",

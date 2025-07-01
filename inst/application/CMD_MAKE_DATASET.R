@@ -59,14 +59,21 @@ if (FALSE) {
   opt$dataset <- "dataset_Astral.xlsx"
   opt$software <- "BGS_DEFAULT"
 }
+if (FALSE) {
+  opt$indir <- "FP_22"
+  opt$dataset <- "total_dataset.tsv"
+  opt$software <- "prolfquapp.FP_TMT"
+
+}
 
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
-prolfqua_preprocess_functions <- get_procfuncs()
+prolfqua_preprocess_functions <- prolfquapp::get_procfuncs()
 
 if (opt$software %in% names(prolfqua_preprocess_functions)) {
+  stopifnot(dir.exists(opt$indir))
   preprocess_functions <- prolfqua_preprocess_functions[[opt$software]]
-  preprocess_functions <- dataset_get_functions(preprocess_functions)
-  files <- preprocess_functions$get_files(opt$indir)
+  preprocess_functions <- prolfquapp::dataset_get_functions(preprocess_functions)
+  files <- preprocess_functions$files_fn(opt$indir)
   datasettemplate <- preprocess_functions$dataset_fn(files)
   prolfquapp::write_annotation_file(datasettemplate, opt$dataset)
 } else {
