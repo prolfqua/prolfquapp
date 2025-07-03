@@ -45,6 +45,7 @@ stopifnot(nrow(merged$get_contrasts()) == 200)
 # deanalyse$build_model_glm_protein()
 # deanalyse$build_model_glm_peptide()
 xprot <- deanalyse$get_contrasts_glm_protein()
+if(FALSE){
 xprot$get_contrasts()
 xprot$get_Plotter()$volcano()
 xpep <- deanalyse$get_contrasts_glm_peptide()
@@ -62,7 +63,7 @@ bx <- deanalyse$get_boxplots_contrasts()
 dev.off()
 grid::grid.draw(bx$bxpl_grobs[[1]])
 # deanalyse$write_boxplots_contrasts("test.pdf")
-
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

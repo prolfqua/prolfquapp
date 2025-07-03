@@ -53,6 +53,7 @@ custom_round <- function(arr) {
 #' # deanalyse$build_model_glm_protein()
 #' # deanalyse$build_model_glm_peptide()
 #' xprot <- deanalyse$get_contrasts_glm_protein()
+#' if(FALSE){
 #' xprot$get_contrasts()
 #' xprot$get_Plotter()$volcano()
 #' xpep <- deanalyse$get_contrasts_glm_peptide()
@@ -70,7 +71,7 @@ custom_round <- function(arr) {
 #' dev.off()
 #' grid::grid.draw(bx$bxpl_grobs[[1]])
 #' # deanalyse$write_boxplots_contrasts("test.pdf")
-#'
+#' }
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(

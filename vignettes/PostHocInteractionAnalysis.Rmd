@@ -49,7 +49,9 @@ diffDA$modelName |> table()
 diffDA <- diffDA |> filter(modelName == "Linear_Model_moderated", nrPeptides > 1)
 
 diffDA <- minimize(diffDA)
+
 ```
+
 
 ```{r dars, fig.cap = "Venn Diagram."}
 fileD2 <- "C32983WU294901_DiaNN_palmitoylated_proteins/DE_Groups_vs_Controls/DE_Groups_vs_Controls.xlsx"

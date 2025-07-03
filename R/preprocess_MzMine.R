@@ -126,6 +126,7 @@ get_mzMine_files <- function(path){
 #' @export
 #' @examples
 #'
+#' if(FALSE)
 #' xd <- "outputs-20250407T1707/bfabric/input_dataset.tsv"
 #' annot <- readr::read_tsv(xd)
 #'
@@ -138,7 +139,7 @@ get_mzMine_files <- function(path){
 #' dim(res$lfqdata$data)
 #' res <- preprocess_mzMine(files$data, files$fasta , annotation, annotated = TRUE)
 #' dim(res$lfqdata$data)
-#'
+#' }
 preprocess_mzMine <- function(
     quant_data,
     fasta_file,
