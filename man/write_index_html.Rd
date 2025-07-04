@@ -4,8 +4,12 @@
 \alias{write_index_html}
 \title{write index.html file with links to all relevant files:}
 \usage{
-write_index_html(file_path_list)
+write_index_html(file_path_list, result_dir)
 }
 \description{
 write index.html file with links to all relevant files:
+}
+\examples{
+
+write_index_html(.test_links,.resdir)
 }

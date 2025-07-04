@@ -67,6 +67,13 @@ if (FALSE) {
   opt$software <- "prolfquapp.FP_TMT"
   opt$dataset <- "dataset_with_contrasts.tsv"
   opt$workunit <- "total_proteome"
+} else {
+  ymlfile <- "config.yaml"
+  opt$indir <- "."
+  opt$software <- "prolfquapp.DIANN"
+  opt$dataset <- "dataset.csv"
+  opt$workunit <- "total_proteome"
+
 }
 
 ymlfile <- if (length(ymlfile) == 0) {
@@ -197,8 +204,11 @@ if (length(xd$lfqdata$config$table$hierarchy_keys_depth()) == 1) {
 
 outdir$data_files$ibaq_file <- ibaq_file
 
+dput(outdir)
 
-prolfquapp::write_index_html(outdir)
+grp$get_result_dir()
+
+prolfquapp::write_index_html(outdir, result_dir = grp$get_zipdir())
 
 logger::log_info("Writing summarized experiment.")
 SE <- prolfquapp::make_SummarizedExperiment(grp)

@@ -73,7 +73,7 @@ make_DEA_report2 <- function(lfqdata,
   GRP2$RES$models <- mod
 
   contr <- prolfqua::Contrasts$new(mod, GRP2$pop$Contrasts,
-    modelName = "Linear_Model"
+                                   modelName = "Linear_Model"
   )
   conrM <- prolfqua::ContrastsModerated$new(
     contr
@@ -105,7 +105,7 @@ make_DEA_report2 <- function(lfqdata,
 
   datax <- datax |>
     dplyr::filter(.data$FDR < GRP2$processing_options$FDR_threshold &
-      abs(.data$diff) > GRP2$processing_options$diff_threshold)
+                    abs(.data$diff) > GRP2$processing_options$diff_threshold)
   GRP2$RES$contrastsData_signif <- datax
   return(GRP2)
 }
@@ -212,8 +212,8 @@ prep_result_list <- function(GRP2) {
     ora_files[[filename]] <- ff
     logger::log_info("Writing File ", ff)
     write.table(unique(ora_sig[[i]]),
-      file = ff, col.names = FALSE,
-      row.names = FALSE, quote = FALSE
+                file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE
     )
   }
   return(ora_files)
@@ -229,12 +229,13 @@ prep_result_list <- function(GRP2) {
   gsea <- split(dplyr::select(gsea, c(id_column, "statistic")), gsea$contrast)
   gsea_files <- list()
   for (i in names(gsea)) {
-    ff <- file.path(outpath, paste0("GSEA_", i, "_WU", workunit_id, ".rnk"))
-    gsea_files[[ff]] <- ff
+    filernk <- paste0("GSEA_", i, "_WU", workunit_id, ".rnk")
+    ff <- file.path(outpath, filernk)
+    gsea_files[[filernk]] <- ff
     logger::log_info("Writing File ", ff)
     write.table(na.omit(gsea[[i]]),
-      file = ff, col.names = FALSE,
-      row.names = FALSE, quote = FALSE, sep = "\t"
+                file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE, sep = "\t"
     )
   }
   return(gsea_files)
@@ -253,8 +254,8 @@ write_result_list <- function(outpath,
   if (ORA) {
     ff <- file.path(outpath, paste0("ORA_background_WU", workunit_id, ".txt"))
     write.table(GRP2$RES$rowAnnot$row_annot[[id_column]],
-      file = ff, col.names = FALSE,
-      row.names = FALSE, quote = FALSE
+                file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE
     )
     ora_files <- .write_ORA(GRP2$RES$contrastsData_signif, outpath, workunit_id, id_column = id_column)
   }
@@ -486,13 +487,24 @@ make_SummarizedExperiment <- function(GRP2,
   return(x)
 }
 
+
+.test_links <- list(dea_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/DE_WUtotal_proteome.html",
+                    qc_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/QC_WUtotal_proteome.html",
+                    data_files = list(xlsx_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/DE_WUtotal_proteome.xlsx",
+                                      ora_files = list(ORA_Treated_vs_Control_down_WUtotal_proteome.txt = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/ORA_Treated_vs_Control_down_WUtotal_proteome.txt",
+                                                       ORA_Treated_vs_Control_up_WUtotal_proteome.txt = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/ORA_Treated_vs_Control_up_WUtotal_proteome.txt"),
+                                      gsea_files = list(`GSEA_Treated_vs_Control_WUtotal_proteome.rnk` = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/GSEA_Treated_vs_Control_WUtotal_proteome.rnk"),
+                                      ibaq_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/IBAQ_total_proteome.xlsx"))
+.resdir <- "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none"
 #' write index.html file with links to all relevant files:
 #' @export
+#' @examples
 #'
-write_index_html <- function(file_path_list) {
+#' write_index_html(.test_links,.resdir)
+write_index_html <- function(file_path_list, result_dir) {
   # Determine top‐level directory and name
   dea_path    <- file_path_list$dea_file
-  topdir_path <- dirname(dirname(dea_path))
+  topdir_path <- dirname(dea_path)
   topdir_name <- basename(topdir_path)
 
   # Helper to make a section
@@ -505,7 +517,8 @@ write_index_html <- function(file_path_list) {
       p    <- paths[i]
       name <- names(paths)[i]
       text <- if (!is.null(name) && nzchar(name)) name else basename(p)
-      rel  <- sub(paste0("^\\.\\/", topdir_name, "\\/"), "", p)
+      rel  <- gsub(result_dir, "", p)
+      rel <- paste0("./",rel)
       lines <- c(
         lines,
         sprintf('    <li><a href="%s">%s</a></li>', rel, text)
@@ -541,8 +554,8 @@ write_index_html <- function(file_path_list) {
   html_lines <- c(
     html_lines,
     make_section("Spreadsheet exports", c(
-      "XLSX with DEA results" = file_path_list$data_files$xlsx_file,
-      "intensity Based Absolute Quantitation (IBAQ)" = file_path_list$data_files$ibaq_file
+      "DEA results (XLSX)" = file_path_list$data_files$xlsx_file,
+      "Intensity Based Absolute Quantitation (XLSX)" = file_path_list$data_files$ibaq_file
     ))
   )
 
@@ -565,7 +578,8 @@ write_index_html <- function(file_path_list) {
   )
 
   # Write it
-  index_file <- file.path(topdir_path, "index.html")
+  index_file <- file.path(result_dir, "index.html")
   writeLines(html_lines, con = index_file)
   message("Wrote HTML index to: ", index_file)
+  return(html_lines)
 }
