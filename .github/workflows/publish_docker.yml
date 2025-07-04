@@ -2,6 +2,11 @@ name: Publish a Docker image
 
 on:
   workflow_dispatch:
+    inputs:
+      test-only:
+        description: 'Test build only (no publish to Docker Hub)'
+        type: boolean
+        default: false
 
 jobs:
   build-and-push-image:
@@ -15,17 +20,23 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Get version from Git tag
+      - name: Get version from Git tag or use test
         run: |
-          VERSION=$(git tag --points-at HEAD | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
-          if [ -z "$VERSION" ]; then
-            echo "::error::No semantic version tag (X.Y.Z) found at HEAD"
-            exit 1
+          if [ "${{ github.event.inputs.test-only }}" = "false" ]; then
+            VERSION=$(git tag --points-at HEAD | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+            if [ -z "$VERSION" ]; then
+              echo "::error::No semantic version tag (X.Y.Z) found at HEAD"
+              exit 1
+            fi
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "Using version: $VERSION"
+          else
+            echo "VERSION=test" >> $GITHUB_ENV
+            echo "Using test version (no publish)"
           fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Using version: $VERSION"
       
       - name: Login to Docker Hub
+        if: ${{ github.event.inputs.test-only == 'false' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -36,5 +47,11 @@ jobs:
         uses: docker/build-push-action@v6.10.0
         with:
           context: .
-          push: true
+          push: ${{ github.event.inputs.test-only == 'false' }}
           tags: prolfqua/prolfquapp:latest,prolfqua/prolfquapp:${{ env.VERSION }}
+      
+      - name: Test Quarto PDF rendering with TinyTeX
+        run: |
+          docker run --rm -v ${{ github.workspace }}/.github/workflows:/workspace prolfqua/prolfquapp:${{ env.VERSION }} \
+            quarto render /workspace/formula.qmd --to pdf
+          echo "✅ Quarto successfully rendered PDF with TinyTeX"

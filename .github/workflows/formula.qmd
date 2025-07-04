@@ -1,0 +1,9 @@
+# Formula
+
+```{r}
+print(10+1)
+```
+
+because
+
+$$e=mc^2$$
