@@ -396,7 +396,7 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN") {
   pop$remove_cont <- yml$application$parameters$`6|remConDec` == "true"
   pop$remove_decoys <- yml$application$parameters$`6|remConDec` == "true"
   pop$pattern_decoys <- yml$application$parameters$`7|REVpattern`
-  pop$pattern_decoys <- ifelse(pop$pattern_decoys == "", NULL, pop$pattern_decoys)
+  pop$pattern_decoys <- if(pop$pattern_decoys == ""){ NULL } else {pop$pattern_decoys}
   pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
   pop$pattern_contaminants <- ifelse(pop$pattern_contaminants == "", NULL, pop$pattern_contaminants)
 
