@@ -124,9 +124,10 @@ get_mzMine_files <- function(path){
 
 #' preprocess mzMine input
 #' @export
+#'
 #' @examples
 #'
-#' if(FALSE)
+#' if(FALSE){
 #' xd <- "outputs-20250407T1707/bfabric/input_dataset.tsv"
 #' annot <- readr::read_tsv(xd)
 #'
