@@ -63,10 +63,10 @@ logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 if (FALSE) {
   ymlfile <- "config.yaml"
-  opt$indir <- "FP_22/"
-  opt$software <- "prolfquappPTMreaders.FP_multisite"
-  opt$dataset <- "total_dataset_with_contrasts.tsv"
-  opt$workunit <- "Enriched"
+  opt$indir <- "ptm_example-main/data_total/FP_22"
+  opt$software <- "prolfquapp.FP_TMT"
+  opt$dataset <- "dataset_with_contrasts.tsv"
+  opt$workunit <- "total_proteome"
 }
 
 ymlfile <- if (length(ymlfile) == 0) {
@@ -111,9 +111,6 @@ logger::log_info("Factors : ", paste(annotation$atable$factor_keys_depth(), coll
 prolfquapp::copy_DEA_Files()
 logger::log_info("Software: ", opt$software)
 
-# debug(prolfquappPTMreaders::preprocess_FP_combined_STY)
-
-# debug(prolfquappPTMreaders::preprocess_FP_multi_site)
 
 result <- tryCatch(
   {
@@ -189,13 +186,19 @@ lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
 ))
 
 # do not write when peptide level analysis
+ibaq_file <- file.path(grp$get_result_dir(), paste0("IBAQ_", opt$workunit, ".xlsx"))
 if (length(xd$lfqdata$config$table$hierarchy_keys_depth()) == 1) {
   ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
   writexl::write_xlsx(
     ibaq$to_wide()$data,
-    path = file.path(grp$get_result_dir(), paste0("IBAQ_", opt$workunit, ".xlsx"))
+    path = ibaq_file
   )
 }
+
+outdir$data_files$ibaq_file <- ibaq_file
+
+
+prolfquapp::write_index_html(outdir)
 
 logger::log_info("Writing summarized experiment.")
 SE <- prolfquapp::make_SummarizedExperiment(grp)
