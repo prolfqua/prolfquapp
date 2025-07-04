@@ -38,3 +38,9 @@ jobs:
           context: .
           push: true
           tags: prolfqua/prolfquapp:latest,prolfqua/prolfquapp:${{ env.VERSION }}
+      
+      - name: Test Quarto PDF rendering with TinyTeX
+        run: |
+          docker run --rm -v ${{ github.workspace }}/.github/workflows:/workspace prolfqua/prolfquapp:${{ env.VERSION }} \
+            quarto render /workspace/formula.qmd --to pdf
+          echo "✅ Quarto successfully rendered PDF with TinyTeX"
