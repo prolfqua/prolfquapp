@@ -34,6 +34,9 @@ RUN R -e 'options(warn=2); pak::local_install_deps("/opt/prolfqua", upgrade = FA
 COPY . /opt/prolfqua
 RUN R -e 'options(warn=2); pak::pkg_install("/opt/prolfqua", upgrade = FALSE)'
 
+# Validate data.table loads correctly at build time
+RUN Rscript -e "cat('Testing data.table load...\\n'); library(data.table); cat('data.table loaded successfully.\\n')"
+
 
 FROM base
 ENV HOME=/home/user
