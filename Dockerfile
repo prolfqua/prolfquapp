@@ -37,7 +37,11 @@ RUN R -e 'options(warn=2); pak::pkg_install("/opt/prolfqua", upgrade = FALSE)'
 
 FROM base
 ENV HOME=/home/user
-RUN quarto install tinytex && chmod -R 777 /home/user
+ARG TINYTEX_VERSION=2025.07
+RUN wget "https://github.com/rstudio/tinytex-releases/releases/download/v${TINYTEX_VERSION}/texlive-local.deb" -O /tmp/texlive-local.deb \
+  && gdebi --non-interactive /tmp/texlive-local.deb \
+  && rm /tmp/texlive-local.deb
+RUN mkdir -p /home/user && chmod -R 777 /home/user
 COPY --from=build /opt/r-libs-site /opt/r-libs-site
 RUN mkdir -p /tmp/quarto-cache && chmod 0777 /tmp/quarto-cache
 ENV XDG_CACHE_HOME=/tmp/quarto-cache
