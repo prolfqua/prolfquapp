@@ -398,7 +398,7 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN") {
   pop$pattern_decoys <- yml$application$parameters$`7|REVpattern`
   pop$pattern_decoys <- if(pop$pattern_decoys == ""){ NULL } else {pop$pattern_decoys}
   pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
-  pop$pattern_contaminants <- ifelse(pop$pattern_contaminants == "", NULL, pop$pattern_contaminants)
+  pop$pattern_contaminants <- if(pop$pattern_contaminants == "") { NULL} else {pop$pattern_contaminants}
 
   ext <- ExternalReader$new()
   r6obj_config <- ProlfquAppConfig$new(pop, ps, ext)
