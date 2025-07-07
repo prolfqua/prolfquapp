@@ -10,6 +10,9 @@ exportShiny/*/
 GenericQC/*/
 DIANN/*/
 DIANN/*.zip
+Specnaut/*
+mzMine/*
+phospho/*
 
 CompoundDiscovery/*/
 
