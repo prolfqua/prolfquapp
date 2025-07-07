@@ -10,6 +10,6 @@ write_index_html(file_path_list, result_dir)
 write index.html file with links to all relevant files:
 }
 \examples{
-
-write_index_html(.test_links,.resdir)
+.resdir <- "."
+write_index_html(prolfquapp:::.test_links,tempdir())
 }

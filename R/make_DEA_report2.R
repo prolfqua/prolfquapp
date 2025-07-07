@@ -495,12 +495,11 @@ make_SummarizedExperiment <- function(GRP2,
                                                        ORA_Treated_vs_Control_up_WUtotal_proteome.txt = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/ORA_Treated_vs_Control_up_WUtotal_proteome.txt"),
                                       gsea_files = list(`GSEA_Treated_vs_Control_WUtotal_proteome.rnk` = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/GSEA_Treated_vs_Control_WUtotal_proteome.rnk"),
                                       ibaq_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/IBAQ_total_proteome.xlsx"))
-.resdir <- "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none"
 #' write index.html file with links to all relevant files:
 #' @export
 #' @examples
-#'
-#' write_index_html(.test_links,.resdir)
+#' .resdir <- "."
+#' write_index_html(prolfquapp:::.test_links,tempdir())
 write_index_html <- function(file_path_list, result_dir) {
   # Determine top‐level directory and name
   dea_path    <- file_path_list$dea_file
