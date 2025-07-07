@@ -76,6 +76,61 @@ ExternalReader <- R6::R6Class(
   )
 )
 
+#' Generate zip directory name based on project information and date
+#'
+#' @param prefix Analysis prefix (e.g., "DEA" or "QC")
+#' @param project_id Project identifier (optional)
+#' @param order_id Order identifier (optional)
+#' @param workunit_id Workunit identifier (optional)
+#' @param transform Data transformation method (e.g., "vsn", "quantile", "robscale")
+#' @param date Date to use for naming (defaults to current date)
+#'
+#' @return Generated zip directory name
+#' @export
+#'
+#' @examples
+#' zipdir_name("DEA", "12345", "67890", "11111", "vsn")
+#' zipdir_name("QC", transform = "quantile")
+#' zipdir_name("DEA", workunit_id = "99999", transform = "robscale")
+zipdir_name <- function(prefix = "DEA",
+                                 project_id = "1234",
+                                 order_id = "",
+                                 workunit_id = "",
+                                 transform = "vsn",
+                                 date = Sys.Date()) {
+  # Handle project ID
+  pi <- if (length(project_id) == 0 || project_id == "") {
+    NULL
+  } else {
+    paste0("_PI", project_id)
+  }
+
+  # Handle order ID
+  oi <- if (length(order_id) == 0 || order_id == "") {
+    NULL
+  } else {
+    paste0("_O", order_id)
+  }
+
+  # Handle workunit ID
+  wu <- if (length(workunit_id) == 0 || workunit_id == "") {
+    NULL
+  } else {
+    paste0("_WU", workunit_id)
+  }
+
+  # Build the result string
+  res <- paste0(
+    prefix,
+    "_", format(date, "%Y%m%d"),
+    pi,
+    oi,
+    wu,
+    "_", transform
+  )
+
+  return(res)
+}
 
 # ProlfquAppConfig -----
 #' R6 class representing ProlfquApp configuration
@@ -151,31 +206,14 @@ ProlfquAppConfig <- R6::R6Class(
     #' Set zip directory name based on project information and date
     #' @return the generated zip directory name
     set_zipdir_name = function() {
-      pi <- if (length(self$project_spec$project_Id) == 0 || self$project_spec$project_Id == "") {
-        NULL
-      } else {
-        paste0("_PI", self$project_spec$project_Id)
-      }
-      oi <- if (length(self$project_spec$order_Id) == 0 || self$project_spec$order_Id == "") {
-        NULL
-      } else {
-        paste0("_O", self$project_spec$order_Id)
-      }
-      wu <- if (length(self$project_spec$workunit_Id) == 0 || self$project_spec$workunit_Id == "") {
-        NULL
-      } else {
-        paste0("_WU", self$project_spec$workunit_Id)
-      }
-      res <- paste0(
-        self$prefix,
-        "_", format(Sys.Date(), "%Y%m%d"),
-        pi,
-        oi,
-        wu,
-        "_", self$processing_options$transform
+      self$zipdir_name <- zipdir_name(
+        prefix = self$prefix,
+        project_id = self$project_spec$project_Id,
+        order_id = self$project_spec$order_Id,
+        workunit_id = self$project_spec$workunit_Id,
+        transform = self$processing_options$transform
       )
-      self$zipdir_name <- res
-      return(res)
+      return(self$zipdir_name)
     },
 
     #' @description
@@ -396,9 +434,17 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN") {
   pop$remove_cont <- yml$application$parameters$`6|remConDec` == "true"
   pop$remove_decoys <- yml$application$parameters$`6|remConDec` == "true"
   pop$pattern_decoys <- yml$application$parameters$`7|REVpattern`
-  pop$pattern_decoys <- if(pop$pattern_decoys == ""){ NULL } else {pop$pattern_decoys}
+  pop$pattern_decoys <- if (pop$pattern_decoys == "") {
+    NULL
+  } else {
+    pop$pattern_decoys
+  }
   pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
-  pop$pattern_contaminants <- if(pop$pattern_contaminants == "") { NULL} else {pop$pattern_contaminants}
+  pop$pattern_contaminants <- if (pop$pattern_contaminants == "") {
+    NULL
+  } else {
+    pop$pattern_contaminants
+  }
 
   ext <- ExternalReader$new()
   r6obj_config <- ProlfquAppConfig$new(pop, ps, ext)
