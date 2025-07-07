@@ -2,12 +2,10 @@
 
 set -euxo pipefail
 
-
 # Get the path to the installed R package
 PACKAGE_PATH=$(Rscript --vanilla -e "cat(system.file(package = 'prolfquapp'))")
-
 # Build the path to the R script
-R_SCRIPT_PATH="${PACKAGE_PATH}/application/CMD_MAKE_DATASET.R"
+R_SCRIPT_PATH="${PACKAGE_PATH}/application/CMD_DEA.R"
 
 
 if [[ -f "$R_SCRIPT_PATH" ]]; then
