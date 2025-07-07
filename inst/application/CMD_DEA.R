@@ -67,7 +67,7 @@ if (FALSE) {
   opt$software <- "prolfquapp.FP_TMT"
   opt$dataset <- "dataset_with_contrasts.tsv"
   opt$workunit <- "total_proteome"
-} if(FALSE) else {
+} else if (FALSE) {
   ymlfile <- "config.yaml"
   opt$indir <- "."
   opt$software <- "prolfquapp.DIANN"
