@@ -93,7 +93,7 @@ ExternalReader <- R6::R6Class(
 #' zipdir_name("QC", transform = "quantile")
 #' zipdir_name("DEA", workunit_id = "99999", transform = "robscale")
 zipdir_name <- function(prefix = "DEA",
-                                 project_id = "1234",
+                                 project_id = "",
                                  order_id = "",
                                  workunit_id = "",
                                  transform = "vsn",

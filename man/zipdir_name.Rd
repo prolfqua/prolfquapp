@@ -6,7 +6,7 @@
 \usage{
 zipdir_name(
   prefix = "DEA",
-  project_id = "1234",
+  project_id = "",
   order_id = "",
   workunit_id = "",
   transform = "vsn",

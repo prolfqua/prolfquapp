@@ -582,3 +582,5 @@ write_index_html <- function(file_path_list, result_dir) {
   message("Wrote HTML index to: ", index_file)
   return(html_lines)
 }
+
+
