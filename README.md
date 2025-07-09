@@ -1,8 +1,4 @@
----
-editor_options: 
-  markdown: 
-    wrap: sentence
----
+[![DOI](https://zenodo.org/badge/642819797.svg)](https://doi.org/10.5281/zenodo.15845909)
 
 # prolfquapp (ˌproʊˈlɛf.kə.ˌæp): Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
 
