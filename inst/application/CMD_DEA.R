@@ -69,10 +69,16 @@ if (FALSE) {
   opt$workunit <- "total_proteome"
 } else if (FALSE) {
   ymlfile <- "config.yaml"
-  opt$indir <- "."
-  opt$software <- "prolfquapp.DIANN"
-  opt$dataset <- "dataset.csv"
+  opt$indir <- "o38194_proteome_includeRepeatedSample"
+  opt$software <- "prolfquapp.MSSTATS"
+  opt$dataset <- "annotation.tsv"
   opt$workunit <- "total_proteome"
+} else if (FALSE) {
+  ymlfile <- "config.yaml"
+  opt$indir <- "o38194_enriched_includeRepeatedSample"
+  opt$software <- "prolfquappPTMreaders.FP_combined_STY"
+  opt$dataset <- "annotation_enriched.tsv"
+  opt$workunit <- "enriched"
 
 }
 
@@ -119,9 +125,14 @@ prolfquapp::copy_DEA_Files()
 logger::log_info("Software: ", opt$software)
 
 
+prolfqua_preprocess_functions <- get_procfuncs()
+if (! opt$software %in% names(prolfqua_preprocess_functions)) {
+ logger::log_error(opt$software, " no in ",paste0( names(prolfqua_preprocess_functions)))
+}
+
+
 result <- tryCatch(
   {
-    prolfqua_preprocess_functions <- get_procfuncs()
     # Attempt to run the function
     procsoft <- preprocess_software(
       opt$indir,

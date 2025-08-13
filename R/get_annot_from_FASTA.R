@@ -140,7 +140,11 @@ get_annot_from_fasta <- function(
   if (any(duplicated(fasta_annot$proteinname))) {
     logger::log_error("there are duplicated protein ID's , mean duplicate :", mean(duplicated(fasta_annot$proteinname)))
     logger::log_error("the pattern_decoys is : [", pattern_decoys, "]")
-    stop("wrong decoys pattern.", pattern_decoys, "\n")
+    if(!is.null(pattern_decoys) && pattern_decoys != ""){
+      stop("wrong decoys pattern.", pattern_decoys, "\n")
+    } else {
+      warning("wrong decoys pattern.", pattern_decoys, "\n")
+    }
   }
 
   if (sum(grepl(".+ GN=(.+) PE=.+",fasta_annot$fasta.header)) > 1) {
