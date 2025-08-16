@@ -75,11 +75,15 @@ if (FALSE) {
   opt$workunit <- "total_proteome"
 } else if (FALSE) {
   ymlfile <- "config.yaml"
-  opt$indir <- "o38194_enriched_includeRepeatedSample"
-  opt$software <- "prolfquappPTMreaders.FP_combined_STY"
-  opt$dataset <- "annotation_enriched.tsv"
-  opt$workunit <- "enriched"
-
+  opt$indir <- "ptm_example-main/data_ptm/FP_22"
+  opt$software <- "prolfquappPTMreaders.FP_singlesite"
+  opt$dataset <- "dataset_with_contrasts.tsv"
+  opt$workunit <- "singlesite_PTM"
+  #./prolfqua_dea.sh -i ptm_example-main/data_ptm/FP_22 \
+  #-d dataset_with_contrasts.tsv \
+  #-y config.yaml \
+  #-w singlesite_PTM \
+  #-s prolfquappPTMreaders.FP_singlesite
 }
 
 ymlfile <- if (length(ymlfile) == 0) {
@@ -180,13 +184,25 @@ lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_o
 logger::log_info("END OF PROTEIN AGGREGATION")
 logger::log_info("RUN ANALYSIS")
 
-
 grp <- prolfquapp::generate_DEA_reports2(
   lfqdata,
   GRP2,
   xd$protein_annotation,
   annotation$contrasts
 )
+
+grp$RES$rowAnnot$row_annot
+
+
+arrow::write_parquet(grp$RES$lfqData$data, sink = file.path(GRP2$get_result_dir(),"lfqdata.parquet"))
+cfg <- prolfqua::R6_extract_values(grp$RES$lfqData$config)
+yaml::write_yaml(cfg, file.path(GRP2$get_result_dir(),"lfqdata.yaml"))
+
+
+
+lfqd2 <- prolfqua::LFQData$new(grp$RES$lfqData$data,config)
+pl <- lfqd2$get_Plotter()
+pl$intensity_distribution_density()
 
 logger::log_info("Writing results to: ", GRP2$get_zipdir())
 
@@ -214,9 +230,6 @@ if (length(xd$lfqdata$config$table$hierarchy_keys_depth()) == 1) {
 }
 
 outdir$data_files$ibaq_file <- ibaq_file
-
-dput(outdir)
-
 grp$get_result_dir()
 
 prolfquapp::write_index_html(outdir, result_dir = grp$get_zipdir())
