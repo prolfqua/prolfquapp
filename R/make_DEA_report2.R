@@ -52,8 +52,8 @@ make_DEA_report2 <- function(lfqdata,
     internal = GRP2$pop$internal
   )
 
-  lfqdata$rename_response("protein_abundance")
-  transformed$rename_response("normalized_protein_abundance")
+  lfqdata$rename_response("abundance")
+  transformed$rename_response("normalized_abundance")
 
   GRP2$RES$lfqData <- lfqdata
   GRP2$RES$transformedlfqData <- transformed

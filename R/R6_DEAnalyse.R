@@ -236,8 +236,8 @@ DEAnalyse <- R6::R6Class(
         method = self$prolfq_app_config$processing_options$transform,
         internal = self$reference_proteins
       )
-      self$lfq_data$rename_response("protein_abundance")
-      transformed$rename_response("normalized_protein_abundance")
+      self$lfq_data$rename_response("abundance")
+      transformed$rename_response("normalized_abundance")
       self$lfq_data_transformed <- transformed
       invisible(transformed)
     },

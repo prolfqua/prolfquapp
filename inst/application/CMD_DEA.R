@@ -191,20 +191,11 @@ grp <- prolfquapp::generate_DEA_reports2(
   annotation$contrasts
 )
 
-grp$RES$rowAnnot$row_annot
-
-
-arrow::write_parquet(grp$RES$lfqData$data, sink = file.path(GRP2$get_result_dir(),"lfqdata.parquet"))
-cfg <- prolfqua::R6_extract_values(grp$RES$lfqData$config)
-yaml::write_yaml(cfg, file.path(GRP2$get_result_dir(),"lfqdata.yaml"))
-
-
-
-lfqd2 <- prolfqua::LFQData$new(grp$RES$lfqData$data,config)
-pl <- lfqd2$get_Plotter()
-pl$intensity_distribution_density()
 
 logger::log_info("Writing results to: ", GRP2$get_zipdir())
+
+
+
 
 # debug(prolfquapp::write_DEA_all)
 # saveRDS(grp, "grp.rds")
@@ -213,6 +204,11 @@ outdir <- prolfquapp::write_DEA_all(
   grp,
   name = "", boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd"
 )
+
+arrow::write_parquet(grp$RES$transformedlfqData$data, sink = file.path(GRP2$get_result_dir(),"lfqdata_normalized.parquet"))
+cfg <- prolfqua::R6_extract_values(grp$RES$transformedlfqData$config)
+yaml::write_yaml(cfg, file.path(GRP2$get_result_dir(),"lfqdata.yaml"))
+
 
 lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
   contaminants = GRP2$processing_options$remove_cont,
