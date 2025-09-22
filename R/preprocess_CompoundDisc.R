@@ -10,19 +10,21 @@ massage_CD <- function(in_file, EXCEL = TRUE ){
   xd$my_C_ID <- 1:nrow(xd)
 
   if (EXCEL) {
-    annot <- xd |> dplyr::select("my_C_ID", "Checked","Tags",
-                                 "Structure","description" = "Name","Formula","Annot. Source: Predicted Compositions","Annot. Source: mzCloud Search",
-                                 "Annot. Source: mzVault Search","Annot. Source: ChemSpider Search","Annot. Source: MassList Search",
-                                 "Annotation MW", "Calc. MW", mz = "m/z",RT_min = "RT [min]")
+    annot <- xd |> dplyr::select(
+      "my_C_ID", "Checked","Tags",
+      "Structure","description" = "Name","Formula","Annot. Source: Predicted Compositions","Annot. Source: mzCloud Search",
+      "Annot. Source: mzVault Search","Annot. Source: ChemSpider Search","Annot. Source: MassList Search",
+      "Annotation MW", "Calc. MW", mz = "m/z",RT_min = "RT [min]")
     columns <- c("Area:","Gap Status:","Gap Fill Status:","Peak Rating:")
     deselect <- NULL
     npatt <- "(.*)\\: (.*)(\\s\\(F\\d+\\))"
   } else {
 
-    annot <- xd |> dplyr::select(dplyr::any_of(c("my_C_ID", "Checked","Tags",
-                                          "Structure","description" = "Name","Formula","Annot Source Predicted Compositions","Annot Source mzCloud Search",
-                                          "Annot Source mzVault Search","Annot Source ChemSpider Search","Annot Source MassList Search",
-                                          "Annotation MW", "Calc MW","mz",RT_min = "RT in min")))
+    annot <- xd |> dplyr::select(dplyr::any_of(c(
+      "my_C_ID", "Checked","Tags",
+      "Structure","description" = "Name","Formula","Annot Source Predicted Compositions","Annot Source mzCloud Search",
+      "Annot Source mzVault Search","Annot Source ChemSpider Search","Annot Source MassList Search",
+      "Annotation MW", "Calc MW","mz",RT_min = "RT in min")))
     columns <- c("Area","Gap Status","Gap Fill Status","Peak Rating")
     deselect <- c("Area Max", "Area SD", "Area CV in Percent")
     npatt <- "(.*)\\s(.*)\\s(F\\d+)"
