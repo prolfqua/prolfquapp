@@ -26,7 +26,8 @@ option_list <- list(
   optparse::make_option(c("-s", "--software"),
     type = "character", default = NULL,
     help = paste0("possible options: ", paste(names(prolfquapp::get_procfuncs()),
-                  collapse = ", ")),
+      collapse = ", "
+    )),
     metavar = "character"
   ),
   optparse::make_option(c("-o", "--outdir"),
@@ -79,7 +80,7 @@ if (FALSE) {
   opt$software <- "prolfquappPTMreaders.FP_singlesite"
   opt$dataset <- "dataset_with_contrasts.tsv"
   opt$workunit <- "singlesite_PTM"
-  #./prolfqua_dea.sh -i ptm_example-main/data_ptm/FP_22 \
+  # ./prolfqua_dea.sh -i ptm_example-main/data_ptm/FP_22 \
   #-d dataset_with_contrasts.tsv \
   #-y config.yaml \
   #-w singlesite_PTM \
@@ -100,6 +101,11 @@ GRP2 <- prolfquapp::get_config(ymlfile)
 res <- prolfquapp::sync_opt_config(opt, GRP2)
 opt <- res$opt
 GRP2 <- res$config
+
+# if internal normalizaton set the protein identifier here
+GRP2$processing_options$internal <- NULL
+# GRP2$processing_options$internal <- "P01876"
+
 
 dir.create(opt$outdir)
 dir.create(GRP2$get_zipdir())
@@ -130,8 +136,8 @@ logger::log_info("Software: ", opt$software)
 
 
 prolfqua_preprocess_functions <- get_procfuncs()
-if (! opt$software %in% names(prolfqua_preprocess_functions)) {
- logger::log_error(opt$software, " no in ",paste0( names(prolfqua_preprocess_functions)))
+if (!opt$software %in% names(prolfqua_preprocess_functions)) {
+  logger::log_error(opt$software, " no in ", paste0(names(prolfqua_preprocess_functions)))
 }
 
 
@@ -205,9 +211,9 @@ outdir <- prolfquapp::write_DEA_all(
   name = "", boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd"
 )
 
-arrow::write_parquet(grp$RES$transformedlfqData$data, sink = file.path(GRP2$get_result_dir(),"lfqdata_normalized.parquet"))
+arrow::write_parquet(grp$RES$transformedlfqData$data, sink = file.path(GRP2$get_result_dir(), "lfqdata_normalized.parquet"))
 cfg <- prolfqua::R6_extract_values(grp$RES$transformedlfqData$config)
-yaml::write_yaml(cfg, file.path(GRP2$get_result_dir(),"lfqdata.yaml"))
+yaml::write_yaml(cfg, file.path(GRP2$get_result_dir(), "lfqdata.yaml"))
 
 
 lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
