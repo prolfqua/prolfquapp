@@ -53,7 +53,24 @@ make_DEA_report2 <- function(lfqdata,
   )
 
   lfqdata$rename_response("abundance")
+
+  if ( length(GRP2$processing_options$internal) > 0 ) {
+    x <- transformed$hierarchy()
+    mm <- colnames(x)[1]
+    x <- x |> dplyr::filter(!!sym(mm) %in% GRP2$processing_options$internal)
+    if (nrow(x) == 0) {
+      what <- paste(GRP2$processing_options$internal, collapse = ",")
+      warning("not in list : ", what)
+      transformed <- transformed
+    } else {
+      xs <- transformed$get_subset(x)
+      tr <- transformed$get_Transformer()
+      transformed <- tr$center_to_reference(xs)$lfq
+    }
+  }
+
   transformed$rename_response("normalized_abundance")
+
 
   GRP2$RES$lfqData <- lfqdata
   GRP2$RES$transformedlfqData <- transformed

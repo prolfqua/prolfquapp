@@ -45,6 +45,8 @@ Other ProlfquAppConfig:
 \item{\code{model}}{name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"}
 
 \item{\code{other}}{list with additional options}
+
+\item{\code{internal}}{list of internal calibrants}
 }
 \if{html}{\out{</div>}}
 }

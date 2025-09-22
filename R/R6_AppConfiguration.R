@@ -30,7 +30,9 @@ ProcessingOptions <- R6::R6Class(
     #' @field model name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"
     model = "prolfqua",
     #' @field other list with additional options
-    other = NULL
+    other = NULL,
+    #' @field internal list of internal calibrants
+    internal = character()
   )
 )
 
