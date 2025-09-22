@@ -150,10 +150,9 @@ result <- tryCatch(
     procsoft <- preprocess_software(
       opt$indir,
       annotation,
-      preprocess_functions_str = GRP2$ext_reader,
+      preprocess_functions = prolfqua_preprocess_functions[[opt$software]],
       pattern_contaminants = (GRP2$processing_options$pattern_contaminants),
-      pattern_decoys = GRP2$processing_options$pattern_decoys,
-      software = opt$software
+      pattern_decoys = GRP2$processing_options$pattern_decoys
     )
     # Return the result if successful
     list(value = procsoft, error = NULL, stack_trace = NULL)
