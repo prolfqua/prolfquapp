@@ -74,12 +74,12 @@ if (FALSE) {
   opt$software <- "prolfquapp.MSSTATS"
   opt$dataset <- "annotation.tsv"
   opt$workunit <- "total_proteome"
-} else if (FALSE) {
+} else if (TRUE) {
   ymlfile <- "config.yaml"
-  opt$indir <- "ptm_example-main/data_ptm/FP_22"
-  opt$software <- "prolfquappPTMreaders.FP_singlesite"
-  opt$dataset <- "dataset_with_contrasts.tsv"
-  opt$workunit <- "singlesite_PTM"
+  opt$indir <- "."
+  opt$software <- "prolfquapp.DIANN"
+  opt$dataset <- "dataset.csv"
+  opt$workunit <- "WU328566_normalizeby_P01876"
   # ./prolfqua_dea.sh -i ptm_example-main/data_ptm/FP_22 \
   #-d dataset_with_contrasts.tsv \
   #-y config.yaml \
@@ -101,12 +101,7 @@ GRP2 <- prolfquapp::get_config(ymlfile)
 res <- prolfquapp::sync_opt_config(opt, GRP2)
 opt <- res$opt
 GRP2 <- res$config
-
-# if internal normalizaton set the protein identifier here
-GRP2$processing_options$internal <- NULL
-# GRP2$processing_options$internal <- "P01876"
-
-
+GRP2$processing_options$internal <- "P01876"
 dir.create(opt$outdir)
 dir.create(GRP2$get_zipdir())
 
@@ -190,6 +185,7 @@ lfqdata <- prolfquapp::aggregate_data(xd$lfqdata, agg_method = GRP2$processing_o
 logger::log_info("END OF PROTEIN AGGREGATION")
 logger::log_info("RUN ANALYSIS")
 
+# debug(prolfquapp::make_DEA_report2)
 grp <- prolfquapp::generate_DEA_reports2(
   lfqdata,
   GRP2,
@@ -208,9 +204,7 @@ logger::log_info("Writing results to: ", GRP2$get_zipdir())
 # grp <- readRDS("grp.rds")
 outdir <- prolfquapp::write_DEA_all(
   grp,
-  name = "",
-  boxplot = FALSE,
-  markdown = "_Grp2Analysis_V2.Rmd"
+  name = "", boxplot = FALSE, markdown = "_Grp2Analysis_V2.Rmd"
 )
 
 arrow::write_parquet(grp$RES$transformedlfqData$data, sink = file.path(GRP2$get_result_dir(), "lfqdata_normalized.parquet"))

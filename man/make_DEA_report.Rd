@@ -12,6 +12,7 @@ render_DEA(
   outpath,
   htmlname = "Result2Grp",
   word = FALSE,
+  toc = TRUE,
   markdown = "_Grp2Analysis.Rmd"
 )
 }

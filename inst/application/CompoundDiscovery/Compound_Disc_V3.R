@@ -10,7 +10,7 @@ str(annot)
 
 annot <- dplyr::select(annot, any_of(c("Study.File.ID", "File.Name","Group","SampleGroup")))
 annot$Group |> table() |> t() |> t()
-annot <- annot |> dplyr::mutate(CONTROL = case_when(Group == "a" ~ "C" , TRUE ~ "T"))
+annot <- annot |> dplyr::mutate(CONTROL = dplyr::case_when(Group == "a" ~ "C" , TRUE ~ "T"))
 
 
 
@@ -25,12 +25,8 @@ annotation$annot
 #######
 
 GRP2 <- prolfquapp::make_DEA_config_R6()
-dir.create(GRP2$zipdir)
-
-
-in_file <- file.path(path,"test_Compounds.xlsx")
-xd <- prolfquapp::preprocess_CD(in_file, annotation = annotation,.func_massage = )
-
+GRP2$get_zipdir()
+dir.create(GRP2$get_zipdir())
 
 
 logger::log_info("run analysis")

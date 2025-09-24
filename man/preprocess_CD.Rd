@@ -4,7 +4,7 @@
 \alias{preprocess_CD}
 \title{load compound discoverer (CD) files}
 \usage{
-preprocess_CD(xdl, annotation, .func_massage = prolfquapp::massage_CD)
+preprocess_CD(xdl, annotation)
 }
 \arguments{
 \item{annotation}{list returned by `read_annotation` function}

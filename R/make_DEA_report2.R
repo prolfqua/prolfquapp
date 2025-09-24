@@ -321,7 +321,8 @@ write_DEA_all <- function(
     render = TRUE,
     ORA = TRUE,
     GSEA = TRUE,
-    markdown = "_Grp2Analysis.Rmd") {
+    markdown = "_Grp2Analysis.Rmd",
+    toc = TRUE) {
   dir.create(grp2$get_zipdir())
   name <- if (name != "") {
     paste0(name, "_")
@@ -333,8 +334,8 @@ write_DEA_all <- function(
   data_files <- prolfquapp::write_DEA(grp2, outpath = outpath, xlsxname = fname, ORA = ORA, GSEA = GSEA)$outfile
 
   if (render) {
-    dea_file <- prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname, markdown = markdown)
-    qc_file <- prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd")
+    dea_file <- prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = fname, markdown = markdown, toc = toc)
+    qc_file <- prolfquapp::render_DEA(grp2, outpath = outpath, htmlname = qcname, markdown = "_DiffExpQC.Rmd", toc = toc)
   }
 
   bb <- grp2$RES$transformedlfqData
@@ -371,6 +372,7 @@ render_DEA <- function(GRP2,
                        outpath,
                        htmlname = "Result2Grp",
                        word = FALSE,
+                       toc = TRUE,
                        markdown = "_Grp2Analysis.Rmd") {
   dir.create(outpath)
 
@@ -378,9 +380,9 @@ render_DEA <- function(GRP2,
     markdown,
     params = list(grp = GRP2),
     output_format = if (word) {
-      bookdown::word_document2(toc = TRUE, toc_float = TRUE)
+      bookdown::word_document2(toc = toc, toc_float = toc)
     } else {
-      bookdown::html_document2(toc = TRUE, toc_float = TRUE)
+      bookdown::html_document2(toc = toc, toc_float = toc)
     }
   )
   extension <- if (word) {

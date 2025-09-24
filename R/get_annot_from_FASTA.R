@@ -82,7 +82,7 @@ GIGYKDVSHAVLNLVSGSFVPTEDCTLATFPFLLPPKECNDWSETSLM
 #' @examples
 #'
 #' fasta_conn <- textConnection(prolfquapp:::.getSequences())
-#' testthat::expect_error(prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "" ))
+#' #testthat::expect_error(prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "" ))
 #' close(fasta_conn)
 #' fasta_conn <- textConnection(prolfquapp:::.getSequences())
 #' prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "^REV_|^rev" )

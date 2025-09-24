@@ -75,8 +75,7 @@ massage_CD <- function(in_file, EXCEL = TRUE ){
 #' @export
 preprocess_CD <- function(
     xdl,
-    annotation,
-    .func_massage = prolfquapp::massage_CD
+    annotation
 ){
   annot <- annotation$annot
   nr <- sum(annot$File.Name %in% sort(unique(xdl$filename)))
@@ -112,9 +111,9 @@ preprocess_CD <- function(
   prot_annot <- prolfquapp::ProteinAnnotation$new(
     lfqdata , m_annot, description = "description",
     cleaned_ids = "IDcolumn",
-    full_id = "Checked",
+    full_id = "IDcolumn",
     exp_nr_children = "nr_compounds",
-    pattern_contaminants = "FALSE",
+    pattern_contaminants = NULL,
     pattern_decoys = NULL
   )
   return(list(lfqdata = lfqdata , protein_annotation = prot_annot))

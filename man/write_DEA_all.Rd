@@ -11,7 +11,8 @@ write_DEA_all(
   render = TRUE,
   ORA = TRUE,
   GSEA = TRUE,
-  markdown = "_Grp2Analysis.Rmd"
+  markdown = "_Grp2Analysis.Rmd",
+  toc = TRUE
 )
 }
 \description{
