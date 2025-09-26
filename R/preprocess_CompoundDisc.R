@@ -1,3 +1,5 @@
+
+
 #' massage CD output compound table.
 #' @export
 massage_CD <- function(in_file, EXCEL = TRUE ){
@@ -12,9 +14,9 @@ massage_CD <- function(in_file, EXCEL = TRUE ){
   if (EXCEL) {
     annot <- xd |> dplyr::select(
       "my_C_ID", "Checked","Tags",
-      "Structure","description" = "Name","Formula","Annot. Source: Predicted Compositions","Annot. Source: mzCloud Search",
+      "description" = "Name","Formula","Annot. Source: Predicted Compositions","Annot. Source: mzCloud Search",
       "Annot. Source: mzVault Search","Annot. Source: ChemSpider Search","Annot. Source: MassList Search",
-      "Annotation MW", "Calc. MW", mz = "m/z",RT_min = "RT [min]")
+      "Calc. MW", mz = "m/z",RT_min = "RT [min]")
     columns <- c("Area:","Gap Status:","Gap Fill Status:","Peak Rating:")
     deselect <- NULL
     npatt <- "(.*)\\: (.*)(\\s\\(F\\d+\\))"
@@ -22,9 +24,9 @@ massage_CD <- function(in_file, EXCEL = TRUE ){
 
     annot <- xd |> dplyr::select(dplyr::any_of(c(
       "my_C_ID", "Checked","Tags",
-      "Structure","description" = "Name","Formula","Annot Source Predicted Compositions","Annot Source mzCloud Search",
+      "description" = "Name","Formula","Annot Source Predicted Compositions","Annot Source mzCloud Search",
       "Annot Source mzVault Search","Annot Source ChemSpider Search","Annot Source MassList Search",
-      "Annotation MW", "Calc MW","mz",RT_min = "RT in min")))
+      "Calc MW","mz",RT_min = "RT in min")))
     columns <- c("Area","Gap Status","Gap Fill Status","Peak Rating")
     deselect <- c("Area Max", "Area SD", "Area CV in Percent")
     npatt <- "(.*)\\s(.*)\\s(F\\d+)"
@@ -87,6 +89,8 @@ preprocess_CD <- function(
   # atable$sampleName = "file_id"
   atable$hierarchy[["metabolite_feature_Id"]] <- c("metabolite_feature_Id")
   atable$set_response("Area")
+  atable$opt_rt = "RT_min"
+  atable$opt_mz = "mz"
   byv <- c("filename")
   names(byv) <- atable$fileName
   byv <- c(byv, intersect(colnames(annot), colnames(xdl)))

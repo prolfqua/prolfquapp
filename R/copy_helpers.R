@@ -52,7 +52,7 @@ copy_DEA_Files <- function(workdir = getwd()) {
 #'
 copy_DEA_Metabolomics_Files <- function(workdir = getwd()) {
   runscripts <- c(
-    "application/_Grp2Analysis_Metabolomics.Rmd",
+    "application/_Grp2Analysis_V2_metabo_tabs.Rmd",
     "application/bibliography.bib",
     "application/_DiffExpQC.Rmd"
   )

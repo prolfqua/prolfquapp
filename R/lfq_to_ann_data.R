@@ -25,33 +25,38 @@
 #'
 #' debug(anndata_from_LFQData)
 #' anndata_from_LFQData(lfqdata, pannot)
-#' anndataR::write_h5ad(adata, path = "test.h5ad", mode = "w")
-# class(adata$X)
+#' #anndataR::write_h5ad(adata, path = "test.h5ad", mode = "w")
 anndata_from_LFQData <- function(lfqdata, pannot) {
   stopifnot(inherits(lfqdata, "LFQData"))
   stopifnot(inherits(pannot, "ProteinAnnotation"))
 
 
   layers <- list()
+  message("converting to layers: ", paste(lfqdata$config$table$value_vars(), collapse = ", ") )
   for (val in lfqdata$config$table$value_vars()) {
     X <- lfqdata$to_wide(as.matrix = TRUE, value = val)$data
     rownames(X) <- gsub("~lfq~light", "", rownames(X))
+    layers[[val]] <- t(X)
   }
 
-  v <- as.data.frame(lfqdata$factors())
-  rownames(v) <- v$sample
-  o <- as.data.frame(pannot$row_annot)
-  rownames(o) <- o$protein_Id
+  o <- as.data.frame(lfqdata$factors())
+  rownames(o) <- o[,lfqdata$config$table$sampleName]
 
-  o <- o[rownames(X), ]
+  v <- as.data.frame(pannot$row_annot)
+  rownames(v) <- v[,pannot$full_id]
+  X <- layers[[1]]
   v <- v[colnames(X), ]
-
+  o <- o[rownames(X), ]
+  # vars are proteins or metabolites or genes
+  # obs are cells, or samples,
 
   adata <- anndataR::AnnData(
     X = X,
-    var = f,
+    var = v,
     obs = o,
-    layers = list("nrpeptides" = nrpep)
+    layers = layers
   )
   return(adata)
 }
+
+
