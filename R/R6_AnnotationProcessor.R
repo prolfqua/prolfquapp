@@ -136,6 +136,8 @@ AnnotationProcessor <- R6::R6Class(
     control_col_pattern = "^control",
     #' @field sample_name_pattern sample name column
     sample_name_pattern = "^name",
+    #' @field norm_value_pattern normalization value column (e.g., Creatinine)
+    norm_value_pattern = "^creatinine|^normvalue",
     #' @field strict should name check be strict
     strict = FALSE,
 
@@ -237,6 +239,7 @@ AnnotationProcessor <- R6::R6Class(
       annot <- private$set_grouping_var(annot, atable)
       private$process_subject_var(annot, atable)
       private$set_control_var(annot, atable)
+      private$set_norm_value(annot, atable)
       return(list(atable = atable, annot = annot))
     },
 
@@ -306,6 +309,16 @@ AnnotationProcessor <- R6::R6Class(
         stopifnot(length(setdiff(unique(annot[[ctrl]]), c("C", "T"))) == 0)
         # TODO add check that
         tt <- table(annot[[ctrl]], annot[[atable$factors[[self$prefix]]]])
+      }
+    },
+
+    set_norm_value = function(annot, atable) {
+      norm_col <- grep(self$norm_value_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)
+      if (length(norm_col) >= 1) {
+        atable$normValue <- norm_col[1]
+        if (length(norm_col) > 1) {
+          warning("Multiple normalization value columns found: ", paste(norm_col, collapse = ", "), ". Using: ", norm_col[1])
+        }
       }
     },
 

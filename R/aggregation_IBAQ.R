@@ -16,7 +16,7 @@ aggregate_data <- function(lfqdata,
                            agg_method = c("medpolish", "lmrob", "topN"), N = 3) {
   agg_method <- match.arg(agg_method)
   if (length(lfqdata$config$table$hierarchy_keys()) == lfqdata$config$table$hierarchyDepth) {
-    warning('nothing to aggregate from, returning unchanged data.')
+    warning("nothing to aggregate from, returning unchanged data.")
     return(lfqdata)
   }
 
@@ -28,7 +28,7 @@ aggregate_data <- function(lfqdata,
     transformed <- lfqdata$get_Transformer()$intensity_array(log)$lfq
     aggregator <- transformed$get_Aggregator()
 
-    if (agg_method == "lmrob" ) {
+    if (agg_method == "lmrob") {
       aggregator$lmrob()
     } else if (agg_method == "medpolish") {
       aggregator$medpolish()
@@ -65,12 +65,11 @@ compute_IBAQ_values <- function(
   rel_annot <- dplyr::select(protein_annotation$row_annot, c(protein_annotation$pID, required))
   lfqdata$config$table$hierarchyDepth <- 1 # you want to roll up to portein
   lfqdataProtTotal <- prolfquapp::aggregate_data(lfqdata, agg_method = "topN", N = 10000)
-  lfqdataProtTotal$data <- dplyr::inner_join(lfqdataProtTotal$data , rel_annot, by = protein_annotation$pID)
+  lfqdataProtTotal$data <- dplyr::inner_join(lfqdataProtTotal$data, rel_annot, by = protein_annotation$pID)
   lfqdataProtTotal$data <- lfqdataProtTotal$data |>
     dplyr::mutate(IBAQValue_proteinLength = !!sym(lfqdataProtTotal$response()) / !!sym(protein_length))
   lfqdataProtTotal$data <- lfqdataProtTotal$data |>
-    dplyr::mutate(IBAQValue = !!sym(lfqdataProtTotal$response())  / ifelse(!!sym(nr_tryptic_peptides) > 0,!!sym(nr_tryptic_peptides), 1 ))
+    dplyr::mutate(IBAQValue = !!sym(lfqdataProtTotal$response()) / ifelse(!!sym(nr_tryptic_peptides) > 0, !!sym(nr_tryptic_peptides), 1))
   lfqdataProtTotal$config$table$set_response("IBAQValue")
   return(lfqdataProtTotal)
 }
-

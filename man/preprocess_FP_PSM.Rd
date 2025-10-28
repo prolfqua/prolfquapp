@@ -8,12 +8,12 @@ preprocess_FP_PSM(
   quant_data,
   fasta_file,
   annotation,
-  column_before_quants = c("Quan Usage", "Mapped Proteins"),
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^REV_|^rev_",
   purity_threshold = 0.5,
   PeptideProphetProb = 0.9,
-  hierarchy_depth = 1
+  hierarchy_depth = 1,
+  parse_fun = tidy_FragPipe_psm
 )
 }
 \value{

@@ -75,11 +75,13 @@ QC_generator <- R6::R6Class(
         multiple = "all"
       )
 
+      # Get nr_children data using helper method
+      nr_children_data <- private$get_nr_children_data(lfqdata_prot)
+
       proteins_wide <- dplyr::inner_join(
         proteins_wide,
-        lfqdata_prot$to_wide(value = "nr_children")$data,
-        by = c(lfqdata_prot$config$table$hierarchy_keys_depth(), "isotopeLabel"),
-        suffix = c("_abundance", "_nr_children")
+        nr_children_data,
+        by = c(lfqdata_prot$config$table$hierarchy_keys_depth(), "isotopeLabel")
       )
       return(proteins_wide)
     },
@@ -147,11 +149,14 @@ QC_generator <- R6::R6Class(
             self$get_prot_IBAQ()$to_wide()$data,
             multiple = "all"
           )
+
+        # Get nr_children data using helper method
+        nr_children_data <- private$get_nr_children_data(self$get_prot_IBAQ())
+
         IBAQ_abundances <- dplyr::inner_join(
           IBAQ_abundances,
-          self$get_prot_IBAQ()$to_wide(value = "nr_children")$data,
-          by = c(self$get_prot_IBAQ()$config$table$hierarchy_keys_depth(), "isotopeLabel"),
-          suffix = c("_iBAQ", "_nr_children")
+          nr_children_data,
+          by = c(self$get_prot_IBAQ()$config$table$hierarchy_keys_depth(), "isotopeLabel")
         )
         return(IBAQ_abundances)
       } else {
@@ -349,6 +354,17 @@ QC_generator <- R6::R6Class(
       } else {
         return("protein")
       }
+    },
+
+    #' @description
+    #' Helper method to get nr_children data
+    #' @param lfqdata LFQData object to get nr_children data from
+    #' @return data frame with nr_children data
+    get_nr_children_data = function(lfqdata) {
+      # Get nr_children data using the configured column name
+      nr_children_col_name <- lfqdata$config$table$nr_children
+      nr_children_data <- lfqdata$to_wide(value = nr_children_col_name)$data
+      return(nr_children_data)
     }
   )
 )

@@ -88,6 +88,8 @@ ax <- ap$read_annotation(annot)
 
 \item{\code{sample_name_pattern}}{sample name column}
 
+\item{\code{norm_value_pattern}}{normalization value column (e.g., Creatinine)}
+
 \item{\code{strict}}{should name check be strict}
 }
 \if{html}{\out{</div>}}

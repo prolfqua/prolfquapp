@@ -31,7 +31,7 @@ pannot <- ProteinAnnotation$new(lfqdata,
   pattern_decoys = "^REV"
 )
 
-debug(anndata_from_LFQData)
+#debug(anndata_from_LFQData)
 anndata_from_LFQData(lfqdata, pannot)
 #anndataR::write_h5ad(adata, path = "test.h5ad", mode = "w")
 }

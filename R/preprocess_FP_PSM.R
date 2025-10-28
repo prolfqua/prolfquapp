@@ -204,6 +204,84 @@ tidy_FragPipe_combined_protein <- function(
 #' @param PeptideProphetProb default 0.9
 #' @param column_before_quants describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"
 #' @param aggregate aggregate spectra to psm level
+tidy_FragPipe_psm_V2 <- function(psm_files,
+                              purity_threshold = 0.5,
+                              PeptideProphetProb = 0.9,
+                              abundance_threshold = 0,
+                              quan_column_prefix =  "^Intensity",
+                              aggregate = TRUE){
+
+
+  psm_data_frames_long <- list()
+  for(psm_file in psm_files){
+    psm <- readr::read_tsv(psm_file)
+
+    colnamesQuan <- grep( quan_column_prefix, colnames(psm), value = TRUE )
+    probability_column <- intersect(c("PeptideProphet Probability", "Probability"), colnames(psm))
+
+    psm_relevant <- psm |> dplyr::select(
+      dplyr::all_of(
+        c(c("Spectrum",
+            "Spectrum File",
+            "Peptide",
+            "Modified Peptide",
+            "Charge",
+            "Intensity",
+            "Purity",
+            "Protein",
+            "Protein Description",
+            Probability = probability_column,
+            "Protein Description",
+            "Retention",
+            "Calibrated Observed Mass",
+            "Assigned Modifications",
+            "Charge"),
+          colnamesQuan) ))
+
+    psm_long <- psm_relevant |> tidyr::pivot_longer( tidyselect::all_of(colnamesQuan), values_to = "abundance", names_to = "channel")
+    psm_data_frames_long[[psm_file]] <- psm_long
+  }
+
+  psm_long <- dplyr::bind_rows(psm_data_frames_long)
+  trim_ws <- function(x) {
+    gsub("^\\s+|\\s+$", "", x)
+  }
+
+  psm_long$channel <- trim_ws(gsub(quan_column_prefix, "", psm_long$channel))
+
+  if (!is.null(abundance_threshold)) {
+    psm_long <- dplyr::filter(psm_long, abundance > abundance_threshold)
+  }
+
+  nrPeptides_exp <- psm_long |>
+    dplyr::select(Protein, Peptide) |>
+    dplyr::distinct() |>
+    dplyr::group_by(Protein) |>
+    dplyr::summarize(nrPeptides = dplyr::n())
+
+  colnames(psm_long) <- make.names(colnames(psm_long))
+  psm_long <- dplyr::filter(psm_long, Purity > purity_threshold & Probability > PeptideProphetProb)
+
+  if (aggregate) {
+    psm_long_agg <- psm_long |>
+      dplyr::select(-all_of(c("Spectrum.File","Spectrum","Purity","Retention","Calibrated.Observed.Mass","Charge"))) |>
+      dplyr::group_by(dplyr::across(-c(abundance, Probability))) |>
+      dplyr::summarize(nr_psm = n(), abundance = sum(abundance, na.rm = TRUE), Probability = max(Probability, na.rm = TRUE))
+    return(list(data = psm_long_agg, nrPeptides_exp = nrPeptides_exp))
+  }
+
+  return(list(data = psm_long, nrPeptides_exp = nrPeptides_exp))
+}
+
+
+
+#' read psm.tsv produced by FragPipe and convert into long format
+#' @export
+#' @param psm_file path to psm.tsv file
+#' @param purity_threshold purity threshold default = 0.5
+#' @param PeptideProphetProb default 0.9
+#' @param column_before_quants describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"
+#' @param aggregate aggregate spectra to psm level
 tidy_FragPipe_psm <- function(psm_files,
                               purity_threshold = 0.5,
                               PeptideProphetProb = 0.9,
@@ -217,7 +295,7 @@ tidy_FragPipe_psm <- function(psm_files,
     psm <- readr::read_tsv(psm_file)
 
 
-    column_before_quants <- intersect(colnames(psm), c("Quan Usage" , "Mapped Proteins"))
+    column_before_quants <- intersect(colnames(psm), column_before_quants)
     column_before_quants <- tail(column_before_quants, n=1)
     if (!"Purity" %in% colnames(psm) ) {
       warning("no Purity column in psm file!")
@@ -301,12 +379,13 @@ get_FP_PSM_files <- function(path){
 preprocess_FP_PSM <- function(quant_data,
                               fasta_file,
                               annotation,
-                              column_before_quants = c("Quan Usage" , "Mapped Proteins"),
+
                               pattern_contaminants = "^zz|^CON|Cont_",
                               pattern_decoys = "^REV_|^rev_",
                               purity_threshold = 0.5,
                               PeptideProphetProb = 0.9,
-                              hierarchy_depth = 1
+                              hierarchy_depth = 1,
+                              parse_fun = tidy_FragPipe_psm
 ){
   annot <- annotation$annot
   atable <- annotation$atable
@@ -315,7 +394,7 @@ preprocess_FP_PSM <- function(quant_data,
                     (basename(annot[[atable$fileName]]))
     ))
 
-  psm <- prolfquapp::tidy_FragPipe_psm(quant_data, column_before_quants = column_before_quants)
+  psm <- parse_fun(quant_data)
   nrPeptides_exp <- psm$nrPeptides # this is a data.frame
   psm <- psm$data
   psm$qValue <- 1 - psm$Probability
