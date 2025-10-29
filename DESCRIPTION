@@ -18,7 +18,6 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-  anndataR,
   arrow,
   ggraph,
   lobstr,
@@ -32,6 +31,7 @@ Imports:
   SummarizedExperiment
 RoxygenNote: 7.3.3
 Suggests: 
+  anndataR,
   knitr,
   rmarkdown,
   testthat (>= 3.0.0)
