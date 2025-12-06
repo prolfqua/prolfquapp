@@ -17,9 +17,13 @@ QC_generator
 
 \item{\code{lfqdata_prot_IBAQ}}{lfqdata_prot_IBAQ}
 
+\item{\code{lfqdata_prot_transformed}}{lfqdata_prot_transformed (VSN normalized)}
+
 \item{\code{protein_annotation}}{protein_annotation}
 
 \item{\code{lfqdata_peptide}}{lfqdata_peptide}
+
+\item{\code{lfqdata_peptide_transformed}}{lfqdata_peptide_transformed (VSN normalized)}
 
 \item{\code{output_dir}}{output_dir}
 
@@ -36,9 +40,13 @@ QC_generator
 \itemize{
 \item \href{#method-QC_generator-new}{\code{QC_generator$new()}}
 \item \href{#method-QC_generator-get_peptides_wide}{\code{QC_generator$get_peptides_wide()}}
+\item \href{#method-QC_generator-get_peptides_transformed}{\code{QC_generator$get_peptides_transformed()}}
+\item \href{#method-QC_generator-get_peptides_transformed_wide}{\code{QC_generator$get_peptides_transformed_wide()}}
 \item \href{#method-QC_generator-get_annotation}{\code{QC_generator$get_annotation()}}
 \item \href{#method-QC_generator-get_prot_data}{\code{QC_generator$get_prot_data()}}
 \item \href{#method-QC_generator-get_prot_wide}{\code{QC_generator$get_prot_wide()}}
+\item \href{#method-QC_generator-get_prot_transformed}{\code{QC_generator$get_prot_transformed()}}
+\item \href{#method-QC_generator-get_prot_transformed_wide}{\code{QC_generator$get_prot_transformed_wide()}}
 \item \href{#method-QC_generator-get_prot_IBAQ}{\code{QC_generator$get_prot_IBAQ()}}
 \item \href{#method-QC_generator-get_protein_per_group_abundance}{\code{QC_generator$get_protein_per_group_abundance()}}
 \item \href{#method-QC_generator-get_protein_per_group_abundance_with_row_annot}{\code{QC_generator$get_protein_per_group_abundance_with_row_annot()}}
@@ -89,6 +97,32 @@ peptide data in wide format
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-QC_generator-get_peptides_transformed"></a>}}
+\if{latex}{\out{\hypertarget{method-QC_generator-get_peptides_transformed}{}}}
+\subsection{Method \code{get_peptides_transformed()}}{
+get VSN-transformed peptide data
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_peptides_transformed()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+VSN-transformed peptide LFQData
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-QC_generator-get_peptides_transformed_wide"></a>}}
+\if{latex}{\out{\hypertarget{method-QC_generator-get_peptides_transformed_wide}{}}}
+\subsection{Method \code{get_peptides_transformed_wide()}}{
+get VSN-transformed peptide data in wide format
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_peptides_transformed_wide()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+VSN-transformed peptide data in wide format
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_annotation"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_annotation}{}}}
 \subsection{Method \code{get_annotation()}}{
@@ -125,6 +159,32 @@ get protein data in wide format
 
 \subsection{Returns}{
 protein data in wide format
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-QC_generator-get_prot_transformed"></a>}}
+\if{latex}{\out{\hypertarget{method-QC_generator-get_prot_transformed}{}}}
+\subsection{Method \code{get_prot_transformed()}}{
+get VSN-transformed protein data
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_prot_transformed()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+VSN-transformed protein LFQData
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-QC_generator-get_prot_transformed_wide"></a>}}
+\if{latex}{\out{\hypertarget{method-QC_generator-get_prot_transformed_wide}{}}}
+\subsection{Method \code{get_prot_transformed_wide()}}{
+get VSN-transformed protein data in wide format
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_prot_transformed_wide()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+VSN-transformed protein data in wide format
 }
 }
 \if{html}{\out{<hr>}}

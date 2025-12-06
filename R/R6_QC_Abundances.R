@@ -10,10 +10,14 @@ QC_generator <- R6::R6Class(
     lfqdata_prot = NULL,
     #' @field lfqdata_prot_IBAQ lfqdata_prot_IBAQ
     lfqdata_prot_IBAQ = NULL,
+    #' @field lfqdata_prot_transformed lfqdata_prot_transformed (VSN normalized)
+    lfqdata_prot_transformed = NULL,
     #' @field protein_annotation protein_annotation
     protein_annotation = NULL,
     #' @field lfqdata_peptide lfqdata_peptide
     lfqdata_peptide = NULL,
+    #' @field lfqdata_peptide_transformed lfqdata_peptide_transformed (VSN normalized)
+    lfqdata_peptide_transformed = NULL,
     #' @field output_dir output_dir
     output_dir = NULL,
     #' @field GRP2 GRP2
@@ -49,6 +53,30 @@ QC_generator <- R6::R6Class(
       invisible(peptide_wide)
     },
     #' @description
+    #' get VSN-transformed peptide data
+    #' @return VSN-transformed peptide LFQData
+    get_peptides_transformed = function() {
+      if (is.null(self$lfqdata_peptide_transformed)) {
+        self$lfqdata_peptide_transformed <- prolfquapp::transform_lfqdata(self$lfqdata, method = "vsn")
+      }
+      invisible(self$lfqdata_peptide_transformed)
+    },
+    #' @description
+    #' get VSN-transformed peptide data in wide format
+    #' @return VSN-transformed peptide data in wide format
+    get_peptides_transformed_wide = function() {
+      lfqdata_pep_tr <- self$get_peptides_transformed()
+      if (is.null(lfqdata_pep_tr)) {
+        return(NULL)
+      }
+      peptide_wide <- dplyr::left_join(
+        self$protein_annotation$row_annot,
+        lfqdata_pep_tr$to_wide()$data,
+        multiple = "all"
+      )
+      return(peptide_wide)
+    },
+    #' @description
     #' get annotation data
     #' @return annotation data.frame
     get_annotation = function() {
@@ -82,6 +110,31 @@ QC_generator <- R6::R6Class(
         proteins_wide,
         nr_children_data,
         by = c(lfqdata_prot$config$table$hierarchy_keys_depth(), "isotopeLabel")
+      )
+      return(proteins_wide)
+    },
+    #' @description
+    #' get VSN-transformed protein data
+    #' @return VSN-transformed protein LFQData
+    get_prot_transformed = function() {
+      if (is.null(self$lfqdata_prot_transformed)) {
+        lfqdata_prot <- self$get_prot_data()
+        self$lfqdata_prot_transformed <- prolfquapp::transform_lfqdata(lfqdata_prot, method = "vsn")
+      }
+      invisible(self$lfqdata_prot_transformed)
+    },
+    #' @description
+    #' get VSN-transformed protein data in wide format
+    #' @return VSN-transformed protein data in wide format
+    get_prot_transformed_wide = function() {
+      lfqdata_prot_tr <- self$get_prot_transformed()
+      if (is.null(lfqdata_prot_tr)) {
+        return(NULL)
+      }
+      proteins_wide <- dplyr::left_join(
+        self$protein_annotation$row_annot,
+        lfqdata_prot_tr$to_wide()$data,
+        multiple = "all"
       )
       return(proteins_wide)
     },
@@ -169,8 +222,10 @@ QC_generator <- R6::R6Class(
     get_list = function() {
       TABLES2WRITE <- list()
       TABLES2WRITE$peptide_wide <- self$get_peptides_wide()
+      TABLES2WRITE$peptide_VSN_normalized <- self$get_peptides_transformed_wide()
       TABLES2WRITE$annotation <- self$get_annotation()
       TABLES2WRITE$prot_medpolish_estimate <- self$get_prot_wide()
+      TABLES2WRITE$prot_VSN_normalized <- self$get_prot_transformed_wide()
       TABLES2WRITE$prot_IBAQ_estimate <- self$get_prot_IBAQ_wide()
       TABLES2WRITE$prot_IBAQ_per_group_stats <- self$get_protein_per_group_abundance_wide()
       return(TABLES2WRITE)
