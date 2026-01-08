@@ -46,12 +46,20 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05) {
 diann_output_to_peptide <- function(report2) {
   # columns_to_summarize <- c("Precursor.Quantity", "Precursor.Normalised", "PEP", "Ms1.Translated")
   # if(all(c("Ms1.Translated", "Peptide.Translated")
+  # Suggested fix in prolfquapp
+  pg_quantity_col <- if ("PG.Quantity" %in% names(report2)) {
+    "PG.Quantity"
+  } else if ("PG.MaxLFQ" %in% names(report2)) {
+    "PG.MaxLFQ"
+  } else {
+    stop("No protein group quantity column found")
+  }
   peptide <- report2 |>
     dplyr::group_by(!!!syms(c(
       "raw.file",
       "Protein.Group",
       "Protein.Names",
-      "PG.Quantity",
+      pg_quantity_col,
       "Stripped.Sequence"
     ))) |>
     dplyr::summarize(
