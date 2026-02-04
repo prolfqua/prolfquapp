@@ -141,7 +141,7 @@ if (!file.exists(opt$dataset)) {
 
 annotation <- file.path(opt$dataset) |>
   prolfquapp::read_table_data() |>
-  prolfquapp::read_annotation(QC = TRUE)
+  prolfquapp::read_annotation(QC = TRUE, repeated = FALSE)
 
 
 result <- tryCatch(
