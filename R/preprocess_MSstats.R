@@ -63,7 +63,7 @@ preprocess_MSstats_FPDIA <- function(quant_data,
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
-    !!annotation$atable$fileName := (gsub("^x|.d.zip$|.raw$","",
+    !!annotation$atable$fileName := (gsub("^x|\\.d\\.zip$|\\.raw$","",
                                           (basename(annot[[atable$fileName]])))
     ))
 
@@ -139,7 +139,7 @@ preprocess_MSstats <- function(quant_data,
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
-    !!annotation$atable$fileName := (gsub("^x|.d.zip$|.raw$","",
+    !!annotation$atable$fileName := (gsub("^x|\\.d\\.zip$|\\.raw$","",
                                           (basename(annot[[atable$fileName]])))
     ))
 

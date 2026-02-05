@@ -424,7 +424,7 @@ diann_read_output_deprec <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0
                                by = c("File.Name", "Protein.Group", "Protein.Names")) |>
     dplyr::as_tibble()
 
-  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
+  report2$raw.file <- gsub("^x|\\.d\\.zip$|\\.d$|\\.raw$|\\.mzML$","",basename(gsub("\\\\","/",report2$File.Name)))
   report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group )
   return(report2)
 }

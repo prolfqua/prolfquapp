@@ -233,7 +233,7 @@ preprocess_MQ_peptide <- function(quant_data,
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
-    !!annotation$atable$fileName := tolower(gsub("^x|.d.zip$|.raw$","",
+    !!annotation$atable$fileName := tolower(gsub("^x|\\.d\\.zip$|\\.raw$","",
                                                  (basename(annot[[atable$fileName]])))
     ))
   proteotypic_only <- TRUE

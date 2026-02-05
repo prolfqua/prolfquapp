@@ -31,7 +31,7 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05) {
 
   report <- data
   report2 <- filter_PG(report, .Lib.PG.Q.Value = Lib.PG.Q.Value, .PG.Q.Value = PG.Q.Value)
-  report2$raw.file <- gsub("^x|.d.zip$|.d$|.raw$|.mzML$", "", basename(gsub("\\\\", "/", report2$File.Name)))
+  report2$raw.file <- gsub("^x|\\.d\\.zip$|\\.d$|\\.raw$|\\.mzML$", "", basename(gsub("\\\\", "/", report2$File.Name)))
   report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group)
   return(report2)
 }
@@ -127,7 +127,7 @@ preprocess_DIANN <- function(quant_data,
   atable <- annotation$atable$clone(deep = FALSE)
   annot <- annot |> dplyr::mutate(
     raw.file = gsub(
-      "^x|.d.zip$|.raw$", "",
+      "^x|\\.d\\.zip$|\\.raw$", "",
       (basename(annot[[atable$fileName]]))
     )
   )

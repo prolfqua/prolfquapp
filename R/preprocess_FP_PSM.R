@@ -78,7 +78,7 @@ tidy_FragPipe_combined_protein_deprec <- function(
   extractDataLong <- function(Cprotein, what = "total.intensity"){
     gg <- Cprotein |> dplyr::select( protIDcol, subgroup, dplyr::ends_with(what))
     gg <- gg |> tidyr::pivot_longer(cols = dplyr::ends_with(what), names_to = "raw.file",values_to = what)
-    gg <- gg |> dplyr::mutate(raw.file = gsub(paste0(".",what,"$"),"", .data$raw.file))
+    gg <- gg |> dplyr::mutate(raw.file = gsub(paste0("\\.",what,"$"),"", .data$raw.file))
     gg
   }
 
@@ -161,7 +161,7 @@ tidy_FragPipe_combined_protein <- function(
     gg <- Cprotein |> dplyr::select( dplyr::all_of(protIDcol), dplyr::all_of(cols) )
 
     gg <- gg |> tidyr::pivot_longer(cols = dplyr::ends_with(what), names_to = "raw.file",values_to = what)
-    gg <- gg |> dplyr::mutate(raw.file = gsub(paste0(".",what,"$"),"", .data$raw.file))
+    gg <- gg |> dplyr::mutate(raw.file = gsub(paste0("\\.",what,"$"),"", .data$raw.file))
     gg
   }
 
@@ -390,7 +390,7 @@ preprocess_FP_PSM <- function(quant_data,
   annot <- annotation$annot
   atable <- annotation$atable
   annot <- annot |> dplyr::mutate(
-    raw.file = gsub("^x|.d.zip$|.raw$","",
+    raw.file = gsub("^x|\\.d\\.zip$|\\.raw$","",
                     (basename(annot[[atable$fileName]]))
     ))
 

@@ -80,7 +80,7 @@ preprocess_BGS <- function(quant_data,
   annot <- annotation$annot
   atable <- annotation$atable$clone(deep = FALSE)
   annot <- annot |> dplyr::mutate(
-    raw.file = gsub("^x|.d.zip$|.raw$","",
+    raw.file = gsub("^x|\\.d\\.zip$|\\.raw$","",
                     (basename(annot[[atable$fileName]]))
     ))
   report2 <- read_BGS(quant_data)
