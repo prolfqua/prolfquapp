@@ -241,6 +241,19 @@ QC_generator <- R6::R6Class(
       self$links[["QC_XLSX"]] <- xlsxfile
     },
     #' @description
+    #' copy dataset/annotation file to output directory
+    #' @param dataset_path path to the dataset file
+    copy_dataset = function(dataset_path) {
+      if (file.exists(dataset_path)) {
+        dest_path <- file.path(self$output_dir, basename(dataset_path))
+        file.copy(dataset_path, dest_path, overwrite = TRUE)
+        self$links[["DATASET"]] <- dest_path
+        logger::log_info("Copied dataset to: ", dest_path)
+      } else {
+        logger::log_warn("Dataset file not found: ", dataset_path)
+      }
+    },
+    #' @description
     #' render QC protein abundances report
     render_QC_protein_abundances = function() {
       file.copy(system.file("application/GenericQC/QC_ProteinAbundances.Rmd", package = "prolfquapp"),
