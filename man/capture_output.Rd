@@ -6,6 +6,9 @@
 \usage{
 capture_output(expr)
 }
+\arguments{
+\item{expr}{expression to capture output from}
+}
 \description{
 capture output of function to send it to log
 }

@@ -6,6 +6,13 @@
 \usage{
 aggregate_data(lfqdata, agg_method = c("medpolish", "lmrob", "topN"), N = 3)
 }
+\arguments{
+\item{lfqdata}{LFQData object}
+
+\item{agg_method}{aggregation method}
+
+\item{N}{number of top peptides for topN aggregation}
+}
 \description{
 dataset transform data
 }

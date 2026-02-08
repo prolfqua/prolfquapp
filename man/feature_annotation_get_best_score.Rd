@@ -6,6 +6,9 @@
 \usage{
 feature_annotation_get_best_score(x)
 }
+\arguments{
+\item{x}{data frame of feature annotations}
+}
 \description{
 get best feature annotation.
 }

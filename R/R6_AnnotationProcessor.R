@@ -1,5 +1,6 @@
 # Create a named list of functions
 #' read dataset file in csv, tsv or xlsx format
+#' @param file_path path to csv, tsv, or xlsx file
 #' @export
 read_table_data <- function(file_path) {
   read_functions <- list(
@@ -24,6 +25,8 @@ read_table_data <- function(file_path) {
 
 # Create a named list of functions
 #' Write dataset to file in csv, tsv, or xlsx format
+#' @param data data frame to write
+#' @param file_path output file path (csv, tsv, or xlsx)
 #' @export
 #' @examples
 #'
@@ -376,6 +379,8 @@ AnnotationProcessor <- R6::R6Class(
 #' @param dsf annotation table
 #' @param repeated is this a repeated measurement
 #' @param SAINT is this a SAINTexpress analysis
+#' @param prefix prefix for group levels
+#' @param QC if TRUE, read as QC annotation
 #' @export
 #' @examples
 #' annot <- data.frame(
@@ -390,6 +395,9 @@ read_annotation <- function(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", 
 }
 
 #' extract contrast from annotation file
+#' @param annot annotation data frame
+#' @param prefix prefix for group levels
+#' @param group name of the group column
 #' @export
 #' @examples
 #'
@@ -409,6 +417,8 @@ extract_contrasts <- function(annot, prefix = "G_", group = "group") {
 }
 
 #' add vector of contrasts to annotation data frame
+#' @param xx annotation data frame
+#' @param Contrasts character vector of contrasts
 #' @export
 #' @examples
 #' annot <- data.frame(Group = rep(c("A","B","C"), each = 3))

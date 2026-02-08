@@ -18,7 +18,13 @@ write_DEA(
 
 \item{outpath}{path to place output}
 
+\item{ORA}{if TRUE write ORA gene lists}
+
+\item{GSEA}{if TRUE write GSEA rank files}
+
 \item{xlsxname}{file name for xlsx}
+
+\item{write}{if TRUE write files to disk}
 }
 \description{
 Write differential expression analysis results

@@ -13,6 +13,19 @@ preprocess_software(
   extreader = NULL
 )
 }
+\arguments{
+\item{indir}{input directory with quantification data}
+
+\item{annotation}{annotation list from read_annotation}
+
+\item{preprocess_functions}{list or R6 object with get_files, preprocess, extra_args}
+
+\item{pattern_contaminants}{regex pattern for contaminants}
+
+\item{pattern_decoys}{regex pattern for decoys}
+
+\item{extreader}{optional external reader configuration}
+}
 \description{
 collects preprocess methods for various software
 }

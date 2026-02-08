@@ -6,6 +6,9 @@
 \usage{
 diann_output_to_peptide(report2)
 }
+\arguments{
+\item{report2}{filtered DIA-NN report data frame}
+}
 \description{
 \code{\link{diann_read_output}}
 }

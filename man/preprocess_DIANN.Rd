@@ -15,6 +15,23 @@ preprocess_DIANN(
   nr_peptides = 1
 )
 }
+\arguments{
+\item{quant_data}{path to quantification data file}
+
+\item{fasta_file}{path to fasta file(s)}
+
+\item{annotation}{annotation list from read_annotation}
+
+\item{pattern_contaminants}{regex pattern for contaminants}
+
+\item{pattern_decoys}{regex pattern for decoys}
+
+\item{q_value}{q-value threshold for filtering}
+
+\item{hierarchy_depth}{hierarchy depth for aggregation}
+
+\item{nr_peptides}{minimum number of peptides per protein}
+}
 \value{
 list with lfqdata and protein annotation
 }

@@ -6,6 +6,9 @@
 \usage{
 get_FP_PSM_files(path)
 }
+\arguments{
+\item{path}{path to data directory}
+}
 \value{
 list with paths to data and fasta
 }

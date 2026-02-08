@@ -12,6 +12,10 @@ read_annotation(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE)
 \item{repeated}{is this a repeated measurement}
 
 \item{SAINT}{is this a SAINTexpress analysis}
+
+\item{prefix}{prefix for group levels}
+
+\item{QC}{if TRUE, read as QC annotation}
 }
 \value{
 list with annot (annotation table), atable (analtysis table configuration), contrasts list with contrasts.

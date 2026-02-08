@@ -1,4 +1,6 @@
 #' convert lfqdata to anndata
+#' @param lfqdata LFQData object
+#' @param pannot ProteinAnnotation object
 #' @export
 #'
 #' @examples

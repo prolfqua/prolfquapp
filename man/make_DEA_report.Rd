@@ -17,6 +17,10 @@ render_DEA(
 )
 }
 \arguments{
+\item{lfqdata}{LFQData object}
+
+\item{protAnnot}{ProteinAnnotation object}
+
 \item{GRP2}{return value of \code{\link{make_DEA_report}}}
 
 \item{outpath}{path to place output}
@@ -25,13 +29,9 @@ render_DEA(
 
 \item{word}{default FALSE, if true create word document.s}
 
+\item{toc}{if TRUE include table of contents}
+
 \item{markdown}{which file to render}
-
-\item{startdata}{table in long format}
-
-\item{atable}{AnalysisTableAnnotation annotate startdata table}
-
-\item{protein_annot}{column with protein description e.g. (fasta header)}
 }
 \description{
 For use examples see run_scripts directory

@@ -6,6 +6,9 @@
 \usage{
 get_MSstats_files(path)
 }
+\arguments{
+\item{path}{path to data directory}
+}
 \value{
 list with paths to data and fasta
 }

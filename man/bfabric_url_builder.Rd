@@ -6,6 +6,9 @@
 \usage{
 bfabric_url_builder(project_spec)
 }
+\arguments{
+\item{project_spec}{ProjectSpec R6 object with project, order, workunit IDs}
+}
 \description{
 build bfabric urls
 }

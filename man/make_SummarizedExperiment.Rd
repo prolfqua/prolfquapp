@@ -14,6 +14,14 @@ make_SummarizedExperiment(
 }
 \arguments{
 \item{GRP2}{return value of \code{\link{make_DEA_report}}}
+
+\item{colname}{column name for sample identifier}
+
+\item{rowname}{column name for row identifier}
+
+\item{strip}{regex pattern to strip from rownames}
+
+\item{.url_builder}{function to build bfabric URLs}
 }
 \value{
 SummarizedExperiment

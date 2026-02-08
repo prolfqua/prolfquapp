@@ -15,6 +15,23 @@ write_DEA_all(
   toc = TRUE
 )
 }
+\arguments{
+\item{grp2}{ProlfquAppConfig configuration with results}
+
+\item{name}{optional name prefix for output files}
+
+\item{boxplot}{if TRUE generate boxplots}
+
+\item{render}{if TRUE render HTML reports}
+
+\item{ORA}{if TRUE write ORA gene lists}
+
+\item{GSEA}{if TRUE write GSEA rank files}
+
+\item{markdown}{Rmd template to render}
+
+\item{toc}{if TRUE include table of contents}
+}
 \description{
 Writes results of DEA see \code{\link{generate_DEA_reports}}
 }

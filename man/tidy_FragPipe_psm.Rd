@@ -14,15 +14,17 @@ tidy_FragPipe_psm(
 )
 }
 \arguments{
+\item{psm_files}{path(s) to psm.tsv file(s)}
+
 \item{purity_threshold}{purity threshold default = 0.5}
 
 \item{PeptideProphetProb}{default 0.9}
 
+\item{abundance_threshold}{minimum abundance threshold}
+
 \item{column_before_quants}{describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"}
 
 \item{aggregate}{aggregate spectra to psm level}
-
-\item{psm_file}{path to psm.tsv file}
 }
 \description{
 read psm.tsv produced by FragPipe and convert into long format

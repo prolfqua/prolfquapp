@@ -6,18 +6,23 @@
 \usage{
 dataset_extract_contrasts(annot, GRP2)
 }
+\arguments{
+\item{annot}{annotation data frame}
+
+\item{GRP2}{configuration list}
+}
 \description{
 extect contrasts from dataset
 }
 \examples{
 
-file <- system.file("application/dataset_csv/dataset 25.csv", package = "prolfquapp")
+file <- system.file("application/dataset_csv/dataset_25.csv", package = "prolfquapp")
 res <- readr::read_csv(file)
 GRP2 <- make_DEA_config()
 GRP2 <- dataset_extract_contrasts(res,GRP2)
 stopifnot(length(GRP2$pop$Contrasts) == 0)
 
-file <- system.file("application/dataset_csv/dataset 26.csv", package = "prolfquapp")
+file <- system.file("application/dataset_csv/dataset_26.csv", package = "prolfquapp")
 res <- readr::read_csv(file)
 GRP2 <- dataset_extract_contrasts(res,GRP2)
 stopifnot(length(GRP2$pop$Contrasts) == 3)

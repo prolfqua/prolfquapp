@@ -1,4 +1,6 @@
 #' nice plot for paired analysis
+#' @param bb LFQData object with paired data
+#' @param outpath output directory for plots
 #' @export
 #' @examples
 #'

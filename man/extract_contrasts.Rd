@@ -6,6 +6,13 @@
 \usage{
 extract_contrasts(annot, prefix = "G_", group = "group")
 }
+\arguments{
+\item{annot}{annotation data frame}
+
+\item{prefix}{prefix for group levels}
+
+\item{group}{name of the group column}
+}
 \description{
 extract contrast from annotation file
 }

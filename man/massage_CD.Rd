@@ -6,6 +6,11 @@
 \usage{
 massage_CD(in_file, EXCEL = TRUE)
 }
+\arguments{
+\item{in_file}{path to Compound Discoverer file or data frame}
+
+\item{EXCEL}{if TRUE read Excel format}
+}
 \description{
 massage CD output compound table.
 }

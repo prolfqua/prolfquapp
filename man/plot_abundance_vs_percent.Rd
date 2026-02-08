@@ -17,9 +17,23 @@ plot_abundance_vs_percent(
 )
 }
 \arguments{
-\item{sr}{LFQDataSummarizer}
+\item{percInfo}{data frame with percentage abundance info}
 
-\item{top_percent}{deprecate}
+\item{cfg_table}{AnalysisTableAnnotation configuration table}
+
+\item{top_N}{number of top proteins to label}
+
+\item{factors}{if TRUE facet by factors}
+
+\item{colors}{named vector of colors for special proteins}
+
+\item{columnAb}{column name for abundance values}
+
+\item{group}{crosstalk group identifier}
+
+\item{alpha}{point transparency}
+
+\item{logY}{if TRUE use log10 y-axis}
 }
 \value{
 ggplot2
@@ -30,10 +44,10 @@ Plot relative protein abundance as a function of rank by abundance
 \examples{
 
 library(prolfqua)
-istar <- prolfqua_data('data_ionstar')
-istar$config <- old2new(istar$config)
+istar <- prolfqua::prolfqua_data('data_ionstar')
+istar$config <- prolfqua::old2new(istar$config)
 data <- istar$data |> dplyr::filter(protein_Id \%in\% sample(protein_Id, 100))
-lfqdata <- LFQData$new(data, istar$config)
+lfqdata <- prolfqua::LFQData$new(data, istar$config)
 sr <- lfqdata$get_Summariser()
 undebug(plot_abundance_vs_percent)
 plot_abundance_vs_percent(sr$percentage_abundance(),

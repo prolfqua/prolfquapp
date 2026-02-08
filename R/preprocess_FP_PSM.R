@@ -199,10 +199,11 @@ tidy_FragPipe_combined_protein <- function(
 
 #' read psm.tsv produced by FragPipe and convert into long format
 #' @export
-#' @param psm_file path to psm.tsv file
+#' @param psm_files path(s) to psm.tsv file(s)
 #' @param purity_threshold purity threshold default = 0.5
 #' @param PeptideProphetProb default 0.9
-#' @param column_before_quants describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"
+#' @param abundance_threshold minimum abundance threshold
+#' @param quan_column_prefix regex prefix for quantitative columns
 #' @param aggregate aggregate spectra to psm level
 tidy_FragPipe_psm_V2 <- function(psm_files,
                               purity_threshold = 0.5,
@@ -277,9 +278,10 @@ tidy_FragPipe_psm_V2 <- function(psm_files,
 
 #' read psm.tsv produced by FragPipe and convert into long format
 #' @export
-#' @param psm_file path to psm.tsv file
+#' @param psm_files path(s) to psm.tsv file(s)
 #' @param purity_threshold purity threshold default = 0.5
 #' @param PeptideProphetProb default 0.9
+#' @param abundance_threshold minimum abundance threshold
 #' @param column_before_quants describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"
 #' @param aggregate aggregate spectra to psm level
 tidy_FragPipe_psm <- function(psm_files,
@@ -355,6 +357,7 @@ tidy_FragPipe_psm <- function(psm_files,
 
 
 #' get psm.tsv and fasta file location in folder
+#' @param path path to data directory
 #' @return list with paths to data and fasta
 #' @export
 get_FP_PSM_files <- function(path){
@@ -374,6 +377,15 @@ get_FP_PSM_files <- function(path){
 
 
 #' preprocess FP psm, filter by purity_threshold and PeptideProphetProb
+#' @param quant_data path to quantification data file(s)
+#' @param fasta_file path to fasta file(s)
+#' @param annotation annotation list from read_annotation
+#' @param pattern_contaminants regex pattern for contaminants
+#' @param pattern_decoys regex pattern for decoys
+#' @param purity_threshold purity threshold for filtering
+#' @param PeptideProphetProb PeptideProphet probability threshold
+#' @param hierarchy_depth hierarchy depth for aggregation
+#' @param parse_fun function for parsing PSM files
 #' @return list with lfqdata and protein annotation
 #' @export
 preprocess_FP_PSM <- function(quant_data,
@@ -444,6 +456,7 @@ preprocess_FP_PSM <- function(quant_data,
 
 
 #' get report.tsv and fasta file location in folder
+#' @param path path to data directory
 #' @return list with paths to data and fasta
 #' @export
 get_FP_multiSite_files <- function(path){
@@ -460,6 +473,7 @@ get_FP_multiSite_files <- function(path){
 }
 
 #' get dataset annotation template
+#' @param files list with data and fasta file paths
 #' @return data.frame
 #' @export
 dataset_template_FP_TMT <- function(files){

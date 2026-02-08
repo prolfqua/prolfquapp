@@ -6,6 +6,11 @@
 \usage{
 make_feature_annotation(x, .loader = feature_annotation_get_best_score)
 }
+\arguments{
+\item{x}{data frame of feature annotations}
+
+\item{.loader}{function to select best annotations}
+}
 \description{
 get feature annotation.
 }

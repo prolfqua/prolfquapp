@@ -6,6 +6,11 @@
 \usage{
 write_annotation_file(data, file_path)
 }
+\arguments{
+\item{data}{data frame to write}
+
+\item{file_path}{output file path (csv, tsv, or xlsx)}
+}
 \description{
 Write dataset to file in csv, tsv, or xlsx format
 }

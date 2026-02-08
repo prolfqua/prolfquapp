@@ -1,4 +1,5 @@
 #' get petpide.txt and fasta file location in folder
+#' @param path path to data directory
 #' @return list with paths to data and fasta
 #' @export
 get_MSstats_files <- function(path){
@@ -23,6 +24,7 @@ get_MSstats_files <- function(path){
 
 
 #' read MSstats.csv files and rollup to ProteinSequence level.
+#' @param file path to MSstats csv file
 #' @export
 read_msstats <- function(file){
   msstats <- readr::read_csv(file)
@@ -38,6 +40,7 @@ read_msstats <- function(file){
 }
 
 #' create dataset template from MSStats data.
+#' @param files list with data and fasta file paths
 #' @export
 #'
 dataset_template_MSSTATS <- function(files){
@@ -51,6 +54,12 @@ dataset_template_MSSTATS <- function(files){
 }
 
 #' preprocess MSstats fragpipe
+#' @param quant_data path to MSstats csv file
+#' @param fasta_file path to fasta file(s)
+#' @param annotation annotation list from read_annotation
+#' @param pattern_contaminants regex pattern for contaminants
+#' @param pattern_decoys regex pattern for decoys
+#' @param hierarchy_depth hierarchy depth for aggregation
 #' @export
 #'
 preprocess_MSstats_FPDIA <- function(quant_data,
@@ -127,6 +136,12 @@ preprocess_MSstats_FPDIA <- function(quant_data,
 
 
 #' preprocess MSstats file coming from FragPipe
+#' @param quant_data path to MSstats csv file
+#' @param fasta_file path to fasta file(s)
+#' @param annotation annotation list from read_annotation
+#' @param pattern_contaminants regex pattern for contaminants
+#' @param pattern_decoys regex pattern for decoys
+#' @param hierarchy_depth hierarchy depth for aggregation
 #' @export
 #'
 preprocess_MSstats <- function(quant_data,

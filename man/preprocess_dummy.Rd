@@ -12,6 +12,17 @@ preprocess_dummy(
   pattern_decoys = "^REV_|^rev"
 )
 }
+\arguments{
+\item{quant_data}{path to quantification data file}
+
+\item{fasta_file}{path to fasta file(s)}
+
+\item{annotation}{annotation list from read_annotation}
+
+\item{pattern_contaminants}{regex pattern for contaminants}
+
+\item{pattern_decoys}{regex pattern for decoys}
+}
 \description{
 preprocess_dummy
 }

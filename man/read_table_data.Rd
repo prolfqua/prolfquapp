@@ -6,6 +6,9 @@
 \usage{
 read_table_data(file_path)
 }
+\arguments{
+\item{file_path}{path to csv, tsv, or xlsx file}
+}
 \description{
 read dataset file in csv, tsv or xlsx format
 }

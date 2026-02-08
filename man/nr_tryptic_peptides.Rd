@@ -6,6 +6,13 @@
 \usage{
 nr_tryptic_peptides(sequence, min_length = 6, max_length = 30)
 }
+\arguments{
+\item{sequence}{amino acid sequence}
+
+\item{min_length}{minimum peptide length}
+
+\item{max_length}{maximum peptide length}
+}
 \description{
 Compute number of tryptic peptides
 }

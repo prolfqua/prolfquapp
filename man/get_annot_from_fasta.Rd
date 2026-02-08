@@ -13,6 +13,19 @@ get_annot_from_fasta(
   include_seq = FALSE
 )
 }
+\arguments{
+\item{fasta.files}{path to fasta file(s) or connection}
+
+\item{pattern_decoys}{regex for decoy sequence IDs}
+
+\item{isUniprot}{if TRUE parse UniProt-style headers}
+
+\item{min_length}{minimum tryptic peptide length}
+
+\item{max_length}{maximum tryptic peptide length}
+
+\item{include_seq}{if TRUE include protein sequences}
+}
 \description{
 get_annot_from_fasta
 }

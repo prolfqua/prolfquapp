@@ -19,6 +19,9 @@
 
 
 #' Compute number of tryptic peptides
+#' @param sequence amino acid sequence
+#' @param min_length minimum peptide length
+#' @param max_length maximum peptide length
 #' @export
 #' @examples
 #' # example code
@@ -78,6 +81,12 @@ GIGYKDVSHAVLNLVSGSFVPTEDCTLATFPFLLPPKECNDWSETSLM
 
 #' get_annot_from_fasta
 #'
+#' @param fasta.files path to fasta file(s) or connection
+#' @param pattern_decoys regex for decoy sequence IDs
+#' @param isUniprot if TRUE parse UniProt-style headers
+#' @param min_length minimum tryptic peptide length
+#' @param max_length maximum tryptic peptide length
+#' @param include_seq if TRUE include protein sequences
 #' @export
 #' @examples
 #'

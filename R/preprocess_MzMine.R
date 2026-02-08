@@ -1,4 +1,5 @@
 #' convert mzmine features to tidy table
+#' @param data path to csv or data frame of mzMine features
 #' @export
 #' @examples
 #' # example code
@@ -51,6 +52,7 @@ tidy_mzMineFeatures <- function(data) {
 }
 
 #' get best feature annotation.
+#' @param x data frame of feature annotations
 #' @export
 feature_annotation_get_best_score <- function(x){
   best_per_id <- x |>
@@ -61,6 +63,7 @@ feature_annotation_get_best_score <- function(x){
 }
 
 #' get best feature annotation.
+#' @param x data frame of feature annotations
 #' @examples
 #' if (FALSE) {
 #'   x <- readr::read_csv("test/out_results_zip/mzmine/result_annotations.csv")
@@ -83,6 +86,8 @@ feature_annotation_collapse_to_single_row <- function(x){
 
 #'
 #' get feature annotation.
+#' @param x data frame of feature annotations
+#' @param .loader function to select best annotations
 #' @export
 #' @examples
 #' if (FALSE) {
@@ -110,6 +115,7 @@ make_feature_annotation <- function(x, .loader = feature_annotation_get_best_sco
 
 
 #' get mzmine fliles
+#' @param path path to data directory
 #' @export
 #' @examples
 #'
@@ -123,6 +129,12 @@ get_mzMine_files <- function(path){
 
 
 #' preprocess mzMine input
+#' @param quant_data path to mzMine features csv file
+#' @param fasta_file path to annotations csv file
+#' @param annotation annotation list from read_annotation
+#' @param pattern_contaminants regex pattern for contaminants
+#' @param pattern_decoys regex pattern for decoys
+#' @param annotated if TRUE only keep annotated features
 #' @export
 #'
 #' @examples

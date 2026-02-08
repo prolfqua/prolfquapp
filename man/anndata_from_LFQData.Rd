@@ -6,6 +6,11 @@
 \usage{
 anndata_from_LFQData(lfqdata, pannot)
 }
+\arguments{
+\item{lfqdata}{LFQData object}
+
+\item{pannot}{ProteinAnnotation object}
+}
 \description{
 convert lfqdata to anndata
 }

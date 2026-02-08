@@ -6,6 +6,9 @@
 \usage{
 set_lib_path(lib_path)
 }
+\arguments{
+\item{lib_path}{path to R library directory}
+}
 \description{
 set library path with logging
 }

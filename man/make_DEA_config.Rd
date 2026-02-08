@@ -23,9 +23,33 @@ make_DEA_config(
 )
 }
 \arguments{
+\item{ZIPDIR}{output zip directory}
+
+\item{PROJECTID}{project identifier}
+
+\item{ORDERID}{order identifier}
+
+\item{WORKUNITID}{workunit identifier}
+
+\item{Normalization}{normalization method}
+
+\item{aggregation}{aggregation method}
+
+\item{Diffthreshold}{fold-change difference threshold}
+
+\item{FDRthreshold}{FDR significance threshold}
+
+\item{removeContaminants}{if TRUE remove contaminants}
+
+\item{removeDecoys}{if TRUE remove decoy sequences}
+
 \item{patternDecoys}{default "^REV_"}
 
 \item{patternContaminants}{default "^zz_"}
+
+\item{application}{software application name}
+
+\item{nrPeptides}{minimum number of peptides per protein}
 }
 \description{
 create GRP2 configuration.

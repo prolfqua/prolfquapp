@@ -16,6 +16,25 @@ preprocess_FP_PSM(
   parse_fun = tidy_FragPipe_psm
 )
 }
+\arguments{
+\item{quant_data}{path to quantification data file(s)}
+
+\item{fasta_file}{path to fasta file(s)}
+
+\item{annotation}{annotation list from read_annotation}
+
+\item{pattern_contaminants}{regex pattern for contaminants}
+
+\item{pattern_decoys}{regex pattern for decoys}
+
+\item{purity_threshold}{purity threshold for filtering}
+
+\item{PeptideProphetProb}{PeptideProphet probability threshold}
+
+\item{hierarchy_depth}{hierarchy depth for aggregation}
+
+\item{parse_fun}{function for parsing PSM files}
+}
 \value{
 list with lfqdata and protein annotation
 }

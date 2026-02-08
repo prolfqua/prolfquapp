@@ -13,6 +13,9 @@ get_nr_pep <- function(report) {
 #' read DiaNN diann-output.tsv file
 #'
 #' filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
+#' @param data data frame of DIA-NN report
+#' @param Lib.PG.Q.Value library protein group q-value threshold
+#' @param PG.Q.Value protein group q-value threshold
 #' @import data.table
 #' @export
 #' @examples
@@ -41,6 +44,7 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05) {
 #' Create peptide level (stripped sequences) report by aggregating Precursor abundances.
 #'
 #' \code{\link{diann_read_output}}
+#' @param report2 filtered DIA-NN report data frame
 #' @export
 #'
 diann_output_to_peptide <- function(report2) {
@@ -76,6 +80,7 @@ diann_output_to_peptide <- function(report2) {
 
 
 #' get report.tsv and fasta file location in folder
+#' @param path path to data directory
 #' @return list with paths to data and fasta
 #' @export
 #' @examples
@@ -99,6 +104,14 @@ get_DIANN_files <- function(path) {
 
 
 #' preprocess DIANN ouput, filter by q_value and nr_peptides
+#' @param quant_data path to quantification data file
+#' @param fasta_file path to fasta file(s)
+#' @param annotation annotation list from read_annotation
+#' @param pattern_contaminants regex pattern for contaminants
+#' @param pattern_decoys regex pattern for decoys
+#' @param q_value q-value threshold for filtering
+#' @param hierarchy_depth hierarchy depth for aggregation
+#' @param nr_peptides minimum number of peptides per protein
 #' @return list with lfqdata and protein annotation
 #' @export
 #' @examples
@@ -191,6 +204,7 @@ preprocess_DIANN <- function(quant_data,
 }
 
 #' create dataset template from DIANN outputs
+#' @param files list with data and fasta file paths
 #' @export
 dataset_template_diann <- function(files) {
   data <- readr::read_tsv(files$data)

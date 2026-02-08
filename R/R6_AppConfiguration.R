@@ -262,7 +262,7 @@ ProlfquAppConfig <- R6::R6Class(
 #'
 set_list_to_R6 <- function(config_list, r6obj_config) {
   for (n in seq_along(config)) {
-    if (class(config[[n]]) == "list") {
+    if (is.list(config[[n]])) {
       message(paste0("setting fields in :", names(config)[n], "\n"))
       r6component <- r6obj_config[[names(config)[n]]]
       set_config(config[[n]], r6component)

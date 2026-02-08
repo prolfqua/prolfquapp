@@ -14,11 +14,11 @@ dataset_protein_annot(
 \arguments{
 \item{msdata}{data frame}
 
-\item{protein_annot}{fasta haeder column}
+\item{idcol}{named vector mapping protein ID column}
+
+\item{protein_annot}{fasta header column name}
 
 \item{more_columns}{more columns to include}
-
-\item{idcolName}{name of column with ID's}
 }
 \description{
 Dataset protein annot

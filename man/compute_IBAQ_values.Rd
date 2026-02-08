@@ -11,6 +11,15 @@ compute_IBAQ_values(
   nr_tryptic_peptides = "nr_tryptic_peptides"
 )
 }
+\arguments{
+\item{lfqdata}{LFQData object}
+
+\item{protein_annotation}{ProteinAnnotation object}
+
+\item{protein_length}{column name for protein length}
+
+\item{nr_tryptic_peptides}{column name for number of tryptic peptides}
+}
 \description{
 compute IBAQ values
 }

@@ -15,6 +15,11 @@ get_BGS_files(
   bgs_pattern = "*BGS Factory Report \\\\(Normal\\\\).tsv|_Report.tsv"
 )
 }
+\arguments{
+\item{path}{path to data directory}
+
+\item{bgs_pattern}{glob pattern for BGS report files}
+}
 \value{
 list with paths to data and fasta
 

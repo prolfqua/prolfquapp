@@ -13,6 +13,19 @@ preprocess_mzMine(
   annotated = FALSE
 )
 }
+\arguments{
+\item{quant_data}{path to mzMine features csv file}
+
+\item{fasta_file}{path to annotations csv file}
+
+\item{annotation}{annotation list from read_annotation}
+
+\item{pattern_contaminants}{regex pattern for contaminants}
+
+\item{pattern_decoys}{regex pattern for decoys}
+
+\item{annotated}{if TRUE only keep annotated features}
+}
 \description{
 preprocess mzMine input
 }

@@ -6,6 +6,11 @@
 \usage{
 writeLinesPaired(bb, outpath)
 }
+\arguments{
+\item{bb}{LFQData object with paired data}
+
+\item{outpath}{output directory for plots}
+}
 \description{
 nice plot for paired analysis
 }

@@ -19,16 +19,33 @@ Encoding: UTF-8
 LazyData: true
 Imports:
   arrow,
-  ggraph,
+  bookdown,
+  crosstalk,
+  data.table,
+  dplyr,
+  dtplyr,
+  ggplot2,
+  ggrepel,
   lobstr,
   logger,
   optparse,
   pander,
   prolfqua,
+  purrr,
+  readr,
+  readxl,
+  rlang,
   seqinr,
+  stringi,
+  stringr,
+  SummarizedExperiment,
+  tibble,
+  tidyr,
+  tidyselect,
   UpSetR,
   vsn,
-  SummarizedExperiment
+  writexl,
+  yaml
 RoxygenNote: 7.3.3
 Suggests: 
   anndataR,

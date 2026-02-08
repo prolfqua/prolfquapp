@@ -22,11 +22,21 @@ build_protein_annot(
 
 \item{msdata}{data frame}
 
-\item{more_columns}{more columns to include}
+\item{idcol}{named vector mapping protein ID column}
 
-\item{idcolName}{name of column with ID's}
+\item{cleaned_protein_id}{column with cleaned protein ID}
 
-\item{protein_annot}{fasta haeder column}
+\item{protein_description}{column with protein description}
+
+\item{exp_nr_children}{column with number of peptides}
+
+\item{full_id}{column with full protein ID}
+
+\item{more_columns}{additional columns to include}
+
+\item{pattern_contaminants}{regex pattern for contaminants}
+
+\item{pattern_decoys}{regex pattern for decoys}
 }
 \description{
 build Dataset protein annot, defaults are compatible with DIANN

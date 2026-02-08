@@ -8,6 +8,9 @@ get_MQ_peptide_files(path)
 
 get_MQ_peptide_files(path)
 }
+\arguments{
+\item{path}{path to data directory}
+}
 \value{
 list with paths to data and fasta
 

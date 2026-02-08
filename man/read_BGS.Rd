@@ -9,6 +9,9 @@ read_BGS(file = "Experiment1_Report_BGS Factory Report (Normal).tsv")
 
 read_BGS(file = "Experiment1_Report_BGS Factory Report (Normal).tsv")
 }
+\arguments{
+\item{file}{path to BGS report file}
+}
 \value{
 list with paths to data and fasta
 

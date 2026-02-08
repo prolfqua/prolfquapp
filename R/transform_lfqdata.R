@@ -6,7 +6,7 @@
 #' @param internal a data.frame with protein ids to be used for internal calibration, column name must be the same as
 #' @export
 #' @examples
-#' istar <- prolfqua_data('data_ionstar')$filtered()
+#' istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
 #' config <- prolfqua:::old2new(istar$config)
 #' tmp <- prolfqua::LFQData$new(istar$data, config)
 #' d <- istar$d

@@ -6,6 +6,9 @@
 \usage{
 dataset_template_MAXQUANT(files)
 }
+\arguments{
+\item{files}{list with data and fasta file paths}
+}
 \description{
 create template dataset for MAXQUANT data
 }

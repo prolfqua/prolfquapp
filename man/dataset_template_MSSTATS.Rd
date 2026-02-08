@@ -6,6 +6,9 @@
 \usage{
 dataset_template_MSSTATS(files)
 }
+\arguments{
+\item{files}{list with data and fasta file paths}
+}
 \description{
 create dataset template from MSStats data.
 }

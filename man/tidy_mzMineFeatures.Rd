@@ -6,6 +6,9 @@
 \usage{
 tidy_mzMineFeatures(data)
 }
+\arguments{
+\item{data}{path to csv or data frame of mzMine features}
+}
 \description{
 convert mzmine features to tidy table
 }

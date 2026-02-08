@@ -6,6 +6,9 @@
 \usage{
 dataset_template_diann(files)
 }
+\arguments{
+\item{files}{list with data and fasta file paths}
+}
 \description{
 create dataset template from DIANN outputs
 }

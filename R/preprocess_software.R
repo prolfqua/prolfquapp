@@ -103,6 +103,12 @@ prolfqua_preprocess_functions <- list(
 )
 
 #' collects preprocess methods for various software
+#' @param indir input directory with quantification data
+#' @param annotation annotation list from read_annotation
+#' @param preprocess_functions list or R6 object with get_files, preprocess, extra_args
+#' @param pattern_contaminants regex pattern for contaminants
+#' @param pattern_decoys regex pattern for decoys
+#' @param extreader optional external reader configuration
 #' @export
 #' @examples
 #' # example code
@@ -165,6 +171,7 @@ preprocess_software <- function(indir,
 
 
 #' get functions for creating datasets
+#' @param preprocess_functions list with get_files, dataset, extra_args entries
 #' @export
 #' @examples
 #'

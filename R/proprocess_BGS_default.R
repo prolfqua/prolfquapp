@@ -1,4 +1,5 @@
 #' get BGS and fasta file location in folder
+#' @param file path to BGS report file
 #' @return list with paths to data and fasta
 #' @export
 read_BGS <- function(file = "Experiment1_Report_BGS Factory Report (Normal).tsv"){
@@ -33,6 +34,8 @@ read_BGS <- function(file = "Experiment1_Report_BGS Factory Report (Normal).tsv"
 
 
 #' get BGS and fasta file location in folder
+#' @param path path to data directory
+#' @param bgs_pattern glob pattern for BGS report files
 #' @return list with paths to data and fasta
 #' @export
 #' @examples
@@ -56,6 +59,13 @@ get_BGS_files <- function(path, bgs_pattern = "*BGS Factory Report \\(Normal\\).
 
 
 #' preprocess DIANN ouput, filter by q_value and nr_peptides
+#' @param quant_data path to quantification data file
+#' @param fasta_file path to fasta file(s)
+#' @param annotation annotation list from read_annotation
+#' @param pattern_contaminants regex pattern for contaminants
+#' @param pattern_decoys regex pattern for decoys
+#' @param q_value q-value threshold for filtering
+#' @param hierarchy_depth hierarchy depth for aggregation
 #' @return list with lfqdata and protein annotation
 #' @export
 #' @examples

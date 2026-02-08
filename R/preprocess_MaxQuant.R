@@ -194,6 +194,7 @@ tidyMQ_Peptides <- function(MQPeptides, proteotypic_only = TRUE){
 
 
 #' get petpide.txt and fasta file location in folder
+#' @param path path to data directory
 #' @return list with paths to data and fasta
 #' @export
 get_MQ_peptide_files <- function(path){
@@ -212,6 +213,12 @@ get_MQ_peptide_files <- function(path){
 
 
 #' preprocess MQ peptide
+#' @param quant_data path to peptides.txt file
+#' @param fasta_file path to fasta file(s)
+#' @param annotation annotation list from read_annotation
+#' @param pattern_contaminants regex pattern for contaminants
+#' @param pattern_decoys regex pattern for decoys
+#' @param hierarchy_depth hierarchy depth for aggregation
 #' @export
 #'
 preprocess_MQ_peptide <- function(quant_data,

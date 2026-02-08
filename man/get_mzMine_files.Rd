@@ -6,6 +6,9 @@
 \usage{
 get_mzMine_files(path)
 }
+\arguments{
+\item{path}{path to data directory}
+}
 \description{
 get mzmine fliles
 }

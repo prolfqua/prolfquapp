@@ -424,10 +424,9 @@ QC_generator <- R6::R6Class(
       }
     },
 
-    #' @description
-    #' Helper method to get nr_children data
-    #' @param lfqdata LFQData object to get nr_children data from
-    #' @return data frame with nr_children data
+    # Helper method to get nr_children data
+    # @param lfqdata LFQData object to get nr_children data from
+    # @return data frame with nr_children data
     get_nr_children_data = function(lfqdata) {
       # Get nr_children data using the configured column name
       nr_children_col_name <- lfqdata$config$table$nr_children

@@ -1,5 +1,8 @@
 #' dataset transform data
 #'
+#' @param lfqdata LFQData object
+#' @param agg_method aggregation method
+#' @param N number of top peptides for topN aggregation
 #' @export
 #' @examples
 #'
@@ -45,6 +48,10 @@ aggregate_data <- function(lfqdata,
 }
 
 #' compute IBAQ values
+#' @param lfqdata LFQData object
+#' @param protein_annotation ProteinAnnotation object
+#' @param protein_length column name for protein length
+#' @param nr_tryptic_peptides column name for number of tryptic peptides
 #' @export
 #'
 #' @examples

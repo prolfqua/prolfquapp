@@ -6,6 +6,11 @@
 \usage{
 sync_opt_config(opt, config)
 }
+\arguments{
+\item{opt}{list of command-line options}
+
+\item{config}{ProlfquAppConfig configuration object}
+}
 \description{
 Synchronize opt and config
 }

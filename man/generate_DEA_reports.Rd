@@ -7,7 +7,11 @@
 generate_DEA_reports(lfqdata, GRP2, prot_annot)
 }
 \arguments{
-\item{prot_annot}{ProteinAnnotation$new}
+\item{lfqdata}{LFQData object}
+
+\item{GRP2}{configuration list}
+
+\item{prot_annot}{ProteinAnnotation object}
 }
 \description{
 Generate differential expression analysis reports

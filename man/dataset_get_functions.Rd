@@ -6,6 +6,9 @@
 \usage{
 dataset_get_functions(preprocess_functions)
 }
+\arguments{
+\item{preprocess_functions}{list with get_files, dataset, extra_args entries}
+}
 \description{
 get functions for creating datasets
 }

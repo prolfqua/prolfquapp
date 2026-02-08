@@ -6,6 +6,9 @@
 \usage{
 get_dummy_files(path)
 }
+\arguments{
+\item{path}{path to data directory}
+}
 \description{
 get_dummy_files
 }

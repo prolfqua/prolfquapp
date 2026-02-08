@@ -7,9 +7,9 @@
 preprocess_CD(xdl, annotation)
 }
 \arguments{
-\item{annotation}{list returned by `read_annotation` function}
+\item{xdl}{data frame from massage_CD}
 
-\item{in_file}{excel file produced by CD}
+\item{annotation}{list returned by `read_annotation` function}
 }
 \description{
 load compound discoverer (CD) files

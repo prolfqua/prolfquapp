@@ -6,6 +6,13 @@
 \usage{
 make_DEA_report2(lfqdata, protAnnot, GRP2)
 }
+\arguments{
+\item{lfqdata}{LFQData object}
+
+\item{protAnnot}{ProteinAnnotation object}
+
+\item{GRP2}{ProlfquAppConfig configuration object}
+}
 \description{
 make DEA
 }

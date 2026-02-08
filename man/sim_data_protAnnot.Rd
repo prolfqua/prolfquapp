@@ -6,6 +6,11 @@
 \usage{
 sim_data_protAnnot(Nprot = 100, PROTEIN = FALSE)
 }
+\arguments{
+\item{Nprot}{number of proteins to simulate}
+
+\item{PROTEIN}{if TRUE simulate protein-level data}
+}
 \description{
 simulate peptdata and fitting protein annotation for testing
 }

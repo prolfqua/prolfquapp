@@ -10,6 +10,8 @@ column_to_rownames(.data, var = "rowname", sep = "~lfq~")
 \item{.data}{a tibble or data.frame}
 
 \item{var}{name of the column with new row.names}
+
+\item{sep}{separator for uniting columns}
 }
 \value{
 a data.frame with rownames

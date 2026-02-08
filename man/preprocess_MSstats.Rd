@@ -13,6 +13,19 @@ preprocess_MSstats(
   hierarchy_depth = 1
 )
 }
+\arguments{
+\item{quant_data}{path to MSstats csv file}
+
+\item{fasta_file}{path to fasta file(s)}
+
+\item{annotation}{annotation list from read_annotation}
+
+\item{pattern_contaminants}{regex pattern for contaminants}
+
+\item{pattern_decoys}{regex pattern for decoys}
+
+\item{hierarchy_depth}{hierarchy depth for aggregation}
+}
 \description{
 preprocess MSstats file coming from FragPipe
 }

@@ -6,6 +6,13 @@
 \usage{
 diann_read_output(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05)
 }
+\arguments{
+\item{data}{data frame of DIA-NN report}
+
+\item{Lib.PG.Q.Value}{library protein group q-value threshold}
+
+\item{PG.Q.Value}{protein group q-value threshold}
+}
 \description{
 filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
 }

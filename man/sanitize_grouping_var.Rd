@@ -6,6 +6,9 @@
 \usage{
 sanitize_grouping_var(annot)
 }
+\arguments{
+\item{annot}{annotation data frame}
+}
 \description{
 Sanitize grouping variable in annotation file
 }

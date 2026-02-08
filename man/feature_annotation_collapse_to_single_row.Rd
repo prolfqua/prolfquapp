@@ -6,6 +6,9 @@
 \usage{
 feature_annotation_collapse_to_single_row(x)
 }
+\arguments{
+\item{x}{data frame of feature annotations}
+}
 \description{
 get best feature annotation.
 }

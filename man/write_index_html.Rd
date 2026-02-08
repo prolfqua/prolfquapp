@@ -6,6 +6,11 @@
 \usage{
 write_index_html(file_path_list, result_dir)
 }
+\arguments{
+\item{file_path_list}{named list of output file paths}
+
+\item{result_dir}{directory for the index.html output}
+}
 \description{
 write index.html file with links to all relevant files:
 }

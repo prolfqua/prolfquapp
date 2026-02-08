@@ -7,7 +7,9 @@
 normalize_path(paths, os = .Platform$OS.type)
 }
 \arguments{
-\item{paths}{pathsx}
+\item{paths}{character vector of file paths}
+
+\item{os}{operating system type}
 }
 \value{
 normalized path

@@ -6,6 +6,9 @@
 \usage{
 dataset_template_BGS(files)
 }
+\arguments{
+\item{files}{list with data and fasta file paths}
+}
 \value{
 data.frame
 }

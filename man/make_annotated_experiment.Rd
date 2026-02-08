@@ -6,6 +6,9 @@
 \usage{
 make_annotated_experiment(Nprot = 100)
 }
+\arguments{
+\item{Nprot}{number of proteins to simulate}
+}
 \description{
 make lfqdata with row annotation
 }

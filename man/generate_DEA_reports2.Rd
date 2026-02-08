@@ -6,6 +6,15 @@
 \usage{
 generate_DEA_reports2(lfqdata, GRP2, prot_annot, Contrasts)
 }
+\arguments{
+\item{lfqdata}{LFQData object}
+
+\item{GRP2}{ProlfquAppConfig configuration object}
+
+\item{prot_annot}{ProteinAnnotation object}
+
+\item{Contrasts}{named character vector of contrasts}
+}
 \description{
 will replace generate_DEA_reports
 }

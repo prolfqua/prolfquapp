@@ -1,4 +1,5 @@
 #' capture output of function to send it to log
+#' @param expr expression to capture output from
 #' @export
 capture_output <- function(expr) {
   con <- textConnection("output", "w", local = TRUE)
@@ -12,6 +13,8 @@ capture_output <- function(expr) {
 }
 
 #' Synchronize opt and config
+#' @param opt list of command-line options
+#' @param config ProlfquAppConfig configuration object
 #' @export
 #' @examples
 #' opt <- list()
@@ -53,7 +56,8 @@ sync_opt_config <- function(opt, config){
 
 #' Function to normalize paths for both Windows and Linux
 #' @export
-#' @param paths pathsx
+#' @param paths character vector of file paths
+#' @param os operating system type
 #' @return normalized path
 #' @examples
 #' exp_paths <-c("E:\\projects\\p29033\\TKOiWAT\\20240123_015_S629149_iWAT_FL1.d",

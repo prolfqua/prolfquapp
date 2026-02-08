@@ -6,6 +6,11 @@
 \usage{
 read_yaml_deprec(ymlfile, application = "FragPipeTMT")
 }
+\arguments{
+\item{ymlfile}{path to yaml configuration file}
+
+\item{application}{software application name}
+}
 \value{
 list with applications parameters
 }

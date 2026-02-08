@@ -1,6 +1,8 @@
 
 
 #' massage CD output compound table.
+#' @param in_file path to Compound Discoverer file or data frame
+#' @param EXCEL if TRUE read Excel format
 #' @export
 massage_CD <- function(in_file, EXCEL = TRUE ){
 
@@ -72,7 +74,7 @@ massage_CD <- function(in_file, EXCEL = TRUE ){
 }
 
 #' load compound discoverer (CD) files
-#' @param in_file excel file produced by CD
+#' @param xdl data frame from massage_CD
 #' @param annotation list returned by `read_annotation` function
 #' @export
 preprocess_CD <- function(

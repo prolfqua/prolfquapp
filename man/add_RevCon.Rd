@@ -6,6 +6,13 @@
 \usage{
 add_RevCon(stringsAll, pattern_decoys = "REV_", pattern_contaminants = "zz")
 }
+\arguments{
+\item{stringsAll}{character vector of protein IDs}
+
+\item{pattern_decoys}{prefix for decoy entries}
+
+\item{pattern_contaminants}{prefix for contaminant entries}
+}
 \description{
 add REV and zz entries - used for testing
 }

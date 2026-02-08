@@ -6,6 +6,11 @@
 \usage{
 get_formula(table, interaction = FALSE)
 }
+\arguments{
+\item{table}{AnalysisTableAnnotation configuration table}
+
+\item{interaction}{if TRUE include interaction terms}
+}
 \description{
 will generates formula
 }

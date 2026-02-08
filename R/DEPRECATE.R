@@ -1,5 +1,7 @@
 #' Generate differential expression analysis reports
-#' @param prot_annot ProteinAnnotation$new
+#' @param lfqdata LFQData object
+#' @param GRP2 configuration list
+#' @param prot_annot ProteinAnnotation object
 #' @export
 #'
 generate_DEA_reports <- function(lfqdata, GRP2, prot_annot) {
@@ -89,10 +91,9 @@ generate_DEA_reports <- function(lfqdata, GRP2, prot_annot) {
 #'
 #' For use examples see run_scripts directory
 #' @rdname make_DEA_report
-#' @param startdata table in long format
-#' @param atable AnalysisTableAnnotation annotate startdata table
+#' @param lfqdata LFQData object
+#' @param protAnnot ProteinAnnotation object
 #' @param GRP2 list with named arguments i.e. Contrasts, projectID, projectName, workunitID, nrPeptides, Diffthreshold, FDRthreshold
-#' @param protein_annot column with protein description e.g. (fasta header)
 #' @export
 #' @family workflow
 #'
@@ -198,16 +199,18 @@ make_DEA_report <- function(lfqdata,
 
 
 #' extect contrasts from dataset
+#' @param annot annotation data frame
+#' @param GRP2 configuration list
 #' @export
 #' @examples
 #'
-#' file <- system.file("application/dataset_csv/dataset 25.csv", package = "prolfquapp")
+#' file <- system.file("application/dataset_csv/dataset_25.csv", package = "prolfquapp")
 #' res <- readr::read_csv(file)
 #' GRP2 <- make_DEA_config()
 #' GRP2 <- dataset_extract_contrasts(res,GRP2)
 #' stopifnot(length(GRP2$pop$Contrasts) == 0)
 #'
-#' file <- system.file("application/dataset_csv/dataset 26.csv", package = "prolfquapp")
+#' file <- system.file("application/dataset_csv/dataset_26.csv", package = "prolfquapp")
 #' res <- readr::read_csv(file)
 #' GRP2 <- dataset_extract_contrasts(res,GRP2)
 #' stopifnot(length(GRP2$pop$Contrasts) == 3)
@@ -226,6 +229,7 @@ dataset_extract_contrasts <- function(annot, GRP2) {
 }
 
 #' Sanitize grouping variable in annotation file
+#' @param annot annotation data frame
 #' @export
 sanitize_grouping_var <- function(annot){
   stopifnot(sum(grepl("^group|^bait|^Experiment", colnames(annot), ignore.case = TRUE)) >= 1)
@@ -244,8 +248,8 @@ sanitize_grouping_var <- function(annot){
 #'
 #' @export
 #' @param msdata data frame
-#' @param idcolName name of column with ID's
-#' @param protein_annot fasta haeder column
+#' @param idcol named vector mapping protein ID column
+#' @param protein_annot fasta header column name
 #' @param more_columns more columns to include
 dataset_protein_annot <- function(
     msdata,
@@ -276,6 +280,8 @@ dataset_protein_annot <- function(
 
 
 #' read yaml file
+#' @param ymlfile path to yaml configuration file
+#' @param application software application name
 #' @export
 #' @return list with applications parameters
 read_yaml_deprec <- function(ymlfile, application = "FragPipeTMT" ) {
@@ -324,8 +330,20 @@ read_yaml_deprec <- function(ymlfile, application = "FragPipeTMT" ) {
 
 #' create GRP2 configuration.
 #' Use this function if there is no Yaml Input.
+#' @param ZIPDIR output zip directory
+#' @param PROJECTID project identifier
+#' @param ORDERID order identifier
+#' @param WORKUNITID workunit identifier
+#' @param Normalization normalization method
+#' @param aggregation aggregation method
+#' @param Diffthreshold fold-change difference threshold
+#' @param FDRthreshold FDR significance threshold
+#' @param removeContaminants if TRUE remove contaminants
+#' @param removeDecoys if TRUE remove decoy sequences
 #' @param patternDecoys default "^REV_"
 #' @param patternContaminants default "^zz_"
+#' @param application software application name
+#' @param nrPeptides minimum number of peptides per protein
 #' @export
 #' @examples
 #' DEAconfig <- make_DEA_config()
@@ -382,6 +400,9 @@ make_DEA_config <- function(
 #' read DiaNN diann-output.tsv file
 #'
 #' filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
+#' @param data data frame of DIA-NN report
+#' @param Lib.PG.Q.Value library protein group q-value threshold
+#' @param PG.Q.Value protein group q-value threshold
 #' @import data.table
 #' @export
 #' @examples

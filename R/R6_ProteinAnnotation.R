@@ -1,4 +1,7 @@
 #' add REV and zz entries - used for testing
+#' @param stringsAll character vector of protein IDs
+#' @param pattern_decoys prefix for decoy entries
+#' @param pattern_contaminants prefix for contaminant entries
 #' @export
 #'
 add_RevCon <- function(stringsAll, pattern_decoys = "REV_", pattern_contaminants = "zz") {
@@ -30,6 +33,8 @@ add_RevCon <- function(stringsAll, pattern_decoys = "REV_", pattern_contaminants
 }
 
 #' simulate peptdata and fitting protein annotation for testing
+#' @param Nprot number of proteins to simulate
+#' @param PROTEIN if TRUE simulate protein-level data
 #' @export
 #' @examples
 #'
@@ -69,6 +74,7 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE) {
 }
 
 #' make lfqdata with row annotation
+#' @param Nprot number of proteins to simulate
 #' @export
 make_annotated_experiment <- function(Nprot = 100) {
   istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
@@ -323,9 +329,14 @@ ProteinAnnotation <-
 #' @export
 #' @param lfqdata LFQData
 #' @param msdata data frame
-#' @param idcolName name of column with ID's
-#' @param protein_annot fasta haeder column
-#' @param more_columns more columns to include
+#' @param idcol named vector mapping protein ID column
+#' @param cleaned_protein_id column with cleaned protein ID
+#' @param protein_description column with protein description
+#' @param exp_nr_children column with number of peptides
+#' @param full_id column with full protein ID
+#' @param more_columns additional columns to include
+#' @param pattern_contaminants regex pattern for contaminants
+#' @param pattern_decoys regex pattern for decoys
 #' @examples
 #' # example code
 #'

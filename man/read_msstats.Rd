@@ -6,6 +6,9 @@
 \usage{
 read_msstats(file)
 }
+\arguments{
+\item{file}{path to MSstats csv file}
+}
 \description{
 read MSstats.csv files and rollup to ProteinSequence level.
 }

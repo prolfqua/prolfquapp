@@ -6,6 +6,11 @@
 \usage{
 add_contrasts_vec(xx, Contrasts)
 }
+\arguments{
+\item{xx}{annotation data frame}
+
+\item{Contrasts}{character vector of contrasts}
+}
 \description{
 add vector of contrasts to annotation data frame
 }
