@@ -54,6 +54,7 @@ QC_generator
 \item \href{#method-QC_generator-get_prot_IBAQ_wide}{\code{QC_generator$get_prot_IBAQ_wide()}}
 \item \href{#method-QC_generator-get_list}{\code{QC_generator$get_list()}}
 \item \href{#method-QC_generator-write_xlsx}{\code{QC_generator$write_xlsx()}}
+\item \href{#method-QC_generator-copy_dataset}{\code{QC_generator$copy_dataset()}}
 \item \href{#method-QC_generator-render_QC_protein_abundances}{\code{QC_generator$render_QC_protein_abundances()}}
 \item \href{#method-QC_generator-render_sample_size_QC}{\code{QC_generator$render_sample_size_QC()}}
 \item \href{#method-QC_generator-render_index_html}{\code{QC_generator$render_index_html()}}
@@ -274,6 +275,23 @@ write tables to xlsx file
 \if{html}{\out{<div class="r">}}\preformatted{QC_generator$write_xlsx()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-QC_generator-copy_dataset"></a>}}
+\if{latex}{\out{\hypertarget{method-QC_generator-copy_dataset}{}}}
+\subsection{Method \code{copy_dataset()}}{
+copy dataset/annotation file to output directory
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{QC_generator$copy_dataset(dataset_path)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{dataset_path}}{path to the dataset file}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-render_QC_protein_abundances"></a>}}

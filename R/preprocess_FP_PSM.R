@@ -465,7 +465,7 @@ get_FP_multiSite_files <- function(path){
 dataset_template_FP_TMT <- function(files){
   x <- prolfquapp::tidy_FragPipe_psm(files$data)
   channel <- unique(x$data$channel)
-  datasetannot <- data.frame(channel = channel, name = channel, group = NA, subject = NA, CONTROL = NA)
+  datasetannot <- data.frame(channel = channel, Name = channel, group = NA, subject = NA, CONTROL = NA)
   return(datasetannot)
 }
 

@@ -85,6 +85,12 @@ if (FALSE) {
   #-y config.yaml \
   #-w singlesite_PTM \
   #-s prolfquappPTMreaders.FP_singlesite
+} else if (FALSE) {
+  opt$yaml <- "WU339865/config.yaml"
+  opt$indir <- "WU339865"
+  opt$software <- "prolfquapp.DIANN"
+  opt$dataset <- "WU339865/dataset.csv"
+  opt$workunit <- "xyz"
 }
 
 ymlfile <- if (length(ymlfile) == 0) {
