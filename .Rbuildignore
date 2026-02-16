@@ -13,7 +13,6 @@
 ^inst/application/DIANN$
 ^inst/application/FragPipeDDA$
 ^inst/application/FragPipeTMT$
-^inst/application/GenericQC$
 ^inst/application/limpa$
 ^inst/application/MaxQuantDDA$
 ^inst/application/Sage$

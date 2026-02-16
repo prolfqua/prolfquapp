@@ -28,8 +28,14 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "lo
       transformed <- lfqdata$get_Transformer()$log2()$robscale_subset(subset)$lfq
     }
   } else if (method == "vsn") {
-    logger::log_info("Transforming using vsn::justvsn")
-    transformed <- lt$intensity_matrix( .func = vsn::justvsn)$lfq
+    n_samples <- length(unique(lfqdata$data[[lfqdata$config$table$sampleName]]))
+    if (n_samples < 2) {
+      logger::log_warn("vsn requires >= 2 samples, falling back to log2 transformation.")
+      transformed <- lt$log2()$lfq
+    } else {
+      logger::log_info("Transforming using vsn::justvsn")
+      transformed <- lt$intensity_matrix( .func = vsn::justvsn)$lfq
+    }
   } else if (method == "none" || method == "log2") {
     logger::log_info("Transforming using log2")
     transformed <- lt$log2()$lfq

@@ -91,7 +91,13 @@ if (FALSE) {
   opt$software <- "MZMINEannot"
   opt$dataset <- "outputs-20250407T1707/bfabric/input_dataset.tsv"
   opt$workunit <- "helloWannot"
+} else if (FALSE) {
+  opt$indir <- "out-DIANN_quantB"
+  opt$software <- "DIANN"
+  opt$dataset <- "dataset.csv"
+  opt$workunit <- "helloWannot"
 }
+
 
 ymlfile <- if (length(ymlfile) == 0) {
   opt$yaml
@@ -194,17 +200,18 @@ GRP2$get_zipdir()
 # QC_generator$undebug("initialize")
 
 # xd$lfqdata$hierarchy_counts()
-
+# QC_generator$undebug("render_QC_protein_abundances")
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
 # pap$get_protein_per_group_small_wide()
 # pap$lfqdata
 
 # pap$get_list()
+
 # pap$get_peptides_wide()
 # pap$get_list
 # dd <- pap$get_prot_wide()
 # pap$get_prot_IBAQ_wide()
-
+# pap$get_peptides_transformed_wide()
 # copy dataset to output directory
 pap$copy_dataset(opt$dataset)
 
