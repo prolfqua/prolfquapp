@@ -1,7 +1,7 @@
 Package: prolfquapp
 Type: Package
 Title: Generating Dynamic DEA Reports with the prolfqua R Package
-Version: 0.1.8
+Version: 2.0.9
 Authors@R: c(person("Witold", "Wolski",
         email = c("wew@fgcz.ethz.ch", "wewolski@gmail.com"),
         role = c("aut", "cre"),
@@ -14,6 +14,8 @@ Description: The prolfquapp is a user-friendly application to streamline protein
   and Bioconductor SummarizedExperiment format for import into interactive visualization tools like OmicsViewer and iSEE.
   The prolfquapp offers a comprehensive and efficient solution for researchers seeking to analyze protein differential
   expression data in a core facility setting.
+URL: https://prolfqua.github.io/prolfquapp/, https://github.com/prolfqua/prolfquapp
+BugReports: https://github.com/prolfqua/prolfquapp/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

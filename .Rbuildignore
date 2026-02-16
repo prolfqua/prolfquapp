@@ -22,3 +22,6 @@
 ^LICENSE\.md$
 ^prolfquapp\.code-workspace$
 ^qc_result$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
