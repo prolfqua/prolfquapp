@@ -1,0 +1,37 @@
+# get feature annotation.
+
+get feature annotation.
+
+## Usage
+
+``` r
+make_feature_annotation(x, .loader = feature_annotation_get_best_score)
+```
+
+## Arguments
+
+- x:
+
+  data frame of feature annotations
+
+- .loader:
+
+  function to select best annotations
+
+## Examples
+
+``` r
+if (FALSE) {
+x <- readr::read_csv("outputs-20250407T1707/mzmine/result_annotations.csv")
+bestscore <- make_feature_annotation(x)
+dim(bestscore)
+file_path = "outputs-20250407T1707/mzmine/result_features.csv"
+raw_df <- read_csv(file_path)
+res <- tidy_mzMineFeatures(raw_df)
+intersect(colnames(res), colnames(bestscore))
+
+xx <- inner_join(bestscore, res, by = c("id" = "feature_id"),relationship = "many-to-many")
+
+dim(xx)
+}
+```
