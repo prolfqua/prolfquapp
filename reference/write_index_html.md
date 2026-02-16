@@ -23,5 +23,5 @@ write_index_html(file_path_list, result_dir)
 ``` r
 .resdir <- "."
 write_index_html(prolfquapp:::.test_links,tempdir())
-#> Wrote HTML index to: /tmp/RtmpCog3XV/index.html
+#> Wrote HTML index to: /tmp/Rtmpj7yA5q/index.html
 ```

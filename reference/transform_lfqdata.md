@@ -38,14 +38,14 @@ d <- istar$d
 internal <- dplyr::filter(d, protein_Id %in% sample(unique(d$protein_Id), 3 )) |>
   dplyr::select(all_of(tmp$config$table$hierarchy_keys()[1])) |> dplyr::distinct()
 tmp2 <- transform_lfqdata(tmp, internal = internal)
-#> INFO [2026-02-16 14:19:46] Transforming using robscale.
+#> INFO [2026-02-16 15:06:36] Transforming using robscale.
 #> Column added : log2_peptide.intensity
 #> data is : TRUE
 #> Warning: Expected 2 pieces. Additional pieces discarded in 25780 rows [1, 2, 3, 4, 5, 6,
 #> 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 #> Joining with `by = join_by(protein_Id, sampleName, peptide_Id)`
-#> INFO [2026-02-16 14:19:46] Transforming using robscale,
-#> INFO [2026-02-16 14:19:46] Transforming Attempt of internal calibration.
+#> INFO [2026-02-16 15:06:37] Transforming using robscale,
+#> INFO [2026-02-16 15:06:37] Transforming Attempt of internal calibration.
 #> Joining with `by = join_by(protein_Id)`
 #> Column added : log2_peptide.intensity
 #> Column added : log2_peptide.intensity
@@ -53,13 +53,13 @@ tmp2 <- transform_lfqdata(tmp, internal = internal)
 #> Warning: Expected 2 pieces. Additional pieces discarded in 25780 rows [1, 2, 3, 4, 5, 6,
 #> 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 #> Joining with `by = join_by(protein_Id, sampleName, peptide_Id)`
-#> INFO [2026-02-16 14:19:47] Transforming data : robscale.
+#> INFO [2026-02-16 15:06:38] Transforming data : robscale.
 tmp2 <- transform_lfqdata(tmp)
-#> INFO [2026-02-16 14:19:47] Transforming using robscale.
+#> INFO [2026-02-16 15:06:38] Transforming using robscale.
 #> Column added : log2_peptide.intensity
 #> data is : TRUE
 #> Warning: Expected 2 pieces. Additional pieces discarded in 25780 rows [1, 2, 3, 4, 5, 6,
 #> 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 #> Joining with `by = join_by(protein_Id, sampleName, peptide_Id)`
-#> INFO [2026-02-16 14:19:47] Transforming data : robscale.
+#> INFO [2026-02-16 15:06:38] Transforming data : robscale.
 ```

@@ -213,7 +213,7 @@ testthat::expect_error(ap$check_annotation(af),"column starting with :")
 #> Warning: column starting with :^name is missing.
 aa <- ap$read_annotation(annot)
 #> Warning: column starting with :^name is missing.
-#> INFO [2026-02-16 14:19:07] levels: c("a", "b") c("C", "T")
+#> INFO [2026-02-16 15:05:58] levels: c("a", "b") c("C", "T")
 #> b a 
 stopifnot(length(aa$atable$factor_keys_depth()) == 2)
 stopifnot(all(c("atable", "annot", "contrasts") %in% names(aa)))
