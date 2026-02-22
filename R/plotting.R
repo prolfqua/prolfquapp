@@ -15,13 +15,13 @@
 #'
 writeLinesPaired <- function(bb, outpath) {
   nested <- bb$data |> dplyr::ungroup() |>
-    dplyr::group_by(!!!rlang::syms(bb$config$table$hierarchy_keys())) |> tidyr::nest()
+    dplyr::group_by(!!!rlang::syms(bb$config$hierarchy_keys())) |> tidyr::nest()
   tr <- nested$data[[1]]
   plotL <- function(tr, pid){
-    ggplot2::ggplot(tr, ggplot2::aes(x = !!sym(bb$config$table$factor_keys()[1]),
-                          y = !!sym(bb$config$table$get_response()),
-                          group = !!sym(bb$config$table$factor_keys()[2]),
-                          colour = !!sym(bb$config$table$factor_keys()[2]) )) +
+    ggplot2::ggplot(tr, ggplot2::aes(x = !!sym(bb$config$factor_keys()[1]),
+                          y = !!sym(bb$config$get_response()),
+                          group = !!sym(bb$config$factor_keys()[2]),
+                          colour = !!sym(bb$config$factor_keys()[2]) )) +
       ggplot2::geom_point() +
       ggplot2::geom_line() +
       ggplot2::labs(title = pid)  +

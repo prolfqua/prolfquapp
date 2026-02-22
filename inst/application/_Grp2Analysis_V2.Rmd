@@ -91,7 +91,7 @@ Table \@ref(tab:samples) shows the number of samples assigned to each group whil
 
 ```{r samples, eval=TRUE}
 
-tab <- data.frame(table(grp2$RES$lfqData$factors()[grp2$RES$lfqData$config$table$factor_keys_depth()]))
+tab <- data.frame(table(grp2$RES$lfqData$factors()[grp2$RES$lfqData$config$factor_keys_depth()]))
 colnames(tab)[length(colnames(tab))] <- "# samples"
 knitr::kable(tab, caption = "Nr of samples assigned to each group.")
 
@@ -104,13 +104,13 @@ fx <- ld$factors()
 sr <- ld$get_Summariser()
 xx <- sr$hierarchy_counts_sample(nr_children = 1)
 xx$isotopeLabel <- NULL
-xx <- xx |> dplyr::rename(nr_1 = ld$config$table$hierarchy_keys())
+xx <- xx |> dplyr::rename(nr_1 = ld$config$hierarchy_keys())
 x2 <- sr$hierarchy_counts_sample(nr_children = 2)
 x2$isotopeLabel <- NULL
-x2 <- x2 |> dplyr::rename(nr_2 = ld$config$table$hierarchy_keys())
+x2 <- x2 |> dplyr::rename(nr_2 = ld$config$hierarchy_keys())
 
-fx <- dplyr::left_join(fx,xx, by = ld$config$table$sampleName)
-fx <- dplyr::left_join(fx,x2, by = ld$config$table$sampleName)
+fx <- dplyr::left_join(fx,xx, by = ld$config$sampleName)
+fx <- dplyr::left_join(fx,x2, by = ld$config$sampleName)
 
 
 knitr::kable(fx, caption = "LC-MS samples annotation table. The content of the sampleName column is used as a short form to plot labels. The group to which a sample is assigned to is shown in the column group.")
@@ -304,7 +304,7 @@ The FDR is the expected proportion of false discoveries in a list of proteins, a
 The table (Figure \@ref(fig:tableAllProt)) summarizes the differential expression analysis results by providing the following information:
 
 ```{r}
-hkey <- grp2$RES$lfqData$config$table$hierarchy_keys()
+hkey <- grp2$RES$lfqData$config$hierarchy_keys()
 ```
 
 - `r if(hkey[1] == "protein_Id"){ paste0(hkey[1], " - unique protein identifier")} else {hkey[1]}`

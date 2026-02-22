@@ -1,7 +1,7 @@
 #' Plot relative protein abundance as a function of rank by abundance
 #' @export
 #' @param percInfo data frame with percentage abundance info
-#' @param cfg_table AnalysisTableAnnotation configuration table
+#' @param cfg_config AnalysisConfiguration object
 #' @param top_N number of top proteins to label
 #' @param factors if TRUE facet by factors
 #' @param colors named vector of colors for special proteins
@@ -20,17 +20,17 @@
 #' sr <- lfqdata$get_Summariser()
 #' undebug(plot_abundance_vs_percent)
 #' plot_abundance_vs_percent(sr$percentage_abundance(),
-#'  lfqdata$config$table,
+#'  lfqdata$config,
 #'  top_N = 6, factors = FALSE, logY = TRUE)
 #'
-#' pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = FALSE)
-#' plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = 4, factors = TRUE)
-#' plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = TRUE)
+#' pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = NULL, factors = FALSE)
+#' plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = 4, factors = TRUE)
+#' plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = NULL, factors = TRUE)
 #'
 #'
 plot_abundance_vs_percent <- function(
     percInfo,
-    cfg_table,
+    cfg_config,
     top_N = 10,
     factors = TRUE ,
     colors = c("^REV_" =  "red",
@@ -40,13 +40,13 @@ plot_abundance_vs_percent <- function(
     alpha = 1,
     logY = TRUE) {
 
-  protID <- cfg_table$hierarchy_keys_depth()
+  protID <- cfg_config$hierarchy_keys_depth()
   #Select relevant columns
   percInfo <- percInfo |>
-    dplyr::select(dplyr::all_of(c(protID,"percent_prot", columnAb, cfg_table$factor_keys_depth())))
+    dplyr::select(dplyr::all_of(c(protID,"percent_prot", columnAb, cfg_config$factor_keys_depth())))
 
   if (!factors) {
-    percInfo <- percInfo |> dplyr::filter(!!rlang::sym(cfg_table$factor_keys_depth()[1]) == "All")
+    percInfo <- percInfo |> dplyr::filter(!!rlang::sym(cfg_config$factor_keys_depth()[1]) == "All")
   }
   colorV <- rep("black", nrow(percInfo))
 
@@ -58,7 +58,7 @@ plot_abundance_vs_percent <- function(
 
   if (!is.null(top_N)) {
     topN <- percInfo |>
-      dplyr::group_by(dplyr::across(cfg_table$factor_keys_depth())) |>
+      dplyr::group_by(dplyr::across(cfg_config$factor_keys_depth())) |>
       dplyr::slice_max(order_by = !!rlang::sym(columnAb), n = top_N)
   } else {
     message("creating shared data with key : ", paste0(" ~ ", protID ))
@@ -70,7 +70,7 @@ plot_abundance_vs_percent <- function(
                             y = !!rlang::sym(columnAb),
                             label = !!rlang::sym(protID))) +
     geom_point(color = colorV, alpha = alpha) +
-    facet_wrap(as.formula(paste0(" ~ ", paste(cfg_table$factor_keys_depth(), collapse = " + ")))) + if(logY){ ggplot2::scale_y_log10() } else {NULL}
+    facet_wrap(as.formula(paste0(" ~ ", paste(cfg_config$factor_keys_depth(), collapse = " + ")))) + if(logY){ ggplot2::scale_y_log10() } else {NULL}
 
   if (!is.null(top_N) ) {
     myplot <- myplot + ggrepel::geom_label_repel(

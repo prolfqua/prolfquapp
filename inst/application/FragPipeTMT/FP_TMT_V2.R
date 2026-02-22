@@ -48,7 +48,7 @@ psm <- dplyr::inner_join(annot, psm, multiple = "all")
 
 # Setup configuration
 
-atable <- prolfqua::AnalysisTableAnnotation$new()
+atable <- prolfqua::AnalysisConfiguration$new()
 
 atable$ident_Score = "PeptideProphet.Probability"
 atable$ident_qValue = "qValue"

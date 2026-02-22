@@ -11,7 +11,7 @@
 #' tmp <- prolfqua::LFQData$new(istar$data, config)
 #' d <- istar$d
 #' internal <- dplyr::filter(d, protein_Id %in% sample(unique(d$protein_Id), 3 )) |>
-#'   dplyr::select(all_of(tmp$config$table$hierarchy_keys()[1])) |> dplyr::distinct()
+#'   dplyr::select(all_of(tmp$config$hierarchy_keys()[1])) |> dplyr::distinct()
 #' tmp2 <- transform_lfqdata(tmp, internal = internal)
 #' tmp2 <- transform_lfqdata(tmp)
 #'
@@ -28,7 +28,7 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "lo
       transformed <- lfqdata$get_Transformer()$log2()$robscale_subset(subset)$lfq
     }
   } else if (method == "vsn") {
-    n_samples <- length(unique(lfqdata$data[[lfqdata$config$table$sampleName]]))
+    n_samples <- length(unique(lfqdata$data[[lfqdata$config$sampleName]]))
     if (n_samples < 2) {
       logger::log_warn("vsn requires >= 2 samples, falling back to log2 transformation.")
       transformed <- lt$log2()$lfq
@@ -51,7 +51,7 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "lo
 #' @param lfqTrans transformed LFQData
 #' @export
 exp2 <- function(lfqTrans ) {
-  if (!lfqTrans$config$table$is_response_transformed) {
+  if (!lfqTrans$config$is_response_transformed) {
     warning("Data not transformed.")
   }
   tr <- lfqTrans$get_Transformer()
@@ -59,7 +59,7 @@ exp2 <- function(lfqTrans ) {
     2^x
   }
   tr$intensity_array(.exp2, force = TRUE)
-  tr$lfq$config$table$is_response_transformed <- FALSE
+  tr$lfq$config$is_response_transformed <- FALSE
   lfqdataProt <- tr$lfq
   return(lfqdataProt)
 }

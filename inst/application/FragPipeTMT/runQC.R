@@ -30,7 +30,7 @@ prot_annot |> filter(grepl("^zz",protein_Id)) |> head()
 psm$qValue <- 1 - psm$PeptideProphet.Probability
 
 
-atable <- prolfqua::AnalysisTableAnnotation$new()
+atable <- prolfqua::AnalysisConfiguration$new()
 atable$ident_Score = "PeptideProphet.Probability"
 atable$ident_qValue = "qValue"
 atable$fileName = "channel"

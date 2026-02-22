@@ -176,7 +176,7 @@ DEAnalyse <- R6::R6Class(
       logger::log_info("AGGREGATING PEPTIDE DATA: {agg_method}.")
       lfqdata_peptide <- self$lfq_data_peptide
 
-      if (length(lfqdata_peptide$config$table$hierarchy_keys()) == lfqdata_peptide$config$table$hierarchyDepth) {
+      if (length(lfqdata_peptide$config$hierarchy_keys()) == lfqdata_peptide$config$hierarchyDepth) {
         warning("nothing to aggregate from, returning unchanged data.")
         self$lfq_data <- lfqdata_peptide
         invisible(self$lfq_data)
@@ -396,7 +396,7 @@ DEAnalyse <- R6::R6Class(
     #'
     contrasts_to_Grob = function() {
       datax <- self$filter_contrasts()
-      hkeys <- self$lfq_data_transformed$config$table$hierarchy_keys_depth()
+      hkeys <- self$lfq_data_transformed$config$hierarchy_keys_depth()
       xdn <- datax |> dplyr::nest_by(!!!syms(hkeys))
 
       stats2grob <- function(data) {
@@ -471,10 +471,10 @@ DEAnalyse <- R6::R6Class(
       }
       invisible(self$contrast_results[[contrastName]])
     },
-    create_formula = function(prlconfig, response = prlconfig$table$get_response()) {
+    create_formula = function(prlconfig, response = prlconfig$get_response()) {
       interaction <- self$prolfq_app_config$processing_options$interaction
-      factors <- prlconfig$table$factor_keys_depth()[
-        !grepl("^control", prlconfig$table$factor_keys_depth(), ignore.case = TRUE)
+      factors <- prlconfig$factor_keys_depth()[
+        !grepl("^control", prlconfig$factor_keys_depth(), ignore.case = TRUE)
       ]
       # model with or without interactions
       if (interaction) {

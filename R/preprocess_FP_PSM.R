@@ -436,7 +436,7 @@ preprocess_FP_PSM <- function(quant_data,
   fasta_annot <- get_annot_from_fasta(fasta_file, pattern_decoys = pattern_decoys)
   fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("Protein" = "fasta.id"))
 
-  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!sym("Protein"))
+  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$hierarchy_keys_depth()[1] := !!sym("Protein"))
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
 
   prot_annot <- prolfquapp::ProteinAnnotation$new(

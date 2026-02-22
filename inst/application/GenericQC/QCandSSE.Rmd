@@ -266,7 +266,7 @@ We applied the `vsn::justvsn` normalization to the data, which should remove sys
 ```{r transformIntensities}
 if (show_text) {
   tr <- lfqdata$get_Transformer()
-  n_samples <- length(unique(lfqdata$data[[lfqdata$config$table$sampleName]]))
+  n_samples <- length(unique(lfqdata$data[[lfqdata$config$sampleName]]))
   if (n_samples < 2) {
     logger::log_warn("vsn requires >= 2 samples, falling back to log2 transformation.")
     tr$log2()
@@ -407,9 +407,9 @@ sampleSize2 <- sampleSize2 |> dplyr::mutate(delta = paste0("delta = ", delta))
 ggplot2::ggplot(sampleSize2, ggplot2::aes(x = probs, y = N)) +
   ggplot2::geom_bar(stat = "identity", color = "black", fill = "white") +
   ggplot2::geom_text(ggplot2::aes(label = N), nudge_y = nudgeval) + 
-  ggplot2::facet_wrap(as.formula(paste0("~ ", "delta + " , paste0( lfqdata$config$table$factor_keys_depth(), collapse = " + " ))))
+  ggplot2::facet_wrap(as.formula(paste0("~ ", "delta + " , paste0( lfqdata$config$factor_keys_depth(), collapse = " + " ))))
    
-tmp <- sampleSize2 |> tidyr::pivot_wider(id_cols = c("probs","sdtrimmed", lfqdata$config$table$factor_keys_depth()), names_from =  delta, values_from = N  )
+tmp <- sampleSize2 |> tidyr::pivot_wider(id_cols = c("probs","sdtrimmed", lfqdata$config$factor_keys_depth()), names_from =  delta, values_from = N  )
 
 ```
 

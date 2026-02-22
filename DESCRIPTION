@@ -49,10 +49,16 @@ Imports:
   writexl,
   yaml
 RoxygenNote: 7.3.3
-Suggests: 
+Suggests:
   anndataR,
+  covr,
+  devtools,
   knitr,
+  lintr,
+  pkgdown,
+  rcmdcheck,
   rmarkdown,
+  roxygen2,
   testthat (>= 3.0.0)
 Depends:
   R (>= 4.1)

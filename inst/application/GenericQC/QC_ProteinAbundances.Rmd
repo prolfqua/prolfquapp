@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 
 pap <- params$pap
 lfqdataProt <-  pap$lfqdata_prot
-tableconfig <- pap$lfqdata_prot$config$table
+tableconfig <- pap$lfqdata_prot$config
 factors <- params$factors
 project_info <- params$project_info
 
@@ -58,7 +58,7 @@ if (!factors) {
 
 pp <- prolfquapp::plot_abundance_vs_percent(
   precabund,
-  cfg_table = tableconfig,
+  cfg_config = tableconfig,
   top_N = NULL,
   factors = factors,
   colors = c("^zz" = "red","Y-FGCZ" = "red"),

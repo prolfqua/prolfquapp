@@ -190,7 +190,7 @@ if (!is.null(result$error)) {
   files <- result$value$files
 }
 
-xd$lfqdata$config$table$hierarchyDepth <- 1
+xd$lfqdata$config$hierarchyDepth <- 1
 
 GRP2$get_zipdir()
 

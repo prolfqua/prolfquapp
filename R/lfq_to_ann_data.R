@@ -34,15 +34,15 @@ anndata_from_LFQData <- function(lfqdata, pannot) {
 
 
   layers <- list()
-  message("converting to layers: ", paste(lfqdata$config$table$value_vars(), collapse = ", ") )
-  for (val in lfqdata$config$table$value_vars()) {
+  message("converting to layers: ", paste(lfqdata$config$value_vars(), collapse = ", ") )
+  for (val in lfqdata$config$value_vars()) {
     X <- lfqdata$to_wide(as.matrix = TRUE, value = val)$data
     rownames(X) <- gsub("~lfq~light", "", rownames(X))
     layers[[val]] <- t(X)
   }
 
   o <- as.data.frame(lfqdata$factors())
-  rownames(o) <- o[,lfqdata$config$table$sampleName]
+  rownames(o) <- o[,lfqdata$config$sampleName]
 
   v <- as.data.frame(pannot$row_annot)
   rownames(v) <- v[,pannot$full_id]

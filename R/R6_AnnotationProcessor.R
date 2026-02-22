@@ -236,7 +236,7 @@ AnnotationProcessor <- R6::R6Class(
   private = list(
 
     dataset_set_factors = function(annot) {
-      atable <- prolfqua::AnalysisTableAnnotation$new()
+      atable <- prolfqua::AnalysisConfiguration$new()
       annot <- private$set_sample_name(annot, atable)
       private$set_file_name(annot, atable)
       annot <- private$set_grouping_var(annot, atable)

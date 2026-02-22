@@ -88,11 +88,11 @@ DEAReportGenerator <- R6::R6Class(
     make_boxplots = function() {
       bb <- self$GRP2$RES$transformedlfqData
       grsizes <- bb$factors() |>
-        dplyr::group_by(dplyr::across(bb$config$table$factor_keys_depth())) |>
+        dplyr::group_by(dplyr::across(bb$config$factor_keys_depth())) |>
         dplyr::summarize(n = n()) |>
         dplyr::pull(n)
       if (boxplot) {
-        if (sum(!grepl("^control", bb$config$table$factor_keys(), ignore.case = TRUE)) > 1 &
+        if (sum(!grepl("^control", bb$config$factor_keys(), ignore.case = TRUE)) > 1 &
           all(grsizes == 1)
         ) {
           prolfquapp::writeLinesPaired(bb, self$resultdir)
@@ -127,7 +127,7 @@ DEAReportGenerator <- R6::R6Class(
       resultList$annotation <- dplyr::inner_join(
         rd$factors(),
         rd$get_Summariser()$hierarchy_counts_sample(),
-        by = rd$config$table$sampleName,
+        by = rd$config$sampleName,
         multiple = "all"
       )
 
@@ -159,8 +159,8 @@ DEAReportGenerator <- R6::R6Class(
     #' @return SummarizedExperiment object
     make_SummarizedExperiment = function(strip = "~lfq~light",
                                          .url_builder = bfabric_url_builder) {
-      colname <- self$GRP2$RES$lfqData$config$table$sampleName
-      rowname <- self$GRP2$RES$lfqData$config$table$hierarchyKeys()
+      colname <- self$GRP2$RES$lfqData$config$sampleName
+      rowname <- self$GRP2$RES$lfqData$config$hierarchyKeys()
       resTables <- self$prep_result_list(GRP2)
 
       matTr <- self$GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)

@@ -115,7 +115,7 @@ preprocess_MSstats_FPDIA <- function(quant_data,
 
   fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("ProteinName" = "proteinname"))
 
-  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinName"))
+  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinName"))
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
 
   prot_annot <- prolfquapp::ProteinAnnotation$new(
@@ -197,7 +197,7 @@ preprocess_MSstats <- function(quant_data,
 
   fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("ProteinName" = "fasta.id"))
 
-  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$table$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinName"))
+  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinName"))
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
   prot_annot <- prolfquapp::ProteinAnnotation$new(
     lfqdata ,

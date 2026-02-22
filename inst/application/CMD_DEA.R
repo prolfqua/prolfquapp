@@ -231,7 +231,7 @@ lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
 
 # do not write when peptide level analysis
 ibaq_file <- file.path(grp$get_result_dir(), paste0("IBAQ_", opt$workunit, ".xlsx"))
-if (length(xd$lfqdata$config$table$hierarchy_keys_depth()) == 1) {
+if (length(xd$lfqdata$config$hierarchy_keys_depth()) == 1) {
   ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
   writexl::write_xlsx(
     ibaq$to_wide()$data,

@@ -169,7 +169,7 @@ ProteinAnnotation <-
       pattern_decoys = character(),
       #' @description initialize
       #' @param lfqdata data frame from \code{\link{setup_analysis}}
-      #' @param row_annot data frame with row annotation. Must have columns matching \code{config$table$hierarchy_keys_depth()}
+      #' @param row_annot data frame with row annotation. Must have columns matching \code{config$hierarchy_keys_depth()}
       #' @param description name of column with description
       #' @param cleaned_ids names of columns with cleaned Ids
       #' @param full_id column with full protein ID
@@ -184,7 +184,7 @@ ProteinAnnotation <-
                             exp_nr_children = "nr_peptides",
                             pattern_contaminants = NULL,
                             pattern_decoys = NULL) {
-        self$pID <- lfqdata$config$table$hierarchy_keys_depth()[[1]]
+        self$pID <- lfqdata$config$hierarchy_keys_depth()[[1]]
         self$exp_nr_children <- exp_nr_children
         self$pattern_contaminants <- if (is.null(pattern_contaminants)) {
           "a^"
@@ -222,7 +222,7 @@ ProteinAnnotation <-
         if (!self$exp_nr_children %in% colnames(row_annot)) {
           warning("no exp_nr_children column specified, computing using nr_obs_experiment function")
           cf <- lfqdata$config$clone(deep = TRUE)
-          cf$table$hierarchyDepth <- 1
+          cf$hierarchyDepth <- 1
           self$row_annot <- dplyr::inner_join(
             self$row_annot,
             prolfqua::nr_obs_experiment(lfqdata$data, cf, name_nr_child = self$exp_nr_children),

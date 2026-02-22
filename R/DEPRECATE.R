@@ -136,13 +136,13 @@ make_DEA_report <- function(lfqdata,
   GRP2$RES$transformedlfqData <- transformed
 
   ################## Run Modelling ###############
-  factors <- transformed$config$table$factor_keys()[!grepl("^control", transformed$config$table$factor_keys() , ignore.case = TRUE)]
+  factors <- transformed$config$factor_keys()[!grepl("^control", transformed$config$factor_keys() , ignore.case = TRUE)]
 
   if (is.null(GRP2$pop$interaction) || !GRP2$pop$interaction ) {
-    formula <- paste0(transformed$config$table$get_response(), " ~ ",
+    formula <- paste0(transformed$config$get_response(), " ~ ",
                       paste(factors, collapse = " + "))
   } else {
-    formula <- paste0(transformed$config$table$get_response(), " ~ ",
+    formula <- paste0(transformed$config$get_response(), " ~ ",
                       paste(factors, collapse = " * "))
   }
 
@@ -155,7 +155,7 @@ make_DEA_report <- function(lfqdata,
   mod <- prolfqua::build_model(
     transformed,
     formula_Condition,
-    subject_Id = transformed$config$table$hierarchy_keys() )
+    subject_Id = transformed$config$hierarchy_keys() )
 
   logger::log_info("fitted model with formula : {formula}")
   GRP2$RES$models <- mod

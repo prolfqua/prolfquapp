@@ -78,7 +78,7 @@ make_DEA_report2 <- function(lfqdata,
   GRP2$RES$lfqData <- lfqdata
   GRP2$RES$transformedlfqData <- transformed
 
-  formula <- get_formula(transformed$config$table, interaction = GRP2$processing_options$interaction)
+  formula <- get_formula(transformed$config, interaction = GRP2$processing_options$interaction)
   message("FORMULA :", formula)
   GRP2$RES$formula <- formula
   formula_Condition <- prolfqua::strategy_lm(formula)
@@ -86,7 +86,7 @@ make_DEA_report2 <- function(lfqdata,
   mod <- prolfqua::build_model(
     transformed,
     formula_Condition,
-    subject_Id = transformed$config$table$hierarchy_keys()
+    subject_Id = transformed$config$hierarchy_keys()
   )
 
   logger::log_info("fitted model with formula : {formula}")
@@ -132,25 +132,25 @@ make_DEA_report2 <- function(lfqdata,
 
 
 #' will generates formula
-#' @param table AnalysisTableAnnotation configuration table
+#' @param config AnalysisConfiguration object
 #' @param interaction if TRUE include interaction terms
 #' @export
-get_formula <- function(table, interaction = FALSE) {
+get_formula <- function(config, interaction = FALSE) {
   ################## Run Modelling ###############
   # remove control column from factors.
-  factors <- table$factor_keys_depth()[
-    !grepl("^control", table$factor_keys_depth(), ignore.case = TRUE)
+  factors <- config$factor_keys_depth()[
+    !grepl("^control", config$factor_keys_depth(), ignore.case = TRUE)
   ]
 
   # model with or without interactions
   if (is.null(interaction) || !interaction) {
     formula <- paste0(
-      table$get_response(), " ~ ",
+      config$get_response(), " ~ ",
       paste(factors, collapse = " + ")
     )
   } else {
     formula <- paste0(
-      table$get_response(), " ~ ",
+      config$get_response(), " ~ ",
       paste(factors, collapse = " * ")
     )
   }
@@ -202,7 +202,7 @@ prep_result_list <- function(GRP2) {
   resultList$annotation <- dplyr::inner_join(
     rd$factors(),
     rd$get_Summariser()$hierarchy_counts_sample(),
-    by = rd$config$table$sampleName,
+    by = rd$config$sampleName,
     multiple = "all"
   )
 
@@ -360,11 +360,11 @@ write_DEA_all <- function(
 
   bb <- grp2$RES$transformedlfqData
   grsizes <- bb$factors() |>
-    dplyr::group_by(dplyr::across(bb$config$table$factor_keys_depth())) |>
+    dplyr::group_by(dplyr::across(bb$config$factor_keys_depth())) |>
     dplyr::summarize(n = n()) |>
     dplyr::pull(n)
   if (boxplot) {
-    nr_controls <- sum(!grepl("^control", bb$config$table$factor_keys(), ignore.case = TRUE))
+    nr_controls <- sum(!grepl("^control", bb$config$factor_keys(), ignore.case = TRUE))
     if (nr_controls > 1 && all(grsizes == 1)
     ) {
       prolfquapp::writeLinesPaired(bb, outpath)
@@ -500,10 +500,10 @@ make_SummarizedExperiment <- function(GRP2,
                                       strip = "~lfq~light",
                                       .url_builder = bfabric_url_builder) {
   if (is.null(colname)) {
-    colname <- GRP2$RES$lfqData$config$table$sampleName
+    colname <- GRP2$RES$lfqData$config$sampleName
   }
   if (is.null(rowname)) {
-    rowname <- GRP2$RES$lfqData$config$table$hierarchyKeys()
+    rowname <- GRP2$RES$lfqData$config$hierarchyKeys()
   }
   resTables <- prep_result_list(GRP2)
   matTr <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
