@@ -84,7 +84,7 @@
 <span class="r-in"><span>group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>,<span class="st">"a"</span>,<span class="st">"b"</span>,<span class="st">"b"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">read_annotation</span><span class="op">(</span><span class="va">annot</span>, QC <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $atable</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;AnalysisTableAnnotation&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;AnalysisConfiguration&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Public:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     annotation_vars: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bin_resp: </span>
@@ -105,16 +105,20 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     id_vars: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ident_Score: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ident_qValue: qValue</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     initialize: function () </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     initialize: function (analysisTableAnnotation = NULL, analysisParameter = NULL) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     is_response_transformed: FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     isotopeLabel: isotopeLabel</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     min_peptides_protein: 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     normValue: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     nr_children: nr_children</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     opt_mz: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     opt_rt: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parameter: active binding</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     pop_response: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     sampleName: name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     sep: ~</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     set_response: function (colName) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     table: active binding</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     value_vars: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     workIntensity: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

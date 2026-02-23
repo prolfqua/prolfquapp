@@ -88,7 +88,7 @@ initialize
 - `row_annot`:
 
   data frame with row annotation. Must have columns matching
-  `config$table$hierarchy_keys_depth()`
+  `config$hierarchy_keys_depth()`
 
 - `description`:
 

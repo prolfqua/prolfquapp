@@ -4,31 +4,28 @@ DEAReportGenerator
 
 DEAReportGenerator
 
+## Details
+
+Generates all output files for a differential expression analysis. Uses
+a DEAnalyse object as data source instead of the legacy GRP2\$RES list.
+
 ## Public fields
 
-- `lfqdata`:
+- `deanalyse`:
 
-  LFQData object containing the quantitative data
+  DEAnalyse object containing all analysis results
 
 - `GRP2`:
 
   ProlfquAppConfig object containing analysis configuration
 
-- `prot_annot`:
-
-  ProteinAnnotation object
-
-- `Contrasts`:
-
-  list of contrasts for differential expression analysis
-
 - `fname`:
 
-  filename for DEA results
+  filename prefix for DEA results
 
 - `qcname`:
 
-  filename for QC results
+  filename prefix for QC results
 
 - `resultdir`:
 
@@ -44,13 +41,15 @@ DEAReportGenerator
 
 - [`DEAReportGenerator$new()`](#method-DEAReportGenerator-new)
 
-- [`DEAReportGenerator$write_DEA_all()`](#method-DEAReportGenerator-write_DEA_all)
+- [`DEAReportGenerator$prep_result_list()`](#method-DEAReportGenerator-prep_result_list)
+
+- [`DEAReportGenerator$write_DEA()`](#method-DEAReportGenerator-write_DEA)
 
 - [`DEAReportGenerator$render_DEA()`](#method-DEAReportGenerator-render_DEA)
 
 - [`DEAReportGenerator$make_boxplots()`](#method-DEAReportGenerator-make_boxplots)
 
-- [`DEAReportGenerator$prep_result_list()`](#method-DEAReportGenerator-prep_result_list)
+- [`DEAReportGenerator$write_DEA_all()`](#method-DEAReportGenerator-write_DEA_all)
 
 - [`DEAReportGenerator$make_SummarizedExperiment()`](#method-DEAReportGenerator-make_SummarizedExperiment)
 
@@ -60,39 +59,63 @@ DEAReportGenerator
 
 ### Method `new()`
 
-Initialize DEAReportGenerator with data and configuration
+Initialize DEAReportGenerator
 
 #### Usage
 
-    DEAReportGenerator$new(lfqdata, GRP2, prot_annot, Contrasts)
+    DEAReportGenerator$new(deanalyse, GRP2, name = "")
 
 #### Arguments
 
-- `lfqdata`:
+- `deanalyse`:
 
-  LFQData object containing quantitative data
+  DEAnalyse R6 object with completed analysis
 
 - `GRP2`:
 
-  ProlfquAppConfig object with analysis configuration
+  ProlfquAppConfig R6 object
 
-- `prot_annot`:
+- `name`:
 
-  ProteinAnnotation object
-
-- `Contrasts`:
-
-  list of contrasts for differential expression analysis
+  optional name prefix for output files
 
 ------------------------------------------------------------------------
 
-### Method [`write_DEA_all()`](https://prolfqua.github.io/prolfquapp/reference/write_DEA_all.md)
+### Method `prep_result_list()`
 
-Write all DEA results to files
+Prepare result list with all analysis outputs for XLSX
 
 #### Usage
 
-    DEAReportGenerator$write_DEA_all()
+    DEAReportGenerator$prep_result_list()
+
+#### Returns
+
+list containing all analysis results (14 sheets)
+
+------------------------------------------------------------------------
+
+### Method [`write_DEA()`](https://prolfqua.github.io/prolfquapp/reference/write_DEA.md)
+
+Write DEA results (XLSX, ORA, GSEA files)
+
+#### Usage
+
+    DEAReportGenerator$write_DEA(ORA = TRUE, GSEA = TRUE)
+
+#### Arguments
+
+- `ORA`:
+
+  if TRUE write ORA gene lists
+
+- `GSEA`:
+
+  if TRUE write GSEA rank files
+
+#### Returns
+
+list with xlsx_file, ora_files, gsea_files paths
 
 ------------------------------------------------------------------------
 
@@ -104,8 +127,9 @@ Render DEA report using R Markdown
 
     DEAReportGenerator$render_DEA(
       htmlname,
-      markdown = "_Grp2Analysis.Rmd",
-      word = FALSE
+      markdown = "_Grp2Analysis_V2_R6.Rmd",
+      word = FALSE,
+      toc = TRUE
     )
 
 #### Arguments
@@ -122,6 +146,14 @@ Render DEA report using R Markdown
 
   logical, if TRUE output Word document, otherwise HTML
 
+- `toc`:
+
+  logical, if TRUE include table of contents
+
+#### Returns
+
+path to the output file
+
 ------------------------------------------------------------------------
 
 ### Method `make_boxplots()`
@@ -130,21 +162,65 @@ Generate boxplots for quality control
 
 #### Usage
 
-    DEAReportGenerator$make_boxplots()
+    DEAReportGenerator$make_boxplots(boxplot = TRUE)
+
+#### Arguments
+
+- `boxplot`:
+
+  logical, if TRUE write boxplots
 
 ------------------------------------------------------------------------
 
-### Method `prep_result_list()`
+### Method [`write_DEA_all()`](https://prolfqua.github.io/prolfquapp/reference/write_DEA_all.md)
 
-Prepare result list with all analysis outputs
+Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots
 
 #### Usage
 
-    DEAReportGenerator$prep_result_list()
+    DEAReportGenerator$write_DEA_all(
+      boxplot = TRUE,
+      render = TRUE,
+      ORA = TRUE,
+      GSEA = TRUE,
+      markdown = "_Grp2Analysis_V2_R6.Rmd",
+      markdown_qc = "_DiffExpQC_R6.Rmd",
+      toc = TRUE
+    )
+
+#### Arguments
+
+- `boxplot`:
+
+  if TRUE generate boxplots
+
+- `render`:
+
+  if TRUE render HTML reports
+
+- `ORA`:
+
+  if TRUE write ORA gene lists
+
+- `GSEA`:
+
+  if TRUE write GSEA rank files
+
+- `markdown`:
+
+  Rmd template for main DEA report
+
+- `markdown_qc`:
+
+  Rmd template for QC report
+
+- `toc`:
+
+  if TRUE include table of contents
 
 #### Returns
 
-list containing all analysis results
+list with dea_file, qc_file, data_files paths
 
 ------------------------------------------------------------------------
 
@@ -156,7 +232,7 @@ Create SummarizedExperiment object from analysis results
 
     DEAReportGenerator$make_SummarizedExperiment(
       strip = "~lfq~light",
-      .url_builder = bfabric_url_builder
+      .url_builder = prolfquapp::bfabric_url_builder
     )
 
 #### Arguments

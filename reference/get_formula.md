@@ -5,14 +5,14 @@ will generates formula
 ## Usage
 
 ``` r
-get_formula(table, interaction = FALSE)
+get_formula(config, interaction = FALSE)
 ```
 
 ## Arguments
 
-- table:
+- config:
 
-  AnalysisTableAnnotation configuration table
+  AnalysisConfiguration object
 
 - interaction:
 

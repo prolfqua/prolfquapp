@@ -57,13 +57,13 @@ pep$factors()
 #> 12 Ctrl_V4 Ctrl_V4    Ctrl  
 GRP2$pop <- list(Contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl"))
 grp <- make_DEA_report2(pep, pA, GRP2)
-#> INFO [2026-02-16 15:06:17] Transforming using log2
+#> INFO [2026-02-23 21:06:57] Transforming using log2
 #> Column added : log2_abundance
-#> INFO [2026-02-16 15:06:17] Transforming data : none.
+#> INFO [2026-02-23 21:06:57] Transforming data : none.
 #> abundance  already in data : sample sampleName group_ isotopeLabel protein_Id abundance qValue nr_peptides .
 #> FORMULA :normalized_abundance ~ group_
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-02-16 15:06:17] fitted model with formula : normalized_abundance ~ group_
+#> INFO [2026-02-23 21:06:57] fitted model with formula : normalized_abundance ~ group_
 #> determine linear functions:
 #> Warning: Warn 'linfct_matrix_contrasts':In argument: `AVsC = group_A - group_Ctrl`.
 #> Warning: Warn 'linfct_matrix_contrasts':In argument: `BVsC = group_B - group_Ctrl`.

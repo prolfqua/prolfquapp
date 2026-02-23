@@ -7,7 +7,7 @@ Plot relative protein abundance as a function of rank by abundance
 ``` r
 plot_abundance_vs_percent(
   percInfo,
-  cfg_table,
+  cfg_config,
   top_N = 10,
   factors = TRUE,
   colors = c(`^REV_` = "red", `^CON_` = "orange"),
@@ -24,9 +24,9 @@ plot_abundance_vs_percent(
 
   data frame with percentage abundance info
 
-- cfg_table:
+- cfg_config:
 
-  AnalysisTableAnnotation configuration table
+  AnalysisConfiguration object
 
 - top_N:
 
@@ -72,29 +72,25 @@ sr <- lfqdata$get_Summariser()
 undebug(plot_abundance_vs_percent)
 #> Warning: argument is not being debugged
 plot_abundance_vs_percent(sr$percentage_abundance(),
- lfqdata$config$table,
+ lfqdata$config,
  top_N = 6, factors = FALSE, logY = TRUE)
 #> completing cases
 #> completing cases
-#> Adding missing grouping variables: `interaction`
 
 
-pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = FALSE)
+pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = NULL, factors = FALSE)
 #> completing cases
 #> completing cases
-#> Adding missing grouping variables: `interaction`
 #> creating shared data with key :  ~ protein_Id
-plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = 4, factors = TRUE)
+plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = 4, factors = TRUE)
 #> completing cases
 #> completing cases
-#> Adding missing grouping variables: `interaction`
 #> Warning: Removed 167 rows containing missing values or values outside the scale range
 #> (`geom_point()`).
 
-plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = TRUE)
+plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = NULL, factors = TRUE)
 #> completing cases
 #> completing cases
-#> Adding missing grouping variables: `interaction`
 #> creating shared data with key :  ~ protein_Id
 #> Warning: Removed 167 rows containing missing values or values outside the scale range
 #> (`geom_point()`).

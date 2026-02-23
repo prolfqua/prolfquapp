@@ -44,7 +44,7 @@ name = c("aa","ba","aa","ba"),
 group = c("a","a","b","b"))
 read_annotation(annot, QC = TRUE)
 #> $atable
-#> <AnalysisTableAnnotation>
+#> <AnalysisConfiguration>
 #>   Public:
 #>     annotation_vars: function () 
 #>     bin_resp: 
@@ -65,16 +65,20 @@ read_annotation(annot, QC = TRUE)
 #>     id_vars: function () 
 #>     ident_Score: 
 #>     ident_qValue: qValue
-#>     initialize: function () 
+#>     initialize: function (analysisTableAnnotation = NULL, analysisParameter = NULL) 
 #>     is_response_transformed: FALSE
 #>     isotopeLabel: isotopeLabel
+#>     min_peptides_protein: 2
 #>     normValue: NULL
 #>     nr_children: nr_children
 #>     opt_mz: 
 #>     opt_rt: 
+#>     parameter: active binding
 #>     pop_response: function () 
 #>     sampleName: name
+#>     sep: ~
 #>     set_response: function (colName) 
+#>     table: active binding
 #>     value_vars: function () 
 #>     workIntensity: NULL
 #> 

@@ -105,12 +105,12 @@ Other ProlfquAppConfig:
 ``` r
 DEAconfig <- make_DEA_config_R6(ORDERID = "1234", WORKUNITID = "1234")
 DEAconfig$set_zipdir_name()
-#> [1] "DEA_20260216_O1234_WU1234_none"
+#> [1] "DEA_20260223_O1234_WU1234_none"
 DEAconfig$get_zipdir()
-#> [1] "./DEA_20260216_O1234_WU1234_none"
+#> [1] "./DEA_20260223_O1234_WU1234_none"
 DEAconfig$get_result_dir()
-#> [1] "./DEA_20260216_O1234_WU1234_none/Results_WU_1234"
+#> [1] "./DEA_20260223_O1234_WU1234_none/Results_WU_1234"
 DEAconfig$get_input_dir()
-#> [1] "./DEA_20260216_O1234_WU1234_none/Inputs_WU_1234"
+#> [1] "./DEA_20260223_O1234_WU1234_none/Inputs_WU_1234"
 R6list <- prolfqua::R6_extract_values(DEAconfig)
 ```

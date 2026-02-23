@@ -218,12 +218,12 @@ yaml::write_yaml(xx, file = file.path(tempdir(), "test.yaml"))
 config <- yaml::read_yaml(file = file.path(tempdir(), "test.yaml"))
 
 r6obj_config$set_zipdir_name()
-#> [1] "DEA_20260216_vsn"
+#> [1] "DEA_20260223_vsn"
 
 r6obj_config$get_zipdir()
-#> [1] "./DEA_20260216_vsn"
+#> [1] "./DEA_20260223_vsn"
 r6obj_config$get_result_dir()
-#> [1] "./DEA_20260216_vsn/Results_WU_"
+#> [1] "./DEA_20260223_vsn/Results_WU_"
 r6obj_config$get_input_dir()
-#> [1] "./DEA_20260216_vsn/Inputs_WU_"
+#> [1] "./DEA_20260223_vsn/Inputs_WU_"
 ```

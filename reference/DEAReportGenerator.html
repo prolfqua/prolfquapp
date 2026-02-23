@@ -47,29 +47,26 @@ DEAReportGenerator"></head><body>
 
 
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Generates all output files for a differential expression analysis.
+Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
+    </div>
+    <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
-    <p></p><div class="r6-fields"><dl><dt><code>lfqdata</code></dt>
-<dd><p>LFQData object containing the quantitative data</p></dd>
+    <p></p><div class="r6-fields"><dl><dt><code>deanalyse</code></dt>
+<dd><p>DEAnalyse object containing all analysis results</p></dd>
 
 
 <dt><code>GRP2</code></dt>
 <dd><p>ProlfquAppConfig object containing analysis configuration</p></dd>
 
 
-<dt><code>prot_annot</code></dt>
-<dd><p>ProteinAnnotation object</p></dd>
-
-
-<dt><code>Contrasts</code></dt>
-<dd><p>list of contrasts for differential expression analysis</p></dd>
-
-
 <dt><code>fname</code></dt>
-<dd><p>filename for DEA results</p></dd>
+<dd><p>filename prefix for DEA results</p></dd>
 
 
 <dt><code>qcname</code></dt>
-<dd><p>filename for QC results</p></dd>
+<dd><p>filename prefix for QC results</p></dd>
 
 
 <dt><code>resultdir</code></dt>
@@ -89,61 +86,87 @@ DEAReportGenerator"></head><body>
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
 <ul><li><p><a href="#method-DEAReportGenerator-new"><code>DEAReportGenerator$new()</code></a></p></li>
-<li><p><a href="#method-DEAReportGenerator-write_DEA_all"><code>DEAReportGenerator$write_DEA_all()</code></a></p></li>
+<li><p><a href="#method-DEAReportGenerator-prep_result_list"><code>DEAReportGenerator$prep_result_list()</code></a></p></li>
+<li><p><a href="#method-DEAReportGenerator-write_DEA"><code>DEAReportGenerator$write_DEA()</code></a></p></li>
 <li><p><a href="#method-DEAReportGenerator-render_DEA"><code>DEAReportGenerator$render_DEA()</code></a></p></li>
 <li><p><a href="#method-DEAReportGenerator-make_boxplots"><code>DEAReportGenerator$make_boxplots()</code></a></p></li>
-<li><p><a href="#method-DEAReportGenerator-prep_result_list"><code>DEAReportGenerator$prep_result_list()</code></a></p></li>
+<li><p><a href="#method-DEAReportGenerator-write_DEA_all"><code>DEAReportGenerator$write_DEA_all()</code></a></p></li>
 <li><p><a href="#method-DEAReportGenerator-make_SummarizedExperiment"><code>DEAReportGenerator$make_SummarizedExperiment()</code></a></p></li>
 <li><p><a href="#method-DEAReportGenerator-clone"><code>DEAReportGenerator$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-DEAReportGenerator-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
-<p>Initialize DEAReportGenerator with data and configuration</p><div class="section">
+<p>Initialize DEAReportGenerator</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/DEAReportGenerator.html">DEAReportGenerator</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">lfqdata</span>, <span class="va">GRP2</span>, <span class="va">prot_annot</span>, <span class="va">Contrasts</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/DEAReportGenerator.html">DEAReportGenerator</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">deanalyse</span>, <span class="va">GRP2</span>, name <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>lfqdata</code></dt>
-<dd><p>LFQData object containing quantitative data</p></dd>
+<p></p><div class="arguments"><dl><dt><code>deanalyse</code></dt>
+<dd><p>DEAnalyse R6 object with completed analysis</p></dd>
 
 
 <dt><code>GRP2</code></dt>
-<dd><p>ProlfquAppConfig object with analysis configuration</p></dd>
+<dd><p>ProlfquAppConfig R6 object</p></dd>
 
 
-<dt><code>prot_annot</code></dt>
-<dd><p>ProteinAnnotation object</p></dd>
-
-
-<dt><code>Contrasts</code></dt>
-<dd><p>list of contrasts for differential expression analysis</p></dd>
+<dt><code>name</code></dt>
+<dd><p>optional name prefix for output files</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-DEAReportGenerator-write_DEA_all"></a><div class="section">
-<h3 id="method-write-dea-all-">Method <code><a href="write_DEA_all.html">write_DEA_all()</a></code><a class="anchor" aria-label="anchor" href="#method-write-dea-all-"></a></h3>
-<p>Write all DEA results to files</p><div class="section">
+</div><p></p><hr><a id="method-DEAReportGenerator-prep_result_list"></a><div class="section">
+<h3 id="method-prep-result-list-">Method <code>prep_result_list()</code><a class="anchor" aria-label="anchor" href="#method-prep-result-list-"></a></h3>
+<p>Prepare result list with all analysis outputs for XLSX</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">write_DEA_all</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">prep_result_list</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+<div class="section">
+<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
+<p>list containing all analysis results (14 sheets)</p>
+</div>
 
-</div><p></p><hr><a id="method-DEAReportGenerator-render_DEA"></a><div class="section">
-<h3 id="method-render-dea-">Method <code><a href="make_DEA_report.html">render_DEA()</a></code><a class="anchor" aria-label="anchor" href="#method-render-dea-"></a></h3>
-<p>Render DEA report using R Markdown</p><div class="section">
+</div><p></p><hr><a id="method-DEAReportGenerator-write_DEA"></a><div class="section">
+<h3 id="method-write-dea-">Method <code><a href="write_DEA.html">write_DEA()</a></code><a class="anchor" aria-label="anchor" href="#method-write-dea-"></a></h3>
+<p>Write DEA results (XLSX, ORA, GSEA files)</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">render_DEA</span><span class="op">(</span></span>
-<span>  <span class="va">htmlname</span>,</span>
-<span>  markdown <span class="op">=</span> <span class="st">"_Grp2Analysis.Rmd"</span>,</span>
-<span>  word <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">write_DEA</span><span class="op">(</span>ORA <span class="op">=</span> <span class="cn">TRUE</span>, GSEA <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>ORA</code></dt>
+<dd><p>if TRUE write ORA gene lists</p></dd>
+
+
+<dt><code>GSEA</code></dt>
+<dd><p>if TRUE write GSEA rank files</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
+<p>list with xlsx_file, ora_files, gsea_files paths</p>
+</div>
+
+</div><p></p><hr><a id="method-DEAReportGenerator-render_DEA"></a><div class="section">
+<h3 id="method-render-dea-">Method <code><a href="make_DEA_report.html">render_DEA()</a></code><a class="anchor" aria-label="anchor" href="#method-render-dea-"></a></h3>
+<p>Render DEA report using R Markdown</p><div class="section">
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">render_DEA</span><span class="op">(</span></span>
+<span>  <span class="va">htmlname</span>,</span>
+<span>  markdown <span class="op">=</span> <span class="st">"_Grp2Analysis_V2_R6.Rmd"</span>,</span>
+<span>  word <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  toc <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>htmlname</code></dt>
 <dd><p>name for the output HTML file</p></dd>
 
@@ -156,41 +179,97 @@ DEAReportGenerator"></head><body>
 <dd><p>logical, if TRUE output Word document, otherwise HTML</p></dd>
 
 
+<dt><code>toc</code></dt>
+<dd><p>logical, if TRUE include table of contents</p></dd>
+
+
 </dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
+<p>path to the output file</p>
 </div>
 
 </div><p></p><hr><a id="method-DEAReportGenerator-make_boxplots"></a><div class="section">
 <h3 id="method-make-boxplots-">Method <code>make_boxplots()</code><a class="anchor" aria-label="anchor" href="#method-make-boxplots-"></a></h3>
 <p>Generate boxplots for quality control</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">make_boxplots</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-
-</div><p></p><hr><a id="method-DEAReportGenerator-prep_result_list"></a><div class="section">
-<h3 id="method-prep-result-list-">Method <code>prep_result_list()</code><a class="anchor" aria-label="anchor" href="#method-prep-result-list-"></a></h3>
-<p>Prepare result list with all analysis outputs</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">prep_result_list</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">make_boxplots</span><span class="op">(</span>boxplot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
-<p>list containing all analysis results</p>
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>boxplot</code></dt>
+<dd><p>logical, if TRUE write boxplots</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-DEAReportGenerator-write_DEA_all"></a><div class="section">
+<h3 id="method-write-dea-all-">Method <code><a href="write_DEA_all.html">write_DEA_all()</a></code><a class="anchor" aria-label="anchor" href="#method-write-dea-all-"></a></h3>
+<p>Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots</p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">write_DEA_all</span><span class="op">(</span></span>
+<span>  boxplot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  render <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ORA <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  GSEA <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  markdown <span class="op">=</span> <span class="st">"_Grp2Analysis_V2_R6.Rmd"</span>,</span>
+<span>  markdown_qc <span class="op">=</span> <span class="st">"_DiffExpQC_R6.Rmd"</span>,</span>
+<span>  toc <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>boxplot</code></dt>
+<dd><p>if TRUE generate boxplots</p></dd>
+
+
+<dt><code>render</code></dt>
+<dd><p>if TRUE render HTML reports</p></dd>
+
+
+<dt><code>ORA</code></dt>
+<dd><p>if TRUE write ORA gene lists</p></dd>
+
+
+<dt><code>GSEA</code></dt>
+<dd><p>if TRUE write GSEA rank files</p></dd>
+
+
+<dt><code>markdown</code></dt>
+<dd><p>Rmd template for main DEA report</p></dd>
+
+
+<dt><code>markdown_qc</code></dt>
+<dd><p>Rmd template for QC report</p></dd>
+
+
+<dt><code>toc</code></dt>
+<dd><p>if TRUE include table of contents</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
+<p>list with dea_file, qc_file, data_files paths</p>
 </div>
 
 </div><p></p><hr><a id="method-DEAReportGenerator-make_SummarizedExperiment"></a><div class="section">
 <h3 id="method-make-summarizedexperiment-">Method <code><a href="make_SummarizedExperiment.html">make_SummarizedExperiment()</a></code><a class="anchor" aria-label="anchor" href="#method-make-summarizedexperiment-"></a></h3>
 <p>Create SummarizedExperiment object from analysis results</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">make_SummarizedExperiment</span><span class="op">(</span></span>
 <span>  strip <span class="op">=</span> <span class="st">"~lfq~light"</span>,</span>
-<span>  .url_builder <span class="op">=</span> <span class="va">bfabric_url_builder</span></span>
+<span>  .url_builder <span class="op">=</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="../reference/bfabric_url_builder.html">bfabric_url_builder</a></span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>strip</code></dt>
 <dd><p>pattern to strip from rownames</p></dd>
 
@@ -202,19 +281,19 @@ DEAReportGenerator"></head><body>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
+<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
 <p>SummarizedExperiment object</p>
 </div>
 
 </div><p></p><hr><a id="method-DEAReportGenerator-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

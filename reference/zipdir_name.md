@@ -49,9 +49,9 @@ Generated zip directory name
 
 ``` r
 zipdir_name("DEA", "12345", "67890", "11111", "vsn")
-#> [1] "DEA_20260216_PI12345_O67890_WU11111_vsn"
+#> [1] "DEA_20260223_PI12345_O67890_WU11111_vsn"
 zipdir_name("QC", transform = "quantile")
-#> [1] "QC_20260216_quantile"
+#> [1] "QC_20260223_quantile"
 zipdir_name("DEA", workunit_id = "99999", transform = "robscale")
-#> [1] "DEA_20260216_WU99999_robscale"
+#> [1] "DEA_20260223_WU99999_robscale"
 ```

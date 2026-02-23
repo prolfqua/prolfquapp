@@ -88,6 +88,18 @@ will replace make_DEA_report"></head><body>
 <dd><p>diff_threshold</p></dd>
 
 
+<dt><code>summary</code></dt>
+<dd><p>data.frame with contaminant/decoy summary</p></dd>
+
+
+<dt><code>annotated_contrasts</code></dt>
+<dd><p>contrasts joined with row annotations</p></dd>
+
+
+<dt><code>annotated_contrasts_signif</code></dt>
+<dd><p>significant annotated contrasts</p></dd>
+
+
 <dt><code>reference_proteins</code></dt>
 <dd><p>reference proteins to use for internal normalization</p></dd>
 
@@ -157,6 +169,7 @@ will replace make_DEA_report"></head><body>
 <li><p><a href="#method-DEAnalyse-get_contrasts_glm_protein"><code>DEAnalyse$get_contrasts_glm_protein()</code></a></p></li>
 <li><p><a href="#method-DEAnalyse-get_contrasts_missing_protein"><code>DEAnalyse$get_contrasts_missing_protein()</code></a></p></li>
 <li><p><a href="#method-DEAnalyse-get_contrasts_merged_protein"><code>DEAnalyse$get_contrasts_merged_protein()</code></a></p></li>
+<li><p><a href="#method-DEAnalyse-get_annotated_contrasts"><code>DEAnalyse$get_annotated_contrasts()</code></a></p></li>
 <li><p><a href="#method-DEAnalyse-filter_contrasts"><code>DEAnalyse$filter_contrasts()</code></a></p></li>
 <li><p><a href="#method-DEAnalyse-filter_data"><code>DEAnalyse$filter_data()</code></a></p></li>
 <li><p><a href="#method-DEAnalyse-get_boxplots"><code>DEAnalyse$get_boxplots()</code></a></p></li>
@@ -346,10 +359,18 @@ will replace make_DEA_report"></head><body>
 </div>
 
 
+</div><p></p><hr><a id="method-DEAnalyse-get_annotated_contrasts"></a><div class="section">
+<h3 id="method-get-annotated-contrasts-">Method <code>get_annotated_contrasts()</code><a class="anchor" aria-label="anchor" href="#method-get-annotated-contrasts-"></a></h3>
+<p>compute annotated contrasts by joining row annotations with default model contrasts</p><div class="section">
+<h4 id="usage-17">Usage<a class="anchor" aria-label="anchor" href="#usage-17"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAnalyse</span><span class="op">$</span><span class="fu">get_annotated_contrasts</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
 </div><p></p><hr><a id="method-DEAnalyse-filter_contrasts"></a><div class="section">
 <h3 id="method-filter-contrasts-">Method <code>filter_contrasts()</code><a class="anchor" aria-label="anchor" href="#method-filter-contrasts-"></a></h3>
 <p>filter contrasts for threshold</p><div class="section">
-<h4 id="usage-17">Usage<a class="anchor" aria-label="anchor" href="#usage-17"></a></h4>
+<h4 id="usage-18">Usage<a class="anchor" aria-label="anchor" href="#usage-18"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAnalyse</span><span class="op">$</span><span class="fu">filter_contrasts</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -357,7 +378,7 @@ will replace make_DEA_report"></head><body>
 </div><p></p><hr><a id="method-DEAnalyse-filter_data"></a><div class="section">
 <h3 id="method-filter-data-">Method <code>filter_data()</code><a class="anchor" aria-label="anchor" href="#method-filter-data-"></a></h3>
 <p>filter transformed lfq data for significant proteins.</p><div class="section">
-<h4 id="usage-18">Usage<a class="anchor" aria-label="anchor" href="#usage-18"></a></h4>
+<h4 id="usage-19">Usage<a class="anchor" aria-label="anchor" href="#usage-19"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAnalyse</span><span class="op">$</span><span class="fu">filter_data</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -365,7 +386,7 @@ will replace make_DEA_report"></head><body>
 </div><p></p><hr><a id="method-DEAnalyse-get_boxplots"></a><div class="section">
 <h3 id="method-get-boxplots-">Method <code>get_boxplots()</code><a class="anchor" aria-label="anchor" href="#method-get-boxplots-"></a></h3>
 <p>create boxplots</p><div class="section">
-<h4 id="usage-19">Usage<a class="anchor" aria-label="anchor" href="#usage-19"></a></h4>
+<h4 id="usage-20">Usage<a class="anchor" aria-label="anchor" href="#usage-20"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAnalyse</span><span class="op">$</span><span class="fu">get_boxplots</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -373,7 +394,7 @@ will replace make_DEA_report"></head><body>
 </div><p></p><hr><a id="method-DEAnalyse-contrasts_to_Grob"></a><div class="section">
 <h3 id="method-contrasts-to-grob-">Method <code>contrasts_to_Grob()</code><a class="anchor" aria-label="anchor" href="#method-contrasts-to-grob-"></a></h3>
 <p>create boxplots</p><div class="section">
-<h4 id="usage-20">Usage<a class="anchor" aria-label="anchor" href="#usage-20"></a></h4>
+<h4 id="usage-21">Usage<a class="anchor" aria-label="anchor" href="#usage-21"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAnalyse</span><span class="op">$</span><span class="fu">contrasts_to_Grob</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -381,7 +402,7 @@ will replace make_DEA_report"></head><body>
 </div><p></p><hr><a id="method-DEAnalyse-get_boxplots_contrasts"></a><div class="section">
 <h3 id="method-get-boxplots-contrasts-">Method <code>get_boxplots_contrasts()</code><a class="anchor" aria-label="anchor" href="#method-get-boxplots-contrasts-"></a></h3>
 <p>get box with contrast information</p><div class="section">
-<h4 id="usage-21">Usage<a class="anchor" aria-label="anchor" href="#usage-21"></a></h4>
+<h4 id="usage-22">Usage<a class="anchor" aria-label="anchor" href="#usage-22"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAnalyse</span><span class="op">$</span><span class="fu">get_boxplots_contrasts</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -389,7 +410,7 @@ will replace make_DEA_report"></head><body>
 </div><p></p><hr><a id="method-DEAnalyse-write_boxplots_contrasts"></a><div class="section">
 <h3 id="method-write-boxplots-contrasts-">Method <code>write_boxplots_contrasts()</code><a class="anchor" aria-label="anchor" href="#method-write-boxplots-contrasts-"></a></h3>
 <p>write boxplots contrasts to file</p><div class="section">
-<h4 id="usage-22">Usage<a class="anchor" aria-label="anchor" href="#usage-22"></a></h4>
+<h4 id="usage-23">Usage<a class="anchor" aria-label="anchor" href="#usage-23"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAnalyse</span><span class="op">$</span><span class="fu">write_boxplots_contrasts</span><span class="op">(</span>filename <span class="op">=</span> <span class="st">"boxplots"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -405,7 +426,7 @@ will replace make_DEA_report"></head><body>
 </div><p></p><hr><a id="method-DEAnalyse-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-23">Usage<a class="anchor" aria-label="anchor" href="#usage-23"></a></h4>
+<h4 id="usage-24">Usage<a class="anchor" aria-label="anchor" href="#usage-24"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAnalyse</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -474,20 +495,15 @@ will replace make_DEA_report"></head><body>
 <span class="r-in"><span><span class="va">deanalyse</span><span class="op">$</span><span class="va">prolfq_app_config</span><span class="op">$</span><span class="va">processing_options</span><span class="op">$</span><span class="va">remove_cont</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">deanalyse</span><span class="op">$</span><span class="fu">remove_cont_decoy</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-16 15:06:00] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:40] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
 <span class="r-in"><span><span class="va">deanalyse</span><span class="op">$</span><span class="fu">aggregate</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-16 15:06:00] AGGREGATING PEPTIDE DATA: medpolish.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:40] AGGREGATING PEPTIDE DATA: medpolish.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log_abundance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> starting aggregation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : exp_medpolish</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-16 15:06:01] END OF PROTEIN AGGREGATION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:41] END OF PROTEIN AGGREGATION</span>
 <span class="r-in"><span><span class="va">pl</span> <span class="op">&lt;-</span> <span class="va">deanalyse</span><span class="op">$</span><span class="fu">get_aggregation_plots</span><span class="op">(</span>exp_nr_children <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`aes_string()` was deprecated in ggplot2 3.0.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use tidy evaluation idioms with `aes()`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> See also `vignette("ggplot2-in-packages")` for more information.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">prolfqua</span> package.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Please report the issue at <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/wolski/prolfqua/issues&gt;</span>.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `linewidth` instead.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">prolfqua</span> package.</span>
@@ -499,15 +515,15 @@ will replace make_DEA_report"></head><body>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`geom_line()`).</span>
 <span class="r-plt img"><img src="DEAnalyse-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="va">deanalyse</span><span class="op">$</span><span class="fu">transform_data</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-16 15:06:02] Transforming using robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:42] Transforming using robscale.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log2_exp_medpolish</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> data is : TRUE</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Expected 1 pieces. Additional pieces discarded in 1200 rows [1, 2, 3, 4, 5, 6,</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id, sampleName)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-16 15:06:02] Transforming data : robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:42] Transforming data : robscale.</span>
 <span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">deanalyse</span><span class="op">$</span><span class="fu">build_model_linear_protein</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-16 15:06:02] fitted model with formula : normalized_abundance ~ group_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:42] fitted model with formula : normalized_abundance ~ group_</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
 <span class="r-in"><span><span class="va">contlm</span> <span class="op">&lt;-</span> <span class="va">deanalyse</span><span class="op">$</span><span class="fu">get_contrasts_linear_protein</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -533,7 +549,7 @@ will replace make_DEA_report"></head><body>
 <span class="r-in"><span><span class="co"># deanalyse$build_model_glm_peptide()</span></span></span>
 <span class="r-in"><span><span class="va">xprot</span> <span class="op">&lt;-</span> <span class="va">deanalyse</span><span class="op">$</span><span class="fu">get_contrasts_glm_protein</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-16 15:06:03] fitted model with formula : binresp ~ group_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:43] fitted model with formula : binresp ~ group_</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
 <span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">{</span></span></span>
 <span class="r-in"><span><span class="va">xprot</span><span class="op">$</span><span class="fu">get_contrasts</span><span class="op">(</span><span class="op">)</span></span></span>

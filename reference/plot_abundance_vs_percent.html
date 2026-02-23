@@ -46,7 +46,7 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_abundance_vs_percent</span><span class="op">(</span></span>
 <span>  <span class="va">percInfo</span>,</span>
-<span>  <span class="va">cfg_table</span>,</span>
+<span>  <span class="va">cfg_config</span>,</span>
 <span>  top_N <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  factors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`^REV_` <span class="op">=</span> <span class="st">"red"</span>, `^CON_` <span class="op">=</span> <span class="st">"orange"</span><span class="op">)</span>,</span>
@@ -65,8 +65,8 @@
 <dd><p>data frame with percentage abundance info</p></dd>
 
 
-<dt id="arg-cfg-table">cfg_table<a class="anchor" aria-label="anchor" href="#arg-cfg-table"></a></dt>
-<dd><p>AnalysisTableAnnotation configuration table</p></dd>
+<dt id="arg-cfg-config">cfg_config<a class="anchor" aria-label="anchor" href="#arg-cfg-config"></a></dt>
+<dd><p>AnalysisConfiguration object</p></dd>
 
 
 <dt id="arg-top-n">top_N<a class="anchor" aria-label="anchor" href="#arg-top-n"></a></dt>
@@ -114,29 +114,25 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/debug.html" class="external-link">undebug</a></span><span class="op">(</span><span class="va">plot_abundance_vs_percent</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>argument is not being debugged</span>
 <span class="r-in"><span><span class="fu">plot_abundance_vs_percent</span><span class="op">(</span><span class="va">sr</span><span class="op">$</span><span class="fu">percentage_abundance</span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span> <span class="va">lfqdata</span><span class="op">$</span><span class="va">config</span><span class="op">$</span><span class="va">table</span>,</span></span>
+<span class="r-in"><span> <span class="va">lfqdata</span><span class="op">$</span><span class="va">config</span>,</span></span>
 <span class="r-in"><span> top_N <span class="op">=</span> <span class="fl">6</span>, factors <span class="op">=</span> <span class="cn">FALSE</span>, logY <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Adding missing grouping variables: `interaction`</span>
 <span class="r-plt img"><img src="plot_abundance_vs_percent-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">plot_abundance_vs_percent</span><span class="op">(</span><span class="va">sr</span><span class="op">$</span><span class="fu">percentage_abundance</span><span class="op">(</span><span class="op">)</span>,<span class="va">lfqdata</span><span class="op">$</span><span class="va">config</span><span class="op">$</span><span class="va">table</span>, top_N <span class="op">=</span> <span class="cn">NULL</span>, factors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">plot_abundance_vs_percent</span><span class="op">(</span><span class="va">sr</span><span class="op">$</span><span class="fu">percentage_abundance</span><span class="op">(</span><span class="op">)</span>,<span class="va">lfqdata</span><span class="op">$</span><span class="va">config</span>, top_N <span class="op">=</span> <span class="cn">NULL</span>, factors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Adding missing grouping variables: `interaction`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> creating shared data with key :  ~ protein_Id</span>
-<span class="r-in"><span><span class="fu">plot_abundance_vs_percent</span><span class="op">(</span><span class="va">sr</span><span class="op">$</span><span class="fu">percentage_abundance</span><span class="op">(</span><span class="op">)</span>,<span class="va">lfqdata</span><span class="op">$</span><span class="va">config</span><span class="op">$</span><span class="va">table</span>, top_N <span class="op">=</span> <span class="fl">4</span>, factors <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_abundance_vs_percent</span><span class="op">(</span><span class="va">sr</span><span class="op">$</span><span class="fu">percentage_abundance</span><span class="op">(</span><span class="op">)</span>,<span class="va">lfqdata</span><span class="op">$</span><span class="va">config</span>, top_N <span class="op">=</span> <span class="fl">4</span>, factors <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Adding missing grouping variables: `interaction`</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 167 rows containing missing values or values outside the scale range</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`geom_point()`).</span>
 <span class="r-plt img"><img src="plot_abundance_vs_percent-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">plot_abundance_vs_percent</span><span class="op">(</span><span class="va">sr</span><span class="op">$</span><span class="fu">percentage_abundance</span><span class="op">(</span><span class="op">)</span>,<span class="va">lfqdata</span><span class="op">$</span><span class="va">config</span><span class="op">$</span><span class="va">table</span>, top_N <span class="op">=</span> <span class="cn">NULL</span>, factors <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_abundance_vs_percent</span><span class="op">(</span><span class="va">sr</span><span class="op">$</span><span class="fu">percentage_abundance</span><span class="op">(</span><span class="op">)</span>,<span class="va">lfqdata</span><span class="op">$</span><span class="va">config</span>, top_N <span class="op">=</span> <span class="cn">NULL</span>, factors <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Adding missing grouping variables: `interaction`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> creating shared data with key :  ~ protein_Id</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 167 rows containing missing values or values outside the scale range</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`geom_point()`).</span>
