@@ -99,6 +99,12 @@ DEAnalyse <- R6::R6Class(
     #' @field diff_threshold diff_threshold
     diff_threshold = 1,
 
+    #' @field summary data.frame with contaminant/decoy summary
+    summary = NULL,
+    #' @field annotated_contrasts contrasts joined with row annotations
+    annotated_contrasts = NULL,
+    #' @field annotated_contrasts_signif significant annotated contrasts
+    annotated_contrasts_signif = NULL,
 
     #' @field reference_proteins reference proteins to use for internal normalization
     reference_proteins = NULL, # to use for internal calibration
@@ -154,7 +160,14 @@ DEAnalyse <- R6::R6Class(
     #' @description
     #' count number of decoys
     cont_decoy_summary = function() {
-      self$rowAnnot$get_summary()
+      allProt <- nrow(self$rowAnnot$row_annot)
+      self$summary <- data.frame(
+        totalNrOfProteins = allProt,
+        percentOfContaminants = round(self$rowAnnot$annotate_contaminants() / allProt * 100, digits = 2),
+        percentOfFalsePositives = round(self$rowAnnot$annotate_decoys() / allProt * 100, digits = 2),
+        NrOfProteinsNoDecoys = self$rowAnnot$nr_clean()
+      )
+      self$summary
     },
     #' @description
     #' remove contaminants and decoys
@@ -237,6 +250,21 @@ DEAnalyse <- R6::R6Class(
         internal = self$reference_proteins
       )
       self$lfq_data$rename_response("abundance")
+
+      if (length(self$prolfq_app_config$processing_options$internal) > 0) {
+        x <- transformed$hierarchy()
+        mm <- colnames(x)[1]
+        x <- x |> dplyr::filter(!!dplyr::sym(mm) %in% self$prolfq_app_config$processing_options$internal)
+        if (nrow(x) == 0) {
+          what <- paste(self$prolfq_app_config$processing_options$internal, collapse = ",")
+          warning("not in list : ", what)
+        } else {
+          xs <- transformed$get_subset(x)
+          tr <- transformed$get_Transformer()
+          transformed <- tr$center_to_reference(xs)$lfq
+        }
+      }
+
       transformed$rename_response("normalized_abundance")
       self$lfq_data_transformed <- transformed
       invisible(transformed)
@@ -302,18 +330,7 @@ DEAnalyse <- R6::R6Class(
     #' @description
     #' fit generalized linear model
     build_model_glm_peptide = function() {
-      if (is.null(self$models[[self$m4_glm_peptide]])) {
-        lfq <- self$lfq_data_peptide
-
-        lfq$complete_cases()
-        lfq$data <- encode_bin_resp(lfq$data, lfq$config)
-        tmp <- LFQData$new(istar$data, istar$config)
-
-
-        self$models[[self$m4_glm_peptide]] <- models2
-      }
-
-      return(self$models[[self$m4_glm_peptide]])
+      stop("Not yet implemented: build_model_glm_peptide references undefined variables (istar, models2)")
     },
 
     #' @description
@@ -353,15 +370,36 @@ DEAnalyse <- R6::R6Class(
     #' merge contrasts
     get_contrasts_merged_protein = function() {
       if (is.null(self$contrast_results[[self$m3_merged]])) {
-        self$get_contrasts_linear_protein()
-        self$get_contrasts_missing_protein()
-
-        self$contrast_results[[self$m3_merged]] <- prolfqua::merge_contrasts_results(
-          self$contrast_results[[self$m1_linear]],
-          self$contrast_results[[self$m2_missing]]
-        )$merged
+        model_missing <- self$prolfq_app_config$processing_options$model_missing
+        if (is.null(model_missing) || model_missing) {
+          self$get_contrasts_linear_protein()
+          self$get_contrasts_missing_protein()
+          self$contrast_results[[self$m3_merged]] <- prolfqua::merge_contrasts_results(
+            self$contrast_results[[self$m1_linear]],
+            self$contrast_results[[self$m2_missing]]
+          )$merged
+        } else {
+          self$get_contrasts_linear_protein()
+          self$contrast_results[[self$m3_merged]] <- self$contrast_results[[self$m1_linear]]
+        }
       }
       invisible(self$contrast_results[[self$m3_merged]])
+    },
+    #' @description
+    #' compute annotated contrasts by joining row annotations with default model contrasts
+    get_annotated_contrasts = function() {
+      if (is.null(self$contrast_results[[self$default_model]])) {
+        stop("no default model contrasts yet: ", self$default_model)
+      }
+      datax <- self$contrast_results[[self$default_model]]$get_contrasts()
+      datax <- dplyr::inner_join(self$rowAnnot$row_annot, datax, multiple = "all")
+      self$annotated_contrasts <- datax
+
+      datax_signif <- datax |>
+        dplyr::filter(.data$FDR < self$FDR_threshold &
+          abs(.data$diff) > self$diff_threshold)
+      self$annotated_contrasts_signif <- datax_signif
+      invisible(self$annotated_contrasts)
     },
     #' @description
     #' filter contrasts for threshold
@@ -477,7 +515,7 @@ DEAnalyse <- R6::R6Class(
         !grepl("^control", prlconfig$factor_keys_depth(), ignore.case = TRUE)
       ]
       # model with or without interactions
-      if (interaction) {
+      if (is.null(interaction) || !interaction) {
         formula <- paste0(
           response, " ~ ",
           paste(factors, collapse = " + ")

@@ -8,20 +8,20 @@ DEAReportGenerator
 
 DEAReportGenerator
 }
+\details{
+Generates all output files for a differential expression analysis.
+Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.
+}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{lfqdata}}{LFQData object containing the quantitative data}
+\item{\code{deanalyse}}{DEAnalyse object containing all analysis results}
 
 \item{\code{GRP2}}{ProlfquAppConfig object containing analysis configuration}
 
-\item{\code{prot_annot}}{ProteinAnnotation object}
+\item{\code{fname}}{filename prefix for DEA results}
 
-\item{\code{Contrasts}}{list of contrasts for differential expression analysis}
-
-\item{\code{fname}}{filename for DEA results}
-
-\item{\code{qcname}}{filename for QC results}
+\item{\code{qcname}}{filename prefix for QC results}
 
 \item{\code{resultdir}}{directory for storing results}
 
@@ -33,10 +33,11 @@ DEAReportGenerator
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-DEAReportGenerator-new}{\code{DEAReportGenerator$new()}}
-\item \href{#method-DEAReportGenerator-write_DEA_all}{\code{DEAReportGenerator$write_DEA_all()}}
+\item \href{#method-DEAReportGenerator-prep_result_list}{\code{DEAReportGenerator$prep_result_list()}}
+\item \href{#method-DEAReportGenerator-write_DEA}{\code{DEAReportGenerator$write_DEA()}}
 \item \href{#method-DEAReportGenerator-render_DEA}{\code{DEAReportGenerator$render_DEA()}}
 \item \href{#method-DEAReportGenerator-make_boxplots}{\code{DEAReportGenerator$make_boxplots()}}
-\item \href{#method-DEAReportGenerator-prep_result_list}{\code{DEAReportGenerator$prep_result_list()}}
+\item \href{#method-DEAReportGenerator-write_DEA_all}{\code{DEAReportGenerator$write_DEA_all()}}
 \item \href{#method-DEAReportGenerator-make_SummarizedExperiment}{\code{DEAReportGenerator$make_SummarizedExperiment()}}
 \item \href{#method-DEAReportGenerator-clone}{\code{DEAReportGenerator$clone()}}
 }
@@ -45,34 +46,57 @@ DEAReportGenerator
 \if{html}{\out{<a id="method-DEAReportGenerator-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-new}{}}}
 \subsection{Method \code{new()}}{
-Initialize DEAReportGenerator with data and configuration
+Initialize DEAReportGenerator
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$new(lfqdata, GRP2, prot_annot, Contrasts)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$new(deanalyse, GRP2, name = "")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{lfqdata}}{LFQData object containing quantitative data}
+\item{\code{deanalyse}}{DEAnalyse R6 object with completed analysis}
 
-\item{\code{GRP2}}{ProlfquAppConfig object with analysis configuration}
+\item{\code{GRP2}}{ProlfquAppConfig R6 object}
 
-\item{\code{prot_annot}}{ProteinAnnotation object}
-
-\item{\code{Contrasts}}{list of contrasts for differential expression analysis}
+\item{\code{name}}{optional name prefix for output files}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAReportGenerator-write_DEA_all"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_DEA_all}{}}}
-\subsection{Method \code{write_DEA_all()}}{
-Write all DEA results to files
+\if{html}{\out{<a id="method-DEAReportGenerator-prep_result_list"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAReportGenerator-prep_result_list}{}}}
+\subsection{Method \code{prep_result_list()}}{
+Prepare result list with all analysis outputs for XLSX
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_DEA_all()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$prep_result_list()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+list containing all analysis results (14 sheets)
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAReportGenerator-write_DEA"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_DEA}{}}}
+\subsection{Method \code{write_DEA()}}{
+Write DEA results (XLSX, ORA, GSEA files)
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_DEA(ORA = TRUE, GSEA = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ORA}}{if TRUE write ORA gene lists}
+
+\item{\code{GSEA}}{if TRUE write GSEA rank files}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+list with xlsx_file, ora_files, gsea_files paths
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-render_DEA"></a>}}
@@ -82,8 +106,9 @@ Render DEA report using R Markdown
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$render_DEA(
   htmlname,
-  markdown = "_Grp2Analysis.Rmd",
-  word = FALSE
+  markdown = "_Grp2Analysis_V2_R6.Rmd",
+  word = FALSE,
+  toc = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -95,8 +120,13 @@ Render DEA report using R Markdown
 \item{\code{markdown}}{path to the R Markdown template file}
 
 \item{\code{word}}{logical, if TRUE output Word document, otherwise HTML}
+
+\item{\code{toc}}{logical, if TRUE include table of contents}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+path to the output file
 }
 }
 \if{html}{\out{<hr>}}
@@ -105,21 +135,55 @@ Render DEA report using R Markdown
 \subsection{Method \code{make_boxplots()}}{
 Generate boxplots for quality control
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$make_boxplots()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$make_boxplots(boxplot = TRUE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{boxplot}}{logical, if TRUE write boxplots}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAReportGenerator-prep_result_list"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAReportGenerator-prep_result_list}{}}}
-\subsection{Method \code{prep_result_list()}}{
-Prepare result list with all analysis outputs
+\if{html}{\out{<a id="method-DEAReportGenerator-write_DEA_all"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_DEA_all}{}}}
+\subsection{Method \code{write_DEA_all()}}{
+Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$prep_result_list()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_DEA_all(
+  boxplot = TRUE,
+  render = TRUE,
+  ORA = TRUE,
+  GSEA = TRUE,
+  markdown = "_Grp2Analysis_V2_R6.Rmd",
+  markdown_qc = "_DiffExpQC_R6.Rmd",
+  toc = TRUE
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{boxplot}}{if TRUE generate boxplots}
+
+\item{\code{render}}{if TRUE render HTML reports}
+
+\item{\code{ORA}}{if TRUE write ORA gene lists}
+
+\item{\code{GSEA}}{if TRUE write GSEA rank files}
+
+\item{\code{markdown}}{Rmd template for main DEA report}
+
+\item{\code{markdown_qc}}{Rmd template for QC report}
+
+\item{\code{toc}}{if TRUE include table of contents}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
-list containing all analysis results
+list with dea_file, qc_file, data_files paths
 }
 }
 \if{html}{\out{<hr>}}
@@ -130,7 +194,7 @@ Create SummarizedExperiment object from analysis results
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$make_SummarizedExperiment(
   strip = "~lfq~light",
-  .url_builder = bfabric_url_builder
+  .url_builder = prolfquapp::bfabric_url_builder
 )}\if{html}{\out{</div>}}
 }
 

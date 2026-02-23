@@ -88,6 +88,12 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 
 \item{\code{diff_threshold}}{diff_threshold}
 
+\item{\code{summary}}{data.frame with contaminant/decoy summary}
+
+\item{\code{annotated_contrasts}}{contrasts joined with row annotations}
+
+\item{\code{annotated_contrasts_signif}}{significant annotated contrasts}
+
 \item{\code{reference_proteins}}{reference proteins to use for internal normalization}
 
 \item{\code{formula}}{model formula}
@@ -132,6 +138,7 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 \item \href{#method-DEAnalyse-get_contrasts_glm_protein}{\code{DEAnalyse$get_contrasts_glm_protein()}}
 \item \href{#method-DEAnalyse-get_contrasts_missing_protein}{\code{DEAnalyse$get_contrasts_missing_protein()}}
 \item \href{#method-DEAnalyse-get_contrasts_merged_protein}{\code{DEAnalyse$get_contrasts_merged_protein()}}
+\item \href{#method-DEAnalyse-get_annotated_contrasts}{\code{DEAnalyse$get_annotated_contrasts()}}
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
 \item \href{#method-DEAnalyse-filter_data}{\code{DEAnalyse$filter_data()}}
 \item \href{#method-DEAnalyse-get_boxplots}{\code{DEAnalyse$get_boxplots()}}
@@ -343,6 +350,16 @@ compute missing contrasts
 merge contrasts
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_merged_protein()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAnalyse-get_annotated_contrasts"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-get_annotated_contrasts}{}}}
+\subsection{Method \code{get_annotated_contrasts()}}{
+compute annotated contrasts by joining row annotations with default model contrasts
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_annotated_contrasts()}\if{html}{\out{</div>}}
 }
 
 }

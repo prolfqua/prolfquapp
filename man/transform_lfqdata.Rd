@@ -26,7 +26,7 @@ config <- prolfqua:::old2new(istar$config)
 tmp <- prolfqua::LFQData$new(istar$data, config)
 d <- istar$d
 internal <- dplyr::filter(d, protein_Id \%in\% sample(unique(d$protein_Id), 3 )) |>
-  dplyr::select(all_of(tmp$config$table$hierarchy_keys()[1])) |> dplyr::distinct()
+  dplyr::select(all_of(tmp$config$hierarchy_keys()[1])) |> dplyr::distinct()
 tmp2 <- transform_lfqdata(tmp, internal = internal)
 tmp2 <- transform_lfqdata(tmp)
 

@@ -4,10 +4,10 @@
 \alias{get_formula}
 \title{will generates formula}
 \usage{
-get_formula(table, interaction = FALSE)
+get_formula(config, interaction = FALSE)
 }
 \arguments{
-\item{table}{AnalysisTableAnnotation configuration table}
+\item{config}{AnalysisConfiguration object}
 
 \item{interaction}{if TRUE include interaction terms}
 }

@@ -6,7 +6,7 @@
 \usage{
 plot_abundance_vs_percent(
   percInfo,
-  cfg_table,
+  cfg_config,
   top_N = 10,
   factors = TRUE,
   colors = c(`^REV_` = "red", `^CON_` = "orange"),
@@ -19,7 +19,7 @@ plot_abundance_vs_percent(
 \arguments{
 \item{percInfo}{data frame with percentage abundance info}
 
-\item{cfg_table}{AnalysisTableAnnotation configuration table}
+\item{cfg_config}{AnalysisConfiguration object}
 
 \item{top_N}{number of top proteins to label}
 
@@ -51,12 +51,12 @@ lfqdata <- prolfqua::LFQData$new(data, istar$config)
 sr <- lfqdata$get_Summariser()
 undebug(plot_abundance_vs_percent)
 plot_abundance_vs_percent(sr$percentage_abundance(),
- lfqdata$config$table,
+ lfqdata$config,
  top_N = 6, factors = FALSE, logY = TRUE)
 
-pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = FALSE)
-plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = 4, factors = TRUE)
-plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config$table, top_N = NULL, factors = TRUE)
+pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = NULL, factors = FALSE)
+plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = 4, factors = TRUE)
+plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = NULL, factors = TRUE)
 
 
 }
