@@ -35,10 +35,15 @@ Other MaxQuant:
 
 ``` r
 protein_txt <- prolfqua::find_package_file("prolfquapp","samples/maxquant_txt/tiny2.zip")
-protein_txt <- read.csv(unz(protein_txt,"proteinGroups.txt"), header=TRUE, stringsAsFactors = FALSE, sep="\t")
+protein_txt <- read.csv(
+  unz(protein_txt, "proteinGroups.txt"),
+  header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 mq_proteins <-tidyMQ_ProteinGroups(protein_txt)
 
-protein_txt <- prolfqua::find_package_file("prolfquapp","samples/maxquant_txt/tiny2.zip")
-protein_txt <- read.csv(unz(protein_txt,"proteinGroups.txt"), header=TRUE, stringsAsFactors = FALSE, sep="\t")
+protein_txt <- prolfqua::find_package_file(
+  "prolfquapp", "samples/maxquant_txt/tiny2.zip")
+protein_txt <- read.csv(
+  unz(protein_txt, "proteinGroups.txt"),
+  header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 mq_proteins <-tidyMQ_ProteinGroups(protein_txt)
 ```

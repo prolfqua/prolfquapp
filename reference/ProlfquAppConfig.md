@@ -212,18 +212,22 @@ The objects of this class are cloneable with this method.
 
 ``` r
 
-r6obj_config <- ProlfquAppConfig$new(ProcessingOptions$new(), ProjectSpec$new(), ExternalReader$new())
+r6obj_config <- ProlfquAppConfig$new(
+  ProcessingOptions$new(),
+  ProjectSpec$new(),
+  ExternalReader$new()
+)
 xx <- prolfqua::R6_extract_values(r6obj_config)
 yaml::write_yaml(xx, file = file.path(tempdir(), "test.yaml"))
 config <- yaml::read_yaml(file = file.path(tempdir(), "test.yaml"))
 
 r6obj_config$set_zipdir_name()
-#> [1] "DEA_20260223_vsn"
+#> [1] "DEA_20260225_vsn"
 
 r6obj_config$get_zipdir()
-#> [1] "./DEA_20260223_vsn"
+#> [1] "./DEA_20260225_vsn"
 r6obj_config$get_result_dir()
-#> [1] "./DEA_20260223_vsn/Results_WU_"
+#> [1] "./DEA_20260225_vsn/Results_WU_"
 r6obj_config$get_input_dir()
-#> [1] "./DEA_20260223_vsn/Inputs_WU_"
+#> [1] "./DEA_20260225_vsn/Inputs_WU_"
 ```

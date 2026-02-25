@@ -212,4 +212,5 @@ tmp$create()
 #> NULL
 tmp$reset()
 #> NULL
+unlink("./test_project", recursive = TRUE)
 ```

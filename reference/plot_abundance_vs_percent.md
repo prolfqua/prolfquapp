@@ -78,17 +78,23 @@ plot_abundance_vs_percent(sr$percentage_abundance(),
 #> completing cases
 
 
-pd <- plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = NULL, factors = FALSE)
+pd <- plot_abundance_vs_percent(
+  sr$percentage_abundance(),
+  lfqdata$config, top_N = NULL, factors = FALSE)
 #> completing cases
 #> completing cases
 #> creating shared data with key :  ~ protein_Id
-plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = 4, factors = TRUE)
+plot_abundance_vs_percent(
+  sr$percentage_abundance(),
+  lfqdata$config, top_N = 4, factors = TRUE)
 #> completing cases
 #> completing cases
 #> Warning: Removed 167 rows containing missing values or values outside the scale range
 #> (`geom_point()`).
 
-plot_abundance_vs_percent(sr$percentage_abundance(),lfqdata$config, top_N = NULL, factors = TRUE)
+plot_abundance_vs_percent(
+  sr$percentage_abundance(),
+  lfqdata$config, top_N = NULL, factors = TRUE)
 #> completing cases
 #> completing cases
 #> creating shared data with key :  ~ protein_Id

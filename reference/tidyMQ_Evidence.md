@@ -34,10 +34,15 @@ Other MaxQuant:
 
 ``` r
 evidence_txt <- prolfqua::find_package_file("prolfquapp", "samples/maxquant_txt/tiny2.zip")
-evidence_txt <- read.csv(unz(evidence_txt,"evidence.txt"), header=TRUE, stringsAsFactors = FALSE, sep="\t")
+evidence_txt <- read.csv(
+  unz(evidence_txt, "evidence.txt"),
+  header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 mq_evidence <- tidyMQ_Evidence(evidence_txt)
 
-evidence_txt <- prolfqua::find_package_file("prolfquapp", "samples/maxquant_txt/tiny2.zip")
-evidence_txt <- read.csv(unz(evidence_txt,"evidence.txt"), header=TRUE, stringsAsFactors = FALSE, sep="\t")
+evidence_txt <- prolfqua::find_package_file(
+  "prolfquapp", "samples/maxquant_txt/tiny2.zip")
+evidence_txt <- read.csv(
+  unz(evidence_txt, "evidence.txt"),
+  header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 mq_evidence <- tidyMQ_Evidence(evidence_txt)
 ```

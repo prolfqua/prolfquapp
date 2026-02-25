@@ -495,13 +495,13 @@ will replace make_DEA_report"></head><body>
 <span class="r-in"><span><span class="va">deanalyse</span><span class="op">$</span><span class="va">prolfq_app_config</span><span class="op">$</span><span class="va">processing_options</span><span class="op">$</span><span class="va">remove_cont</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">deanalyse</span><span class="op">$</span><span class="fu">remove_cont_decoy</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:40] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-25 16:35:42] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
 <span class="r-in"><span><span class="va">deanalyse</span><span class="op">$</span><span class="fu">aggregate</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:40] AGGREGATING PEPTIDE DATA: medpolish.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-25 16:35:42] AGGREGATING PEPTIDE DATA: medpolish.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log_abundance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> starting aggregation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : exp_medpolish</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:41] END OF PROTEIN AGGREGATION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-25 16:35:43] END OF PROTEIN AGGREGATION</span>
 <span class="r-in"><span><span class="va">pl</span> <span class="op">&lt;-</span> <span class="va">deanalyse</span><span class="op">$</span><span class="fu">get_aggregation_plots</span><span class="op">(</span>exp_nr_children <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span>
@@ -515,15 +515,15 @@ will replace make_DEA_report"></head><body>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`geom_line()`).</span>
 <span class="r-plt img"><img src="DEAnalyse-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="va">deanalyse</span><span class="op">$</span><span class="fu">transform_data</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:42] Transforming using robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-25 16:35:43] Transforming using robscale.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log2_exp_medpolish</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> data is : TRUE</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Expected 1 pieces. Additional pieces discarded in 1200 rows [1, 2, 3, 4, 5, 6,</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id, sampleName)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:42] Transforming data : robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-25 16:35:43] Transforming data : robscale.</span>
 <span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">deanalyse</span><span class="op">$</span><span class="fu">build_model_linear_protein</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:42] fitted model with formula : normalized_abundance ~ group_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-25 16:35:43] fitted model with formula : normalized_abundance ~ group_</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
 <span class="r-in"><span><span class="va">contlm</span> <span class="op">&lt;-</span> <span class="va">deanalyse</span><span class="op">$</span><span class="fu">get_contrasts_linear_protein</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -549,7 +549,7 @@ will replace make_DEA_report"></head><body>
 <span class="r-in"><span><span class="co"># deanalyse$build_model_glm_peptide()</span></span></span>
 <span class="r-in"><span><span class="va">xprot</span> <span class="op">&lt;-</span> <span class="va">deanalyse</span><span class="op">$</span><span class="fu">get_contrasts_glm_protein</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-23 21:06:43] fitted model with formula : binresp ~ group_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-02-25 16:35:44] fitted model with formula : binresp ~ group_</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
 <span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">{</span></span></span>
 <span class="r-in"><span><span class="va">xprot</span><span class="op">$</span><span class="fu">get_contrasts</span><span class="op">(</span><span class="op">)</span></span></span>

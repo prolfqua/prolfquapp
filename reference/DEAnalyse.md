@@ -512,13 +512,13 @@ deanalyse$cont_decoy_summary()
 deanalyse$prolfq_app_config$processing_options$remove_cont <- TRUE
 deanalyse$remove_cont_decoy()
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-02-23 21:06:40] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#> INFO [2026-02-25 16:35:42] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
 deanalyse$aggregate()
-#> INFO [2026-02-23 21:06:40] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-02-25 16:35:42] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> Column added : exp_medpolish
-#> INFO [2026-02-23 21:06:41] END OF PROTEIN AGGREGATION
+#> INFO [2026-02-25 16:35:43] END OF PROTEIN AGGREGATION
 pl <- deanalyse$get_aggregation_plots(exp_nr_children = 10)
 #> Joining with `by = join_by(protein_Id)`
 #> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
@@ -532,15 +532,15 @@ print(pl$plots[[3]])
 #> (`geom_line()`).
 
 deanalyse$transform_data()
-#> INFO [2026-02-23 21:06:42] Transforming using robscale.
+#> INFO [2026-02-25 16:35:43] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Warning: Expected 1 pieces. Additional pieces discarded in 1200 rows [1, 2, 3, 4, 5, 6,
 #> 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 #> Joining with `by = join_by(protein_Id, sampleName)`
-#> INFO [2026-02-23 21:06:42] Transforming data : robscale.
+#> INFO [2026-02-25 16:35:43] Transforming data : robscale.
 mod <- deanalyse$build_model_linear_protein()
-#> INFO [2026-02-23 21:06:42] fitted model with formula : normalized_abundance ~ group_
+#> INFO [2026-02-25 16:35:43] fitted model with formula : normalized_abundance ~ group_
 #> Joining with `by = join_by(protein_Id)`
 contlm <- deanalyse$get_contrasts_linear_protein()
 
@@ -566,7 +566,7 @@ stopifnot(nrow(merged$get_contrasts()) == 200)
 # deanalyse$build_model_glm_peptide()
 xprot <- deanalyse$get_contrasts_glm_protein()
 #> completing cases
-#> INFO [2026-02-23 21:06:43] fitted model with formula : binresp ~ group_
+#> INFO [2026-02-25 16:35:44] fitted model with formula : binresp ~ group_
 #> Joining with `by = join_by(protein_Id)`
 if(FALSE){
 xprot$get_contrasts()

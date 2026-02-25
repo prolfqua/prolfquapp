@@ -83,7 +83,8 @@ initialize
 
 - `lfqdata`:
 
-  data frame from `setup_analysis`
+  data frame from
+  [`setup_analysis`](https://rdrr.io/pkg/prolfqua/man/setup_analysis.html)
 
 - `row_annot`:
 

@@ -54,15 +54,15 @@ annot <- data.frame(
 annot <- read_annotation(annot, QC = TRUE)
 preprocess_functions <- prolfquapp::prolfqua_preprocess_functions[["DUMMY"]]
 res <- preprocess_software(".", annot, preprocess_functions)
-#> INFO [2026-02-23 21:07:04] Files data: data.path
-#> INFO [2026-02-23 21:07:04] Files fasta: fasta.files.path
+#> INFO [2026-02-25 16:36:05] Files data: data.path
+#> INFO [2026-02-25 16:36:05] Files fasta: fasta.files.path
 
 xx <- prolfquapp::ExternalReader$new()
 xx$extra_args <- "list()"
 xx$get_files <- "prolfquapp::get_dummy_files"
 xx$preprocess <- "prolfquapp::preprocess_dummy"
 res <- preprocess_software(".", annotation = annot, preprocess_functions = xx)
-#> INFO [2026-02-23 21:07:04] Files data: data.path
-#> INFO [2026-02-23 21:07:04] Files fasta: fasta.files.path
+#> INFO [2026-02-25 16:36:05] Files data: data.path
+#> INFO [2026-02-25 16:36:05] Files fasta: fasta.files.path
 xx <- prolfquapp::ExternalReader$new()
 ```
