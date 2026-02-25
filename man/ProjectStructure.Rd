@@ -24,6 +24,7 @@ tmp$modelling_dir
 tmp$modelling_path("second_model")
 tmp$create()
 tmp$reset()
+unlink("./test_project", recursive = TRUE)
 
 }
 \section{Public fields}{

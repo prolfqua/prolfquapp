@@ -1,0 +1,31 @@
+# Global variables used in NSE (non-standard evaluation)
+# This avoids R CMD check NOTEs about "no visible binding for global variable"
+utils::globalVariables(c(
+  "abundance",
+  "adduct",
+  "compound_name",
+  "config",
+  "contrast",
+  "fasta.header",
+  "feature_charge",
+  "feature_id",
+  "feature_mz",
+  "feature_rt",
+  "file_id",
+  "Formula",
+  "Group_",
+  "id",
+  "Intensity",
+  "leading.razor.protein",
+  "metabolite_feature_Id",
+  "mol_formula",
+  "nrPeptides",
+  "output",
+  "Peptide",
+  "Probability",
+  "Protein",
+  "protein_Id",
+  "Purity",
+  "score",
+  "set_config"
+))

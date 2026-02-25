@@ -42,6 +42,7 @@
 #' tmp$modelling_path("second_model")
 #' tmp$create()
 #' tmp$reset()
+#' unlink("./test_project", recursive = TRUE)
 #'
 ProjectStructure <-
   R6::R6Class("ProjectStructure", public = list(

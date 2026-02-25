@@ -53,6 +53,7 @@ Suggests:
   anndataR,
   covr,
   devtools,
+  gridExtra,
   KernSmooth,
   knitr,
   lintr,

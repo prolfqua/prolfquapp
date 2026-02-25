@@ -109,7 +109,7 @@ initialize
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{lfqdata}}{data frame from \code{\link{setup_analysis}}}
+\item{\code{lfqdata}}{data frame from \code{\link[prolfqua]{setup_analysis}}}
 
 \item{\code{row_annot}}{data frame with row annotation. Must have columns matching \code{config$hierarchy_keys_depth()}}
 

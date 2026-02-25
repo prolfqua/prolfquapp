@@ -168,7 +168,7 @@ ProteinAnnotation <-
       #' @field pattern_decoys pattern_decoys
       pattern_decoys = character(),
       #' @description initialize
-      #' @param lfqdata data frame from \code{\link{setup_analysis}}
+      #' @param lfqdata data frame from \code{\link[prolfqua]{setup_analysis}}
       #' @param row_annot data frame with row annotation. Must have columns matching \code{config$hierarchy_keys_depth()}
       #' @param description name of column with description
       #' @param cleaned_ids names of columns with cleaned Ids

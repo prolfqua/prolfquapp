@@ -1,7 +1,7 @@
 #' transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)
 #'
 #' It will also run internal but then robscale must be used.
-#' @param lfqdata \code{\link{LFQData}}
+#' @param lfqdata \code{\link[prolfqua]{LFQData}}
 #' @param method normalization method to use
 #' @param internal a data.frame with protein ids to be used for internal calibration, column name must be the same as
 #' @export

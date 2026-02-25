@@ -3,7 +3,6 @@
 .RData
 .Ruserdata
 .DS_Store
-inst/doc
 /doc/
 /Meta/
 prolfquapp.Rcheck/

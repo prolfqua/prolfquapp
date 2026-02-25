@@ -11,7 +11,7 @@ transform_lfqdata(
 )
 }
 \arguments{
-\item{lfqdata}{\code{\link{LFQData}}}
+\item{lfqdata}{\code{\link[prolfqua]{LFQData}}}
 
 \item{method}{normalization method to use}
 

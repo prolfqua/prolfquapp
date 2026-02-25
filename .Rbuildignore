@@ -1,7 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^doc$
-^Meta$
 ^\.lintr$
 ^R/\.lintr$
 ^Makefile$
@@ -25,3 +23,5 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^doc$
+^Meta$

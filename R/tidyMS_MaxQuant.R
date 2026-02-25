@@ -13,8 +13,11 @@ NULL
 #' @family MaxQuant
 #'
 #' @examples
-#' protein_txt <- prolfqua::find_package_file("prolfquapp","samples/maxquant_txt/tiny2.zip")
-#' protein_txt <- read.csv(unz(protein_txt,"proteinGroups.txt"), header=TRUE, stringsAsFactors = FALSE, sep="\t")
+#' protein_txt <- prolfqua::find_package_file(
+#'   "prolfquapp", "samples/maxquant_txt/tiny2.zip")
+#' protein_txt <- read.csv(
+#'   unz(protein_txt, "proteinGroups.txt"),
+#'   header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 #' mq_proteins <-tidyMQ_ProteinGroups(protein_txt)
 #'
 tidyMQ_ProteinGroups <- function(MQProteinGroups) {
@@ -74,8 +77,11 @@ tidyMQ_ProteinGroups <- function(MQProteinGroups) {
 #' @family MaxQuant
 #' @examples
 #'
-#' evidence_txt <- prolfqua::find_package_file("prolfquapp", "samples/maxquant_txt/tiny2.zip")
-#' evidence_txt <- read.csv(unz(evidence_txt,"evidence.txt"), header=TRUE, stringsAsFactors = FALSE, sep="\t")
+#' evidence_txt <- prolfqua::find_package_file(
+#'   "prolfquapp", "samples/maxquant_txt/tiny2.zip")
+#' evidence_txt <- read.csv(
+#'   unz(evidence_txt, "evidence.txt"),
+#'   header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 #' mq_evidence <- tidyMQ_Evidence(evidence_txt)
 tidyMQ_Evidence <- function(Evidence){
   if (is.character(Evidence)) {
@@ -127,9 +133,12 @@ tidyMQ_Evidence <- function(Evidence){
 #' @examples
 #'
 #'
-#' peptide_txt <- prolfqua::find_package_file("prolfquapp", "samples/maxquant_txt/tiny2.zip")
+#' peptide_txt <- prolfqua::find_package_file(
+#'   "prolfquapp", "samples/maxquant_txt/tiny2.zip")
 #'
-#' peptides_txt <- read.csv(unz(peptide_txt, "peptides.txt"), header = TRUE, stringsAsFactors = FALSE, sep = "\t")
+#' peptides_txt <- read.csv(
+#'   unz(peptide_txt, "peptides.txt"),
+#'   header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 #' mq_peptides <- tidyMQ_Peptides(peptides_txt)
 #'
 tidyMQ_Peptides <- function(MQPeptides, proteotypic_only = TRUE){
