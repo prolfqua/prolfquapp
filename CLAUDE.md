@@ -117,7 +117,7 @@ Each plugin handles:
 
 **Supported software:**
 - DIA-NN: `report.tsv` or `diann-output.tsv` (q-value filtering)
-- MaxQuant: `proteinGroups.txt`, `peptides.txt`, `evidence.txt` (LFQ intensities)
+- MaxQuant: `peptides.txt` + a `.fasta` file (LFQ intensities; `proteinGroups.txt` and `evidence.txt` are NOT used by the preprocessor pipeline)
 - FragPipe: `psm.txt` (TMT, DIA, LFQ workflows, PeptideProphet filtering)
 - MSstats: MSstats-formatted input
 - Biognosys (BGS): BGS report format

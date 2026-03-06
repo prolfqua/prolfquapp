@@ -214,6 +214,10 @@ get_MQ_peptide_files <- function(path){
     logger::log_error("No fasta file found!")
     stop()
   }
+  if (length(diann.path) == 0) {
+    logger::log_error("No peptides.txt file found in '", path, "'. MaxQuant preprocessor requires peptides.txt (not proteinGroups.txt).")
+    stop()
+  }
   return(list(data = diann.path, fasta = fasta.files))
 }
 

@@ -143,6 +143,10 @@ tidyMQ_Evidence <- function(Evidence){
 #'
 tidyMQ_Peptides <- function(MQPeptides, proteotypic_only = TRUE){
   if (is.character(MQPeptides)) {
+    if (length(MQPeptides) == 0) {
+      logger::log_error("No peptides.txt file found. MaxQuant preprocessor requires peptides.txt in the input directory.")
+      stop("peptides.txt not found.")
+    }
     if (grepl("\\.zip$",tolower(MQPeptides))) {
       MQPeptides <- read.csv(unz(MQPeptides,"peptides.txt"),
                              header = TRUE, sep = "\t", stringsAsFactors = FALSE)
