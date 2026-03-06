@@ -125,11 +125,11 @@ filtering (`preprocess()`) - Software-specific parameters
 (`extra_args`) - Annotation template generation (`dataset()`)
 
 **Supported software:** - DIA-NN: `report.tsv` or `diann-output.tsv`
-(q-value filtering) - MaxQuant: `proteinGroups.txt`, `peptides.txt`,
-`evidence.txt` (LFQ intensities) - FragPipe: `psm.txt` (TMT, DIA, LFQ
-workflows, PeptideProphet filtering) - MSstats: MSstats-formatted
-input - Biognosys (BGS): BGS report format - MZMine: Metabolomics
-feature tables
+(q-value filtering) - MaxQuant: `peptides.txt` + a `.fasta` file (LFQ
+intensities; `proteinGroups.txt` and `evidence.txt` are NOT used by the
+preprocessor pipeline) - FragPipe: `psm.txt` (TMT, DIA, LFQ workflows,
+PeptideProphet filtering) - MSstats: MSstats-formatted input - Biognosys
+(BGS): BGS report format - MZMine: Metabolomics feature tables
 
 ### Command-Line Scripts
 

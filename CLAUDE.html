@@ -147,7 +147,7 @@
 <span>  <span class="co"># etc.</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Each plugin handles: - File discovery (<code>get_files()</code>) - Data parsing and filtering (<code>preprocess()</code>) - Software-specific parameters (<code>extra_args</code>) - Annotation template generation (<code>dataset()</code>)</p>
-<p><strong>Supported software:</strong> - DIA-NN: <code>report.tsv</code> or <code>diann-output.tsv</code> (q-value filtering) - MaxQuant: <code>proteinGroups.txt</code>, <code>peptides.txt</code>, <code>evidence.txt</code> (LFQ intensities) - FragPipe: <code>psm.txt</code> (TMT, DIA, LFQ workflows, PeptideProphet filtering) - MSstats: MSstats-formatted input - Biognosys (BGS): BGS report format - MZMine: Metabolomics feature tables</p>
+<p><strong>Supported software:</strong> - DIA-NN: <code>report.tsv</code> or <code>diann-output.tsv</code> (q-value filtering) - MaxQuant: <code>peptides.txt</code> + a <code>.fasta</code> file (LFQ intensities; <code>proteinGroups.txt</code> and <code>evidence.txt</code> are NOT used by the preprocessor pipeline) - FragPipe: <code>psm.txt</code> (TMT, DIA, LFQ workflows, PeptideProphet filtering) - MSstats: MSstats-formatted input - Biognosys (BGS): BGS report format - MZMine: Metabolomics feature tables</p>
 </div>
 <div class="section level3">
 <h3 id="command-line-scripts">Command-Line Scripts<a class="anchor" aria-label="anchor" href="#command-line-scripts"></a></h3>
