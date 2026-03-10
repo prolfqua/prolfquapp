@@ -20,7 +20,8 @@ copy_shell_script <- function(workdir = getwd() ) {
     "application/bin/prolfqua_dea",
     "application/bin/prolfqua_yaml",
     "application/bin/prolfqua_qc",
-    "application/bin/prolfqua_dataset"
+    "application/bin/prolfqua_dataset",
+    "application/bin/prolfqua_contrasts"
   )
   # Check the operating system and add the appropriate extension
   if (.Platform$OS.type == "windows") {

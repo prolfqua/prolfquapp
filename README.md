@@ -35,13 +35,14 @@ prolfquapp_docker.sh R --vanilla -e "prolfquapp::copy_shell_script(workdir = '.'
 ```
 
 
-This will place the following four shell script files (linux), or bat files (windows) into your working directory:
+This will place the following five shell script files (linux), or bat files (windows) into your working directory:
 
 ``` bash
 [1] "/<working_directory>/prolfqua_dea.sh"
-[3] "/<working_directory>/prolfqua_yaml.sh"
-[4] "/<working_directory>/prolfqua_qc.sh"
-[5] "/<working_directory>/prolfqua_dataset.sh"
+[2] "/<working_directory>/prolfqua_yaml.sh"
+[3] "/<working_directory>/prolfqua_qc.sh"
+[4] "/<working_directory>/prolfqua_dataset.sh"
+[5] "/<working_directory>/prolfqua_contrasts.sh"
 ```
 
 On Linux give the executables LINUX permissions:
