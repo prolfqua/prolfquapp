@@ -131,6 +131,16 @@ Using the `./prolfqua_yaml.R` command line tool you can set the parameters of th
 To see which parameters can be set using `prolfqua_yaml.sh` use the `-h` switch.
 Other parameters you can set by editing the yaml file.
 
+## 3b. Generate Contrast Definitions (optional)
+
+``` bash
+# Single factor: adds CONTROL column (C = reference, T = rest)
+Rscript CMD_CONTRASTS.R annotation.xlsx --control WT -o annotation_with_control.xlsx
+
+# Two factors: adds ContrastName/Contrast columns
+Rscript CMD_CONTRASTS.R annotation.xlsx --f1 treatment --f2 time -o annotation_with_contrasts.xlsx
+```
+
 ## 4. Run Differential Expression Analysis
 
 Finally, the `prolfqua_dea.sh` script runs the differential expression analysis using the configuration file generated in the previous step.

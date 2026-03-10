@@ -1,0 +1,10 @@
+file,name,group
+s1_WT_1.raw,WT_1,WT
+s2_WT_2.raw,WT_2,WT
+s3_WT_3.raw,WT_3,WT
+s4_KO_1.raw,KO_1,KO
+s5_KO_2.raw,KO_2,KO
+s6_KO_3.raw,KO_3,KO
+s7_OE_1.raw,OE_1,OE
+s8_OE_2.raw,OE_2,OE
+s9_OE_3.raw,OE_3,OE
