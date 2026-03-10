@@ -94,8 +94,6 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 
 \item{\code{annotated_contrasts_signif}}{significant annotated contrasts}
 
-\item{\code{reference_proteins}}{reference proteins to use for internal normalization}
-
 \item{\code{formula}}{model formula}
 
 \item{\code{formula_glm_peptide}}{glm peptide formula}

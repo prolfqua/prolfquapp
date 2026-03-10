@@ -46,7 +46,9 @@ Other ProlfquAppConfig:
 
 \item{\code{other}}{list with additional options}
 
-\item{\code{internal}}{list of internal calibrants}
+\item{\code{internal}}{protein IDs for internal standard normalization
+e.g. `internal: [P01876, P02768]`
+After transformation, intensities are centered relative to these proteins.}
 }
 \if{html}{\out{</div>}}
 }

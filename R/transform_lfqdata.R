@@ -1,32 +1,20 @@
 #' transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)
 #'
-#' It will also run internal but then robscale must be used.
 #' @param lfqdata \code{\link[prolfqua]{LFQData}}
 #' @param method normalization method to use
-#' @param internal a data.frame with protein ids to be used for internal calibration, column name must be the same as
 #' @export
 #' @examples
 #' istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
 #' config <- prolfqua:::old2new(istar$config)
 #' tmp <- prolfqua::LFQData$new(istar$data, config)
-#' d <- istar$d
-#' internal <- dplyr::filter(d, protein_Id %in% sample(unique(d$protein_Id), 3 )) |>
-#'   dplyr::select(all_of(tmp$config$hierarchy_keys()[1])) |> dplyr::distinct()
-#' tmp2 <- transform_lfqdata(tmp, internal = internal)
 #' tmp2 <- transform_lfqdata(tmp)
 #'
-transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "log2"), internal = NULL) {
+transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "log2")) {
   method <- match.arg(method)
   lt <- lfqdata$get_Transformer()
   if (method == "robscale") {
     logger::log_info("Transforming using robscale.")
     transformed <- lt$log2()$robscale()$lfq
-    if (!is.null(internal)) {
-      logger::log_info("Transforming using robscale,")
-      logger::log_info("Transforming Attempt of internal calibration.")
-      subset <- lfqdata$get_subset(internal)$get_Transformer()$log2()$lfq
-      transformed <- lfqdata$get_Transformer()$log2()$robscale_subset(subset)$lfq
-    }
   } else if (method == "vsn") {
     n_samples <- length(unique(lfqdata$data[[lfqdata$config$sampleName]]))
     if (n_samples < 2) {

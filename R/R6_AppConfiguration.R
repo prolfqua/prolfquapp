@@ -31,7 +31,9 @@ ProcessingOptions <- R6::R6Class(
     model = "prolfqua",
     #' @field other list with additional options
     other = NULL,
-    #' @field internal list of internal calibrants
+    #' @field internal protein IDs for internal standard normalization
+    #'   e.g. `internal: [P01876, P02768]`
+    #'   After transformation, intensities are centered relative to these proteins.
     internal = character()
   )
 )

@@ -51,8 +51,7 @@ make_DEA_report2 <- function(lfqdata,
 
   transformed <- prolfquapp::transform_lfqdata(
     lfqdata,
-    method = GRP2$processing_options$transform,
-    internal = GRP2$pop$internal
+    method = GRP2$processing_options$transform
   )
 
   lfqdata$rename_response("abundance")
@@ -437,6 +436,7 @@ column_to_rownames <- function(.data, var = "rowname", sep = "~lfq~") {
   return(res)
 }
 
+#' @export
 strip_rownames <- function(.data, strip = "~lfq~light$") {
   newrnames <- gsub(strip, "", rownames(.data))
   rownames(.data) <- newrnames

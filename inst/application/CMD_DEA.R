@@ -108,9 +108,6 @@ res <- prolfquapp::sync_opt_config(opt, GRP2)
 opt <- res$opt
 GRP2 <- res$config
 
-# if internal normalizaton set the protein identifier here
-GRP2$processing_options$internal <- NULL
-# GRP2$processing_options$internal <- "P01876"
 
 
 dir.create(opt$outdir)

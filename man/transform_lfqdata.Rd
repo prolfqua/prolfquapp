@@ -4,30 +4,20 @@
 \alias{transform_lfqdata}
 \title{transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)}
 \usage{
-transform_lfqdata(
-  lfqdata,
-  method = c("robscale", "vsn", "none", "log2"),
-  internal = NULL
-)
+transform_lfqdata(lfqdata, method = c("robscale", "vsn", "none", "log2"))
 }
 \arguments{
 \item{lfqdata}{\code{\link[prolfqua]{LFQData}}}
 
 \item{method}{normalization method to use}
-
-\item{internal}{a data.frame with protein ids to be used for internal calibration, column name must be the same as}
 }
 \description{
-It will also run internal but then robscale must be used.
+transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)
 }
 \examples{
 istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
 config <- prolfqua:::old2new(istar$config)
 tmp <- prolfqua::LFQData$new(istar$data, config)
-d <- istar$d
-internal <- dplyr::filter(d, protein_Id \%in\% sample(unique(d$protein_Id), 3 )) |>
-  dplyr::select(all_of(tmp$config$hierarchy_keys()[1])) |> dplyr::distinct()
-tmp2 <- transform_lfqdata(tmp, internal = internal)
 tmp2 <- transform_lfqdata(tmp)
 
 }

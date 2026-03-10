@@ -32,7 +32,7 @@ copy_shell_script <- function(workdir = getwd() ) {
 }
 
 
-#' copy Markdown and runscripts for DEA
+#' copy Markdown templates for DEA (legacy CMD_DEA.R)
 #' @param workdir directory where to copy file - default is current working directory.
 #' @export
 #'
@@ -41,6 +41,20 @@ copy_DEA_Files <- function(workdir = getwd()) {
     "application/_Grp2Analysis_V2.Rmd",
     "application/bibliography.bib",
     "application/_DiffExpQC.Rmd"
+  )
+  prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
+}
+
+
+#' copy Markdown templates for DEA (R6-based CMD_DEA_V2.R)
+#' @param workdir directory where to copy file - default is current working directory.
+#' @export
+#'
+copy_DEA_R6_Files <- function(workdir = getwd()) {
+  runscripts <- c(
+    "application/_Grp2Analysis_V2_R6.Rmd",
+    "application/bibliography.bib",
+    "application/_DiffExpQC_R6.Rmd"
   )
   prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }

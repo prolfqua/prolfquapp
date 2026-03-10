@@ -106,9 +106,6 @@ DEAnalyse <- R6::R6Class(
     #' @field annotated_contrasts_signif significant annotated contrasts
     annotated_contrasts_signif = NULL,
 
-    #' @field reference_proteins reference proteins to use for internal normalization
-    reference_proteins = NULL, # to use for internal calibration
-
     #' @field formula model formula
     formula = character(),
     #' @field formula_glm_peptide glm peptide formula
@@ -246,8 +243,7 @@ DEAnalyse <- R6::R6Class(
     transform_data = function() {
       transformed <- prolfquapp::transform_lfqdata(
         self$lfq_data,
-        method = self$prolfq_app_config$processing_options$transform,
-        internal = self$reference_proteins
+        method = self$prolfq_app_config$processing_options$transform
       )
       self$lfq_data$rename_response("abundance")
 
