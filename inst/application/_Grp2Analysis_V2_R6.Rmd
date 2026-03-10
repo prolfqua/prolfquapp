@@ -42,17 +42,17 @@ cfg <- dea$prolfq_app_config
 # B-fabric related information
 
 This report is stored in the LIMS system [_bfabric_](https://fgcz-bfabric.uzh.ch) [@panse2022bridging] in
-__project__: `r cfg$project_spec$project_Id`, __order__: `r cfg$project_spec$order_Id`, `r if(!is.null(cfg$project_spec$workunit_Id)){ "with the workunit name :" }`  `r cfg$project_spec$workunit_Id`.
+__project__: `r cfg$project_spec$project_Id`, __order__: `r cfg$project_spec$order_Id`, `r if(!is.null(cfg$project_spec$workunit_Id)){ "with the workunit name:" }`  `r cfg$project_spec$workunit_Id`.
 
 
 The protein identification and quantification were performed using:
-`r if(!is.null(cfg$software)){cfg$software} else {"<Specify parameter cfg$software>"}`. The input file can be downloaded from here : [`r cfg$project_spec$input_URL`](`r cfg$project_spec$input_URL`). The set of parameters used to run the quantification software can be retrieved from the b-fabric workunit to which this file belongs.
+`r if(!is.null(cfg$software)){cfg$software} else {"<Specify parameter cfg$software>"}`. The input file can be downloaded from here: [`r cfg$project_spec$input_URL`](`r cfg$project_spec$input_URL`). The set of parameters used to run the quantification software can be retrieved from the b-fabric workunit to which this file belongs.
 
 
 # Introduction
 
 The differential expression analysis verifies if the __difference__ between normalized empirical protein abundances measured in two groups is significantly non-zero.
-To make the test as sensitive and specific as possible, the methods used to measure [@taverna2021critical] and estimate protein abundances [@grossmann2010implementation] are optimized to minimize the biochemical and technical variance. In addition these empirical abundances $A$ are further $log_2$ transformed and scaled to make them compatible with the statistical test procedure [@valikangas2018systematic]. Therefore, we obtain a scale free $\log_2$ transformed normalized protein abundances $\log_2(A)$ for a sample.
+To make the test as sensitive and specific as possible, the methods used to measure [@taverna2021critical] and estimate protein abundances [@grossmann2010implementation] are optimized to minimize the biochemical and technical variance. In addition, these empirical abundances $A$ are further $log_2$ transformed and scaled to make them compatible with the statistical test procedure [@valikangas2018systematic]. Therefore, we obtain a scale free $\log_2$ transformed normalized protein abundances $\log_2(A)$ for a sample.
 
 For unpaired experiments the difference $\Delta$ between group $a$ and $b$, for a specific protein is estimated by:
 
@@ -63,7 +63,7 @@ $$
 
 where $A^a_i$ - is the normalized protein abundance of sample $i$ in the group $a$ of $n$ samples, while $A^b_j$ is the protein abundance of sample $j$ in group $b$ of $m$ samples.
 
-For paired experiment the difference is estimated by:
+For paired experiments, the difference is estimated by:
 
 
 $$
@@ -73,18 +73,18 @@ $$
 
 where $n$ is the number of subjects, each treated with $a$ and $b$.
 
-Of note, when comparing two samples $a$ and $b$ the difference of logarithms equals to the logarithm of the ratio (exponent rule):
+Of note, when comparing two samples $a$ and $b$ the difference of logarithms equals the logarithm of the ratio (exponent rule):
 
 $$
 \log(A^a) - \log(A^b) = \log(\frac{A^a}{A^b})
 $$
 
 
-, it is called $\log$-ratio or $\log$ fold-change (logFC).
+It is called the $\log$-ratio or $\log$ fold-change (logFC).
 
 The estimated differences $\Delta$ have an associated error $\epsilon$. Therefore, the differential expression analysis must test if the difference is significantly nonzero.
 
-We run a set of functions implemented in the R package _[prolfqua]_ [@prolfquawolski2023] to filter and normalize the data, generate visualizations, and to compute differential expression analysis. To future improve the power of the differential expression test the protein variances are moderated [@Smyth2004], i.e. the individual protein variances are updated using a variance prior estimated from all the proteins in the experiment.
+We run a set of functions implemented in the R package _[prolfqua]_ [@prolfquawolski2023] to filter and normalize the data, generate visualizations, and to compute differential expression analysis. To further improve the power of the differential expression test the protein variances are moderated [@Smyth2004], i.e. the individual protein variances are updated using a variance prior estimated from all the proteins in the experiment.
 
 # Results
 
@@ -114,7 +114,7 @@ fx <- dplyr::left_join(fx,xx, by = ld$config$sampleName)
 fx <- dplyr::left_join(fx,x2, by = ld$config$sampleName)
 
 
-knitr::kable(fx, caption = "LC-MS samples annotation table. The content of the sampleName column is used as a short form to plot labels. The group to which a sample is assigned to is shown in the column group.")
+knitr::kable(fx, caption = "LC-MS samples annotation table. The content of the sampleName column is used as a short form to plot labels. The group to which a sample is assigned is shown in the column group.")
 
 ```
 
@@ -125,7 +125,7 @@ The protein matrix is filtered using the following threshold:
 - Minimum number of peptides / protein: `r cfg$processing_options$nr_peptides`.
 
 The overall number of proteins including contaminant proteins in this experiment is: `r dea$summary$NrOfProteinsNoDecoys`.
-The percentage of contaminant proteins is : `r dea$summary$percentOfContaminants` %. The percentage of false positive identifications (Decoy sequences) is `r dea$summary$percentOfFalsePositives` %.
+The percentage of contaminant proteins is:`r dea$summary$percentOfContaminants` %. The percentage of false positive identifications (Decoy sequences) is `r dea$summary$percentOfFalsePositives` %.
 
 We keep the contaminant proteins because, for some experiments, these contaminants are relevant. However, they can be recognized since their identifiers start with __zz__ or __CON__.
 We also keep the decoy sequences because they allow us to re-estimate the proportion of falsely identified proteins in the list of differentially expressed proteins, which might differ from that of entire dataset. The identifiers of the decoy proteins start with __REV__ or __rev__.
@@ -174,13 +174,13 @@ A dichotomous view of the data can be constructed by transforming protein abunda
 
 We expect that samples in the same group are more similar and cluster together, i.e., they are in the same branch of the dendrogram.
 
-(ref:naHeat) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing missing protein abundance estimates across data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Protein is observed, black: Protein is not observed.
+(ref:naHeat) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing missing protein abundance estimates across the data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Protein is observed, black: Protein is not observed.
 
 ```{r naHeat, fig.width=7, fig.height=6, dpi=300, fig.cap="(ref:naHeat)", fig.alt="", eval=TRUE}
 nah
 ```
 
-Using Figure \@ref(fig:vennProteins) we examine if we see the same proteins in each group. We say a protein is unobserved in the group if it is absent in all samples and is present otherwise. A significant overlap among groups allows more precisely estimating the protein abundance differences between the groups.
+Using Figure \@ref(fig:vennProteins) we examine if we see the same proteins in each group. We say a protein is unobserved in the group if it is absent in all samples and is present otherwise. A significant overlap among groups allows more precise estimation of the protein abundance differences between the groups.
 
 (ref:vennProteins) Venn diagram showing the number of proteins present in each group and in all possible intersections among groups.
 
@@ -193,7 +193,7 @@ UpSetR::upset(pups$data, order.by = "freq", nsets = pups$nsets)
 
 ## Protein Abundance Analysis
 
-The density plot (Figure \@ref(fig:normalized) left panel)  displays the protein abundance distribution for all data set samples. Mayor differences between samples could hint that the individual protein abundance values are affected by technical biases. These biases might need to be corrected to separate them from biological effects. The right panel of Figure \@ref(fig:normalized) shows the distribution of the transformed and scaled normalized empirical protein abundances. Normalization is applied to remove systematic differences in protein abundances due to different sample concentrations or amounts of sample loaded on a column. However, in the presence of a large proportion of missing data, normalization potentially amplifies systematic errors.
+The density plot (Figure \@ref(fig:normalized) left panel)  displays the protein abundance distribution for all data set samples. Major differences between samples could indicate that the individual protein abundance values are affected by technical biases. These biases might need to be corrected to separate them from biological effects. The right panel of Figure \@ref(fig:normalized) shows the distribution of the transformed and scaled normalized empirical protein abundances. Normalization is applied to remove systematic differences in protein abundances due to different sample concentrations or amounts of sample loaded on a column. However, in the presence of a large proportion of missing data, normalization potentially amplifies systematic errors.
 
 
 ```{r normalization, results = 'asis'}
@@ -209,7 +209,7 @@ if (cfg$processing_options$transform == "robscale") {
 
 ```
 
-(ref:normalized) Kernel density function showing the distribution of protein abundances in all samples. Left panel : Empirical protein abundance of all samples in the dataset. Right panel: Normalized empirical protein abundances of all samples in the dataset.
+(ref:normalized) Kernel density function showing the distribution of protein abundances in all samples. Left panel: Empirical protein abundance of all samples in the dataset. Right panel: Normalized empirical protein abundances of all samples in the dataset.
 
 ```{r normalized,  fig.width=8, fig.height=5,dpi=300, fig.cap="(ref:normalized)",fig.alt="", eval=TRUE}
 
@@ -241,9 +241,9 @@ if (length(internal_ids) > 0 && !all(is.na(internal_ids)) && !all(internal_ids =
 The median coefficient of variation (CV) of a group of samples or all samples in the dataset, can be used to compare the experiment with other experiments [@piehowski2013sources]. For example, the median CV for high-performance liquid chromatography experiments ranges from 2% to 35% depending on the biological samples studied, the chromatography method used, label-free or labelled quantification [@taverna2021critical].
 
 
-Figure \@ref(fig:SDViolin), show the coefficients of variations (CV) for all proteins computed on not normalized data. Ideally the within group CV should be smaller than the CV of all samples.
+Figure \@ref(fig:SDViolin) shows the coefficients of variation (CV) for all proteins computed on non-normalized data. Ideally the within group CV should be smaller than the CV of all samples.
 
-(ref:SDViolin) Distribution of coefficient of variation (CV) within each groups and in the entire experiment (all).
+(ref:SDViolin) Distribution of coefficient of variation (CV) within each group and in the entire experiment (all).
 
 ```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)",fig.alt="", eval=TRUE}
 stR <- dea$lfq_data$get_Stats()
@@ -252,7 +252,7 @@ pA
 
 ```
 
-The Table \@ref(tab:CVtable) shows the median CV of all groups and across all samples (all).
+Table \@ref(tab:CVtable) shows the median CV of all groups and across all samples (all).
 
 ```{r CVtable, eval=TRUE}
 resR <- stR$stats_quantiles()
@@ -282,7 +282,7 @@ The protein abundance heatmap (Figure \@ref(fig:heatmap)) groups the protein and
 ph
 ```
 
-We use principal component analysis (PCA) to transform the high dimensional space defined by all proteins into a two-dimensional one containing most of the information. Plot \@ref(fig:pca) shows the location of the samples according to the first and second principal component, which explain most of the variance in the data. Samples close in the PCA plot are more similar than those farther apart.
+We use principal component analysis (PCA) to transform the high-dimensional space defined by all proteins into a two-dimensional one containing most of the information. Plot \@ref(fig:pca) shows the location of the samples according to the first and second principal component, which explain most of the variance in the data. Samples close in the PCA plot are more similar than those farther apart.
 
 (ref:pca)  Plot of first and second principal component (PC1 and PC2) of principal component analysis (PCA). Normalized abundances were used as input.
 
@@ -296,7 +296,7 @@ The method used to test for differential expression consists of several steps: F
 
 `r dea$formula`.
 
-Secondly, the difference between the group is computed (Table \@ref(tab:contrtable)).
+Secondly, the difference between the groups is computed (Table \@ref(tab:contrtable)).
 
 ```{r contrtable}
 df <- data.frame(name = names(dea$contrasts), contrast = dea$contrasts)
@@ -312,7 +312,7 @@ If there are no abundances measured in one of the groups for some proteins, we a
 Furthermore, to make it explicit for which proteins we did impute the unobserved group mean, we label them with `Imputed_Mean` (see table in Figures \@ref(fig:tableAllProt) column `modelName`) and visualize them with gray dots in Figure \@ref(fig:volcanoplot). Finally, those proteins with a sufficiently large number of observations are labeled with `Linear_Model_Moderated`.
 
 Next, to increase the power of the analysis variance shrinkage is performed [@Smyth2004]. Finally, the false discovery rate (FDR) using the Benjamini-Hochberg procedure is computed [@benjamini1995controlling].
-The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. By filtering the proteins using a FDR threshold of `r cfg$processing_options$FDR_threshold*100` % we can expect this proportion of false positives in the list and `r (1 - cfg$processing_options$FDR_threshold) * 100` % truly differentially expressed proteins. Because we do not know which of them are true positives follow up experiments are necessary.
+The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. By filtering the proteins using an FDR threshold of `r cfg$processing_options$FDR_threshold*100` % we can expect this proportion of false positives in the list and `r (1 - cfg$processing_options$FDR_threshold) * 100` % truly differentially expressed proteins. Because we do not know which of them are true positives follow up experiments are necessary.
 
 The table (Figure \@ref(fig:tableAllProt)) summarizes the differential expression analysis results by providing the following information:
 
@@ -327,7 +327,7 @@ hkey <- dea$lfq_data$config$hierarchy_keys()
 - FDR - false discovery rate
 - diff - difference between groups.
 
-The volcano plot \@ref(fig:volcanoplot) helps to identify proteins with a large differences among groups and a low FDR. The significance dimension is a $-\log_{10}$ transformed FDR, i.e., small values of FDR become large after transformation. Promising candidate proteins are found in the upper right and left sector of the plot.
+The volcano plot \@ref(fig:volcanoplot) helps to identify proteins with large differences among groups and a low FDR. The significance dimension is a $-\log_{10}$ transformed FDR, i.e., small values of FDR become large after transformation. Promising candidate proteins are found in the upper right and left sector of the plot.
 
 
 ```{r setupVolcano, echo = FALSE}
@@ -361,7 +361,7 @@ DT::datatable(bb, filter = "bottom",
 
 ```
 
-(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r cfg$processing_options$FDR_threshold`, while the green lines represent the the difference of minus and plus `r cfg$processing_options$diff_threshold`. With orange dots differences and FDRs estimated using missing value imputation are shown.
+(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r cfg$processing_options$FDR_threshold`, while the green lines represent the difference of minus and plus `r cfg$processing_options$diff_threshold`. With orange dots differences and FDRs estimated using missing value imputation are shown.
 
 
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)",fig.alt="", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
@@ -479,14 +479,14 @@ if (length(xx) > 1) {
 
 # Additional Analysis
 
-The zip file contains an excel file __DE_Groups_vs_Controls.xlsx__. All the figures can be recreated using the data in the excel file. The Excel file contains the following spreadsheets:
+The zip file contains an Excel file __DE_Groups_vs_Controls.xlsx__. All the figures can be recreated using the data in the excel file. The Excel file contains the following spreadsheets:
 
 - __annotation__ - the annotation of the samples in the experiment
 - __raw_abundances__ table with empirical protein abundances.
 - __normalized_abundances__ table with normalized protein abundances.
 - __raw_abundances_matrix__ A table where each column represents a sample and each row represents a protein and the cells store the empirical protein abundances.
 - __normalized_abundances_matrix__ A table where each column represents a sample and each row represents a protein and the cells store the empirical protein abundances.
-- __diff_exp_analysis__ A table with the results of the differential expression analysis. For each protein there is an row containing the estimated difference between the groups, the false discovery rate FDR, the 95% confidence interval, the posterior degrees of freedom.
+- __diff_exp_analysis__ A table with the results of the differential expression analysis. For each protein there is a row containing the estimated difference between the groups, the false discovery rate FDR, the 95% confidence interval, the posterior degrees of freedom.
 - __missing_information__ - spreadsheet containing information if a protein is present (1) or absent in a group (0).
 - __protein_variances__ - spreadsheet which for each protein shows the variance (var) or standard deviation (sd) within a group, the number of samples (n) and the number of observations (not_na) as well as the group average intensity (mean).
 
@@ -504,15 +504,15 @@ Other web applications allowing to run over representation analysis (ORA) [@mont
 - [WEB-based GEne SeT AnaLysis Toolkit](http://www.webgestalt.org) [@Wang2017]
 
 
-Furthermore Protein IDs sorted by t-statistic can then be subjected to gene set enrichment analysis (GSEA) [@subramanian2005gene].
-To simplify running GSEA  we provide the file :
+Furthermore, protein IDs sorted by t-statistic can then be subjected to gene set enrichment analysis (GSEA) [@subramanian2005gene].
+To simplify running GSEA, we provide the file:
 
 - `GSEA_<contrast_name>.rnk`
 
 This file can be used with the webgestalt web application or used with the GSEA application from [gsea-msigdb](https://www.gsea-msigdb.org/)
 
 
-For questions and improvement suggestions, with respect to this report, please do contact <protinf@fgcz.uzh.ch>.
+For questions and improvement suggestions, with respect to this report, please contact <protinf@fgcz.uzh.ch>.
 
 
 # Session Information
