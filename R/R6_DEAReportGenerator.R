@@ -1,3 +1,16 @@
+custom_round <- function(arr) {
+  cr <- function(x) {
+    if (x == 0) {
+      return(0)
+    } else if (abs(x) >= 1) {
+      return(round(x, 2))
+    } else {
+      return(signif(x, 2))
+    }
+  }
+  return(vapply(arr, cr, numeric(1)))
+}
+
 #' DEAReportGenerator
 #'
 #' Generates all output files for a differential expression analysis.
@@ -160,7 +173,7 @@ DEAReportGenerator <- R6::R6Class(
     },
 
     #' @description
-    #' Generate boxplots for quality control
+    #' Generate sample-level boxplots for quality control
     #' @param boxplot logical, if TRUE write boxplots
     make_boxplots = function(boxplot = TRUE) {
       if (!boxplot) return(invisible(NULL))
@@ -176,6 +189,87 @@ DEAReportGenerator <- R6::R6Class(
         pl <- bb$get_Plotter()
         pl$write_boxplots(self$resultdir)
       }
+    },
+
+    #' @description
+    #' Get subset of transformed data for significant proteins
+    filter_data = function() {
+      dea <- self$deanalyse
+      dx <- dea$filter_contrasts()
+      invisible(dea$lfq_data_transformed$get_subset(dx))
+    },
+
+    #' @description
+    #' Get per-protein boxplots for significant proteins
+    get_protein_boxplots = function() {
+      self$filter_data()$get_Plotter()$boxplots()
+    },
+
+    #' @description
+    #' Convert significant contrast results to table grobs
+    contrasts_to_Grob = function() {
+      dea <- self$deanalyse
+      datax <- dea$filter_contrasts()
+      hkeys <- dea$lfq_data_transformed$config$hierarchy_keys_depth()
+      xdn <- datax |> dplyr::nest_by(!!!syms(hkeys))
+
+      stats2grob <- function(data) {
+        res <- data |>
+          dplyr::select(contrast, diff, statistic, FDR) |>
+          dplyr::mutate(
+            diff = custom_round(diff),
+            statistic = custom_round(statistic),
+            FDR = custom_round(FDR)
+          )
+        res <- res |> gridExtra::tableGrob()
+        res
+      }
+      grobs <- vector(mode = "list", length = length(nrow(xdn)))
+      pb <- progress::progress_bar$new(total = nrow(xdn))
+      for (i in seq_len(nrow(xdn))) {
+        pb$tick()
+        grobs[[i]] <- stats2grob(xdn$data[[i]])
+      }
+      xdn$grobs <- grobs
+      return(xdn)
+    },
+
+    #' @description
+    #' Get per-protein boxplots combined with contrast summary tables
+    get_protein_boxplots_contrasts = function() {
+      ctrG <- self$contrasts_to_Grob()
+      bp <- self$get_protein_boxplots()
+      stopifnot(nrow(ctrG) == nrow(bp))
+      res <- vector(mode = "list", length = nrow(ctrG))
+      pb <- progress::progress_bar$new(total = nrow(ctrG))
+      for (i in seq_len(nrow(ctrG))) {
+        res[[i]] <- gridExtra::arrangeGrob(
+          bp$boxplot[[i]],
+          ctrG$grobs[[i]],
+          nrow = 2, heights = c(2 / 3, 1 / 3)
+        )
+        pb$tick()
+      }
+      ctrG$bxpl_grobs <- res
+      return(ctrG)
+    },
+
+    #' @description
+    #' Write per-protein boxplots with contrast tables to PDF
+    #' @param filename base filename (without extension)
+    write_protein_boxplots = function(filename = "boxplots") {
+      dea <- self$deanalyse
+      ctrG <- self$get_protein_boxplots_contrasts()
+      filename <- paste0(filename, "_FDR_", dea$FDR_threshold, "_diff_", dea$diff_threshold, ".pdf")
+      logger::log_info("start writing boxplots into file : ", filename)
+      pdf(file = file.path(self$ZIPDIR, filename))
+      pb <- progress::progress_bar$new(total = length(ctrG$bxpl_grobs))
+      for (i in seq_along(ctrG$bxpl_grobs)) {
+        pb$tick()
+        grid::grid.newpage()
+        grid::grid.draw(ctrG$bxpl_grobs[[i]])
+      }
+      dev.off()
     },
 
     #' @description

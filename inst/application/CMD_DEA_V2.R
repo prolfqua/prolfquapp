@@ -183,26 +183,28 @@ logger::log_info("Processing done:", opt$software)
 logger::log_info(paste(c("Protein Annotation :\n", capture.output(print(xd$protein_annotation$get_summary()))), collapse = "\n"))
 
 # ---- R6 Analysis Pipeline ----
-logger::log_info("CREATING DEAnalyse R6 OBJECT")
+logger::log_info("PREPARING PROTEIN DATA")
 
-deanalyse <- prolfquapp::DEAnalyse$new(
+data_prep <- prolfquapp::ProteinDataPrep$new(
   xd$lfqdata,
   xd$protein_annotation,
-  GRP2,
-  annotation$contrasts
+  GRP2
 )
 
 logger::log_info("CONTAMINANT/DECOY SUMMARY")
-deanalyse$cont_decoy_summary()
+data_prep$cont_decoy_summary()
 
 logger::log_info("REMOVING CONTAMINANTS AND DECOYS")
-deanalyse$remove_cont_decoy()
+data_prep$remove_cont_decoy()
 
 logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.")
-deanalyse$aggregate()
+data_prep$aggregate()
 
 logger::log_info("TRANSFORMING DATA")
-deanalyse$transform_data()
+data_prep$transform_data()
+
+logger::log_info("CREATING DEAnalyse R6 OBJECT")
+deanalyse <- prolfquapp::DEAnalyse$new(data_prep, annotation$contrasts)
 
 logger::log_info("BUILDING MODELS AND COMPUTING CONTRASTS")
 deanalyse$get_contrasts_merged_protein()

@@ -37,6 +37,11 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.
 \item \href{#method-DEAReportGenerator-write_DEA}{\code{DEAReportGenerator$write_DEA()}}
 \item \href{#method-DEAReportGenerator-render_DEA}{\code{DEAReportGenerator$render_DEA()}}
 \item \href{#method-DEAReportGenerator-make_boxplots}{\code{DEAReportGenerator$make_boxplots()}}
+\item \href{#method-DEAReportGenerator-filter_data}{\code{DEAReportGenerator$filter_data()}}
+\item \href{#method-DEAReportGenerator-get_protein_boxplots}{\code{DEAReportGenerator$get_protein_boxplots()}}
+\item \href{#method-DEAReportGenerator-contrasts_to_Grob}{\code{DEAReportGenerator$contrasts_to_Grob()}}
+\item \href{#method-DEAReportGenerator-get_protein_boxplots_contrasts}{\code{DEAReportGenerator$get_protein_boxplots_contrasts()}}
+\item \href{#method-DEAReportGenerator-write_protein_boxplots}{\code{DEAReportGenerator$write_protein_boxplots()}}
 \item \href{#method-DEAReportGenerator-write_DEA_all}{\code{DEAReportGenerator$write_DEA_all()}}
 \item \href{#method-DEAReportGenerator-make_SummarizedExperiment}{\code{DEAReportGenerator$make_SummarizedExperiment()}}
 \item \href{#method-DEAReportGenerator-clone}{\code{DEAReportGenerator$clone()}}
@@ -133,7 +138,7 @@ path to the output file
 \if{html}{\out{<a id="method-DEAReportGenerator-make_boxplots"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-make_boxplots}{}}}
 \subsection{Method \code{make_boxplots()}}{
-Generate boxplots for quality control
+Generate sample-level boxplots for quality control
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$make_boxplots(boxplot = TRUE)}\if{html}{\out{</div>}}
 }
@@ -142,6 +147,63 @@ Generate boxplots for quality control
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{boxplot}}{logical, if TRUE write boxplots}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAReportGenerator-filter_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAReportGenerator-filter_data}{}}}
+\subsection{Method \code{filter_data()}}{
+Get subset of transformed data for significant proteins
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$filter_data()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAReportGenerator-get_protein_boxplots"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAReportGenerator-get_protein_boxplots}{}}}
+\subsection{Method \code{get_protein_boxplots()}}{
+Get per-protein boxplots for significant proteins
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$get_protein_boxplots()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAReportGenerator-contrasts_to_Grob"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAReportGenerator-contrasts_to_Grob}{}}}
+\subsection{Method \code{contrasts_to_Grob()}}{
+Convert significant contrast results to table grobs
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$contrasts_to_Grob()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAReportGenerator-get_protein_boxplots_contrasts"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAReportGenerator-get_protein_boxplots_contrasts}{}}}
+\subsection{Method \code{get_protein_boxplots_contrasts()}}{
+Get per-protein boxplots combined with contrast summary tables
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$get_protein_boxplots_contrasts()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DEAReportGenerator-write_protein_boxplots"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_protein_boxplots}{}}}
+\subsection{Method \code{write_protein_boxplots()}}{
+Write per-protein boxplots with contrast tables to PDF
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_protein_boxplots(filename = "boxplots")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filename}}{base filename (without extension)}
 }
 \if{html}{\out{</div>}}
 }

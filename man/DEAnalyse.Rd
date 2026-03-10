@@ -2,68 +2,40 @@
 % Please edit documentation in R/R6_DEAnalyse.R
 \name{DEAnalyse}
 \alias{DEAnalyse}
-\title{will replace make_DEA_report}
+\title{Differential expression analysis engine}
 \description{
-will replace make_DEA_report
+Differential expression analysis engine
 
-will replace make_DEA_report
+Differential expression analysis engine
+}
+\details{
+Takes a prepared \code{ProteinDataPrep} object and runs statistical modelling:
+fits linear and GLM models, computes moderated contrasts, merges results.
 }
 \examples{
-# example code
-
 pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-
 pep <- prolfqua::LFQData$new(pep$data, pep$config)
 pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
 pA <- prolfquapp::ProteinAnnotation$new(pep, row_annot = pA, description = "fasta.annot")
 GRP2 <- prolfquapp::make_DEA_config_R6()
 GRP2$processing_options$diff_threshold <- 0.2
-
 GRP2$processing_options$transform <- "robscale"
-pep$factors()
+
 contrasts <- c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
-# DEAnalyse$debug("get_contrasts_glm_peptide")
-# DEAnalyse$debug("build_model_glm_protein")
-deanalyse <- prolfquapp::DEAnalyse$new(pep, pA, GRP2, contrasts)
-deanalyse$lfq_data_peptide$hierarchy_counts()
-deanalyse$cont_decoy_summary()
-deanalyse$prolfq_app_config$processing_options$remove_cont <- TRUE
-deanalyse$remove_cont_decoy()
-deanalyse$aggregate()
-pl <- deanalyse$get_aggregation_plots(exp_nr_children = 10)
-print(pl$plots[[3]])
-deanalyse$transform_data()
+
+data_prep <- prolfquapp::ProteinDataPrep$new(pep, pA, GRP2)
+data_prep$cont_decoy_summary()
+data_prep$remove_cont_decoy()
+data_prep$aggregate()
+data_prep$transform_data()
+
+deanalyse <- prolfquapp::DEAnalyse$new(data_prep, contrasts)
 mod <- deanalyse$build_model_linear_protein()
 contlm <- deanalyse$get_contrasts_linear_protein()
-
-
 merged <- deanalyse$get_contrasts_merged_protein()
 stopifnot(nrow(merged$get_contrasts()) == 200)
-stopifnot(nrow(merged$get_contrasts()) == 200)
-# deanalyse$create_model_formula()
-# deanalyse$build_model_glm_protein()
-# deanalyse$build_model_glm_peptide()
-xprot <- deanalyse$get_contrasts_glm_protein()
-if(FALSE){
-xprot$get_contrasts()
-xprot$get_Plotter()$volcano()
-xpep <- deanalyse$get_contrasts_glm_peptide()
-xpep$get_Plotter()$volcano()
-sr <- deanalyse$lfq_data_peptide$get_Summariser()
 
-
-
-deanalyse$filter_contrasts()
-
-xd <- deanalyse$filter_data()
-xd <- deanalyse$contrasts_to_Grob()
-bb <- deanalyse$get_boxplots()
-bx <- deanalyse$get_boxplots_contrasts()
-dev.off()
-grid::grid.draw(bx$bxpl_grobs[[1]])
-# deanalyse$write_boxplots_contrasts("test.pdf")
-}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -72,21 +44,17 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 
 \item{\code{lfq_data_peptide}}{LFQData peptide level}
 
-\item{\code{lfq_data}}{LFQData}
+\item{\code{lfq_data}}{LFQData protein level}
 
-\item{\code{lfq_data_transformed}}{transformed LFQData}
-
-\item{\code{lfq_data_subset}}{subset of LFQData}
-
-\item{\code{aggregator}}{aggregator}
+\item{\code{lfq_data_transformed}}{normalized LFQData}
 
 \item{\code{rowAnnot}}{ProteinAnnotation}
 
 \item{\code{contrasts}}{vector with contrasts}
 
-\item{\code{FDR_threshold}}{fdr threshold}
+\item{\code{FDR_threshold}}{FDR threshold}
 
-\item{\code{diff_threshold}}{diff_threshold}
+\item{\code{diff_threshold}}{difference threshold}
 
 \item{\code{summary}}{data.frame with contaminant/decoy summary}
 
@@ -96,23 +64,21 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 
 \item{\code{formula}}{model formula}
 
-\item{\code{formula_glm_peptide}}{glm peptide formula}
-
 \item{\code{models}}{list of fitted models}
 
 \item{\code{contrast_results}}{list of contrast results}
 
-\item{\code{m1_linear}}{linearModel}
+\item{\code{m1_linear}}{Linear_Model}
 
-\item{\code{m2_missing}}{imputedModel}
+\item{\code{m2_missing}}{Imputed_Mean}
 
 \item{\code{m3_merged}}{mergedModel}
 
-\item{\code{m4_glm_protein}}{m4_glm_protein}
+\item{\code{m4_glm_protein}}{glmModel}
 
-\item{\code{m4_glm_peptide}}{m4_glm_peptide}
+\item{\code{m4_glm_peptide}}{glmModelPeptide}
 
-\item{\code{default_model}}{default_model}
+\item{\code{default_model}}{default model key}
 }
 \if{html}{\out{</div>}}
 }
@@ -120,12 +86,6 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-DEAnalyse-new}{\code{DEAnalyse$new()}}
-\item \href{#method-DEAnalyse-cont_decoy_summary}{\code{DEAnalyse$cont_decoy_summary()}}
-\item \href{#method-DEAnalyse-remove_cont_decoy}{\code{DEAnalyse$remove_cont_decoy()}}
-\item \href{#method-DEAnalyse-aggregate}{\code{DEAnalyse$aggregate()}}
-\item \href{#method-DEAnalyse-get_aggregation_plots}{\code{DEAnalyse$get_aggregation_plots()}}
-\item \href{#method-DEAnalyse-write_aggregation_plots}{\code{DEAnalyse$write_aggregation_plots()}}
-\item \href{#method-DEAnalyse-transform_data}{\code{DEAnalyse$transform_data()}}
 \item \href{#method-DEAnalyse-create_model_formula}{\code{DEAnalyse$create_model_formula()}}
 \item \href{#method-DEAnalyse-build_model_linear_protein}{\code{DEAnalyse$build_model_linear_protein()}}
 \item \href{#method-DEAnalyse-get_strategy_glm_prot}{\code{DEAnalyse$get_strategy_glm_prot()}}
@@ -138,11 +98,6 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 \item \href{#method-DEAnalyse-get_contrasts_merged_protein}{\code{DEAnalyse$get_contrasts_merged_protein()}}
 \item \href{#method-DEAnalyse-get_annotated_contrasts}{\code{DEAnalyse$get_annotated_contrasts()}}
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
-\item \href{#method-DEAnalyse-filter_data}{\code{DEAnalyse$filter_data()}}
-\item \href{#method-DEAnalyse-get_boxplots}{\code{DEAnalyse$get_boxplots()}}
-\item \href{#method-DEAnalyse-contrasts_to_Grob}{\code{DEAnalyse$contrasts_to_Grob()}}
-\item \href{#method-DEAnalyse-get_boxplots_contrasts}{\code{DEAnalyse$get_boxplots_contrasts()}}
-\item \href{#method-DEAnalyse-write_boxplots_contrasts}{\code{DEAnalyse$write_boxplots_contrasts()}}
 \item \href{#method-DEAnalyse-clone}{\code{DEAnalyse$clone()}}
 }
 }
@@ -150,112 +105,28 @@ grid::grid.draw(bx$bxpl_grobs[[1]])
 \if{html}{\out{<a id="method-DEAnalyse-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-new}{}}}
 \subsection{Method \code{new()}}{
-initialize DEAnalyse with data and configuration
+Initialize DEAnalyse from a prepared ProteinDataPrep object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(
-  lfq_data_peptide,
-  rowAnnot,
-  prolfq_app_config,
-  contrasts,
-  default_model = "mergedModel"
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(data_prep, contrasts, default_model = "mergedModel")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{lfq_data_peptide}}{LFQData object at peptide level}
+\item{\code{data_prep}}{ProteinDataPrep object with aggregated and normalized data}
 
-\item{\code{rowAnnot}}{ProteinAnnotation object}
+\item{\code{contrasts}}{named vector of contrast definitions}
 
-\item{\code{prolfq_app_config}}{ProlfquAppConfig object}
-
-\item{\code{contrasts}}{vector with contrasts}
-
-\item{\code{default_model}}{default model to use}
+\item{\code{default_model}}{which model to use for final results}
 }
 \if{html}{\out{</div>}}
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-cont_decoy_summary"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-cont_decoy_summary}{}}}
-\subsection{Method \code{cont_decoy_summary()}}{
-count number of decoys
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$cont_decoy_summary()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-remove_cont_decoy"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-remove_cont_decoy}{}}}
-\subsection{Method \code{remove_cont_decoy()}}{
-remove contaminants and decoys
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$remove_cont_decoy()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-aggregate"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-aggregate}{}}}
-\subsection{Method \code{aggregate()}}{
-aggregate peptide data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$aggregate()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_aggregation_plots"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_aggregation_plots}{}}}
-\subsection{Method \code{get_aggregation_plots()}}{
-get aggregation plots
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_aggregation_plots(exp_nr_children = 2)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{exp_nr_children}}{nr children to filter; default >=2}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-write_aggregation_plots"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-write_aggregation_plots}{}}}
-\subsection{Method \code{write_aggregation_plots()}}{
-write aggregation plots
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$write_aggregation_plots(exp_nr_children = 2)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{exp_nr_children}}{nr children to filter; default >=2}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-transform_data"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-transform_data}{}}}
-\subsection{Method \code{transform_data()}}{
-transform data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$transform_data()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-create_model_formula"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-create_model_formula}{}}}
 \subsection{Method \code{create_model_formula()}}{
-create model formula
+Create model formula from transformed data config
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$create_model_formula()}\if{html}{\out{</div>}}
 }
@@ -265,7 +136,7 @@ create model formula
 \if{html}{\out{<a id="method-DEAnalyse-build_model_linear_protein"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_linear_protein}{}}}
 \subsection{Method \code{build_model_linear_protein()}}{
-fit linear model
+Fit linear model at protein level
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_linear_protein()}\if{html}{\out{</div>}}
 }
@@ -275,7 +146,7 @@ fit linear model
 \if{html}{\out{<a id="method-DEAnalyse-get_strategy_glm_prot"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-get_strategy_glm_prot}{}}}
 \subsection{Method \code{get_strategy_glm_prot()}}{
-get strategy
+Get GLM strategy for protein-level missingness model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_strategy_glm_prot()}\if{html}{\out{</div>}}
 }
@@ -285,7 +156,7 @@ get strategy
 \if{html}{\out{<a id="method-DEAnalyse-build_model_glm_protein"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_glm_protein}{}}}
 \subsection{Method \code{build_model_glm_protein()}}{
-fit generalized linear model
+Fit generalized linear model at protein level
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_glm_protein()}\if{html}{\out{</div>}}
 }
@@ -295,7 +166,7 @@ fit generalized linear model
 \if{html}{\out{<a id="method-DEAnalyse-build_model_glm_peptide"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_glm_peptide}{}}}
 \subsection{Method \code{build_model_glm_peptide()}}{
-fit generalized linear model
+Fit generalized linear model at peptide level (not yet implemented)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_glm_peptide()}\if{html}{\out{</div>}}
 }
@@ -305,7 +176,7 @@ fit generalized linear model
 \if{html}{\out{<a id="method-DEAnalyse-get_contrasts_linear_protein"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_linear_protein}{}}}
 \subsection{Method \code{get_contrasts_linear_protein()}}{
-compute contrasts linear
+Compute moderated contrasts from linear model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_linear_protein()}\if{html}{\out{</div>}}
 }
@@ -315,7 +186,7 @@ compute contrasts linear
 \if{html}{\out{<a id="method-DEAnalyse-get_contrasts_glm_peptide"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_glm_peptide}{}}}
 \subsection{Method \code{get_contrasts_glm_peptide()}}{
-get contrasts from glm model
+Compute moderated contrasts from GLM peptide model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_glm_peptide()}\if{html}{\out{</div>}}
 }
@@ -325,7 +196,7 @@ get contrasts from glm model
 \if{html}{\out{<a id="method-DEAnalyse-get_contrasts_glm_protein"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_glm_protein}{}}}
 \subsection{Method \code{get_contrasts_glm_protein()}}{
-get contrasts from glm model for peptides
+Compute moderated contrasts from GLM protein model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_glm_protein()}\if{html}{\out{</div>}}
 }
@@ -335,7 +206,7 @@ get contrasts from glm model for peptides
 \if{html}{\out{<a id="method-DEAnalyse-get_contrasts_missing_protein"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_missing_protein}{}}}
 \subsection{Method \code{get_contrasts_missing_protein()}}{
-compute missing contrasts
+Compute moderated contrasts from missing-value imputation model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_missing_protein()}\if{html}{\out{</div>}}
 }
@@ -345,7 +216,7 @@ compute missing contrasts
 \if{html}{\out{<a id="method-DEAnalyse-get_contrasts_merged_protein"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_merged_protein}{}}}
 \subsection{Method \code{get_contrasts_merged_protein()}}{
-merge contrasts
+Merge linear and missing-value contrasts (or use linear only if model_missing = FALSE)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_merged_protein()}\if{html}{\out{</div>}}
 }
@@ -355,7 +226,7 @@ merge contrasts
 \if{html}{\out{<a id="method-DEAnalyse-get_annotated_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-get_annotated_contrasts}{}}}
 \subsection{Method \code{get_annotated_contrasts()}}{
-compute annotated contrasts by joining row annotations with default model contrasts
+Join default model contrasts with protein row annotations
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_annotated_contrasts()}\if{html}{\out{</div>}}
 }
@@ -365,68 +236,11 @@ compute annotated contrasts by joining row annotations with default model contra
 \if{html}{\out{<a id="method-DEAnalyse-filter_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-filter_contrasts}{}}}
 \subsection{Method \code{filter_contrasts()}}{
-filter contrasts for threshold
+Return contrast rows passing FDR and difference thresholds
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts()}\if{html}{\out{</div>}}
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-filter_data"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-filter_data}{}}}
-\subsection{Method \code{filter_data()}}{
-filter transformed lfq data for significant proteins.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_data()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_boxplots"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_boxplots}{}}}
-\subsection{Method \code{get_boxplots()}}{
-create boxplots
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_boxplots()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-contrasts_to_Grob"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-contrasts_to_Grob}{}}}
-\subsection{Method \code{contrasts_to_Grob()}}{
-create boxplots
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$contrasts_to_Grob()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_boxplots_contrasts"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_boxplots_contrasts}{}}}
-\subsection{Method \code{get_boxplots_contrasts()}}{
-get box with contrast information
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_boxplots_contrasts()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-write_boxplots_contrasts"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-write_boxplots_contrasts}{}}}
-\subsection{Method \code{write_boxplots_contrasts()}}{
-write boxplots contrasts to file
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$write_boxplots_contrasts(filename = "boxplots")}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{filename}}{filename to write to}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-clone"></a>}}
