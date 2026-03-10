@@ -38,10 +38,9 @@ copy_shell_script <- function(workdir = getwd() ) {
 #' @export
 #'
 copy_DEA_Files <- function(workdir = getwd()) {
+  .Deprecated("copy_DEA_R6_Files")
   runscripts <- c(
-    "application/_Grp2Analysis_V2.Rmd",
-    "application/bibliography.bib",
-    "application/_DiffExpQC.Rmd"
+    "application/bibliography.bib"
   )
   prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
@@ -69,7 +68,7 @@ copy_DEA_Metabolomics_Files <- function(workdir = getwd()) {
   runscripts <- c(
     "application/_Grp2Analysis_V2_metabo_tabs.Rmd",
     "application/bibliography.bib",
-    "application/_DiffExpQC.Rmd"
+    "application/_DiffExpQC_R6.Rmd"
   )
   prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }

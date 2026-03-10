@@ -4,7 +4,7 @@ REM Get the path to the installed R package
 for /f "tokens=*" %%i in ('Rscript --vanilla -e "cat(system.file(package = 'prolfquapp'))"') do set PACKAGE_PATH=%%i
 
 REM Build the path to the R script
-set R_SCRIPT_PATH=%PACKAGE_PATH%\application\CMD_DEA.R
+set R_SCRIPT_PATH=%PACKAGE_PATH%\application\CMD_DEA_V2.R
 
 REM Check if the R script exists
 if exist "%R_SCRIPT_PATH%" (

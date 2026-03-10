@@ -1,3 +1,42 @@
+.write_ORA <- function(fg, outpath, workunit_id, id_column = "IDcolumn") {
+  fg <- fg |> dplyr::mutate(updown = paste0(contrast, ifelse(diff > 0, "_up", "_down")))
+  ora_sig <- split(fg[[id_column]], fg$updown)
+  ora_files <- list()
+  for (i in names(ora_sig)) {
+    filename <- paste0("ORA_", i, "_WU", workunit_id, ".txt")
+    ff <- file.path(outpath, filename)
+    ora_files[[filename]] <- ff
+    logger::log_info("Writing File ", ff)
+    write.table(unique(ora_sig[[i]]),
+                file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE
+    )
+  }
+  return(ora_files)
+}
+
+.write_GSEA <- function(fg, outpath, workunit_id, id_column) {
+  gsea <- dplyr::select(fg, c("contrast", id_column, "statistic")) |>
+    dplyr::arrange(.data$statistic)
+  gsea <- gsea |>
+    dplyr::group_by(dplyr::across(c("contrast", id_column))) |>
+    dplyr::summarize(statistic = mean(.data$statistic)) |>
+    dplyr::ungroup()
+  gsea <- split(dplyr::select(gsea, c(id_column, "statistic")), gsea$contrast)
+  gsea_files <- list()
+  for (i in names(gsea)) {
+    filernk <- paste0("GSEA_", i, "_WU", workunit_id, ".rnk")
+    ff <- file.path(outpath, filernk)
+    gsea_files[[filernk]] <- ff
+    logger::log_info("Writing File ", ff)
+    write.table(na.omit(gsea[[i]]),
+                file = ff, col.names = FALSE,
+                row.names = FALSE, quote = FALSE, sep = "\t"
+    )
+  }
+  return(gsea_files)
+}
+
 custom_round <- function(arr) {
   cr <- function(x) {
     if (x == 0) {

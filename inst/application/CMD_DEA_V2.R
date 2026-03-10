@@ -265,7 +265,7 @@ saveRDS(SE, file = file.path(reporter$resultdir, "SummarizedExperiment.rds"))
 logger::log_info("Creating directory with input files :", GRP2$get_input_dir())
 dir.create(GRP2$get_input_dir())
 
-prolfquapp::copy_DEA_Files(workdir = GRP2$get_input_dir())
+prolfquapp::copy_DEA_R6_Files(workdir = GRP2$get_input_dir())
 prolfquapp::copy_shell_script(workdir = GRP2$get_input_dir())
 
 file.copy(c(files$data, files$fasta, ymlfile, opt$dataset), GRP2$get_input_dir())
