@@ -117,10 +117,10 @@ DEAnalyse <- R6::R6Class(
     contrast_results = list(),
 
     #
-    #' @field m1_linear linearModel
-    m1_linear = "linearModel",
-    #' @field m2_missing imputedModel
-    m2_missing = "imputedModel",
+    #' @field m1_linear Linear_Model
+    m1_linear = "Linear_Model",
+    #' @field m2_missing Imputed_Mean
+    m2_missing = "Imputed_Mean",
     #' @field m3_merged mergedModel
     m3_merged = "mergedModel",
     #' @field m4_glm_protein m4_glm_protein

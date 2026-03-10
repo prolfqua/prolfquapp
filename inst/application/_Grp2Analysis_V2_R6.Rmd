@@ -229,9 +229,8 @@ gridExtra::grid.arrange(p1, p2, nrow = 1)
 ```{r internalCalibration, results = 'asis'}
 internal_ids <- cfg$processing_options$internal
 if (length(internal_ids) > 0 && !all(is.na(internal_ids)) && !all(internal_ids == "")) {
-  cat("\n### Internal Standard Normalization\n\n")
-  cat("In addition to the global normalization described above, **internal standard normalization** was applied.\n")
-  cat("The following protein(s) were used as internal reference standard(s):\n\n")
+  cat("In addition to the global normalization described above, **internal standard normalization** was applied.")
+  cat(" The following protein(s) were used as internal reference standard(s):\n\n")
   cat(paste0("- `", internal_ids, "`", collapse = "\n"), "\n\n")
   cat("After transformation, the per-sample intensity of each reference protein was subtracted from all proteins in that sample (`center_to_reference`). ")
   cat("As a result, the reference protein(s) have an abundance of exactly 0 in the normalized data, ")
