@@ -312,25 +312,25 @@ data_prep$cont_decoy_summary()
 #> 1                  100
 data_prep$remove_cont_decoy()
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-03-11 08:06:26] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#> INFO [2026-03-11 08:17:06] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
 data_prep$aggregate()
-#> INFO [2026-03-11 08:06:26] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-03-11 08:17:06] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> Column added : exp_medpolish
-#> INFO [2026-03-11 08:06:27] END OF PROTEIN AGGREGATION
+#> INFO [2026-03-11 08:17:07] END OF PROTEIN AGGREGATION
 data_prep$transform_data()
-#> INFO [2026-03-11 08:06:27] Transforming using robscale.
+#> INFO [2026-03-11 08:17:07] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Warning: Expected 1 pieces. Additional pieces discarded in 1200 rows [1, 2, 3, 4, 5, 6,
 #> 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 #> Joining with `by = join_by(protein_Id, sampleName)`
-#> INFO [2026-03-11 08:06:27] Transforming data : robscale.
+#> INFO [2026-03-11 08:17:07] Transforming data : robscale.
 
 deanalyse <- prolfquapp::DEAnalyse$new(data_prep, contrasts)
 mod <- deanalyse$build_model_linear_protein()
-#> INFO [2026-03-11 08:06:27] fitted model with formula : normalized_abundance ~ group_
+#> INFO [2026-03-11 08:17:07] fitted model with formula : normalized_abundance ~ group_
 #> Joining with `by = join_by(protein_Id)`
 contlm <- deanalyse$get_contrasts_linear_protein()
 merged <- deanalyse$get_contrasts_merged_protein()
