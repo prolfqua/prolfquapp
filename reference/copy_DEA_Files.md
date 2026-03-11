@@ -1,6 +1,6 @@
-# copy Markdown and runscripts for DEA
+# copy Markdown templates for DEA (legacy CMD_DEA.R)
 
-copy Markdown and runscripts for DEA
+copy Markdown templates for DEA (legacy CMD_DEA.R)
 
 ## Usage
 

@@ -19,8 +19,7 @@ make_SummarizedExperiment(
 
 - GRP2:
 
-  return value of
-  [`make_DEA_report`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_report.md)
+  return value of `make_DEA_report2`
 
 - colname:
 
@@ -45,5 +44,4 @@ SummarizedExperiment
 ## See also
 
 Other workflow:
-[`make_DEA_report()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_report.md),
-[`write_DEA()`](https://prolfqua.github.io/prolfquapp/reference/write_DEA.md)
+[`make_DEA_report()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_report.md)

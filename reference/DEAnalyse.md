@@ -1,8 +1,14 @@
-# will replace make_DEA_report
+# Differential expression analysis engine
 
-will replace make_DEA_report
+Differential expression analysis engine
 
-will replace make_DEA_report
+Differential expression analysis engine
+
+## Details
+
+Takes a prepared `ProteinDataPrep` object and runs statistical
+modelling: fits linear and GLM models, computes moderated contrasts,
+merges results.
 
 ## Public fields
 
@@ -16,19 +22,11 @@ will replace make_DEA_report
 
 - `lfq_data`:
 
-  LFQData
+  LFQData protein level
 
 - `lfq_data_transformed`:
 
-  transformed LFQData
-
-- `lfq_data_subset`:
-
-  subset of LFQData
-
-- `aggregator`:
-
-  aggregator
+  normalized LFQData
 
 - `rowAnnot`:
 
@@ -40,11 +38,11 @@ will replace make_DEA_report
 
 - `FDR_threshold`:
 
-  fdr threshold
+  FDR threshold
 
 - `diff_threshold`:
 
-  diff_threshold
+  difference threshold
 
 - `summary`:
 
@@ -58,17 +56,9 @@ will replace make_DEA_report
 
   significant annotated contrasts
 
-- `reference_proteins`:
-
-  reference proteins to use for internal normalization
-
 - `formula`:
 
   model formula
-
-- `formula_glm_peptide`:
-
-  glm peptide formula
 
 - `models`:
 
@@ -80,11 +70,11 @@ will replace make_DEA_report
 
 - `m1_linear`:
 
-  linearModel
+  Linear_Model
 
 - `m2_missing`:
 
-  imputedModel
+  Imputed_Mean
 
 - `m3_merged`:
 
@@ -92,33 +82,21 @@ will replace make_DEA_report
 
 - `m4_glm_protein`:
 
-  m4_glm_protein
+  glmModel
 
 - `m4_glm_peptide`:
 
-  m4_glm_peptide
+  glmModelPeptide
 
 - `default_model`:
 
-  default_model
+  default model key
 
 ## Methods
 
 ### Public methods
 
 - [`DEAnalyse$new()`](#method-DEAnalyse-new)
-
-- [`DEAnalyse$cont_decoy_summary()`](#method-DEAnalyse-cont_decoy_summary)
-
-- [`DEAnalyse$remove_cont_decoy()`](#method-DEAnalyse-remove_cont_decoy)
-
-- [`DEAnalyse$aggregate()`](#method-DEAnalyse-aggregate)
-
-- [`DEAnalyse$get_aggregation_plots()`](#method-DEAnalyse-get_aggregation_plots)
-
-- [`DEAnalyse$write_aggregation_plots()`](#method-DEAnalyse-write_aggregation_plots)
-
-- [`DEAnalyse$transform_data()`](#method-DEAnalyse-transform_data)
 
 - [`DEAnalyse$create_model_formula()`](#method-DEAnalyse-create_model_formula)
 
@@ -144,133 +122,37 @@ will replace make_DEA_report
 
 - [`DEAnalyse$filter_contrasts()`](#method-DEAnalyse-filter_contrasts)
 
-- [`DEAnalyse$filter_data()`](#method-DEAnalyse-filter_data)
-
-- [`DEAnalyse$get_boxplots()`](#method-DEAnalyse-get_boxplots)
-
-- [`DEAnalyse$contrasts_to_Grob()`](#method-DEAnalyse-contrasts_to_Grob)
-
-- [`DEAnalyse$get_boxplots_contrasts()`](#method-DEAnalyse-get_boxplots_contrasts)
-
-- [`DEAnalyse$write_boxplots_contrasts()`](#method-DEAnalyse-write_boxplots_contrasts)
-
 - [`DEAnalyse$clone()`](#method-DEAnalyse-clone)
 
 ------------------------------------------------------------------------
 
 ### Method `new()`
 
-initialize DEAnalyse with data and configuration
+Initialize DEAnalyse from a prepared ProteinDataPrep object
 
 #### Usage
 
-    DEAnalyse$new(
-      lfq_data_peptide,
-      rowAnnot,
-      prolfq_app_config,
-      contrasts,
-      default_model = "mergedModel"
-    )
+    DEAnalyse$new(data_prep, contrasts, default_model = "mergedModel")
 
 #### Arguments
 
-- `lfq_data_peptide`:
+- `data_prep`:
 
-  LFQData object at peptide level
-
-- `rowAnnot`:
-
-  ProteinAnnotation object
-
-- `prolfq_app_config`:
-
-  ProlfquAppConfig object
+  ProteinDataPrep object with aggregated and normalized data
 
 - `contrasts`:
 
-  vector with contrasts
+  named vector of contrast definitions
 
 - `default_model`:
 
-  default model to use
-
-------------------------------------------------------------------------
-
-### Method `cont_decoy_summary()`
-
-count number of decoys
-
-#### Usage
-
-    DEAnalyse$cont_decoy_summary()
-
-------------------------------------------------------------------------
-
-### Method `remove_cont_decoy()`
-
-remove contaminants and decoys
-
-#### Usage
-
-    DEAnalyse$remove_cont_decoy()
-
-------------------------------------------------------------------------
-
-### Method [`aggregate()`](https://rdrr.io/r/stats/aggregate.html)
-
-aggregate peptide data
-
-#### Usage
-
-    DEAnalyse$aggregate()
-
-------------------------------------------------------------------------
-
-### Method `get_aggregation_plots()`
-
-get aggregation plots
-
-#### Usage
-
-    DEAnalyse$get_aggregation_plots(exp_nr_children = 2)
-
-#### Arguments
-
-- `exp_nr_children`:
-
-  nr children to filter; default \>=2
-
-------------------------------------------------------------------------
-
-### Method `write_aggregation_plots()`
-
-write aggregation plots
-
-#### Usage
-
-    DEAnalyse$write_aggregation_plots(exp_nr_children = 2)
-
-#### Arguments
-
-- `exp_nr_children`:
-
-  nr children to filter; default \>=2
-
-------------------------------------------------------------------------
-
-### Method `transform_data()`
-
-transform data
-
-#### Usage
-
-    DEAnalyse$transform_data()
+  which model to use for final results
 
 ------------------------------------------------------------------------
 
 ### Method `create_model_formula()`
 
-create model formula
+Create model formula from transformed data config
 
 #### Usage
 
@@ -280,7 +162,7 @@ create model formula
 
 ### Method `build_model_linear_protein()`
 
-fit linear model
+Fit linear model at protein level
 
 #### Usage
 
@@ -290,7 +172,7 @@ fit linear model
 
 ### Method `get_strategy_glm_prot()`
 
-get strategy
+Get GLM strategy for protein-level missingness model
 
 #### Usage
 
@@ -300,7 +182,7 @@ get strategy
 
 ### Method `build_model_glm_protein()`
 
-fit generalized linear model
+Fit generalized linear model at protein level
 
 #### Usage
 
@@ -310,7 +192,7 @@ fit generalized linear model
 
 ### Method `build_model_glm_peptide()`
 
-fit generalized linear model
+Fit generalized linear model at peptide level (not yet implemented)
 
 #### Usage
 
@@ -320,7 +202,7 @@ fit generalized linear model
 
 ### Method `get_contrasts_linear_protein()`
 
-compute contrasts linear
+Compute moderated contrasts from linear model
 
 #### Usage
 
@@ -330,7 +212,7 @@ compute contrasts linear
 
 ### Method `get_contrasts_glm_peptide()`
 
-get contrasts from glm model
+Compute moderated contrasts from GLM peptide model
 
 #### Usage
 
@@ -340,7 +222,7 @@ get contrasts from glm model
 
 ### Method `get_contrasts_glm_protein()`
 
-get contrasts from glm model for peptides
+Compute moderated contrasts from GLM protein model
 
 #### Usage
 
@@ -350,7 +232,7 @@ get contrasts from glm model for peptides
 
 ### Method `get_contrasts_missing_protein()`
 
-compute missing contrasts
+Compute moderated contrasts from missing-value imputation model
 
 #### Usage
 
@@ -360,7 +242,8 @@ compute missing contrasts
 
 ### Method `get_contrasts_merged_protein()`
 
-merge contrasts
+Merge linear and missing-value contrasts (or use linear only if
+model_missing = FALSE)
 
 #### Usage
 
@@ -370,8 +253,7 @@ merge contrasts
 
 ### Method `get_annotated_contrasts()`
 
-compute annotated contrasts by joining row annotations with default
-model contrasts
+Join default model contrasts with protein row annotations
 
 #### Usage
 
@@ -381,67 +263,11 @@ model contrasts
 
 ### Method `filter_contrasts()`
 
-filter contrasts for threshold
+Return contrast rows passing FDR and difference thresholds
 
 #### Usage
 
     DEAnalyse$filter_contrasts()
-
-------------------------------------------------------------------------
-
-### Method `filter_data()`
-
-filter transformed lfq data for significant proteins.
-
-#### Usage
-
-    DEAnalyse$filter_data()
-
-------------------------------------------------------------------------
-
-### Method `get_boxplots()`
-
-create boxplots
-
-#### Usage
-
-    DEAnalyse$get_boxplots()
-
-------------------------------------------------------------------------
-
-### Method `contrasts_to_Grob()`
-
-create boxplots
-
-#### Usage
-
-    DEAnalyse$contrasts_to_Grob()
-
-------------------------------------------------------------------------
-
-### Method `get_boxplots_contrasts()`
-
-get box with contrast information
-
-#### Usage
-
-    DEAnalyse$get_boxplots_contrasts()
-
-------------------------------------------------------------------------
-
-### Method `write_boxplots_contrasts()`
-
-write boxplots contrasts to file
-
-#### Usage
-
-    DEAnalyse$write_boxplots_contrasts(filename = "boxplots")
-
-#### Arguments
-
-- `filename`:
-
-  filename to write to
 
 ------------------------------------------------------------------------
 
@@ -462,14 +288,11 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-# example code
-
 pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 #> creating sampleName from fileName column
 #> completing cases
 #> completing cases done
 #> setup done
-
 pep <- prolfqua::LFQData$new(pep$data, pep$config)
 pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
@@ -477,74 +300,39 @@ pA <- prolfquapp::ProteinAnnotation$new(pep, row_annot = pA, description = "fast
 #> Warning: no exp_nr_children column specified, computing using nr_obs_experiment function
 GRP2 <- prolfquapp::make_DEA_config_R6()
 GRP2$processing_options$diff_threshold <- 0.2
-
 GRP2$processing_options$transform <- "robscale"
-pep$factors()
-#> # A tibble: 12 × 3
-#>    sample  sampleName group_
-#>    <chr>   <chr>      <chr> 
-#>  1 A_V1    A_V1       A     
-#>  2 A_V2    A_V2       A     
-#>  3 A_V3    A_V3       A     
-#>  4 A_V4    A_V4       A     
-#>  5 B_V1    B_V1       B     
-#>  6 B_V2    B_V2       B     
-#>  7 B_V3    B_V3       B     
-#>  8 B_V4    B_V4       B     
-#>  9 Ctrl_V1 Ctrl_V1    Ctrl  
-#> 10 Ctrl_V2 Ctrl_V2    Ctrl  
-#> 11 Ctrl_V3 Ctrl_V3    Ctrl  
-#> 12 Ctrl_V4 Ctrl_V4    Ctrl  
+
 contrasts <- c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
-# DEAnalyse$debug("get_contrasts_glm_peptide")
-# DEAnalyse$debug("build_model_glm_protein")
-deanalyse <- prolfquapp::DEAnalyse$new(pep, pA, GRP2, contrasts)
-deanalyse$lfq_data_peptide$hierarchy_counts()
-#> # A tibble: 1 × 3
-#>   isotopeLabel protein_Id peptide_Id
-#>   <chr>             <int>      <int>
-#> 1 light               100        350
-deanalyse$cont_decoy_summary()
+
+data_prep <- prolfquapp::ProteinDataPrep$new(pep, pA, GRP2)
+data_prep$cont_decoy_summary()
 #>   totalNrOfProteins percentOfContaminants percentOfFalsePositives
 #> 1               100                     0                       0
 #>   NrOfProteinsNoDecoys
 #> 1                  100
-deanalyse$prolfq_app_config$processing_options$remove_cont <- TRUE
-deanalyse$remove_cont_decoy()
+data_prep$remove_cont_decoy()
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-03-06 08:32:34] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
-deanalyse$aggregate()
-#> INFO [2026-03-06 08:32:34] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-03-11 08:06:26] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+data_prep$aggregate()
+#> INFO [2026-03-11 08:06:26] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> Column added : exp_medpolish
-#> INFO [2026-03-06 08:32:36] END OF PROTEIN AGGREGATION
-pl <- deanalyse$get_aggregation_plots(exp_nr_children = 10)
-#> Joining with `by = join_by(protein_Id)`
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the prolfqua package.
-#>   Please report the issue at <https://github.com/wolski/prolfqua/issues>.
-print(pl$plots[[3]])
-#> Warning: Removed 11 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
-#> Warning: Removed 9 rows containing missing values or values outside the scale range
-#> (`geom_line()`).
-
-deanalyse$transform_data()
-#> INFO [2026-03-06 08:32:36] Transforming using robscale.
+#> INFO [2026-03-11 08:06:27] END OF PROTEIN AGGREGATION
+data_prep$transform_data()
+#> INFO [2026-03-11 08:06:27] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Warning: Expected 1 pieces. Additional pieces discarded in 1200 rows [1, 2, 3, 4, 5, 6,
 #> 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 #> Joining with `by = join_by(protein_Id, sampleName)`
-#> INFO [2026-03-06 08:32:36] Transforming data : robscale.
+#> INFO [2026-03-11 08:06:27] Transforming data : robscale.
+
+deanalyse <- prolfquapp::DEAnalyse$new(data_prep, contrasts)
 mod <- deanalyse$build_model_linear_protein()
-#> INFO [2026-03-06 08:32:36] fitted model with formula : normalized_abundance ~ group_
+#> INFO [2026-03-11 08:06:27] fitted model with formula : normalized_abundance ~ group_
 #> Joining with `by = join_by(protein_Id)`
 contlm <- deanalyse$get_contrasts_linear_protein()
-
-
 merged <- deanalyse$get_contrasts_merged_protein()
 #> determine linear functions:
 #> get_contrasts -> contrasts_linfct
@@ -560,31 +348,4 @@ merged <- deanalyse$get_contrasts_merged_protein()
 #> Joining with `by = join_by(protein_Id, contrast)`
 #> Joining with `by = join_by(protein_Id, contrast)`
 stopifnot(nrow(merged$get_contrasts()) == 200)
-stopifnot(nrow(merged$get_contrasts()) == 200)
-# deanalyse$create_model_formula()
-# deanalyse$build_model_glm_protein()
-# deanalyse$build_model_glm_peptide()
-xprot <- deanalyse$get_contrasts_glm_protein()
-#> completing cases
-#> INFO [2026-03-06 08:32:37] fitted model with formula : binresp ~ group_
-#> Joining with `by = join_by(protein_Id)`
-if(FALSE){
-xprot$get_contrasts()
-xprot$get_Plotter()$volcano()
-xpep <- deanalyse$get_contrasts_glm_peptide()
-xpep$get_Plotter()$volcano()
-sr <- deanalyse$lfq_data_peptide$get_Summariser()
-
-
-
-deanalyse$filter_contrasts()
-
-xd <- deanalyse$filter_data()
-xd <- deanalyse$contrasts_to_Grob()
-bb <- deanalyse$get_boxplots()
-bx <- deanalyse$get_boxplots_contrasts()
-dev.off()
-grid::grid.draw(bx$bxpl_grobs[[1]])
-# deanalyse$write_boxplots_contrasts("test.pdf")
-}
 ```

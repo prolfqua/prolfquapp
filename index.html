@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,11 +72,12 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">R</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">"prolfquapp::copy_shell_script(workdir = '.')"</span> <span class="co"># if you have R on you system</span></span></code></pre></div>
 <p>or, if you have <a href="https://www.docker.com/products/docker-desktop/" class="external-link">Docker</a> on you system, you can also download <a href="https://raw.githubusercontent.com/prolfqua/prolfquapp/refs/heads/master/inst/application/bin/prolfquapp_docker.sh" class="external-link">prolfquapp_docker.sh</a> and execute:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">prolfquapp_docker.sh</span> R <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">"prolfquapp::copy_shell_script(workdir = '.')"</span> <span class="co"># if you wan to use the prolfqua docker image and container</span></span></code></pre></div>
-<p>This will place the following four shell script files (linux), or bat files (windows) into your working directory:</p>
+<p>This will place the following five shell script files (linux), or bat files (windows) into your working directory:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">[1]</span> <span class="st">"/&lt;working_directory&gt;/prolfqua_dea.sh"</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">[3]</span> <span class="st">"/&lt;working_directory&gt;/prolfqua_yaml.sh"</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="ex">[4]</span> <span class="st">"/&lt;working_directory&gt;/prolfqua_qc.sh"</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="ex">[5]</span> <span class="st">"/&lt;working_directory&gt;/prolfqua_dataset.sh"</span></span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">[2]</span> <span class="st">"/&lt;working_directory&gt;/prolfqua_yaml.sh"</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="ex">[3]</span> <span class="st">"/&lt;working_directory&gt;/prolfqua_qc.sh"</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="ex">[4]</span> <span class="st">"/&lt;working_directory&gt;/prolfqua_dataset.sh"</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="ex">[5]</span> <span class="st">"/&lt;working_directory&gt;/prolfqua_contrasts.sh"</span></span></code></pre></div>
 <p>On Linux give the executables LINUX permissions:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">chmod</span> a+x prolfqua_<span class="pp">*</span></span></code></pre></div>
 <p>All scripts can be run with the option <code>--help</code>.</p>
@@ -145,6 +146,15 @@
 <p>To see which parameters can be set using <code>prolfqua_yaml.sh</code> use the <code>-h</code> switch. Other parameters you can set by editing the yaml file.</p>
 </div>
 <div class="section level2">
+<h2 id="id_3b-generate-contrast-definitions-optional">3b. Generate Contrast Definitions (optional)<a class="anchor" aria-label="anchor" href="#id_3b-generate-contrast-definitions-optional"></a>
+</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Single factor: adds CONTROL column (C = reference, T = rest)</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="ex">Rscript</span> CMD_CONTRASTS.R annotation.xlsx <span class="at">--control</span> WT <span class="at">-o</span> annotation_with_control.xlsx</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># Two factors: adds ContrastName/Contrast columns</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="ex">Rscript</span> CMD_CONTRASTS.R annotation.xlsx <span class="at">--f1</span> treatment <span class="at">--f2</span> time <span class="at">-o</span> annotation_with_contrasts.xlsx</span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="id_4-run-differential-expression-analysis">4. Run Differential Expression Analysis<a class="anchor" aria-label="anchor" href="#id_4-run-differential-expression-analysis"></a>
 </h2>
 <p>Finally, the <code>prolfqua_dea.sh</code> script runs the differential expression analysis using the configuration file generated in the previous step.</p>
@@ -155,23 +165,23 @@
 <strong>Output</strong>: folder containing differential expression analysis results (html files, excel tables, rank files, SummarizedExperiment.rds).</li>
 </ul>
 <p>After setting the parameters in the config.yaml file you can run the DEA analysis by:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">./prolfqua_dea.sh</span> <span class="at">-i</span> data_dir/ <span class="at">-d</span> annotation.xlsx <span class="at">-y</span> config.yaml <span class="at">-w</span> NameOfAnalysis <span class="at">-s</span> DIANN</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co"># and again you run the version within the docker container with</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co"># ./prolfquapp_docker.sh prolfqua_dea.sh -i data_dir/ -d annotation.xlsx -y config.yaml -w NameOfAnalysis -s DIANN</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">./prolfqua_dea.sh</span> <span class="at">-i</span> data_dir/ <span class="at">-d</span> annotation.xlsx <span class="at">-y</span> config.yaml <span class="at">-w</span> NameOfAnalysis <span class="at">-s</span> DIANN</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># and again you run the version within the docker container with</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co"># ./prolfquapp_docker.sh prolfqua_dea.sh -i data_dir/ -d annotation.xlsx -y config.yaml -w NameOfAnalysis -s DIANN</span></span></code></pre></div>
 <p>This will generate a subfolder which starts with “DEA_” and writes all the analysis results as well as the input data.</p>
 </div>
 <div class="section level2">
 <h2 id="how-to-install">How to install<a class="anchor" aria-label="anchor" href="#how-to-install"></a>
 </h2>
 <p><strong>Linux</strong></p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="bu">export</span> <span class="va">R_LIBS_SITE</span><span class="op">=</span><span class="st">"/scratch/PROLFQUA/r-site-library/"</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="ex">R</span> <span class="at">--vanilla</span> <span class="op">&lt;&lt; EOF</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="st">.libPaths()</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="st">install.packages(c("remotes","seqinr", "prozor", "logger", "arrow"), repos = "https://stat.ethz.ch/CRAN/")</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="st">remotes::install_gitlab("wolski/prolfquadata", host="gitlab.bfabric.org")</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="st">remotes::install_github("fgcz/prolfqua", build_vignettes = TRUE, dependencies = TRUE)</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="st">remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="bu">export</span> <span class="va">R_LIBS_SITE</span><span class="op">=</span><span class="st">"/scratch/PROLFQUA/r-site-library/"</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="ex">R</span> <span class="at">--vanilla</span> <span class="op">&lt;&lt; EOF</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="st">.libPaths()</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="st">install.packages(c("remotes","seqinr", "prozor", "logger", "arrow"), repos = "https://stat.ethz.ch/CRAN/")</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="st">remotes::install_gitlab("wolski/prolfquadata", host="gitlab.bfabric.org")</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="st">remotes::install_github("fgcz/prolfqua", build_vignettes = TRUE, dependencies = TRUE)</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="st">remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div>
 <p><strong>Docker</strong></p>
 </div>
 <div class="section level2">

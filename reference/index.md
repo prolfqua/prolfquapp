@@ -7,7 +7,7 @@
 - [`DEAReportGenerator`](https://prolfqua.github.io/prolfquapp/reference/DEAReportGenerator.md)
   : DEAReportGenerator
 - [`DEAnalyse`](https://prolfqua.github.io/prolfquapp/reference/DEAnalyse.md)
-  : will replace make_DEA_report
+  : Differential expression analysis engine
 - [`ExternalReader`](https://prolfqua.github.io/prolfquapp/reference/ExternalReader.md)
   : external reader R6 class for handling external data sources
 - [`FragPipe`](https://prolfqua.github.io/prolfquapp/reference/FragPipe.md)
@@ -25,6 +25,8 @@
 - [`ProteinAnnotation`](https://prolfqua.github.io/prolfquapp/reference/ProteinAnnotation.md)
   : Decorates LFQData with a row annotation and some protein specific
   functions.
+- [`ProteinDataPrep`](https://prolfqua.github.io/prolfquapp/reference/ProteinDataPrep.md)
+  : ProteinDataPrep
 - [`QC_generator`](https://prolfqua.github.io/prolfquapp/reference/QC_generator.md)
   : QC_generator
 - [`add_RevCon()`](https://prolfqua.github.io/prolfquapp/reference/add_RevCon.md)
@@ -46,9 +48,11 @@
 - [`compute_IBAQ_values()`](https://prolfqua.github.io/prolfquapp/reference/compute_IBAQ_values.md)
   : compute IBAQ values
 - [`copy_DEA_Files()`](https://prolfqua.github.io/prolfquapp/reference/copy_DEA_Files.md)
-  : copy Markdown and runscripts for DEA
+  : copy Markdown templates for DEA (legacy CMD_DEA.R)
 - [`copy_DEA_Metabolomics_Files()`](https://prolfqua.github.io/prolfquapp/reference/copy_DEA_Metabolomics_Files.md)
   : copy Markdown and runscripts for DEA
+- [`copy_DEA_R6_Files()`](https://prolfqua.github.io/prolfquapp/reference/copy_DEA_R6_Files.md)
+  : copy Markdown templates for DEA (R6-based CMD_DEA_V2.R)
 - [`copy_docker_script()`](https://prolfqua.github.io/prolfquapp/reference/copy_docker_script.md)
   : copy dockerfile to run the DEA app
 - [`copy_shell_script()`](https://prolfqua.github.io/prolfquapp/reference/copy_shell_script.md)
@@ -88,8 +92,6 @@
   : get best feature annotation.
 - [`generate_DEA_reports()`](https://prolfqua.github.io/prolfquapp/reference/generate_DEA_reports.md)
   : Generate differential expression analysis reports
-- [`generate_DEA_reports2()`](https://prolfqua.github.io/prolfquapp/reference/generate_DEA_reports2.md)
-  : will replace generate_DEA_reports
 - [`get_BGS_files()`](https://prolfqua.github.io/prolfquapp/reference/get_BGS_files.md)
   : get BGS and fasta file location in folder
 - [`get_DIANN_files()`](https://prolfqua.github.io/prolfquapp/reference/get_DIANN_files.md)
@@ -108,8 +110,6 @@
   : get configuration from yaml file or create default configuration
 - [`get_dummy_files()`](https://prolfqua.github.io/prolfquapp/reference/get_dummy_files.md)
   : get_dummy_files
-- [`get_formula()`](https://prolfqua.github.io/prolfquapp/reference/get_formula.md)
-  : will generates formula
 - [`get_mzMine_files()`](https://prolfqua.github.io/prolfquapp/reference/get_mzMine_files.md)
   : get mzmine fliles
 - [`get_procfuncs()`](https://prolfqua.github.io/prolfquapp/reference/get_procfuncs.md)
@@ -123,10 +123,7 @@
   : create GRP2 configuration for differential expression analysis Use
   this function if there is no Yaml Input.
 - [`make_DEA_report()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_report.md)
-  [`render_DEA()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_report.md)
   : Create DEA report in html and write data to xlsx table
-- [`make_DEA_report2()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_report2.md)
-  : make DEA
 - [`make_SummarizedExperiment()`](https://prolfqua.github.io/prolfquapp/reference/make_SummarizedExperiment.md)
   : Convert prolfqua differential expression analysis results to
   SummarizedExperiment
@@ -198,10 +195,6 @@
   not transformed (still needs log2 transformation)
 - [`writeLinesPaired()`](https://prolfqua.github.io/prolfquapp/reference/writeLinesPaired.md)
   : nice plot for paired analysis
-- [`write_DEA()`](https://prolfqua.github.io/prolfquapp/reference/write_DEA.md)
-  : Write differential expression analysis results
-- [`write_DEA_all()`](https://prolfqua.github.io/prolfquapp/reference/write_DEA_all.md)
-  : Generate differential expression analysis reports
 - [`write_annotation_file()`](https://prolfqua.github.io/prolfquapp/reference/write_annotation_file.md)
   : Write dataset to file in csv, tsv, or xlsx format
 - [`write_index_html()`](https://prolfqua.github.io/prolfquapp/reference/write_index_html.md)

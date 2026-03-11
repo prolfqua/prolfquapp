@@ -9,7 +9,7 @@ DEAReportGenerator"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,6 +90,11 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 <li><p><a href="#method-DEAReportGenerator-write_DEA"><code>DEAReportGenerator$write_DEA()</code></a></p></li>
 <li><p><a href="#method-DEAReportGenerator-render_DEA"><code>DEAReportGenerator$render_DEA()</code></a></p></li>
 <li><p><a href="#method-DEAReportGenerator-make_boxplots"><code>DEAReportGenerator$make_boxplots()</code></a></p></li>
+<li><p><a href="#method-DEAReportGenerator-filter_data"><code>DEAReportGenerator$filter_data()</code></a></p></li>
+<li><p><a href="#method-DEAReportGenerator-get_protein_boxplots"><code>DEAReportGenerator$get_protein_boxplots()</code></a></p></li>
+<li><p><a href="#method-DEAReportGenerator-contrasts_to_Grob"><code>DEAReportGenerator$contrasts_to_Grob()</code></a></p></li>
+<li><p><a href="#method-DEAReportGenerator-get_protein_boxplots_contrasts"><code>DEAReportGenerator$get_protein_boxplots_contrasts()</code></a></p></li>
+<li><p><a href="#method-DEAReportGenerator-write_protein_boxplots"><code>DEAReportGenerator$write_protein_boxplots()</code></a></p></li>
 <li><p><a href="#method-DEAReportGenerator-write_DEA_all"><code>DEAReportGenerator$write_DEA_all()</code></a></p></li>
 <li><p><a href="#method-DEAReportGenerator-make_SummarizedExperiment"><code>DEAReportGenerator$make_SummarizedExperiment()</code></a></p></li>
 <li><p><a href="#method-DEAReportGenerator-clone"><code>DEAReportGenerator$clone()</code></a></p></li>
@@ -130,7 +135,7 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 </div>
 
 </div><p></p><hr><a id="method-DEAReportGenerator-write_DEA"></a><div class="section">
-<h3 id="method-write-dea-">Method <code><a href="write_DEA.html">write_DEA()</a></code><a class="anchor" aria-label="anchor" href="#method-write-dea-"></a></h3>
+<h3 id="method-write-dea-">Method <code>write_DEA()</code><a class="anchor" aria-label="anchor" href="#method-write-dea-"></a></h3>
 <p>Write DEA results (XLSX, ORA, GSEA files)</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">write_DEA</span><span class="op">(</span>ORA <span class="op">=</span> <span class="cn">TRUE</span>, GSEA <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -154,7 +159,7 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 </div>
 
 </div><p></p><hr><a id="method-DEAReportGenerator-render_DEA"></a><div class="section">
-<h3 id="method-render-dea-">Method <code><a href="make_DEA_report.html">render_DEA()</a></code><a class="anchor" aria-label="anchor" href="#method-render-dea-"></a></h3>
+<h3 id="method-render-dea-">Method <code>render_DEA()</code><a class="anchor" aria-label="anchor" href="#method-render-dea-"></a></h3>
 <p>Render DEA report using R Markdown</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">render_DEA</span><span class="op">(</span></span>
@@ -192,7 +197,7 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 
 </div><p></p><hr><a id="method-DEAReportGenerator-make_boxplots"></a><div class="section">
 <h3 id="method-make-boxplots-">Method <code>make_boxplots()</code><a class="anchor" aria-label="anchor" href="#method-make-boxplots-"></a></h3>
-<p>Generate boxplots for quality control</p><div class="section">
+<p>Generate sample-level boxplots for quality control</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">make_boxplots</span><span class="op">(</span>boxplot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -206,10 +211,58 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-DEAReportGenerator-write_DEA_all"></a><div class="section">
-<h3 id="method-write-dea-all-">Method <code><a href="write_DEA_all.html">write_DEA_all()</a></code><a class="anchor" aria-label="anchor" href="#method-write-dea-all-"></a></h3>
-<p>Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots</p><div class="section">
+</div><p></p><hr><a id="method-DEAReportGenerator-filter_data"></a><div class="section">
+<h3 id="method-filter-data-">Method <code>filter_data()</code><a class="anchor" aria-label="anchor" href="#method-filter-data-"></a></h3>
+<p>Get subset of transformed data for significant proteins</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">filter_data</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
+</div><p></p><hr><a id="method-DEAReportGenerator-get_protein_boxplots"></a><div class="section">
+<h3 id="method-get-protein-boxplots-">Method <code>get_protein_boxplots()</code><a class="anchor" aria-label="anchor" href="#method-get-protein-boxplots-"></a></h3>
+<p>Get per-protein boxplots for significant proteins</p><div class="section">
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">get_protein_boxplots</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
+</div><p></p><hr><a id="method-DEAReportGenerator-contrasts_to_Grob"></a><div class="section">
+<h3 id="method-contrasts-to-grob-">Method <code>contrasts_to_Grob()</code><a class="anchor" aria-label="anchor" href="#method-contrasts-to-grob-"></a></h3>
+<p>Convert significant contrast results to table grobs</p><div class="section">
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">contrasts_to_Grob</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
+</div><p></p><hr><a id="method-DEAReportGenerator-get_protein_boxplots_contrasts"></a><div class="section">
+<h3 id="method-get-protein-boxplots-contrasts-">Method <code>get_protein_boxplots_contrasts()</code><a class="anchor" aria-label="anchor" href="#method-get-protein-boxplots-contrasts-"></a></h3>
+<p>Get per-protein boxplots combined with contrast summary tables</p><div class="section">
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">get_protein_boxplots_contrasts</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
+</div><p></p><hr><a id="method-DEAReportGenerator-write_protein_boxplots"></a><div class="section">
+<h3 id="method-write-protein-boxplots-">Method <code>write_protein_boxplots()</code><a class="anchor" aria-label="anchor" href="#method-write-protein-boxplots-"></a></h3>
+<p>Write per-protein boxplots with contrast tables to PDF</p><div class="section">
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">write_protein_boxplots</span><span class="op">(</span>filename <span class="op">=</span> <span class="st">"boxplots"</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>filename</code></dt>
+<dd><p>base filename (without extension)</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-DEAReportGenerator-write_DEA_all"></a><div class="section">
+<h3 id="method-write-dea-all-">Method <code>write_DEA_all()</code><a class="anchor" aria-label="anchor" href="#method-write-dea-all-"></a></h3>
+<p>Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots</p><div class="section">
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">write_DEA_all</span><span class="op">(</span></span>
 <span>  boxplot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  render <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -222,7 +275,7 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 </div>
 
 <div class="section">
-<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>boxplot</code></dt>
 <dd><p>if TRUE generate boxplots</p></dd>
 
@@ -261,7 +314,7 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 </div><p></p><hr><a id="method-DEAReportGenerator-make_SummarizedExperiment"></a><div class="section">
 <h3 id="method-make-summarizedexperiment-">Method <code><a href="make_SummarizedExperiment.html">make_SummarizedExperiment()</a></code><a class="anchor" aria-label="anchor" href="#method-make-summarizedexperiment-"></a></h3>
 <p>Create SummarizedExperiment object from analysis results</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">make_SummarizedExperiment</span><span class="op">(</span></span>
 <span>  strip <span class="op">=</span> <span class="st">"~lfq~light"</span>,</span>
 <span>  .url_builder <span class="op">=</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="../reference/bfabric_url_builder.html">bfabric_url_builder</a></span></span>
@@ -269,7 +322,7 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 </div>
 
 <div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>strip</code></dt>
 <dd><p>pattern to strip from rownames</p></dd>
 
@@ -288,12 +341,12 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 </div><p></p><hr><a id="method-DEAReportGenerator-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

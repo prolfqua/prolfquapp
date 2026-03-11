@@ -49,6 +49,16 @@ a DEAnalyse object as data source instead of the legacy GRP2\$RES list.
 
 - [`DEAReportGenerator$make_boxplots()`](#method-DEAReportGenerator-make_boxplots)
 
+- [`DEAReportGenerator$filter_data()`](#method-DEAReportGenerator-filter_data)
+
+- [`DEAReportGenerator$get_protein_boxplots()`](#method-DEAReportGenerator-get_protein_boxplots)
+
+- [`DEAReportGenerator$contrasts_to_Grob()`](#method-DEAReportGenerator-contrasts_to_Grob)
+
+- [`DEAReportGenerator$get_protein_boxplots_contrasts()`](#method-DEAReportGenerator-get_protein_boxplots_contrasts)
+
+- [`DEAReportGenerator$write_protein_boxplots()`](#method-DEAReportGenerator-write_protein_boxplots)
+
 - [`DEAReportGenerator$write_DEA_all()`](#method-DEAReportGenerator-write_DEA_all)
 
 - [`DEAReportGenerator$make_SummarizedExperiment()`](#method-DEAReportGenerator-make_SummarizedExperiment)
@@ -95,7 +105,7 @@ list containing all analysis results (14 sheets)
 
 ------------------------------------------------------------------------
 
-### Method [`write_DEA()`](https://prolfqua.github.io/prolfquapp/reference/write_DEA.md)
+### Method `write_DEA()`
 
 Write DEA results (XLSX, ORA, GSEA files)
 
@@ -119,7 +129,7 @@ list with xlsx_file, ora_files, gsea_files paths
 
 ------------------------------------------------------------------------
 
-### Method [`render_DEA()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_report.md)
+### Method `render_DEA()`
 
 Render DEA report using R Markdown
 
@@ -158,7 +168,7 @@ path to the output file
 
 ### Method `make_boxplots()`
 
-Generate boxplots for quality control
+Generate sample-level boxplots for quality control
 
 #### Usage
 
@@ -172,7 +182,63 @@ Generate boxplots for quality control
 
 ------------------------------------------------------------------------
 
-### Method [`write_DEA_all()`](https://prolfqua.github.io/prolfquapp/reference/write_DEA_all.md)
+### Method `filter_data()`
+
+Get subset of transformed data for significant proteins
+
+#### Usage
+
+    DEAReportGenerator$filter_data()
+
+------------------------------------------------------------------------
+
+### Method `get_protein_boxplots()`
+
+Get per-protein boxplots for significant proteins
+
+#### Usage
+
+    DEAReportGenerator$get_protein_boxplots()
+
+------------------------------------------------------------------------
+
+### Method `contrasts_to_Grob()`
+
+Convert significant contrast results to table grobs
+
+#### Usage
+
+    DEAReportGenerator$contrasts_to_Grob()
+
+------------------------------------------------------------------------
+
+### Method `get_protein_boxplots_contrasts()`
+
+Get per-protein boxplots combined with contrast summary tables
+
+#### Usage
+
+    DEAReportGenerator$get_protein_boxplots_contrasts()
+
+------------------------------------------------------------------------
+
+### Method `write_protein_boxplots()`
+
+Write per-protein boxplots with contrast tables to PDF
+
+#### Usage
+
+    DEAReportGenerator$write_protein_boxplots(filename = "boxplots")
+
+#### Arguments
+
+- `filename`:
+
+  base filename (without extension)
+
+------------------------------------------------------------------------
+
+### Method `write_DEA_all()`
 
 Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots
 

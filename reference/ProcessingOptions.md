@@ -70,7 +70,9 @@ Other ProlfquAppConfig:
 
 - `internal`:
 
-  list of internal calibrants
+  protein IDs for internal standard normalization e.g. \`internal:
+  \[P01876, P02768\]\` After transformation, intensities are centered
+  relative to these proteins.
 
 ## Methods
 

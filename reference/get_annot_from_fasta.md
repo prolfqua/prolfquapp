@@ -49,15 +49,15 @@ fasta_conn <- textConnection(prolfquapp:::.getSequences())
 close(fasta_conn)
 fasta_conn <- textConnection(prolfquapp:::.getSequences())
 prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "^REV_|^rev" )
-#> INFO [2026-03-06 08:32:50] get_annot : finished reading
-#> INFO [2026-03-06 08:32:50] get_annot : extract headers
-#> INFO [2026-03-06 08:32:50] get_annot : all seq : 11
-#> INFO [2026-03-06 08:32:50] removing decoy sequences usin patter : ^REV_|^rev
-#> INFO [2026-03-06 08:32:50] get_annot nr seq after decoy removal: 7
-#> INFO [2026-03-06 08:32:50] get_annot : isUniprot : TRUE
-#> INFO [2026-03-06 08:32:50] get_annot : extracted gene names
-#> INFO [2026-03-06 08:32:50] get_annot : protein length
-#> INFO [2026-03-06 08:32:50] get_annot : nr of tryptic peptides per protein computed.
+#> INFO [2026-03-11 08:06:41] get_annot : finished reading
+#> INFO [2026-03-11 08:06:41] get_annot : extract headers
+#> INFO [2026-03-11 08:06:41] get_annot : all seq : 11
+#> INFO [2026-03-11 08:06:41] removing decoy sequences usin patter : ^REV_|^rev
+#> INFO [2026-03-11 08:06:41] get_annot nr seq after decoy removal: 7
+#> INFO [2026-03-11 08:06:41] get_annot : isUniprot : TRUE
+#> INFO [2026-03-11 08:06:41] get_annot : extracted gene names
+#> INFO [2026-03-11 08:06:41] get_annot : protein length
+#> INFO [2026-03-11 08:06:41] get_annot : nr of tryptic peptides per protein computed.
 #>                                          fasta.id
 #> sp|A0A385XJL2|YGDT_ECOLI sp|A0A385XJL2|YGDT_ECOLI
 #> sp|A5A615|YNCL_ECOLI         sp|A5A615|YNCL_ECOLI

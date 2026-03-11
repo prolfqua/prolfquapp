@@ -50,14 +50,15 @@ and execute:
 prolfquapp_docker.sh R --vanilla -e "prolfquapp::copy_shell_script(workdir = '.')" # if you wan to use the prolfqua docker image and container
 ```
 
-This will place the following four shell script files (linux), or bat
+This will place the following five shell script files (linux), or bat
 files (windows) into your working directory:
 
 ``` bash
 [1] "/<working_directory>/prolfqua_dea.sh"
-[3] "/<working_directory>/prolfqua_yaml.sh"
-[4] "/<working_directory>/prolfqua_qc.sh"
-[5] "/<working_directory>/prolfqua_dataset.sh"
+[2] "/<working_directory>/prolfqua_yaml.sh"
+[3] "/<working_directory>/prolfqua_qc.sh"
+[4] "/<working_directory>/prolfqua_dataset.sh"
+[5] "/<working_directory>/prolfqua_contrasts.sh"
 ```
 
 On Linux give the executables LINUX permissions:
@@ -157,6 +158,16 @@ parameters of the DEA and create a configuration file in YAML format.
 
 To see which parameters can be set using `prolfqua_yaml.sh` use the `-h`
 switch. Other parameters you can set by editing the yaml file.
+
+## 3b. Generate Contrast Definitions (optional)
+
+``` bash
+# Single factor: adds CONTROL column (C = reference, T = rest)
+Rscript CMD_CONTRASTS.R annotation.xlsx --control WT -o annotation_with_control.xlsx
+
+# Two factors: adds ContrastName/Contrast columns
+Rscript CMD_CONTRASTS.R annotation.xlsx --f1 treatment --f2 time -o annotation_with_contrasts.xlsx
+```
 
 ## 4. Run Differential Expression Analysis
 

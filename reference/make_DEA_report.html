@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Create DEA report in html and write data to xlsx table</h1>
-      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/master/R/DEPRECATE.R" class="external-link"><code>R/DEPRECATE.R</code></a>, <a href="https://github.com/prolfqua/prolfquapp/blob/master/R/make_DEA_report2.R" class="external-link"><code>R/make_DEA_report2.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/master/R/DEPRECATE.R" class="external-link"><code>R/DEPRECATE.R</code></a></small>
       <div class="d-none name"><code>make_DEA_report.Rd</code></div>
     </div>
 
@@ -44,16 +44,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">make_DEA_report</span><span class="op">(</span><span class="va">lfqdata</span>, <span class="va">protAnnot</span>, <span class="va">GRP2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">render_DEA</span><span class="op">(</span></span>
-<span>  <span class="va">GRP2</span>,</span>
-<span>  <span class="va">outpath</span>,</span>
-<span>  htmlname <span class="op">=</span> <span class="st">"Result2Grp"</span>,</span>
-<span>  word <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  toc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  markdown <span class="op">=</span> <span class="st">"_Grp2Analysis.Rmd"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">make_DEA_report</span><span class="op">(</span><span class="va">lfqdata</span>, <span class="va">protAnnot</span>, <span class="va">GRP2</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -69,37 +60,13 @@
 
 
 <dt id="arg-grp-">GRP2<a class="anchor" aria-label="anchor" href="#arg-grp-"></a></dt>
-<dd><p>return value of <code>make_DEA_report</code></p></dd>
-
-
-<dt id="arg-outpath">outpath<a class="anchor" aria-label="anchor" href="#arg-outpath"></a></dt>
-<dd><p>path to place output</p></dd>
-
-
-<dt id="arg-htmlname">htmlname<a class="anchor" aria-label="anchor" href="#arg-htmlname"></a></dt>
-<dd><p>name for html file</p></dd>
-
-
-<dt id="arg-word">word<a class="anchor" aria-label="anchor" href="#arg-word"></a></dt>
-<dd><p>default FALSE, if true create word document.s</p></dd>
-
-
-<dt id="arg-toc">toc<a class="anchor" aria-label="anchor" href="#arg-toc"></a></dt>
-<dd><p>if TRUE include table of contents</p></dd>
-
-
-<dt id="arg-markdown">markdown<a class="anchor" aria-label="anchor" href="#arg-markdown"></a></dt>
-<dd><p>which file to render</p></dd>
+<dd><p>list with named arguments i.e. Contrasts, projectID, projectName, workunitID, nrPeptides, Diffthreshold, FDRthreshold</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other workflow:
-<code><a href="make_SummarizedExperiment.html">make_SummarizedExperiment()</a></code>,
-<code><a href="write_DEA.html">write_DEA()</a></code></p>
-<p>Other workflow:
-<code><a href="make_SummarizedExperiment.html">make_SummarizedExperiment()</a></code>,
-<code><a href="write_DEA.html">write_DEA()</a></code></p></div>
+<code><a href="make_SummarizedExperiment.html">make_SummarizedExperiment()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
