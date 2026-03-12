@@ -89,7 +89,7 @@ ProteinDataPrep <- R6::R6Class(
       if (length(lfqdata_peptide$config$hierarchy_keys()) == lfqdata_peptide$config$hierarchyDepth) {
         warning("nothing to aggregate from, returning unchanged data.")
         self$lfq_data <- lfqdata_peptide
-        invisible(self$lfq_data)
+        return(invisible(self$lfq_data))
       }
 
       if (agg_method == "topN") {
