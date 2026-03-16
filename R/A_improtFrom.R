@@ -30,8 +30,8 @@ NULL
 #' set library path with logging
 #' @param lib_path path to R library directory
 #' @export
-set_lib_path <- function(lib_path){
-  if (!is.null(lib_path) && dir.exists(lib_path) ) {
+set_lib_path <- function(lib_path) {
+  if (!is.null(lib_path) && dir.exists(lib_path)) {
     logger::log_info(paste("Setting libPath:", lib_path, collapse = " ;"))
     .libPaths(lib_path)
     logger::log_info(.libPaths(), sep = "\n")

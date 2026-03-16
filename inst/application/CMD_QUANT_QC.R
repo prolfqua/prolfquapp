@@ -8,60 +8,88 @@ if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
 }
 
-logger::log_info("LIBRARY PATHS (.libPaths()):", paste(.libPaths(), collapse = "\n"))
+logger::log_info(
+  "LIBRARY PATHS (.libPaths()):",
+  paste(.libPaths(), collapse = "\n")
+)
 
 library("optparse")
 option_list <- list(
-  make_option(c("-i", "--indir"),
-    type = "character", default = ".",
+  make_option(
+    c("-i", "--indir"),
+    type = "character",
+    default = ".",
     help = "folder containing fasta file and output of the quantification software.",
     metavar = "string"
   ),
-  make_option(c("-t", "--pattern_decoys"),
-    type = "character", default = "^REV_|^rev_",
+  make_option(
+    c("-t", "--pattern_decoys"),
+    type = "character",
+    default = "^REV_|^rev_",
     help = "decoy pattern in fasta file",
     metavar = "string"
   ),
-  make_option(c("-w", "--workunit"),
-    type = "character", default = "",
+  make_option(
+    c("-w", "--workunit"),
+    type = "character",
+    default = "",
     help = "workunit identifier",
     metavar = "string"
   ),
-  make_option(c("-d", "--dataset"),
-    type = "character", default = "dataset.csv",
+  make_option(
+    c("-d", "--dataset"),
+    type = "character",
+    default = "dataset.csv",
     help = "annotation file",
     metavar = "string"
   ),
-  make_option(c("-o", "--outdir"),
-    type = "character", default = "qc_dir",
+  make_option(
+    c("-o", "--outdir"),
+    type = "character",
+    default = "qc_dir",
     help = "folder to write the results to.",
     metavar = "string"
   ),
-  make_option(c("-s", "--software"),
-    type = "character", default = "DIANN",
+  make_option(
+    c("-s", "--software"),
+    type = "character",
+    default = "DIANN",
     help = paste0(
       "possible options: ",
-      paste(names(prolfquapp::prolfqua_preprocess_functions)[!grepl("PEPTIDE", names(prolfquapp::prolfqua_preprocess_functions))], collapse = ", ")
+      paste(
+        names(prolfquapp::prolfqua_preprocess_functions)[
+          !grepl("PEPTIDE", names(prolfquapp::prolfqua_preprocess_functions))
+        ],
+        collapse = ", "
+      )
     ),
     metavar = "character"
   ),
-  make_option(c("-p", "--project"),
-    type = "character", default = "",
+  make_option(
+    c("-p", "--project"),
+    type = "character",
+    default = "",
     help = "your project identifier",
     metavar = "string"
   ),
-  make_option(c("-O", "--order"),
-    type = "character", default = "",
+  make_option(
+    c("-O", "--order"),
+    type = "character",
+    default = "",
     help = "order ID",
     metavar = "character"
   ),
-  make_option(c("--libPath"),
-    type = "character", default = NULL,
+  make_option(
+    c("--libPath"),
+    type = "character",
+    default = NULL,
     help = " (optional) R library path",
     metavar = "string"
   ),
-  optparse::make_option(c("-y", "--yaml"),
-    type = "character", default = "config.yaml",
+  optparse::make_option(
+    c("-y", "--yaml"),
+    type = "character",
+    default = "config.yaml",
     help = "yaml configuration file",
     metavar = "character"
   )

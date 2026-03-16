@@ -9,7 +9,10 @@
 #' tmp <- prolfqua::LFQData$new(istar$data, config)
 #' tmp2 <- transform_lfqdata(tmp)
 #'
-transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "log2")) {
+transform_lfqdata <- function(
+  lfqdata,
+  method = c("robscale", "vsn", "none", "log2")
+) {
   method <- match.arg(method)
   lt <- lfqdata$get_Transformer()
   if (method == "robscale") {
@@ -18,11 +21,13 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "lo
   } else if (method == "vsn") {
     n_samples <- length(unique(lfqdata$data[[lfqdata$config$sampleName]]))
     if (n_samples < 2) {
-      logger::log_warn("vsn requires >= 2 samples, falling back to log2 transformation.")
+      logger::log_warn(
+        "vsn requires >= 2 samples, falling back to log2 transformation."
+      )
       transformed <- lt$log2()$lfq
     } else {
       logger::log_info("Transforming using vsn::justvsn")
-      transformed <- lt$intensity_matrix( .func = vsn::justvsn)$lfq
+      transformed <- lt$intensity_matrix(.func = vsn::justvsn)$lfq
     }
   } else if (method == "none" || method == "log2") {
     logger::log_info("Transforming using log2")
@@ -38,12 +43,12 @@ transform_lfqdata <- function(lfqdata, method = c("robscale", "vsn", "none", "lo
 #' transform lfq data with x^2 - apply if non log data is needed
 #' @param lfqTrans transformed LFQData
 #' @export
-exp2 <- function(lfqTrans ) {
+exp2 <- function(lfqTrans) {
   if (!lfqTrans$config$is_response_transformed) {
     warning("Data not transformed.")
   }
   tr <- lfqTrans$get_Transformer()
-  .exp2 <- function(x){
+  .exp2 <- function(x) {
     2^x
   }
   tr$intensity_array(.exp2, force = TRUE)
@@ -51,8 +56,3 @@ exp2 <- function(lfqTrans ) {
   lfqdataProt <- tr$lfq
   return(lfqdataProt)
 }
-
-
-
-
-

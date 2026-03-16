@@ -5,7 +5,11 @@ pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 10)
 pep <- prolfqua::LFQData$new(pep$data, pep$config)
 pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
-pA <- prolfquapp::ProteinAnnotation$new(pep,row_annot = pA ,description = "fasta.annot")
+pA <- prolfquapp::ProteinAnnotation$new(
+  pep,
+  row_annot = pA,
+  description = "fasta.annot"
+)
 GRP2 <- prolfquapp::make_DEA_config_R6()
 GRP2$processing_options$diff_threshold = 0.2
 #'
@@ -16,7 +20,6 @@ contrasts = c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
 deanalyse <- prolfquapp::DEAnalyse$new(pep, pA, GRP2, contrasts)
 
 xx <- deanalyse$build_model_glm_peptide()
-
 
 
 deanalyse$lfq_data_peptide$hierarchy_counts()

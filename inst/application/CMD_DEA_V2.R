@@ -3,46 +3,64 @@ if (!require("optparse", quietly = TRUE)) {
 }
 
 option_list <- list(
-  optparse::make_option(c("-i", "--indir"),
-    type = "character", default = ".",
+  optparse::make_option(
+    c("-i", "--indir"),
+    type = "character",
+    default = ".",
     help = "folder containing fasta and diann-output files",
     metavar = "path"
   ),
-  optparse::make_option(c("-d", "--dataset"),
-    type = "character", default = "dataset.csv",
+  optparse::make_option(
+    c("-d", "--dataset"),
+    type = "character",
+    default = "dataset.csv",
     help = "file with annotation",
     metavar = "character"
   ),
-  optparse::make_option(c("-y", "--yaml"),
-    type = "character", default = "config.yaml",
+  optparse::make_option(
+    c("-y", "--yaml"),
+    type = "character",
+    default = "config.yaml",
     help = "yaml configuration file",
     metavar = "character"
   ),
-  optparse::make_option(c("-w", "--workunit"),
-    type = "character", default = NULL,
+  optparse::make_option(
+    c("-w", "--workunit"),
+    type = "character",
+    default = NULL,
     help = "yaml configuration file",
     metavar = "character"
   ),
-  optparse::make_option(c("-s", "--software"),
-    type = "character", default = NULL,
-    help = paste0("possible options: ", paste(names(prolfquapp::get_procfuncs()),
-      collapse = ", "
-    )),
+  optparse::make_option(
+    c("-s", "--software"),
+    type = "character",
+    default = NULL,
+    help = paste0(
+      "possible options: ",
+      paste(names(prolfquapp::get_procfuncs()), collapse = ", ")
+    ),
     metavar = "character"
   ),
-  optparse::make_option(c("-o", "--outdir"),
-    type = "character", default = NULL,
+  optparse::make_option(
+    c("-o", "--outdir"),
+    type = "character",
+    default = NULL,
     help = "output directory",
     metavar = "character"
   ),
-  optparse::make_option(c("--libPath"),
-    type = "character", default = NULL,
+  optparse::make_option(
+    c("--libPath"),
+    type = "character",
+    default = NULL,
     help = " (optional) R library path",
     metavar = "string"
   )
 )
 
-parser <- optparse::OptionParser(usage = "%prog config.yaml --software DIANN --indir .", option_list = option_list)
+parser <- optparse::OptionParser(
+  usage = "%prog config.yaml --software DIANN --indir .",
+  option_list = option_list
+)
 
 if (length(commandArgs(TRUE)) == 0) {
   optparse::print_help(parser)
@@ -54,7 +72,10 @@ opt <- arguments$options
 ymlfile <- arguments$args
 
 logger::log_appender(logger::appender_console)
-logger::log_info("LIBRARY PATHS (.libPaths()):", paste(.libPaths(), collapse = "\n"))
+logger::log_info(
+  "LIBRARY PATHS (.libPaths()):",
+  paste(.libPaths(), collapse = "\n")
+)
 
 prolfquapp::set_lib_path(opt$libPath)
 
@@ -104,7 +125,6 @@ opt <- res$opt
 GRP2 <- res$config
 
 
-
 dir.create(opt$outdir)
 dir.create(GRP2$get_zipdir())
 
@@ -115,27 +135,44 @@ logfile <- paste0("prolfqua_", formatted_time, ".log")
 appender_combined <- logger::appender_tee(file.path(GRP2$get_zipdir(), logfile))
 logger::log_appender(appender_combined)
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
-logger::log_info("Writing to output directory : ", GRP2$get_zipdir(), " and file :", logfile)
+logger::log_info(
+  "Writing to output directory : ",
+  GRP2$get_zipdir(),
+  " and file :",
+  logfile
+)
 
 logger::log_info("prolfquapp paramters : ")
-logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(prolfqua::R6_extract_values(GRP2)))))
+logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(prolfqua::R6_extract_values(
+  GRP2
+)))))
 
 
 annotation <- file.path(opt$dataset) |>
   prolfquapp::read_table_data() |>
   prolfquapp::read_annotation(prefix = GRP2$group)
 
-logger::log_info("ContrastNames: \n", paste(names(annotation$contrasts), collapse = "\n"))
+logger::log_info(
+  "ContrastNames: \n",
+  paste(names(annotation$contrasts), collapse = "\n")
+)
 logger::log_info("Contrast: \n", paste(annotation$contrasts, collapse = "\n"))
 
-logger::log_info("Factors : ", paste(annotation$atable$factor_keys_depth(), collapse = "\n"))
+logger::log_info(
+  "Factors : ",
+  paste(annotation$atable$factor_keys_depth(), collapse = "\n")
+)
 prolfquapp::copy_DEA_R6_Files()
 logger::log_info("Software: ", opt$software)
 
 
 prolfqua_preprocess_functions <- get_procfuncs()
 if (!opt$software %in% names(prolfqua_preprocess_functions)) {
-  logger::log_error(opt$software, " no in ", paste0(names(prolfqua_preprocess_functions)))
+  logger::log_error(
+    opt$software,
+    " no in ",
+    paste0(names(prolfqua_preprocess_functions))
+  )
 }
 
 
@@ -180,7 +217,13 @@ if (!is.null(result$error)) {
 
 
 logger::log_info("Processing done:", opt$software)
-logger::log_info(paste(c("Protein Annotation :\n", capture.output(print(xd$protein_annotation$get_summary()))), collapse = "\n"))
+logger::log_info(paste(
+  c(
+    "Protein Annotation :\n",
+    capture.output(print(xd$protein_annotation$get_summary()))
+  ),
+  collapse = "\n"
+))
 
 # ---- R6 Analysis Pipeline ----
 logger::log_info("PREPARING PROTEIN DATA")
@@ -197,7 +240,9 @@ data_prep$cont_decoy_summary()
 logger::log_info("REMOVING CONTAMINANTS AND DECOYS")
 data_prep$remove_cont_decoy()
 
-logger::log_info("AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}.")
+logger::log_info(
+  "AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}."
+)
 data_prep$aggregate()
 
 logger::log_info("TRANSFORMING DATA")
@@ -242,7 +287,10 @@ lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
 ))
 
 # do not write when peptide level analysis
-ibaq_file <- file.path(reporter$resultdir, paste0("IBAQ_", opt$workunit, ".xlsx"))
+ibaq_file <- file.path(
+  reporter$resultdir,
+  paste0("IBAQ_", opt$workunit, ".xlsx")
+)
 if (length(xd$lfqdata$config$hierarchy_keys_depth()) == 1) {
   ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
   writexl::write_xlsx(
@@ -268,10 +316,19 @@ dir.create(GRP2$get_input_dir())
 prolfquapp::copy_DEA_R6_Files(workdir = GRP2$get_input_dir())
 prolfquapp::copy_shell_script(workdir = GRP2$get_input_dir())
 
-file.copy(c(files$data, files$fasta, ymlfile, opt$dataset), GRP2$get_input_dir())
+file.copy(
+  c(files$data, files$fasta, ymlfile, opt$dataset),
+  GRP2$get_input_dir()
+)
 
-logger::log_info("Write yaml with parameters: ", file.path(GRP2$get_input_dir(), "minimal.yaml"))
+logger::log_info(
+  "Write yaml with parameters: ",
+  file.path(GRP2$get_input_dir(), "minimal.yaml")
+)
 
 GRP2$RES <- NULL
 GRP2$pop <- NULL
-yaml::write_yaml(prolfqua::R6_extract_values(GRP2), file = file.path(GRP2$get_input_dir(), "minimal.yaml"))
+yaml::write_yaml(
+  prolfqua::R6_extract_values(GRP2),
+  file = file.path(GRP2$get_input_dir(), "minimal.yaml")
+)

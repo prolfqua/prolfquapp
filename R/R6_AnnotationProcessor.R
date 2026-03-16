@@ -53,8 +53,6 @@ write_annotation_file <- function(data, file_path) {
 }
 
 
-
-
 # AnnotationProcessor  -----
 #' AnnotationProcessor
 #' @export
@@ -149,10 +147,12 @@ AnnotationProcessor <- R6::R6Class(
     #' @param prefix default "G_"
     #' @param repeated default TRUE
     #' @param SAINT default FALSE
-    initialize = function(QC = FALSE,
-                          prefix = "G_",
-                          repeated = TRUE,
-                          SAINT = FALSE) {
+    initialize = function(
+      QC = FALSE,
+      prefix = "G_",
+      repeated = TRUE,
+      SAINT = FALSE
+    ) {
       self$QC <- QC
       self$prefix <- prefix
       self$repeated <- repeated
@@ -162,21 +162,68 @@ AnnotationProcessor <- R6::R6Class(
     #' check annotation
     #' @param annot annotation
     check_annotation = function(annot) {
-      filename <- grep(self$file_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
-      if (length(filename) < 1) { stop("column starting with :", self$file_pattern , " is missing.") }
-      if (length(filename) > 1) { warning("there are more than one column for sample: ", paste(filename, collapse = ", ")) }
+      filename <- grep(
+        self$file_pattern,
+        colnames(annot),
+        ignore.case = TRUE,
+        value = TRUE
+      )
+      if (length(filename) < 1) {
+        stop("column starting with :", self$file_pattern, " is missing.")
+      }
+      if (length(filename) > 1) {
+        warning(
+          "there are more than one column for sample: ",
+          paste(filename, collapse = ", ")
+        )
+      }
 
-      samples <- grep(self$sample_name_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
-      if (length(samples) < 1) { warning("column starting with :", self$sample_name_pattern , " is missing.") }
-      if (length(samples) > 1) { warning("there are more than one column for sample: ", paste(samples, collapse = ", ")) }
+      samples <- grep(
+        self$sample_name_pattern,
+        colnames(annot),
+        ignore.case = TRUE,
+        value = TRUE
+      )
+      if (length(samples) < 1) {
+        warning(
+          "column starting with :",
+          self$sample_name_pattern,
+          " is missing."
+        )
+      }
+      if (length(samples) > 1) {
+        warning(
+          "there are more than one column for sample: ",
+          paste(samples, collapse = ", ")
+        )
+      }
 
-      grouping <- grep(self$grouping_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
-      if (length(grouping) < 1) {  stop("column starting with :", self$sample_name_pattern , " is missing.")  }
-      if (length(grouping) > 1) { warning("there are more than one column for sample: ", paste(grouping, collapse = ", ")) }
+      grouping <- grep(
+        self$grouping_pattern,
+        colnames(annot),
+        ignore.case = TRUE,
+        value = TRUE
+      )
+      if (length(grouping) < 1) {
+        stop("column starting with :", self$sample_name_pattern, " is missing.")
+      }
+      if (length(grouping) > 1) {
+        warning(
+          "there are more than one column for sample: ",
+          paste(grouping, collapse = ", ")
+        )
+      }
 
       if (!self$QC) {
-        contrast <- grep(self$control_pattern, colnames(annot), ignore.case = TRUE, value = TRUE)
-        if (length(contrast) < 1) { stop(paste0("you must specify a CONTROL column.")) }
+        contrast <- grep(
+          self$control_pattern,
+          colnames(annot),
+          ignore.case = TRUE,
+          value = TRUE
+        )
+        if (length(contrast) < 1) {
+          stop(paste0("you must specify a CONTROL column."))
+        }
       }
 
       if ("CONTROL" %in% colnames(annot)) {
@@ -196,7 +243,10 @@ AnnotationProcessor <- R6::R6Class(
       self$check_annotation(annot)
       res <- private$dataset_set_factors(annot)
       if (!self$QC) {
-        contrasts <- self$extract_contrasts(res$annot, group = res$atable$factors[[self$prefix]])
+        contrasts <- self$extract_contrasts(
+          res$annot,
+          group = res$atable$factors[[self$prefix]]
+        )
         res[["contrasts"]] <- contrasts
       }
       return(res)
@@ -224,7 +274,10 @@ AnnotationProcessor <- R6::R6Class(
     add_contrasts_vec = function(annot, Contrasts) {
       if (length(Contrasts) <= nrow(annot)) {
         annot$CONTROL <- NULL
-        annot$ContrastName <- c(names(Contrasts), rep(NA, nrow(annot) - length(Contrasts)))
+        annot$ContrastName <- c(
+          names(Contrasts),
+          rep(NA, nrow(annot) - length(Contrasts))
+        )
         annot$Contrast <- c(Contrasts, rep(NA, nrow(annot) - length(Contrasts)))
       } else {
         warning("There are more Contrasts than samples.")
@@ -234,7 +287,6 @@ AnnotationProcessor <- R6::R6Class(
   ),
 
   private = list(
-
     dataset_set_factors = function(annot) {
       atable <- prolfqua::AnalysisConfiguration$new()
       annot <- private$set_sample_name(annot, atable)
@@ -247,23 +299,42 @@ AnnotationProcessor <- R6::R6Class(
     },
 
     set_sample_name = function(annot, atable) {
-      if (sum(grepl(self$sample_name_pattern, colnames(annot), ignore.case = TRUE)) > 0) {
-        atable$sampleName <- grep(self$sample_name_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)[1]
+      if (
+        sum(grepl(
+          self$sample_name_pattern,
+          colnames(annot),
+          ignore.case = TRUE
+        )) >
+          0
+      ) {
+        atable$sampleName <- grep(
+          self$sample_name_pattern,
+          colnames(annot),
+          value = TRUE,
+          ignore.case = TRUE
+        )[1]
       }
       if (self$strict && any(duplicated(annot[[atable$sampleName]]))) {
         stop("sample Names must be unique.")
-      }else if (any(duplicated(annot[[atable$sampleName]]))) {
-        annot[[atable$sampleName]] <- data.frame(xx = annot[[atable$sampleName]]) |>
+      } else if (any(duplicated(annot[[atable$sampleName]]))) {
+        annot[[atable$sampleName]] <- data.frame(
+          xx = annot[[atable$sampleName]]
+        ) |>
           dplyr::group_by(xx) |>
           dplyr::mutate(count = dplyr::row_number()) |>
-          tidyr::unite("name",c("xx","count")) |>
+          tidyr::unite("name", c("xx", "count")) |>
           dplyr::pull("name")
       } else {}
       return(annot)
     },
 
     set_file_name = function(annot, atable) {
-      fileName <- grep(self$file_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)[1]
+      fileName <- grep(
+        self$file_pattern,
+        colnames(annot),
+        value = TRUE,
+        ignore.case = TRUE
+      )[1]
       atable$fileName <- fileName
       if (any(duplicated(annot[[atable$fileName]]))) {
         stop("file Names must be unique.")
@@ -271,15 +342,29 @@ AnnotationProcessor <- R6::R6Class(
     },
 
     set_grouping_var = function(annot, atable) {
-      groupingVAR <- grep(self$grouping_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)
+      groupingVAR <- grep(
+        self$grouping_pattern,
+        colnames(annot),
+        value = TRUE,
+        ignore.case = TRUE
+      )
       if (any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
-        groupingVAR <- grep("^bait", groupingVAR, value = TRUE, ignore.case = TRUE)[1]
+        groupingVAR <- grep(
+          "^bait",
+          groupingVAR,
+          value = TRUE,
+          ignore.case = TRUE
+        )[1]
       } else {
         groupingVAR <- groupingVAR[1]
       }
 
       annot[[groupingVAR]] <- gsub("[[:space:]]", "", annot[[groupingVAR]])
-      annot[[groupingVAR]] <- gsub("[-\\+\\/\\*\\(\\)]", "_", annot[[groupingVAR]])
+      annot[[groupingVAR]] <- gsub(
+        "[-\\+\\/\\*\\(\\)]",
+        "_",
+        annot[[groupingVAR]]
+      )
 
       if (self$SAINT) {
         atable$factors[["Bait_"]] <- groupingVAR
@@ -292,12 +377,28 @@ AnnotationProcessor <- R6::R6Class(
     },
 
     process_subject_var = function(annot, atable) {
-      if (sum(grepl(self$subject_pattern, colnames(annot), ignore.case = TRUE)) == 1 & self$repeated) {
-        subvar <- grep(self$subject_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)
+      if (
+        sum(grepl(self$subject_pattern, colnames(annot), ignore.case = TRUE)) ==
+          1 &
+          self$repeated
+      ) {
+        subvar <- grep(
+          self$subject_pattern,
+          colnames(annot),
+          value = TRUE,
+          ignore.case = TRUE
+        )
         atable$factors[["Subject_"]] <- subvar
 
-        fct <- dplyr::distinct(annot[, c(atable$fileName, atable$factors[[self$prefix]], subvar)])
-        tmp <- data.frame(table(fct[, c(atable$factors[[self$prefix]], subvar)]))
+        fct <- dplyr::distinct(annot[, c(
+          atable$fileName,
+          atable$factors[[self$prefix]],
+          subvar
+        )])
+        tmp <- data.frame(table(fct[, c(
+          atable$factors[[self$prefix]],
+          subvar
+        )]))
         if (all(tmp$Freq >= 1)) {
           atable$factorDepth <- 2
         }
@@ -305,7 +406,12 @@ AnnotationProcessor <- R6::R6Class(
     },
 
     set_control_var = function(annot, atable) {
-      ctrl <- grep(self$control_col_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)
+      ctrl <- grep(
+        self$control_col_pattern,
+        colnames(annot),
+        value = TRUE,
+        ignore.case = TRUE
+      )
       if (length(ctrl) == 1) {
         atable$factors[["CONTROL"]] <- ctrl
 
@@ -316,21 +422,31 @@ AnnotationProcessor <- R6::R6Class(
     },
 
     set_norm_value = function(annot, atable) {
-      norm_col <- grep(self$norm_value_pattern, colnames(annot), value = TRUE, ignore.case = TRUE)
+      norm_col <- grep(
+        self$norm_value_pattern,
+        colnames(annot),
+        value = TRUE,
+        ignore.case = TRUE
+      )
       if (length(norm_col) >= 1) {
         atable$normValue <- norm_col[1]
         if (length(norm_col) > 1) {
-          warning("Multiple normalization value columns found: ", paste(norm_col, collapse = ", "), ". Using: ", norm_col[1])
+          warning(
+            "Multiple normalization value columns found: ",
+            paste(norm_col, collapse = ", "),
+            ". Using: ",
+            norm_col[1]
+          )
         }
       }
     },
-
 
     get_levels = function(annot, group) {
       levels <- annot |>
         dplyr::select(
           !!self$prefix := starts_with(group, ignore.case = TRUE),
-          control = starts_with("control", ignore.case = TRUE)) |>
+          control = starts_with("control", ignore.case = TRUE)
+        ) |>
         dplyr::distinct()
       return(levels)
     },
@@ -344,14 +460,24 @@ AnnotationProcessor <- R6::R6Class(
       names(Contrasts) <- contr$ContrastName
       nrpr <- sum(grepl(paste0("\\b", self$prefix), Contrasts))
       if (nrpr < 1) {
-        stop("Group prefix should be: ", self$prefix, "; but contrasts look like this: ", paste(Contrasts, collapse = "\n"))
+        stop(
+          "Group prefix should be: ",
+          self$prefix,
+          "; but contrasts look like this: ",
+          paste(Contrasts, collapse = "\n")
+        )
       }
       return(Contrasts)
     },
 
     generate_contrasts = function(annot, levels, group) {
       if (ncol(levels) != 2) {
-        stop("either column ", group, " or column control are missing. We found only column: ", paste(colnames(levels), collapse = " "))
+        stop(
+          "either column ",
+          group,
+          " or column control are missing. We found only column: ",
+          paste(colnames(levels), collapse = " ")
+        )
       }
       Contrasts <- character()
       Names <- character()
@@ -361,8 +487,24 @@ AnnotationProcessor <- R6::R6Class(
           for (j in 1:nrow(levels)) {
             if (i != j && levels$control[j] == "C") {
               cat(levels[[self$prefix]][i], levels[[self$prefix]][j], "\n")
-              Contrasts <- c(Contrasts, paste0(self$prefix, levels[[self$prefix]][i], " - ", self$prefix, levels[[self$prefix]][j]))
-              Names <- c(Names, paste0(levels[[self$prefix]][i], "_vs_", levels[[self$prefix]][j]))
+              Contrasts <- c(
+                Contrasts,
+                paste0(
+                  self$prefix,
+                  levels[[self$prefix]][i],
+                  " - ",
+                  self$prefix,
+                  levels[[self$prefix]][j]
+                )
+              )
+              Names <- c(
+                Names,
+                paste0(
+                  levels[[self$prefix]][i],
+                  "_vs_",
+                  levels[[self$prefix]][j]
+                )
+              )
             }
           }
         }
@@ -389,8 +531,19 @@ AnnotationProcessor <- R6::R6Class(
 #' group = c("a","a","b","b"))
 #' read_annotation(annot, QC = TRUE)
 #'
-read_annotation <- function(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE){
-  res <- AnnotationProcessor$new(repeated = repeated, SAINT = SAINT, prefix = prefix,QC = QC)$read_annotation(dsf)
+read_annotation <- function(
+  dsf,
+  repeated = TRUE,
+  SAINT = FALSE,
+  prefix = "G_",
+  QC = FALSE
+) {
+  res <- AnnotationProcessor$new(
+    repeated = repeated,
+    SAINT = SAINT,
+    prefix = prefix,
+    QC = QC
+  )$read_annotation(dsf)
   return(res)
 }
 
@@ -413,7 +566,10 @@ read_annotation <- function(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", 
 #' ct <- extract_contrasts(annot)
 #' stopifnot(length(ct) == 2)
 extract_contrasts <- function(annot, prefix = "G_", group = "group") {
-  AnnotationProcessor$new(prefix = prefix)$extract_contrasts(annot, group = group)
+  AnnotationProcessor$new(prefix = prefix)$extract_contrasts(
+    annot,
+    group = group
+  )
 }
 
 #' add vector of contrasts to annotation data frame
@@ -423,8 +579,6 @@ extract_contrasts <- function(annot, prefix = "G_", group = "group") {
 #' @examples
 #' annot <- data.frame(Group = rep(c("A","B","C"), each = 3))
 #' annot$Name
-add_contrasts_vec <- function(xx, Contrasts){
+add_contrasts_vec <- function(xx, Contrasts) {
   AnnotationProcessor$new()$add_contrasts_vec(xx, Contrasts)
 }
-
-

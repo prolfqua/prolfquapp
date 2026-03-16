@@ -29,19 +29,19 @@ capture_output <- function(expr) {
 #' stopifnot(xx$config$path == "testdir")
 #' stopifnot(xx$config$software == "FP_TMT")
 #'
-sync_opt_config <- function(opt, config){
+sync_opt_config <- function(opt, config) {
   if (!is.null(opt$software)) {
-    config$software <-  opt$software
+    config$software <- opt$software
   } else {
     opt$software <- config$software
   }
   if (!is.null(opt$workunit)) {
-    logger::log_info("Setting workunit to: " ,  opt$workunit)
+    logger::log_info("Setting workunit to: ", opt$workunit)
     config$project_spec$workunit_Id <- opt$workunit
   }
   if (!is.null(opt$outdir)) {
     config$path <- opt$outdir
-  }else {
+  } else {
     if (!is.null(config$path)) {
       opt$outdir <- config$path
     } else {
@@ -77,4 +77,3 @@ normalize_path <- function(paths, os = .Platform$OS.type) {
   }
   return(normalized_paths)
 }
-

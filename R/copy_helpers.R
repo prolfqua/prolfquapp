@@ -2,12 +2,16 @@
 #' @param workdir directory where to copy file - default is current working directory.
 #' @export
 #'
-copy_docker_script <- function(workdir = getwd() ) {
+copy_docker_script <- function(workdir = getwd()) {
   runscripts <- c(
     "application/bin/prolfquapp_docker.sh"
   )
   # Check the operating system and add the appropriate extension
-  prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
+  prolfqua::scriptCopyHelperVec(
+    runscripts,
+    workdir = workdir,
+    packagename = "prolfquapp"
+  )
 }
 
 
@@ -15,7 +19,7 @@ copy_docker_script <- function(workdir = getwd() ) {
 #' @param workdir directory where to copy file - default is current working directory.
 #' @export
 #'
-copy_shell_script <- function(workdir = getwd() ) {
+copy_shell_script <- function(workdir = getwd()) {
   runscripts <- c(
     "application/bin/prolfqua_dea",
     "application/bin/prolfqua_yaml",
@@ -29,7 +33,11 @@ copy_shell_script <- function(workdir = getwd() ) {
   } else {
     runscripts <- paste0(runscripts, ".sh")
   }
-  prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
+  prolfqua::scriptCopyHelperVec(
+    runscripts,
+    workdir = workdir,
+    packagename = "prolfquapp"
+  )
 }
 
 
@@ -42,7 +50,11 @@ copy_DEA_Files <- function(workdir = getwd()) {
   runscripts <- c(
     "application/bibliography.bib"
   )
-  prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
+  prolfqua::scriptCopyHelperVec(
+    runscripts,
+    workdir = workdir,
+    packagename = "prolfquapp"
+  )
 }
 
 
@@ -56,7 +68,11 @@ copy_DEA_R6_Files <- function(workdir = getwd()) {
     "application/bibliography.bib",
     "application/_DiffExpQC_R6.Rmd"
   )
-  prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
+  prolfqua::scriptCopyHelperVec(
+    runscripts,
+    workdir = workdir,
+    packagename = "prolfquapp"
+  )
 }
 
 
@@ -70,6 +86,9 @@ copy_DEA_Metabolomics_Files <- function(workdir = getwd()) {
     "application/bibliography.bib",
     "application/_DiffExpQC_R6.Rmd"
   )
-  prolfqua::scriptCopyHelperVec(runscripts, workdir = workdir, packagename = "prolfquapp")
+  prolfqua::scriptCopyHelperVec(
+    runscripts,
+    workdir = workdir,
+    packagename = "prolfquapp"
+  )
 }
-

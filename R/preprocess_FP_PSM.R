@@ -15,14 +15,13 @@ NULL
 #' @export
 #' @param file MSstats formatted file
 #' @keywords internal
-tidy_FragPipe_MSstats_csv <- function(file){
+tidy_FragPipe_MSstats_csv <- function(file) {
   inputFile <- readr::read_csv(unz(file, filename = "MSstats.csv"))
   inputFile$BioReplicate <- paste("br", inputFile$BioReplicate, sep = "")
   inputFile$Condition <- make.names(inputFile$Condition)
   inputFile$pep <- 0
   return(inputFile)
 }
-
 
 
 #' FragPipe read FragPipe combined protein files up to Version 15
@@ -43,24 +42,31 @@ tidy_FragPipe_MSstats_csv <- function(file){
 #' prot <- tidy_FragPipe_combined_protein_deprec(prottsv)
 #' stopifnot( dim(prot) ==c(19980,27))
 tidy_FragPipe_combined_protein_deprec <- function(
-    combprot, intnames = c("total.intensity",
-                           "unique.intensity",
-                           "razor.intensity",
+  combprot,
+  intnames = c(
+    "total.intensity",
+    "unique.intensity",
+    "razor.intensity",
 
-                           "total.ion.count",
-                           "unique.ion.count",
-                           "razor.ion.count",
+    "total.ion.count",
+    "unique.ion.count",
+    "razor.ion.count",
 
-                           "total.spectral.count",
-                           "unique.spectral.count",
-                           "razor.spectral.count"),
-    protIDcol = "protein.group",
-    subgroup = "subgroup",
-    as_list = FALSE) {
+    "total.spectral.count",
+    "unique.spectral.count",
+    "razor.spectral.count"
+  ),
+  protIDcol = "protein.group",
+  subgroup = "subgroup",
+  as_list = FALSE
+) {
   if (is.character(combprot) && file.exists(combprot)) {
-    Cprotein <- tibble::as_tibble(read.csv(combprot,
-                                           header = TRUE, sep = "\t", stringsAsFactors = FALSE))
-
+    Cprotein <- tibble::as_tibble(read.csv(
+      combprot,
+      header = TRUE,
+      sep = "\t",
+      stringsAsFactors = FALSE
+    ))
   } else if ("tbl_df" %in% class(combprot)) {
     Cprotein <- combprot
   } else {
@@ -75,26 +81,33 @@ tidy_FragPipe_combined_protein_deprec <- function(
 
   annot <- Cprotein |> dplyr::select(all_of(cnam))
 
-  extractDataLong <- function(Cprotein, what = "total.intensity"){
-    gg <- Cprotein |> dplyr::select( protIDcol, subgroup, dplyr::ends_with(what))
-    gg <- gg |> tidyr::pivot_longer(cols = dplyr::ends_with(what), names_to = "raw.file",values_to = what)
-    gg <- gg |> dplyr::mutate(raw.file = gsub(paste0("\\.",what,"$"),"", .data$raw.file))
+  extractDataLong <- function(Cprotein, what = "total.intensity") {
+    gg <- Cprotein |> dplyr::select(protIDcol, subgroup, dplyr::ends_with(what))
+    gg <- gg |>
+      tidyr::pivot_longer(
+        cols = dplyr::ends_with(what),
+        names_to = "raw.file",
+        values_to = what
+      )
+    gg <- gg |>
+      dplyr::mutate(
+        raw.file = gsub(paste0("\\.", what, "$"), "", .data$raw.file)
+      )
     gg
   }
 
-  res <- vector( mode = "list", length = length(intnames))
-  names(res)  <- intnames
+  res <- vector(mode = "list", length = length(intnames))
+  names(res) <- intnames
 
   for (i in seq_along(intnames)) {
-    res[[intnames[i]]] <- extractDataLong(Cprotein, what = intnames[i] )
+    res[[intnames[i]]] <- extractDataLong(Cprotein, what = intnames[i])
   }
   if (as_list) {
-    return( res )
+    return(res)
   }
 
   merged <- Reduce(dplyr::inner_join, res)
   merged <- dplyr::inner_join(annot, merged)
-
 
   return(merged)
 }
@@ -108,27 +121,31 @@ tidy_FragPipe_combined_protein_deprec <- function(
 #' @keywords internal
 #' @family FragPipe
 tidy_FragPipe_combined_protein <- function(
-    combprot,
-    as_list = FALSE,
-    spcnames = c("Total Spectral Count",
-                 "Unique Spectral Count",
-                 "Razor Spectral Count"),
-    intnames = c("Total Intensity",
-                 "Unique Intensity",
-                 "Razor Intensity"),
-    maxlfqnames = c("MaxLFQ Total Intensity",
-                    "MaxLFQ Unique Intensity",
-                    "MaxLFQ Razor Intensity")
+  combprot,
+  as_list = FALSE,
+  spcnames = c(
+    "Total Spectral Count",
+    "Unique Spectral Count",
+    "Razor Spectral Count"
+  ),
+  intnames = c("Total Intensity", "Unique Intensity", "Razor Intensity"),
+  maxlfqnames = c(
+    "MaxLFQ Total Intensity",
+    "MaxLFQ Unique Intensity",
+    "MaxLFQ Razor Intensity"
+  )
 ) {
   protIDcol = "Protein"
   if (is.character(combprot) && file.exists(combprot)) {
     Cprotein <- tibble::as_tibble(
-      read.csv(combprot,
-               header = TRUE,
-               sep = "\t",
-               stringsAsFactors = FALSE,
-               check.names = FALSE))
-
+      read.csv(
+        combprot,
+        header = TRUE,
+        sep = "\t",
+        stringsAsFactors = FALSE,
+        check.names = FALSE
+      )
+    )
   } else if ("tbl_df" %in% class(combprot)) {
     Cprotein <- combprot
   } else {
@@ -136,13 +153,19 @@ tidy_FragPipe_combined_protein <- function(
   }
 
   cnam <- gsub(
-    "Total Razor ", "Total ",
+    "Total Razor ",
+    "Total ",
     gsub(
-      "Unique Razor ","Unique ",
+      "Unique Razor ",
+      "Unique ",
       gsub(
-        " Intensity$"," Razor Intensity",
+        " Intensity$",
+        " Razor Intensity",
         gsub(
-          " Spectral Count$"," Razor Spectral Count",colnames(Cprotein))
+          " Spectral Count$",
+          " Razor Spectral Count",
+          colnames(Cprotein)
+        )
       )
     )
   )
@@ -155,45 +178,73 @@ tidy_FragPipe_combined_protein <- function(
   annot <- Cprotein |> dplyr::select(all_of(cnam))
   colnames(Cprotein)
 
-  extractDataLong <- function(Cprotein, what = "Total Intensity", butNot = NULL){
+  extractDataLong <- function(
+    Cprotein,
+    what = "Total Intensity",
+    butNot = NULL
+  ) {
     cols <- colnames(Cprotein)
-    cols <- setdiff( grep(paste0(what,"$"), cols, value = TRUE) , if (is.null(butNot)) {NULL} else { grep(butNot, cols, value = TRUE) })
-    gg <- Cprotein |> dplyr::select( dplyr::all_of(protIDcol), dplyr::all_of(cols) )
+    cols <- setdiff(
+      grep(paste0(what, "$"), cols, value = TRUE),
+      if (is.null(butNot)) {
+        NULL
+      } else {
+        grep(butNot, cols, value = TRUE)
+      }
+    )
+    gg <- Cprotein |>
+      dplyr::select(dplyr::all_of(protIDcol), dplyr::all_of(cols))
 
-    gg <- gg |> tidyr::pivot_longer(cols = dplyr::ends_with(what), names_to = "raw.file",values_to = what)
-    gg <- gg |> dplyr::mutate(raw.file = gsub(paste0("\\.",what,"$"),"", .data$raw.file))
+    gg <- gg |>
+      tidyr::pivot_longer(
+        cols = dplyr::ends_with(what),
+        names_to = "raw.file",
+        values_to = what
+      )
+    gg <- gg |>
+      dplyr::mutate(
+        raw.file = gsub(paste0("\\.", what, "$"), "", .data$raw.file)
+      )
     gg
   }
 
-  res <- vector( mode = "list", length = length(c(intnames, spcnames)))
-  names(res)  <- c(intnames, spcnames)
+  res <- vector(mode = "list", length = length(c(intnames, spcnames)))
+  names(res) <- c(intnames, spcnames)
 
   for (i in seq_along(c(intnames, spcnames))) {
-    message("DD: ", c(intnames, spcnames)[i] )
-    res[[c(intnames, spcnames)[i]]] <- extractDataLong(Cprotein, what = c(intnames, spcnames)[i], butNot = "maxlfq" )
+    message("DD: ", c(intnames, spcnames)[i])
+    res[[c(intnames, spcnames)[i]]] <- extractDataLong(
+      Cprotein,
+      what = c(intnames, spcnames)[i],
+      butNot = "maxlfq"
+    )
   }
 
   if (sum(grepl(".MaxLFQ.", colnames(Cprotein))) > 0) {
-    res_maxlfq <- vector( mode = "list", length(maxlfqnames))
-    names(res_maxlfq)  <- maxlfqnames
+    res_maxlfq <- vector(mode = "list", length(maxlfqnames))
+    names(res_maxlfq) <- maxlfqnames
     for (i in seq_along(maxlfqnames)) {
-      message("DD: ", maxlfqnames[i] )
-      res_maxlfq[[maxlfqnames[i] ]] <-  extractDataLong(Cprotein, what = maxlfqnames[i], butNot = NULL )
+      message("DD: ", maxlfqnames[i])
+      res_maxlfq[[maxlfqnames[i]]] <- extractDataLong(
+        Cprotein,
+        what = maxlfqnames[i],
+        butNot = NULL
+      )
     }
     res <- c(res, res_maxlfq)
   }
 
   if (as_list) {
-    return( res )
+    return(res)
   }
 
-  sql_inner_join <- function(x, y){
-    dplyr::inner_join(x,y, multiple = "all")
+  sql_inner_join <- function(x, y) {
+    dplyr::inner_join(x, y, multiple = "all")
   }
-  merged <- Reduce( sql_inner_join , res )
-  merged <- dplyr::inner_join( annot, merged , multiple = "all")
+  merged <- Reduce(sql_inner_join, res)
+  merged <- dplyr::inner_join(annot, merged, multiple = "all")
   colnames(merged) <- tolower(make.names(colnames(merged)))
-  return( merged )
+  return(merged)
 }
 
 
@@ -205,41 +256,56 @@ tidy_FragPipe_combined_protein <- function(
 #' @param abundance_threshold minimum abundance threshold
 #' @param quan_column_prefix regex prefix for quantitative columns
 #' @param aggregate aggregate spectra to psm level
-tidy_FragPipe_psm_V2 <- function(psm_files,
-                              purity_threshold = 0.5,
-                              PeptideProphetProb = 0.9,
-                              abundance_threshold = 0,
-                              quan_column_prefix =  "^Intensity",
-                              aggregate = TRUE){
-
-
+tidy_FragPipe_psm_V2 <- function(
+  psm_files,
+  purity_threshold = 0.5,
+  PeptideProphetProb = 0.9,
+  abundance_threshold = 0,
+  quan_column_prefix = "^Intensity",
+  aggregate = TRUE
+) {
   psm_data_frames_long <- list()
-  for(psm_file in psm_files){
+  for (psm_file in psm_files) {
     psm <- readr::read_tsv(psm_file)
 
-    colnamesQuan <- grep( quan_column_prefix, colnames(psm), value = TRUE )
-    probability_column <- intersect(c("PeptideProphet Probability", "Probability"), colnames(psm))
+    colnamesQuan <- grep(quan_column_prefix, colnames(psm), value = TRUE)
+    probability_column <- intersect(
+      c("PeptideProphet Probability", "Probability"),
+      colnames(psm)
+    )
 
-    psm_relevant <- psm |> dplyr::select(
-      dplyr::all_of(
-        c(c("Spectrum",
-            "Spectrum File",
-            "Peptide",
-            "Modified Peptide",
-            "Charge",
-            "Intensity",
-            "Purity",
-            "Protein",
-            "Protein Description",
-            Probability = probability_column,
-            "Protein Description",
-            "Retention",
-            "Calibrated Observed Mass",
-            "Assigned Modifications",
-            "Charge"),
-          colnamesQuan) ))
+    psm_relevant <- psm |>
+      dplyr::select(
+        dplyr::all_of(
+          c(
+            c(
+              "Spectrum",
+              "Spectrum File",
+              "Peptide",
+              "Modified Peptide",
+              "Charge",
+              "Intensity",
+              "Purity",
+              "Protein",
+              "Protein Description",
+              Probability = probability_column,
+              "Protein Description",
+              "Retention",
+              "Calibrated Observed Mass",
+              "Assigned Modifications",
+              "Charge"
+            ),
+            colnamesQuan
+          )
+        )
+      )
 
-    psm_long <- psm_relevant |> tidyr::pivot_longer( tidyselect::all_of(colnamesQuan), values_to = "abundance", names_to = "channel")
+    psm_long <- psm_relevant |>
+      tidyr::pivot_longer(
+        tidyselect::all_of(colnamesQuan),
+        values_to = "abundance",
+        names_to = "channel"
+      )
     psm_data_frames_long[[psm_file]] <- psm_long
   }
 
@@ -261,19 +327,34 @@ tidy_FragPipe_psm_V2 <- function(psm_files,
     dplyr::summarize(nrPeptides = dplyr::n())
 
   colnames(psm_long) <- make.names(colnames(psm_long))
-  psm_long <- dplyr::filter(psm_long, Purity > purity_threshold & Probability > PeptideProphetProb)
+  psm_long <- dplyr::filter(
+    psm_long,
+    Purity > purity_threshold & Probability > PeptideProphetProb
+  )
 
   if (aggregate) {
     psm_long_agg <- psm_long |>
-      dplyr::select(-all_of(c("Spectrum.File","Spectrum","Purity","Retention","Calibrated.Observed.Mass","Charge"))) |>
+      dplyr::select(
+        -all_of(c(
+          "Spectrum.File",
+          "Spectrum",
+          "Purity",
+          "Retention",
+          "Calibrated.Observed.Mass",
+          "Charge"
+        ))
+      ) |>
       dplyr::group_by(dplyr::across(-c(abundance, Probability))) |>
-      dplyr::summarize(nr_psm = n(), abundance = sum(abundance, na.rm = TRUE), Probability = max(Probability, na.rm = TRUE))
+      dplyr::summarize(
+        nr_psm = n(),
+        abundance = sum(abundance, na.rm = TRUE),
+        Probability = max(Probability, na.rm = TRUE)
+      )
     return(list(data = psm_long_agg, nrPeptides_exp = nrPeptides_exp))
   }
 
   return(list(data = psm_long, nrPeptides_exp = nrPeptides_exp))
 }
-
 
 
 #' read psm.tsv produced by FragPipe and convert into long format
@@ -284,49 +365,63 @@ tidy_FragPipe_psm_V2 <- function(psm_files,
 #' @param abundance_threshold minimum abundance threshold
 #' @param column_before_quants describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"
 #' @param aggregate aggregate spectra to psm level
-tidy_FragPipe_psm <- function(psm_files,
-                              purity_threshold = 0.5,
-                              PeptideProphetProb = 0.9,
-                              abundance_threshold = 0,
-                              column_before_quants =  c("Quan Usage" , "Mapped Proteins"),
-                              aggregate = TRUE){
-
-
+tidy_FragPipe_psm <- function(
+  psm_files,
+  purity_threshold = 0.5,
+  PeptideProphetProb = 0.9,
+  abundance_threshold = 0,
+  column_before_quants = c("Quan Usage", "Mapped Proteins"),
+  aggregate = TRUE
+) {
   psm_data_frames_long <- list()
-  for(psm_file in psm_files){
+  for (psm_file in psm_files) {
     psm <- readr::read_tsv(psm_file)
 
-
     column_before_quants <- intersect(colnames(psm), column_before_quants)
-    column_before_quants <- tail(column_before_quants, n=1)
-    if (!"Purity" %in% colnames(psm) ) {
+    column_before_quants <- tail(column_before_quants, n = 1)
+    if (!"Purity" %in% colnames(psm)) {
       warning("no Purity column in psm file!")
       psm <- psm |> dplyr::mutate(Purity = 1, .before = column_before_quants)
     }
     x <- which(colnames(psm) == column_before_quants)
     colnamesQuan <- colnames(psm)[(x + 1):ncol(psm)]
-    probability_column <- intersect(c("PeptideProphet Probability", "Probability"), colnames(psm))
+    probability_column <- intersect(
+      c("PeptideProphet Probability", "Probability"),
+      colnames(psm)
+    )
 
-    psm_relevant <- psm |> dplyr::select(
-      dplyr::all_of(
-        c(c("Spectrum",
-            "Spectrum File",
-            "Peptide",
-            "Modified Peptide",
-            "Charge",
-            "Intensity",
-            "Purity",
-            "Protein",
-            "Protein Description",
-            Probability = probability_column,
-            "Protein Description",
-            "Retention",
-            "Calibrated Observed Mass",
-            "Assigned Modifications",
-            "Charge"),
-          colnamesQuan) ))
+    psm_relevant <- psm |>
+      dplyr::select(
+        dplyr::all_of(
+          c(
+            c(
+              "Spectrum",
+              "Spectrum File",
+              "Peptide",
+              "Modified Peptide",
+              "Charge",
+              "Intensity",
+              "Purity",
+              "Protein",
+              "Protein Description",
+              Probability = probability_column,
+              "Protein Description",
+              "Retention",
+              "Calibrated Observed Mass",
+              "Assigned Modifications",
+              "Charge"
+            ),
+            colnamesQuan
+          )
+        )
+      )
 
-    psm_long <- psm_relevant |> tidyr::pivot_longer( tidyselect::all_of(colnamesQuan), values_to = "abundance", names_to = "channel")
+    psm_long <- psm_relevant |>
+      tidyr::pivot_longer(
+        tidyselect::all_of(colnamesQuan),
+        values_to = "abundance",
+        names_to = "channel"
+      )
     psm_data_frames_long[[psm_file]] <- psm_long
   }
 
@@ -342,28 +437,52 @@ tidy_FragPipe_psm <- function(psm_files,
     dplyr::summarize(nrPeptides = dplyr::n())
 
   colnames(psm_long) <- make.names(colnames(psm_long))
-  psm_long <- dplyr::filter(psm_long, Purity > purity_threshold & Probability > PeptideProphetProb)
+  psm_long <- dplyr::filter(
+    psm_long,
+    Purity > purity_threshold & Probability > PeptideProphetProb
+  )
 
   if (aggregate) {
     psm_long <- psm_long |>
-      dplyr::select(-all_of(c("Spectrum.File","Spectrum","Intensity","Purity","Retention","Calibrated.Observed.Mass","Charge"))) |>
+      dplyr::select(
+        -all_of(c(
+          "Spectrum.File",
+          "Spectrum",
+          "Intensity",
+          "Purity",
+          "Retention",
+          "Calibrated.Observed.Mass",
+          "Charge"
+        ))
+      ) |>
       dplyr::group_by(dplyr::across(-c(abundance, Probability))) |>
-      dplyr::summarize(nr_psm = n(), abundance = sum(abundance, na.rm = TRUE), Probability = max(Probability, na.rm = TRUE))
+      dplyr::summarize(
+        nr_psm = n(),
+        abundance = sum(abundance, na.rm = TRUE),
+        Probability = max(Probability, na.rm = TRUE)
+      )
   }
 
   return(list(data = psm_long, nrPeptides_exp = nrPeptides_exp))
 }
 
 
-
 #' get psm.tsv and fasta file location in folder
 #' @param path path to data directory
 #' @return list with paths to data and fasta
 #' @export
-get_FP_PSM_files <- function(path){
-
-  psm_file <- dir(path = path, pattern = "psm.tsv", recursive = TRUE, full.names = TRUE)
-  fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE,full.names = TRUE), value = TRUE)
+get_FP_PSM_files <- function(path) {
+  psm_file <- dir(
+    path = path,
+    pattern = "psm.tsv",
+    recursive = TRUE,
+    full.names = TRUE
+  )
+  fasta.files <- grep(
+    "*.fasta$",
+    dir(path = path, recursive = TRUE, full.names = TRUE),
+    value = TRUE
+  )
   if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
     fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
   }
@@ -373,7 +492,6 @@ get_FP_PSM_files <- function(path){
   }
   return(list(data = psm_file, fasta = fasta.files))
 }
-
 
 
 #' preprocess FP psm, filter by purity_threshold and PeptideProphetProb
@@ -388,23 +506,28 @@ get_FP_PSM_files <- function(path){
 #' @param parse_fun function for parsing PSM files
 #' @return list with lfqdata and protein annotation
 #' @export
-preprocess_FP_PSM <- function(quant_data,
-                              fasta_file,
-                              annotation,
+preprocess_FP_PSM <- function(
+  quant_data,
+  fasta_file,
+  annotation,
 
-                              pattern_contaminants = "^zz|^CON|Cont_",
-                              pattern_decoys = "^REV_|^rev_",
-                              purity_threshold = 0.5,
-                              PeptideProphetProb = 0.9,
-                              hierarchy_depth = 1,
-                              parse_fun = tidy_FragPipe_psm
-){
+  pattern_contaminants = "^zz|^CON|Cont_",
+  pattern_decoys = "^REV_|^rev_",
+  purity_threshold = 0.5,
+  PeptideProphetProb = 0.9,
+  hierarchy_depth = 1,
+  parse_fun = tidy_FragPipe_psm
+) {
   annot <- annotation$annot
   atable <- annotation$atable
-  annot <- annot |> dplyr::mutate(
-    raw.file = gsub("^x|\\.d\\.zip$|\\.raw$","",
-                    (basename(annot[[atable$fileName]]))
-    ))
+  annot <- annot |>
+    dplyr::mutate(
+      raw.file = gsub(
+        "^x|\\.d\\.zip$|\\.raw$",
+        "",
+        (basename(annot[[atable$fileName]]))
+      )
+    )
 
   psm <- parse_fun(quant_data)
   nrPeptides_exp <- psm$nrPeptides # this is a data.frame
@@ -412,16 +535,36 @@ preprocess_FP_PSM <- function(quant_data,
   psm$qValue <- 1 - psm$Probability
 
   nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(psm$channel)))
-  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(psm$channel)))
+  logger::log_info(
+    "nr : ",
+    nr,
+    " files annotated out of ",
+    length(unique(psm$channel))
+  )
   stopifnot(nr > 0)
-  logger::log_info("channels in annotation which are not in psm.tsv file : ", paste(setdiff(annot[[annotation$atable$fileName]],sort(unique(psm$channel))), collapse = " ; ") )
-  logger::log_info("channels in psm.tsv which are not in annotation file : ", paste(setdiff(sort(unique(psm$channel)),annot[[annotation$atable$fileName]]), collapse = " ; ") )
+  logger::log_info(
+    "channels in annotation which are not in psm.tsv file : ",
+    paste(
+      setdiff(annot[[annotation$atable$fileName]], sort(unique(psm$channel))),
+      collapse = " ; "
+    )
+  )
+  logger::log_info(
+    "channels in psm.tsv which are not in annotation file : ",
+    paste(
+      setdiff(sort(unique(psm$channel)), annot[[annotation$atable$fileName]]),
+      collapse = " ; "
+    )
+  )
 
   atable$ident_Score = "Probability"
   atable$ident_qValue = "qValue"
   atable$hierarchy[["protein_Id"]] <- c("Protein")
   atable$hierarchy[["peptide_Id"]] <- c("Peptide")
-  atable$hierarchy[["mod_peptide_Id"]] <- c("Modified.Peptide","Assigned.Modifications")
+  atable$hierarchy[["mod_peptide_Id"]] <- c(
+    "Modified.Peptide",
+    "Assigned.Modifications"
+  )
   atable$set_response("abundance")
   atable$hierarchyDepth <- hierarchy_depth
 
@@ -433,14 +576,24 @@ preprocess_FP_PSM <- function(quant_data,
   lfqdata <- prolfqua::LFQData$new(adata, config)
 
   # build rowAnnotation.
-  fasta_annot <- get_annot_from_fasta(fasta_file, pattern_decoys = pattern_decoys)
-  fasta_annot <- dplyr::left_join(nrPeptides_exp, fasta_annot, by = c("Protein" = "fasta.id"))
+  fasta_annot <- get_annot_from_fasta(
+    fasta_file,
+    pattern_decoys = pattern_decoys
+  )
+  fasta_annot <- dplyr::left_join(
+    nrPeptides_exp,
+    fasta_annot,
+    by = c("Protein" = "fasta.id")
+  )
 
-  fasta_annot <- fasta_annot |> dplyr::rename(!!lfqdata$config$hierarchy_keys_depth()[1] := !!sym("Protein"))
+  fasta_annot <- fasta_annot |>
+    dplyr::rename(
+      !!lfqdata$config$hierarchy_keys_depth()[1] := !!sym("Protein")
+    )
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
 
   prot_annot <- prolfquapp::ProteinAnnotation$new(
-    lfqdata ,
+    lfqdata,
     fasta_annot,
     description = "description",
     cleaned_ids = "proteinname",
@@ -451,7 +604,7 @@ preprocess_FP_PSM <- function(quant_data,
   )
 
   lfqdata$remove_small_intensities()
-  return(list(lfqdata = lfqdata , protein_annotation = prot_annot))
+  return(list(lfqdata = lfqdata, protein_annotation = prot_annot))
 }
 
 
@@ -459,9 +612,18 @@ preprocess_FP_PSM <- function(quant_data,
 #' @param path path to data directory
 #' @return list with paths to data and fasta
 #' @export
-get_FP_multiSite_files <- function(path){
-  psm_file <- dir(path = path, pattern = "abundance_multi-site_None.tsv", recursive = TRUE, full.names = TRUE)
-  fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE,full.names = TRUE), value = TRUE)
+get_FP_multiSite_files <- function(path) {
+  psm_file <- dir(
+    path = path,
+    pattern = "abundance_multi-site_None.tsv",
+    recursive = TRUE,
+    full.names = TRUE
+  )
+  fasta.files <- grep(
+    "*.fasta$",
+    dir(path = path, recursive = TRUE, full.names = TRUE),
+    value = TRUE
+  )
   if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
     fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
   }
@@ -476,10 +638,15 @@ get_FP_multiSite_files <- function(path){
 #' @param files list with data and fasta file paths
 #' @return data.frame
 #' @export
-dataset_template_FP_TMT <- function(files){
+dataset_template_FP_TMT <- function(files) {
   x <- prolfquapp::tidy_FragPipe_psm(files$data)
   channel <- unique(x$data$channel)
-  datasetannot <- data.frame(channel = channel, Name = channel, group = NA, subject = NA, CONTROL = NA)
+  datasetannot <- data.frame(
+    channel = channel,
+    Name = channel,
+    group = NA,
+    subject = NA,
+    CONTROL = NA
+  )
   return(datasetannot)
 }
-

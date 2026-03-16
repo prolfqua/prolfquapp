@@ -12,10 +12,15 @@ get_dummy_files <- function(path) {
 #' @param pattern_contaminants regex pattern for contaminants
 #' @param pattern_decoys regex pattern for decoys
 #' @export
-preprocess_dummy <- function(quant_data,
-                             fasta_file,
-                             annotation,
-                             pattern_contaminants = "^zz|^CON|Cont_",
-                             pattern_decoys = "^REV_|^rev") {
-  return(list(lfqdata = "prolfqua::LFQData$new()", protein_annotation = "prolfquapp::ProteinAnnotation$new()"))
+preprocess_dummy <- function(
+  quant_data,
+  fasta_file,
+  annotation,
+  pattern_contaminants = "^zz|^CON|Cont_",
+  pattern_decoys = "^REV_|^rev"
+) {
+  return(list(
+    lfqdata = "prolfqua::LFQData$new()",
+    protein_annotation = "prolfquapp::ProteinAnnotation$new()"
+  ))
 }

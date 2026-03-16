@@ -44,9 +44,16 @@ QC_generator <- R6::R6Class(
     #' @return peptide data in wide format
     get_peptides_wide = function() {
       lfqdata <- self$lfqdata$get_copy()
-      lfqdata$config$hierarchyDepth <- min(2, length(self$lfqdata$config$hierarchyKeys()))
-      self$lfqdata_peptide <- prolfquapp::aggregate_data(lfqdata, agg_method = "medpolish")
-      peptide_wide <- dplyr::left_join(self$protein_annotation$row_annot,
+      lfqdata$config$hierarchyDepth <- min(
+        2,
+        length(self$lfqdata$config$hierarchyKeys())
+      )
+      self$lfqdata_peptide <- prolfquapp::aggregate_data(
+        lfqdata,
+        agg_method = "medpolish"
+      )
+      peptide_wide <- dplyr::left_join(
+        self$protein_annotation$row_annot,
         self$lfqdata$to_wide()$data,
         multiple = "all"
       )
@@ -57,7 +64,10 @@ QC_generator <- R6::R6Class(
     #' @return VSN-transformed peptide LFQData
     get_peptides_transformed = function() {
       if (is.null(self$lfqdata_peptide_transformed)) {
-        self$lfqdata_peptide_transformed <- prolfquapp::transform_lfqdata(self$lfqdata, method = "vsn")
+        self$lfqdata_peptide_transformed <- prolfquapp::transform_lfqdata(
+          self$lfqdata,
+          method = "vsn"
+        )
       }
       invisible(self$lfqdata_peptide_transformed)
     },
@@ -88,7 +98,10 @@ QC_generator <- R6::R6Class(
     #' @return protein LFQData
     get_prot_data = function() {
       if (is.null(self$lfqdata_prot)) {
-        self$lfqdata_prot <- prolfquapp::aggregate_data(self$lfqdata, agg_method = "medpolish")
+        self$lfqdata_prot <- prolfquapp::aggregate_data(
+          self$lfqdata,
+          agg_method = "medpolish"
+        )
       }
       invisible(self$lfqdata_prot)
     },
@@ -119,7 +132,10 @@ QC_generator <- R6::R6Class(
     get_prot_transformed = function() {
       if (is.null(self$lfqdata_prot_transformed)) {
         lfqdata_prot <- self$get_prot_data()
-        self$lfqdata_prot_transformed <- prolfquapp::transform_lfqdata(lfqdata_prot, method = "vsn")
+        self$lfqdata_prot_transformed <- prolfquapp::transform_lfqdata(
+          lfqdata_prot,
+          method = "vsn"
+        )
       }
       invisible(self$lfqdata_prot_transformed)
     },
@@ -143,10 +159,21 @@ QC_generator <- R6::R6Class(
     #' @return IBAQ protein LFQData
     get_prot_IBAQ = function() {
       relevant_columns <- c("protein_length", "nr_tryptic_peptides")
-      if (is.null(self$lfqdata_prot_IBAQ) && all(relevant_columns %in% colnames(self$protein_annotation$row_annot))) {
-        self$lfqdata_prot_IBAQ <- prolfquapp::compute_IBAQ_values(self$lfqdata, self$protein_annotation)
-      } else if (!all(relevant_columns %in% colnames(self$protein_annotation$row_annot))) {
-        warning("skipping IBAQ computation, no:", paste(relevant_columns, collapse = "; "))
+      if (
+        is.null(self$lfqdata_prot_IBAQ) &&
+          all(relevant_columns %in% colnames(self$protein_annotation$row_annot))
+      ) {
+        self$lfqdata_prot_IBAQ <- prolfquapp::compute_IBAQ_values(
+          self$lfqdata,
+          self$protein_annotation
+        )
+      } else if (
+        !all(relevant_columns %in% colnames(self$protein_annotation$row_annot))
+      ) {
+        warning(
+          "skipping IBAQ computation, no:",
+          paste(relevant_columns, collapse = "; ")
+        )
       }
       invisible(self$lfqdata_prot_IBAQ)
     },
@@ -181,7 +208,20 @@ QC_generator <- R6::R6Class(
         tidyr::pivot_wider(
           id_cols = self$lfqdata$config$hierarchy_keys()[1],
           names_from = interaction,
-          values_from = c(nrReplicates, nrMeasured, nrNAs, sd, var, meanAbundance, medianAbundance, CV, id, abundance_percent, abundance_percent_cumulative, percent_prot)
+          values_from = c(
+            nrReplicates,
+            nrMeasured,
+            nrNAs,
+            sd,
+            var,
+            meanAbundance,
+            medianAbundance,
+            CV,
+            id,
+            abundance_percent,
+            abundance_percent_cumulative,
+            percent_prot
+          )
         )
       precabund <- dplyr::inner_join(
         self$protein_annotation$row_annot,
@@ -198,7 +238,8 @@ QC_generator <- R6::R6Class(
     get_prot_IBAQ_wide = function() {
       if (!is.null(self$get_prot_IBAQ())) {
         IBAQ_abundances <-
-          dplyr::left_join(self$protein_annotation$row_annot,
+          dplyr::left_join(
+            self$protein_annotation$row_annot,
             self$get_prot_IBAQ()$to_wide()$data,
             multiple = "all"
           )
@@ -209,7 +250,10 @@ QC_generator <- R6::R6Class(
         IBAQ_abundances <- dplyr::inner_join(
           IBAQ_abundances,
           nr_children_data,
-          by = c(self$get_prot_IBAQ()$config$hierarchy_keys_depth(), "isotopeLabel")
+          by = c(
+            self$get_prot_IBAQ()$config$hierarchy_keys_depth(),
+            "isotopeLabel"
+          )
         )
         return(IBAQ_abundances)
       } else {
@@ -235,7 +279,11 @@ QC_generator <- R6::R6Class(
     write_xlsx = function() {
       xlsxfile <- file.path(
         self$output_dir,
-        paste0("proteinAbundances_", self$GRP2$project_spec$workunit_Id, ".xlsx")
+        paste0(
+          "proteinAbundances_",
+          self$GRP2$project_spec$workunit_Id,
+          ".xlsx"
+        )
       )
       writexl::write_xlsx(self$get_list(), path = xlsxfile)
       self$links[["QC_XLSX"]] <- xlsxfile
@@ -256,11 +304,17 @@ QC_generator <- R6::R6Class(
     #' @description
     #' render QC protein abundances report
     render_QC_protein_abundances = function() {
-      file.copy(system.file("application/GenericQC/QC_ProteinAbundances.Rmd", package = "prolfquapp"),
-        to = self$output_dir, overwrite = TRUE
+      file.copy(
+        system.file(
+          "application/GenericQC/QC_ProteinAbundances.Rmd",
+          package = "prolfquapp"
+        ),
+        to = self$output_dir,
+        overwrite = TRUE
       )
       if (TRUE) {
-        rmarkdown::render(file.path(self$output_dir, "QC_ProteinAbundances.Rmd"),
+        rmarkdown::render(
+          file.path(self$output_dir, "QC_ProteinAbundances.Rmd"),
           params = list(
             pap = self,
             project_info = self$GRP2$project_spec,
@@ -272,9 +326,11 @@ QC_generator <- R6::R6Class(
         str <- c(
           "<!DOCTYPE html>",
           "<html>",
-          "<head>", "<title>",
+          "<head>",
+          "<title>",
           "There is a problem",
-          "</title>", "</head>",
+          "</title>",
+          "</head>",
           "<body>",
           "<h1>",
           paste0("the input file :", files$data, " is empty"),
@@ -282,18 +338,28 @@ QC_generator <- R6::R6Class(
           "</body>",
           "</html>"
         )
-        cat(str, file = file.path(self$output_dir, "proteinAbundances.html"), sep = "\n")
+        cat(
+          str,
+          file = file.path(self$output_dir, "proteinAbundances.html"),
+          sep = "\n"
+        )
       }
-      self$links[["QC_ABUNDANCES"]] <- file.path(self$output_dir, "proteinAbundances.html")
+      self$links[["QC_ABUNDANCES"]] <- file.path(
+        self$output_dir,
+        "proteinAbundances.html"
+      )
     },
     #' @description
     #' render sample size QC report
     render_sample_size_QC = function() {
       if (nrow(self$get_prot_data()$factors()) > 1) {
-        file.copy(system.file("doc/QCandSSE.Rmd", package = "prolfquapp"),
-          to = self$output_dir, overwrite = TRUE
+        file.copy(
+          system.file("doc/QCandSSE.Rmd", package = "prolfquapp"),
+          to = self$output_dir,
+          overwrite = TRUE
         )
-        rmarkdown::render(file.path(self$output_dir, "QCandSSE.Rmd"),
+        rmarkdown::render(
+          file.path(self$output_dir, "QCandSSE.Rmd"),
           params = list(
             data = self$get_prot_data()$data,
             configuration = self$get_prot_data()$config,
@@ -305,7 +371,10 @@ QC_generator <- R6::R6Class(
       } else {
         message("only a single sample: ", nrow(self$get_prot_data()$factors()))
       }
-      self$links[["QC_SAMPLE_SIZE"]] <- file.path(self$output_dir, "QC_sampleSizeEstimation.html")
+      self$links[["QC_SAMPLE_SIZE"]] <- file.path(
+        self$output_dir,
+        "QC_sampleSizeEstimation.html"
+      )
     },
     #' @description
     #' render index HTML file
@@ -316,12 +385,20 @@ QC_generator <- R6::R6Class(
         "<head>",
         paste0(
           "<title>QC Results for WU : ",
-          self$GRP2$project_spec$workunit_Id, " and input : ",
-          self$GRP2$software, "</title>"
+          self$GRP2$project_spec$workunit_Id,
+          " and input : ",
+          self$GRP2$software,
+          "</title>"
         ),
         "</head>",
         "<body>",
-        paste0("<h1>QC Results for WU : ", self$GRP2$project_spec$workunit_Id, " and input : ", self$GRP2$software, "</h1>"),
+        paste0(
+          "<h1>QC Results for WU : ",
+          self$GRP2$project_spec$workunit_Id,
+          " and input : ",
+          self$GRP2$software,
+          "</h1>"
+        ),
         "<ul>"
       )
       # Sort links to ensure QC_XLSX is last
@@ -353,7 +430,13 @@ QC_generator <- R6::R6Class(
     #' render index markdown file
     render_index_md = function() {
       str <- c(
-        paste0("# QC Results for WU : ", self$GRP2$project_spec$workunit_Id, ", and input : ", self$GRP2$software, "\n"),
+        paste0(
+          "# QC Results for WU : ",
+          self$GRP2$project_spec$workunit_Id,
+          ", and input : ",
+          self$GRP2$software,
+          "\n"
+        ),
         "\n## Available Reports\n"
       )
 
@@ -382,22 +465,31 @@ QC_generator <- R6::R6Class(
       precabund <- self$get_protein_per_group_abundance()
       tableconfig <- self$get_prot_IBAQ()$config
       protID <- tableconfig$hierarchy_keys_depth()
-      precabund <- dplyr::inner_join(self$protein_annotation$row_annot,
+      precabund <- dplyr::inner_join(
+        self$protein_annotation$row_annot,
         precabund,
         by = protID
       )
 
-      precabund_table <- precabund |> dplyr::mutate(
-        abundance_percent = signif(abundance_percent, n),
-        abundance_percent_cumulative = signif(abundance_percent_cumulative, n),
-        percent_prot = signif(percent_prot, 3)
-      )
+      precabund_table <- precabund |>
+        dplyr::mutate(
+          abundance_percent = signif(abundance_percent, n),
+          abundance_percent_cumulative = signif(
+            abundance_percent_cumulative,
+            n
+          ),
+          percent_prot = signif(percent_prot, 3)
+        )
       precabund_table <- precabund_table |>
         dplyr::select(
           all_of(c(
-            protID, "nrPeptides",
+            protID,
+            "nrPeptides",
             tableconfig$factor_keys_depth(),
-            "nrMeasured", "meanAbundance", "abundance_percent", "description"
+            "nrMeasured",
+            "meanAbundance",
+            "abundance_percent",
+            "description"
           ))
         )
       factors <- TRUE
@@ -408,7 +500,10 @@ QC_generator <- R6::R6Class(
             values_from = c("nrMeasured", "meanAbundance", "abundance_percent")
           )
       } else {
-        precabund_table <- dplyr::select(precabund_table, -all_of(tableconfig$factor_keys_depth()))
+        precabund_table <- dplyr::select(
+          precabund_table,
+          -all_of(tableconfig$factor_keys_depth())
+        )
       }
       return(precabund_table)
     }

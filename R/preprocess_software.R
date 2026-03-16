@@ -48,42 +48,36 @@ prolfqua_preprocess_functions <- list(
     preprocess = "prolfquapp::preprocess_MSstats",
     extra_args = "list(hierarchy_depth = 1)",
     dataset = "prolfquapp::dataset_template_MSSTATS"
-
   ),
   MSSTATS_PEPTIDE = list(
     get_files = "prolfquapp::get_MSstats_files",
     preprocess = "prolfquapp::preprocess_MSstats",
     extra_args = "list(hierarchy_depth = 2)",
     dataset = "prolfquapp::dataset_template_MSSTATS"
-
   ),
   MSSTATS_FP_DIA = list(
     get_files = "prolfquapp::get_MSstats_files",
     preprocess = "prolfquapp::preprocess_MSstats_FPDIA",
     extra_args = "list(hierarchy_depth = 1)",
     dataset = "prolfquapp::dataset_template_MSSTATS"
-
   ),
   MSSTATS_FP_DIA_PEPTIDE = list(
     get_files = "prolfquapp::get_MSstats_files",
     preprocess = "prolfquapp::preprocess_MSstats_FPDIA",
     extra_args = "list(hierarchy_depth = 2)",
     dataset = "prolfquapp::dataset_template_MSSTATS"
-
   ),
   BGS = list(
     get_files = "prolfquapp::get_BGS_files",
     preprocess = "prolfquapp::preprocess_BGS",
     extra_args = "list(hierarchy_depth = 1)",
     dataset = "prolfquapp::dataset_template_BGS"
-
   ),
   BGS_PEPTIDE = list(
     get_files = "prolfquapp::get_BGS_files",
     preprocess = "prolfquapp::preprocess_BGS",
     extra_args = "list(hierarchy_depth = 2)",
     dataset = "prolfquapp::dataset_template_BGS"
-
   ),
   DUMMY = list(
     get_files = "prolfquapp::get_dummy_files",
@@ -129,16 +123,24 @@ prolfqua_preprocess_functions <- list(
 #' res <- preprocess_software(".", annotation = annot, preprocess_functions = xx)
 #' xx <- prolfquapp::ExternalReader$new()
 #'
-preprocess_software <- function(indir,
-                                annotation,
-                                preprocess_functions,
-                                pattern_contaminants = "^zz|^CON|Cont_",
-                                pattern_decoys = "^rev_|^REV_",
-                                extreader = NULL) {
+preprocess_software <- function(
+  indir,
+  annotation,
+  preprocess_functions,
+  pattern_contaminants = "^zz|^CON|Cont_",
+  pattern_decoys = "^rev_|^REV_",
+  extreader = NULL
+) {
   to_function <- function(x) {
     list(
-      get_files = getFromNamespace(sub(".*::", "", x$get_files), sub("^(.*)::.*", "\\1", x$get_files)),
-      preprocess = getFromNamespace(sub(".*::", "", x$preprocess), sub("^(.*)::.*", "\\1", x$preprocess)),
+      get_files = getFromNamespace(
+        sub(".*::", "", x$get_files),
+        sub("^(.*)::.*", "\\1", x$get_files)
+      ),
+      preprocess = getFromNamespace(
+        sub(".*::", "", x$preprocess),
+        sub("^(.*)::.*", "\\1", x$preprocess)
+      ),
       extra_args = eval(parse(text = x$extra_args))
     )
   }
@@ -158,13 +160,19 @@ preprocess_software <- function(indir,
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
 
-  xd <- do.call(preprocess_fn, c(list(
-    quant_data = files$data,
-    fasta_file = files$fasta,
-    annotation = annotation,
-    pattern_contaminants = pattern_contaminants,
-    pattern_decoys = pattern_decoys
-  ), extra_args))
+  xd <- do.call(
+    preprocess_fn,
+    c(
+      list(
+        quant_data = files$data,
+        fasta_file = files$fasta,
+        annotation = annotation,
+        pattern_contaminants = pattern_contaminants,
+        pattern_decoys = pattern_decoys
+      ),
+      extra_args
+    )
+  )
 
   return(list(xd = xd, files = files))
 }
@@ -187,8 +195,14 @@ preprocess_software <- function(indir,
 dataset_get_functions <- function(preprocess_functions) {
   to_function <- function(x) {
     list(
-      files_fn = getFromNamespace(sub(".*::", "", x$get_files), sub("^(.*)::.*", "\\1", x$get_files)),
-      dataset_fn = getFromNamespace(sub(".*::", "", x$dataset), sub("^(.*)::.*", "\\1", x$dataset)),
+      files_fn = getFromNamespace(
+        sub(".*::", "", x$get_files),
+        sub("^(.*)::.*", "\\1", x$get_files)
+      ),
+      dataset_fn = getFromNamespace(
+        sub(".*::", "", x$dataset),
+        sub("^(.*)::.*", "\\1", x$dataset)
+      ),
       extra_args = eval(parse(text = x$extra_args))
     )
   }

@@ -32,9 +32,11 @@ anndata_from_LFQData <- function(lfqdata, pannot) {
   stopifnot(inherits(lfqdata, "LFQData"))
   stopifnot(inherits(pannot, "ProteinAnnotation"))
 
-
   layers <- list()
-  message("converting to layers: ", paste(lfqdata$config$value_vars(), collapse = ", ") )
+  message(
+    "converting to layers: ",
+    paste(lfqdata$config$value_vars(), collapse = ", ")
+  )
   for (val in lfqdata$config$value_vars()) {
     X <- lfqdata$to_wide(as.matrix = TRUE, value = val)$data
     rownames(X) <- gsub("~lfq~light", "", rownames(X))
@@ -42,10 +44,10 @@ anndata_from_LFQData <- function(lfqdata, pannot) {
   }
 
   o <- as.data.frame(lfqdata$factors())
-  rownames(o) <- o[,lfqdata$config$sampleName]
+  rownames(o) <- o[, lfqdata$config$sampleName]
 
   v <- as.data.frame(pannot$row_annot)
-  rownames(v) <- v[,pannot$full_id]
+  rownames(v) <- v[, pannot$full_id]
   X <- layers[[1]]
   v <- v[colnames(X), ]
   o <- o[rownames(X), ]
@@ -60,5 +62,3 @@ anndata_from_LFQData <- function(lfqdata, pannot) {
   )
   return(adata)
 }
-
-

@@ -46,18 +46,34 @@ bfabric_url_builder <- function(project_spec) {
   projectURL <- NULL
   orderID <- as.numeric(project_spec$order_Id)
   if ((length(orderID) > 0) && !is.na(orderID)) {
-    orderURL <- paste0("https://fgcz-bfabric.uzh.ch/bfabric/order/show.html?id=", orderID, "&tab=details")
+    orderURL <- paste0(
+      "https://fgcz-bfabric.uzh.ch/bfabric/order/show.html?id=",
+      orderID,
+      "&tab=details"
+    )
   }
   workunitID <- as.numeric(project_spec$workunit_Id)
   if ((length(workunitID) > 0) && !is.na(workunitID)) {
-    workunitURL <- paste0("https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=", orderID, "&tab=details")
+    workunitURL <- paste0(
+      "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=",
+      orderID,
+      "&tab=details"
+    )
   }
   projectID <- as.numeric(project_spec$project_Id)
   if ((length(projectID) > 0) && !is.na(projectID)) {
-    projectURL <- paste0("https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=", orderID, "&tab=details")
+    projectURL <- paste0(
+      "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=",
+      orderID,
+      "&tab=details"
+    )
   }
 
-  return(list(orderURL = orderURL, projectURL = projectURL, workunitURL = workunitURL))
+  return(list(
+    orderURL = orderURL,
+    projectURL = projectURL,
+    workunitURL = workunitURL
+  ))
 }
 
 
@@ -71,11 +87,13 @@ bfabric_url_builder <- function(project_spec) {
 #' @return SummarizedExperiment
 #' @export
 #' @family workflow
-make_SummarizedExperiment <- function(GRP2,
-                                      colname = NULL,
-                                      rowname = NULL,
-                                      strip = "~lfq~light",
-                                      .url_builder = bfabric_url_builder) {
+make_SummarizedExperiment <- function(
+  GRP2,
+  colname = NULL,
+  rowname = NULL,
+  strip = "~lfq~light",
+  .url_builder = bfabric_url_builder
+) {
   if (is.null(colname)) {
     colname <- GRP2$RES$lfqData$config$sampleName
   }
@@ -92,10 +110,18 @@ make_SummarizedExperiment <- function(GRP2,
   col.data <- col.data[colnames(mat.raw), ]
   x <- SummarizedExperiment::SummarizedExperiment(
     assays = list(rawData = mat.raw, transformedData = mat.trans),
-    colData = col.data, metadata = list(bfabric_urls = .url_builder(GRP2$project_spec), contrasts = resTables$contrasts, formula = resTables$formula)
+    colData = col.data,
+    metadata = list(
+      bfabric_urls = .url_builder(GRP2$project_spec),
+      contrasts = resTables$contrasts,
+      formula = resTables$formula
+    )
   )
 
-  diffbyContrast <- split(resTables$diff_exp_analysis, resTables$diff_exp_analysis$contrast)
+  diffbyContrast <- split(
+    resTables$diff_exp_analysis,
+    resTables$diff_exp_analysis$contrast
+  )
   for (i in names(diffbyContrast)) {
     row.data <- column_to_rownames(diffbyContrast[[i]], var = rowname)
     row.data <- row.data[rownames(mat.raw), ]
@@ -105,19 +131,34 @@ make_SummarizedExperiment <- function(GRP2,
     SummarizedExperiment::rowData(x)[[paste0("constrast_", i)]] <- row.data
   }
 
-  SummarizedExperiment::rowData(x)[["stats_normalized_wide"]] <- column_to_rownames(resTables$stats_normalized_wide, var = rowname)[rownames(mat.raw), ]
-  SummarizedExperiment::rowData(x)[["stats_raw_wide"]] <- column_to_rownames(resTables$stats_raw_wide, var = rowname)[rownames(mat.raw), ]
+  SummarizedExperiment::rowData(x)[[
+    "stats_normalized_wide"
+  ]] <- column_to_rownames(resTables$stats_normalized_wide, var = rowname)[
+    rownames(mat.raw),
+  ]
+  SummarizedExperiment::rowData(x)[["stats_raw_wide"]] <- column_to_rownames(
+    resTables$stats_raw_wide,
+    var = rowname
+  )[rownames(mat.raw), ]
   return(x)
 }
 
 
-.test_links <- list(dea_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/DE_WUtotal_proteome.html",
-                    qc_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/QC_WUtotal_proteome.html",
-                    data_files = list(xlsx_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/DE_WUtotal_proteome.xlsx",
-                                      ora_files = list(ORA_Treated_vs_Control_down_WUtotal_proteome.txt = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/ORA_Treated_vs_Control_down_WUtotal_proteome.txt",
-                                                       ORA_Treated_vs_Control_up_WUtotal_proteome.txt = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/ORA_Treated_vs_Control_up_WUtotal_proteome.txt"),
-                                      gsea_files = list(`GSEA_Treated_vs_Control_WUtotal_proteome.rnk` = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/GSEA_Treated_vs_Control_WUtotal_proteome.rnk"),
-                                      ibaq_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/IBAQ_total_proteome.xlsx"))
+.test_links <- list(
+  dea_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/DE_WUtotal_proteome.html",
+  qc_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/QC_WUtotal_proteome.html",
+  data_files = list(
+    xlsx_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/DE_WUtotal_proteome.xlsx",
+    ora_files = list(
+      ORA_Treated_vs_Control_down_WUtotal_proteome.txt = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/ORA_Treated_vs_Control_down_WUtotal_proteome.txt",
+      ORA_Treated_vs_Control_up_WUtotal_proteome.txt = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/ORA_Treated_vs_Control_up_WUtotal_proteome.txt"
+    ),
+    gsea_files = list(
+      `GSEA_Treated_vs_Control_WUtotal_proteome.rnk` = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/GSEA_Treated_vs_Control_WUtotal_proteome.rnk"
+    ),
+    ibaq_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/IBAQ_total_proteome.xlsx"
+  )
+)
 
 #' write index.html file with links to all relevant files:
 #' @param file_path_list named list of output file paths
@@ -128,7 +169,7 @@ make_SummarizedExperiment <- function(GRP2,
 #' write_index_html(prolfquapp:::.test_links,tempdir())
 write_index_html <- function(file_path_list, result_dir) {
   # Determine top-level directory and name
-  dea_path    <- file_path_list$dea_file
+  dea_path <- file_path_list$dea_file
   topdir_path <- dirname(dea_path)
   topdir_name <- basename(topdir_path)
 
@@ -139,11 +180,11 @@ write_index_html <- function(file_path_list, result_dir) {
       "  <ul>"
     )
     for (i in seq_along(paths)) {
-      p    <- paths[i]
+      p <- paths[i]
       name <- names(paths)[i]
       text <- if (!is.null(name) && nzchar(name)) name else basename(p)
-      rel  <- gsub(result_dir, "", p)
-      rel <- paste0("./",rel)
+      rel <- gsub(result_dir, "", p)
+      rel <- paste0("./", rel)
       lines <- c(
         lines,
         sprintf('    <li><a href="%s">%s</a></li>', rel, text)
@@ -184,7 +225,6 @@ write_index_html <- function(file_path_list, result_dir) {
   </style>
   )"
 
-
   # Build html
   title <- paste0("Differential Expression Analysis (DEA)")
   html_lines <- c(
@@ -205,29 +245,40 @@ write_index_html <- function(file_path_list, result_dir) {
   # 1. Top-level files: dea + qc
   html_lines <- c(
     html_lines,
-    make_section("Overview files", c(
-      "<b>DEA Report (read first)</b>" = file_path_list$dea_file,
-      "QC report" = file_path_list$qc_file
-    )),
-    make_section("Spreadsheet exports", c(
-      "DEA results (XLSX)" = file_path_list$data_files$xlsx_file,
-      "Intensity Based Absolute Quantitation (XLSX)" = file_path_list$data_files$ibaq_file
-    )),
+    make_section(
+      "Overview files",
+      c(
+        "<b>DEA Report (read first)</b>" = file_path_list$dea_file,
+        "QC report" = file_path_list$qc_file
+      )
+    ),
+    make_section(
+      "Spreadsheet exports",
+      c(
+        "DEA results (XLSX)" = file_path_list$data_files$xlsx_file,
+        "Intensity Based Absolute Quantitation (XLSX)" = file_path_list$data_files$ibaq_file
+      )
+    ),
     make_section("ORA inputs:", unlist(file_path_list$data_files$ora_files)),
-    make_section("GSEA ranklists:", unlist(file_path_list$data_files$gsea_files))
+    make_section(
+      "GSEA ranklists:",
+      unlist(file_path_list$data_files$gsea_files)
+    )
   )
 
-
   analysis_date <- format(Sys.time(), "%B %d, %Y")
-  version       <- as.character(packageVersion("prolfquapp"))
+  version <- as.character(packageVersion("prolfquapp"))
 
   # Close out
   html_lines <- c(
     html_lines,
     "  <div class='footer'>",
-    sprintf("    <p><strong>Analysis Date:</strong> %s</p>",    analysis_date),
+    sprintf("    <p><strong>Analysis Date:</strong> %s</p>", analysis_date),
     "    <p><strong>Project:</strong> Differential Expression analysis</p>",
-    sprintf("    <p><strong>Generated by:</strong> prolfquapp package v%s</p>", version),
+    sprintf(
+      "    <p><strong>Generated by:</strong> prolfquapp package v%s</p>",
+      version
+    ),
     '    <p><strong>Publications (please cite):</strong></p>',
     '    <p><a href="https://doi.org/10.1021/acs.jproteome.2c00441" target="_blank">prolfqua - Wolski et al., J Proteome Res. 2023;22(4):1092-1104</a></p>',
     '    <p><a href="https://doi.org/10.1021/acs.jproteome.4c00911" target="_blank">prolfquapp - Wolski et al., J Proteome Res. 2025;24(2):955-965</a></p>',

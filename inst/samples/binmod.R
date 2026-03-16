@@ -1,7 +1,11 @@
 library(prolfqua)
 library(tidyverse)
-pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 5,with_missing = TRUE,weight_missing = 0.4)
-dd <-LFQData$new(pep$data,pep$config)
+pep <- prolfqua::sim_lfq_data_peptide_config(
+  Nprot = 5,
+  with_missing = TRUE,
+  weight_missing = 0.4
+)
+dd <- LFQData$new(pep$data, pep$config)
 dd$complete_cases()
 dd$hierarchy_counts()
 
@@ -9,7 +13,7 @@ xd <- dd$data
 xd
 xd <- xd |> dplyr::mutate(binresp = ifelse(is.na(abundance), 0, 1))
 x <- xd |> group_by(protein_Id) |> nest()
-xd <- x$data[[1]] |> select(group_, binresp, peptide_Id )
+xd <- x$data[[1]] |> select(group_, binresp, peptide_Id)
 
 head(xd)
 
@@ -22,14 +26,7 @@ DFT <- as.data.frame(tt)
 head(DFT)
 DFT$binresp
 DFT$Freq
-glm( f ,
-     data = DFT ,
-     weights = Freq,
-     family = stats::binomial)
-
-
-
-
+glm(f, data = DFT, weights = Freq, family = stats::binomial)
 
 
 #############
@@ -48,5 +45,3 @@ logistf(f, data = DFT, weights = Freq)
 
 # View the summary of the fitted model
 summary(modelFirth)
-
-

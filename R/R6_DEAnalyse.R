@@ -33,7 +33,6 @@
 DEAnalyse <- R6::R6Class(
   "DEAnalyse",
   public = list(
-
     #' @field prolfq_app_config ProlfquAppConfig
     prolfq_app_config = NULL,
 
@@ -86,11 +85,17 @@ DEAnalyse <- R6::R6Class(
     #' @param data_prep ProteinDataPrep object with aggregated and normalized data
     #' @param contrasts named vector of contrast definitions
     #' @param default_model which model to use for final results
-    initialize = function(data_prep,
-                          contrasts,
-                          default_model = "mergedModel") {
+    initialize = function(data_prep, contrasts, default_model = "mergedModel") {
       stopifnot("ProteinDataPrep" %in% class(data_prep))
-      stopifnot(default_model %in% c(self$m3_merged, self$m2_missing, self$m1_linear, self$m4_glm_protein))
+      stopifnot(
+        default_model %in%
+          c(
+            self$m3_merged,
+            self$m2_missing,
+            self$m1_linear,
+            self$m4_glm_protein
+          )
+      )
       stopifnot(length(contrasts) >= 1)
       self$default_model <- default_model
       self$lfq_data_peptide <- data_prep$lfq_data_peptide
@@ -131,7 +136,8 @@ DEAnalyse <- R6::R6Class(
     get_strategy_glm_prot = function() {
       lfq <- self$lfq_data_transformed
       formula <- private$create_formula(lfq$config, response = "binresp")
-      modelFunction <- prolfqua::strategy_glm(formula,
+      modelFunction <- prolfqua::strategy_glm(
+        formula,
         family = stats::binomial,
         multiplier = 1.2,
         offset = 1
@@ -160,7 +166,9 @@ DEAnalyse <- R6::R6Class(
     #' @description
     #' Fit generalized linear model at peptide level (not yet implemented)
     build_model_glm_peptide = function() {
-      stop("Not yet implemented: build_model_glm_peptide references undefined variables (istar, models2)")
+      stop(
+        "Not yet implemented: build_model_glm_peptide references undefined variables (istar, models2)"
+      )
     },
 
     #' @description
@@ -207,13 +215,17 @@ DEAnalyse <- R6::R6Class(
         if (is.null(model_missing) || model_missing) {
           self$get_contrasts_linear_protein()
           self$get_contrasts_missing_protein()
-          self$contrast_results[[self$m3_merged]] <- prolfqua::merge_contrasts_results(
+          self$contrast_results[[
+            self$m3_merged
+          ]] <- prolfqua::merge_contrasts_results(
             self$contrast_results[[self$m1_linear]],
             self$contrast_results[[self$m2_missing]]
           )$merged
         } else {
           self$get_contrasts_linear_protein()
-          self$contrast_results[[self$m3_merged]] <- self$contrast_results[[self$m1_linear]]
+          self$contrast_results[[self$m3_merged]] <- self$contrast_results[[
+            self$m1_linear
+          ]]
         }
       }
       invisible(self$contrast_results[[self$m3_merged]])
@@ -226,12 +238,18 @@ DEAnalyse <- R6::R6Class(
         stop("no default model contrasts yet: ", self$default_model)
       }
       datax <- self$contrast_results[[self$default_model]]$get_contrasts()
-      datax <- dplyr::inner_join(self$rowAnnot$row_annot, datax, multiple = "all")
+      datax <- dplyr::inner_join(
+        self$rowAnnot$row_annot,
+        datax,
+        multiple = "all"
+      )
       self$annotated_contrasts <- datax
 
       datax_signif <- datax |>
-        dplyr::filter(.data$FDR < self$FDR_threshold &
-          abs(.data$diff) > self$diff_threshold)
+        dplyr::filter(
+          .data$FDR < self$FDR_threshold &
+            abs(.data$diff) > self$diff_threshold
+        )
       self$annotated_contrasts_signif <- datax_signif
       invisible(self$annotated_contrasts)
     },
@@ -244,8 +262,10 @@ DEAnalyse <- R6::R6Class(
       }
       datax <- self$contrast_results[[self$default_model]]$get_contrasts()
       datax <- datax |>
-        dplyr::filter(.data$FDR < self$FDR_threshold &
-          abs(.data$diff) > self$diff_threshold)
+        dplyr::filter(
+          .data$FDR < self$FDR_threshold &
+            abs(.data$diff) > self$diff_threshold
+        )
       invisible(datax)
     }
   ),
@@ -253,7 +273,8 @@ DEAnalyse <- R6::R6Class(
     get_contrasts = function(contrastName) {
       if (is.null(self$contrast_results[[contrastName]])) {
         if (!is.null(self$models[[contrastName]])) {
-          contr <- prolfqua::Contrasts$new(self$models[[contrastName]],
+          contr <- prolfqua::Contrasts$new(
+            self$models[[contrastName]],
             self$contrasts,
             modelName = contrastName
           )

@@ -4,7 +4,11 @@
 #' @param pattern_contaminants prefix for contaminant entries
 #' @export
 #'
-add_RevCon <- function(stringsAll, pattern_decoys = "REV_", pattern_contaminants = "zz") {
+add_RevCon <- function(
+  stringsAll,
+  pattern_decoys = "REV_",
+  pattern_contaminants = "zz"
+) {
   # Set seed for reproducibility
   set.seed(123)
 
@@ -18,14 +22,22 @@ add_RevCon <- function(stringsAll, pattern_decoys = "REV_", pattern_contaminants
   indices_rev <- sample(1:n, num_rev, replace = FALSE)
 
   # Apply the "REV_" prefix
-  dd$tomod[indices_rev] <- paste(pattern_decoys, dd$tomod[indices_rev], sep = "")
+  dd$tomod[indices_rev] <- paste(
+    pattern_decoys,
+    dd$tomod[indices_rev],
+    sep = ""
+  )
 
   # Exclude already modified strings and select indices for "ZZ" prefix
   available_indices <- setdiff(1:n, indices_rev)
   indices_zz <- sample(available_indices, num_zz, replace = FALSE)
 
   # Apply the "ZZ" prefix
-  dd$tomod[indices_zz] <- paste(pattern_contaminants, dd$tomod[indices_zz], sep = "")
+  dd$tomod[indices_zz] <- paste(
+    pattern_contaminants,
+    dd$tomod[indices_zz],
+    sep = ""
+  )
 
   res <- merge(data.frame(idx = stringsAll), dd, by = "idx")
   res <- res[match(stringsAll, res$idx), ] # preserve ordering.
@@ -49,18 +61,25 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE) {
   }
   lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
   lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
-  pids <- grep("^zz|^REV", unique(lfqdata$data$protein_Id), value = TRUE, invert = TRUE)
+  pids <- grep(
+    "^zz|^REV",
+    unique(lfqdata$data$protein_Id),
+    value = TRUE,
+    invert = TRUE
+  )
   addannot <- data.frame(
     protein_Id = pids,
     description = stringi::stri_rand_strings(length(pids), 13)
   )
-  addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID", NA), remove = FALSE)
+  addannot <- addannot |>
+    tidyr::separate(protein_Id, c("cleanID", NA), remove = FALSE)
   # Sample protein lengths from a log-normal distribution
   protein_lengths <- rlnorm(Nprot, meanlog = log(400), sdlog = 0.8)
   protein_lengths <- round(pmax(50, protein_lengths)) # Ensure minimum length of 50 AA
   nr_pep <- round(protein_lengths / 20)
 
-  pannot <- ProteinAnnotation$new(lfqdata,
+  pannot <- ProteinAnnotation$new(
+    lfqdata,
     addannot,
     description = "description",
     cleaned_ids = "cleanID",
@@ -80,12 +99,18 @@ make_annotated_experiment <- function(Nprot = 100) {
   istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
   lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
   lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
-  pids <- grep("^zz|^REV", unique(lfqdata$data$protein_Id), value = TRUE, invert = TRUE)
+  pids <- grep(
+    "^zz|^REV",
+    unique(lfqdata$data$protein_Id),
+    value = TRUE,
+    invert = TRUE
+  )
   addannot <- data.frame(
     protein_Id = pids,
     description = stringi::stri_rand_strings(length(pids), 13)
   )
-  addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID", NA), remove = FALSE)
+  addannot <- addannot |>
+    tidyr::separate(protein_Id, c("cleanID", NA), remove = FALSE)
   pannot <- ProteinAnnotation$new(
     lfqdata,
     addannot,
@@ -176,14 +201,16 @@ ProteinAnnotation <-
       #' @param exp_nr_children column with the number of children
       #' @param pattern_contaminants pattern_contaminants
       #' @param pattern_decoys pattern_decoys
-      initialize = function(lfqdata,
-                            row_annot = NULL,
-                            description = NULL,
-                            cleaned_ids = NULL,
-                            full_id = NULL,
-                            exp_nr_children = "nr_peptides",
-                            pattern_contaminants = NULL,
-                            pattern_decoys = NULL) {
+      initialize = function(
+        lfqdata,
+        row_annot = NULL,
+        description = NULL,
+        cleaned_ids = NULL,
+        full_id = NULL,
+        exp_nr_children = "nr_peptides",
+        pattern_contaminants = NULL,
+        pattern_decoys = NULL
+      ) {
         self$pID <- lfqdata$config$hierarchy_keys_depth()[[1]]
         self$exp_nr_children <- exp_nr_children
         self$pattern_contaminants <- if (is.null(pattern_contaminants)) {
@@ -215,17 +242,27 @@ ProteinAnnotation <-
         self$row_annot <- dplyr::distinct(dplyr::select(lfqdata$data, self$pID))
         if (!is.null(row_annot)) {
           stopifnot(self$pID %in% colnames(row_annot))
-          self$row_annot <- dplyr::left_join(self$row_annot, row_annot, by = self$pID)
+          self$row_annot <- dplyr::left_join(
+            self$row_annot,
+            row_annot,
+            by = self$pID
+          )
         }
         stopifnot(self$cleaned_ids %in% colnames(self$row_annot))
         stopifnot(self$description %in% colnames(self$row_annot))
         if (!self$exp_nr_children %in% colnames(row_annot)) {
-          warning("no exp_nr_children column specified, computing using nr_obs_experiment function")
+          warning(
+            "no exp_nr_children column specified, computing using nr_obs_experiment function"
+          )
           cf <- lfqdata$config$clone(deep = TRUE)
           cf$hierarchyDepth <- 1
           self$row_annot <- dplyr::inner_join(
             self$row_annot,
-            prolfqua::nr_obs_experiment(lfqdata$data, cf, name_nr_child = self$exp_nr_children),
+            prolfqua::nr_obs_experiment(
+              lfqdata$data,
+              cf,
+              name_nr_child = self$exp_nr_children
+            ),
             by = self$pID
           )
         }
@@ -234,12 +271,17 @@ ProteinAnnotation <-
       #' annotate rev sequences
       #' @param pattern default "REV_"
       annotate_decoys = function() {
-        self$row_annot <- self$row_annot |> dplyr::mutate(
-          REV = dplyr::case_when(
-            grepl(self$pattern_decoys, as.character(!!sym(self$full_id)), ignore.case = TRUE) ~ TRUE,
-            TRUE ~ FALSE
+        self$row_annot <- self$row_annot |>
+          dplyr::mutate(
+            REV = dplyr::case_when(
+              grepl(
+                self$pattern_decoys,
+                as.character(!!sym(self$full_id)),
+                ignore.case = TRUE
+              ) ~ TRUE,
+              TRUE ~ FALSE
+            )
           )
-        )
 
         return(sum(self$row_annot$REV))
       },
@@ -247,12 +289,17 @@ ProteinAnnotation <-
       #' annotate contaminants
       #' @param pattern default "^zz|^CON"
       annotate_contaminants = function() {
-        self$row_annot <- self$row_annot |> dplyr::mutate(
-          CON = dplyr::case_when(
-            grepl(self$pattern_contaminants, as.character(!!sym(self$full_id)), ignore.case = TRUE) ~ TRUE,
-            TRUE ~ FALSE
+        self$row_annot <- self$row_annot |>
+          dplyr::mutate(
+            CON = dplyr::case_when(
+              grepl(
+                self$pattern_contaminants,
+                as.character(!!sym(self$full_id)),
+                ignore.case = TRUE
+              ) ~ TRUE,
+              TRUE ~ FALSE
+            )
           )
-        )
         return(sum(self$row_annot$CON))
       },
       #' @description
@@ -261,8 +308,14 @@ ProteinAnnotation <-
         allProt <- nrow(self$row_annot)
         contdecoySummary <- data.frame(
           totalNrOfProteins = allProt,
-          percentOfContaminants = round(self$annotate_contaminants() / allProt * 100, digits = 2),
-          percentOfFalsePositives = round(self$annotate_decoys() / allProt * 100, digits = 2),
+          percentOfContaminants = round(
+            self$annotate_contaminants() / allProt * 100,
+            digits = 2
+          ),
+          percentOfFalsePositives = round(
+            self$annotate_decoys() / allProt * 100,
+            digits = 2
+          ),
           NrOfProteinsNoDecoys = self$nr_clean()
         )
         return(contdecoySummary)
@@ -302,7 +355,10 @@ ProteinAnnotation <-
           stop("annotate CON")
         }
         res <- if (decoys && contaminants) {
-          dplyr::filter(self$row_annot, !self$row_annot$REV & !self$row_annot$CON)
+          dplyr::filter(
+            self$row_annot,
+            !self$row_annot$REV & !self$row_annot$CON
+          )
         } else if (contaminants) {
           dplyr::filter(self$row_annot, !self$row_annot$CON)
         } else if (decoys) {
@@ -316,7 +372,8 @@ ProteinAnnotation <-
       #' filter by number children
       #' @param exp_nr_children minimum number of children required
       filter_by_nr_children = function(exp_nr_children = 2) {
-        res <- self$row_annot |> dplyr::filter(!!sym(self$exp_nr_children) >= exp_nr_children)
+        res <- self$row_annot |>
+          dplyr::filter(!!sym(self$exp_nr_children) >= exp_nr_children)
         res <- res |> dplyr::select(self$pID, self$exp_nr_children)
         return(res)
       }
@@ -341,16 +398,17 @@ ProteinAnnotation <-
 #' # example code
 #'
 build_protein_annot <- function(
-    lfqdata,
-    msdata,
-    idcol = c("protein_Id" = "Protein.Group"),
-    cleaned_protein_id = "Protein.Group.2",
-    protein_description = "fasta.header",
-    exp_nr_children = "nrPeptides",
-    full_id = "fasta.id",
-    more_columns = c("fasta.id"),
-    pattern_contaminants = "^zz|^CON",
-    pattern_decoys = "REV_") {
+  lfqdata,
+  msdata,
+  idcol = c("protein_Id" = "Protein.Group"),
+  cleaned_protein_id = "Protein.Group.2",
+  protein_description = "fasta.header",
+  exp_nr_children = "nrPeptides",
+  full_id = "fasta.id",
+  more_columns = c("fasta.id"),
+  pattern_contaminants = "^zz|^CON",
+  pattern_decoys = "REV_"
+) {
   proteinID_column <- names(idcol)[1]
   msdata <- dplyr::mutate(msdata, !!proteinID_column := !!rlang::sym(idcol))
   length_protIDs <- length(unique(msdata[[proteinID_column]]))
@@ -359,15 +417,25 @@ build_protein_annot <- function(
     dplyr::all_of(unique(c(
       proteinID_column,
       protein_description,
-      cleaned_protein_id, exp_nr_children, full_id, more_columns
+      cleaned_protein_id,
+      exp_nr_children,
+      full_id,
+      more_columns
     )))
   ) |>
     dplyr::distinct()
   stopifnot(length_protIDs == nrow(prot_annot))
-  prot_annot <- dplyr::rename(prot_annot, description = !!rlang::sym(protein_description))
-  prot_annot <- dplyr::rename(prot_annot, IDcolumn = !!rlang::sym(cleaned_protein_id))
+  prot_annot <- dplyr::rename(
+    prot_annot,
+    description = !!rlang::sym(protein_description)
+  )
+  prot_annot <- dplyr::rename(
+    prot_annot,
+    IDcolumn = !!rlang::sym(cleaned_protein_id)
+  )
   protAnnot <- prolfquapp::ProteinAnnotation$new(
-    lfqdata, prot_annot,
+    lfqdata,
+    prot_annot,
     description = "description",
     cleaned_ids = "IDcolumn",
     full_id = full_id,

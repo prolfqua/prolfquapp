@@ -58,8 +58,14 @@ ProteinDataPrep <- R6::R6Class(
       allProt <- nrow(self$rowAnnot$row_annot)
       self$summary <- data.frame(
         totalNrOfProteins = allProt,
-        percentOfContaminants = round(self$rowAnnot$annotate_contaminants() / allProt * 100, digits = 2),
-        percentOfFalsePositives = round(self$rowAnnot$annotate_decoys() / allProt * 100, digits = 2),
+        percentOfContaminants = round(
+          self$rowAnnot$annotate_contaminants() / allProt * 100,
+          digits = 2
+        ),
+        percentOfFalsePositives = round(
+          self$rowAnnot$annotate_decoys() / allProt * 100,
+          digits = 2
+        ),
         NrOfProteinsNoDecoys = self$rowAnnot$nr_clean()
       )
       self$summary
@@ -86,7 +92,10 @@ ProteinDataPrep <- R6::R6Class(
       logger::log_info("AGGREGATING PEPTIDE DATA: {agg_method}.")
       lfqdata_peptide <- self$lfq_data_peptide
 
-      if (length(lfqdata_peptide$config$hierarchy_keys()) == lfqdata_peptide$config$hierarchyDepth) {
+      if (
+        length(lfqdata_peptide$config$hierarchy_keys()) ==
+          lfqdata_peptide$config$hierarchyDepth
+      ) {
         warning("nothing to aggregate from, returning unchanged data.")
         self$lfq_data <- lfqdata_peptide
         return(invisible(self$lfq_data))
@@ -97,7 +106,9 @@ ProteinDataPrep <- R6::R6Class(
         self$aggregator$sum_topN(N = N)
         self$lfq_data <- self$aggregator$lfq_agg
       } else if (agg_method == "lmrob" || agg_method == "medpolish") {
-        transformed_peptide <- lfqdata_peptide$get_Transformer()$intensity_array(log)$lfq
+        transformed_peptide <- lfqdata_peptide$get_Transformer()$intensity_array(
+          log
+        )$lfq
         self$aggregator <- transformed_peptide$get_Aggregator()
 
         if (agg_method == "lmrob") {
@@ -123,7 +134,9 @@ ProteinDataPrep <- R6::R6Class(
     #' Get aggregation plots
     #' @param exp_nr_children minimum number of peptides per protein; default 2
     get_aggregation_plots = function(exp_nr_children = 2) {
-      subset <- self$rowAnnot$filter_by_nr_children(exp_nr_children = exp_nr_children)
+      subset <- self$rowAnnot$filter_by_nr_children(
+        exp_nr_children = exp_nr_children
+      )
       res <- self$aggregator$plot(subset)
       return(res)
     },
@@ -132,7 +145,9 @@ ProteinDataPrep <- R6::R6Class(
     #' Write aggregation plots to file
     #' @param exp_nr_children minimum number of peptides per protein; default 2
     write_aggregation_plots = function(exp_nr_children = 2) {
-      subset <- self$rowAnnot$filter_by_nr_children(exp_nr_children = exp_nr_children)
+      subset <- self$rowAnnot$filter_by_nr_children(
+        exp_nr_children = exp_nr_children
+      )
       self$aggregator$write_plots(self$prolfq_app_config$zipdir, subset)
     },
 
@@ -148,9 +163,16 @@ ProteinDataPrep <- R6::R6Class(
       if (length(self$prolfq_app_config$processing_options$internal) > 0) {
         x <- transformed$hierarchy()
         mm <- colnames(x)[1]
-        x <- x |> dplyr::filter(!!dplyr::sym(mm) %in% self$prolfq_app_config$processing_options$internal)
+        x <- x |>
+          dplyr::filter(
+            !!dplyr::sym(mm) %in%
+              self$prolfq_app_config$processing_options$internal
+          )
         if (nrow(x) == 0) {
-          what <- paste(self$prolfq_app_config$processing_options$internal, collapse = ",")
+          what <- paste(
+            self$prolfq_app_config$processing_options$internal,
+            collapse = ","
+          )
           warning("not in list : ", what)
         } else {
           xs <- transformed$get_subset(x)

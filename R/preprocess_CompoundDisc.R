@@ -1,50 +1,75 @@
-
-
 #' massage CD output compound table.
 #' @param in_file path to Compound Discoverer file or data frame
 #' @param EXCEL if TRUE read Excel format
 #' @export
-massage_CD <- function(in_file, EXCEL = TRUE ){
-
+massage_CD <- function(in_file, EXCEL = TRUE) {
   xd <- if (is.character(in_file) && file.exists(in_file)) {
     readxl::read_excel(in_file)
   } else if (is.data.frame(in_file)) {
     in_file
-  } else { stopifnot("expecting data frame or path got : ", class(in_file))}
+  } else {
+    stopifnot("expecting data frame or path got : ", class(in_file))
+  }
   xd$my_C_ID <- 1:nrow(xd)
 
   if (EXCEL) {
-    annot <- xd |> dplyr::select(
-      "my_C_ID", "Checked","Tags",
-      "description" = "Name","Formula","Annot. Source: Predicted Compositions","Annot. Source: mzCloud Search",
-      "Annot. Source: mzVault Search","Annot. Source: ChemSpider Search","Annot. Source: MassList Search",
-      "Calc. MW", mz = "m/z",RT_min = "RT [min]")
-    columns <- c("Area:","Gap Status:","Gap Fill Status:","Peak Rating:")
+    annot <- xd |>
+      dplyr::select(
+        "my_C_ID",
+        "Checked",
+        "Tags",
+        "description" = "Name",
+        "Formula",
+        "Annot. Source: Predicted Compositions",
+        "Annot. Source: mzCloud Search",
+        "Annot. Source: mzVault Search",
+        "Annot. Source: ChemSpider Search",
+        "Annot. Source: MassList Search",
+        "Calc. MW",
+        mz = "m/z",
+        RT_min = "RT [min]"
+      )
+    columns <- c("Area:", "Gap Status:", "Gap Fill Status:", "Peak Rating:")
     deselect <- NULL
     npatt <- "(.*)\\: (.*)(\\s\\(F\\d+\\))"
   } else {
-
-    annot <- xd |> dplyr::select(dplyr::any_of(c(
-      "my_C_ID", "Checked","Tags",
-      "description" = "Name","Formula","Annot Source Predicted Compositions","Annot Source mzCloud Search",
-      "Annot Source mzVault Search","Annot Source ChemSpider Search","Annot Source MassList Search",
-      "Calc MW","mz",RT_min = "RT in min")))
-    columns <- c("Area","Gap Status","Gap Fill Status","Peak Rating")
+    annot <- xd |>
+      dplyr::select(dplyr::any_of(c(
+        "my_C_ID",
+        "Checked",
+        "Tags",
+        "description" = "Name",
+        "Formula",
+        "Annot Source Predicted Compositions",
+        "Annot Source mzCloud Search",
+        "Annot Source mzVault Search",
+        "Annot Source ChemSpider Search",
+        "Annot Source MassList Search",
+        "Calc MW",
+        "mz",
+        RT_min = "RT in min"
+      )))
+    columns <- c("Area", "Gap Status", "Gap Fill Status", "Peak Rating")
     deselect <- c("Area Max", "Area SD", "Area CV in Percent")
     npatt <- "(.*)\\s(.*)\\s(F\\d+)"
   }
-  colnames(annot) <- gsub("[[:space:].:/]+", "_",colnames(annot))
-  colnames(annot) <- gsub("\\[|\\]","",colnames(annot))
-  annot <- annot |> dplyr::mutate(FormulaB = stringr::str_replace_all(Formula, " ",""))
+  colnames(annot) <- gsub("[[:space:].:/]+", "_", colnames(annot))
+  colnames(annot) <- gsub("\\[|\\]", "", colnames(annot))
+  annot <- annot |>
+    dplyr::mutate(FormulaB = stringr::str_replace_all(Formula, " ", ""))
 
   #annot <- annot |> tidyr::unite("metabolite_feature_Id", c("my_C_ID","FormulaB", "m_z", "RT_min"), sep = "_", remove = FALSE)
 
-  annot <- annot |> tidyr::unite(
-    "metabolite_feature_Id",
-    c("my_C_ID","FormulaB", "mz", "RT_min"), sep = "_", remove = FALSE)
+  annot <- annot |>
+    tidyr::unite(
+      "metabolite_feature_Id",
+      c("my_C_ID", "FormulaB", "mz", "RT_min"),
+      sep = "_",
+      remove = FALSE
+    )
 
-  tolong <- xd |> dplyr::select("my_C_ID",tidyselect::starts_with(columns))
-  if(!is.null(deselect)){
+  tolong <- xd |> dplyr::select("my_C_ID", tidyselect::starts_with(columns))
+  if (!is.null(deselect)) {
     tolong <- dplyr::select(tolong, -all_of(deselect))
   }
   sum(grepl(columns[1], colnames(tolong)))
@@ -52,22 +77,29 @@ massage_CD <- function(in_file, EXCEL = TRUE ){
   sum(grepl(columns[3], colnames(tolong)))
   sum(grepl(columns[4], colnames(tolong)))
 
-  xdl <- tolong |> tidyr::pivot_longer(
-    cols = tidyselect::starts_with(columns),
-    names_to = c(".value","filename","file_id"), names_pattern = npatt )
+  xdl <- tolong |>
+    tidyr::pivot_longer(
+      cols = tidyselect::starts_with(columns),
+      names_to = c(".value", "filename", "file_id"),
+      names_pattern = npatt
+    )
   xdl$`Gap Fill Status` |> table()
 
-  colnames(xdl) <- gsub("# ", "", colnames(xdl) )
-  colnames(xdl) <- gsub("[[:space:]]","_",colnames(xdl))
-  xdl <- xdl |> dplyr::mutate(file_id = gsub(" ","",gsub("\\(|\\)","", file_id)))
+  colnames(xdl) <- gsub("# ", "", colnames(xdl))
+  colnames(xdl) <- gsub("[[:space:]]", "_", colnames(xdl))
+  xdl <- xdl |>
+    dplyr::mutate(file_id = gsub(" ", "", gsub("\\(|\\)", "", file_id)))
 
   # use nr_children to encode gap status.
-  xdl <- xdl |> dplyr::mutate(
-    nr_children = dplyr::case_when(
-      Gap_Status == "Full gap" ~ 0,
-      Gap_Status == "Missing ions" ~ 1,
-      Gap_Status == "No gap" ~ 2,
-      TRUE ~ 3))
+  xdl <- xdl |>
+    dplyr::mutate(
+      nr_children = dplyr::case_when(
+        Gap_Status == "Full gap" ~ 0,
+        Gap_Status == "Missing ions" ~ 1,
+        Gap_Status == "No gap" ~ 2,
+        TRUE ~ 3
+      )
+    )
 
   xdl <- dplyr::inner_join(annot, xdl, by = "my_C_ID")
   return(xdl)
@@ -78,14 +110,18 @@ massage_CD <- function(in_file, EXCEL = TRUE ){
 #' @param annotation list returned by `read_annotation` function
 #' @export
 preprocess_CD <- function(
-    xdl,
-    annotation
-){
+  xdl,
+  annotation
+) {
   annot <- annotation$annot
   nr <- sum(annot$File.Name %in% sort(unique(xdl$filename)))
-  logger::log_info("nr : ", nr, " files annotated out of ", length(unique(xdl$filename)))
-  stopifnot( nr > 0)
-
+  logger::log_info(
+    "nr : ",
+    nr,
+    " files annotated out of ",
+    length(unique(xdl$filename))
+  )
+  stopifnot(nr > 0)
 
   atable <- annotation$atable
   # atable$sampleName = "file_id"
@@ -104,26 +140,29 @@ preprocess_CD <- function(
   lfqdata$remove_small_intensities()
 
   m_annot <- xdl |>
-    dplyr::select("metabolite_feature_Id",
-                  #"Checked",
-                  #"Tags",
-                  #"Structure",
-                  "description","Formula", starts_with("Annot_")) |>
+    dplyr::select(
+      "metabolite_feature_Id",
+      #"Checked",
+      #"Tags",
+      #"Structure",
+      "description",
+      "Formula",
+      starts_with("Annot_")
+    ) |>
     dplyr::distinct()
   # handle not identified
   # m_annot$nr_compounds <- ifelse(m_annot$Checked, 2 ,1)
 
   m_annot <- m_annot |> dplyr::mutate(IDcolumn = metabolite_feature_Id)
   prot_annot <- prolfquapp::ProteinAnnotation$new(
-    lfqdata , m_annot, description = "description",
+    lfqdata,
+    m_annot,
+    description = "description",
     cleaned_ids = "IDcolumn",
     full_id = "IDcolumn",
     exp_nr_children = "nr_compounds",
     pattern_contaminants = NULL,
     pattern_decoys = NULL
   )
-  return(list(lfqdata = lfqdata , protein_annotation = prot_annot))
+  return(list(lfqdata = lfqdata, protein_annotation = prot_annot))
 }
-
-
-

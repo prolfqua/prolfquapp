@@ -35,24 +35,29 @@
 #'
 #'
 plot_abundance_vs_percent <- function(
-    percInfo,
-    cfg_config,
-    top_N = 10,
-    factors = TRUE ,
-    colors = c("^REV_" =  "red",
-               "^CON_" = "orange"),
-    columnAb = "abundance_percent",
-    group = "BB",
-    alpha = 1,
-    logY = TRUE) {
-
+  percInfo,
+  cfg_config,
+  top_N = 10,
+  factors = TRUE,
+  colors = c("^REV_" = "red", "^CON_" = "orange"),
+  columnAb = "abundance_percent",
+  group = "BB",
+  alpha = 1,
+  logY = TRUE
+) {
   protID <- cfg_config$hierarchy_keys_depth()
   #Select relevant columns
   percInfo <- percInfo |>
-    dplyr::select(dplyr::all_of(c(protID,"percent_prot", columnAb, cfg_config$factor_keys_depth())))
+    dplyr::select(dplyr::all_of(c(
+      protID,
+      "percent_prot",
+      columnAb,
+      cfg_config$factor_keys_depth()
+    )))
 
   if (!factors) {
-    percInfo <- percInfo |> dplyr::filter(!!rlang::sym(cfg_config$factor_keys_depth()[1]) == "All")
+    percInfo <- percInfo |>
+      dplyr::filter(!!rlang::sym(cfg_config$factor_keys_depth()[1]) == "All")
   }
   colorV <- rep("black", nrow(percInfo))
 
@@ -61,27 +66,46 @@ plot_abundance_vs_percent <- function(
   }
   percInfo$color <- colorV
 
-
   if (!is.null(top_N)) {
     topN <- percInfo |>
       dplyr::group_by(dplyr::across(cfg_config$factor_keys_depth())) |>
       dplyr::slice_max(order_by = !!rlang::sym(columnAb), n = top_N)
   } else {
-    message("creating shared data with key : ", paste0(" ~ ", protID ))
-    percInfo <- crosstalk::SharedData$new(as.data.frame(percInfo) , key = as.formula(paste(" ~ ", protID)),
-                                          group = group)
+    message("creating shared data with key : ", paste0(" ~ ", protID))
+    percInfo <- crosstalk::SharedData$new(
+      as.data.frame(percInfo),
+      key = as.formula(paste(" ~ ", protID)),
+      group = group
+    )
   }
 
-  myplot <- ggplot(percInfo, aes(x = !!rlang::sym("percent_prot"),
-                            y = !!rlang::sym(columnAb),
-                            label = !!rlang::sym(protID))) +
+  myplot <- ggplot(
+    percInfo,
+    aes(
+      x = !!rlang::sym("percent_prot"),
+      y = !!rlang::sym(columnAb),
+      label = !!rlang::sym(protID)
+    )
+  ) +
     geom_point(color = colorV, alpha = alpha) +
-    facet_wrap(as.formula(paste0(" ~ ", paste(cfg_config$factor_keys_depth(), collapse = " + ")))) + if(logY){ ggplot2::scale_y_log10() } else {NULL}
+    facet_wrap(as.formula(paste0(
+      " ~ ",
+      paste(cfg_config$factor_keys_depth(), collapse = " + ")
+    ))) +
+    if (logY) {
+      ggplot2::scale_y_log10()
+    } else {
+      NULL
+    }
 
-  if (!is.null(top_N) ) {
-    myplot <- myplot + ggrepel::geom_label_repel(
-      data = topN,
-      aes(label = !!rlang::sym(protID)), size = 3, max.overlaps = 100)
+  if (!is.null(top_N)) {
+    myplot <- myplot +
+      ggrepel::geom_label_repel(
+        data = topN,
+        aes(label = !!rlang::sym(protID)),
+        size = 3,
+        max.overlaps = 100
+      )
   }
-  return( myplot)
+  return(myplot)
 }
