@@ -290,7 +290,7 @@ QC_generator <- R6::R6Class(
     #' render sample size QC report
     render_sample_size_QC = function() {
       if (nrow(self$get_prot_data()$factors()) > 1) {
-        file.copy(system.file("application/GenericQC/QCandSSE.Rmd", package = "prolfquapp"),
+        file.copy(system.file("doc/QCandSSE.Rmd", package = "prolfquapp"),
           to = self$output_dir, overwrite = TRUE
         )
         rmarkdown::render(file.path(self$output_dir, "QCandSSE.Rmd"),
