@@ -29,8 +29,4 @@ SummarizedExperiment
 \description{
 Convert prolfqua differential expression analysis results to SummarizedExperiment
 }
-\seealso{
-Other workflow: 
-\code{\link{make_DEA_report}()}
-}
 \concept{workflow}

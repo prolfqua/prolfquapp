@@ -445,3 +445,50 @@ build_protein_annot <- function(
   )
   return(protAnnot)
 }
+
+
+#' Dataset protein annot
+#'
+#' Extracts protein annotation from a data frame, renaming columns and
+#' auto-detecting UniProt identifiers. For new code prefer
+#' \code{\link{build_protein_annot}} which returns a
+#' \code{\link{ProteinAnnotation}} R6 object.
+#'
+#' @export
+#' @param msdata data frame
+#' @param idcol named vector mapping protein ID column
+#' @param protein_annot fasta header column name
+#' @param more_columns more columns to include
+dataset_protein_annot <- function(
+  msdata,
+  idcol = c("protein_Id" = "Protein.Group"),
+  protein_annot = "fasta.header",
+  more_columns = c("nrPeptides", "fasta.id")
+) {
+  proteinID_column <- names(idcol)[1]
+  msdata <- dplyr::rename(msdata, !!proteinID_column := !!rlang::sym(idcol))
+  prot_annot <- dplyr::select(
+    msdata,
+    dplyr::all_of(c(proteinID_column, protein_annot, more_columns))
+  ) |>
+    dplyr::distinct()
+  prot_annot <- dplyr::rename(
+    prot_annot,
+    description = !!rlang::sym(protein_annot)
+  )
+
+  UNIPROT <- mean(grepl("^sp\\||^tr\\|", prot_annot[[proteinID_column]])) > 0.8
+  message("uniprot database : ", UNIPROT)
+
+  if (UNIPROT) {
+    prot_annot <- prolfqua::get_UniprotID_from_fasta_header(
+      prot_annot,
+      idcolumn = proteinID_column
+    )
+    prot_annot <- prot_annot |>
+      dplyr::rename(!!"IDcolumn" := !!rlang::sym("UniprotID"))
+  } else {
+    prot_annot$IDcolumn <- prot_annot[[proteinID_column]]
+  }
+  return(prot_annot)
+}
