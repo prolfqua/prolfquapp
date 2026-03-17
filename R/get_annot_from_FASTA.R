@@ -2,9 +2,7 @@
   # Convert sequence to uppercase
   sequence <- toupper(sequence)
   # Find positions of tryptic sites
-  positions <- stringr::str_locate_all(sequence, pattern)[[1]][, "end"] # gregexpr(pattern, sequence, perl = TRUE)[[1]]
-  # stri_locate_all_regex(sequence, pattern)
-  # cleavage_sites <- unlist(positions)
+  positions <- stringr::str_locate_all(sequence, pattern)[[1]][, "end"]
   return(positions)
 }
 
@@ -195,9 +193,6 @@ get_annot_from_fasta <- function(
       dplyr::mutate(gene_name = extract_GN(.data$fasta.header))
     logger::log_info("get_annot : extracted gene names")
   }
-
-  # remove duplicated id's
-  # fasta_annot <- fasta_annot[!duplicated(fasta_annot$proteinname),]
 
   fasta_annot$protein_length <- vapply(fasta_annot$sequence, nchar, 0)
   logger::log_info("get_annot : protein length")

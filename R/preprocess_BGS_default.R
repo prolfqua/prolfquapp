@@ -155,9 +155,8 @@ preprocess_BGS <- function(
     )
   }
 
-  atable$fileName = "raw.file"
-  #atable$nr_children = "nr_children"
-  atable$ident_qValue = "FG.Qvalue"
+  atable$fileName <- "raw.file"
+  atable$ident_qValue <- "FG.Qvalue"
   atable$hierarchy[["protein_Id"]] <- c("PG.ProteinGroups")
   atable$hierarchy[["peptide_Id"]] <- c("PEP.GroupingKey")
   atable$hierarchy[["elution_group"]] <- c("EG.ModifiedSequence", "FG.Charge")

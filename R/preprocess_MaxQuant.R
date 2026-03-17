@@ -167,7 +167,7 @@ tidyMQ_Evidence <- function(Evidence) {
     dplyr::mutate(
       reverse = dplyr::case_when(reverse == "+" ~ TRUE, TRUE ~ FALSE)
     )
-  res |> dplyr::mutate(raw.file = tolower(.data$raw.file)) -> res
+  res <- res |> dplyr::mutate(raw.file = tolower(.data$raw.file))
   res$proteotypic <- !grepl(";", res$protein.group.id)
   res <- res |>
     tidyr::separate_rows(.data$protein.group.id, sep = ";", convert = TRUE)
@@ -407,8 +407,8 @@ preprocess_MQ_peptide <- function(
   )
 
   peptide$qValue <- 1 - peptide$pep
-  atable$ident_Score = "pep"
-  atable$ident_qValue = "qValue"
+  atable$ident_Score <- "pep"
+  atable$ident_qValue <- "qValue"
   atable$hierarchy[["protein_Id"]] <- c("leading.razor.protein")
   atable$hierarchy[["peptide_Id"]] <- c("sequence")
   atable$set_response("peptide.intensity")

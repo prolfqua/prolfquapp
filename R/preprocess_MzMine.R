@@ -27,7 +27,6 @@ tidy_mzMineFeatures <- function(data) {
 
   xdrop <- x |>
     dplyr::select(
-      #starts_with("alignment_scores"),
       starts_with("ion_identities"),
       starts_with("compound_db_identity"),
       starts_with("lipid_annotations"),
@@ -37,7 +36,6 @@ tidy_mzMineFeatures <- function(data) {
 
   x <- x |>
     dplyr::select(
-      #-starts_with("alignment_scores"),
       -starts_with("ion_identities"),
       -starts_with("compound_db_identity"),
       -starts_with("lipid_annotations"),
@@ -232,7 +230,6 @@ preprocess_mzMine <- function(
     length(unique(xdl$datafile))
   )
   stopifnot(nr > 0)
-  # atable$sampleName = "file_id"
   atable$hierarchy[["metabolite_feature_Id"]] <- c("metabolite_feature_Id")
   atable$set_response("area")
   byv <- c("datafile")
@@ -258,11 +255,8 @@ preprocess_mzMine <- function(
 
   m_annot$exp_children <- 1
   m_annot$nrPeptides <- 1
-  # c("protein_length", "nr_tryptic_peptides")
   m_annot$protein_length <- 1
   m_annot$nr_tryptic_peptides <- 1
-  # handle not identified
-  # m_annot$nr_compounds <- ifelse(m_annot$Checked, 2 ,1)
 
   m_annot <- m_annot |> dplyr::mutate(IDcolumn = metabolite_feature_Id)
   ProteinAnnotation$undebug("initialize")

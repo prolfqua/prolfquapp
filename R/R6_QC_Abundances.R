@@ -424,7 +424,6 @@ QC_generator <- R6::R6Class(
       )
 
       cat(str, file = file.path(self$output_dir, "index.html"), sep = "\n")
-      # self$links[["INDEX"]] = file.path(self$output_dir, "index.html")
     },
     #' @description
     #' render index markdown file

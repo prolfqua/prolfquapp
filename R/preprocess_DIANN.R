@@ -54,9 +54,6 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05) {
 #' @export
 #'
 diann_output_to_peptide <- function(report2) {
-  # columns_to_summarize <- c("Precursor.Quantity", "Precursor.Normalised", "PEP", "Ms1.Translated")
-  # if(all(c("Ms1.Translated", "Peptide.Translated")
-  # Suggested fix in prolfquapp
   pg_quantity_col <- if ("PG.Quantity" %in% names(report2)) {
     "PG.Quantity"
   } else if ("PG.MaxLFQ" %in% names(report2)) {
@@ -77,8 +74,6 @@ diann_output_to_peptide <- function(report2) {
     dplyr::summarize(
       Peptide.Quantity = sum(.data$Precursor.Quantity, na.rm = TRUE),
       Peptide.Normalised = sum(.data$Precursor.Normalised, na.rm = TRUE),
-      # Peptide.Translated = sum(.data$Precursor.Translated, na.rm = TRUE),
-      # Peptide.Ms1.Translated = sum(.data$Ms1.Translated, na.rm = TRUE),
       PEP = min(.data$PEP, na.rm = TRUE),
       nr_children = n(),
       .groups = "drop"

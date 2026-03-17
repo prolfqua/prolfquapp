@@ -58,8 +58,6 @@ massage_CD <- function(in_file, EXCEL = TRUE) {
   annot <- annot |>
     dplyr::mutate(FormulaB = stringr::str_replace_all(Formula, " ", ""))
 
-  #annot <- annot |> tidyr::unite("metabolite_feature_Id", c("my_C_ID","FormulaB", "m_z", "RT_min"), sep = "_", remove = FALSE)
-
   annot <- annot |>
     tidyr::unite(
       "metabolite_feature_Id",
@@ -124,11 +122,10 @@ preprocess_CD <- function(
   stopifnot(nr > 0)
 
   atable <- annotation$atable
-  # atable$sampleName = "file_id"
   atable$hierarchy[["metabolite_feature_Id"]] <- c("metabolite_feature_Id")
   atable$set_response("Area")
-  atable$opt_rt = "RT_min"
-  atable$opt_mz = "mz"
+  atable$opt_rt <- "RT_min"
+  atable$opt_mz <- "mz"
   byv <- c("filename")
   names(byv) <- atable$fileName
   byv <- c(byv, intersect(colnames(annot), colnames(xdl)))
@@ -142,16 +139,11 @@ preprocess_CD <- function(
   m_annot <- xdl |>
     dplyr::select(
       "metabolite_feature_Id",
-      #"Checked",
-      #"Tags",
-      #"Structure",
       "description",
       "Formula",
       starts_with("Annot_")
     ) |>
     dplyr::distinct()
-  # handle not identified
-  # m_annot$nr_compounds <- ifelse(m_annot$Checked, 2 ,1)
 
   m_annot <- m_annot |> dplyr::mutate(IDcolumn = metabolite_feature_Id)
   prot_annot <- prolfquapp::ProteinAnnotation$new(

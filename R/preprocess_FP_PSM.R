@@ -135,7 +135,7 @@ tidy_FragPipe_combined_protein <- function(
     "MaxLFQ Razor Intensity"
   )
 ) {
-  protIDcol = "Protein"
+  protIDcol <- "Protein"
   if (is.character(combprot) && file.exists(combprot)) {
     Cprotein <- tibble::as_tibble(
       read.csv(
@@ -557,8 +557,8 @@ preprocess_FP_PSM <- function(
     )
   )
 
-  atable$ident_Score = "Probability"
-  atable$ident_qValue = "qValue"
+  atable$ident_Score <- "Probability"
+  atable$ident_qValue <- "qValue"
   atable$hierarchy[["protein_Id"]] <- c("Protein")
   atable$hierarchy[["peptide_Id"]] <- c("Peptide")
   atable$hierarchy[["mod_peptide_Id"]] <- c(
