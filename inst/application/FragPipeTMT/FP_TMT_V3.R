@@ -1,10 +1,10 @@
 prolfquapp::copy_DEA_DIANN()
 
-path = "."
+path <- "."
 ymlfile <- file.path(path,"config.yaml")
 GRP2 <- prolfquapp::read_BF_yamlR6(ymlfile, application = "DIANN")
 
-dsf = file.path(path,"dataset.csv")
+dsf <- file.path(path, "dataset.csv")
 dsf <- readr::read_csv(dsf)
 annotation <- read_annotation(dsf)
 

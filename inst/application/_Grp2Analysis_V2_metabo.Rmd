@@ -113,7 +113,10 @@ fx <- dplyr::left_join(fx,xx, by = ld$config$sampleName)
 fx <- dplyr::left_join(fx,x2, by = ld$config$sampleName)
 
 
-knitr::kable(fx, caption = "LC-MS samples annotation table. The content of the sampleName column is used as a short form to plot labels. The group to which a sample is assigned to is shown in the column group.")
+knitr::kable(fx, caption = paste0(
+  "LC-MS samples annotation table. The content of the sampleName column ",
+  "is used as a short form to plot labels. The group to which a sample ",
+  "is assigned to is shown in the column group."))
 
 ```
 
@@ -206,13 +209,22 @@ The density plot (Figure \@ref(fig:normalized) left panel)  displays the metabol
 
 ```{r normalization, results = 'asis'}
 if (grp2$processing_options$transform == "robscale") {
-  cat("To do this the z-score of the $\\log_2$ transformed metabolite abundances are computed.",
-      "Because we need to estimate the metabolite differences on the original scale, we have to multiply the $z$-score by the average standard deviation of all the $N$ samples in the experiment.",
-  "After normalization all samples have an equal mean and variance and a similar distribution.")
+  cat(
+    "To do this the z-score of the $\\log_2$ transformed metabolite",
+    "abundances are computed.",
+    "Because we need to estimate the metabolite differences on the",
+    "original scale, we have to multiply the $z$-score by the average",
+    "standard deviation of all the $N$ samples in the experiment.",
+    "After normalization all samples have an equal mean and variance",
+    "and a similar distribution.")
 } else if (grp2$processing_options$transform == "vsn") {
   cat("To do this the variance stabilizing normalization (vsn) was applied [@HuberVSN2002].")
 } else if (grp2$processing_options$transform == "none") {
-  cat("However, in some circumstances it is advisable not to normalize the data, e.g. in case of targeted metabolomics experiments, or when the requirements of sufficient similarity among samples are not met.")
+  cat(
+    "However, in some circumstances it is advisable not to normalize",
+    "the data, e.g. in case of targeted metabolomics experiments,",
+    "or when the requirements of sufficient similarity among samples",
+    "are not met.")
 }
 
 ```
@@ -255,7 +267,7 @@ resR <- stR$stats_quantiles()
 C <- dplyr::bind_rows(CV = resR$wide  |> dplyr::filter(probs == 0.5) |> round(digits = 2))
 C <- C |> dplyr::mutate( what = c("CV"), .before = 1 )
 C$probs <- NULL
-knitr::kable(C, caption = 'Median of coefficient of variation (CV).')
+knitr::kable(C, caption = "Median of coefficient of variation (CV).")
 
 ```
 
@@ -353,7 +365,7 @@ DT::datatable(bb, filter = "bottom",
                  scrollY = 300,
                  scrollX = 400,
                  scroller = TRUE) ) |>
-  DT::formatRound(columns = c('FDR', 'diff'), digits = 3)
+  DT::formatRound(columns = c("FDR", "diff"), digits = 3)
 
 ```
 
@@ -389,9 +401,16 @@ Here we use the FDR threshold of `r grp2$processing_options$FDR_threshold` and a
 
 ```{r nrsignificant, results="markup", eval=TRUE}
 library(dplyr)
-mx <- datax |> dplyr::mutate(passes = abs(diff) >  grp2$processing_options$diff_threshold  & FDR < grp2$processing_options$FDR_threshold)
-x <- mx |> dplyr::group_by(contrast) |> 
-  summarize(n = n(), Significant = sum(passes, na.rm = TRUE), "Not Significant" = n() - sum(passes, na.rm = TRUE))
+mx <- datax |>
+  dplyr::mutate(
+    passes = abs(diff) > grp2$processing_options$diff_threshold &
+      FDR < grp2$processing_options$FDR_threshold)
+x <- mx |>
+  dplyr::group_by(contrast) |>
+  summarize(
+    n = n(),
+    Significant = sum(passes, na.rm = TRUE),
+    "Not Significant" = n() - sum(passes, na.rm = TRUE))
 
 mycap <- paste0("Number of not significant and significant metabolites."  )
 knitr::kable(x, caption = mycap)
@@ -419,7 +438,11 @@ cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant met
 
 ```{r SigPrey, fig.cap= "(ref:SigPrey)",fig.alt="", eval = showSignificant}
 ctdata <- datax_signif |> tidyr::unite("ID", tidyselect::all_of(hkey), sep = "~")
-ctdata <- ctdata |> dplyr::select(tidyselect::all_of(c("ID" ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
+ctdata <- ctdata |>
+  dplyr::select(tidyselect::all_of(c(
+    "ID", "description", "contrast",
+    "modelName", "diff", "FDR"))) |>
+  as.data.frame()
 
 sig <- crosstalk::SharedData$new(ctdata,  as.formula( "~ ID"), group = "BB")
 DT::datatable(sig, filter = "bottom",
@@ -430,7 +453,7 @@ DT::datatable(sig, filter = "bottom",
                  scrollY = 300,
                  scrollX = 400,
                  scroller = TRUE) ) |> 
-  DT::formatRound(columns = c('FDR', 'diff'), digits = 3)
+  DT::formatRound(columns = c("FDR", "diff"), digits = 3)
 ```
 
 
@@ -451,7 +474,10 @@ sigheat <- signif$get_Plotter()$raster(rownames = rownames)
 
 ```{r makeText, eval = showSignificant, results = 'asis'}
 
-cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 transformed metabolite abundances of all significant calls."))
+cat(paste(
+  "Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap",
+  "of log2 transformed metabolite abundances of all",
+  "significant calls."))
 
 ```
 

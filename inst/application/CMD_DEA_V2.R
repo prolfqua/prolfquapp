@@ -64,7 +64,6 @@ parser <- optparse::OptionParser(
 
 if (length(commandArgs(TRUE)) == 0) {
   optparse::print_help(parser)
-  # quit(status = 1)
 }
 
 arguments <- optparse::parse_args(parser, positional_arguments = TRUE)

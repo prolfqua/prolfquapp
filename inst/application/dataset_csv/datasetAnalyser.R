@@ -12,7 +12,7 @@ for (i in seq_along(files)) {
 
 for (i in seq_along(res)) {
   atable <- prolfqua::AnalysisConfiguration$new()
-  atable$fileName = "channel"
+  atable$fileName <- "channel"
   atable$hierarchy[["protein_Id"]] <- c("Protein")
   atable$hierarchy[["peptide_Id"]] <- c("Peptide")
   tmp <- prolfquapp::dataset_set_factors(atable, res[[i]])

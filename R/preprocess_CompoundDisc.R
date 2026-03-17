@@ -10,7 +10,7 @@ massage_CD <- function(in_file, EXCEL = TRUE) {
   } else {
     stopifnot("expecting data frame or path got : ", class(in_file))
   }
-  xd$my_C_ID <- 1:nrow(xd)
+  xd$my_C_ID <- seq_len(nrow(xd))
 
   if (EXCEL) {
     annot <- xd |>

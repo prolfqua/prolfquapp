@@ -90,7 +90,6 @@ psmFuLL <- readr::read_tsv(unz(pathtoZip,filename =  fpsm))
 xx <- readr::read_tsv(unz(pathtoZip,filename =  fpsm))
 nrSpectraAll <- xx$Spectrum |> unique() |> length()
 
-#debug(prolfquapp::tidy_FragPipe_psm)
 
 psm <- prolfquapp::tidy_FragPipe_psm(unz(pathtoZip,filename =  fpsm),
                                    purity_threshold = 0,
@@ -124,12 +123,12 @@ prot_annot <- prolfquapp::dataset_protein_annot(
 psm$qValue <- 1 - psm$Probability
 
 atable <- prolfqua::AnalysisTableAnnotation$new()
-atable$ident_Score = "Probability"
-atable$ident_qValue = "qValue"
-atable$fileName = "channel"
+atable$ident_Score <- "Probability"
+atable$ident_qValue <- "qValue"
+atable$fileName <- "channel"
 
-atable$opt_rt = "Retention"
-atable$opt_mz = "psmcharge"
+atable$opt_rt <- "Retention"
+atable$opt_mz <- "psmcharge"
 
 atable$hierarchy[["protein_Id"]] <- c("Protein")
 atable$hierarchy[["peptide_Id"]] <- c("Peptide")
@@ -247,7 +246,10 @@ xN <- allmods |> dplyr::select(.data$modSeq, .data$n, .data$n1) |> dplyr::distin
 nrK <-  xN |> dplyr::mutate(nrK = stringr::str_count(modSeq,"K"))
 
 nrKmod <- allmods |> dplyr::filter(Modification == "K(229.1629)" | Modification == "K(304.2071)")
-nrKmod <- nrKmod |> dplyr::group_by(.data$modSeq , n , n1) |> dplyr::summarize(nrKmod = dplyr::n(), .groups="drop") |> dplyr::ungroup()
+nrKmod <- nrKmod |>
+  dplyr::group_by(.data$modSeq, n, n1) |>
+  dplyr::summarize(nrKmod = dplyr::n(), .groups = "drop") |>
+  dplyr::ungroup()
 
 nrLys <- (nrK$nrK * nrK$n1) |> sum()
 nrLysMod <- (nrKmod$nrKmod * nrKmod$n1) |> sum()
@@ -270,8 +272,11 @@ prcLysMod <- round( ( (nrKmod$nrKmod * nrKmod$n1) |> sum()) / ((nrK$nrK * nrK$n1
 ```{r totalQuant, fig.cap = "Total abundance per channel (Sum of all abundances)."}
 
 xx <- lfqdata$data
-totalPerChannel <- xx |> dplyr::group_by(!!rlang::sym(lfqdata$config$table$sampleName) ) |>
-  dplyr::summarize(totalAbundance = sum(!!rlang::sym(lfqdata$response()), na.rm = TRUE))
+totalPerChannel <- xx |>
+  dplyr::group_by(!!rlang::sym(lfqdata$config$table$sampleName)) |>
+  dplyr::summarize(
+    totalAbundance = sum(!!rlang::sym(lfqdata$response()), na.rm = TRUE)
+  )
 
 totalPerChannel |> ggplot2::ggplot(ggplot2::aes(x = sampleName, y = totalAbundance)) + 
   ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black", fill = "white") + 
@@ -280,7 +285,7 @@ totalPerChannel |> ggplot2::ggplot(ggplot2::aes(x = sampleName, y = totalAbundan
 ```
 
 ```{r relativeQuant, fig.cap = "Ralative to chanell 126 total abundance per chanel."}
-nudgeval = 0.1
+nudgeval <- 0.1
 p126 <- totalPerChannel |> dplyr::filter(grepl("126",sampleName) )
 totalPerChannel$norm126abundance <- totalPerChannel$totalAbundance / p126$totalAbundance
 totalPerChannel |> ggplot2::ggplot(ggplot2::aes(x = sampleName, y = norm126abundance)) + 
@@ -308,7 +313,10 @@ We compute the total number of K residues, and the number of K cleavage sites (n
 
 ```{r missedAtLysine}
 modSeqD <- allmods |> dplyr::select(modSeq, n) |> dplyr::distinct() 
-patterns <- list(R = "K", termR = "K$", termRmod = "K\\[[0-9]+\\]$", termR_termRmod = "K$|K\\[[0-9]+\\]$", Rmod = "K\\[[0-9]+\\]")
+patterns <- list(
+  R = "K", termR = "K$", termRmod = "K\\[[0-9]+\\]$",
+  termR_termRmod = "K$|K\\[[0-9]+\\]$", Rmod = "K\\[[0-9]+\\]"
+)
 modSeqD$n1 <- 1
 
 
@@ -332,7 +340,10 @@ r <- lapply(patterns, match_count, modSeqD, count_col = "n")
 ## Missed Arginine residues
 
 ```{r missedAtArginine}
-patterns <- list(R = "R", termR = "R$", termRmod = "R\\[[0-9]+\\]$", termR_termRmod = "R$|R\\[[0-9]+\\]$", Rmod = "R\\[[0-9]+\\]")
+patterns <- list(
+  R = "R", termR = "R$", termRmod = "R\\[[0-9]+\\]$",
+  termR_termRmod = "R$|R\\[[0-9]+\\]$", Rmod = "R\\[[0-9]+\\]"
+)
 modSeqD$n1 <- 1
 r <- lapply(patterns, match_count, modSeqD, count_col = "n")
 

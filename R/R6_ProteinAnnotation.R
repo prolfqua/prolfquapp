@@ -76,7 +76,7 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE) {
   # Sample protein lengths from a log-normal distribution
   protein_lengths <- rlnorm(Nprot, meanlog = log(400), sdlog = 0.8)
   protein_lengths <- round(pmax(50, protein_lengths)) # Ensure minimum length of 50 AA
-  nr_pep <- round(protein_lengths / 20)
+  nr_pep <- round(protein_lengths / 20) # nolint object_usage_linter. example code
 
   pannot <- ProteinAnnotation$new(
     lfqdata,
@@ -194,7 +194,8 @@ ProteinAnnotation <-
       pattern_decoys = character(),
       #' @description initialize
       #' @param lfqdata data frame from \code{\link[prolfqua]{setup_analysis}}
-      #' @param row_annot data frame with row annotation. Must have columns matching \code{config$hierarchy_keys_depth()}
+      #' @param row_annot data frame with row annotation.
+      #'   Must have columns matching \code{config$hierarchy_keys_depth()}
       #' @param description name of column with description
       #' @param cleaned_ids names of columns with cleaned Ids
       #' @param full_id column with full protein ID

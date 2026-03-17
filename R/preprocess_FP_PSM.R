@@ -363,7 +363,9 @@ tidy_FragPipe_psm_V2 <- function(
 #' @param purity_threshold purity threshold default = 0.5
 #' @param PeptideProphetProb default 0.9
 #' @param abundance_threshold minimum abundance threshold
-#' @param column_before_quants describes the last column before the quantitative values (this is not consistent with in different versions of FP, default "Quan Usage"
+#' @param column_before_quants describes the last column before the
+#'   quantitative values (not consistent across FP versions),
+#'   default "Quan Usage"
 #' @param aggregate aggregate spectra to psm level
 tidy_FragPipe_psm <- function(
   psm_files,

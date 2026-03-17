@@ -1,4 +1,6 @@
-#' transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)
+#' Transform lfq data using robscale, vsn or log2
+#'
+#' Assumes that data is not transformed (still needs log2 transformation)
 #'
 #' @param lfqdata \code{\link[prolfqua]{LFQData}}
 #' @param method normalization method to use

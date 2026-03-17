@@ -2,7 +2,7 @@
 % Please edit documentation in R/transform_lfqdata.R
 \name{transform_lfqdata}
 \alias{transform_lfqdata}
-\title{transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)}
+\title{Transform lfq data using robscale, vsn or log2}
 \usage{
 transform_lfqdata(lfqdata, method = c("robscale", "vsn", "none", "log2"))
 }
@@ -12,7 +12,7 @@ transform_lfqdata(lfqdata, method = c("robscale", "vsn", "none", "log2"))
 \item{method}{normalization method to use}
 }
 \description{
-transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)
+Assumes that data is not transformed (still needs log2 transformation)
 }
 \examples{
 istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()

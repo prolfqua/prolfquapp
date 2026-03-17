@@ -18,7 +18,7 @@ writeLinesPaired <- function(bb, outpath) {
     dplyr::ungroup() |>
     dplyr::group_by(!!!rlang::syms(bb$config$hierarchy_keys())) |>
     tidyr::nest()
-  tr <- nested$data[[1]]
+  tr <- nested$data[[1]] # nolint object_usage_linter. used inside plotL
   plotL <- function(tr, pid) {
     ggplot2::ggplot(
       tr,

@@ -63,8 +63,6 @@ parser <- optparse::OptionParser(
 arguments <- optparse::parse_args(parser, positional_arguments = TRUE)
 
 
-#parser <- OptionParser(usage = "%prog [options] file", option_list = option_list)
-#arguments <- parse_args(parser, args = "test.yml", positional_arguments = TRUE)
 lobstr::tree(arguments)
 
 

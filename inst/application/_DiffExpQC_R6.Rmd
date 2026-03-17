@@ -87,7 +87,10 @@ lfqData <- dea$lfq_data
 tr <- lfqData$get_Transformer()
 tmp <- tr$log2()$lfq
 stback <- tmp$get_Stats()
-pB <- stback$violin() + ggplot2::theme_classic() + ggplot2::labs(tag = "B") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+pB <- stback$violin() +
+  ggplot2::theme_classic() +
+  ggplot2::labs(tag = "B") +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
 gridExtra::grid.arrange(pA, pB, pC, nrow = 1)
 
@@ -109,7 +112,7 @@ sd = res$wide |> dplyr::filter(probs == 0.5)  |> round(digits = 2)
 C <- C |> dplyr::mutate( what = c("CV","sd_log2","sd"), .before = 1 )
 
 C$probs <- NULL
-knitr::kable(C, caption = 'Median (prob 0.5) of coefficient of variation (CV) and standard deviation (sd)')
+knitr::kable(C, caption = "Median (prob 0.5) of coefficient of variation (CV) and standard deviation (sd)")
 
 ```
 
@@ -123,7 +126,9 @@ The bottom panel in Figure \@ref(fig:densityOFFoldChanges) shows the distributio
 (ref:densityOFFoldChanges) Top : distribution of the differences among groups for all the proteins in the dataset. red dotted line - median fold change, green line - expected value of the median fold change. Bottom - histogram of p-values for all the proteins in the dataset. X-axis - p-values, Y-axis - frequency of p-values.
 
 ```{r densityOFFoldChanges, fig.width=8, fig.height=4, dpi=300, fig.cap = "(ref:densityOFFoldChanges)", fig.alt=""}
-cpl <- dea$contrast_results[[dea$default_model]]$get_Plotter(FCthreshold = cfg$processing_options$diff_threshold, FDRthreshold = cfg$processing_options$FDR_threshold)
+cpl <- dea$contrast_results[[dea$default_model]]$get_Plotter(
+  FCthreshold = cfg$processing_options$diff_threshold,
+  FDRthreshold = cfg$processing_options$FDR_threshold)
 p1 <- cpl$histogram_diff() + ggplot2::labs(tag = "A")
 p2 <- cpl$histogram()$p.value  + ggplot2::labs(tag = "B")
 gridExtra::grid.arrange(p1,p2)

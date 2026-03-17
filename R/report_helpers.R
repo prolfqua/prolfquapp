@@ -100,7 +100,7 @@ make_SummarizedExperiment <- function(
   if (is.null(rowname)) {
     rowname <- GRP2$RES$lfqData$config$hierarchyKeys()
   }
-  resTables <- prep_result_list(GRP2)
+  resTables <- prep_result_list(GRP2) # nolint object_usage_linter. legacy standalone function
   matTr <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
   matRaw <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
 
@@ -144,19 +144,30 @@ make_SummarizedExperiment <- function(
 }
 
 
+.base_dir <- paste0(
+  "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/",
+  "Results_WU_total_proteome"
+)
 .test_links <- list(
-  dea_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/DE_WUtotal_proteome.html",
-  qc_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/QC_WUtotal_proteome.html",
+  dea_file = file.path(.base_dir, "DE_WUtotal_proteome.html"),
+  qc_file = file.path(.base_dir, "QC_WUtotal_proteome.html"),
   data_files = list(
-    xlsx_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/DE_WUtotal_proteome.xlsx",
+    xlsx_file = file.path(.base_dir, "DE_WUtotal_proteome.xlsx"),
     ora_files = list(
-      ORA_Treated_vs_Control_down_WUtotal_proteome.txt = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/ORA_Treated_vs_Control_down_WUtotal_proteome.txt",
-      ORA_Treated_vs_Control_up_WUtotal_proteome.txt = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/ORA_Treated_vs_Control_up_WUtotal_proteome.txt"
+      ORA_Treated_vs_Control_down_WUtotal_proteome.txt = file.path(
+        .base_dir, "ORA_Treated_vs_Control_down_WUtotal_proteome.txt"
+      ),
+      ORA_Treated_vs_Control_up_WUtotal_proteome.txt = file.path(
+        .base_dir, "ORA_Treated_vs_Control_up_WUtotal_proteome.txt"
+      )
     ),
     gsea_files = list(
-      `GSEA_Treated_vs_Control_WUtotal_proteome.rnk` = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/GSEA_Treated_vs_Control_WUtotal_proteome.rnk"
+      `GSEA_Treated_vs_Control_WUtotal_proteome.rnk` = file.path(
+        .base_dir,
+        "GSEA_Treated_vs_Control_WUtotal_proteome.rnk"
+      )
     ),
-    ibaq_file = "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome/IBAQ_total_proteome.xlsx"
+    ibaq_file = file.path(.base_dir, "IBAQ_total_proteome.xlsx")
   )
 )
 
@@ -280,8 +291,16 @@ write_index_html <- function(file_path_list, result_dir) {
       version
     ),
     "    <p><strong>Publications (please cite):</strong></p>",
-    "    <p><a href=\"https://doi.org/10.1021/acs.jproteome.2c00441\" target=\"_blank\">prolfqua - Wolski et al., J Proteome Res. 2023;22(4):1092-1104</a></p>",
-    "    <p><a href=\"https://doi.org/10.1021/acs.jproteome.4c00911\" target=\"_blank\">prolfquapp - Wolski et al., J Proteome Res. 2025;24(2):955-965</a></p>",
+    paste0(
+      "    <p><a href=\"https://doi.org/10.1021/acs.jproteome.2c00441\"",
+      " target=\"_blank\">prolfqua - Wolski et al.,",
+      " J Proteome Res. 2023;22(4):1092-1104</a></p>"
+    ),
+    paste0(
+      "    <p><a href=\"https://doi.org/10.1021/acs.jproteome.4c00911\"",
+      " target=\"_blank\">prolfquapp - Wolski et al.,",
+      " J Proteome Res. 2025;24(2):955-965</a></p>"
+    ),
     "  </div>",
     "</body>",
     "</html>"

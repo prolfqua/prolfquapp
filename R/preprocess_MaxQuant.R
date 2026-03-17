@@ -209,7 +209,7 @@ tidyMQ_Peptides <- function(MQPeptides, proteotypic_only = TRUE) {
     }
   }
   colnames(MQPeptides) <- tolower(colnames(MQPeptides))
-  sc <- sym("potential.contaminant")
+  sc <- sym("potential.contaminant") # nolint object_usage_linter. used via !!sc
   meta <- dplyr::select(
     MQPeptides,
     "peptide.id" = "id",

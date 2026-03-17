@@ -483,8 +483,8 @@ AnnotationProcessor <- R6::R6Class(
       Names <- character()
       ## Generate contrasts from dataset
       if (!is.null(levels$control)) {
-        for (i in 1:nrow(levels)) {
-          for (j in 1:nrow(levels)) {
+        for (i in seq_len(nrow(levels))) {
+          for (j in seq_len(nrow(levels))) {
             if (i != j && levels$control[j] == "C") {
               cat(levels[[self$prefix]][i], levels[[self$prefix]][j], "\n")
               Contrasts <- c(

@@ -47,7 +47,7 @@ srs$plot_hierarchy_counts_sample()
 ```
 
 ```{r createPlot}
-protID = tableconfig$hierarchy_keys_depth()
+protID <- tableconfig$hierarchy_keys_depth()
 
 precabund <- pap$get_protein_per_group_abundance()
 if (!factors) {
@@ -70,7 +70,10 @@ pp <- plotly::ggplotly(pp)
 
 ```{r createDT}
 precabund_table <- pap$get_protein_per_group_small_wide()
-datax <- crosstalk::SharedData$new(as.data.frame(precabund_table) , key = as.formula(paste(" ~ ", protID )), group = "BB")
+datax <- crosstalk::SharedData$new(
+  as.data.frame(precabund_table),
+  key = as.formula(paste(" ~ ", protID)),
+  group = "BB")
 
 table <- DT::datatable(
   datax,
@@ -120,7 +123,7 @@ pp
 precabund <- pap$get_protein_per_group_abundance_with_row_annot()
 datax <- crosstalk::SharedData$new(as.data.frame(precabund) , key = as.formula(paste(" ~ ", protID )), group = "BB")
 
-colors = c("^zz" = "red", "Y-FGCZ" = "red")
+colors <- c("^zz" = "red", "Y-FGCZ" = "red")
 colorV <- rep("black", nrow(precabund))
 for (i in seq_along(colors)) {
   colorV[grepl(names(colors)[i], precabund[[protID]])] <- colors[i]
@@ -129,8 +132,8 @@ group <- tableconfig$factor_keys_depth()
 pplotPepAbund <- ggplot(datax,
                         aes(x = nrPeptides, y = meanAbundance,
                             label = !!rlang::sym(protID))) + geom_point(color = colorV, alpha = 0.4) +
-  ggplot2::scale_y_continuous(trans = 'log10') +
-  ggplot2::scale_x_continuous(trans = 'log10') +
+  ggplot2::scale_y_continuous(trans = "log10") +
+  ggplot2::scale_x_continuous(trans = "log10") +
   if (factors) {facet_wrap(as.formula(paste0("~", paste(group, collapse = " + "))))}
 
 pplotPepAbund <- plotly::ggplotly(pplotPepAbund)

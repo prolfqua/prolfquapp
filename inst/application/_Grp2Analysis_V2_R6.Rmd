@@ -114,7 +114,10 @@ fx <- dplyr::left_join(fx,xx, by = ld$config$sampleName)
 fx <- dplyr::left_join(fx,x2, by = ld$config$sampleName)
 
 
-knitr::kable(fx, caption = "LC-MS samples annotation table. The content of the sampleName column is used as a short form to plot labels. The group to which a sample is assigned is shown in the column group.")
+knitr::kable(fx, caption = paste0(
+  "LC-MS samples annotation table. The content of the sampleName column ",
+  "is used as a short form to plot labels. The group to which a sample ",
+  "is assigned is shown in the column group."))
 
 ```
 
@@ -198,13 +201,22 @@ The density plot (Figure \@ref(fig:normalized) left panel)  displays the protein
 
 ```{r normalization, results = 'asis'}
 if (cfg$processing_options$transform == "robscale") {
-  cat("To do this the z-score of the $\\log_2$ transformed protein abundances are computed.",
-      "Because we need to estimate the protein differences on the original scale, we have to multiply the $z$-score by the average standard deviation of all the $N$ samples in the experiment.",
-  "After normalization all samples have an equal mean and variance and a similar distribution.")
+  cat(
+    "To do this the z-score of the $\\log_2$ transformed protein",
+    "abundances are computed.",
+    "Because we need to estimate the protein differences on the",
+    "original scale, we have to multiply the $z$-score by the average",
+    "standard deviation of all the $N$ samples in the experiment.",
+    "After normalization all samples have an equal mean and variance",
+    "and a similar distribution.")
 } else if (cfg$processing_options$transform == "vsn") {
   cat("To do this the variance stabilizing normalization (vsn) was applied [@HuberVSN2002].")
 } else if (cfg$processing_options$transform == "none") {
-  cat("However, in some circumstances it is advisable not to normalize the data, e.g. in case of affinity purification experiments, or when the requirements of sufficient similarity among samples are not met.")
+  cat(
+    "However, in some circumstances it is advisable not to normalize",
+    "the data, e.g. in case of affinity purification experiments,",
+    "or when the requirements of sufficient similarity among samples",
+    "are not met.")
 }
 
 ```
@@ -232,7 +244,9 @@ if (length(internal_ids) > 0 && !all(is.na(internal_ids)) && !all(internal_ids =
   cat("In addition to the global normalization described above, **internal standard normalization** was applied.")
   cat(" The following protein(s) were used as internal reference standard(s):\n\n")
   cat(paste0("- `", internal_ids, "`", collapse = "\n"), "\n\n")
-  cat("After transformation, the per-sample intensity of each reference protein was subtracted from all proteins in that sample (`center_to_reference`). ")
+  cat("After transformation, the per-sample intensity of each reference",
+    "protein was subtracted from all proteins in that sample",
+    "(`center_to_reference`). ")
   cat("As a result, the reference protein(s) have an abundance of exactly 0 in the normalized data, ")
   cat("and all other protein abundances are expressed relative to the reference.\n\n")
 }
@@ -259,7 +273,7 @@ resR <- stR$stats_quantiles()
 C <- dplyr::bind_rows(CV = resR$wide  |> dplyr::filter(probs == 0.5) |> round(digits = 2))
 C <- C |> dplyr::mutate( what = c("CV"), .before = 1 )
 C$probs <- NULL
-knitr::kable(C, caption = 'Median of coefficient of variation (CV).')
+knitr::kable(C, caption = "Median of coefficient of variation (CV).")
 
 ```
 
@@ -357,7 +371,7 @@ DT::datatable(bb, filter = "bottom",
                  scrollY = 300,
                  scrollX = 400,
                  scroller = TRUE) ) |>
-  DT::formatRound(columns = c('FDR', 'diff'), digits = 3)
+  DT::formatRound(columns = c("FDR", "diff"), digits = 3)
 
 ```
 
@@ -393,9 +407,16 @@ Here we use the FDR threshold of `r cfg$processing_options$FDR_threshold` and a 
 
 ```{r nrsignificant, results="markup", eval=TRUE}
 library(dplyr)
-mx <- datax |> dplyr::mutate(passes = abs(diff) >  cfg$processing_options$diff_threshold  & FDR < cfg$processing_options$FDR_threshold)
-x <- mx |> dplyr::group_by(contrast) |>
-  summarize(n = n(), Significant = sum(passes, na.rm = TRUE), "Not Significant" = n() - sum(passes, na.rm = TRUE))
+mx <- datax |>
+  dplyr::mutate(
+    passes = abs(diff) > cfg$processing_options$diff_threshold &
+      FDR < cfg$processing_options$FDR_threshold)
+x <- mx |>
+  dplyr::group_by(contrast) |>
+  summarize(
+    n = n(),
+    Significant = sum(passes, na.rm = TRUE),
+    "Not Significant" = n() - sum(passes, na.rm = TRUE))
 
 mycap <- paste0("Number of not significant and significant proteins."  )
 knitr::kable(x, caption = mycap)
@@ -423,7 +444,11 @@ cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant pro
 
 ```{r SigPrey, fig.cap= "(ref:SigPrey)",fig.alt="", eval = showSignificant}
 ctdata <- datax_signif |> tidyr::unite("ID", tidyselect::all_of(hkey), sep = "~")
-ctdata <- ctdata |> dplyr::select(tidyselect::all_of(c("ID" ,  "description", "contrast", "modelName", "diff", "FDR"  ))) |> as.data.frame()
+ctdata <- ctdata |>
+  dplyr::select(tidyselect::all_of(c(
+    "ID", "description", "contrast",
+    "modelName", "diff", "FDR"))) |>
+  as.data.frame()
 
 sig <- crosstalk::SharedData$new(ctdata,  as.formula( "~ ID"), group = "BB")
 DT::datatable(sig, filter = "bottom",
@@ -434,7 +459,7 @@ DT::datatable(sig, filter = "bottom",
                  scrollY = 300,
                  scrollX = 400,
                  scroller = TRUE) ) |>
-  DT::formatRound(columns = c('FDR', 'diff'), digits = 3)
+  DT::formatRound(columns = c("FDR", "diff"), digits = 3)
 ```
 
 
@@ -455,7 +480,10 @@ sigheat <- signif$get_Plotter()$raster(rownames = rownames)
 
 ```{r makeText, eval = showSignificant, results = 'asis'}
 
-cat(paste("Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap of log2 transformed protein abundances of all significant calls."))
+cat(paste(
+  "Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap",
+  "of log2 transformed protein abundances of all",
+  "significant calls."))
 
 ```
 

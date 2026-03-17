@@ -99,7 +99,6 @@ parser <- OptionParser(usage = "%prog --indir . ", option_list = option_list)
 
 if (length(commandArgs(TRUE)) == 0) {
   optparse::print_help(parser)
-  # quit(status = 1)
 }
 
 arguments <- parse_args(parser, positional_arguments = TRUE)
@@ -222,37 +221,10 @@ xd$lfqdata$config$hierarchyDepth <- 1
 
 GRP2$get_zipdir()
 
-# QC_generator$debug("get_list")
-# QC_generator$debug("get_protein_per_group_small_wide")
-# QC_generator$debug("get_prot_IBAQ")
-# QC_generator$undebug("initialize")
-
-# xd$lfqdata$hierarchy_counts()
-# QC_generator$undebug("render_QC_protein_abundances")
 pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
-# pap$get_protein_per_group_small_wide()
-# pap$lfqdata
-
-# pap$get_list()
-
-# pap$get_peptides_wide()
-# pap$get_list
-# dd <- pap$get_prot_wide()
-# pap$get_prot_IBAQ_wide()
-# pap$get_peptides_transformed_wide()
-# copy dataset to output directory
 pap$copy_dataset(opt$dataset)
 
-# wirte parquet
 pap$write_xlsx()
-
-# library(arrow)
-# arrow::write_parquet(pap$lfqdata$data, sink = "lfqdata.parquet")
-# cfg <- prolfqua::R6_extract_values(pap$lfqdata$config)
-# yaml::write_yaml(prolfqua::R6_extract_values(pap$lfqdata$config), "lfqdata.yaml")
-# yaml::read_yaml("lfqdata.yaml")
-# arrow::write_parquet(pap$lfqdata_peptide$data, sink = "lfqdata_peptide.parquet")
-# yaml::write_yaml(prolfqua::R6_extract_values(pap$lfqdata_peptide$config), "lfqdata_peptide.yaml")
 
 pap$render_QC_protein_abundances()
 pap$render_sample_size_QC()
