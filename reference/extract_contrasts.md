@@ -25,13 +25,12 @@ extract_contrasts(annot, prefix = "G_", group = "group")
 ## Examples
 
 ``` r
-
 annot <- data.frame(names = c("a1","b1"), group= c("a","b"), ddd = c("T","C"))
 testthat::expect_error(extract_contrasts(annot))
-#> INFO [2026-03-19 20:25:13] levels: c("a", "b")
+#> INFO [2026-03-19 19:28:44] levels: c("a", "b")
 annot$control <- annot$ddd
 contrast <- extract_contrasts(annot)
-#> INFO [2026-03-19 20:25:13] levels: c("a", "b") c("T", "C")
+#> INFO [2026-03-19 19:28:44] levels: c("a", "b") c("T", "C")
 #> a b 
 stopifnot(contrast == "G_a - G_b")
 
@@ -39,6 +38,6 @@ annot$Contrast <- c("G_a - G_b","G_b - G_a")
 annot$ContrastName <- c("a_vs_b","b_vs_a")
 annot$control <- NULL
 ct <- extract_contrasts(annot)
-#> INFO [2026-03-19 20:25:13] levels: c("a", "b")
+#> INFO [2026-03-19 19:28:44] levels: c("a", "b")
 stopifnot(length(ct) == 2)
 ```

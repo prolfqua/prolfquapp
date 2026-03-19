@@ -44,7 +44,6 @@ Other FragPipe:
 ## Examples
 
 ``` r
-
 prottsv <- prolfqua::find_package_file("prolfquapp", "samples/FragPipe/combined_protein_small.tsv")
 
 prot <- tidy_FragPipe_combined_protein_deprec(prottsv)
@@ -65,22 +64,14 @@ prot <- tidy_FragPipe_combined_protein_deprec(prottsv)
 #> summarized.total.spectral.count
 #> summarized.unique.spectral.count
 #> summarized.razor.spectral.count
-#> Joining with `by = join_by(protein.group, subgroup,
-#> raw.file)`
-#> Joining with `by = join_by(protein.group, subgroup,
-#> raw.file)`
-#> Joining with `by = join_by(protein.group, subgroup,
-#> raw.file)`
-#> Joining with `by = join_by(protein.group, subgroup,
-#> raw.file)`
-#> Joining with `by = join_by(protein.group, subgroup,
-#> raw.file)`
-#> Joining with `by = join_by(protein.group, subgroup,
-#> raw.file)`
-#> Joining with `by = join_by(protein.group, subgroup,
-#> raw.file)`
-#> Joining with `by = join_by(protein.group, subgroup,
-#> raw.file)`
+#> Joining with `by = join_by(protein.group, subgroup, raw.file)`
+#> Joining with `by = join_by(protein.group, subgroup, raw.file)`
+#> Joining with `by = join_by(protein.group, subgroup, raw.file)`
+#> Joining with `by = join_by(protein.group, subgroup, raw.file)`
+#> Joining with `by = join_by(protein.group, subgroup, raw.file)`
+#> Joining with `by = join_by(protein.group, subgroup, raw.file)`
+#> Joining with `by = join_by(protein.group, subgroup, raw.file)`
+#> Joining with `by = join_by(protein.group, subgroup, raw.file)`
 #> Joining with `by = join_by(protein.group, subgroup)`
 stopifnot( dim(prot) ==c(19980,27))
 ```

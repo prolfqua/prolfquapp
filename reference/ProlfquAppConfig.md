@@ -212,7 +212,6 @@ The objects of this class are cloneable with this method.
 
 ``` r
 
-
 r6obj_config <- ProlfquAppConfig$new(
   ProcessingOptions$new(),
   ProjectSpec$new(),

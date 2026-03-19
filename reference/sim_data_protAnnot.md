@@ -21,7 +21,6 @@ sim_data_protAnnot(Nprot = 100, PROTEIN = FALSE)
 ## Examples
 
 ``` r
-
 res <- sim_data_protAnnot()
 #> creating sampleName from fileName column
 #> completing cases

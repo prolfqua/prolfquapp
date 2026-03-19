@@ -30,7 +30,6 @@ ProlfquAppConfig R6 object
 
 ``` r
 
-
 get_config()
 #> <ProlfquAppConfig>
 #>   Public:

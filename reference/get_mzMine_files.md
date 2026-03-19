@@ -17,7 +17,6 @@ get_mzMine_files(path)
 ## Examples
 
 ``` r
-
 path <- "WU323671_mzMine_o35537_WpH9V2_neg_v2_result"
 files <- get_mzMine_files(path)
 ```

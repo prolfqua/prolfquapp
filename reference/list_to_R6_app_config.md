@@ -21,7 +21,6 @@ ProlfquAppConfig R6 object
 ## Examples
 
 ``` r
-
 DEAconfig <- make_DEA_config_R6(WORKUNITID = "3333")
 configList <- prolfqua::R6_extract_values(DEAconfig)
 stopifnot(class(configList) == "list")
