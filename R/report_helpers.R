@@ -1,3 +1,5 @@
+utils::globalVariables("prep_result_list")
+
 #' convert tibble to data.frame with rownames
 #' @param .data a tibble or data.frame
 #' @param var name of the column with new row.names
@@ -15,6 +17,11 @@ column_to_rownames <- function(.data, var = "rowname", sep = "~lfq~") {
   return(res)
 }
 
+#' Strip pattern from row names of a matrix or data.frame
+#'
+#' @param .data a matrix or data.frame with row names
+#' @param strip regex pattern to remove from row names
+#' @return the input with cleaned row names
 #' @export
 strip_rownames <- function(.data, strip = "~lfq~light$") {
   newrnames <- gsub(strip, "", rownames(.data))
@@ -79,7 +86,7 @@ bfabric_url_builder <- function(project_spec) {
 
 #' Convert prolfqua differential expression analysis results to SummarizedExperiment
 #'
-#' @param GRP2 return value of \code{\link{make_DEA_report2}}
+#' @param GRP2 list with DEA results (RES, project_spec fields)
 #' @param colname column name for sample identifier
 #' @param rowname column name for row identifier
 #' @param strip regex pattern to strip from rownames
@@ -155,10 +162,12 @@ make_SummarizedExperiment <- function(
     xlsx_file = file.path(.base_dir, "DE_WUtotal_proteome.xlsx"),
     ora_files = list(
       ORA_Treated_vs_Control_down_WUtotal_proteome.txt = file.path(
-        .base_dir, "ORA_Treated_vs_Control_down_WUtotal_proteome.txt"
+        .base_dir,
+        "ORA_Treated_vs_Control_down_WUtotal_proteome.txt"
       ),
       ORA_Treated_vs_Control_up_WUtotal_proteome.txt = file.path(
-        .base_dir, "ORA_Treated_vs_Control_up_WUtotal_proteome.txt"
+        .base_dir,
+        "ORA_Treated_vs_Control_up_WUtotal_proteome.txt"
       )
     ),
     gsea_files = list(

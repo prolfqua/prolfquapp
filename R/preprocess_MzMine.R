@@ -89,7 +89,8 @@ feature_annotation_get_best_score <- function(x) {
 #'   feature_annotation_collapse_to_single_row(x)
 #' }
 #' @export
-feature_annotation_collapse_to_single_row <- function(x) { # nolint object_length_linter.
+feature_annotation_collapse_to_single_row <- function(x) {
+  # nolint object_length_linter.
   collapsed_df <- x |>
     dplyr::group_by(id) |>
     dplyr::summarise(

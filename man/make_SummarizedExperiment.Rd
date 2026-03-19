@@ -13,7 +13,7 @@ make_SummarizedExperiment(
 )
 }
 \arguments{
-\item{GRP2}{return value of \code{\link{make_DEA_report2}}}
+\item{GRP2}{list with DEA results (RES, project_spec fields)}
 
 \item{colname}{column name for sample identifier}
 
