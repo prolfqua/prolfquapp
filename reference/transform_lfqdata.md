@@ -1,7 +1,6 @@
-# transform lfq data using robscale, vsn or log2, Assumes that data is not transformed (still needs log2 transformation)
+# Transform lfq data using robscale, vsn or log2
 
-transform lfq data using robscale, vsn or log2, Assumes that data is not
-transformed (still needs log2 transformation)
+Assumes that data is not transformed (still needs log2 transformation)
 
 ## Usage
 
@@ -27,11 +26,10 @@ istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
 config <- prolfqua:::old2new(istar$config)
 tmp <- prolfqua::LFQData$new(istar$data, config)
 tmp2 <- transform_lfqdata(tmp)
-#> INFO [2026-03-11 08:17:40] Transforming using robscale.
+#> INFO [2026-03-19 20:25:25] Transforming using robscale.
 #> Column added : log2_peptide.intensity
 #> data is : TRUE
-#> Warning: Expected 2 pieces. Additional pieces discarded in 25780 rows [1, 2, 3, 4, 5, 6,
-#> 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
-#> Joining with `by = join_by(protein_Id, sampleName, peptide_Id)`
-#> INFO [2026-03-11 08:17:41] Transforming data : robscale.
+#> Joining with `by = join_by(protein_Id, sampleName,
+#> isotope, peptide_Id)`
+#> INFO [2026-03-19 20:25:25] Transforming data : robscale.
 ```

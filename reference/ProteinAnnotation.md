@@ -232,6 +232,7 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+
 istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 #> creating sampleName from fileName column
 #> completing cases

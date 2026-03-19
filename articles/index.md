@@ -7,4 +7,4 @@
 - [prolfquapp - an R package to report differential expression analysis
   results.](https://prolfqua.github.io/prolfquapp/articles/prolfquapp.md):
 - [Quality Control & Sample Size
-  Estimation](https://prolfqua.github.io/prolfquapp/articles/QCandSampleSize.md):
+  Estimation](https://prolfqua.github.io/prolfquapp/articles/QCandSSE.md):

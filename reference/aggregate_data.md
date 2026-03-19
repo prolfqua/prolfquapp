@@ -25,6 +25,7 @@ aggregate_data(lfqdata, agg_method = c("medpolish", "lmrob", "topN"), N = 3)
 ## Examples
 
 ``` r
+
 xx <- prolfqua::sim_lfq_data_peptide_config()
 #> creating sampleName from fileName column
 #> completing cases

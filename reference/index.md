@@ -12,6 +12,8 @@
   : external reader R6 class for handling external data sources
 - [`FragPipe`](https://prolfqua.github.io/prolfquapp/reference/FragPipe.md)
   : Methods for reading Fragpipe outputs
+- [`LFQData_from_anndata()`](https://prolfqua.github.io/prolfquapp/reference/LFQData_from_anndata.md)
+  : Convert AnnData back to LFQData + ProteinAnnotation
 - [`MaxQuant`](https://prolfqua.github.io/prolfquapp/reference/MaxQuant.md)
   : Methods for reading MaxQuant outputs
 - [`ProcessingOptions`](https://prolfqua.github.io/prolfquapp/reference/ProcessingOptions.md)
@@ -57,8 +59,6 @@
   : copy dockerfile to run the DEA app
 - [`copy_shell_script()`](https://prolfqua.github.io/prolfquapp/reference/copy_shell_script.md)
   : copy shellscript to run the DEA app
-- [`dataset_extract_contrasts()`](https://prolfqua.github.io/prolfquapp/reference/dataset_extract_contrasts.md)
-  : extect contrasts from dataset
 - [`dataset_get_functions()`](https://prolfqua.github.io/prolfquapp/reference/dataset_get_functions.md)
   : get functions for creating datasets
 - [`dataset_protein_annot()`](https://prolfqua.github.io/prolfquapp/reference/dataset_protein_annot.md)
@@ -78,8 +78,6 @@
   Precursor abundances.
 - [`diann_read_output()`](https://prolfqua.github.io/prolfquapp/reference/diann_read_output.md)
   : read DiaNN diann-output.tsv file
-- [`diann_read_output_deprec()`](https://prolfqua.github.io/prolfquapp/reference/diann_read_output_deprec.md)
-  : read DiaNN diann-output.tsv file
 - [`exp2()`](https://prolfqua.github.io/prolfquapp/reference/exp2.md) :
   transform lfq data with x^2 - apply if non log data is needed
 - [`extract_GN()`](https://prolfqua.github.io/prolfquapp/reference/extract_GN.md)
@@ -90,8 +88,6 @@
   : get best feature annotation.
 - [`feature_annotation_get_best_score()`](https://prolfqua.github.io/prolfquapp/reference/feature_annotation_get_best_score.md)
   : get best feature annotation.
-- [`generate_DEA_reports()`](https://prolfqua.github.io/prolfquapp/reference/generate_DEA_reports.md)
-  : Generate differential expression analysis reports
 - [`get_BGS_files()`](https://prolfqua.github.io/prolfquapp/reference/get_BGS_files.md)
   : get BGS and fasta file location in folder
 - [`get_DIANN_files()`](https://prolfqua.github.io/prolfquapp/reference/get_DIANN_files.md)
@@ -116,14 +112,9 @@
   : Get all processing functions from all packages
 - [`list_to_R6_app_config()`](https://prolfqua.github.io/prolfquapp/reference/list_to_R6_app_config.md)
   : read minimal yaml and convert to R6 object
-- [`make_DEA_config()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_config.md)
-  : create GRP2 configuration. Use this function if there is no Yaml
-  Input.
 - [`make_DEA_config_R6()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_config_R6.md)
   : create GRP2 configuration for differential expression analysis Use
   this function if there is no Yaml Input.
-- [`make_DEA_report()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_report.md)
-  : Create DEA report in html and write data to xlsx table
 - [`make_SummarizedExperiment()`](https://prolfqua.github.io/prolfquapp/reference/make_SummarizedExperiment.md)
   : Convert prolfqua differential expression analysis results to
   SummarizedExperiment
@@ -145,6 +136,8 @@
   : load compound discoverer (CD) files
 - [`preprocess_DIANN()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_DIANN.md)
   : preprocess DIANN ouput, filter by q_value and nr_peptides
+- [`preprocess_DIANN_anndata()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_DIANN_anndata.md)
+  : Preprocess DIANN output and return AnnData
 - [`preprocess_FP_PSM()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_FP_PSM.md)
   : preprocess FP psm, filter by purity_threshold and PeptideProphetProb
 - [`preprocess_MQ_peptide()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_MQ_peptide.md)
@@ -153,6 +146,9 @@
   : preprocess MSstats file coming from FragPipe
 - [`preprocess_MSstats_FPDIA()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_MSstats_FPDIA.md)
   : preprocess MSstats fragpipe
+- [`preprocess_anndata_from_lfq()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_anndata_from_lfq.md)
+  : Convert LFQData + ProteinAnnotation to AnnData with round-trip
+  metadata
 - [`preprocess_dummy()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_dummy.md)
   : preprocess_dummy
 - [`preprocess_mzMine()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_mzMine.md)
@@ -172,16 +168,14 @@
   : read MSstats.csv files and rollup to ProteinSequence level.
 - [`read_table_data()`](https://prolfqua.github.io/prolfquapp/reference/read_table_data.md)
   : read dataset file in csv, tsv or xlsx format
-- [`read_yaml_deprec()`](https://prolfqua.github.io/prolfquapp/reference/read_yaml_deprec.md)
-  : read yaml file
-- [`sanitize_grouping_var()`](https://prolfqua.github.io/prolfquapp/reference/sanitize_grouping_var.md)
-  : Sanitize grouping variable in annotation file
 - [`set_lib_path()`](https://prolfqua.github.io/prolfquapp/reference/set_lib_path.md)
   : set library path with logging
 - [`set_list_to_R6()`](https://prolfqua.github.io/prolfquapp/reference/set_list_to_R6.md)
   : set arguments in list config to r6obj
 - [`sim_data_protAnnot()`](https://prolfqua.github.io/prolfquapp/reference/sim_data_protAnnot.md)
   : simulate peptdata and fitting protein annotation for testing
+- [`strip_rownames()`](https://prolfqua.github.io/prolfquapp/reference/strip_rownames.md)
+  : Strip pattern from row names of a matrix or data.frame
 - [`sync_opt_config()`](https://prolfqua.github.io/prolfquapp/reference/sync_opt_config.md)
   : Synchronize opt and config
 - [`tidy_FragPipe_psm()`](https://prolfqua.github.io/prolfquapp/reference/tidy_FragPipe_psm.md)
@@ -191,8 +185,9 @@
 - [`tidy_mzMineFeatures()`](https://prolfqua.github.io/prolfquapp/reference/tidy_mzMineFeatures.md)
   : convert mzmine features to tidy table
 - [`transform_lfqdata()`](https://prolfqua.github.io/prolfquapp/reference/transform_lfqdata.md)
-  : transform lfq data using robscale, vsn or log2, Assumes that data is
-  not transformed (still needs log2 transformation)
+  : Transform lfq data using robscale, vsn or log2
+- [`validate_prolfquapp_anndata()`](https://prolfqua.github.io/prolfquapp/reference/validate_prolfquapp_anndata.md)
+  : Validate that an AnnData has the prolfquapp uns namespace
 - [`writeLinesPaired()`](https://prolfqua.github.io/prolfquapp/reference/writeLinesPaired.md)
   : nice plot for paired analysis
 - [`write_annotation_file()`](https://prolfqua.github.io/prolfquapp/reference/write_annotation_file.md)

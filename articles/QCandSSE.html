@@ -31,11 +31,11 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/prolfquapp.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Auxiliary_ExDesignSurvey.html">Auxiliary - Bioinformatics Project Meeting Agenda</a></li>
-    <li><a class="dropdown-item" href="../articles/QCandSampleSize.html">Quality Control &amp; Sample Size Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/QCandSSE.html">Quality Control &amp; Sample Size Estimation</a></li>
   </ul>
 </li>
       </ul>
@@ -58,13 +58,12 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Quality Control &amp; Sample Size Estimation</h1>
-                        <h4 data-toc-skip class="author">Witold
-Wolski</h4>
+                        <h4 data-toc-skip class="author"><a href="mailto:WEW@FGCZ.ETHZ.CH" class="email">WEW@FGCZ.ETHZ.CH</a></h4>
             
-            <h4 data-toc-skip class="date">11 March, 2026</h4>
+            <h4 data-toc-skip class="date">2026-03-19</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/master/vignettes/QCandSampleSize.Rmd" class="external-link"><code>vignettes/QCandSampleSize.Rmd</code></a></small>
-      <div class="d-none name"><code>QCandSampleSize.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/HEAD/vignettes/QCandSSE.Rmd" class="external-link"><code>vignettes/QCandSSE.Rmd</code></a></small>
+      <div class="d-none name"><code>QCandSSE.Rmd</code></div>
     </div>
 
     
@@ -77,26 +76,24 @@ Wolski</h4>
 <li>Project:</li>
 <li>Order :</li>
 </ul>
-<!--This document does not contain any specific conclusion since it was generated automatically. Hence, please discuss this document with your project bioinformatician/statistician which typically is not the project coach.--><p>You were asked to hand in 4 QC samples, to asses the biological,
-biochemical, and technical variability of your experiments. We did run
-your samples through the same analysis pipeline, which will be applied
-in the main experiment. This document summarizes the peptide variability
-to asses the reproducibility of the biological samples and estimates the
-sample sizes needed for the main experiment.</p>
+<!--This document does not contain any specific conclusion since it was generated automatically. Hence, please discuss this document with your project bioinformatician/statistician which typically is not the project coach.--><p>We did run your samples through the same analysis pipeline, which
+will be applied in the main experiment. This document summarizes the
+protein variability to asses the reproducibility of the biological
+samples and estimates the sample sizes needed for the main
+experiment.</p>
 </div>
 <div class="section level2">
-<h2 id="quality-control-identifications">Quality Control: Identifications<a class="anchor" aria-label="anchor" href="#quality-control-identifications"></a>
+<h2 id="quality-control-identifications-and-quantifications">Quality Control: Identifications and Quantifications<a class="anchor" aria-label="anchor" href="#quality-control-identifications-and-quantifications"></a>
 </h2>
-<p>Here we summarize the number of peptides measured in the QC
+<p>Here we summarize the number of proteins measured in the QC
 experiment. Depending on the type of your sample (e.g., pull-down,
 supernatant, whole cell lysate) we observe some dozens up to a few
-thousands of proteins , and between a few hundred to up to some few tens
-of thousands of peptides. While the overall number of proteins and
-peptides can highly vary depending of the type of experiment, it is
-crucial that the number of proteins and peptides between your biological
-replicates is similar (reproducibility).</p>
+thousands of proteins. While the overall number of proteins can highly
+vary depending of the type of experiment, it is crucial that the number
+of proteins between your biological replicates is similar
+(reproducibility).</p>
 <table class="table">
-<caption>Nr of proteins and peptides detected in all samples.</caption>
+<caption>Nr of proteins detected in all samples.</caption>
 <thead><tr class="header">
 <th align="left">NR.isotope</th>
 <th align="right">NR.protein_Id</th>
@@ -108,55 +105,59 @@ replicates is similar (reproducibility).</p>
 <td align="right">1258</td>
 </tr></tbody>
 </table>
-<p>(ref:hierarchyCountsSampleBarplot) Number of quantified peptides per
+<p>(ref:hierarchyCountsSampleBarplot) Number of quantified proteins per
 sample.</p>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/hierarchyCountsSampleBarplot-1.png" class="r-plt" alt="(ref:hierarchyCountsSampleBarplot)" width="768"><p class="caption">
+<img src="QCandSSE_files/figure-html/hierarchyCountsSampleBarplot-1.png" class="r-plt" alt="(ref:hierarchyCountsSampleBarplot)" width="768"><p class="caption">
 (ref:hierarchyCountsSampleBarplot)
 </p>
 </div>
+<p>(ref:hierarchyCountsSample) The plot shows the relationships between
+sets of proteins through their intersections, as well as the size of
+each set. The elements that are present in each intersection are shown
+as circles or dots in the matrix, and the size of each set is
+represented by the height of the corresponding row.</p>
+<div class="figure" style="text-align: center">
+<img src="QCandSSE_files/figure-html/upsetMissing-1.png" class="r-plt" alt="(ref:hierarchyCountsSample)" width="864"><p class="caption">
+(ref:hierarchyCountsSample)
+</p>
 </div>
-<div class="section level2">
-<h2 id="quality-control-quantification">Quality Control: Quantification<a class="anchor" aria-label="anchor" href="#quality-control-quantification"></a>
-</h2>
-<div class="section level3">
-<h3 id="summary-of-missing-data">Summary of missing data<a class="anchor" aria-label="anchor" href="#summary-of-missing-data"></a>
-</h3>
-<p>Ideally, we identify each peptide in all of the samples. However,
-because of the limit of detection (LOD) low-intensity peptides might not
+<p>Ideally, we identify each protein in all of the samples. However,
+because of the limit of detection (LOD) low-intensity proteins might not
 be observed in all samples. Ideally, the LOD should be the only source
 of missingness in biological replicates. The following figures help us
 to verify the reproducibility of the measurement at the level of missing
 data.</p>
 <p>(ref:missingFigIntensityHistorgram) Top - intensity distribution of
-peptides with 0, 1 etc. missing values. B - number of peptides with 0,
+proteins with 0, 1 etc. missing values. B - number of proteins with 0,
 1, 2 etc. missing value.</p>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/missingFigIntensityHistorgram-1.png" class="r-plt" alt="(ref:missingFigIntensityHistorgram)" width="672"><p class="caption">
+<img src="QCandSSE_files/figure-html/missingFigIntensityHistorgram-1.png" class="r-plt" alt="(ref:missingFigIntensityHistorgram)" width="672"><p class="caption">
 (ref:missingFigIntensityHistorgram)
 </p>
 </div>
-<p>(ref:missingnessHeatmap) Heatmap of missing peptide quantifications
-clustered by sample, black - missing intensities, white - present.</p>
+<p>(ref:missingnessHeatmap) Heatmap of missing protein quantifications
+clustered by sample.</p>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/missingnessHeatmap-1.png" class="r-plt" alt="(ref:missingnessHeatmap)" width="768"><p class="caption">
+<img src="QCandSSE_files/figure-html/missingnessHeatmap-1.png" class="r-plt" alt="(ref:missingnessHeatmap)" width="768"><p class="caption">
 (ref:missingnessHeatmap)
 </p>
-</div>
 </div>
 <div class="section level3">
 <h3 id="variablity-of-the-raw-intensities">Variablity of the raw intensities<a class="anchor" aria-label="anchor" href="#variablity-of-the-raw-intensities"></a>
 </h3>
 <p>Without applying any intensity scaling and data preprocessing, the
-peptide intensities in all samples should be similar. To asses this we
-plotted the distribution of the peptide intensities in the samples
+protein intensities in all samples should be similar. To assess this we
+plotted the distribution of the protein intensities in the samples
 (Figure @ref(fig:plotDistributions)) as well as the distribution of the
-coefficient of variation CV for all peptides in the samples (Figure
+coefficient of variation CV for all proteins in the samples (Figure
 @ref(fig:intensityDistribution)). Table @ref(tab:printTable) summarises
 the CV.</p>
+<p>(ref:plotDistributions) Density plot of protein level Coefficient of
+Variations (CV).</p>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/plotDistributions-1.png" class="r-plt" alt="Density plot of peptide level Coefficient of Variations (CV)." width="768"><p class="caption">
-Density plot of peptide level Coefficient of Variations (CV).
+<img src="QCandSSE_files/figure-html/plotDistributions-1.png" class="r-plt" alt="(ref:plotDistributions)" width="768"><p class="caption">
+(ref:plotDistributions)
 </p>
 </div>
 <table class="table">
@@ -220,7 +221,7 @@ Density plot of peptide level Coefficient of Variations (CV).
 </tbody>
 </table>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/intensityDistribution-1.png" class="r-plt" alt="Distribution of unnormalized intensities." width="768"><p class="caption">
+<img src="QCandSSE_files/figure-html/intensityDistribution-1.png" class="r-plt" alt="Distribution of unnormalized intensities." width="768"><p class="caption">
 Distribution of unnormalized intensities.
 </p>
 </div>
@@ -228,51 +229,55 @@ Distribution of unnormalized intensities.
 <div class="section level3">
 <h3 id="variability-of-transformed-intensities">Variability of transformed intensities<a class="anchor" aria-label="anchor" href="#variability-of-transformed-intensities"></a>
 </h3>
-<p>We
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>log</mo><mn>2</mn></msub><annotation encoding="application/x-tex">\log_2</annotation></semantics></math>
-transformed and applied the <code><a href="https://rdrr.io/pkg/prolfqua/man/robust_scale.html" class="external-link">prolfqua::robust_scale()</a></code>
-transformation to the data. This transformation transforms and scales
-the data to reduce the variance (Figure
-@ref(fig:plotTransformedIntensityDistributions)). Because of this, we
-can’t report CV anymore but report standard deviations (sd). Figure
-@ref(fig:sdviolinplots) shows the distribution of the peptide standard
-deviations while Figure @ref(fig:sdecdf) shows the empirical cumulative
-distribution function (ecdf). Table @ref(tab:printSDTable) summarises
-the sd. The heatmap in Figure @ref(fig:correlationHeat) envisages the
-correlation between the QC samples.</p>
-<p>(ref:plotTransformedIntensityDistributions) Peptide intensity
+<p>We applied the <code><a href="https://rdrr.io/pkg/vsn/man/justvsn.html" class="external-link">vsn::justvsn</a></code> normalization to the data,
+which should remove systematic differences among the samples and reduce
+the variance within the groups (Figure
+@ref(fig:plotTransformedIntensityDistributions)). Because of this
+transformation, we can’t report
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><msup><mi>V</mi><mo>′</mo></msup><mi>s</mi></mrow><annotation encoding="application/x-tex">CV's</annotation></semantics></math>
+anymore but report standard deviations
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">sd</annotation></semantics></math>).
+Figure @ref(fig:sdviolinplots) shows the distribution of the protein
+standard deviations while Figure @ref(fig:sdecdf) shows the empirical
+cumulative distribution function
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>c</mi><mi>d</mi><mi>f</mi></mrow><annotation encoding="application/x-tex">ecdf</annotation></semantics></math>).
+Table @ref(tab:printSDTable) summarises the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">sd</annotation></semantics></math>.
+The heatmap in Figure @ref(fig:correlationHeat) shows the correlation
+among the QC samples.</p>
+<p>(ref:plotTransformedIntensityDistributions) protein intensity
 distribution after transformation.</p>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/plotTransformedIntensityDistributions-1.png" class="r-plt" alt="(ref:plotTransformedIntensityDistributions)" width="768"><p class="caption">
+<img src="QCandSSE_files/figure-html/plotTransformedIntensityDistributions-1.png" class="r-plt" alt="(ref:plotTransformedIntensityDistributions)" width="768"><p class="caption">
 (ref:plotTransformedIntensityDistributions)
 </p>
 </div>
-<p>(ref:correlationHeat) Heatmap of peptide intensity correlation
+<p>(ref:correlationHeat) Heatmap of protein intensity correlation
 between samples.</p>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/correlationHeat-1.png" class="r-plt" alt="(ref:correlationHeat)" width="768"><p class="caption">
+<img src="QCandSSE_files/figure-html/correlationHeat-1.png" class="r-plt" alt="(ref:correlationHeat)" width="768"><p class="caption">
 (ref:correlationHeat)
 </p>
 </div>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/pairsplotSmooth-1.png" class="r-plt" alt="Pairsplot - scatterplot of samples." width="1152"><p class="caption">
+<img src="QCandSSE_files/figure-html/pairsplotSmooth-1.png" class="r-plt" alt="Pairsplot - scatterplot of samples." width="1152"><p class="caption">
 Pairsplot - scatterplot of samples.
 </p>
 </div>
 <pre><code><span><span class="co">## NULL</span></span></code></pre>
-<p>(ref:sdviolinplots) Visualization of peptide standard deviations. A)
+<p>(ref:sdviolinplots) Visualization of protein standard deviations. A)
 all. B) - for low (bottom 50) and high intensity (top 50).</p>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/sdviolinplots-1.png" class="r-plt" alt="(ref:sdviolinplots)" width="768"><p class="caption">
+<img src="QCandSSE_files/figure-html/sdviolinplots-1.png" class="r-plt" alt="(ref:sdviolinplots)" width="768"><p class="caption">
 (ref:sdviolinplots)
 </p>
 </div>
-<p>(ref:sdecdf) Visualization of peptide standard deviations as
+<p>(ref:sdecdf) Visualization of protein standard deviations as
 empirical cumulative distribution function. A) all. B) - for low (bottom
 50) and high intensity (top 50).</p>
 <pre><code><span><span class="co">## NULL</span></span></code></pre>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/sdecdf-1.png" class="r-plt" alt="(ref:sdecdf)" width="768"><p class="caption">
+<img src="QCandSSE_files/figure-html/sdecdf-1.png" class="r-plt" alt="(ref:sdecdf)" width="768"><p class="caption">
 (ref:sdecdf)
 </p>
 </div>
@@ -300,54 +305,54 @@ empirical cumulative distribution function. A) all. B) - for low (bottom
 <tbody>
 <tr class="odd">
 <td align="right">0.5</td>
-<td align="right">0.2011218</td>
-<td align="right">0.2029488</td>
-<td align="right">0.2228691</td>
-<td align="right">0.1902499</td>
-<td align="right">0.2070355</td>
-<td align="right">0.2765971</td>
+<td align="right">0.1970862</td>
+<td align="right">0.1946647</td>
+<td align="right">0.1944917</td>
+<td align="right">0.1910686</td>
+<td align="right">0.1980979</td>
+<td align="right">0.2702206</td>
 </tr>
 <tr class="even">
 <td align="right">0.6</td>
-<td align="right">0.2488759</td>
-<td align="right">0.2421942</td>
-<td align="right">0.2630332</td>
-<td align="right">0.2357208</td>
-<td align="right">0.2502207</td>
-<td align="right">0.3294526</td>
+<td align="right">0.2421660</td>
+<td align="right">0.2369077</td>
+<td align="right">0.2377510</td>
+<td align="right">0.2362158</td>
+<td align="right">0.2395528</td>
+<td align="right">0.3311495</td>
 </tr>
 <tr class="odd">
 <td align="right">0.7</td>
-<td align="right">0.2977759</td>
-<td align="right">0.2956536</td>
-<td align="right">0.3111670</td>
-<td align="right">0.2882928</td>
-<td align="right">0.3013716</td>
-<td align="right">0.4069657</td>
+<td align="right">0.3013293</td>
+<td align="right">0.2932444</td>
+<td align="right">0.2978505</td>
+<td align="right">0.2849253</td>
+<td align="right">0.2955599</td>
+<td align="right">0.4071946</td>
 </tr>
 <tr class="even">
 <td align="right">0.8</td>
-<td align="right">0.3829135</td>
-<td align="right">0.3794975</td>
-<td align="right">0.3872640</td>
-<td align="right">0.3658702</td>
-<td align="right">0.3817423</td>
-<td align="right">0.5281339</td>
+<td align="right">0.3795823</td>
+<td align="right">0.3715429</td>
+<td align="right">0.3863823</td>
+<td align="right">0.3637895</td>
+<td align="right">0.3720552</td>
+<td align="right">0.5257856</td>
 </tr>
 <tr class="odd">
 <td align="right">0.9</td>
-<td align="right">0.5695092</td>
-<td align="right">0.5505065</td>
-<td align="right">0.5590849</td>
-<td align="right">0.5793467</td>
-<td align="right">0.5444276</td>
-<td align="right">0.7109057</td>
+<td align="right">0.5626683</td>
+<td align="right">0.5540956</td>
+<td align="right">0.5632134</td>
+<td align="right">0.5814590</td>
+<td align="right">0.5437999</td>
+<td align="right">0.7131470</td>
 </tr>
 </tbody>
 </table>
-<p>(ref:overviewHeat) Sample and peptide Heatmap.</p>
+<p>(ref:overviewHeat) Sample and protein Heatmap.</p>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/overviewHeat-1.png" class="r-plt" alt="(ref:overviewHeat)" width="960"><p class="caption">
+<img src="QCandSSE_files/figure-html/overviewHeat-1.png" class="r-plt" alt="(ref:overviewHeat)" width="960"><p class="caption">
 (ref:overviewHeat)
 </p>
 </div>
@@ -356,7 +361,7 @@ empirical cumulative distribution function. A) all. B) - for low (bottom
 <div class="section level2">
 <h2 id="sample-size-calculation">Sample Size Calculation<a class="anchor" aria-label="anchor" href="#sample-size-calculation"></a>
 </h2>
-<p>In the previous section, we estimated the peptide variance using the
+<p>In the previous section, we estimated the protein variance using the
 QC samples. Figure @ref(fig:sdviolinplots) shows the distribution of the
 standard deviations. We are using this information, as well as some
 typical values for the size and the power of the test to estimate the
@@ -382,16 +387,16 @@ for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>50</mn><mo>,</mo><mn>60</mn><mo>,</mo><mn>70</mn><mo>,</mo><mn>80</mn></mrow><annotation encoding="application/x-tex">50, 60, 70, 80</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>90</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">90\%</annotation></semantics></math>
-percent of the measured peptides.</p>
+percent of the measured proteins.</p>
 <p>(ref:figSampleSize) Graphical representation of the sample size
 needed to detect a log fold change greater than delta with a
 significance level of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.05</mn><annotation encoding="application/x-tex">0.05</annotation></semantics></math>
 and power 0.8 when using a t-test to compare means, in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mi>%</mi></mrow><annotation encoding="application/x-tex">X\%</annotation></semantics></math>
-of peptides (x - axis).</p>
+of proteins (x - axis).</p>
 <div class="figure" style="text-align: center">
-<img src="QCandSampleSize_files/figure-html/figSampleSize-1.png" class="r-plt" alt="" width="768"><p class="caption">
+<img src="QCandSSE_files/figure-html/figSampleSize-1.png" class="r-plt" alt="" width="768"><p class="caption">
 (ref:figSampleSize)
 </p>
 </div>
@@ -410,7 +415,7 @@ using a t-test to compare means.</caption>
 <tbody>
 <tr class="odd">
 <td align="right">0.50</td>
-<td align="right">0.2011218</td>
+<td align="right">0.1970862</td>
 <td align="left">e</td>
 <td align="right">4</td>
 <td align="right">3</td>
@@ -418,7 +423,7 @@ using a t-test to compare means.</caption>
 </tr>
 <tr class="even">
 <td align="right">0.75</td>
-<td align="right">0.3320049</td>
+<td align="right">0.3302951</td>
 <td align="left">e</td>
 <td align="right">7</td>
 <td align="right">4</td>
@@ -426,7 +431,7 @@ using a t-test to compare means.</caption>
 </tr>
 <tr class="odd">
 <td align="right">0.50</td>
-<td align="right">0.2029488</td>
+<td align="right">0.1946647</td>
 <td align="left">a</td>
 <td align="right">4</td>
 <td align="right">3</td>
@@ -434,15 +439,15 @@ using a t-test to compare means.</caption>
 </tr>
 <tr class="even">
 <td align="right">0.75</td>
-<td align="right">0.3322746</td>
+<td align="right">0.3276262</td>
 <td align="left">a</td>
-<td align="right">7</td>
+<td align="right">6</td>
 <td align="right">4</td>
 <td align="right">2</td>
 </tr>
 <tr class="odd">
 <td align="right">0.50</td>
-<td align="right">0.2228691</td>
+<td align="right">0.1944917</td>
 <td align="left">b</td>
 <td align="right">4</td>
 <td align="right">3</td>
@@ -450,7 +455,7 @@ using a t-test to compare means.</caption>
 </tr>
 <tr class="even">
 <td align="right">0.75</td>
-<td align="right">0.3414827</td>
+<td align="right">0.3327904</td>
 <td align="left">b</td>
 <td align="right">7</td>
 <td align="right">4</td>
@@ -458,7 +463,7 @@ using a t-test to compare means.</caption>
 </tr>
 <tr class="odd">
 <td align="right">0.50</td>
-<td align="right">0.1902499</td>
+<td align="right">0.1910686</td>
 <td align="left">c</td>
 <td align="right">3</td>
 <td align="right">3</td>
@@ -466,7 +471,7 @@ using a t-test to compare means.</caption>
 </tr>
 <tr class="even">
 <td align="right">0.75</td>
-<td align="right">0.3253138</td>
+<td align="right">0.3177703</td>
 <td align="left">c</td>
 <td align="right">6</td>
 <td align="right">3</td>
@@ -474,7 +479,7 @@ using a t-test to compare means.</caption>
 </tr>
 <tr class="odd">
 <td align="right">0.50</td>
-<td align="right">0.2070355</td>
+<td align="right">0.1980979</td>
 <td align="left">d</td>
 <td align="right">4</td>
 <td align="right">3</td>
@@ -482,15 +487,15 @@ using a t-test to compare means.</caption>
 </tr>
 <tr class="even">
 <td align="right">0.75</td>
-<td align="right">0.3382180</td>
+<td align="right">0.3266973</td>
 <td align="left">d</td>
-<td align="right">7</td>
+<td align="right">6</td>
 <td align="right">4</td>
 <td align="right">2</td>
 </tr>
 <tr class="odd">
 <td align="right">0.50</td>
-<td align="right">0.2765971</td>
+<td align="right">0.2702206</td>
 <td align="left">All</td>
 <td align="right">5</td>
 <td align="right">3</td>
@@ -498,7 +503,7 @@ using a t-test to compare means.</caption>
 </tr>
 <tr class="even">
 <td align="right">0.75</td>
-<td align="right">0.4573966</td>
+<td align="right">0.4619799</td>
 <td align="left">All</td>
 <td align="right">11</td>
 <td align="right">5</td>
@@ -537,7 +542,7 @@ consider the mean response in the treatment group,
 and the mean response in the placebo group,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\mu_2</annotation></semantics></math>.
 We can then define
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mo>=</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>μ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\Delta = \mu_1 - \mu_2</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mo>=</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>μ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\Delta = \mu_1 - \mu_2</annotation></semantics></math>
 as the mean difference. The smaller the difference you want to detect,
 the larger the required sample size.</p>
 </div>
@@ -683,8 +688,7 @@ report.</caption>
 </tbody>
 </table>
 <table class="table">
-<caption>Number of quantified peptides and proteins per
-sample.</caption>
+<caption>Number of quantified proteins per sample.</caption>
 <thead><tr class="header">
 <th align="left">isotope</th>
 <th align="left">sampleName</th>

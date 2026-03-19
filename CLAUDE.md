@@ -112,6 +112,7 @@ The preprocessing system uses a plugin architecture
 (`preprocess_software.R`):
 
 ``` r
+
 prolfqua_preprocess_functions <- list(
   "DIANN" = list(get_files, preprocess, extra_args, dataset),
   "MAXQUANT" = list(...),
@@ -197,6 +198,7 @@ New quantification software can be added by extending
 `prolfqua_preprocess_functions` with:
 
 ``` r
+
 "NEW_SOFTWARE" = list(
   get_files = function(data_dir) { ... },
   preprocess = function(xd) { ... },

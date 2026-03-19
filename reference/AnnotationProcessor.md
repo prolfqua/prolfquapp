@@ -194,6 +194,7 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+
 # AnnotationProcessor$debug("read_annotation")
 ap <- AnnotationProcessor$new(prefix = "G_")
 
@@ -216,7 +217,7 @@ aa <- ap$read_annotation(annot)
 #> Registered S3 method overwritten by 'prolfqua':
 #>   method         from    
 #>   print.pheatmap pheatmap
-#> INFO [2026-03-11 08:17:04] levels: c("a", "b") c("C", "T")
+#> INFO [2026-03-19 20:25:03] levels: c("a", "b") c("C", "T")
 #> b a 
 stopifnot(length(aa$atable$factor_keys_depth()) == 2)
 stopifnot(all(c("atable", "annot", "contrasts") %in% names(aa)))

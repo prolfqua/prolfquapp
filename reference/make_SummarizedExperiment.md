@@ -19,7 +19,7 @@ make_SummarizedExperiment(
 
 - GRP2:
 
-  return value of `make_DEA_report2`
+  list with DEA results (RES, project_spec fields)
 
 - colname:
 
@@ -40,8 +40,3 @@ make_SummarizedExperiment(
 ## Value
 
 SummarizedExperiment
-
-## See also
-
-Other workflow:
-[`make_DEA_report()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_report.md)

@@ -20,7 +20,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Auxiliary_ExDesignSurvey.html">Auxiliary - Bioinformatics Project Meeting Agenda</a></li>
-    <li><a class="dropdown-item" href="../articles/QCandSampleSize.html">Quality Control &amp; Sample Size Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/QCandSSE.html">Quality Control &amp; Sample Size Estimation</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Get all processing functions from all packages</h1>
-      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/master/R/find_function_in_packages.r" class="external-link"><code>R/find_function_in_packages.r</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/HEAD/R/find_function_in_packages.r" class="external-link"><code>R/find_function_in_packages.r</code></a></small>
       <div class="d-none name"><code>get_procfuncs.Rd</code></div>
     </div>
 
@@ -271,6 +271,62 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(annotated = TRUE)"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(sitetype = 'multisite')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_multi_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(sitetype = 'singlesite')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_single_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(annotation_join_by = 'SampleName')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_combined_STY"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_combined_STY_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_combined_STY"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list()"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_BGS_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_BGS_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_BGS_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">get_procfuncs</span><span class="op">(</span><span class="st">"prolfqua_preprocess_functions"</span>, <span class="st">"prolfqua"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquapp.DIANN</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquapp.DIANN$get_files</span>
@@ -473,6 +529,62 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(annotated = TRUE)"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(sitetype = 'multisite')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_multi_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(sitetype = 'singlesite')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_single_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(annotation_join_by = 'SampleName')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_combined_STY"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_combined_STY_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_combined_STY"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list()"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_BGS_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_BGS_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_BGS_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">get_procfuncs</span><span class="op">(</span><span class="st">"prolfqua_preprocess_functions"</span>, <span class="st">"prolfquapp"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquapp.DIANN</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquapp.DIANN$get_files</span>
@@ -675,6 +787,62 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(annotated = TRUE)"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(sitetype = 'multisite')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_multi_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(sitetype = 'singlesite')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_single_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(annotation_join_by = 'SampleName')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_combined_STY"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_combined_STY_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_combined_STY"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list()"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_BGS_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_BGS_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_BGS_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">get_procfuncs</span><span class="op">(</span><span class="st">"prolfqua_preprocess_functions"</span>, <span class="st">"prolfquapp"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquapp.DIANN</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquapp.DIANN$get_files</span>
@@ -875,6 +1043,62 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquapp.MZMINEannot$extra_args</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(annotated = TRUE)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(sitetype = 'multisite')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_multi_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_multisite$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(sitetype = 'singlesite')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_single_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_singlesite$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list(annotation_join_by = 'SampleName')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_FP_combined_STY"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_FP_combined_STY_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.FP_combined_STY$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_FP_combined_STY"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$extra_args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "list()"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$preprocess</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::preprocess_BGS_site"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$get_files</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::get_BGS_site_files"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $prolfquappPTMreaders.BGS_site$dataset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "prolfquappPTMreaders::dataset_template_BGS_site"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">get_procfuncs</span><span class="op">(</span><span class="st">"prolfqua_preprocess_functions"</span>, <span class="st">"xdx"</span><span class="op">)</span></span></span>

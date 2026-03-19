@@ -35,8 +35,8 @@ tidy_FragPipe_psm(
 
 - column_before_quants:
 
-  describes the last column before the quantitative values (this is not
-  consistent with in different versions of FP, default "Quan Usage"
+  describes the last column before the quantitative values (not
+  consistent across FP versions), default "Quan Usage"
 
 - aggregate:
 

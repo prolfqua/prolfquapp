@@ -1,6 +1,11 @@
 # Dataset protein annot
 
-Dataset protein annot
+Extracts protein annotation from a data frame, renaming columns and
+auto-detecting UniProt identifiers. For new code prefer
+[`build_protein_annot`](https://prolfqua.github.io/prolfquapp/reference/build_protein_annot.md)
+which returns a
+[`ProteinAnnotation`](https://prolfqua.github.io/prolfquapp/reference/ProteinAnnotation.md)
+R6 object.
 
 ## Usage
 

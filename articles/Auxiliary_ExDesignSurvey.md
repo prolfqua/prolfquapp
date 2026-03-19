@@ -12,19 +12,21 @@ Participants:
 
 When?
 
-- before start of experiment
-- after QC sample preparation
-- after main experiment sample preparation
+before start of experiment
+
+after QC sample preparation
+
+after main experiment sample preparation
 
 Comments :
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
 ## Overview of the analysis
 
@@ -42,18 +44,22 @@ perform a statistically sound LFQ data analysis.
 
 ### Type of proteomics experiment
 
-- data dependent aquisition (DDA) experiment (robust method, typically
-  used for affinity purification experiments)
-  - Pro : robust, can always be applied
-  - Con : fewer ids and quant values than with other methods
-- data independent aquisition (DIA) experiment (improved sensitivity)
-  - Pro : improved sensitivity, works better if more samples are
-    measured.
-  - Con : needs at least 8 samples
-- tandem mass tag (TMT) experiment
-  - Pro : improves sensitivity (more proteins identified) by
-    fractionating samples
-  - Con : fold change compression
+data dependent aquisition (DDA) experiment (robust method, typically
+used for affinity purification experiments)
+
+- Pro : robust, can always be applied
+- Con : fewer ids and quant values than with other methods
+
+data independent aquisition (DIA) experiment (improved sensitivity)
+
+- Pro : improved sensitivity, works better if more samples are measured.
+- Con : needs at least 8 samples
+
+tandem mass tag (TMT) experiment
+
+- Pro : improves sensitivity (more proteins identified) by fractionating
+  samples
+- Con : fold change compression
 
 ### Sample modifications
 
@@ -86,14 +92,15 @@ analysis was delivered will incur time delays and additional costs.
 
 Did you perform a genomics experiment on the same samples?
 
-- no
-- yes
+no
+
+yes
 
 What type of experiment?
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
 - Was it run at the FGCZ?
 - project Id:
@@ -101,9 +108,9 @@ $\ $
 - Bioinformatician :
 - Are you interested in Proteomics Genomics data integration?
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
 Note:
 
@@ -118,33 +125,41 @@ Which sequence database should be used for protein identification?
 
 Which organism?
 
-- homo sapiens
-- mus musculus
-- yeast
-- zebra-fish
-- other :
+homo sapiens
+
+mus musculus
+
+yeast
+
+zebra-fish
+
+other :
 
 Should additional protein sequences be added to the database?
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
 Contaminant list?
 
-- Complete
-- Without human contaminants
-- other :
+Complete
+
+Without human contaminants
+
+other :
 
 Which downstream analysis tools will be used?
 
-- [WebGestalt](http://www.webgestalt.org/) (WEB-based GEne SeT AnaLysis
-  Toolkit)
-- [string-db](https://string-db.org/) (Known and predicted
-  protein-protein interactions)
-- other :
+[WebGestalt](http://www.webgestalt.org/) (WEB-based GEne SeT AnaLysis
+Toolkit)
 
-$\ $
+[string-db](https://string-db.org/) (Known and predicted protein-protein
+interactions)
+
+other :
+
+$`~`$
 
 Note:
 
@@ -168,7 +183,7 @@ analysis (ORA).
 
 What is the smallest effect size (i.e., fold change in protein
 abundance) of biological relevance, you are interested in detecting?
-Typically fold changes are $1.5$, $2$, or $4$. This information is
+Typically fold changes are $`1.5`$, $`2`$, or $`4`$. This information is
 needed to determine the sample size as well as to biologically interpret
 the data.
 
@@ -178,22 +193,28 @@ more samples. On the other hand, the statistical significance of a fold
 change does not imply biological relevance. Consequently, do not measure
 more samples than is required.
 
-- 1.5
-- 2
-- 4
-- other :
+1.5
 
-### Size of the test[¹](#fn1)
+2
+
+4
+
+other :
+
+### Size of the test[^1]
 
 Typically a difference between two conditions is considered to be
-significant if the p-Value is less than $0.05$. For some applications a
-less significant p-Value can be used (e.g., $0.1$) for others a smaller
-p-Value might be required.
+significant if the p-Value is less than $`0.05`$. For some applications
+a less significant p-Value can be used (e.g., $`0.1`$) for others a
+smaller p-Value might be required.
 
-- 0.01
-- 0.05
-- 0.1
-- other :
+0.01
+
+0.05
+
+0.1
+
+other :
 
 ### Power of test
 
@@ -202,21 +223,23 @@ rejects the null hypothesis (H0) when a specific alternative hypothesis
 (H1) is true
 [Wikipedia](https://en.wikipedia.org/wiki/Power_(statistics))
 
-- 0.8
-- other :
+0.8
+
+other :
 
 ### Does the variance within groups differ?
 
 Is the variance within the groups the same or different? E.g., do you
 expect some groups with larger within group differences?
 
-- yes
-- no
+yes
+
+no
 
 If yes, which of the group’s might have the highest within-group
 variance? (Some treatment might have heterogeneous outcomes.)
 
-$\ $$\ $
+$`~`$$`~`$
 
 If possible, use samples from this group for the QC experiment, which
 will enable you to get a conservative estimate of the required samples
@@ -235,11 +258,13 @@ Provide protein IDs:
 
 Do you want to obtain significant p-Values for proteins with large
 within-group variances, or would you be satisfied with getting
-significances for the $X\%$ of low variance proteins?
+significances for the $`X\%`$ of low variance proteins?
 
-- $50\%$
-- $70\%$
-- other :
+$`50\%`$
+
+$`70\%`$
+
+other :
 
 Note:
 
@@ -250,35 +275,36 @@ Note:
 
 This section covers the most frequently used designs.
 
-- Parallel Group Design - Evaluates a single factor[²](#fn2)
+Parallel Group Design - Evaluates a single factor[^2]
 
-- Factorial Design - Evaluates multiple factors simultaneously
+Factorial Design - Evaluates multiple factors simultaneously
 
 ### Parallel Group Design
 
 How many groups?
 
-- 2
-- more. How many?
+2
 
-Factor name (*camel case*[³](#fn3) e.g., Treatment) :
+more. How many?
+
+Factor name (*camel case*[^3] e.g., Treatment) :
 
 Level names (*camel case* e.g. Control, Diet, Creme):
 
-### Factorial Design[⁴](#fn4)
+### Factorial Design[^4]
 
 Applies when studying how two or more factors influence protein
-expression, e.g., $Knockout$ and $Treatment$.
+expression, e.g., $`Knockout`$ and $`Treatment`$.
 
 - How many factors? Typically 2 rarely 3.
 - How many levels per factor? Typically 2 or 3 per factor.
 
-| Factor Name | Number levels | level names $\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $ |
-|:------------|---------------|:--------------------------------------------------------------------------------:|
-| $\ $        |               |                                                                                  |
-| $\ $        |               |                                                                                  |
-| $\ $        |               |                                                                                  |
-| $\ $        |               |                                                                                  |
+| Factor Name | Number levels | level names $`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`$ |
+|:---|----|:--:|
+| $`~`$ |  |  |
+| $`~`$ |  |  |
+| $`~`$ |  |  |
+| $`~`$ |  |  |
 
 - Provide computer-friendly names of the factors (grouping variables) in
   *camel case*.
@@ -286,18 +312,19 @@ expression, e.g., $Knockout$ and $Treatment$.
 
 Example:
 
-| Factor Name | Number levels | level names $\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $ |
-|:------------|---------------|:--------------------------------------------------------------------------------:|
-| Treatment   | 3             |                               Control, Diet, Creme                               |
-| AgeGroup    | 2             |                                    young, old                                    |
+| Factor Name | Number levels | level names $`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`$ |
+|:---|----|:--:|
+| Treatment | 3 | Control, Diet, Creme |
+| AgeGroup | 2 | young, old |
 
 ### Repeated measurements
 
 Applies when measurements are repeated on the same subject, e.g. over
-time [⁵](#fn5).
+time [^5].
 
-- Yes
-- No
+Yes
+
+No
 
 If *yes* please specify a computer-friendly factor name using *camel
 case*: e.g., PatientId.
@@ -312,29 +339,29 @@ results or figures generated.
 ### Blocking factors
 
 A blocking factor is some variable that affects an experimental outcome
-but is itself of no interest, e.g., sample batch [⁶](#fn6). Including
+but is itself of no interest, e.g., sample batch [^6]. Including
 blocking-factors can improve the statistical model.
 
 | Factor Name | Number levels |
 |:------------|---------------|
-| $\ $        |               |
-| $\ $        |               |
-| $\ $        |               |
-| $\ $        |               |
+| $`~`$       |               |
+| $`~`$       |               |
+| $`~`$       |               |
+| $`~`$       |               |
 
 ### Further information
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
 ## Contrasts - Hypothesis to be tested
 
@@ -343,23 +370,23 @@ If there are more than two groups, specify the hypothesis to be tested
 
 ***Contrasts to be computed:***
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
 Examples for parallel Group design (only one factor):
 
@@ -375,26 +402,27 @@ Example for factorial designs:
 Note:
 
 - If one group is used in more comparisons than all other groups, it
-  will benefit the power of the test [⁷](#fn7) to allocate more samples
-  to this group, since increasing the number of degrees of freedom in
-  this group will benefit many comparisons.
+  will benefit the power of the test [^7] to allocate more samples to
+  this group, since increasing the number of degrees of freedom in this
+  group will benefit many comparisons.
 
 - **Limit the number of hypotheses you test**. Multiplicity - each
   comparison is a test of hypothesis. Therefore, it is required to
   perform a p-Value adjustment. For instance, using the Bonferroni
   correction, the obtained p-Values are multiplied by the number of the
   hypothesis tested. Given two comparisons, a p-Value of 0.03 after
-  Bonferroni adjustment is $0.06$, i.e., not significant given a test
-  size of $0.05$. Therefore, do not test all possible hypothesis! For
+  Bonferroni adjustment is $`0.06`$, i.e., not significant given a test
+  size of $`0.05`$. Therefore, do not test all possible hypothesis! For
   instance, if including the contrast *Diet - Creme*, it is required to
-  multiply the p-Values with the factor $3$. i.e., a p-Value of $0.2$
-  after Bonferroni adjustment is $0.6$ - i.e., not significant.
+  multiply the p-Values with the factor $`3`$. i.e., a p-Value of
+  $`0.2`$ after Bonferroni adjustment is $`0.6`$ - i.e., not
+  significant.
 
 &nbsp;
 
 - Factorial designs generate many interactions (e.g.,
-  Treatment_Control:AgeGroup_young). A $3 \times 2$ factorial design
-  generates $6$ groups (unique combinations of factors) which makes it
+  Treatment_Control:AgeGroup_young). A $`3\times 2`$ factorial design
+  generates $`6`$ groups (unique combinations of factors) which makes it
   possible to specify many contrasts. Limit the number of hypotheses
   ideally to few (one or two) per experiment. It is required to adjust
   the p-Values based on the number of hypotheses examined.
@@ -429,39 +457,37 @@ protein abundance due to different sample concentrations, or different
 amount of sample loaded on column. Normalization is important, so that
 true differentially expressed proteins can be detected.
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
-$\ $
+$`~`$
 
 Date:
 
-------------------------------------------------------------------------
-
-1.  In statistics, the size of a test is the probability of falsely
+[^1]: In statistics, the size of a test is the probability of falsely
     rejecting the null hypothesis.
 
-2.  A parallel design, also called a parallel group study, compares two
-    or more treatments. Participants are randomly assigned to either
+[^2]: A parallel design, also called a parallel group study, compares
+    two or more treatments. Participants are randomly assigned to either
     group, treatments are administered, and then the results are
     compared (statistics how to).
 
-3.  *camel case* - a typographical convention in which an initial
+[^3]: *camel case* - a typographical convention in which an initial
     capital is used for the first letter of a word-forming the second
     element of a closed compound, e.g., PayPal, iPhone, MasterCard.
 
-4.  In statistics, a full factorial experiment is an experiment whose
+[^4]: In statistics, a full factorial experiment is an experiment whose
     design consists of two or more factors, each with discrete possible
     values or “levels”, and whose experimental units take on all
     possible combinations of these levels across all such factors. Such
@@ -469,13 +495,14 @@ Date:
     factor on the response variable, as well as the effects of
     interactions between factors on the response variable.
 
-5.  Repeated measures design is a research design that involves multiple
-    measures of the same variable taken on the same or matched subjects
-    either under different conditions or over two or more time periods.
-    For instance, repeated measurements are collected in a longitudinal
-    study in which change over time is assessed (Wikipedia).
+[^5]: Repeated measures design is a research design that involves
+    multiple measures of the same variable taken on the same or matched
+    subjects either under different conditions or over two or more time
+    periods. For instance, repeated measurements are collected in a
+    longitudinal study in which change over time is assessed
+    (Wikipedia).
 
-6.  A blocking factor is a factor used to create blocks. It is some
+[^6]: A blocking factor is a factor used to create blocks. It is some
     variable that has an effect on an experimental outcome, but is
     itself of no interest. Blocking factors vary wildly depending on the
     experiment. For example: in human studies age or gender are often
@@ -483,7 +510,7 @@ Date:
     model to describe the variance of the data [data science
     central](https://www.statisticshowto.datasciencecentral.com/blocking-factor/).
 
-7.  The power of a binary hypothesis test is the probability that the
+[^7]: The power of a binary hypothesis test is the probability that the
     test rejects the null hypothesis (H0) when a specific alternative
     hypothesis (H1) is true. The statistical power ranges from 0 to 1,
     and as statistical power increases, the probability of making a type
