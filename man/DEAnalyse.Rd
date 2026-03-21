@@ -2,15 +2,19 @@
 % Please edit documentation in R/R6_DEAnalyse.R
 \name{DEAnalyse}
 \alias{DEAnalyse}
-\title{Differential expression analysis engine}
+\title{Differential expression analysis engine using prolfqua facade classes}
 \description{
-Differential expression analysis engine
+Differential expression analysis engine using prolfqua facade classes
 
-Differential expression analysis engine
+Differential expression analysis engine using prolfqua facade classes
 }
 \details{
-Takes a prepared \code{ProteinDataPrep} object and runs statistical modelling:
-fits linear and GLM models, computes moderated contrasts, merges results.
+Takes prepared LFQData (at the correct hierarchy level for the chosen facade)
+and runs statistical modelling via prolfqua's ContrastsFacade classes.
+
+The caller (e.g. \code{ProteinDataPrep$build_deanalyse()}) is responsible for
+providing data at the right level: aggregated protein-level for most facades,
+or nested peptide-level for \code{lmer}/\code{ropeca}.
 }
 \examples{
 pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
@@ -30,11 +34,9 @@ data_prep$remove_cont_decoy()
 data_prep$aggregate()
 data_prep$transform_data()
 
-deanalyse <- prolfquapp::DEAnalyse$new(data_prep, contrasts)
-mod <- deanalyse$build_model_linear_protein()
-contlm <- deanalyse$get_contrasts_linear_protein()
-merged <- deanalyse$get_contrasts_merged_protein()
-stopifnot(nrow(merged$get_contrasts()) == 200)
+deanalyse <- data_prep$build_deanalyse(contrasts)
+deanalyse$build_default()
+stopifnot(nrow(deanalyse$contrast_results[[deanalyse$default_model]]$get_contrasts()) == 200)
 
 }
 \section{Public fields}{
@@ -42,11 +44,9 @@ stopifnot(nrow(merged$get_contrasts()) == 200)
 \describe{
 \item{\code{prolfq_app_config}}{ProlfquAppConfig}
 
-\item{\code{lfq_data_peptide}}{LFQData peptide level}
+\item{\code{lfq_data}}{LFQData to model (transformed, at correct hierarchy level)}
 
-\item{\code{lfq_data}}{LFQData protein level}
-
-\item{\code{lfq_data_transformed}}{normalized LFQData}
+\item{\code{lfq_data_raw}}{raw (untransformed) LFQData for reporting}
 
 \item{\code{rowAnnot}}{ProteinAnnotation}
 
@@ -64,21 +64,9 @@ stopifnot(nrow(merged$get_contrasts()) == 200)
 
 \item{\code{formula}}{model formula}
 
-\item{\code{models}}{list of fitted models}
+\item{\code{contrast_results}}{named list of facade objects}
 
-\item{\code{contrast_results}}{list of contrast results}
-
-\item{\code{m1_linear}}{Linear_Model}
-
-\item{\code{m2_missing}}{Imputed_Mean}
-
-\item{\code{m3_merged}}{mergedModel}
-
-\item{\code{m4_glm_protein}}{glmModel}
-
-\item{\code{m4_glm_peptide}}{glmModelPeptide}
-
-\item{\code{default_model}}{default model key}
+\item{\code{default_model}}{facade registry key for the default model}
 }
 \if{html}{\out{</div>}}
 }
@@ -86,16 +74,8 @@ stopifnot(nrow(merged$get_contrasts()) == 200)
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-DEAnalyse-new}{\code{DEAnalyse$new()}}
-\item \href{#method-DEAnalyse-create_model_formula}{\code{DEAnalyse$create_model_formula()}}
-\item \href{#method-DEAnalyse-build_model_linear_protein}{\code{DEAnalyse$build_model_linear_protein()}}
-\item \href{#method-DEAnalyse-get_strategy_glm_prot}{\code{DEAnalyse$get_strategy_glm_prot()}}
-\item \href{#method-DEAnalyse-build_model_glm_protein}{\code{DEAnalyse$build_model_glm_protein()}}
-\item \href{#method-DEAnalyse-build_model_glm_peptide}{\code{DEAnalyse$build_model_glm_peptide()}}
-\item \href{#method-DEAnalyse-get_contrasts_linear_protein}{\code{DEAnalyse$get_contrasts_linear_protein()}}
-\item \href{#method-DEAnalyse-get_contrasts_glm_peptide}{\code{DEAnalyse$get_contrasts_glm_peptide()}}
-\item \href{#method-DEAnalyse-get_contrasts_glm_protein}{\code{DEAnalyse$get_contrasts_glm_protein()}}
-\item \href{#method-DEAnalyse-get_contrasts_missing_protein}{\code{DEAnalyse$get_contrasts_missing_protein()}}
-\item \href{#method-DEAnalyse-get_contrasts_merged_protein}{\code{DEAnalyse$get_contrasts_merged_protein()}}
+\item \href{#method-DEAnalyse-build_facade}{\code{DEAnalyse$build_facade()}}
+\item \href{#method-DEAnalyse-build_default}{\code{DEAnalyse$build_default()}}
 \item \href{#method-DEAnalyse-get_annotated_contrasts}{\code{DEAnalyse$get_annotated_contrasts()}}
 \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
 \item \href{#method-DEAnalyse-clone}{\code{DEAnalyse$clone()}}
@@ -105,120 +85,68 @@ stopifnot(nrow(merged$get_contrasts()) == 200)
 \if{html}{\out{<a id="method-DEAnalyse-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-new}{}}}
 \subsection{Method \code{new()}}{
-Initialize DEAnalyse from a prepared ProteinDataPrep object
+Initialize DEAnalyse
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(data_prep, contrasts, default_model = "mergedModel")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(
+  lfq_data,
+  rowAnnot,
+  prolfq_app_config,
+  contrasts,
+  default_model = "lm_missing",
+  lfq_data_raw = NULL,
+  summary = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data_prep}}{ProteinDataPrep object with aggregated and normalized data}
+\item{\code{lfq_data}}{LFQData to model (transformed, at correct hierarchy level)}
+
+\item{\code{rowAnnot}}{ProteinAnnotation object}
+
+\item{\code{prolfq_app_config}}{ProlfquAppConfig object}
 
 \item{\code{contrasts}}{named vector of contrast definitions}
 
-\item{\code{default_model}}{which model to use for final results}
+\item{\code{default_model}}{facade registry key (default "lm_missing")}
+
+\item{\code{lfq_data_raw}}{raw (untransformed) LFQData for reporting (optional)}
+
+\item{\code{summary}}{data.frame with contaminant/decoy summary (optional)}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-create_model_formula"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-create_model_formula}{}}}
-\subsection{Method \code{create_model_formula()}}{
-Create model formula from transformed data config
+\if{html}{\out{<a id="method-DEAnalyse-build_facade"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-build_facade}{}}}
+\subsection{Method \code{build_facade()}}{
+Build a facade by registry key
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$create_model_formula()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_facade(name, modelstr = NULL)}\if{html}{\out{</div>}}
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-build_model_linear_protein"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_linear_protein}{}}}
-\subsection{Method \code{build_model_linear_protein()}}{
-Fit linear model at protein level
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_linear_protein()}\if{html}{\out{</div>}}
-}
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{facade registry key (e.g. "lm", "lm_missing", "limma")}
 
+\item{\code{modelstr}}{model formula string; auto-generated if NULL}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+the facade object (invisibly)
+}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_strategy_glm_prot"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_strategy_glm_prot}{}}}
-\subsection{Method \code{get_strategy_glm_prot()}}{
-Get GLM strategy for protein-level missingness model
+\if{html}{\out{<a id="method-DEAnalyse-build_default"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-build_default}{}}}
+\subsection{Method \code{build_default()}}{
+Build the default facade (as set in default_model)
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_strategy_glm_prot()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-build_model_glm_protein"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_glm_protein}{}}}
-\subsection{Method \code{build_model_glm_protein()}}{
-Fit generalized linear model at protein level
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_glm_protein()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-build_model_glm_peptide"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-build_model_glm_peptide}{}}}
-\subsection{Method \code{build_model_glm_peptide()}}{
-Fit generalized linear model at peptide level (not yet implemented)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_model_glm_peptide()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_contrasts_linear_protein"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_linear_protein}{}}}
-\subsection{Method \code{get_contrasts_linear_protein()}}{
-Compute moderated contrasts from linear model
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_linear_protein()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_contrasts_glm_peptide"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_glm_peptide}{}}}
-\subsection{Method \code{get_contrasts_glm_peptide()}}{
-Compute moderated contrasts from GLM peptide model
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_glm_peptide()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_contrasts_glm_protein"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_glm_protein}{}}}
-\subsection{Method \code{get_contrasts_glm_protein()}}{
-Compute moderated contrasts from GLM protein model
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_glm_protein()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_contrasts_missing_protein"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_missing_protein}{}}}
-\subsection{Method \code{get_contrasts_missing_protein()}}{
-Compute moderated contrasts from missing-value imputation model
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_missing_protein()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-get_contrasts_merged_protein"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-get_contrasts_merged_protein}{}}}
-\subsection{Method \code{get_contrasts_merged_protein()}}{
-Merge linear and missing-value contrasts (or use linear only if model_missing = FALSE)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_contrasts_merged_protein()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_default()}\if{html}{\out{</div>}}
 }
 
 }

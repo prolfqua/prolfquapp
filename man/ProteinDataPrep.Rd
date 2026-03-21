@@ -39,6 +39,8 @@ data_prep$transform_data()
 
 \item{\code{lfq_data_transformed}}{normalized LFQData}
 
+\item{\code{lfq_data_peptide_transformed}}{transformed peptide-level LFQData (for nested facades)}
+
 \item{\code{aggregator}}{aggregator object}
 
 \item{\code{rowAnnot}}{ProteinAnnotation}
@@ -57,6 +59,8 @@ data_prep$transform_data()
 \item \href{#method-ProteinDataPrep-get_aggregation_plots}{\code{ProteinDataPrep$get_aggregation_plots()}}
 \item \href{#method-ProteinDataPrep-write_aggregation_plots}{\code{ProteinDataPrep$write_aggregation_plots()}}
 \item \href{#method-ProteinDataPrep-transform_data}{\code{ProteinDataPrep$transform_data()}}
+\item \href{#method-ProteinDataPrep-transform_peptide_data}{\code{ProteinDataPrep$transform_peptide_data()}}
+\item \href{#method-ProteinDataPrep-build_deanalyse}{\code{ProteinDataPrep$build_deanalyse()}}
 \item \href{#method-ProteinDataPrep-clone}{\code{ProteinDataPrep$clone()}}
 }
 }
@@ -154,6 +158,38 @@ Transform and normalize protein-level data
 \if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$transform_data()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ProteinDataPrep-transform_peptide_data"></a>}}
+\if{latex}{\out{\hypertarget{method-ProteinDataPrep-transform_peptide_data}{}}}
+\subsection{Method \code{transform_peptide_data()}}{
+Transform peptide-level data (for nested facades like lmer/ropeca)
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$transform_peptide_data()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ProteinDataPrep-build_deanalyse"></a>}}
+\if{latex}{\out{\hypertarget{method-ProteinDataPrep-build_deanalyse}{}}}
+\subsection{Method \code{build_deanalyse()}}{
+Build a DEAnalyse object with the correct data for the chosen facade
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$build_deanalyse(contrasts, default_model = "lm_missing")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{contrasts}}{named character vector of contrast definitions}
+
+\item{\code{default_model}}{facade registry key (default "lm_missing")}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+DEAnalyse R6 object
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinDataPrep-clone"></a>}}

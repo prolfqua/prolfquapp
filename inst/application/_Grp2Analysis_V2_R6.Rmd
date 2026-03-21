@@ -92,7 +92,7 @@ Table \@ref(tab:samples) shows the number of samples assigned to each group whil
 
 ```{r samples, eval=TRUE}
 
-tab <- data.frame(table(dea$lfq_data$factors()[dea$lfq_data$config$factor_keys_depth()]))
+tab <- data.frame(table(dea$lfq_data_raw$factors()[dea$lfq_data_raw$config$factor_keys_depth()]))
 colnames(tab)[length(colnames(tab))] <- "# samples"
 knitr::kable(tab, caption = "Nr of samples assigned to each group.")
 
@@ -100,7 +100,7 @@ knitr::kable(tab, caption = "Nr of samples assigned to each group.")
 
 
 ```{r annotation, eval=TRUE}
-ld <- dea$lfq_data
+ld <- dea$lfq_data_raw
 fx <- ld$factors()
 sr <- ld$get_Summariser()
 xx <- sr$hierarchy_counts_sample(nr_children = 1)
@@ -137,7 +137,7 @@ We also keep the decoy sequences because they allow us to re-estimate the propor
 Figure \@ref(fig:nrPerSample) shows the number of quantified proteins with one or more peptides per sample.
 
 ```{r nrPerSample, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
-sum <- dea$lfq_data$get_Summariser()
+sum <- dea$lfq_data_raw$get_Summariser()
 sum$plot_hierarchy_counts_sample(nr_children = 1)
 
 ```
@@ -145,7 +145,7 @@ sum$plot_hierarchy_counts_sample(nr_children = 1)
 Figure \@ref(fig:nrPerSample2) shows the number of quantified proteins with two or more peptides per sample.
 
 ```{r nrPerSample2, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
-sum <- dea$lfq_data$get_Summariser()
+sum <- dea$lfq_data_raw$get_Summariser()
 sum$plot_hierarchy_counts_sample(nr_children = 2)
 
 ```
@@ -157,7 +157,7 @@ The absence of a protein measurement in a sample might be biologically relevant 
 
 
 ```{r countProtWithNAs}
-res <- dea$lfq_data$to_wide(as.matrix = TRUE)$data
+res <- dea$lfq_data_raw$to_wide(as.matrix = TRUE)$data
 res[!is.na(res)] <- 0
 res[is.na(res)] <- 1
 allrows <- nrow(res)
@@ -167,7 +167,7 @@ allNas <- nrow(res)
 
 
 ```{r prepHeatmap}
-pl <- dea$lfq_data$get_Plotter()
+pl <- dea$lfq_data_raw$get_Plotter()
 nah <- pl$NA_heatmap()
 
 
@@ -188,7 +188,7 @@ Using Figure \@ref(fig:vennProteins) we examine if we see the same proteins in e
 (ref:vennProteins) Venn diagram showing the number of proteins present in each group and in all possible intersections among groups.
 
 ```{r vennProteins, fig.cap="(ref:vennProteins)",fig.alt=""}
-pups <- prolfqua::UpSet_interaction_missing_stats(dea$lfq_data$data, dea$lfq_data$config, tr = 1)
+pups <- prolfqua::UpSet_interaction_missing_stats(dea$lfq_data_raw$data, dea$lfq_data_raw$config, tr = 1)
 UpSetR::upset(pups$data, order.by = "freq", nsets = pups$nsets)
 
 ```
@@ -225,12 +225,12 @@ if (cfg$processing_options$transform == "robscale") {
 
 ```{r normalized,  fig.width=8, fig.height=5,dpi=300, fig.cap="(ref:normalized)",fig.alt="", eval=TRUE}
 
-pl <- dea$lfq_data$get_Plotter()
+pl <- dea$lfq_data_raw$get_Plotter()
 
-showlegend <- if (nrow(dea$lfq_data$factors()) > 12) {FALSE} else {TRUE}
+showlegend <- if (nrow(dea$lfq_data_raw$factors()) > 12) {FALSE} else {TRUE}
 p1 <- pl$intensity_distribution_density(legend = showlegend)
 
-plTransformed <- dea$lfq_data_transformed$get_Plotter()
+plTransformed <- dea$lfq_data$get_Plotter()
 p2 <- plTransformed$intensity_distribution_density(legend = showlegend) +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1))
 
@@ -260,7 +260,7 @@ Figure \@ref(fig:SDViolin) shows the coefficients of variation (CV) for all prot
 (ref:SDViolin) Distribution of coefficient of variation (CV) within each group and in the entire experiment (all).
 
 ```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)",fig.alt="", eval=TRUE}
-stR <- dea$lfq_data$get_Stats()
+stR <- dea$lfq_data_raw$get_Stats()
 pA <- stR$violin() + ggplot2::theme_classic() + ggplot2::labs(tag = "A")
 pA
 
@@ -280,7 +280,7 @@ knitr::kable(C, caption = "Median of coefficient of variation (CV).")
 
 
 ```{r generateHeatmaps, inlcude = FALSE}
-pl <- dea$lfq_data_transformed$get_Plotter()
+pl <- dea$lfq_data$get_Plotter()
 ph <- pl$heatmap()
 
 ```
@@ -301,7 +301,7 @@ We use principal component analysis (PCA) to transform the high-dimensional spac
 (ref:pca)  Plot of first and second principal component (PC1 and PC2) of principal component analysis (PCA). Normalized abundances were used as input.
 
 ```{r pca, fig.cap = "(ref:pca)" ,fig.alt="", fig.width=7, fig.height=7 }
-dea$lfq_data_transformed$get_Plotter()$pca_plotly()
+dea$lfq_data$get_Plotter()$pca_plotly()
 ```
 
 # Differential Expression Analysis
@@ -466,7 +466,7 @@ DT::datatable(sig, filter = "bottom",
 
 
 ```{r prepareHeatmap, eval = showSignificant}
-signif <- dea$lfq_data_transformed$get_copy()
+signif <- dea$lfq_data$get_copy()
 signif <- signif$get_subset(datax_signif)
 if (signif$hierarchy_counts()[2] > 30) {
   rownames = FALSE

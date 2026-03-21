@@ -31,6 +31,8 @@ ProteinDataPrep <- R6::R6Class(
     lfq_data = NULL,
     #' @field lfq_data_transformed normalized LFQData
     lfq_data_transformed = NULL,
+    #' @field lfq_data_peptide_transformed transformed peptide-level LFQData (for nested facades)
+    lfq_data_peptide_transformed = NULL,
     #' @field aggregator aggregator object
     aggregator = NULL,
     #' @field rowAnnot ProteinAnnotation
@@ -184,6 +186,50 @@ ProteinDataPrep <- R6::R6Class(
       transformed$rename_response("normalized_abundance")
       self$lfq_data_transformed <- transformed
       invisible(transformed)
+    },
+
+    #' @description
+    #' Transform peptide-level data (for nested facades like lmer/ropeca)
+    transform_peptide_data = function() {
+      transformed <- prolfquapp::transform_lfqdata(
+        self$lfq_data_peptide,
+        method = self$prolfq_app_config$processing_options$transform
+      )
+      self$lfq_data_peptide$rename_response("abundance")
+      transformed$rename_response("normalized_abundance")
+      self$lfq_data_peptide_transformed <- transformed
+      invisible(transformed)
+    },
+
+    #' @description
+    #' Build a DEAnalyse object with the correct data for the chosen facade
+    #' @param contrasts named character vector of contrast definitions
+    #' @param default_model facade registry key (default "lm_missing")
+    #' @return DEAnalyse R6 object
+    build_deanalyse = function(contrasts, default_model = "lm_missing") {
+      entry <- prolfqua::FACADE_REGISTRY[[default_model]]
+      if (is.null(entry)) stop("Unknown facade: ", default_model)
+
+      if (entry$needs == "nested") {
+        if (is.null(self$lfq_data_peptide_transformed)) {
+          self$transform_peptide_data()
+        }
+        lfq <- self$lfq_data_peptide_transformed
+        lfq_raw <- self$lfq_data_peptide
+      } else {
+        lfq <- self$lfq_data_transformed
+        lfq_raw <- self$lfq_data
+      }
+
+      DEAnalyse$new(
+        lfq_data = lfq,
+        rowAnnot = self$rowAnnot,
+        prolfq_app_config = self$prolfq_app_config,
+        contrasts = contrasts,
+        default_model = default_model,
+        lfq_data_raw = lfq_raw,
+        summary = self$summary
+      )
     }
   )
 )

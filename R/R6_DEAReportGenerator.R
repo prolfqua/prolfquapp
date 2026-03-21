@@ -116,8 +116,8 @@ DEAReportGenerator <- R6::R6Class(
     #' @return list containing all analysis results (14 sheets)
     prep_result_list = function() {
       dea <- self$deanalyse
-      rd <- dea$lfq_data
-      tr <- dea$lfq_data_transformed
+      rd <- dea$lfq_data_raw
+      tr <- dea$lfq_data
       ra <- dea$rowAnnot
 
       contrasts_df <- data.frame(
@@ -285,7 +285,7 @@ DEAReportGenerator <- R6::R6Class(
       if (!boxplot) {
         return(invisible(NULL))
       }
-      bb <- self$deanalyse$lfq_data_transformed
+      bb <- self$deanalyse$lfq_data
       grsizes <- bb$factors() |>
         dplyr::group_by(dplyr::across(bb$config$factor_keys_depth())) |>
         dplyr::summarize(n = dplyr::n(), .groups = "drop") |>
@@ -306,7 +306,7 @@ DEAReportGenerator <- R6::R6Class(
     filter_data = function() {
       dea <- self$deanalyse
       dx <- dea$filter_contrasts()
-      invisible(dea$lfq_data_transformed$get_subset(dx))
+      invisible(dea$lfq_data$get_subset(dx))
     },
 
     #' @description
@@ -320,7 +320,7 @@ DEAReportGenerator <- R6::R6Class(
     contrasts_to_Grob = function() {
       dea <- self$deanalyse
       datax <- dea$filter_contrasts()
-      hkeys <- dea$lfq_data_transformed$config$hierarchy_keys_depth()
+      hkeys <- dea$lfq_data$config$hierarchy_keys_depth()
       xdn <- datax |> dplyr::nest_by(!!!syms(hkeys))
 
       stats2grob <- function(data) {
@@ -445,12 +445,12 @@ DEAReportGenerator <- R6::R6Class(
       .url_builder = prolfquapp::bfabric_url_builder
     ) {
       dea <- self$deanalyse
-      colname <- dea$lfq_data$config$sampleName
-      rowname <- dea$lfq_data$config$hierarchyKeys()
+      colname <- dea$lfq_data_raw$config$sampleName
+      rowname <- dea$lfq_data_raw$config$hierarchyKeys()
       resTables <- self$prep_result_list()
 
-      matTr <- dea$lfq_data_transformed$to_wide(as.matrix = TRUE)
-      matRaw <- dea$lfq_data$to_wide(as.matrix = TRUE)
+      matTr <- dea$lfq_data$to_wide(as.matrix = TRUE)
+      matRaw <- dea$lfq_data_raw$to_wide(as.matrix = TRUE)
 
       mat.raw <- prolfquapp::strip_rownames(matRaw$data, strip)
       mat.trans <- prolfquapp::strip_rownames(matTr$data, strip)

@@ -248,10 +248,10 @@ logger::log_info("TRANSFORMING DATA")
 data_prep$transform_data()
 
 logger::log_info("CREATING DEAnalyse R6 OBJECT")
-deanalyse <- prolfquapp::DEAnalyse$new(data_prep, annotation$contrasts)
+deanalyse <- data_prep$build_deanalyse(annotation$contrasts)
 
 logger::log_info("BUILDING MODELS AND COMPUTING CONTRASTS")
-deanalyse$get_contrasts_merged_protein()
+deanalyse$build_default()
 
 logger::log_info("ANNOTATING CONTRASTS")
 deanalyse$get_annotated_contrasts()
@@ -273,10 +273,10 @@ outdir <- reporter$write_DEA_all(
 
 # ---- Parquet + YAML export ----
 arrow::write_parquet(
-  deanalyse$lfq_data_transformed$data,
+  deanalyse$lfq_data$data,
   sink = file.path(GRP2$get_result_dir(), "lfqdata_normalized.parquet")
 )
-cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data_transformed$config)
+cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$config)
 yaml::write_yaml(cfg, file.path(GRP2$get_result_dir(), "lfqdata.yaml"))
 
 # ---- IBAQ ----

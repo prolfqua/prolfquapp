@@ -54,10 +54,10 @@ The analysis of missing values can be an essential indicator of potential proble
 
 ```{r missingProtein, eval=TRUE, fig.cap="(ref:missingProtein)", fig.alt = "",fig.height=5, fig.width=8}
 
-pl <- dea$lfq_data$get_Plotter()
+pl <- dea$lfq_data_raw$get_Plotter()
 p2 <- pl$missigness_histogram()
 
-sr <- dea$lfq_data$get_Summariser()
+sr <- dea$lfq_data_raw$get_Summariser()
 p1 <- sr$plot_missingness_per_group()
 
 gridExtra::grid.arrange(p1 , p2 , nrow = 2)
@@ -73,17 +73,17 @@ Panel B of Figure \@ref(fig:SDViolin) shows the distribution of the standard dev
 (ref:SDViolin) Left panel - Distribution of coefficient of variation (CV) within groups and in entire experiment (all), Center panel - Distribution of standard deviations (sd) of $\log_2$ transformed data. Right panel - Distribution of protein standard deviation (sd), after data normalization within groups and in entire experiment. The black dot indicates the median CV.
 
 ```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)", fig.alt="", eval=TRUE}
-stR <- dea$lfq_data$get_Stats()
+stR <- dea$lfq_data_raw$get_Stats()
 pA <- stR$violin() + ggplot2::theme_classic() +
   ggplot2::labs(tag = "A") +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
-st <- dea$lfq_data_transformed$get_Stats()
+st <- dea$lfq_data$get_Stats()
 pC <- st$violin() +
   ggplot2::theme_classic() +
   ggplot2::labs(tag = "C") +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
-lfqData <- dea$lfq_data
+lfqData <- dea$lfq_data_raw
 tr <- lfqData$get_Transformer()
 tmp <- tr$log2()$lfq
 stback <- tmp$get_Stats()
