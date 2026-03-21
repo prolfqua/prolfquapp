@@ -267,8 +267,8 @@ logger::log_info("Writing results to: ", GRP2$get_zipdir())
 
 outdir <- reporter$write_DEA_all(
   boxplot = FALSE,
-  markdown = "_Grp2Analysis_V2_R6.Rmd",
-  markdown_qc = "_DiffExpQC_R6.Rmd"
+  markdown = "Grp2Analysis_V2_R6.Rmd",
+  markdown_qc = "DiffExpQC_R6.Rmd"
 )
 
 # ---- Parquet + YAML export ----

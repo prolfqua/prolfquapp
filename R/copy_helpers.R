@@ -64,9 +64,9 @@ copy_DEA_Files <- function(workdir = getwd()) {
 #'
 copy_DEA_R6_Files <- function(workdir = getwd()) {
   runscripts <- c(
-    "application/_Grp2Analysis_V2_R6.Rmd",
-    "application/bibliography.bib",
-    "application/_DiffExpQC_R6.Rmd"
+    "doc/Grp2Analysis_V2_R6.Rmd",
+    "doc/bibliography.bib",
+    "doc/DiffExpQC_R6.Rmd"
   )
   prolfqua::scriptCopyHelperVec(
     runscripts,
@@ -84,7 +84,7 @@ copy_DEA_Metabolomics_Files <- function(workdir = getwd()) {
   runscripts <- c(
     "application/_Grp2Analysis_V2_metabo_tabs.Rmd",
     "application/bibliography.bib",
-    "application/_DiffExpQC_R6.Rmd"
+    "doc/DiffExpQC_R6.Rmd"
   )
   prolfqua::scriptCopyHelperVec(
     runscripts,

@@ -16,9 +16,9 @@ header-includes:
   \fancyfoot[CO,CE]{\textbf{FGCZ} - www.fgcz.ch - 2018}
   \fancyfoot[LE,RO]{\thepage}
 params:
-  deanalyse: NULL
+  deanalyse: !r quote(prolfquapp::example_deanalyse())
 vignette: >
-  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteIndexEntry{Differential Expression QC}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 bibliography: bibliography.bib
@@ -39,7 +39,7 @@ knitr::opts_chunk$set(
 
 
 
-dea <- params$deanalyse
+dea <- eval(params$deanalyse)
 cfg <- dea$prolfq_app_config
 ```
 

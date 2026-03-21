@@ -16,9 +16,9 @@ header-includes:
   \fancyfoot[CO,CE]{\textbf{FGCZ} - www.fgcz.ch - 2018}
   \fancyfoot[LE,RO]{\thepage}
 params:
-  deanalyse: NULL
+  deanalyse: !r quote(prolfquapp::example_deanalyse())
 vignette: >
-  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteIndexEntry{Differential Expression Analysis}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 bibliography: bibliography.bib
@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE
 )
-dea <- params$deanalyse
+dea <- eval(params$deanalyse)
 cfg <- dea$prolfq_app_config
 
 ```
@@ -564,5 +564,5 @@ pander::pander(sessionInfo())
 
 ---
 
-*This report was generated from the R Markdown template `_Grp2Analysis_V2_R6.Rmd` included in the `prolfquapp` R package (version `r packageVersion("prolfquapp")`).*
+*This report was generated from the R Markdown template `Grp2Analysis_V2_R6.Rmd` included in the `prolfquapp` R package (version `r packageVersion("prolfquapp")`).*
 

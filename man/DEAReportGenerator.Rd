@@ -111,7 +111,7 @@ Render DEA report using R Markdown
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$render_DEA(
   htmlname,
-  markdown = "_Grp2Analysis_V2_R6.Rmd",
+  markdown = "Grp2Analysis_V2_R6.Rmd",
   word = FALSE,
   toc = TRUE
 )}\if{html}{\out{</div>}}
@@ -219,8 +219,8 @@ Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots
   render = TRUE,
   ORA = TRUE,
   GSEA = TRUE,
-  markdown = "_Grp2Analysis_V2_R6.Rmd",
-  markdown_qc = "_DiffExpQC_R6.Rmd",
+  markdown = "Grp2Analysis_V2_R6.Rmd",
+  markdown_qc = "DiffExpQC_R6.Rmd",
   toc = TRUE
 )}\if{html}{\out{</div>}}
 }

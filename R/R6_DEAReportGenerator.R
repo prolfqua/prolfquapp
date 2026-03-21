@@ -253,7 +253,7 @@ DEAReportGenerator <- R6::R6Class(
     #' @return path to the output file
     render_DEA = function(
       htmlname,
-      markdown = "_Grp2Analysis_V2_R6.Rmd",
+      markdown = "Grp2Analysis_V2_R6.Rmd",
       word = FALSE,
       toc = TRUE
     ) {
@@ -405,8 +405,8 @@ DEAReportGenerator <- R6::R6Class(
       render = TRUE,
       ORA = TRUE,
       GSEA = TRUE,
-      markdown = "_Grp2Analysis_V2_R6.Rmd",
-      markdown_qc = "_DiffExpQC_R6.Rmd",
+      markdown = "Grp2Analysis_V2_R6.Rmd",
+      markdown_qc = "DiffExpQC_R6.Rmd",
       toc = TRUE
     ) {
       data_files <- self$write_DEA(ORA = ORA, GSEA = GSEA)
