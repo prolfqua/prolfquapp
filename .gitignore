@@ -4,6 +4,7 @@
 .Ruserdata
 .DS_Store
 /doc/
+/inst/doc/
 /Meta/
 prolfquapp.Rcheck/
 docs/
