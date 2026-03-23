@@ -230,6 +230,62 @@ get_procfuncs()
 #> [1] "list(annotated = TRUE)"
 #> 
 #> 
+#> $prolfquappPTMreaders.FP_multisite
+#> $prolfquappPTMreaders.FP_multisite$extra_args
+#> [1] "list(sitetype = 'multisite')"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$get_files
+#> [1] "prolfquappPTMreaders::get_FP_multi_site_files"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"
+#> 
+#> 
+#> $prolfquappPTMreaders.FP_singlesite
+#> $prolfquappPTMreaders.FP_singlesite$extra_args
+#> [1] "list(sitetype = 'singlesite')"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$get_files
+#> [1] "prolfquappPTMreaders::get_FP_single_site_files"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"
+#> 
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY
+#> $prolfquappPTMreaders.FP_combined_STY$extra_args
+#> [1] "list(annotation_join_by = 'SampleName')"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_combined_STY"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$get_files
+#> [1] "prolfquappPTMreaders::get_FP_combined_STY_files"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_combined_STY"
+#> 
+#> 
+#> $prolfquappPTMreaders.BGS_site
+#> $prolfquappPTMreaders.BGS_site$extra_args
+#> [1] "list()"
+#> 
+#> $prolfquappPTMreaders.BGS_site$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_BGS_site"
+#> 
+#> $prolfquappPTMreaders.BGS_site$get_files
+#> [1] "prolfquappPTMreaders::get_BGS_site_files"
+#> 
+#> $prolfquappPTMreaders.BGS_site$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_BGS_site"
+#> 
+#> 
 get_procfuncs("prolfqua_preprocess_functions", "prolfqua")
 #> $prolfquapp.DIANN
 #> $prolfquapp.DIANN$get_files
@@ -432,6 +488,62 @@ get_procfuncs("prolfqua_preprocess_functions", "prolfqua")
 #> [1] "list(annotated = TRUE)"
 #> 
 #> 
+#> $prolfquappPTMreaders.FP_multisite
+#> $prolfquappPTMreaders.FP_multisite$extra_args
+#> [1] "list(sitetype = 'multisite')"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$get_files
+#> [1] "prolfquappPTMreaders::get_FP_multi_site_files"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"
+#> 
+#> 
+#> $prolfquappPTMreaders.FP_singlesite
+#> $prolfquappPTMreaders.FP_singlesite$extra_args
+#> [1] "list(sitetype = 'singlesite')"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$get_files
+#> [1] "prolfquappPTMreaders::get_FP_single_site_files"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"
+#> 
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY
+#> $prolfquappPTMreaders.FP_combined_STY$extra_args
+#> [1] "list(annotation_join_by = 'SampleName')"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_combined_STY"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$get_files
+#> [1] "prolfquappPTMreaders::get_FP_combined_STY_files"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_combined_STY"
+#> 
+#> 
+#> $prolfquappPTMreaders.BGS_site
+#> $prolfquappPTMreaders.BGS_site$extra_args
+#> [1] "list()"
+#> 
+#> $prolfquappPTMreaders.BGS_site$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_BGS_site"
+#> 
+#> $prolfquappPTMreaders.BGS_site$get_files
+#> [1] "prolfquappPTMreaders::get_BGS_site_files"
+#> 
+#> $prolfquappPTMreaders.BGS_site$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_BGS_site"
+#> 
+#> 
 get_procfuncs("prolfqua_preprocess_functions", "prolfquapp")
 #> $prolfquapp.DIANN
 #> $prolfquapp.DIANN$get_files
@@ -634,6 +746,62 @@ get_procfuncs("prolfqua_preprocess_functions", "prolfquapp")
 #> [1] "list(annotated = TRUE)"
 #> 
 #> 
+#> $prolfquappPTMreaders.FP_multisite
+#> $prolfquappPTMreaders.FP_multisite$extra_args
+#> [1] "list(sitetype = 'multisite')"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$get_files
+#> [1] "prolfquappPTMreaders::get_FP_multi_site_files"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"
+#> 
+#> 
+#> $prolfquappPTMreaders.FP_singlesite
+#> $prolfquappPTMreaders.FP_singlesite$extra_args
+#> [1] "list(sitetype = 'singlesite')"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$get_files
+#> [1] "prolfquappPTMreaders::get_FP_single_site_files"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"
+#> 
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY
+#> $prolfquappPTMreaders.FP_combined_STY$extra_args
+#> [1] "list(annotation_join_by = 'SampleName')"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_combined_STY"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$get_files
+#> [1] "prolfquappPTMreaders::get_FP_combined_STY_files"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_combined_STY"
+#> 
+#> 
+#> $prolfquappPTMreaders.BGS_site
+#> $prolfquappPTMreaders.BGS_site$extra_args
+#> [1] "list()"
+#> 
+#> $prolfquappPTMreaders.BGS_site$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_BGS_site"
+#> 
+#> $prolfquappPTMreaders.BGS_site$get_files
+#> [1] "prolfquappPTMreaders::get_BGS_site_files"
+#> 
+#> $prolfquappPTMreaders.BGS_site$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_BGS_site"
+#> 
+#> 
 get_procfuncs("prolfqua_preprocess_functions", "prolfquapp")
 #> $prolfquapp.DIANN
 #> $prolfquapp.DIANN$get_files
@@ -834,6 +1002,62 @@ get_procfuncs("prolfqua_preprocess_functions", "prolfquapp")
 #> 
 #> $prolfquapp.MZMINEannot$extra_args
 #> [1] "list(annotated = TRUE)"
+#> 
+#> 
+#> $prolfquappPTMreaders.FP_multisite
+#> $prolfquappPTMreaders.FP_multisite$extra_args
+#> [1] "list(sitetype = 'multisite')"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$get_files
+#> [1] "prolfquappPTMreaders::get_FP_multi_site_files"
+#> 
+#> $prolfquappPTMreaders.FP_multisite$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"
+#> 
+#> 
+#> $prolfquappPTMreaders.FP_singlesite
+#> $prolfquappPTMreaders.FP_singlesite$extra_args
+#> [1] "list(sitetype = 'singlesite')"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_multi_site"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$get_files
+#> [1] "prolfquappPTMreaders::get_FP_single_site_files"
+#> 
+#> $prolfquappPTMreaders.FP_singlesite$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_multi_site"
+#> 
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY
+#> $prolfquappPTMreaders.FP_combined_STY$extra_args
+#> [1] "list(annotation_join_by = 'SampleName')"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_FP_combined_STY"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$get_files
+#> [1] "prolfquappPTMreaders::get_FP_combined_STY_files"
+#> 
+#> $prolfquappPTMreaders.FP_combined_STY$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_FP_combined_STY"
+#> 
+#> 
+#> $prolfquappPTMreaders.BGS_site
+#> $prolfquappPTMreaders.BGS_site$extra_args
+#> [1] "list()"
+#> 
+#> $prolfquappPTMreaders.BGS_site$preprocess
+#> [1] "prolfquappPTMreaders::preprocess_BGS_site"
+#> 
+#> $prolfquappPTMreaders.BGS_site$get_files
+#> [1] "prolfquappPTMreaders::get_BGS_site_files"
+#> 
+#> $prolfquappPTMreaders.BGS_site$dataset
+#> [1] "prolfquappPTMreaders::dataset_template_BGS_site"
 #> 
 #> 
 get_procfuncs("prolfqua_preprocess_functions", "xdx")

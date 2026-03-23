@@ -22,6 +22,8 @@ DEAReportGenerator"></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Auxiliary_ExDesignSurvey.html">Auxiliary - Bioinformatics Project Meeting Agenda</a></li>
+    <li><a class="dropdown-item" href="../articles/DiffExpQC_R6.html">Differential Expression Analysis Quality Control.</a></li>
+    <li><a class="dropdown-item" href="../articles/Grp2Analysis_V2_R6.html">Differential Expression Analysis.</a></li>
     <li><a class="dropdown-item" href="../articles/QCandSSE.html">Quality Control &amp; Sample Size Estimation</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -36,7 +38,7 @@ DEAReportGenerator"></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>DEAReportGenerator</h1>
-      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/master/R/R6_DEAReportGenerator.R" class="external-link"><code>R/R6_DEAReportGenerator.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/HEAD/R/R6_DEAReportGenerator.R" class="external-link"><code>R/R6_DEAReportGenerator.R</code></a></small>
       <div class="d-none name"><code>DEAReportGenerator.Rd</code></div>
     </div>
 
@@ -164,7 +166,7 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DEAReportGenerator</span><span class="op">$</span><span class="fu">render_DEA</span><span class="op">(</span></span>
 <span>  <span class="va">htmlname</span>,</span>
-<span>  markdown <span class="op">=</span> <span class="st">"_Grp2Analysis_V2_R6.Rmd"</span>,</span>
+<span>  markdown <span class="op">=</span> <span class="st">"Grp2Analysis_V2_R6.Rmd"</span>,</span>
 <span>  word <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  toc <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -268,8 +270,8 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
 <span>  render <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  ORA <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  GSEA <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  markdown <span class="op">=</span> <span class="st">"_Grp2Analysis_V2_R6.Rmd"</span>,</span>
-<span>  markdown_qc <span class="op">=</span> <span class="st">"_DiffExpQC_R6.Rmd"</span>,</span>
+<span>  markdown <span class="op">=</span> <span class="st">"Grp2Analysis_V2_R6.Rmd"</span>,</span>
+<span>  markdown_qc <span class="op">=</span> <span class="st">"DiffExpQC_R6.Rmd"</span>,</span>
 <span>  toc <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>

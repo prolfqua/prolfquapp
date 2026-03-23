@@ -26,7 +26,7 @@ preprocess_anndata_from_lfq(lfqdata, protAnnot, source_software = "unknown")
 
 ## Value
 
-[`anndataR::AnnData`](https://anndataR.scverse.org/reference/AnnData.html)
+[`anndataR::AnnData`](https://rdrr.io/pkg/anndataR/man/AnnData.html)
 object
 
 ## Details

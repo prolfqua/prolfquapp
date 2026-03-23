@@ -35,6 +35,7 @@ Other MaxQuant:
 
 ``` r
 
+
 peptide_txt <- prolfqua::find_package_file("prolfquapp", "samples/maxquant_txt/tiny2.zip")
 
 peptides_txt <- read.csv(

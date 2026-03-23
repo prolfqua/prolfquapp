@@ -1,14 +1,18 @@
-# Differential expression analysis engine
+# Differential expression analysis engine using prolfqua facade classes
 
-Differential expression analysis engine
+Differential expression analysis engine using prolfqua facade classes
 
-Differential expression analysis engine
+Differential expression analysis engine using prolfqua facade classes
 
 ## Details
 
-Takes a prepared `ProteinDataPrep` object and runs statistical
-modelling: fits linear and GLM models, computes moderated contrasts,
-merges results.
+Takes prepared LFQData (at the correct hierarchy level for the chosen
+facade) and runs statistical modelling via prolfqua's ContrastsFacade
+classes.
+
+The caller (e.g. `ProteinDataPrep$build_deanalyse()`) is responsible for
+providing data at the right level: aggregated protein-level for most
+facades, or nested peptide-level for `lmer`/`ropeca`.
 
 ## Public fields
 
@@ -16,17 +20,13 @@ merges results.
 
   ProlfquAppConfig
 
-- `lfq_data_peptide`:
-
-  LFQData peptide level
-
 - `lfq_data`:
 
-  LFQData protein level
+  LFQData to model (transformed, at correct hierarchy level)
 
-- `lfq_data_transformed`:
+- `lfq_data_raw`:
 
-  normalized LFQData
+  raw (untransformed) LFQData for reporting
 
 - `rowAnnot`:
 
@@ -60,37 +60,13 @@ merges results.
 
   model formula
 
-- `models`:
-
-  list of fitted models
-
 - `contrast_results`:
 
-  list of contrast results
-
-- `m1_linear`:
-
-  Linear_Model
-
-- `m2_missing`:
-
-  Imputed_Mean
-
-- `m3_merged`:
-
-  mergedModel
-
-- `m4_glm_protein`:
-
-  glmModel
-
-- `m4_glm_peptide`:
-
-  glmModelPeptide
+  named list of facade objects
 
 - `default_model`:
 
-  default model key
+  facade registry key for the default model
 
 ## Methods
 
@@ -98,25 +74,9 @@ merges results.
 
 - [`DEAnalyse$new()`](#method-DEAnalyse-new)
 
-- [`DEAnalyse$create_model_formula()`](#method-DEAnalyse-create_model_formula)
+- [`DEAnalyse$build_facade()`](#method-DEAnalyse-build_facade)
 
-- [`DEAnalyse$build_model_linear_protein()`](#method-DEAnalyse-build_model_linear_protein)
-
-- [`DEAnalyse$get_strategy_glm_prot()`](#method-DEAnalyse-get_strategy_glm_prot)
-
-- [`DEAnalyse$build_model_glm_protein()`](#method-DEAnalyse-build_model_glm_protein)
-
-- [`DEAnalyse$build_model_glm_peptide()`](#method-DEAnalyse-build_model_glm_peptide)
-
-- [`DEAnalyse$get_contrasts_linear_protein()`](#method-DEAnalyse-get_contrasts_linear_protein)
-
-- [`DEAnalyse$get_contrasts_glm_peptide()`](#method-DEAnalyse-get_contrasts_glm_peptide)
-
-- [`DEAnalyse$get_contrasts_glm_protein()`](#method-DEAnalyse-get_contrasts_glm_protein)
-
-- [`DEAnalyse$get_contrasts_missing_protein()`](#method-DEAnalyse-get_contrasts_missing_protein)
-
-- [`DEAnalyse$get_contrasts_merged_protein()`](#method-DEAnalyse-get_contrasts_merged_protein)
+- [`DEAnalyse$build_default()`](#method-DEAnalyse-build_default)
 
 - [`DEAnalyse$get_annotated_contrasts()`](#method-DEAnalyse-get_annotated_contrasts)
 
@@ -128,17 +88,33 @@ merges results.
 
 ### Method `new()`
 
-Initialize DEAnalyse from a prepared ProteinDataPrep object
+Initialize DEAnalyse
 
 #### Usage
 
-    DEAnalyse$new(data_prep, contrasts, default_model = "mergedModel")
+    DEAnalyse$new(
+      lfq_data,
+      rowAnnot,
+      prolfq_app_config,
+      contrasts,
+      default_model = "lm_missing",
+      lfq_data_raw = NULL,
+      summary = NULL
+    )
 
 #### Arguments
 
-- `data_prep`:
+- `lfq_data`:
 
-  ProteinDataPrep object with aggregated and normalized data
+  LFQData to model (transformed, at correct hierarchy level)
+
+- `rowAnnot`:
+
+  ProteinAnnotation object
+
+- `prolfq_app_config`:
+
+  ProlfquAppConfig object
 
 - `contrasts`:
 
@@ -146,108 +122,49 @@ Initialize DEAnalyse from a prepared ProteinDataPrep object
 
 - `default_model`:
 
-  which model to use for final results
+  facade registry key (default "lm_missing")
+
+- `lfq_data_raw`:
+
+  raw (untransformed) LFQData for reporting (optional)
+
+- `summary`:
+
+  data.frame with contaminant/decoy summary (optional)
 
 ------------------------------------------------------------------------
 
-### Method `create_model_formula()`
+### Method `build_facade()`
 
-Create model formula from transformed data config
+Build a facade by registry key
 
 #### Usage
 
-    DEAnalyse$create_model_formula()
+    DEAnalyse$build_facade(name, modelstr = NULL)
+
+#### Arguments
+
+- `name`:
+
+  facade registry key (e.g. "lm", "lm_missing", "limma")
+
+- `modelstr`:
+
+  model formula string; auto-generated if NULL
+
+#### Returns
+
+the facade object (invisibly)
 
 ------------------------------------------------------------------------
 
-### Method `build_model_linear_protein()`
+### Method `build_default()`
 
-Fit linear model at protein level
-
-#### Usage
-
-    DEAnalyse$build_model_linear_protein()
-
-------------------------------------------------------------------------
-
-### Method `get_strategy_glm_prot()`
-
-Get GLM strategy for protein-level missingness model
+Build the default facade (as set in default_model)
 
 #### Usage
 
-    DEAnalyse$get_strategy_glm_prot()
-
-------------------------------------------------------------------------
-
-### Method `build_model_glm_protein()`
-
-Fit generalized linear model at protein level
-
-#### Usage
-
-    DEAnalyse$build_model_glm_protein()
-
-------------------------------------------------------------------------
-
-### Method `build_model_glm_peptide()`
-
-Fit generalized linear model at peptide level (not yet implemented)
-
-#### Usage
-
-    DEAnalyse$build_model_glm_peptide()
-
-------------------------------------------------------------------------
-
-### Method `get_contrasts_linear_protein()`
-
-Compute moderated contrasts from linear model
-
-#### Usage
-
-    DEAnalyse$get_contrasts_linear_protein()
-
-------------------------------------------------------------------------
-
-### Method `get_contrasts_glm_peptide()`
-
-Compute moderated contrasts from GLM peptide model
-
-#### Usage
-
-    DEAnalyse$get_contrasts_glm_peptide()
-
-------------------------------------------------------------------------
-
-### Method `get_contrasts_glm_protein()`
-
-Compute moderated contrasts from GLM protein model
-
-#### Usage
-
-    DEAnalyse$get_contrasts_glm_protein()
-
-------------------------------------------------------------------------
-
-### Method `get_contrasts_missing_protein()`
-
-Compute moderated contrasts from missing-value imputation model
-
-#### Usage
-
-    DEAnalyse$get_contrasts_missing_protein()
-
-------------------------------------------------------------------------
-
-### Method `get_contrasts_merged_protein()`
-
-Merge linear and missing-value contrasts (or use linear only if
-model_missing = FALSE)
-
-#### Usage
-
-    DEAnalyse$get_contrasts_merged_protein()
+    DEAnalyse$build_default()
 
 ------------------------------------------------------------------------
 
@@ -312,26 +229,187 @@ data_prep$cont_decoy_summary()
 #> 1                  100
 data_prep$remove_cont_decoy()
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-03-19 19:28:31] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#> INFO [2026-03-23 20:32:17] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
 data_prep$aggregate()
-#> INFO [2026-03-19 19:28:31] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-03-23 20:32:17] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
+#> 
+
+#> [=================================>-------------------------------------]  48%
+#> 
+
+#> [==================================>------------------------------------]  49%
+#> 
+
+#> [===================================>-----------------------------------]  50%
+#> 
+
+#> [===================================>-----------------------------------]  51%
+#> 
+
+#> [====================================>----------------------------------]  52%
+#> 
+
+#> [=====================================>---------------------------------]  53%
+#> 
+
+#> [=====================================>---------------------------------]  54%
+#> 
+
+#> [======================================>--------------------------------]  55%
+#> 
+
+#> [=======================================>-------------------------------]  56%
+#> 
+
+#> [=======================================>-------------------------------]  57%
+#> 
+
+#> [========================================>------------------------------]  58%
+#> 
+
+#> [=========================================>-----------------------------]  59%
+#> 
+
+#> [==========================================>----------------------------]  60%
+#> 
+
+#> [==========================================>----------------------------]  61%
+#> 
+
+#> [===========================================>---------------------------]  62%
+#> 
+
+#> [============================================>--------------------------]  63%
+#> 
+
+#> [============================================>--------------------------]  64%
+#> 
+
+#> [=============================================>-------------------------]  65%
+#> 
+
+#> [==============================================>------------------------]  66%
+#> 
+
+#> [===============================================>-----------------------]  67%
+#> 
+
+#> [===============================================>-----------------------]  68%
+#> 
+
+#> [================================================>----------------------]  69%
+#> 
+
+#> [=================================================>---------------------]  70%
+#> 
+
+#> [=================================================>---------------------]  71%
+#> 
+
+#> [==================================================>--------------------]  72%
+#> 
+
+#> [===================================================>-------------------]  73%
+#> 
+
+#> [====================================================>------------------]  74%
+#> 
+
+#> [====================================================>------------------]  75%
+#> 
+
+#> [=====================================================>-----------------]  76%
+#> 
+
+#> [======================================================>----------------]  77%
+#> 
+
+#> [======================================================>----------------]  78%
+#> 
+
+#> [=======================================================>---------------]  79%
+#> 
+
+#> [========================================================>--------------]  80%
+#> 
+
+#> [=========================================================>-------------]  81%
+#> 
+
+#> [=========================================================>-------------]  82%
+#> 
+
+#> [==========================================================>------------]  83%
+#> 
+
+#> [===========================================================>-----------]  84%
+#> 
+
+#> [===========================================================>-----------]  85%
+#> 
+
+#> [============================================================>----------]  86%
+#> 
+
+#> [=============================================================>---------]  87%
+#> 
+
+#> [=============================================================>---------]  88%
+#> 
+
+#> [==============================================================>--------]  89%
+#> 
+
+#> [===============================================================>-------]  90%
+#> 
+
+#> [================================================================>------]  91%
+#> 
+
+#> [================================================================>------]  92%
+#> 
+
+#> [=================================================================>-----]  93%
+#> 
+
+#> [==================================================================>----]  94%
+#> 
+
+#> [==================================================================>----]  95%
+#> 
+
+#> [===================================================================>---]  96%
+#> 
+
+#> [====================================================================>--]  97%
+#> 
+
+#> [=====================================================================>-]  98%
+#> 
+
+#> [=====================================================================>-]  99%
+#> 
+
+#> [=======================================================================] 100%
+#> 
+                                                                              
+#> 
+
 #> Column added : exp_medpolish
-#> INFO [2026-03-19 19:28:32] END OF PROTEIN AGGREGATION
+#> INFO [2026-03-23 20:32:17] END OF PROTEIN AGGREGATION
 data_prep$transform_data()
-#> INFO [2026-03-19 19:28:32] Transforming using robscale.
+#> INFO [2026-03-23 20:32:17] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(protein_Id, sampleName, isotopeLabel)`
-#> INFO [2026-03-19 19:28:32] Transforming data : robscale.
+#> INFO [2026-03-23 20:32:18] Transforming data : robscale.
 
-deanalyse <- prolfquapp::DEAnalyse$new(data_prep, contrasts)
-mod <- deanalyse$build_model_linear_protein()
-#> INFO [2026-03-19 19:28:32] fitted model with formula : normalized_abundance ~ group_
+deanalyse <- data_prep$build_deanalyse(contrasts)
+deanalyse$build_default()
+#> INFO [2026-03-23 20:32:18] model formula: normalized_abundance ~ group_
 #> Joining with `by = join_by(protein_Id)`
-contlm <- deanalyse$get_contrasts_linear_protein()
-merged <- deanalyse$get_contrasts_merged_protein()
 #> determine linear functions:
 #> get_contrasts -> contrasts_linfct
 #> contrasts_linfct
@@ -345,5 +423,5 @@ merged <- deanalyse$get_contrasts_merged_protein()
 #> BVsC=group_B - group_Ctrl
 #> Joining with `by = join_by(protein_Id, contrast)`
 #> Joining with `by = join_by(protein_Id, contrast)`
-stopifnot(nrow(merged$get_contrasts()) == 200)
+stopifnot(nrow(deanalyse$contrast_results[[deanalyse$default_model]]$get_contrasts()) == 200)
 ```

@@ -16,7 +16,7 @@ LFQData_from_anndata(adata)
 - adata:
 
   an
-  [`anndataR::AnnData`](https://anndataR.scverse.org/reference/AnnData.html)
+  [`anndataR::AnnData`](https://rdrr.io/pkg/anndataR/man/AnnData.html)
   object with `uns$prolfquapp`
 
 ## Value

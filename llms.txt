@@ -191,7 +191,8 @@ prolfquapp_ASMS_poster
 - [`DEAReportGenerator`](https://prolfqua.github.io/prolfquapp/reference/DEAReportGenerator.md)
   : DEAReportGenerator
 - [`DEAnalyse`](https://prolfqua.github.io/prolfquapp/reference/DEAnalyse.md)
-  : Differential expression analysis engine
+  : Differential expression analysis engine using prolfqua facade
+  classes
 - [`ExternalReader`](https://prolfqua.github.io/prolfquapp/reference/ExternalReader.md)
   : external reader R6 class for handling external data sources
 - [`FragPipe`](https://prolfqua.github.io/prolfquapp/reference/FragPipe.md)
@@ -262,6 +263,8 @@ prolfquapp_ASMS_poster
   Precursor abundances.
 - [`diann_read_output()`](https://prolfqua.github.io/prolfquapp/reference/diann_read_output.md)
   : read DiaNN diann-output.tsv file
+- [`example_deanalyse()`](https://prolfqua.github.io/prolfquapp/reference/example_deanalyse.md)
+  : Create an example DEAnalyse object from simulated data
 - [`exp2()`](https://prolfqua.github.io/prolfquapp/reference/exp2.md) :
   transform lfq data with x^2 - apply if non log data is needed
 - [`extract_GN()`](https://prolfqua.github.io/prolfquapp/reference/extract_GN.md)
@@ -387,6 +390,10 @@ prolfquapp_ASMS_poster
 
 - [Auxiliary - Bioinformatics Project Meeting
   Agenda](https://prolfqua.github.io/prolfquapp/articles/Auxiliary_ExDesignSurvey.md):
+- [Differential Expression Analysis Quality
+  Control.](https://prolfqua.github.io/prolfquapp/articles/DiffExpQC_R6.md):
+- [Differential Expression
+  Analysis.](https://prolfqua.github.io/prolfquapp/articles/Grp2Analysis_V2_R6.md):
 - [prolfquapp - an R package to report differential expression analysis
   results.](https://prolfqua.github.io/prolfquapp/articles/prolfquapp.md):
 - [Quality Control & Sample Size

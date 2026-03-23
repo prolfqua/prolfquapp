@@ -24,7 +24,7 @@ between your biological replicates is similar (reproducibility).
 |:-----------|--------------:|--------------:|
 | light      |           163 |          1258 |
 
-Nr of proteins detected in all samples.
+Nr of proteins detected in all samples. {.table}
 
 (ref:hierarchyCountsSampleBarplot) Number of quantified proteins per
 sample.
@@ -91,7 +91,7 @@ Variations (CV).
 |   0.9 | 42.68712 | 41.05645 | 40.27659 | 43.83096 | 40.84628 | 43.73533 |
 
 Summary of the coefficient of variation (CV) at the 50th, 60th, 70th,
-80th and 90th percentile.
+80th and 90th percentile. {.table}
 
 ![Distribution of unnormalized
 intensities.](QCandSSE_files/figure-html/intensityDistribution-1.png)
@@ -105,12 +105,13 @@ We applied the
 to the data, which should remove systematic differences among the
 samples and reduce the variance within the groups (Figure
 @ref(fig:plotTransformedIntensityDistributions)). Because of this
-transformation, we can’t report $CV\prime s$ anymore but report standard
-deviations ($sd$). Figure @ref(fig:sdviolinplots) shows the distribution
-of the protein standard deviations while Figure @ref(fig:sdecdf) shows
-the empirical cumulative distribution function ($ecdf$). Table
-@ref(tab:printSDTable) summarises the $sd$. The heatmap in Figure
-@ref(fig:correlationHeat) shows the correlation among the QC samples.
+transformation, we can’t report $`CV's`$ anymore but report standard
+deviations ($`sd`$). Figure @ref(fig:sdviolinplots) shows the
+distribution of the protein standard deviations while Figure
+@ref(fig:sdecdf) shows the empirical cumulative distribution function
+($`ecdf`$). Table @ref(tab:printSDTable) summarises the $`sd`$. The
+heatmap in Figure @ref(fig:correlationHeat) shows the correlation among
+the QC samples.
 
 (ref:plotTransformedIntensityDistributions) protein intensity
 distribution after transformation.
@@ -159,7 +160,7 @@ high intensity (top 50).
 |   0.9 | 0.5626683 | 0.5540956 | 0.5632134 | 0.5814590 | 0.5437999 | 0.7131470 |
 
 Summary of the distribution of standard deviations at the 50th, 60th,
-70th, 80th and 90th percentile.
+70th, 80th and 90th percentile. {.table style="width:100%;"}
 
 (ref:overviewHeat) Sample and protein Heatmap.
 
@@ -179,18 +180,18 @@ An important factor in estimating the sample sizes is the smallest
 effect size (difference) you are interested in detecting between two
 conditions, e.g. a reference and a treatment. Smaller biologically
 significant effect sizes require more samples to obtain a statistically
-significant result. Typical $log_{2}$ fold change thresholds are
-$0.59,1,2$ which correspond to a fold change of $1.5,2,4$.
+significant result. Typical $`log_2`$ fold change thresholds are
+$`0.59, 1, 2`$ which correspond to a fold change of $`1.5, 2, 4`$.
 
 Table @ref(tab:sampleSize) and Figure @ref(fig:figSampleSize) summarizes
-how many samples are needed to detect a fold change of $0.5,1,2$ at a
-confidence level of $95\%$ and power of $80\%$, for $50,60,70,80$ and
-$90\%$ percent of the measured proteins.
+how many samples are needed to detect a fold change of $`0.5, 1, 2`$ at
+a confidence level of $`95\%`$ and power of $`80\%`$, for
+$`50, 60, 70, 80`$ and $`90\%`$ percent of the measured proteins.
 
 (ref:figSampleSize) Graphical representation of the sample size needed
 to detect a log fold change greater than delta with a significance level
-of $0.05$ and power 0.8 when using a t-test to compare means, in $X\%$
-of proteins (x - axis).
+of $`0.05`$ and power 0.8 when using a t-test to compare means, in
+$`X\%`$ of proteins (x - axis).
 
 ![](QCandSSE_files/figure-html/figSampleSize-1.png)
 
@@ -213,54 +214,55 @@ of proteins (x - axis).
 
 Sample size needed to detect a difference log fold change greater than
 delta with a significance level of 0.05 and power 0.8 when using a
-t-test to compare means.
+t-test to compare means. {.table}
 
-The *power* of a test is $1 - \beta$, where $\beta$ is the probability
+The *power* of a test is $`1-\beta`$, where $`\beta`$ is the probability
 of a Type 2 error (failing to reject the null hypothesis when the
-alternative hypothesis is true). In other words, if you have a $20\%$
+alternative hypothesis is true). In other words, if you have a $`20\%`$
 chance of failing to detect a real difference, then the power of your
-test is $80\%$.
+test is $`80\%`$.
 
-The *confidence level* is equal to $1 - \alpha$, where $\alpha$ is the
-probability of making a Type 1 Error. That is, alpha represents the
-chance of a falsely rejecting $H_{0}$ and picking up a false-positive
-effect. Alpha is usually set at $5\%$ significance level, for a $95\%$
-confidence level.
+The *confidence level* is equal to $`1 - \alpha`$, where $`\alpha`$ is
+the probability of making a Type 1 Error. That is, alpha represents the
+chance of a falsely rejecting $`H_0`$ and picking up a false-positive
+effect. Alpha is usually set at $`5\%`$ significance level, for a
+$`95\%`$ confidence level.
 
 Fold change: Suppose you are comparing a treatment group to a placebo
 group, and you will be measuring some continuous response variable
 which, you hypothesize, will be affected by the treatment. We can
-consider the mean response in the treatment group, $\mu_{1}$, and the
-mean response in the placebo group, $\mu_{2}$. We can then define
-$\Delta = \mu_{1} - \mu_{2}$ as the mean difference. The smaller the
+consider the mean response in the treatment group, $`\mu_1`$, and the
+mean response in the placebo group, $`\mu_2`$. We can then define
+$`\Delta = \mu_1 - \mu_2`$ as the mean difference. The smaller the
 difference you want to detect, the larger the required sample size.
 
 ## Appendix
 
-| raw.file                                                         | sampleName | dilution. | run_Id |
-|:-----------------------------------------------------------------|:-----------|:----------|:-------|
-| b03_10_150304_human_ecoli_a_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | a~10       | a         | 10     |
-| b03_11_150304_human_ecoli_a_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | a~11       | a         | 11     |
-| b03_20_150304_human_ecoli_a_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | a~20       | a         | 20     |
-| b03_21_150304_human_ecoli_a_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | a~21       | a         | 21     |
-| b03_02_150304_human_ecoli_b_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | b~02       | b         | 02     |
-| b03_09_150304_human_ecoli_b_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | b~09       | b         | 09     |
-| b03_12_150304_human_ecoli_b_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | b~12       | b         | 12     |
-| b03_19_150304_human_ecoli_b_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | b~19       | b         | 19     |
-| b03_03_150304_human_ecoli_c_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | c~03       | c         | 03     |
-| b03_08_150304_human_ecoli_c_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | c~08       | c         | 08     |
-| b03_13_150304_human_ecoli_c_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | c~13       | c         | 13     |
-| b03_18_150304_human_ecoli_c_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | c~18       | c         | 18     |
-| b03_04_150304_human_ecoli_d_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | d~04       | d         | 04     |
-| b03_07_150304_human_ecoli_d_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | d~07       | d         | 07     |
-| b03_14_150304_human_ecoli_d_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | d~14       | d         | 14     |
-| b03_17_150304_human_ecoli_d_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | d~17       | d         | 17     |
-| b03_05_150304_human_ecoli_e_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | e~05       | e         | 05     |
-| b03_06_150304_human_ecoli_e_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | e~06       | e         | 06     |
-| b03_15_150304_human_ecoli_e_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | e~15       | e         | 15     |
-| b03_16_150304_human_ecoli_e_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | e~16       | e         | 16     |
+| raw.file | sampleName | dilution. | run_Id |
+|:---|:---|:---|:---|
+| b03_10_150304_human_ecoli_a_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | a~10 | a | 10 |
+| b03_11_150304_human_ecoli_a_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | a~11 | a | 11 |
+| b03_20_150304_human_ecoli_a_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | a~20 | a | 20 |
+| b03_21_150304_human_ecoli_a_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | a~21 | a | 21 |
+| b03_02_150304_human_ecoli_b_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | b~02 | b | 02 |
+| b03_09_150304_human_ecoli_b_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | b~09 | b | 09 |
+| b03_12_150304_human_ecoli_b_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | b~12 | b | 12 |
+| b03_19_150304_human_ecoli_b_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | b~19 | b | 19 |
+| b03_03_150304_human_ecoli_c_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | c~03 | c | 03 |
+| b03_08_150304_human_ecoli_c_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | c~08 | c | 08 |
+| b03_13_150304_human_ecoli_c_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | c~13 | c | 13 |
+| b03_18_150304_human_ecoli_c_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | c~18 | c | 18 |
+| b03_04_150304_human_ecoli_d_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | d~04 | d | 04 |
+| b03_07_150304_human_ecoli_d_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | d~07 | d | 07 |
+| b03_14_150304_human_ecoli_d_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | d~14 | d | 14 |
+| b03_17_150304_human_ecoli_d_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | d~17 | d | 17 |
+| b03_05_150304_human_ecoli_e_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | e~05 | e | 05 |
+| b03_06_150304_human_ecoli_e_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | e~06 | e | 06 |
+| b03_15_150304_human_ecoli_e_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | e~15 | e | 15 |
+| b03_16_150304_human_ecoli_e_3ul_3um_column_95_hcd_ot_2hrs_30b_9b | e~16 | e | 16 |
 
 Mapping of raw file names to sample names used throughout this report.
+{.table}
 
 | isotope | sampleName | protein_Id | peptide_Id |
 |:--------|:-----------|-----------:|-----------:|
@@ -285,4 +287,4 @@ Mapping of raw file names to sample names used throughout this report.
 | light   | e~15       |        158 |       1023 |
 | light   | e~16       |        157 |       1021 |
 
-Number of quantified proteins per sample.
+Number of quantified proteins per sample. {.table}

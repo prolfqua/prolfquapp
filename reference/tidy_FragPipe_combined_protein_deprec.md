@@ -44,6 +44,7 @@ Other FragPipe:
 ## Examples
 
 ``` r
+
 prottsv <- prolfqua::find_package_file("prolfquapp", "samples/FragPipe/combined_protein_small.tsv")
 
 prot <- tidy_FragPipe_combined_protein_deprec(prottsv)

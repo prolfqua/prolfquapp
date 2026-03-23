@@ -30,6 +30,7 @@ ProlfquAppConfig R6 object
 
 ``` r
 
+
 get_config()
 #> <ProlfquAppConfig>
 #>   Public:
@@ -49,5 +50,5 @@ get_config()
 #>     project_spec: ProjectSpec, R6
 #>     set_zipdir_name: function () 
 #>     software: DIANN
-#>     zipdir_name: DEA_20260319_PI123_O123_WUHelloWorld_none
+#>     zipdir_name: DEA_20260323_PI123_O123_WUHelloWorld_none
 ```

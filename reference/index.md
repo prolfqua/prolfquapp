@@ -7,7 +7,8 @@
 - [`DEAReportGenerator`](https://prolfqua.github.io/prolfquapp/reference/DEAReportGenerator.md)
   : DEAReportGenerator
 - [`DEAnalyse`](https://prolfqua.github.io/prolfquapp/reference/DEAnalyse.md)
-  : Differential expression analysis engine
+  : Differential expression analysis engine using prolfqua facade
+  classes
 - [`ExternalReader`](https://prolfqua.github.io/prolfquapp/reference/ExternalReader.md)
   : external reader R6 class for handling external data sources
 - [`FragPipe`](https://prolfqua.github.io/prolfquapp/reference/FragPipe.md)
@@ -78,6 +79,8 @@
   Precursor abundances.
 - [`diann_read_output()`](https://prolfqua.github.io/prolfquapp/reference/diann_read_output.md)
   : read DiaNN diann-output.tsv file
+- [`example_deanalyse()`](https://prolfqua.github.io/prolfquapp/reference/example_deanalyse.md)
+  : Create an example DEAnalyse object from simulated data
 - [`exp2()`](https://prolfqua.github.io/prolfquapp/reference/exp2.md) :
   transform lfq data with x^2 - apply if non log data is needed
 - [`extract_GN()`](https://prolfqua.github.io/prolfquapp/reference/extract_GN.md)

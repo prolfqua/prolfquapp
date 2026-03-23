@@ -63,6 +63,7 @@ ggplot2
 ## Examples
 
 ``` r
+
 library(prolfqua)
 istar <- prolfqua::prolfqua_data('data_ionstar')
 istar$config <- prolfqua::old2new(istar$config)
@@ -89,8 +90,7 @@ plot_abundance_vs_percent(
   lfqdata$config, top_N = 4, factors = TRUE)
 #> completing cases
 #> completing cases
-#> Warning: Removed 188 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
+#> Warning: Removed 170 rows containing missing values or values outside the scale range (`geom_point()`).
 
 plot_abundance_vs_percent(
   sr$percentage_abundance(),
@@ -98,8 +98,7 @@ plot_abundance_vs_percent(
 #> completing cases
 #> completing cases
 #> creating shared data with key :  ~ protein_Id
-#> Warning: Removed 188 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
+#> Warning: Removed 170 rows containing missing values or values outside the scale range (`geom_point()`).
 
 
 ```

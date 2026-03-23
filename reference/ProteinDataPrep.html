@@ -22,6 +22,8 @@ ProteinDataPrep"></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Auxiliary_ExDesignSurvey.html">Auxiliary - Bioinformatics Project Meeting Agenda</a></li>
+    <li><a class="dropdown-item" href="../articles/DiffExpQC_R6.html">Differential Expression Analysis Quality Control.</a></li>
+    <li><a class="dropdown-item" href="../articles/Grp2Analysis_V2_R6.html">Differential Expression Analysis.</a></li>
     <li><a class="dropdown-item" href="../articles/QCandSSE.html">Quality Control &amp; Sample Size Estimation</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -36,7 +38,7 @@ ProteinDataPrep"></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>ProteinDataPrep</h1>
-      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/master/R/R6_ProteinDataPrep.R" class="external-link"><code>R/R6_ProteinDataPrep.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/HEAD/R/R6_ProteinDataPrep.R" class="external-link"><code>R/R6_ProteinDataPrep.R</code></a></small>
       <div class="d-none name"><code>ProteinDataPrep.Rd</code></div>
     </div>
 
@@ -69,6 +71,10 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 <dd><p>normalized LFQData</p></dd>
 
 
+<dt><code>lfq_data_peptide_transformed</code></dt>
+<dd><p>transformed peptide-level LFQData (for nested facades)</p></dd>
+
+
 <dt><code>aggregator</code></dt>
 <dd><p>aggregator object</p></dd>
 
@@ -96,6 +102,8 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 <li><p><a href="#method-ProteinDataPrep-get_aggregation_plots"><code>ProteinDataPrep$get_aggregation_plots()</code></a></p></li>
 <li><p><a href="#method-ProteinDataPrep-write_aggregation_plots"><code>ProteinDataPrep$write_aggregation_plots()</code></a></p></li>
 <li><p><a href="#method-ProteinDataPrep-transform_data"><code>ProteinDataPrep$transform_data()</code></a></p></li>
+<li><p><a href="#method-ProteinDataPrep-transform_peptide_data"><code>ProteinDataPrep$transform_peptide_data()</code></a></p></li>
+<li><p><a href="#method-ProteinDataPrep-build_deanalyse"><code>ProteinDataPrep$build_deanalyse()</code></a></p></li>
 <li><p><a href="#method-ProteinDataPrep-clone"><code>ProteinDataPrep$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-ProteinDataPrep-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
@@ -185,15 +193,47 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 </div>
 
 
-</div><p></p><hr><a id="method-ProteinDataPrep-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
-<p>The objects of this class are cloneable with this method.</p><div class="section">
+</div><p></p><hr><a id="method-ProteinDataPrep-transform_peptide_data"></a><div class="section">
+<h3 id="method-transform-peptide-data-">Method <code>transform_peptide_data()</code><a class="anchor" aria-label="anchor" href="#method-transform-peptide-data-"></a></h3>
+<p>Transform peptide-level data (for nested facades like lmer/ropeca)</p><div class="section">
 <h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">transform_peptide_data</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
+</div><p></p><hr><a id="method-ProteinDataPrep-build_deanalyse"></a><div class="section">
+<h3 id="method-build-deanalyse-">Method <code>build_deanalyse()</code><a class="anchor" aria-label="anchor" href="#method-build-deanalyse-"></a></h3>
+<p>Build a DEAnalyse object with the correct data for the chosen facade</p><div class="section">
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">build_deanalyse</span><span class="op">(</span><span class="va">contrasts</span>, default_model <span class="op">=</span> <span class="st">"lm_missing"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>contrasts</code></dt>
+<dd><p>named character vector of contrast definitions</p></dd>
+
+
+<dt><code>default_model</code></dt>
+<dd><p>facade registry key (default "lm_missing")</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
+<p>DEAnalyse R6 object</p>
+</div>
+
+</div><p></p><hr><a id="method-ProteinDataPrep-clone"></a><div class="section">
+<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p>The objects of this class are cloneable with this method.</p><div class="section">
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
@@ -228,19 +268,173 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1                  100</span>
 <span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">remove_cont_decoy</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-19 19:28:37] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
 <span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">aggregate</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-19 19:28:37] AGGREGATING PEPTIDE DATA: medpolish.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] AGGREGATING PEPTIDE DATA: medpolish.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log_abundance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> starting aggregation</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================&gt;-----------------------------------]  51%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================&gt;----------------------------------]  52%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  53%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  54%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================&gt;--------------------------------]  55%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  56%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  57%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================&gt;------------------------------]  58%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================&gt;-----------------------------]  59%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  60%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  61%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================&gt;---------------------------]  62%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  63%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  64%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================&gt;-------------------------]  65%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================&gt;------------------------]  66%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  67%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  68%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================&gt;----------------------]  69%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  70%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  71%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================&gt;--------------------]  72%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================&gt;-------------------]  73%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  74%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  75%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================&gt;-----------------]  76%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  77%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  78%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================&gt;---------------]  79%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================================&gt;--------------]  80%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  81%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  82%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================================&gt;------------]  83%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  84%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  85%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================================&gt;----------]  86%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  87%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  88%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================================&gt;--------]  89%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================================&gt;-------]  90%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  91%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  92%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================================&gt;-----]  93%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  94%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  95%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================================&gt;---]  96%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================================&gt;--]  97%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  98%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  99%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================================] 100%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+                                                                              </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 
+</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : exp_medpolish</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-19 19:28:39] END OF PROTEIN AGGREGATION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] END OF PROTEIN AGGREGATION</span>
 <span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">transform_data</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-19 19:28:39] Transforming using robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] Transforming using robscale.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log2_exp_medpolish</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> data is : TRUE</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id, sampleName, isotopeLabel)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-19 19:28:39] Transforming data : robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] Transforming data : robscale.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
