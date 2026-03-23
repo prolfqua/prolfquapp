@@ -6,18 +6,18 @@ The analysis of missing values can be an essential indicator of
 potential problems and biases in the data. We, therefore, visualize the
 structure of missing values (missing protein abundance estimate per
 protein) using various plots. Figure @ref(fig:missingProtein) left panel
-shows the number of proteins (y) axis with $`0-N`$ missing values
+shows the number of proteins (y) axis with $0 - N$ missing values
 (x-axis) in each group. Ideally, a protein should be observed in all
 samples within a group (zero missing values). The density plot on the
 right panel (Figure @ref(fig:missingProtein)) shows the distribution of
-the mean protein intensity within a group, given $`0-N`$ missing values.
+the mean protein intensity within a group, given $0 - N$ missing values.
 Usually, proteins with zero missing values have a higher average
 abundance than those with one or more missing values because low
 abundant proteins might not be detected in some samples. However, if
 these distributions strongly overlap, this points to a different source
 of missingness, e.g., large sample heterogeneity or technical problems.
 
-(ref:missingProtein) Left panel - number of proteins with $`n`$ missing
+(ref:missingProtein) Left panel - number of proteins with $n$ missing
 values (nrNA), Right panel - distribution of average intensity within
 group, of proteins with 1 to N missing values.
 
@@ -41,7 +41,7 @@ and the data.
 
 (ref:SDViolin) Left panel - Distribution of coefficient of variation
 (CV) within groups and in entire experiment (all), Center panel -
-Distribution of standard deviations (sd) of $`\log_2`$ transformed data.
+Distribution of standard deviations (sd) of $\log_{2}$ transformed data.
 Right panel - Distribution of protein standard deviation (sd), after
 data normalization within groups and in entire experiment. The black dot
 indicates the median CV.
@@ -60,7 +60,7 @@ all samples (all).
 | sd      | 0.06 | 0.05 | 0.06 | 0.14 |
 
 Median (prob 0.5) of coefficient of variation (CV) and standard
-deviation (sd) {.table}
+deviation (sd)
 
 ## Differential Expression Analysis
 

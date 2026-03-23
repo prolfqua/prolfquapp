@@ -3,8 +3,8 @@
 ## B-fabric related information
 
 This report is stored in the LIMS system
-[*bfabric*](https://fgcz-bfabric.uzh.ch) (Panse et al. 2022) in
-**project**: , **order**: , with the workunit name: .
+[*bfabric*](https://fgcz-bfabric.uzh.ch) (Panse, Trachsel, and Türker
+2022) in **project**: , **order**: , with the workunit name: .
 
 The protein identification and quantification were performed using:
 DIANN. The input file can be downloaded from here:
@@ -20,43 +20,36 @@ is significantly non-zero. To make the test as sensitive and specific as
 possible, the methods used to measure (Taverna and Gaspari 2021) and
 estimate protein abundances (Grossmann et al. 2010) are optimized to
 minimize the biochemical and technical variance. In addition, these
-empirical abundances $`A`$ are further $`log_2`$ transformed and scaled
-to make them compatible with the statistical test procedure (Välikangas
-et al. 2018). Therefore, we obtain a scale free $`\log_2`$ transformed
-normalized protein abundances $`\log_2(A)`$ for a sample.
+empirical abundances $A$ are further $log_{2}$ transformed and scaled to
+make them compatible with the statistical test procedure (Välikangas,
+Suomi, and Elo 2018). Therefore, we obtain a scale free $\log_{2}$
+transformed normalized protein abundances $\log_{2}(A)$ for a sample.
 
-For unpaired experiments the difference $`\Delta`$ between group $`a`$
-and $`b`$, for a specific protein is estimated by:
+For unpaired experiments the difference $\Delta$ between group $a$ and
+$b$, for a specific protein is estimated by:
 
-``` math
-\Delta = \frac{1}{n}\sum_{i=1}^n \log_2(A^a_i) - \frac{1}{m}\sum_{j=1}^{m}\log_2(A^b_j)
-```
+$$\Delta = \frac{1}{n}\sum\limits_{i = 1}^{n}\log_{2}\left( A_{i}^{a} \right) - \frac{1}{m}\sum\limits_{j = 1}^{m}\log_{2}\left( A_{j}^{b} \right)$$
 
-where $`A^a_i`$ - is the normalized protein abundance of sample $`i`$ in
-the group $`a`$ of $`n`$ samples, while $`A^b_j`$ is the protein
-abundance of sample $`j`$ in group $`b`$ of $`m`$ samples.
+where $A_{i}^{a}$ - is the normalized protein abundance of sample $i$ in
+the group $a$ of $n$ samples, while $A_{j}^{b}$ is the protein abundance
+of sample $j$ in group $b$ of $m$ samples.
 
 For paired experiments, the difference is estimated by:
 
-``` math
-\Delta = \frac{1}{n}\sum_{i=1}^n \log_2(A^a_i) - \log_2(A^b_{i})
-```
+$$\Delta = \frac{1}{n}\sum\limits_{i = 1}^{n}\log_{2}\left( A_{i}^{a} \right) - \log_{2}\left( A_{i}^{b} \right)$$
 
-where $`n`$ is the number of subjects, each treated with $`a`$ and
-$`b`$.
+where $n$ is the number of subjects, each treated with $a$ and $b$.
 
-Of note, when comparing two samples $`a`$ and $`b`$ the difference of
+Of note, when comparing two samples $a$ and $b$ the difference of
 logarithms equals the logarithm of the ratio (exponent rule):
 
-``` math
-\log(A^a) - \log(A^b) = \log(\frac{A^a}{A^b})
-```
+$$\log\left( A^{a} \right) - \log\left( A^{b} \right) = \log\left( \frac{A^{a}}{A^{b}} \right)$$
 
-It is called the $`\log`$-ratio or $`\log`$ fold-change (logFC).
+It is called the $\log$-ratio or $\log$ fold-change (logFC).
 
-The estimated differences $`\Delta`$ have an associated error
-$`\epsilon`$. Therefore, the differential expression analysis must test
-if the difference is significantly nonzero.
+The estimated differences $\Delta$ have an associated error $\epsilon$.
+Therefore, the differential expression analysis must test if the
+difference is significantly nonzero.
 
 We run a set of functions implemented in the R package *\[prolfqua\]*
 (Wolski et al. 2023) to filter and normalize the data, generate
@@ -78,7 +71,7 @@ assigned to the group.
 | B       |          4 |
 | Ctrl    |          4 |
 
-Nr of samples assigned to each group. {.table}
+Nr of samples assigned to each group.
 
 | sample  | sampleName | group\_ | nr_1 | nr_2 |
 |:--------|:-----------|:--------|-----:|-----:|
@@ -97,7 +90,7 @@ Nr of samples assigned to each group. {.table}
 
 LC-MS samples annotation table. The content of the sampleName column is
 used as a short form to plot labels. The group to which a sample is
-assigned is shown in the column group. {.table}
+assigned is shown in the column group.
 
 ### Peptide and Protein identification
 
@@ -191,10 +184,10 @@ abundances due to different sample concentrations or amounts of sample
 loaded on a column. However, in the presence of a large proportion of
 missing data, normalization potentially amplifies systematic errors.
 
-To do this the z-score of the $`\log_2`$ transformed protein abundances
+To do this the z-score of the $\log_{2}$ transformed protein abundances
 are computed. Because we need to estimate the protein differences on the
-original scale, we have to multiply the $`z`$-score by the average
-standard deviation of all the $`N`$ samples in the experiment. After
+original scale, we have to multiply the $z$-score by the average
+standard deviation of all the $N$ samples in the experiment. After
 normalization all samples have an equal mean and variance and a similar
 distribution.
 
@@ -232,7 +225,7 @@ samples (all).
 |:-----|-----:|-----:|-----:|-----:|
 | CV   | 3.47 | 3.37 | 3.64 | 9.32 |
 
-Median of coefficient of variation (CV). {.table}
+Median of coefficient of variation (CV).
 
 The protein abundance heatmap (Figure @ref(fig:heatmap)) groups the
 protein and samples using unsupervised hierarchical clustering.
@@ -244,7 +237,7 @@ abundances are grouped and shown in adjacent rows and columns
 respectively.
 
 (ref:heatmap) Protein abundance heatmap (rows indicate proteins, columns
-indicate samples) showing the row scaled $`\log_2`$ transformed protein
+indicate samples) showing the row scaled $\log_{2}$ transformed protein
 abundance value. Co-clustering (hierarchical complete linkage, euclidean
 distance) of samples and proteins was used.
 
@@ -282,7 +275,7 @@ Secondly, the difference between the groups is computed (Table
 | AVsC | group_A - group_Ctrl |
 | BVsC | group_B - group_Ctrl |
 
-Name of difference (Contrast), and formula used to compute it. {.table}
+Name of difference (Contrast), and formula used to compute it.
 
 and a null hypothesis significance test (NHST) is conducted, where the
 null hypothesis is that the protein is not differentially expressed
@@ -291,7 +284,7 @@ null hypothesis is that the protein is not differentially expressed
 If there are no abundances measured in one of the groups for some
 proteins, we assume the observations are missing because the protein
 abundance is below the detection limit. Therefore, we estimate the
-detection limit using the mean of the $`1\%`$ smallest group averages.
+detection limit using the mean of the $1\%$ smallest group averages.
 Furthermore, to make it explicit for which proteins we did impute the
 unobserved group mean, we label them with `Imputed_Mean` (see table in
 Figures @ref(fig:tableAllProt) column `modelName`) and visualize them
@@ -324,15 +317,15 @@ expression analysis results by providing the following information:
 
 The volcano plot @ref(fig:volcanoplot) helps to identify proteins with
 large differences among groups and a low FDR. The significance dimension
-is a $`-\log_{10}`$ transformed FDR, i.e., small values of FDR become
+is a $- \log_{10}$ transformed FDR, i.e., small values of FDR become
 large after transformation. Promising candidate proteins are found in
 the upper right and left sector of the plot.
 
 Differential expression analysis results of all proteins.
 
-(ref:volcanoplot) Volcano plot showing $`-\log_{10}`$ transformed FDR as
+(ref:volcanoplot) Volcano plot showing $- \log_{10}$ transformed FDR as
 function of the difference between groups. The red line indicates the
-$`-log_{10}(FDR)`$ of FDR = 0.1, while the green lines represent the
+$- log_{10}(FDR)$ of FDR = 0.1, while the green lines represent the
 difference of minus and plus 0.2. With orange dots differences and FDRs
 estimated using missing value imputation are shown.
 
@@ -349,7 +342,7 @@ to select differentially expressed proteins. Table
 | AVsC     | 100 |          40 |              60 |
 | BVsC     | 100 |          39 |              61 |
 
-Number of not significant and significant proteins. {.table}
+Number of not significant and significant proteins.
 
 The table shown in Figure @ref(fig:SigPrey) lists all the significant
 proteins.
@@ -362,7 +355,7 @@ and FDR thresholds.
 Furthermore, Figure @ref(fig:sigroteins) shows a heatmap of log2
 transformed protein abundances of all significant calls.
 
-(ref:sigroteins) Heatmap showing the $`\log_2`$ transformed protein
+(ref:sigroteins) Heatmap showing the $\log_{2}$ transformed protein
 abundances for proteins which pass the FDR and difference thresholds.
 
 ![](Grp2Analysis_V2_R6_files/figure-html/sigroteins-1.png)
@@ -435,12 +428,14 @@ please contact <protinf@fgcz.uzh.ch>.
 
 ## Session Information
 
-**R version 4.5.2 (2025-10-31)**
+**R version 4.5.3 (2026-03-11)**
 
-**Platform:** aarch64-apple-darwin20
+**Platform:** x86_64-pc-linux-gnu
 
-**locale:**
-en_US.UTF-8\|\|en_US.UTF-8\|\|en_US.UTF-8\|\|C\|\|en_US.UTF-8\|\|en_US.UTF-8
+**locale:** *LC_CTYPE=C.UTF-8*, *LC_NUMERIC=C*, *LC_TIME=C.UTF-8*,
+*LC_COLLATE=C.UTF-8*, *LC_MONETARY=C.UTF-8*, *LC_MESSAGES=C.UTF-8*,
+*LC_PAPER=C.UTF-8*, *LC_NAME=C*, *LC_ADDRESS=C*, *LC_TELEPHONE=C*,
+*LC_MEASUREMENT=C.UTF-8* and *LC_IDENTIFICATION=C*
 
 **attached base packages:** *stats*, *graphics*, *grDevices*, *utils*,
 *datasets*, *methods* and *base*
@@ -450,38 +445,38 @@ en_US.UTF-8\|\|en_US.UTF-8\|\|en_US.UTF-8\|\|C\|\|en_US.UTF-8\|\|en_US.UTF-8
 **loaded via a namespace (and not attached):** *gridExtra(v.2.3)*,
 *writexl(v.1.5.4)*, *logger(v.0.4.1)*, *readxl(v.1.4.5)*,
 *rlang(v.1.1.7)*, *magrittr(v.2.0.4)*, *otel(v.0.2.0)*,
-*matrixStats(v.1.5.0)*, *compiler(v.4.5.2)*, *systemfonts(v.1.3.1)*,
+*matrixStats(v.1.5.0)*, *compiler(v.4.5.3)*, *systemfonts(v.1.3.2)*,
 *vctrs(v.0.7.2)*, *stringr(v.1.6.0)*, *crayon(v.1.5.3)*,
 *pkgconfig(v.2.0.3)*, *fastmap(v.1.2.0)*, *XVector(v.0.50.0)*,
 *labeling(v.0.4.3)*, *pander(v.0.6.6)*, *promises(v.1.5.0)*,
 *rmarkdown(v.2.30)*, *tzdb(v.0.5.0)*, *preprocessCore(v.1.72.0)*,
-*ragg(v.1.5.0)*, *UpSetR(v.1.4.0)*, *purrr(v.1.2.1)*, *bit(v.4.6.0)*,
+*ragg(v.1.5.1)*, *UpSetR(v.1.4.0)*, *purrr(v.1.2.1)*, *bit(v.4.6.0)*,
 *xfun(v.0.57)*, *cachem(v.1.1.0)*, *jsonlite(v.2.0.0)*,
 *progress(v.1.2.3)*, *later(v.1.4.8)*, *DelayedArray(v.0.36.0)*,
 *prettyunits(v.1.2.0)*, *R6(v.2.6.1)*, *bslib(v.0.10.0)*,
 *stringi(v.1.8.7)*, *RColorBrewer(v.1.1-3)*, *limma(v.3.66.0)*,
-*GenomicRanges(v.1.62.0)*, *jquerylib(v.0.1.4)*, *cellranger(v.1.1.0)*,
+*GenomicRanges(v.1.62.1)*, *jquerylib(v.0.1.4)*, *cellranger(v.1.1.0)*,
 *Rcpp(v.1.1.1)*, *Seqinfo(v.1.0.0)*, *bookdown(v.0.46)*,
 *assertthat(v.0.2.1)*, *SummarizedExperiment(v.1.40.0)*,
 *knitr(v.1.51)*, *lobstr(v.1.2.0)*, *readr(v.2.2.0)*,
-*IRanges(v.2.44.0)*, *httpuv(v.1.6.16)*, *Matrix(v.1.7-4)*,
+*IRanges(v.2.44.0)*, *httpuv(v.1.6.17)*, *Matrix(v.1.7-4)*,
 *tidyselect(v.1.2.1)*, *abind(v.1.4-8)*, *yaml(v.2.3.12)*,
-*affy(v.1.88.0)*, *lattice(v.0.22-7)*, *tibble(v.3.3.1)*,
-*plyr(v.1.8.9)*, *shiny(v.1.12.1)*, *Biobase(v.2.70.0)*,
+*affy(v.1.88.0)*, *lattice(v.0.22-9)*, *tibble(v.3.3.1)*,
+*plyr(v.1.8.9)*, *shiny(v.1.13.0)*, *Biobase(v.2.70.0)*,
 *withr(v.3.0.2)*, *S7(v.0.2.1)*, *prolfqua(v.1.5.0)*,
 *evaluate(v.1.0.5)*, *desc(v.1.4.3)*, *getopt(v.1.20.4)*,
 *pillar(v.1.11.1)*, *affyio(v.1.80.0)*, *BiocManager(v.1.30.27)*,
-*MatrixGenerics(v.1.22.0)*, *DT(v.0.34.0)*, *stats4(v.4.5.2)*,
+*MatrixGenerics(v.1.22.0)*, *DT(v.0.34.0)*, *stats4(v.4.5.3)*,
 *plotly(v.4.12.0)*, *generics(v.0.1.4)*, *dtplyr(v.1.3.3)*,
 *S4Vectors(v.0.48.0)*, *hms(v.1.1.4)*, *ggplot2(v.4.0.2)*,
-*scales(v.1.4.0)*, *xtable(v.1.8-4)*, *glue(v.1.8.0)*,
-*pheatmap(v.1.0.13)*, *lazyeval(v.0.2.2)*, *tools(v.4.5.2)*,
-*data.table(v.1.18.2.1)*, *vsn(v.3.78.0)*, *forcats(v.1.0.1)*,
-*fs(v.1.6.7)*, *grid(v.4.5.2)*, *optparse(v.1.7.5)*, *tidyr(v.1.3.2)*,
+*scales(v.1.4.0)*, *xtable(v.1.8-8)*, *glue(v.1.8.0)*,
+*pheatmap(v.1.0.13)*, *lazyeval(v.0.2.2)*, *tools(v.4.5.3)*,
+*data.table(v.1.18.2.1)*, *vsn(v.3.78.1)*, *forcats(v.1.0.1)*,
+*fs(v.2.0.0)*, *grid(v.4.5.3)*, *optparse(v.1.7.5)*, *tidyr(v.1.3.2)*,
 *crosstalk(v.1.2.2)*, *cli(v.3.6.5)*, *prolfquapp(v.2.0.11)*,
-*textshaping(v.1.0.4)*, *S4Arrays(v.1.10.0)*, *viridisLite(v.0.4.3)*,
+*textshaping(v.1.0.5)*, *S4Arrays(v.1.10.1)*, *viridisLite(v.0.4.3)*,
 *arrow(v.23.0.1.1)*, *gtable(v.0.3.6)*, *sass(v.0.4.10)*,
-*digest(v.0.6.39)*, *BiocGenerics(v.0.56.0)*, *SparseArray(v.1.10.2)*,
+*digest(v.0.6.39)*, *BiocGenerics(v.0.56.0)*, *SparseArray(v.1.10.9)*,
 *ggrepel(v.0.9.8)*, *htmlwidgets(v.1.6.4)*, *farver(v.2.1.2)*,
 *htmltools(v.0.5.9)*, *pkgdown(v.2.2.0)*, *lifecycle(v.1.0.5)*,
 *httr(v.1.4.8)*, *mime(v.0.13)*, *statmod(v.1.5.1)*, *bit64(v.4.6.0-1)*
@@ -496,10 +491,11 @@ Discovery Rate: A Practical and Powerful Approach to Multiple Testing.”
 
 Faraway, Julian J. 2004. *Linear Models with r*. Chapman; Hall/CRC.
 
-Grossmann, Jonas, Bernd Roschitzki, Christian Panse, et al. 2010.
-“Implementation and Evaluation of Relative and Absolute Quantification
-in Shotgun Proteomics with Label-Free Methods.” *Journal of Proteomics*
-73 (9): 1740–46.
+Grossmann, Jonas, Bernd Roschitzki, Christian Panse, Claudia Fortes,
+Simon Barkow-Oesterreicher, Dorothea Rutishauser, and Ralph Schlapbach.
+2010. “Implementation and Evaluation of Relative and Absolute
+Quantification in Shotgun Proteomics with Label-Free Methods.” *Journal
+of Proteomics* 73 (9): 1740–46.
 
 Monti, Chiara, Mara Zilocchi, Ilaria Colugnat, and Tiziana Alberio.
 2019. “Proteomics Turns Functional.” *Journal of Proteomics* 198: 36–44.
@@ -510,22 +506,24 @@ Smart Analytics in Life Sciences.” *Journal of Integrative
 Bioinformatics* 19 (4): 20220031.
 <https://doi.org/10.1515/jib-2022-0031>.
 
-Piehowski, Paul D, Vladislav A Petyuk, Daniel J Orton, et al. 2013.
-“Sources of Technical Variability in Quantitative LC–MS Proteomics:
-Human Brain Tissue Sample Analysis.” *Journal of Proteome Research* 12
-(5): 2128–37.
+Piehowski, Paul D, Vladislav A Petyuk, Daniel J Orton, Fang Xie, Ronald
+J Moore, Manuel Ramirez-Restrepo, Anzhelika Engel, et al. 2013. “Sources
+of Technical Variability in Quantitative LC–MS Proteomics: Human Brain
+Tissue Sample Analysis.” *Journal of Proteome Research* 12 (5): 2128–37.
 
 Smyth, Gordon K. 2004. “Linear Models and Empirical Bayes Methods for
 Assessing Differential Expression in Microarray Experiments.”
 *Statistical Applications in Genetics and Molecular Biology* 3 (1):
 1–25.
 
-Subramanian, Aravind, Pablo Tamayo, Vamsi K Mootha, et al. 2005. “Gene
-Set Enrichment Analysis: A Knowledge-Based Approach for Interpreting
-Genome-Wide Expression Profiles.” *Proceedings of the National Academy
-of Sciences* 102 (43): 15545–50.
+Subramanian, Aravind, Pablo Tamayo, Vamsi K Mootha, Sayan Mukherjee,
+Benjamin L Ebert, Michael A Gillette, Amanda Paulovich, et al. 2005.
+“Gene Set Enrichment Analysis: A Knowledge-Based Approach for
+Interpreting Genome-Wide Expression Profiles.” *Proceedings of the
+National Academy of Sciences* 102 (43): 15545–50.
 
-Szklarczyk, Damian, John H Morris, Helen Cook, et al. 2017. “The STRING
+Szklarczyk, Damian, John H Morris, Helen Cook, Michael Kuhn, Stefan
+Wyder, Milan Simonovic, Alberto Santos, et al. 2017. “The STRING
 Database in 2017: Quality-Controlled Protein-Protein Association
 Networks, Made Broadly Accessible.” *Nucleic Acids Research* 45
 (January): D362–68. <https://doi.org/10.1093/nar/gkw937>.
@@ -546,7 +544,7 @@ Research* 45 (July): W130–37. <https://doi.org/10.1093/nar/gkx356>.
 Wolski, Witold E., Paolo Nanni, Jonas Grossmann, Maria d’Errico, Ralph
 Schlapbach, and Christian Panse. 2023. “Prolfqua: A Comprehensive
 R-Package for Proteomics Differential Expression Analysis.” *Journal of
-Proteome Research* 4 (22): 1092–104.
+Proteome Research* 4 (22): 1092–1104.
 <https://doi.org/10.1021/acs.jproteome.2c00441>.
 
 ## Glossary

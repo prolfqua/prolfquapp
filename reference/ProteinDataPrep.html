@@ -38,7 +38,7 @@ ProteinDataPrep"></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>ProteinDataPrep</h1>
-      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/HEAD/R/R6_ProteinDataPrep.R" class="external-link"><code>R/R6_ProteinDataPrep.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/prolfqua/prolfquapp/blob/master/R/R6_ProteinDataPrep.R" class="external-link"><code>R/R6_ProteinDataPrep.R</code></a></small>
       <div class="d-none name"><code>ProteinDataPrep.Rd</code></div>
     </div>
 
@@ -268,173 +268,19 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1                  100</span>
 <span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">remove_cont_decoy</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 19:48:08] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
 <span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">aggregate</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] AGGREGATING PEPTIDE DATA: medpolish.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 19:48:08] AGGREGATING PEPTIDE DATA: medpolish.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log_abundance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> starting aggregation</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================&gt;-----------------------------------]  51%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================&gt;----------------------------------]  52%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  53%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  54%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================&gt;--------------------------------]  55%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  56%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  57%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================&gt;------------------------------]  58%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================&gt;-----------------------------]  59%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  60%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  61%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================&gt;---------------------------]  62%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  63%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  64%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================&gt;-------------------------]  65%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================&gt;------------------------]  66%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  67%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  68%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================&gt;----------------------]  69%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  70%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  71%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================&gt;--------------------]  72%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================&gt;-------------------]  73%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  74%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  75%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================&gt;-----------------]  76%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  77%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  78%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================&gt;---------------]  79%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================================&gt;--------------]  80%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  81%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  82%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================================&gt;------------]  83%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  84%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  85%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================================&gt;----------]  86%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  87%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  88%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================================&gt;--------]  89%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================================&gt;-------]  90%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  91%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  92%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================================&gt;-----]  93%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  94%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  95%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================================&gt;---]  96%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================================&gt;--]  97%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  98%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  99%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================================] 100%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-                                                                              </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : exp_medpolish</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] END OF PROTEIN AGGREGATION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 19:48:09] END OF PROTEIN AGGREGATION</span>
 <span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">transform_data</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] Transforming using robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 19:48:09] Transforming using robscale.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log2_exp_medpolish</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> data is : TRUE</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id, sampleName, isotopeLabel)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 20:32:21] Transforming data : robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 19:48:09] Transforming data : robscale.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

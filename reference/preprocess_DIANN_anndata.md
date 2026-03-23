@@ -3,7 +3,7 @@
 Same interface as
 [`preprocess_DIANN`](https://prolfqua.github.io/prolfquapp/reference/preprocess_DIANN.md)
 but returns an
-[`anndataR::AnnData`](https://rdrr.io/pkg/anndataR/man/AnnData.html)
+[`anndataR::AnnData`](https://anndataR.scverse.org/reference/AnnData.html)
 object instead of `list(lfqdata, protein_annotation)`.
 
 ## Usage
@@ -57,7 +57,7 @@ preprocess_DIANN_anndata(
 
 ## Value
 
-[`anndataR::AnnData`](https://rdrr.io/pkg/anndataR/man/AnnData.html)
+[`anndataR::AnnData`](https://anndataR.scverse.org/reference/AnnData.html)
 object
 
 ## Details

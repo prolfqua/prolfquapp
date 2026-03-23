@@ -103,7 +103,6 @@ Other ProlfquAppConfig:
 ## Examples
 
 ``` r
-
 DEAconfig <- make_DEA_config_R6(ORDERID = "1234", WORKUNITID = "1234")
 DEAconfig$set_zipdir_name()
 #> [1] "DEA_20260323_O1234_WU1234_none"

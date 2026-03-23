@@ -10,7 +10,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/prolfqua/prolfquapp/blob/HEAD/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/prolfqua/prolfquapp/blob/master/DESCRIPTION)
 
 Wolski W, Schwarz L (2026). *prolfquapp: Generating Dynamic DEA Reports
 with the prolfqua R Package*. R package version 2.0.11,
