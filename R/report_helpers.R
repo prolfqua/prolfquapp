@@ -1,5 +1,3 @@
-utils::globalVariables("prep_result_list")
-
 #' convert tibble to data.frame with rownames
 #' @param .data a tibble or data.frame
 #' @param var name of the column with new row.names
@@ -83,72 +81,6 @@ bfabric_url_builder <- function(project_spec) {
   ))
 }
 
-
-#' Convert prolfqua differential expression analysis results to SummarizedExperiment
-#'
-#' @param GRP2 list with DEA results (RES, project_spec fields)
-#' @param colname column name for sample identifier
-#' @param rowname column name for row identifier
-#' @param strip regex pattern to strip from rownames
-#' @param .url_builder function to build bfabric URLs
-#' @return SummarizedExperiment
-#' @export
-#' @family workflow
-make_SummarizedExperiment <- function(
-  GRP2,
-  colname = NULL,
-  rowname = NULL,
-  strip = "~lfq~light",
-  .url_builder = bfabric_url_builder
-) {
-  if (is.null(colname)) {
-    colname <- GRP2$RES$lfqData$config$sampleName
-  }
-  if (is.null(rowname)) {
-    rowname <- GRP2$RES$lfqData$config$hierarchyKeys()
-  }
-  resTables <- prep_result_list(GRP2) # nolint object_usage_linter. legacy standalone function
-  matTr <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
-  matRaw <- GRP2$RES$transformedlfqData$to_wide(as.matrix = TRUE)
-
-  mat.raw <- strip_rownames(matRaw$data, strip)
-  mat.trans <- strip_rownames(matTr$data, strip)
-  col.data <- column_to_rownames(matRaw$annotation, var = colname)
-  col.data <- col.data[colnames(mat.raw), ]
-  x <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(rawData = mat.raw, transformedData = mat.trans),
-    colData = col.data,
-    metadata = list(
-      bfabric_urls = .url_builder(GRP2$project_spec),
-      contrasts = resTables$contrasts,
-      formula = resTables$formula
-    )
-  )
-
-  diffbyContrast <- split(
-    resTables$diff_exp_analysis,
-    resTables$diff_exp_analysis$contrast
-  )
-  for (i in names(diffbyContrast)) {
-    row.data <- column_to_rownames(diffbyContrast[[i]], var = rowname)
-    row.data <- row.data[rownames(mat.raw), ]
-    if ("nr_compounds" %in% colnames(row.data)) {
-      row.data <- dplyr::rename(nr_peptides = "nr_compounds")
-    }
-    SummarizedExperiment::rowData(x)[[paste0("constrast_", i)]] <- row.data
-  }
-
-  SummarizedExperiment::rowData(x)[[
-    "stats_normalized_wide"
-  ]] <- column_to_rownames(resTables$stats_normalized_wide, var = rowname)[
-    rownames(mat.raw),
-  ]
-  SummarizedExperiment::rowData(x)[["stats_raw_wide"]] <- column_to_rownames(
-    resTables$stats_raw_wide,
-    var = rowname
-  )[rownames(mat.raw), ]
-  return(x)
-}
 
 
 .base_dir <- paste0(

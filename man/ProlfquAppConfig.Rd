@@ -51,10 +51,6 @@ Other ProlfquAppConfig:
 
 \item{\code{path}}{path to working directory}
 
-\item{\code{pop}}{optional processing options}
-
-\item{\code{RES}}{results}
-
 \item{\code{group}}{group prefix}
 
 \item{\code{ext_reader}}{external reader configuration}

@@ -178,11 +178,6 @@ ProlfquAppConfig <- R6::R6Class(
     zipdir_name = character(),
     #' @field path path to working directory
     path = character(),
-    #' @field pop optional processing options
-    pop = list(),
-    #' @field RES results
-    RES = list(),
-
     #' @field group group prefix
     group = "G_",
 

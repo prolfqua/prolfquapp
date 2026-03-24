@@ -325,8 +325,6 @@ logger::log_info(
   file.path(GRP2$get_input_dir(), "minimal.yaml")
 )
 
-GRP2$RES <- NULL
-GRP2$pop <- NULL
 yaml::write_yaml(
   prolfqua::R6_extract_values(GRP2),
   file = file.path(GRP2$get_input_dir(), "minimal.yaml")
