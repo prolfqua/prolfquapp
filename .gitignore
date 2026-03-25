@@ -7,4 +7,6 @@
 /inst/doc/
 /Meta/
 prolfquapp.Rcheck/
+prolfquapp_*.tar.gz
+vignettes/.install_extras
 docs/
