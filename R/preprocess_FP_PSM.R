@@ -568,7 +568,7 @@ preprocess_FP_PSM <- function(
     "Assigned.Modifications"
   )
   atable$set_response("abundance")
-  if ("nr_psm" %in% colnames(xd$data)) {
+  if ("nr_psm" %in% colnames(psm)) {
     atable$nr_children <- "nr_psm"
   }
   atable$hierarchyDepth <- hierarchy_depth
