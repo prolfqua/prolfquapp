@@ -10,8 +10,13 @@ params:
   project_info: NULL
 output:
   bookdown::html_document2:
-    toc: yes
+    toc: true
+    toc_float: true
     toc_depth: 2
+    self_contained: true
+    includes:
+      in_header: !expr system.file("templates/fgcz_header.html", package="prolfquapp")
+    css: !expr system.file("templates/fgcz.css", package="prolfquapp")
 ---
 
 

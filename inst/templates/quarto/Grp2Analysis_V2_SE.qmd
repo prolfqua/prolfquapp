@@ -1,0 +1,590 @@
+---
+metadata-files:
+  - _fgcz-report.yml
+params:
+  se_file: "../../extdata/3106962.rds"
+  fdr_threshold: 0.05
+  diff_threshold: 1
+---
+
+```{r setup}
+#| include: false
+
+# ── Load SE and extract all data upfront ─────────────────────────────────────
+se <- readRDS(params$se_file)
+
+# Sample annotations
+col_data <- as.data.frame(SummarizedExperiment::colData(se))
+col_data$sampleName <- rownames(col_data)
+
+# Detect group column (first that isn't sampleName/Name/raw.file/CONTROL/isotopeLabel)
+skip_cols <- c("sampleName", "Name", "raw.file", "CONTROL", "isotopeLabel")
+group_col <- setdiff(colnames(col_data), skip_cols)[1]
+
+# Assay matrices
+mat_raw <- SummarizedExperiment::assay(se, "rawData")
+mat_trans <- SummarizedExperiment::assay(se, "transformedData")
+
+# Assays → long format
+.assay_to_long <- function(mat, col_data, group_col) {
+  df <- as.data.frame(mat, check.names = FALSE)
+  df$protein_Id <- rownames(mat)
+  long <- tidyr::pivot_longer(df, cols = -"protein_Id",
+                               names_to = "sampleName", values_to = "abundance")
+  dplyr::left_join(long, col_data, by = "sampleName")
+}
+long_raw <- .assay_to_long(mat_raw, col_data, group_col)
+long_trans <- .assay_to_long(mat_trans, col_data, group_col)
+
+# Contrast results → combined long tibble
+rd <- SummarizedExperiment::rowData(se)
+contrast_names <- grep("^constrast_", names(rd), value = TRUE)
+ctr_all <- dplyr::bind_rows(lapply(contrast_names, function(cn) {
+  df <- as.data.frame(rd[[cn]])
+  if (!"protein_Id" %in% colnames(df)) df$protein_Id <- rownames(df)
+  if (!"contrast" %in% colnames(df)) df$contrast <- gsub("^constrast_", "", cn)
+  df
+}))
+
+# Significant
+ctr_signif <- ctr_all |>
+  dplyr::filter(.data$FDR < params$fdr_threshold,
+                abs(.data$diff) > params$diff_threshold)
+
+# Stats tables
+stats_raw <- tibble::as_tibble(as.data.frame(rd[["stats_raw_wide"]]))
+stats_norm <- tibble::as_tibble(as.data.frame(rd[["stats_normalized_wide"]]))
+
+# Metadata
+meta <- S4Vectors::metadata(se)
+
+# Summary counts
+ids <- rownames(se)
+n_total <- length(ids)
+n_con <- sum(grepl("^zz|^CON", ids))
+n_rev <- sum(grepl("^REV|^rev", ids))
+pct_con <- round(n_con / n_total * 100, 2)
+pct_rev <- round(n_rev / n_total * 100, 2)
+
+# Protein counts per sample
+n_proteins_per_sample <- colSums(!is.na(mat_raw))
+
+# Plots directory
+dir.create("plots", showWarnings = FALSE)
+
+# Consistent group colour palette used across all figures
+groups <- sort(unique(col_data[[group_col]]))
+group_pal <- setNames(
+  scales::hue_pal()(length(groups)),
+  groups
+)
+
+# DT helper for consistent table styling
+# scrollY auto-sizes: small tables get compact height, large tables scroll
+.dt <- function(df, ...) {
+  sy <- min(300, max(80, nrow(df) * 35 + 40))
+  DT::datatable(df, filter = "bottom", extensions = c("Scroller", "Buttons"),
+    class = "compact", options = list(
+      deferRender = TRUE, scrollY = sy, scrollX = TRUE, scroller = TRUE,
+      dom = "Bfrtip", buttons = list("csv", "excel")
+    ), ...)
+}
+```
+
+
+::: {.panel-tabset}
+
+## B-fabric Info
+
+::: {.callout-note}
+## Project Information
+
+```{r}
+#| results: asis
+urls <- meta$bfabric_urls
+if (!is.null(urls$projectURL))
+  cat(sprintf("- **Project**: [%s](%s)\n", basename(urls$projectURL), urls$projectURL))
+if (!is.null(urls$orderURL))
+  cat(sprintf("- **Order**: [%s](%s)\n", basename(urls$orderURL), urls$orderURL))
+if (!is.null(urls$workunitURL))
+  cat(sprintf("- **Workunit**: [%s](%s)\n", basename(urls$workunitURL), urls$workunitURL))
+cat(sprintf("\n**Model formula**: `%s`\n", meta$formula$formula[1]))
+```
+
+:::
+
+
+## Results
+
+```{r}
+#| label: tbl-samples
+tab <- as.data.frame(table(col_data[[group_col]]))
+colnames(tab) <- c(group_col, "# samples")
+.dt(tab)
+```
+
+```{r}
+#| label: tbl-annotation
+ann <- col_data
+ann$n_proteins <- n_proteins_per_sample[ann$sampleName]
+.dt(ann)
+```
+
+
+## Protein Identification
+
+::: {.callout-note}
+## Summary
+
+- Total proteins (excl. decoys): **`r n_total - n_rev`**
+- Contaminant proteins: **`r pct_con`%**
+- False positives (decoys): **`r pct_rev`%**
+:::
+
+```{r}
+#| label: fig-nrPerSample
+#| fig-cap: "Number of quantified proteins per sample."
+#| fig-width: 10
+#| fig-height: 6
+#| lightbox: true
+pc_df <- data.frame(
+  sampleName = names(n_proteins_per_sample),
+  n_proteins = n_proteins_per_sample
+)
+pc_df <- dplyr::left_join(pc_df, col_data, by = "sampleName")
+
+ggplot2::ggplot(pc_df, ggplot2::aes(
+  x = .data$sampleName, y = .data$n_proteins, fill = .data[[group_col]]
+)) +
+  ggplot2::geom_col() +
+  ggplot2::scale_fill_manual(values = group_pal) +
+  ggplot2::labs(x = "", y = "Number of proteins") +
+  ggplot2::theme_classic() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+
+ggplot2::ggsave("plots/protein_counts_per_sample.pdf", width = 10, height = 6)
+```
+
+
+## Missing Value Analysis
+
+```{r}
+#| include: false
+na_mat <- ifelse(is.na(mat_raw), 1, 0)
+na_mat_subset <- na_mat[rowSums(na_mat) > 0, , drop = FALSE]
+n_with_na <- nrow(na_mat_subset)
+pct_with_na <- round(n_with_na / nrow(mat_raw) * 100, 1)
+```
+
+There are **`r n_with_na`** proteins with at least one missing value (**`r pct_with_na`%**).
+
+::: {.panel-tabset}
+
+### Heatmap
+
+::: {.callout-note collapse="true"}
+## About this figure
+Protein abundance heatmap showing missing values. White = observed, Black = missing.
+Rows and columns clustered using hierarchical clustering.
+:::
+
+```{r}
+#| label: fig-naHeat
+#| fig-cap: "Missing value heatmap (black = missing, white = present)."
+#| fig-width: 7
+#| fig-height: 6
+#| lightbox: true
+if (nrow(na_mat_subset) > 0) {
+  col_ann <- ComplexHeatmap::HeatmapAnnotation(
+    group = col_data[[group_col]], which = "column",
+    col = list(group = group_pal)
+  )
+  ComplexHeatmap::draw(ComplexHeatmap::Heatmap(
+    na_mat_subset,
+    col = c("0" = "white", "1" = "black"),
+    name = "Missing",
+    use_raster = FALSE,
+    top_annotation = col_ann,
+    cluster_rows = TRUE, cluster_columns = TRUE,
+    show_row_names = nrow(na_mat_subset) <= 50,
+    column_title = "Missing values"
+  ))
+  grDevices::pdf("plots/missing_values_heatmap.pdf", width = 7, height = 6)
+  ComplexHeatmap::draw(ComplexHeatmap::Heatmap(
+    na_mat_subset,
+    col = c("0" = "white", "1" = "black"),
+    name = "Missing", use_raster = FALSE,
+    top_annotation = col_ann,
+    cluster_rows = TRUE, cluster_columns = TRUE,
+    show_row_names = nrow(na_mat_subset) <= 50,
+    column_title = "Missing values"
+  ))
+  invisible(invisible(grDevices::dev.off()))
+}
+```
+
+### UpSet
+
+```{r}
+#| label: fig-vennProteins
+#| fig-cap: "UpSet plot: protein overlap across groups."
+#| lightbox: true
+presence <- lapply(groups, function(g) {
+  samples <- col_data$sampleName[col_data[[group_col]] == g]
+  rownames(mat_raw)[rowSums(!is.na(mat_raw[, samples, drop = FALSE])) >= 1]
+})
+names(presence) <- groups
+if (length(presence) > 1) {
+  UpSetR::upset(UpSetR::fromList(presence), order.by = "freq", nsets = length(groups))
+}
+```
+
+:::
+
+
+## Protein Abundance Analysis
+
+::: {.panel-tabset}
+
+### Density
+
+::: {.callout-note collapse="true"}
+## About normalization
+The density plot displays the protein abundance distribution for all samples.
+Left: raw empirical abundances. Right: transformed/normalized abundances.
+Major differences between samples may indicate technical biases.
+:::
+
+```{r}
+#| label: fig-normalized
+#| fig-cap: "Protein abundance density. Left: raw. Right: normalized."
+#| fig-width: 10
+#| fig-height: 5
+#| lightbox: true
+show_legend <- nrow(col_data) <= 12
+
+p1 <- ggplot2::ggplot(
+  long_raw |> dplyr::filter(!is.na(.data$abundance)),
+  ggplot2::aes(x = .data$abundance, color = .data$sampleName)
+) +
+  ggplot2::geom_density() +
+  ggplot2::labs(x = "Abundance", y = "Density", title = "Raw") +
+  ggplot2::theme_classic() +
+  { if (!show_legend) ggplot2::theme(legend.position = "none") }
+
+p2 <- ggplot2::ggplot(
+  long_trans |> dplyr::filter(!is.na(.data$abundance)),
+  ggplot2::aes(x = .data$abundance, color = .data$sampleName)
+) +
+  ggplot2::geom_density() +
+  ggplot2::labs(x = "Abundance", y = "Density", title = "Normalized") +
+  ggplot2::theme_classic() +
+  { if (!show_legend) ggplot2::theme(legend.position = "none") }
+
+gridExtra::grid.arrange(p1, p2, nrow = 1)
+ggplot2::ggsave("plots/abundance_density.pdf",
+  gridExtra::arrangeGrob(p1, p2, nrow = 1), width = 10, height = 5)
+```
+
+### CV Analysis
+
+```{r}
+#| label: fig-SDViolin
+#| fig-cap: "Coefficient of variation (CV) per group."
+#| fig-height: 4
+#| fig-width: 7
+#| lightbox: true
+cv_cols <- grep("^CV_", colnames(stats_raw), value = TRUE)
+cv_long <- stats_raw |>
+  dplyr::select("protein_Id", dplyr::all_of(cv_cols)) |>
+  tidyr::pivot_longer(cols = -"protein_Id", names_to = "group", values_to = "CV") |>
+  dplyr::mutate(group = gsub("^CV_", "", .data$group)) |>
+  dplyr::filter(is.finite(.data$CV))
+
+ggplot2::ggplot(cv_long, ggplot2::aes(x = .data$group, y = .data$CV)) +
+  ggplot2::geom_violin(fill = "lightblue", alpha = 0.5) +
+  ggplot2::stat_summary(fun = median, geom = "point", size = 2) +
+  ggplot2::labs(x = "", y = "CV") +
+  ggplot2::theme_classic() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+
+ggplot2::ggsave("plots/cv_violin.pdf", width = 7, height = 4)
+```
+
+```{r}
+#| label: tbl-CVtable
+medians <- sapply(stats_raw[cv_cols], median, na.rm = TRUE)
+cv_tab <- data.frame(group = gsub("^CV_", "", names(medians)),
+                     median_CV = round(medians, 4))
+rownames(cv_tab) <- NULL
+.dt(cv_tab)
+```
+
+### Heatmap
+
+::: {.callout-note collapse="true"}
+## About the heatmap
+Row-scaled protein abundance heatmap using normalized data.
+Proteins and samples clustered by euclidean distance.
+Grey cells indicate missing values (NAs preserved, not imputed).
+:::
+
+```{r}
+#| label: fig-heatmap
+#| fig-cap: "Protein abundance heatmap (row-scaled, normalized)."
+#| fig-width: 7
+#| fig-height: 8
+#| lightbox: true
+mat_hm <- mat_trans
+# Need >= 2 non-NA values per row for row-scaling
+mat_hm <- mat_hm[rowSums(!is.na(mat_hm)) >= 2, , drop = FALSE]
+# Limit to top 500 most variable proteins for readability
+if (nrow(mat_hm) > 500) {
+  vars <- apply(mat_hm, 1, var, na.rm = TRUE)
+  mat_hm <- mat_hm[order(vars, decreasing = TRUE)[1:500], , drop = FALSE]
+}
+mat_hm_scaled <- t(scale(t(mat_hm)))
+
+# For clustering: after row-scaling, 0 = row mean, so NAs → 0 is the neutral choice
+# The heatmap display still shows NAs as grey (na_col)
+na_safe_dist <- function(m) { m[is.na(m)] <- 0; dist(m) }
+
+col_ann <- ComplexHeatmap::HeatmapAnnotation(
+  group = col_data[[group_col]], which = "column",
+  col = list(group = group_pal)
+)
+
+hm <- ComplexHeatmap::Heatmap(
+  mat_hm_scaled,
+  name = "z-score",
+  na_col = "grey80",
+  use_raster = FALSE,
+  top_annotation = col_ann,
+  show_row_names = FALSE,
+  show_column_names = TRUE,
+  clustering_distance_rows = na_safe_dist,
+  clustering_distance_columns = na_safe_dist,
+  cluster_rows = TRUE, cluster_columns = TRUE,
+  column_title = "Protein abundances (row-scaled)"
+)
+ComplexHeatmap::draw(hm)
+
+grDevices::pdf("plots/abundance_heatmap.pdf", width = 7, height = 8)
+ComplexHeatmap::draw(hm)
+invisible(grDevices::dev.off())
+```
+
+### PCA
+
+```{r}
+#| label: fig-pca
+#| fig-cap: "PCA of normalized protein abundances (PC1 vs PC2)."
+#| fig-width: 7
+#| fig-height: 7
+#| lightbox: true
+mat_pca <- mat_trans[complete.cases(mat_trans), , drop = FALSE]
+pca_res <- prcomp(t(mat_pca), center = TRUE, scale. = TRUE)
+var_expl <- summary(pca_res)$importance[2, 1:2] * 100
+pca_df <- data.frame(
+  PC1 = pca_res$x[, 1], PC2 = pca_res$x[, 2],
+  sampleName = rownames(pca_res$x)
+)
+pca_df <- dplyr::left_join(pca_df, col_data, by = "sampleName")
+
+ggplot2::ggplot(pca_df, ggplot2::aes(
+  x = .data$PC1, y = .data$PC2,
+  color = .data[[group_col]], label = .data$sampleName
+)) +
+  ggplot2::geom_point(size = 3) +
+  ggrepel::geom_text_repel(size = 3) +
+  ggplot2::scale_color_manual(values = group_pal) +
+  ggplot2::labs(
+    x = sprintf("PC1 (%.1f%%)", var_expl[1]),
+    y = sprintf("PC2 (%.1f%%)", var_expl[2])
+  ) +
+  ggplot2::theme_classic()
+
+ggplot2::ggsave("plots/pca.pdf", width = 7, height = 7)
+```
+
+:::
+
+
+## Differential Expression
+
+::: {.panel-tabset}
+
+### Volcano
+
+::: {.callout-note collapse="true"}
+## About the volcano plot
+Volcano plot showing $-\log_{10}$(FDR) vs log2 fold-change.
+Red dashed line: FDR threshold. Green dashed lines: difference threshold.
+Orange dots: estimates based on missing value imputation.
+:::
+
+```{r}
+#| label: fig-volcanoplot
+#| fig-cap: "Volcano plot per contrast."
+#| fig-width: 9
+#| fig-height: 7
+#| lightbox: true
+ctr_all <- ctr_all |>
+  dplyr::mutate(
+    neg_log10_fdr = -log10(.data$FDR),
+    color = ifelse(grepl("Imputed", .data$modelName, ignore.case = TRUE),
+                   "Imputed", "Modelled")
+  )
+
+ggplot2::ggplot(ctr_all, ggplot2::aes(
+  x = .data$diff, y = .data$neg_log10_fdr, color = .data$color
+)) +
+  ggplot2::geom_point(alpha = 0.5, size = 1) +
+  ggplot2::scale_color_manual(values = c("Modelled" = "black", "Imputed" = "orange")) +
+  ggplot2::geom_hline(yintercept = -log10(params$fdr_threshold),
+                      linetype = "dashed", color = "red") +
+  ggplot2::geom_vline(xintercept = c(-params$diff_threshold, params$diff_threshold),
+                      linetype = "dashed", color = "green") +
+  ggplot2::facet_wrap(~contrast) +
+  ggplot2::labs(x = "diff (log2 FC)", y = "-log10(FDR)", color = "Model") +
+  ggplot2::theme_classic()
+
+ggplot2::ggsave("plots/volcano.pdf", width = 9, height = 7)
+```
+
+### Results Table
+
+::: {.callout-note}
+## Analysis Settings
+
+- **Formula**: `r meta$formula$formula[1]`
+- **FDR threshold**: `r params$fdr_threshold`
+- **Difference threshold**: `r params$diff_threshold`
+:::
+
+```{r}
+#| label: tbl-contrasts
+.dt(meta$contrasts)
+```
+
+```{r}
+#| label: tbl-tableAllProt
+bb <- ctr_all |>
+  dplyr::select(dplyr::any_of(c(
+    "protein_Id", "description", "gene_name",
+    "contrast", "modelName", "diff", "FDR"
+  )))
+.dt(bb) |> DT::formatRound(columns = c("FDR", "diff"), digits = 3)
+```
+
+### Significant Proteins
+
+```{r}
+#| label: tbl-nrsignificant
+mx <- ctr_all |>
+  dplyr::mutate(
+    passes = abs(.data$diff) > params$diff_threshold &
+      .data$FDR < params$fdr_threshold
+  ) |>
+  dplyr::group_by(.data$contrast) |>
+  dplyr::summarise(
+    n = dplyr::n(),
+    Significant = sum(.data$passes, na.rm = TRUE),
+    `Not Significant` = dplyr::n() - sum(.data$passes, na.rm = TRUE),
+    .groups = "drop"
+  )
+.dt(mx)
+```
+
+```{r}
+#| eval: !expr nrow(ctr_signif) > 0
+#| label: tbl-SigPrey
+sig_display <- ctr_signif |>
+  dplyr::select(dplyr::any_of(c(
+    "protein_Id", "description", "gene_name",
+    "contrast", "modelName", "diff", "FDR"
+  )))
+.dt(sig_display) |> DT::formatRound(columns = c("FDR", "diff"), digits = 3)
+```
+
+### Significant Heatmap
+
+```{r}
+#| eval: !expr nrow(ctr_signif) > 0
+#| label: fig-sigHeatmap
+#| fig-cap: "Heatmap of significant proteins (row-scaled, normalized). Grey = missing."
+#| fig-width: 7
+#| fig-height: 8
+#| lightbox: true
+sig_ids <- unique(ctr_signif$protein_Id)
+mat_sig <- mat_trans[sig_ids, , drop = FALSE]
+mat_sig <- mat_sig[rowSums(!is.na(mat_sig)) >= 2, , drop = FALSE]
+
+if (nrow(mat_sig) > 1) {
+  mat_sig_scaled <- t(scale(t(mat_sig)))
+  col_ann <- ComplexHeatmap::HeatmapAnnotation(
+    group = col_data[[group_col]], which = "column",
+    col = list(group = group_pal)
+  )
+  hm_sig <- ComplexHeatmap::Heatmap(
+    mat_sig_scaled,
+    name = "z-score", na_col = "grey80", use_raster = FALSE,
+    top_annotation = col_ann,
+    show_row_names = nrow(mat_sig_scaled) <= 30,
+    clustering_distance_rows = na_safe_dist,
+    clustering_distance_columns = na_safe_dist,
+    cluster_rows = TRUE, cluster_columns = TRUE,
+    column_title = "Significant proteins (row-scaled)"
+  )
+  ComplexHeatmap::draw(hm_sig)
+  grDevices::pdf("plots/significant_heatmap.pdf", width = 7, height = 8)
+  ComplexHeatmap::draw(hm_sig)
+  invisible(invisible(grDevices::dev.off()))
+}
+```
+
+### UpSet
+
+```{r}
+#| eval: !expr nrow(ctr_signif) > 0 && length(unique(ctr_signif$contrast)) > 1
+#| label: fig-vennSig
+#| fig-cap: "UpSet plot: significant proteins across contrasts."
+#| lightbox: true
+xx <- split(ctr_signif$protein_Id, ctr_signif$contrast)
+if (length(xx) > 1) {
+  UpSetR::upset(UpSetR::fromList(xx), order.by = "freq")
+}
+```
+
+:::
+
+
+## Additional Analysis
+
+::: {.callout-note}
+## Output Files
+The zip file (if provided) contains:
+
+- **Excel file** with sheets: annotation, raw/normalized abundances, differential expression results, missing information, protein variances
+- **ORA files** (`ORA_background.txt`, `ORA_<contrast>.txt`) for over-representation analysis
+- **GSEA rank files** (`GSEA_<contrast>.rnk`) for gene set enrichment analysis
+:::
+
+Recommended tools for functional enrichment:
+
+- [STRING-DB](https://string-db.org/) — protein-protein interaction networks
+- [DAVID](https://david.ncifcrf.gov/home.jsp) — functional annotation
+- [WebGestalt](http://www.webgestalt.org) — over-representation and GSEA
+
+
+## Session Info
+
+```{r}
+pander::pander(sessionInfo())
+```
+
+:::
+
+---
+
+*Generated from `Grp2Analysis_V2_SE.qmd` in the `prolfquapp` R package.*

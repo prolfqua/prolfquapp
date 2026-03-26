@@ -1,0 +1,39 @@
+header {
+  margin: 0;
+  padding: 0;
+}   
+
+body .main-container {
+max-width: 2500px;
+}
+
+body {
+  max-width: 2500px;
+  margin: 0;
+ padding: 0;
+ line-height: 20px ; 
+}   
+
+h1 {
+  font-size: 8px;
+}
+
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+
+
+/* Level 1 tabs: larger and bold */
+.nav-tabs > li > a {
+  font-size: 1.15em;
+  font-weight: bold;
+}
+
+/* Level 2 tabs (nested): normal size */
+.tab-content .nav-tabs > li > a {
+  font-size: 1.0em;
+  font-weight: normal;
+}

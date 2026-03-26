@@ -3,13 +3,16 @@
 .PHONY: check check-fast test build build-vignettes document coverage install lint format clean help site deploy install-pre-commit-hook new_version
 
 DOCUMENT_CMD = Rscript -e "devtools::document()"
-BUILD_CMD = Rscript -e "devtools::build()"
+PKG_NAME = $(shell grep '^Package:' DESCRIPTION | sed 's/Package: //')
+PKG_VERSION = $(shell grep '^Version:' DESCRIPTION | sed 's/Version: //')
+TARBALL = ../$(PKG_NAME)_$(PKG_VERSION).tar.gz
+BUILD_CMD = Rscript -e "devtools::build(vignettes = TRUE)"
 CHECK_CMD = Rscript -e "devtools::check()"
 CHECK_FAST_CMD = Rscript -e "devtools::check(build_args = '--no-build-vignettes', args = '--no-vignettes')"
 BUILD_VIGNETTES_CMD = Rscript -e "devtools::build_vignettes()"
 TEST_CMD = Rscript -e "devtools::test()"
 COVERAGE_CMD = Rscript -e "covr::package_coverage() |> print()"
-INSTALL_CMD = Rscript -e "devtools::install()"
+INSTALL_CMD = R CMD INSTALL $(TARBALL)
 LINT_CMD = Rscript -e "lintr::lint_package()"
 SITE_CMD = Rscript -e "pkgdown::build_site()"
 DEPLOY_CMD = Rscript -e "pkgdown::deploy_to_branch()"
@@ -18,7 +21,7 @@ help:
 	@echo "prolfquapp development targets:"
 	@echo "  make check     - R CMD check (runs document, build first)"
 	@echo "  make check-fast - R CMD check without rebuilding vignettes during check"
-	@echo "  make install   - install package locally"
+	@echo "  make install   - build tarball (with vignettes) and install it"
 	@echo "  make lint      - run lintr"
 	@echo "  make format    - format package with air"
 	@echo "  make install-pre-commit-hook - install local pre-commit hook"
@@ -27,7 +30,7 @@ help:
 	@echo ""
 	@echo "Advanced:"
 	@echo "  make document  - generate roxygen2 docs"
-	@echo "  make build     - build tarball"
+	@echo "  make build     - build tarball (with vignettes)"
 	@echo "  make build-vignettes - build vignettes into inst/doc"
 	@echo "  make test      - run testthat tests"
 	@echo "  make coverage  - code coverage report"
@@ -57,7 +60,7 @@ test: document
 coverage: document
 	$(COVERAGE_CMD)
 
-install: document
+install: build
 	$(INSTALL_CMD)
 
 lint:

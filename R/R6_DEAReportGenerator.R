@@ -265,7 +265,15 @@ DEAReportGenerator <- R6::R6Class(
         output_format = if (word) {
           bookdown::word_document2(toc = toc, toc_float = toc)
         } else {
-          bookdown::html_document2(toc = toc, toc_float = toc)
+          bookdown::html_document2(
+            toc = toc,
+            toc_float = toc,
+            self_contained = TRUE,
+            includes = rmarkdown::includes(
+              in_header = system.file("templates/fgcz_header.html", package = "prolfquapp")
+            ),
+            css = system.file("templates/fgcz.css", package = "prolfquapp")
+          )
         }
       )
 

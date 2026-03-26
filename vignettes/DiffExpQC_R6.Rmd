@@ -3,12 +3,13 @@ title: "Differential Expression Analysis Quality Control."
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  html_document:
-    toc: true
   bookdown::html_document2:
     toc: true
-  pdf_document:
-    toc: true
+    toc_float: true
+    self_contained: true
+    includes:
+      in_header: !expr system.file("templates/fgcz_header.html", package="prolfquapp")
+    css: !expr system.file("templates/fgcz.css", package="prolfquapp")
 header-includes:
   \usepackage{fancyhdr}
   \pagestyle{fancy}

@@ -48,7 +48,6 @@ copy_shell_script <- function(workdir = getwd()) {
 copy_DEA_R6_Files <- function(workdir = getwd()) {
   runscripts <- c(
     "doc/Grp2Analysis_V2_R6.Rmd",
-    "doc/bibliography.bib",
     "doc/DiffExpQC_R6.Rmd"
   )
   prolfqua::scriptCopyHelperVec(
@@ -56,6 +55,11 @@ copy_DEA_R6_Files <- function(workdir = getwd()) {
     workdir = workdir,
     packagename = "prolfquapp"
   )
+  # bibliography.bib lives in application/, not doc/
+  bib_src <- system.file("application", "bibliography.bib", package = "prolfquapp")
+  if (nzchar(bib_src) && file.exists(bib_src)) {
+    file.copy(bib_src, file.path(workdir, "bibliography.bib"), overwrite = TRUE)
+  }
 }
 
 

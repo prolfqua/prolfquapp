@@ -4,11 +4,13 @@ author: "WEW@FGCZ.ETHZ.CH"
 date: "`r Sys.Date()`"
 output:
   bookdown::html_document2:
-    toc: yes
+    toc: true
+    toc_float: true
     toc_depth: 2
-  bookdown::pdf_document2:
-    toc: yes
-    toc_depth: 2
+    self_contained: true
+    includes:
+      in_header: !expr system.file("templates/fgcz_header.html", package="prolfquapp")
+    css: !expr system.file("templates/fgcz.css", package="prolfquapp")
 params:
   configuration:  !r quote(prolfqua::prolfqua_data('data_ionstar')$filtered()$config$clone(deep=TRUE))
   project_conf: NULL

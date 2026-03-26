@@ -10,3 +10,6 @@ prolfquapp.Rcheck/
 prolfquapp_*.tar.gz
 vignettes/.install_extras
 docs/
+inst/templates/quarto/*.html
+!inst/templates/quarto/fgcz_header_quarto.html
+inst/templates/quarto/plots/

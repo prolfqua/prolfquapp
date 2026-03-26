@@ -1,0 +1,322 @@
+---
+metadata-files:
+  - _fgcz-report.yml
+params:
+  se_file: "../../extdata/3106962.rds"
+  fdr_threshold: 0.05
+  diff_threshold: 1
+---
+
+```{r setup}
+#| include: false
+
+# ── Load SE and extract all data upfront ─────────────────────────────────────
+se <- readRDS(params$se_file)
+
+# Sample annotations
+col_data <- as.data.frame(SummarizedExperiment::colData(se))
+col_data$sampleName <- rownames(col_data)
+
+# Detect group column
+skip_cols <- c("sampleName", "Name", "raw.file", "CONTROL", "isotopeLabel")
+group_col <- setdiff(colnames(col_data), skip_cols)[1]
+groups <- sort(unique(col_data[[group_col]]))
+
+# Assay matrices
+mat_raw <- SummarizedExperiment::assay(se, "rawData")
+mat_trans <- SummarizedExperiment::assay(se, "transformedData")
+
+# Contrast results → combined long tibble
+rd <- SummarizedExperiment::rowData(se)
+contrast_names <- grep("^constrast_", names(rd), value = TRUE)
+ctr_all <- dplyr::bind_rows(lapply(contrast_names, function(cn) {
+  df <- as.data.frame(rd[[cn]])
+  if (!"protein_Id" %in% colnames(df)) df$protein_Id <- rownames(df)
+  if (!"contrast" %in% colnames(df)) df$contrast <- gsub("^constrast_", "", cn)
+  df
+}))
+
+# Stats tables
+stats_raw <- tibble::as_tibble(as.data.frame(rd[["stats_raw_wide"]]))
+stats_norm <- tibble::as_tibble(as.data.frame(rd[["stats_normalized_wide"]]))
+
+# Plots directory
+dir.create("plots", showWarnings = FALSE)
+
+# Consistent group colour palette
+group_pal <- setNames(
+  scales::hue_pal()(length(groups)),
+  groups
+)
+
+# DT helper — scrollY auto-sizes for small tables
+.dt <- function(df, ...) {
+  sy <- min(300, max(80, nrow(df) * 35 + 40))
+  DT::datatable(df, filter = "bottom", extensions = c("Scroller", "Buttons"),
+    class = "compact", options = list(
+      deferRender = TRUE, scrollY = sy, scrollX = TRUE, scroller = TRUE,
+      dom = "Bfrtip", buttons = list("csv", "excel")
+    ), ...)
+}
+```
+
+
+::: {.panel-tabset}
+
+## Missing Value Analysis
+
+::: {.callout-note collapse="true"}
+## About this plot
+The left panels show the number of proteins with $0$–$N$ missing values per group.
+The right panels show the distribution of mean protein intensity given the missingness level.
+Proteins with zero missing values typically have higher average abundance.
+:::
+
+```{r}
+#| label: fig-missingProtein
+#| fig-cap: "Top: number of proteins with n missing values per group. Bottom: mean intensity distribution by missingness level."
+#| fig-height: 8
+#| fig-width: 9
+#| lightbox: true
+
+# Compute missingness per group
+miss_df <- dplyr::bind_rows(lapply(groups, function(g) {
+  samples <- col_data$sampleName[col_data[[group_col]] == g]
+  sub <- mat_raw[, samples, drop = FALSE]
+  data.frame(
+    protein_Id = rownames(sub),
+    nrNA = rowSums(is.na(sub)),
+    group = g,
+    meanAbundance = rowMeans(sub, na.rm = TRUE),
+    stringsAsFactors = FALSE
+  )
+}))
+
+p1 <- ggplot2::ggplot(
+  miss_df |> dplyr::filter(.data$nrNA > 0),
+  ggplot2::aes(x = factor(.data$nrNA))
+) +
+  ggplot2::geom_bar() +
+  ggplot2::facet_wrap(~group) +
+  ggplot2::labs(x = "Number of missing values (nrNA)", y = "Number of proteins") +
+  ggplot2::theme_classic()
+
+p2 <- ggplot2::ggplot(
+  miss_df,
+  ggplot2::aes(x = .data$meanAbundance, color = factor(.data$nrNA))
+) +
+  ggplot2::geom_density() +
+  ggplot2::facet_wrap(~group) +
+  ggplot2::labs(x = "Mean abundance", y = "Density", color = "nrNA") +
+  ggplot2::theme_classic()
+
+gridExtra::grid.arrange(p1, p2, nrow = 2)
+
+ggplot2::ggsave("plots/missingness_analysis.pdf",
+  gridExtra::arrangeGrob(p1, p2, nrow = 2), width = 9, height = 8)
+```
+
+
+## Variance Analysis
+
+::: {.callout-note collapse="true"}
+## About these plots
+- **Panel A**: Coefficient of variation (CV) within each group and across all samples, computed on raw data. Ideally, within-group CV is smaller than overall CV.
+- **Panel B**: Standard deviation (sd) on raw data.
+- **Panel C**: Standard deviation (sd) on normalized data. Within-group variance should decrease after normalization.
+:::
+
+```{r}
+#| label: fig-SDViolin
+#| fig-cap: "A: CV of raw data. B: SD of raw data. C: SD of normalized data."
+#| fig-height: 4
+#| fig-width: 10
+#| lightbox: true
+
+# Panel A: CV from stats_raw_wide
+cv_cols <- grep("^CV_", colnames(stats_raw), value = TRUE)
+cv_long <- stats_raw |>
+  dplyr::select("protein_Id", dplyr::all_of(cv_cols)) |>
+  tidyr::pivot_longer(cols = -"protein_Id", names_to = "group", values_to = "CV") |>
+  dplyr::mutate(group = gsub("^CV_", "", .data$group)) |>
+  dplyr::filter(is.finite(.data$CV))
+
+pA <- ggplot2::ggplot(cv_long, ggplot2::aes(x = .data$group, y = .data$CV)) +
+  ggplot2::geom_violin(fill = "lightblue", alpha = 0.5) +
+  ggplot2::stat_summary(fun = median, geom = "point", size = 2) +
+  ggplot2::labs(x = "", y = "CV", tag = "A") +
+  ggplot2::theme_classic() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+
+# Panel B: SD from stats_raw_wide
+sd_raw_cols <- grep("^sd_", colnames(stats_raw), value = TRUE)
+sd_raw_long <- stats_raw |>
+  dplyr::select("protein_Id", dplyr::all_of(sd_raw_cols)) |>
+  tidyr::pivot_longer(cols = -"protein_Id", names_to = "group", values_to = "sd") |>
+  dplyr::mutate(group = gsub("^sd_", "", .data$group)) |>
+  dplyr::filter(is.finite(.data$sd))
+
+pB <- ggplot2::ggplot(sd_raw_long, ggplot2::aes(x = .data$group, y = .data$sd)) +
+  ggplot2::geom_violin(fill = "lightblue", alpha = 0.5) +
+  ggplot2::stat_summary(fun = median, geom = "point", size = 2) +
+  ggplot2::labs(x = "", y = "sd", tag = "B") +
+  ggplot2::theme_classic() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+
+# Panel C: SD from stats_normalized_wide
+sd_norm_cols <- grep("^sd_", colnames(stats_norm), value = TRUE)
+sd_norm_long <- stats_norm |>
+  dplyr::select("protein_Id", dplyr::all_of(sd_norm_cols)) |>
+  tidyr::pivot_longer(cols = -"protein_Id", names_to = "group", values_to = "sd") |>
+  dplyr::mutate(group = gsub("^sd_", "", .data$group)) |>
+  dplyr::filter(is.finite(.data$sd))
+
+pC <- ggplot2::ggplot(sd_norm_long, ggplot2::aes(x = .data$group, y = .data$sd)) +
+  ggplot2::geom_violin(fill = "lightblue", alpha = 0.5) +
+  ggplot2::stat_summary(fun = median, geom = "point", size = 2) +
+  ggplot2::labs(x = "", y = "sd", tag = "C") +
+  ggplot2::theme_classic() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+
+gridExtra::grid.arrange(pA, pB, pC, nrow = 1)
+
+ggplot2::ggsave("plots/variance_analysis.pdf",
+  gridExtra::arrangeGrob(pA, pB, pC, nrow = 1), width = 10, height = 4)
+```
+
+```{r}
+#| label: tbl-CVtable
+rows <- list()
+
+if (length(cv_cols) > 0) {
+  med_cv <- sapply(stats_raw[cv_cols], median, na.rm = TRUE)
+  rows[["CV"]] <- data.frame(what = "CV", t(round(med_cv, 4)), check.names = FALSE)
+  colnames(rows[["CV"]])[-1] <- gsub("^CV_", "", names(med_cv))
+}
+if (length(sd_raw_cols) > 0) {
+  med_sd_raw <- sapply(stats_raw[sd_raw_cols], median, na.rm = TRUE)
+  rows[["sd_raw"]] <- data.frame(what = "sd_raw", t(round(med_sd_raw, 4)), check.names = FALSE)
+  colnames(rows[["sd_raw"]])[-1] <- gsub("^sd_", "", names(med_sd_raw))
+}
+if (length(sd_norm_cols) > 0) {
+  med_sd_norm <- sapply(stats_norm[sd_norm_cols], median, na.rm = TRUE)
+  rows[["sd_norm"]] <- data.frame(what = "sd_norm", t(round(med_sd_norm, 4)), check.names = FALSE)
+  colnames(rows[["sd_norm"]])[-1] <- gsub("^sd_", "", names(med_sd_norm))
+}
+
+if (length(rows) > 0) {
+  .dt(dplyr::bind_rows(rows))
+}
+```
+
+
+## Fold-Change Distribution
+
+::: {.callout-note collapse="true"}
+## About this plot
+Distribution of differences (log2 fold-change) between groups. The red dashed line marks the median, the green line the expected value (zero). If the median is non-zero, consider this when interpreting results.
+:::
+
+```{r}
+#| label: fig-densityOFFoldChanges
+#| fig-cap: "Fold-change distribution per contrast."
+#| fig-width: 9
+#| fig-height: 5
+#| lightbox: true
+ggplot2::ggplot(ctr_all, ggplot2::aes(x = .data$diff)) +
+  ggplot2::geom_histogram(bins = 50, fill = "grey70", color = "black") +
+  ggplot2::geom_vline(xintercept = 0, color = "green") +
+  ggplot2::geom_vline(
+    data = ctr_all |>
+      dplyr::group_by(.data$contrast) |>
+      dplyr::summarise(med = median(.data$diff, na.rm = TRUE), .groups = "drop"),
+    ggplot2::aes(xintercept = .data$med),
+    color = "red", linetype = "dashed"
+  ) +
+  ggplot2::facet_wrap(~contrast) +
+  ggplot2::labs(x = "Difference (log2 FC)", y = "Count") +
+  ggplot2::theme_classic()
+
+ggplot2::ggsave("plots/fc_histogram.pdf", width = 9, height = 5)
+```
+
+
+## P-value Distribution
+
+::: {.callout-note collapse="true"}
+## About this plot
+Under the null hypothesis the p-value distribution should be uniform. Enrichment of small p-values indicates true differential expression.
+:::
+
+```{r}
+#| label: fig-pvalueHist
+#| fig-cap: "P-value histogram per contrast."
+#| fig-width: 9
+#| fig-height: 5
+#| lightbox: true
+ggplot2::ggplot(ctr_all, ggplot2::aes(x = .data$p.value)) +
+  ggplot2::geom_histogram(bins = 50, fill = "grey70", color = "black") +
+  ggplot2::facet_wrap(~contrast) +
+  ggplot2::labs(x = "p-value", y = "Count") +
+  ggplot2::theme_classic()
+
+ggplot2::ggsave("plots/pvalue_histogram.pdf", width = 9, height = 5)
+```
+
+
+## MA Plot
+
+::: {.callout-note collapse="true"}
+## About the MA plot
+The MA plot shows differences between groups (y-axis) as a function of average protein abundance (x-axis).
+The fold change should not depend on protein abundance.
+Panel A shows abundance on the original scale; Panel B shows the rank of abundance.
+:::
+
+```{r}
+#| label: fig-MAPlot
+#| fig-cap: "MA plots. A: diff vs average abundance. B: diff vs rank of abundance."
+#| fig-width: 9
+#| fig-height: 8
+#| lightbox: true
+ppA <- ggplot2::ggplot(ctr_all, ggplot2::aes(x = .data$avgAbd, y = .data$diff)) +
+  ggplot2::geom_point(alpha = 0.3, size = 0.5) +
+  ggplot2::geom_hline(yintercept = c(-params$diff_threshold, params$diff_threshold),
+                      linetype = "dashed", color = "green") +
+  ggplot2::geom_hline(yintercept = 0, color = "grey50") +
+  ggplot2::facet_wrap(~contrast) +
+  ggplot2::labs(x = "Average abundance", y = "diff (log2 FC)", tag = "A") +
+  ggplot2::theme_classic()
+
+ctr_ranked <- ctr_all |>
+  dplyr::group_by(.data$contrast) |>
+  dplyr::mutate(rank_abd = rank(.data$avgAbd, na.last = "keep")) |>
+  dplyr::ungroup()
+
+ppB <- ggplot2::ggplot(ctr_ranked, ggplot2::aes(x = .data$rank_abd, y = .data$diff)) +
+  ggplot2::geom_point(alpha = 0.3, size = 0.5) +
+  ggplot2::geom_hline(yintercept = c(-params$diff_threshold, params$diff_threshold),
+                      linetype = "dashed", color = "green") +
+  ggplot2::geom_hline(yintercept = 0, color = "grey50") +
+  ggplot2::facet_wrap(~contrast) +
+  ggplot2::labs(x = "Rank of average abundance", y = "diff (log2 FC)", tag = "B") +
+  ggplot2::theme_classic()
+
+gridExtra::grid.arrange(ppA, ppB, ncol = 1)
+
+ggplot2::ggsave("plots/ma_plots.pdf",
+  gridExtra::arrangeGrob(ppA, ppB, ncol = 1), width = 9, height = 8)
+```
+
+
+## Session Info
+
+```{r}
+pander::pander(sessionInfo())
+```
+
+:::
+
+---
+
+*Generated from `DiffExpQC_SE.qmd` in the `prolfquapp` R package.*
