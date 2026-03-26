@@ -104,20 +104,15 @@ ProteinDataPrep <- R6::R6Class(
       }
 
       if (agg_method == "topN") {
-        self$aggregator <- lfqdata_peptide$get_Aggregator()
-        self$aggregator$sum_topN(N = N)
+        self$aggregator <- lfqdata_peptide$get_Aggregator("topN")
+        self$aggregator$aggregate()
         self$lfq_data <- self$aggregator$lfq_agg
       } else if (agg_method == "lmrob" || agg_method == "medpolish") {
         transformed_peptide <- lfqdata_peptide$get_Transformer()$intensity_array(
           log
         )$lfq
-        self$aggregator <- transformed_peptide$get_Aggregator()
-
-        if (agg_method == "lmrob") {
-          self$aggregator$lmrob()
-        } else if (agg_method == "medpolish") {
-          self$aggregator$medpolish()
-        }
+        self$aggregator <- transformed_peptide$get_Aggregator(agg_method)
+        self$aggregator$aggregate()
 
         lfq_data <- self$aggregator$lfq_agg
         tr <- lfq_data$get_Transformer()

@@ -29,18 +29,13 @@ aggregate_data <- function(
   }
 
   if (agg_method == "topN") {
-    aggregator <- lfqdata$get_Aggregator()
-    aggregator$sum_topN(N = N)
+    aggregator <- lfqdata$get_Aggregator("topN", N = N)
+    aggregator$aggregate()
     lfqdata <- aggregator$lfq_agg
   } else if (agg_method == "lmrob" || agg_method == "medpolish") {
     transformed <- lfqdata$get_Transformer()$intensity_array(log)$lfq
-    aggregator <- transformed$get_Aggregator()
-
-    if (agg_method == "lmrob") {
-      aggregator$lmrob()
-    } else if (agg_method == "medpolish") {
-      aggregator$medpolish()
-    }
+    aggregator <- transformed$get_Aggregator(agg_method)
+    aggregator$aggregate()
     ag <- aggregator$lfq_agg
     tr <- ag$get_Transformer()
     tr <- tr$intensity_array(exp, force = TRUE)
