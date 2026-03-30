@@ -40,3 +40,28 @@ example_deanalyse <- function(Nprot = 100) {
 
   deanalyse
 }
+
+#' Create an example QC_generator object from simulated data
+#'
+#' Builds a QC_generator R6 object with simulated peptide data and
+#' fake FASTA-derived columns (protein_length, nr_tryptic_peptides)
+#' so that IBAQ computation works. Useful for vignette defaults and testing.
+#'
+#' @param Nprot number of simulated proteins (default 100)
+#' @return a \code{QC_generator} R6 object
+#' @export
+#' @examples
+#' pap <- example_qc_generator(Nprot = 10)
+#' pap$get_prot_data()
+#'
+example_qc_generator <- function(Nprot = 100) {
+  res <- sim_data_protAnnot(Nprot = Nprot)
+  GRP2 <- make_DEA_config_R6()
+  GRP2$set_zipdir_name()
+  dir.create(GRP2$get_zipdir(), showWarnings = FALSE, recursive = TRUE)
+  # Alias nr_peptides -> nrPeptides (expected by QC report templates)
+  res$pannot$row_annot$nrPeptides <- res$pannot$row_annot$nr_peptides
+  pap <- QC_generator$new(res$lfqdata, res$pannot, GRP2)
+  pap$get_prot_data()
+  pap
+}

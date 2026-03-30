@@ -46,12 +46,12 @@ build: document
 check: build
 	$(CHECK_CMD)
 
-build-vignettes: document
+build-vignettes: clean document
 	$(BUILD_VIGNETTES_CMD)
 	mkdir -p inst/doc
 	cp doc/*.html doc/*.Rmd doc/*.R inst/doc/ 2>/dev/null || true
 
-check-fast: document
+check-fast: build-vignettes
 	$(CHECK_FAST_CMD)
 
 test: document
@@ -83,6 +83,7 @@ clean:
 	rm -rf *.Rcheck
 	rm -f Rplots.pdf
 	rm -rf inst/doc doc Meta
+	rm -f vignettes/*.html vignettes/*.R
 
 new_version:
 	@CURRENT=$$(grep '^Version:' DESCRIPTION | sed 's/Version: //'); \

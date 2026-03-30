@@ -27,8 +27,10 @@ ProcessingOptions <- R6::R6Class(
     interaction = FALSE,
     #' @field model_missing model missigness, default TRUE
     model_missing = TRUE,
-    #' @field model name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"
-    model = "prolfqua",
+    #' @field model facade registry key for contrast analysis.
+    #'   Valid keys: lm, lm_missing, lm_impute, limma, limma_impute,
+    #'   rlm, deqms, firth, lmer, ropeca. Default "lm_missing".
+    model = "lm_missing",
     #' @field other list with additional options
     other = NULL,
     #' @field internal protein IDs for internal standard normalization
@@ -337,7 +339,7 @@ list_to_R6_app_config <- function(dd) {
 #' @param ORDERID order identifier
 #' @param WORKUNITID workunit identifier
 #' @param Normalization normalization method: "none", "vsn", "quantile", "robscale"
-#' @param aggregation aggregation method: "medpolish", "top3", "lmrob"
+#' @param aggregation aggregation method: "medpolish", "top3", "rlm"
 #' @param diff_threshold difference threshold
 #' @param FDR_threshold FDR threshold
 #' @param nr_peptides number of peptides required
@@ -347,6 +349,7 @@ list_to_R6_app_config <- function(dd) {
 #' @param patternContaminants pattern for contaminant proteins
 #' @param application software application name
 #' @param prefix analysis prefix (DEA or QC)
+#' @param model facade registry key for contrast analysis (default "lm_missing")
 #' @return ProlfquAppConfig R6 object
 #' @export
 #' @family ProlfquAppConfig
@@ -365,7 +368,7 @@ make_DEA_config_R6 <- function(
   ORDERID = "",
   WORKUNITID = "",
   Normalization = c("none", "vsn", "quantile", "robscale"),
-  aggregation = c("medpolish", "top3", "lmrob"),
+  aggregation = c("medpolish", "top3", "rlm"),
   diff_threshold = 1,
   FDR_threshold = 0.1,
   nr_peptides = 1,
@@ -374,7 +377,8 @@ make_DEA_config_R6 <- function(
   patternDecoys = "^REV_|^rev_",
   patternContaminants = "^zz|^CON|Cont_",
   application = "DIANN",
-  prefix = "DEA"
+  prefix = "DEA",
+  model = "lm_missing"
 ) {
   Normalization <- match.arg(Normalization)
   aggregation <- match.arg(aggregation)
@@ -391,6 +395,7 @@ make_DEA_config_R6 <- function(
   pop$aggregate <- aggregation
   pop$transform <- Normalization
   pop$nr_peptides <- nr_peptides
+  pop$model <- model
   ps <- ProjectSpec$new()
   ps$order_Id <- ORDERID
   ps$project_Id <- PROJECTID

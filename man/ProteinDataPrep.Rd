@@ -175,7 +175,7 @@ Transform peptide-level data (for nested facades like lmer/ropeca)
 \subsection{Method \code{build_deanalyse()}}{
 Build a DEAnalyse object with the correct data for the chosen facade
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$build_deanalyse(contrasts, default_model = "lm_missing")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$build_deanalyse(contrasts, default_model = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -183,7 +183,7 @@ Build a DEAnalyse object with the correct data for the chosen facade
 \describe{
 \item{\code{contrasts}}{named character vector of contrast definitions}
 
-\item{\code{default_model}}{facade registry key (default "lm_missing")}
+\item{\code{default_model}}{facade registry key, or NULL to read from config}
 }
 \if{html}{\out{</div>}}
 }

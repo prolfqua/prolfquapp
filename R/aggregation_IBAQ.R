@@ -10,14 +10,14 @@
 #' lfqdata <- prolfqua::LFQData$new(xx$data, xx$config)
 #' aggregated <- aggregate_data(lfqdata, agg_method = "medpolish")
 #' aggregated$response()
-#' aggregated <- aggregate_data(lfqdata, agg_method = "lmrob")
+#' aggregated <- aggregate_data(lfqdata, agg_method = "rlm")
 #' aggregated$response()
 #' aggregated <- aggregate_data(lfqdata, agg_method = "topN")
 #' aggregated$response()
 #'
 aggregate_data <- function(
   lfqdata,
-  agg_method = c("medpolish", "lmrob", "topN"),
+  agg_method = c("medpolish", "rlm", "topN"),
   N = 3
 ) {
   agg_method <- match.arg(agg_method)
@@ -32,7 +32,7 @@ aggregate_data <- function(
     aggregator <- lfqdata$get_Aggregator("topN", N = N)
     aggregator$aggregate()
     lfqdata <- aggregator$lfq_agg
-  } else if (agg_method == "lmrob" || agg_method == "medpolish") {
+  } else if (agg_method == "rlm" || agg_method == "medpolish") {
     transformed <- lfqdata$get_Transformer()$intensity_array(log)$lfq
     aggregator <- transformed$get_Aggregator(agg_method)
     aggregator$aggregate()

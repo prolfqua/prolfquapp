@@ -53,6 +53,16 @@ option_list <- list(
     default = "DIANN",
     help = "either DIANN, FP_TMT, MAXQUANT",
     metavar = "character"
+  ),
+  make_option(
+    c("-m", "--model"),
+    type = "character",
+    default = "lm_missing",
+    help = paste0(
+      "contrast facade method. Options: ",
+      paste(names(prolfqua::FACADE_REGISTRY), collapse = ", ")
+    ),
+    metavar = "character"
   )
 )
 
@@ -79,7 +89,8 @@ GRP2 <- prolfquapp::make_DEA_config_R6(
   PROJECTID = opt$project,
   ORDERID = opt$order,
   WORKUNITID = opt$workunit,
-  Normalization = opt$norm
+  Normalization = opt$norm,
+  model = opt$model
 )
 GRP2$set_zipdir_name()
 if (!is.null(opt$outdir) && dir.exists(opt$outdir)) {

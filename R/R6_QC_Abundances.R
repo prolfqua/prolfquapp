@@ -306,7 +306,7 @@ QC_generator <- R6::R6Class(
     render_QC_protein_abundances = function() {
       file.copy(
         system.file(
-          "application/GenericQC/QC_ProteinAbundances.Rmd",
+          "doc/QC_ProteinAbundances.Rmd",
           package = "prolfquapp"
         ),
         to = self$output_dir,

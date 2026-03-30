@@ -49,6 +49,16 @@ option_list <- list(
     metavar = "character"
   ),
   optparse::make_option(
+    c("-m", "--model"),
+    type = "character",
+    default = NULL,
+    help = paste0(
+      "contrast facade method (overrides config). Options: ",
+      paste(names(prolfqua::FACADE_REGISTRY), collapse = ", ")
+    ),
+    metavar = "character"
+  ),
+  optparse::make_option(
     c("--libPath"),
     type = "character",
     default = NULL,

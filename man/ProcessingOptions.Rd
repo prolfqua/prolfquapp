@@ -42,7 +42,9 @@ Other ProlfquAppConfig:
 
 \item{\code{model_missing}}{model missigness, default TRUE}
 
-\item{\code{model}}{name of the model to use "prolfqua", "SE", "ROPECA", default "prolfqua"}
+\item{\code{model}}{facade registry key for contrast analysis.
+Valid keys: lm, lm_missing, lm_impute, limma, limma_impute,
+rlm, deqms, firth, lmer, ropeca. Default "lm_missing".}
 
 \item{\code{other}}{list with additional options}
 

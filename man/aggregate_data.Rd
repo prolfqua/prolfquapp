@@ -4,7 +4,7 @@
 \alias{aggregate_data}
 \title{dataset transform data}
 \usage{
-aggregate_data(lfqdata, agg_method = c("medpolish", "lmrob", "topN"), N = 3)
+aggregate_data(lfqdata, agg_method = c("medpolish", "rlm", "topN"), N = 3)
 }
 \arguments{
 \item{lfqdata}{LFQData object}
@@ -22,7 +22,7 @@ xx <- prolfqua::sim_lfq_data_peptide_config()
 lfqdata <- prolfqua::LFQData$new(xx$data, xx$config)
 aggregated <- aggregate_data(lfqdata, agg_method = "medpolish")
 aggregated$response()
-aggregated <- aggregate_data(lfqdata, agg_method = "lmrob")
+aggregated <- aggregate_data(lfqdata, agg_method = "rlm")
 aggregated$response()
 aggregated <- aggregate_data(lfqdata, agg_method = "topN")
 aggregated$response()

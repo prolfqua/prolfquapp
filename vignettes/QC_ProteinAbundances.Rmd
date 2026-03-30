@@ -1,12 +1,12 @@
 ---
 title: "Protein Signal Intensities within Groups"
-date: "2023-03-28"
-author : "The CompMS team"
-editor_options: 
+date: "`r Sys.Date()`"
+author: "The CompMS team"
+editor_options:
   chunk_output_type: console
 params:
-  pap: NULL
-  factors: FALSE
+  pap: !r quote(prolfquapp::example_qc_generator(Nprot = 100))
+  factors: TRUE
   project_info: NULL
 output:
   bookdown::html_document2:
@@ -17,6 +17,10 @@ output:
     includes:
       in_header: !expr system.file("templates/fgcz_header.html", package="prolfquapp")
     css: !expr system.file("templates/fgcz.css", package="prolfquapp")
+vignette: >
+  %\VignetteIndexEntry{QC Protein Abundances}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 
@@ -34,7 +38,11 @@ knitr::opts_chunk$set(
   fig.pos = "H"
 )
 
-pap <- params$pap
+if (is.language(params$pap)) {
+  pap <- eval(params$pap)
+} else {
+  pap <- params$pap
+}
 lfqdataProt <-  pap$lfqdata_prot
 tableconfig <- pap$lfqdata_prot$config
 factors <- params$factors
@@ -112,7 +120,7 @@ table
 ```
 
 
-(ref:proteinCumulative) The Y axis presents the percentage of the iBAQ (intensity Based Absolute Quantitation) of each protein. Along the X axis, proteins are organized in ascending order according to their signal proportions. 
+(ref:proteinCumulative) The Y axis presents the percentage of the iBAQ (intensity Based Absolute Quantitation) of each protein. Along the X axis, proteins are organized in ascending order according to their signal proportions.
 
 
 Calculating the iBAQ signal per protein involves summing the `Precursor.Quantity` values across all precursors associated with that protein and dividing by the number of theoretically observable peptides of the protein. An intriguing observation is that a significant share of the mass spectrometers recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
@@ -149,7 +157,6 @@ pplotPepAbund <- plotly::ggplotly(pplotPepAbund)
 ```{r nrProtplots, fig.cap = "(ref:nrProtplots)", eval = FALSE, include=FALSE}
 pplotPepAbund
 ```
-
 
 
 

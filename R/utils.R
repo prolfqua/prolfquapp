@@ -49,6 +49,9 @@ sync_opt_config <- function(opt, config) {
       config$path <- opt$outdir
     }
   }
+  if (!is.null(opt$model)) {
+    config$processing_options$model <- opt$model
+  }
   config$set_zipdir_name()
   return(list(opt = opt, config = config))
 }

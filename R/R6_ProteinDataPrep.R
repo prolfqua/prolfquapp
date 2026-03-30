@@ -107,7 +107,7 @@ ProteinDataPrep <- R6::R6Class(
         self$aggregator <- lfqdata_peptide$get_Aggregator("topN")
         self$aggregator$aggregate()
         self$lfq_data <- self$aggregator$lfq_agg
-      } else if (agg_method == "lmrob" || agg_method == "medpolish") {
+      } else if (agg_method == "rlm" || agg_method == "medpolish") {
         transformed_peptide <- lfqdata_peptide$get_Transformer()$intensity_array(
           log
         )$lfq
@@ -199,9 +199,12 @@ ProteinDataPrep <- R6::R6Class(
     #' @description
     #' Build a DEAnalyse object with the correct data for the chosen facade
     #' @param contrasts named character vector of contrast definitions
-    #' @param default_model facade registry key (default "lm_missing")
+    #' @param default_model facade registry key, or NULL to read from config
     #' @return DEAnalyse R6 object
-    build_deanalyse = function(contrasts, default_model = "lm_missing") {
+    build_deanalyse = function(contrasts, default_model = NULL) {
+      if (is.null(default_model)) {
+        default_model <- self$prolfq_app_config$processing_options$model
+      }
       entry <- prolfqua::FACADE_REGISTRY[[default_model]]
       if (is.null(entry)) stop("Unknown facade: ", default_model)
 

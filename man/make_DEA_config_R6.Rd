@@ -11,7 +11,7 @@ make_DEA_config_R6(
   ORDERID = "",
   WORKUNITID = "",
   Normalization = c("none", "vsn", "quantile", "robscale"),
-  aggregation = c("medpolish", "top3", "lmrob"),
+  aggregation = c("medpolish", "top3", "rlm"),
   diff_threshold = 1,
   FDR_threshold = 0.1,
   nr_peptides = 1,
@@ -20,7 +20,8 @@ make_DEA_config_R6(
   patternDecoys = "^REV_|^rev_",
   patternContaminants = "^zz|^CON|Cont_",
   application = "DIANN",
-  prefix = "DEA"
+  prefix = "DEA",
+  model = "lm_missing"
 )
 }
 \arguments{
@@ -34,7 +35,7 @@ make_DEA_config_R6(
 
 \item{Normalization}{normalization method: "none", "vsn", "quantile", "robscale"}
 
-\item{aggregation}{aggregation method: "medpolish", "top3", "lmrob"}
+\item{aggregation}{aggregation method: "medpolish", "top3", "rlm"}
 
 \item{diff_threshold}{difference threshold}
 
@@ -53,6 +54,8 @@ make_DEA_config_R6(
 \item{application}{software application name}
 
 \item{prefix}{analysis prefix (DEA or QC)}
+
+\item{model}{facade registry key for contrast analysis (default "lm_missing")}
 }
 \value{
 ProlfquAppConfig R6 object
