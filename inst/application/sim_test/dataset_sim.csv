@@ -1,0 +1,13 @@
+file,name,group,CONTROL
+sim_A1.raw,A_V1,A,T
+sim_A2.raw,A_V2,A,T
+sim_A3.raw,A_V3,A,T
+sim_A4.raw,A_V4,A,T
+sim_B1.raw,B_V1,B,T
+sim_B2.raw,B_V2,B,T
+sim_B3.raw,B_V3,B,T
+sim_B4.raw,B_V4,B,T
+sim_C1.raw,Ctrl_V1,Ctrl,C
+sim_C2.raw,Ctrl_V2,Ctrl,C
+sim_C3.raw,Ctrl_V3,Ctrl,C
+sim_C4.raw,Ctrl_V4,Ctrl,C

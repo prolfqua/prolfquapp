@@ -93,6 +93,11 @@ prolfqua_preprocess_functions <- list(
     get_files = "prolfquapp::get_mzMine_files",
     preprocess = "prolfquapp::preprocess_mzMine",
     extra_args = "list(annotated = TRUE)"
+  ),
+  SIM = list(
+    get_files = "prolfquapp::get_SIM_files",
+    preprocess = "prolfquapp::preprocess_SIM",
+    extra_args = "list(hierarchy_depth = 1)"
   )
 )
 
