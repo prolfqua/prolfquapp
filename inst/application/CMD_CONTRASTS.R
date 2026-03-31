@@ -118,89 +118,26 @@ if (!one_factor && !two_factor) {
   quit(status = 1)
 }
 
-# =============================================================================
-# Scenario 1: single factor — add CONTROL column (C/T)
-# =============================================================================
+# --- Dispatch -----------------------------------------------------------------
+
 if (one_factor) {
-  res <- prolfquapp::read_annotation(annotation_file, QC = TRUE)
-  annot <- res$annot
-  group_col <- if (!is.null(opt$group)) {
-    opt$group
-  } else {
-    res$atable$factors[["G_"]]
-  }
-
-  logger::log_info("Group column : ", group_col)
-  logger::log_info(
-    "Levels found : ",
-    paste(unique(annot[[group_col]]), collapse = ", ")
+  annot_out <- prolfquapp::run_contrasts_single(
+    annotation_file, opt$control, opt$group
   )
-
-  if (!opt$control %in% annot[[group_col]]) {
-    logger::log_error(
-      "--control '",
-      opt$control,
-      "' not found in '",
-      group_col,
-      "'."
-    )
-    quit(status = 1)
-  }
-
-  annot$CONTROL <- ifelse(annot[[group_col]] == opt$control, "C", "T")
-  annot_out <- annot
-
   logger::log_info(
-    "CONTROL column added (C = '",
-    opt$control,
-    "', T = everything else):\n",
+    "CONTROL column added (C = '", opt$control, "'):\n",
     paste(
-      capture.output(print(table(annot_out[[group_col]], annot_out$CONTROL))),
+      capture.output(print(
+        table(annot_out[[grep("group", colnames(annot_out), value = TRUE)[1]]],
+              annot_out$CONTROL)
+      )),
       collapse = "\n"
     )
   )
-}
-
-# =============================================================================
-# Scenario 2: two factor
-# =============================================================================
-if (two_factor) {
-  df <- prolfquapp::read_table_data(annotation_file)
-
-  missing_cols <- setdiff(c(opt$f1, opt$f2), colnames(df))
-  if (length(missing_cols) > 0) {
-    logger::log_error(
-      "Column(s) not found: ",
-      paste(missing_cols, collapse = ", ")
-    )
-    quit(status = 1)
-  }
-
-  logger::log_info(
-    "f1 = '",
-    opt$f1,
-    "' levels: ",
-    paste(unique(df[[opt$f1]]), collapse = ", ")
+} else {
+  annot_out <- prolfquapp::run_contrasts_twofactor(
+    annotation_file, opt$f1, opt$f2, opt$interactions
   )
-  logger::log_info(
-    "f2 = '",
-    opt$f2,
-    "' levels: ",
-    paste(unique(df[[opt$f2]]), collapse = ", ")
-  )
-
-  res <- prolfqua::annotation_add_contrasts(
-    df,
-    primary_col = opt$f1,
-    secondary_col = opt$f2,
-    interactions = opt$interactions
-  )
-  annot_out <- res$annot
-}
-
-# --- Print (scenario 2 only) -------------------------------------------------
-
-if (two_factor) {
   ct <- dplyr::distinct(annot_out[
     !is.na(annot_out$ContrastName),
     c("ContrastName", "Contrast")
