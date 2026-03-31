@@ -1,8 +1,8 @@
-if (!require("prolfqua", quietly = TRUE)) {
+if (!require("prolfquapp", quietly = TRUE)) {
   remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
 }
 if (!require("prolfqua", quietly = TRUE)) {
-  remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
+  remotes::install_github("prolfqua/prolfqua", dependencies = TRUE)
 }
 if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
@@ -108,21 +108,12 @@ lobstr::tree(arguments)
 opt <- arguments$options
 ymlfile <- arguments$args
 
+# Interactive debugging: set opt manually, then source from here
 if (FALSE) {
   opt$indir <- "DIANN_Result_WU321864/out-2025-02-14/"
   opt$software <- "DIANN"
   opt$dataset <- "DIANN_Result_WU321864/dataset.csv"
   opt$workunit <- "helloW"
-} else if (FALSE) {
-  opt$indir <- "outputs-20250407T1707/mzmine/"
-  opt$software <- "MZMINEannot"
-  opt$dataset <- "outputs-20250407T1707/bfabric/input_dataset.tsv"
-  opt$workunit <- "helloWannot"
-} else if (FALSE) {
-  opt$indir <- "out-DIANN_quantB"
-  opt$software <- "DIANN"
-  opt$dataset <- "dataset.csv"
-  opt$workunit <- "helloWannot"
 }
 
 
@@ -145,83 +136,39 @@ logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 
-if (file.exists(ymlfile)) {
-  GRP2 <- prolfquapp::get_config(ymlfile)
-} else {
-  GRP2 <- prolfquapp::make_DEA_config_R6(
-    PATH = opt$outdir,
-    ORDERID = opt$order,
-    PROJECTID = opt$project,
-    WORKUNITID = opt$workunit,
-    application = opt$software,
-    prefix = "QC"
-  )
-}
+result <- tryCatch(
+  prolfquapp::run_qc_preprocess(
+    indir = opt$indir,
+    dataset = opt$dataset,
+    software = opt$software,
+    yaml_file = ymlfile,
+    outdir = opt$outdir,
+    project = opt$project,
+    order = opt$order,
+    workunit = opt$workunit
+  ),
+  error = function(e) {
+    stack_trace <- capture.output(traceback())
+    logger::log_error(conditionMessage(e), "\n")
+    logger::log_error("Stack trace:\n")
+    logger::log_error(
+      paste(stack_trace, collapse = "\n"), "\n"
+    )
+    if (interactive()) stop(e) else quit(save = "no", status = 1)
+  }
+)
 
-dir.create(GRP2$path)
+xd <- result$xd
+GRP2 <- result$config
 
-logger::log_info(GRP2$get_zipdir())
+dir.create(GRP2$path, showWarnings = FALSE)
 if (!dir.exists(GRP2$get_zipdir())) {
   dir.create(GRP2$get_zipdir())
 }
 
-output_dir <- GRP2$get_zipdir()
-path <- opt$indir
-
-if (!file.exists(opt$dataset)) {
-  stop("No annotation file found : ", opt$dataset)
-}
-
-annotation <- file.path(opt$dataset) |>
-  prolfquapp::read_table_data() |>
-  prolfquapp::read_annotation(QC = TRUE, repeated = FALSE)
-
-
-result <- tryCatch(
-  {
-    # Attempt to run the function
-    procsoft <- preprocess_software(
-      opt$indir,
-      annotation,
-      preprocess_functions = prolfqua_preprocess_functions[[opt$software]],
-      pattern_contaminants = (GRP2$processing_options$pattern_contaminants),
-      pattern_decoys = GRP2$processing_options$pattern_decoys
-    )
-    # Return the result if successful
-    list(value = procsoft, error = NULL, stack_trace = NULL)
-  },
-  error = function(e) {
-    # On error, capture the stack trace as text
-    stack_trace <- capture.output(traceback())
-    # Return the error message and stack trace
-    list(
-      value = NULL,
-      error = conditionMessage(e),
-      stack_trace = paste(stack_trace, collapse = "\n")
-    )
-  }
+pap <- QC_generator$new(
+  xd$lfqdata, xd$protein_annotation, GRP2
 )
-
-
-if (!is.null(result$error)) {
-  logger::log_error(result$error, "\n")
-  logger::log_error("Stack trace:\n")
-  logger::log_error(result$stack_trace, "\n")
-  if (interactive()) {
-    stop("error occured")
-  } else {
-    quit(save = "no", status = 1)
-  }
-} else {
-  xd <- result$value$xd
-  files <- result$value$files
-}
-
-xd$lfqdata$config$hierarchyDepth <- 1
-
-GRP2$get_zipdir()
-
-pap <- QC_generator$new(xd$lfqdata, xd$protein_annotation, GRP2)
 pap$copy_dataset(opt$dataset)
 
 pap$write_xlsx()

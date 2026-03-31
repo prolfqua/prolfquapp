@@ -85,27 +85,14 @@ ymlfile <- if (length(ymlfile) == 0) {
 }
 
 logger::log_info("writing yaml file : ", ymlfile)
-GRP2 <- prolfquapp::make_DEA_config_R6(
-  PROJECTID = opt$project,
-  ORDERID = opt$order,
-  WORKUNITID = opt$workunit,
-  Normalization = opt$norm,
-  model = opt$model
+cfg <- prolfquapp::run_make_yaml(
+  project = opt$project,
+  order = opt$order,
+  workunit = opt$workunit,
+  norm = opt$norm,
+  model = opt$model,
+  outdir = opt$outdir
 )
-GRP2$set_zipdir_name()
-if (!is.null(opt$outdir) && dir.exists(opt$outdir)) {
-  GRP2$path <- opt$outdir
-}
-cfg <- prolfqua::R6_extract_values(GRP2)
-cfg <- GRP2$as_list()
-
-# Define the fields that should be moved to the bottom
-fields_to_move <- c("ext_reader", "group", "RES", "pop")
-# Separate the fields into 'main' and 'bottom'
-main_fields <- cfg[!names(cfg) %in% fields_to_move]
-bottom_fields <- cfg[names(cfg) %in% fields_to_move]
-# Combine the main fields and bottom fields in the desired order
-cfg <- c(main_fields, bottom_fields)
 
 if (!dir.exists(opt$outdir)) {
   dir.create(opt$outdir)

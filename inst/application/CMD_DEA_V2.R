@@ -92,30 +92,13 @@ library(prolfquapp)
 logger::log_info("using : ", system.file(package = "prolfqua"))
 logger::log_info("using : ", system.file(package = "prolfquapp"))
 
+# Interactive debugging: set opt manually, then source from here
 if (FALSE) {
   ymlfile <- "config.yaml"
   opt$indir <- "ptm_example-main/data_total/FP_22"
   opt$software <- "prolfquapp.FP_TMT"
   opt$dataset <- "dataset_with_contrasts.tsv"
   opt$workunit <- "total_proteome"
-} else if (FALSE) {
-  ymlfile <- "config.yaml"
-  opt$indir <- "o38194_proteome_includeRepeatedSample"
-  opt$software <- "prolfquapp.MSSTATS"
-  opt$dataset <- "annotation.tsv"
-  opt$workunit <- "total_proteome"
-} else if (FALSE) {
-  ymlfile <- "config.yaml"
-  opt$indir <- "ptm_example-main/data_ptm/FP_22"
-  opt$software <- "prolfquappPTMreaders.FP_singlesite"
-  opt$dataset <- "dataset_with_contrasts.tsv"
-  opt$workunit <- "singlesite_PTM"
-} else if (FALSE) {
-  opt$yaml <- "WU339865/config.yaml"
-  opt$indir <- "WU339865"
-  opt$software <- "prolfquapp.DIANN"
-  opt$dataset <- "WU339865/dataset.csv"
-  opt$workunit <- "xyz"
 }
 
 ymlfile <- if (length(ymlfile) == 0) {
@@ -157,75 +140,33 @@ logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(prolfqua::R6_extr
 )))))
 
 
-annotation <- file.path(opt$dataset) |>
-  prolfquapp::read_table_data() |>
-  prolfquapp::read_annotation(prefix = GRP2$group)
-
-logger::log_info(
-  "ContrastNames: \n",
-  paste(names(annotation$contrasts), collapse = "\n")
-)
-logger::log_info("Contrast: \n", paste(annotation$contrasts, collapse = "\n"))
-
-logger::log_info(
-  "Factors : ",
-  paste(annotation$atable$factor_keys_depth(), collapse = "\n")
-)
 prolfquapp::copy_DEA_R6_Files()
 logger::log_info("Software: ", opt$software)
 
-
-prolfqua_preprocess_functions <- get_procfuncs()
-if (!opt$software %in% names(prolfqua_preprocess_functions)) {
-  logger::log_error(
-    opt$software,
-    " no in ",
-    paste0(names(prolfqua_preprocess_functions))
-  )
-}
-
-
 result <- tryCatch(
-  {
-    # Attempt to run the function
-    procsoft <- preprocess_software(
-      opt$indir,
-      annotation,
-      preprocess_functions = prolfqua_preprocess_functions[[opt$software]],
-      pattern_contaminants = GRP2$processing_options$pattern_contaminants,
-      pattern_decoys = GRP2$processing_options$pattern_decoys
-    )
-    # Return the result if successful
-    list(value = procsoft, error = NULL, stack_trace = NULL)
-  },
+  prolfquapp::run_dea(
+    indir = opt$indir,
+    dataset = opt$dataset,
+    software = opt$software,
+    config = GRP2
+  ),
   error = function(e) {
-    # On error, capture the stack trace as text
     stack_trace <- capture.output(traceback())
-    # Return the error message and stack trace
-    list(
-      value = NULL,
-      error = conditionMessage(e),
-      stack_trace = paste(stack_trace, collapse = "\n")
+    logger::log_error(conditionMessage(e), "\n")
+    logger::log_error("Stack trace:\n")
+    logger::log_error(
+      paste(stack_trace, collapse = "\n"), "\n"
     )
+    if (interactive()) stop(e) else quit(save = "no", status = 1)
   }
 )
 
-if (!is.null(result$error)) {
-  logger::log_error(result$error, "\n")
-  logger::log_error("Stack trace:\n")
-  logger::log_error(result$stack_trace, "\n")
-  if (interactive()) {
-    stop("error occured")
-  } else {
-    quit(save = "no", status = 1)
-  }
-} else {
-  xd <- result$value$xd
-  files <- result$value$files
-}
+deanalyse <- result$deanalyse
+xd <- result$xd
+annotation <- result$annotation
+files <- result$files
 
-
-logger::log_info("Processing done:", opt$software)
+logger::log_info("Processing done: ", opt$software)
 logger::log_info(paste(
   c(
     "Protein Annotation :\n",
@@ -233,39 +174,10 @@ logger::log_info(paste(
   ),
   collapse = "\n"
 ))
-
-# ---- R6 Analysis Pipeline ----
-logger::log_info("PREPARING PROTEIN DATA")
-
-data_prep <- prolfquapp::ProteinDataPrep$new(
-  xd$lfqdata,
-  xd$protein_annotation,
-  GRP2
-)
-
-logger::log_info("CONTAMINANT/DECOY SUMMARY")
-data_prep$cont_decoy_summary()
-
-logger::log_info("REMOVING CONTAMINANTS AND DECOYS")
-data_prep$remove_cont_decoy()
-
 logger::log_info(
-  "AGGREGATING PEPTIDE DATA: {GRP2$processing_options$aggregate}."
+  "ContrastNames: \n",
+  paste(names(annotation$contrasts), collapse = "\n")
 )
-data_prep$aggregate()
-
-logger::log_info("TRANSFORMING DATA")
-data_prep$transform_data()
-
-logger::log_info("CREATING DEAnalyse R6 OBJECT")
-deanalyse <- data_prep$build_deanalyse(annotation$contrasts)
-
-logger::log_info("BUILDING MODELS AND COMPUTING CONTRASTS")
-deanalyse$build_default()
-
-logger::log_info("ANNOTATING CONTRASTS")
-deanalyse$get_annotated_contrasts()
-
 logger::log_info("END OF ANALYSIS")
 
 # ---- R6 Report Pipeline ----
