@@ -1,8 +1,8 @@
-if (!require("prolfqua", quietly = TRUE)) {
+if (!require("prolfquapp", quietly = TRUE)) {
   remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
 }
 if (!require("prolfqua", quietly = TRUE)) {
-  remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
+  remotes::install_github("prolfqua/prolfqua", dependencies = TRUE)
 }
 if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
@@ -59,28 +59,13 @@ arguments <- optparse::parse_args(parser, positional_arguments = FALSE)
 opt <- arguments
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 
+# Interactive debugging: set opt manually, then source from here
 if (FALSE) {
   opt$indir <- "DIANN_19_all_18_50_50_MBR_v01/"
   opt$dataset <- "dataset.xlsx"
   opt$software <- "DIANN"
 }
-if (FALSE) {
-  opt$indir <- "20240729_093759_o35116_SN19_outliersRemoved_MSStats_Report"
-  opt$dataset <- "dataset_2.xlsx"
-  opt$software <- "MSSTATS"
-}
-if (FALSE) {
-  opt$indir <- "20241223_111611_SN19_BGSReport_20240923_Astral_HYE_Evosep80SPDwz_NoNorm/"
-  opt$dataset <- "dataset_Astral.xlsx"
-  opt$software <- "BGS_DEFAULT"
-}
-if (FALSE) {
-  opt$indir <- "FP_22"
-  opt$dataset <- "total_dataset.tsv"
-  opt$software <- "prolfquapp.FP_TMT"
-}
 
-logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 prolfqua_preprocess_functions <- prolfquapp::get_procfuncs()
 
 if (opt$software %in% names(prolfqua_preprocess_functions)) {
