@@ -8,7 +8,7 @@ PKG_VERSION = $(shell grep '^Version:' DESCRIPTION | sed 's/Version: //')
 TARBALL = ../$(PKG_NAME)_$(PKG_VERSION).tar.gz
 BUILD_CMD = Rscript -e "devtools::build(vignettes = TRUE)"
 CHECK_CMD = Rscript -e "devtools::check()"
-CHECK_FAST_CMD = Rscript -e "devtools::check(build_args = '--no-build-vignettes', args = '--no-vignettes')"
+CHECK_FAST_CMD = Rscript -e "devtools::check(build_args = '--no-build-vignettes', args = '--no-vignettes', vignettes = FALSE)"
 BUILD_VIGNETTES_CMD = Rscript -e "devtools::build_vignettes()"
 TEST_CMD = Rscript -e "devtools::test()"
 COVERAGE_CMD = Rscript -e "covr::package_coverage() |> print()"
@@ -51,7 +51,7 @@ build-vignettes: clean document
 	mkdir -p inst/doc
 	cp doc/*.html doc/*.Rmd doc/*.R inst/doc/ 2>/dev/null || true
 
-check-fast: build-vignettes
+check-fast: document
 	$(CHECK_FAST_CMD)
 
 test: document
