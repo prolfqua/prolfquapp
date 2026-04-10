@@ -131,9 +131,13 @@ make_annotated_experiment <- function(Nprot = 100) {
 #' @examples
 #'
 #' istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-#' xd1 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = TRUE)
+#' lfq0 <- prolfqua::LFQData$new(istar$data, istar$config)
+#' xd1 <- prolfqua::nr_obs_experiment(lfq0$get_data(), lfq0$hierarchy_keys(),
+#'   lfq0$relevant_hierarchy_keys(), lfq0$nr_children_col(),
+#'   response = lfq0$response(), file_name = lfq0$file_name())
 #'
-#' xd2 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = FALSE)
+#' xd2 <- prolfqua::nr_obs_experiment(lfq0$get_data(), lfq0$hierarchy_keys(),
+#'   lfq0$relevant_hierarchy_keys(), lfq0$nr_children_col(), from_children = FALSE)
 #' xd1$nr_child_exp |> table()
 #'
 #' lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
@@ -147,8 +151,10 @@ make_annotated_experiment <- function(Nprot = 100) {
 #' addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID", NA), remove = FALSE)
 #' # ProteinAnnotation$debug("initialize")
 #' # debug(nr_obs_sample)
-#' xd4 <- prolfqua::nr_obs_sample(lfqdata$data, lfqdata$config)
-#' xd3 <- prolfqua::nr_obs_experiment(lfqdata$data, lfqdata$config, from_children = FALSE)
+#' xd4 <- prolfqua::nr_obs_sample(lfqdata$get_data(), lfqdata$response(),
+#'   lfqdata$relevant_hierarchy_keys(), lfqdata$file_name(), lfqdata$nr_children_col())
+#' xd3 <- prolfqua::nr_obs_experiment(lfqdata$get_data(), lfqdata$hierarchy_keys(),
+#'   lfqdata$relevant_hierarchy_keys(), lfqdata$nr_children_col(), from_children = FALSE)
 #'
 #' pannot <- ProteinAnnotation$new(lfqdata,
 #'   addannot,
@@ -255,13 +261,15 @@ ProteinAnnotation <-
           warning(
             "no exp_nr_children column specified, computing using nr_obs_experiment function"
           )
-          cf <- lfqdata$config$clone(deep = TRUE)
-          cf$hierarchyDepth <- 1
           self$row_annot <- dplyr::inner_join(
             self$row_annot,
             prolfqua::nr_obs_experiment(
-              lfqdata$data,
-              cf,
+              lfqdata$get_data(),
+              hierarchy_keys = lfqdata$hierarchy_keys(),
+              hierarchy_keys_depth = lfqdata$hierarchy_keys()[1],
+              nr_children_col = lfqdata$nr_children_col(),
+              response = lfqdata$response(),
+              file_name = lfqdata$file_name(),
               name_nr_child = self$exp_nr_children
             ),
             by = self$pID
@@ -482,7 +490,7 @@ dataset_protein_annot <- function(
   message("uniprot database : ", UNIPROT)
 
   if (UNIPROT) {
-    prot_annot <- prolfqua::get_UniprotID_from_fasta_header(
+    prot_annot <- prolfqua::get_uniprot_id_from_fasta_header(
       prot_annot,
       idcolumn = proteinID_column
     )

@@ -153,7 +153,7 @@ DEAReportGenerator <- R6::R6Class(
       resultList$annotation <- dplyr::inner_join(
         rd$factors(),
         rd$get_Summariser()$hierarchy_counts_sample(),
-        by = rd$config$sampleName,
+        by = rd$config$sample_name,
         multiple = "all"
       )
 
@@ -168,9 +168,8 @@ DEAReportGenerator <- R6::R6Class(
       resultList$diff_exp_analysis_wide <- ctr_wide
       resultList$formula <- data.frame(formula = dea$formula)
       resultList$summary <- dea$summary
-      resultList$missing_information <- prolfqua::UpSet_interaction_missing_stats(
-        rd$data,
-        rd$config,
+      resultList$missing_information <- prolfqua::upset_interaction_missing_stats(
+        rd,
         tr = 1
       )$data
       resultList$contrasts <- contrasts_df
@@ -453,8 +452,8 @@ DEAReportGenerator <- R6::R6Class(
       .url_builder = prolfquapp::bfabric_url_builder
     ) {
       dea <- self$deanalyse
-      colname <- dea$lfq_data_raw$config$sampleName
-      rowname <- dea$lfq_data_raw$config$hierarchyKeys()
+      colname <- dea$lfq_data_raw$config$sample_name
+      rowname <- dea$lfq_data_raw$config$hierarchy_keys()
       resTables <- self$prep_result_list()
 
       matTr <- dea$lfq_data$to_wide(as.matrix = TRUE)

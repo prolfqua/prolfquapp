@@ -11,9 +11,13 @@ Decorates LFQData with a row annotation and some protein specific functions.
 \examples{
 
 istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-xd1 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = TRUE)
+lfq0 <- prolfqua::LFQData$new(istar$data, istar$config)
+xd1 <- prolfqua::nr_obs_experiment(lfq0$get_data(), lfq0$hierarchy_keys(),
+  lfq0$relevant_hierarchy_keys(), lfq0$nr_children_col(),
+  response = lfq0$response(), file_name = lfq0$file_name())
 
-xd2 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = FALSE)
+xd2 <- prolfqua::nr_obs_experiment(lfq0$get_data(), lfq0$hierarchy_keys(),
+  lfq0$relevant_hierarchy_keys(), lfq0$nr_children_col(), from_children = FALSE)
 xd1$nr_child_exp |> table()
 
 lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
@@ -27,8 +31,10 @@ addannot <- data.frame(
 addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID", NA), remove = FALSE)
 # ProteinAnnotation$debug("initialize")
 # debug(nr_obs_sample)
-xd4 <- prolfqua::nr_obs_sample(lfqdata$data, lfqdata$config)
-xd3 <- prolfqua::nr_obs_experiment(lfqdata$data, lfqdata$config, from_children = FALSE)
+xd4 <- prolfqua::nr_obs_sample(lfqdata$get_data(), lfqdata$response(),
+  lfqdata$relevant_hierarchy_keys(), lfqdata$file_name(), lfqdata$nr_children_col())
+xd3 <- prolfqua::nr_obs_experiment(lfqdata$get_data(), lfqdata$hierarchy_keys(),
+  lfqdata$relevant_hierarchy_keys(), lfqdata$nr_children_col(), from_children = FALSE)
 
 pannot <- ProteinAnnotation$new(lfqdata,
   addannot,
