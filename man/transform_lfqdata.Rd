@@ -16,8 +16,7 @@ Assumes that data is not transformed (still needs log2 transformation)
 }
 \examples{
 istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
-config <- prolfqua:::old2new(istar$config)
-tmp <- prolfqua::LFQData$new(istar$data, config)
+tmp <- prolfqua::LFQData$new(istar$data, istar$config)
 tmp2 <- transform_lfqdata(tmp)
 
 }

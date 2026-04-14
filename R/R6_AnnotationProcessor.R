@@ -97,12 +97,12 @@ write_annotation_file <- function(data, file_path) {
 #' stopifnot(aa$atable$factor_keys() == "G_")
 #' stopifnot(aa$atable$factors == "group")
 #' aa <- ap$read_annotation(annot)
-#' aa$atable$fileName
-#' aa$atable$sampleName
+#' aa$atable$file_name
+#' aa$atable$sample_name
 #' as <- annot
 #' as$sample <- c("s1","s2","s3","s4")
 #' aa <- ap$read_annotation(annot)
-#' aa$atable$sampleName
+#' aa$atable$sample_name
 #' stopifnot(is.null(aa$annotation))
 #'
 #' annot <- data.frame(
@@ -307,18 +307,18 @@ AnnotationProcessor <- R6::R6Class(
         )) >
           0
       ) {
-        atable$sampleName <- grep(
+        atable$sample_name <- grep(
           self$sample_name_pattern,
           colnames(annot),
           value = TRUE,
           ignore.case = TRUE
         )[1]
       }
-      if (self$strict && any(duplicated(annot[[atable$sampleName]]))) {
+      if (self$strict && any(duplicated(annot[[atable$sample_name]]))) {
         stop("sample Names must be unique.")
-      } else if (any(duplicated(annot[[atable$sampleName]]))) {
-        annot[[atable$sampleName]] <- data.frame(
-          xx = annot[[atable$sampleName]]
+      } else if (any(duplicated(annot[[atable$sample_name]]))) {
+        annot[[atable$sample_name]] <- data.frame(
+          xx = annot[[atable$sample_name]]
         ) |>
           dplyr::group_by(xx) |>
           dplyr::mutate(count = dplyr::row_number()) |>
@@ -335,8 +335,8 @@ AnnotationProcessor <- R6::R6Class(
         value = TRUE,
         ignore.case = TRUE
       )[1]
-      atable$fileName <- fileName
-      if (any(duplicated(annot[[atable$fileName]]))) {
+      atable$file_name <- fileName
+      if (any(duplicated(annot[[atable$file_name]]))) {
         stop("file Names must be unique.")
       }
     },
@@ -372,7 +372,7 @@ AnnotationProcessor <- R6::R6Class(
         atable$factors[[self$prefix]] <- groupingVAR
       }
 
-      atable$factorDepth <- 1
+      atable$factor_depth <- 1
       return(annot)
     },
 
@@ -391,7 +391,7 @@ AnnotationProcessor <- R6::R6Class(
         atable$factors[["Subject_"]] <- subvar
 
         fct <- dplyr::distinct(annot[, c(
-          atable$fileName,
+          atable$file_name,
           atable$factors[[self$prefix]],
           subvar
         )])
@@ -400,7 +400,7 @@ AnnotationProcessor <- R6::R6Class(
           subvar
         )]))
         if (all(tmp$Freq >= 1)) {
-          atable$factorDepth <- 2
+          atable$factor_depth <- 2
         }
       }
     },
@@ -429,7 +429,7 @@ AnnotationProcessor <- R6::R6Class(
         ignore.case = TRUE
       )
       if (length(norm_col) >= 1) {
-        atable$normValue <- norm_col[1]
+        atable$norm_value <- norm_col[1]
         if (length(norm_col) > 1) {
           warning(
             "Multiple normalization value columns found: ",

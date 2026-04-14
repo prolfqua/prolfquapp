@@ -44,10 +44,10 @@ QC_generator <- R6::R6Class(
     #' @return peptide data in wide format
     get_peptides_wide = function() {
       lfqdata <- self$lfqdata$get_copy()
-      lfqdata$config$hierarchyDepth <- min(
+      lfqdata$set_config_value("hierarchy_depth", min(
         2,
-        length(self$lfqdata$config$hierarchyKeys())
-      )
+        length(self$lfqdata$hierarchy_keys())
+      ))
       self$lfqdata_peptide <- prolfquapp::aggregate_data(
         lfqdata,
         agg_method = "medpolish"
@@ -122,7 +122,7 @@ QC_generator <- R6::R6Class(
       proteins_wide <- dplyr::inner_join(
         proteins_wide,
         nr_children_data,
-        by = c(lfqdata_prot$config$hierarchy_keys_depth(), "isotopeLabel")
+        by = c(lfqdata_prot$relevant_hierarchy_keys(), "isotopeLabel")
       )
       return(proteins_wide)
     },
@@ -195,7 +195,7 @@ QC_generator <- R6::R6Class(
         self$protein_annotation$row_annot,
         precabund,
         multiple = "all",
-        by = self$get_prot_IBAQ()$config$hierarchy_keys_depth()
+        by = self$get_prot_IBAQ()$relevant_hierarchy_keys()
       )
       invisible(precabund)
     },
@@ -206,7 +206,7 @@ QC_generator <- R6::R6Class(
       precabund <- self$get_protein_per_group_abundance()
       precabund_data_wide <- precabund |>
         tidyr::pivot_wider(
-          id_cols = self$lfqdata$config$hierarchy_keys()[1],
+          id_cols = self$lfqdata$hierarchy_keys()[1],
           names_from = interaction,
           values_from = c(
             nrReplicates,
@@ -227,7 +227,7 @@ QC_generator <- R6::R6Class(
         self$protein_annotation$row_annot,
         precabund_data_wide,
         multiple = "all",
-        by = self$get_prot_IBAQ()$config$hierarchy_keys_depth()
+        by = self$get_prot_IBAQ()$relevant_hierarchy_keys()
       )
 
       invisible(precabund)
@@ -251,7 +251,7 @@ QC_generator <- R6::R6Class(
           IBAQ_abundances,
           nr_children_data,
           by = c(
-            self$get_prot_IBAQ()$config$hierarchy_keys_depth(),
+            self$get_prot_IBAQ()$relevant_hierarchy_keys(),
             "isotopeLabel"
           )
         )
@@ -361,8 +361,8 @@ QC_generator <- R6::R6Class(
         rmarkdown::render(
           file.path(self$output_dir, "QCandSSE.Rmd"),
           params = list(
-            data = self$get_prot_data()$data,
-            configuration = self$get_prot_data()$config,
+            data = self$get_prot_data()$data_long(),
+            configuration = self$get_prot_data()$get_config(),
             project_conf = GRP2$project_spec,
             target_type = private$get_target_type()
           ),
@@ -462,7 +462,7 @@ QC_generator <- R6::R6Class(
     get_protein_per_group_small_wide = function() {
       n <- 2
       precabund <- self$get_protein_per_group_abundance()
-      tableconfig <- self$get_prot_IBAQ()$config
+      tableconfig <- self$get_prot_IBAQ()$get_config()
       protID <- tableconfig$hierarchy_keys_depth()
       precabund <- dplyr::inner_join(
         self$protein_annotation$row_annot,
@@ -523,7 +523,7 @@ QC_generator <- R6::R6Class(
     # @return data frame with nr_children data
     get_nr_children_data = function(lfqdata) {
       # Get nr_children data using the configured column name
-      nr_children_col_name <- lfqdata$config$nr_children
+      nr_children_col_name <- lfqdata$nr_children_col()
       nr_children_data <- lfqdata$to_wide(value = nr_children_col_name)$data
       return(nr_children_data)
     }

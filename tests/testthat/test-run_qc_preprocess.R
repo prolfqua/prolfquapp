@@ -23,7 +23,7 @@ test_that("run_qc_preprocess returns xd and config with SIM", {
   expect_true(
     "ProlfquAppConfig" %in% class(result$config)
   )
-  expect_equal(result$xd$lfqdata$config$hierarchyDepth, 1)
+  expect_equal(result$xd$lfqdata$get_config()$hierarchy_depth, 1)
 })
 
 test_that("run_qc_preprocess errors on missing annotation", {

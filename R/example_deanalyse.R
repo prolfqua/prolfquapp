@@ -14,7 +14,7 @@ example_deanalyse <- function(Nprot = 100) {
   pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
   pep <- prolfqua::LFQData$new(pep$data, pep$config)
 
-  pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
+  pA <- data.frame(protein_Id = unique(pep$data_long()$protein_Id))
   pA$description <- paste0(pA$protein_Id, "_description")
   pA <- ProteinAnnotation$new(pep, row_annot = pA, description = "description")
 

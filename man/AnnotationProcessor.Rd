@@ -49,12 +49,12 @@ aa <- ap$read_annotation(af)
 stopifnot(aa$atable$factor_keys() == "G_")
 stopifnot(aa$atable$factors == "group")
 aa <- ap$read_annotation(annot)
-aa$atable$fileName
-aa$atable$sampleName
+aa$atable$file_name
+aa$atable$sample_name
 as <- annot
 as$sample <- c("s1","s2","s3","s4")
 aa <- ap$read_annotation(annot)
-aa$atable$sampleName
+aa$atable$sample_name
 stopifnot(is.null(aa$annotation))
 
 annot <- data.frame(

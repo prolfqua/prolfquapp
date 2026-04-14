@@ -153,13 +153,13 @@ DEAReportGenerator <- R6::R6Class(
       resultList$annotation <- dplyr::inner_join(
         rd$factors(),
         rd$get_Summariser()$hierarchy_counts_sample(),
-        by = rd$config$sample_name,
+        by = rd$sample_name(),
         multiple = "all"
       )
 
       resultList$normalized_abundances <- dplyr::inner_join(
         ra$row_annot,
-        tr$data,
+        tr$data_long(),
         multiple = "all"
       )
       resultList$raw_abundances_matrix <- wideraw
@@ -294,11 +294,11 @@ DEAReportGenerator <- R6::R6Class(
       }
       bb <- self$deanalyse$lfq_data
       grsizes <- bb$factors() |>
-        dplyr::group_by(dplyr::across(bb$config$factor_keys_depth())) |>
+        dplyr::group_by(dplyr::across(bb$relevant_factor_keys())) |>
         dplyr::summarize(n = dplyr::n(), .groups = "drop") |>
         dplyr::pull(n)
       nr_controls <- sum(
-        !grepl("^control", bb$config$factor_keys(), ignore.case = TRUE)
+        !grepl("^control", bb$factor_keys(), ignore.case = TRUE)
       )
       if (nr_controls > 1 && all(grsizes == 1)) {
         prolfquapp::writeLinesPaired(bb, self$resultdir)
@@ -327,7 +327,7 @@ DEAReportGenerator <- R6::R6Class(
     contrasts_to_Grob = function() {
       dea <- self$deanalyse
       datax <- dea$filter_contrasts()
-      hkeys <- dea$lfq_data$config$hierarchy_keys_depth()
+      hkeys <- dea$lfq_data$relevant_hierarchy_keys()
       xdn <- datax |> dplyr::nest_by(!!!syms(hkeys))
 
       stats2grob <- function(data) {
@@ -452,8 +452,8 @@ DEAReportGenerator <- R6::R6Class(
       .url_builder = prolfquapp::bfabric_url_builder
     ) {
       dea <- self$deanalyse
-      colname <- dea$lfq_data_raw$config$sample_name
-      rowname <- dea$lfq_data_raw$config$hierarchy_keys()
+      colname <- dea$lfq_data_raw$sample_name()
+      rowname <- dea$lfq_data_raw$hierarchy_keys()
       resTables <- self$prep_result_list()
 
       matTr <- dea$lfq_data$to_wide(as.matrix = TRUE)

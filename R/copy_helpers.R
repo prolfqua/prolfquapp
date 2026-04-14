@@ -7,7 +7,7 @@ copy_docker_script <- function(workdir = getwd()) {
     "application/bin/prolfquapp_docker.sh"
   )
   # Check the operating system and add the appropriate extension
-  prolfqua::scriptCopyHelperVec(
+  prolfqua::script_copy_helper_vec(
     runscripts,
     workdir = workdir,
     packagename = "prolfquapp"
@@ -33,7 +33,7 @@ copy_shell_script <- function(workdir = getwd()) {
   } else {
     runscripts <- paste0(runscripts, ".sh")
   }
-  prolfqua::scriptCopyHelperVec(
+  prolfqua::script_copy_helper_vec(
     runscripts,
     workdir = workdir,
     packagename = "prolfquapp"
@@ -50,7 +50,7 @@ copy_DEA_R6_Files <- function(workdir = getwd()) {
     "doc/Grp2Analysis_V2_R6.Rmd",
     "doc/DiffExpQC_R6.Rmd"
   )
-  prolfqua::scriptCopyHelperVec(
+  prolfqua::script_copy_helper_vec(
     runscripts,
     workdir = workdir,
     packagename = "prolfquapp"

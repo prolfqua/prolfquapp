@@ -93,7 +93,7 @@ Table \@ref(tab:samples) shows the number of samples assigned to each group whil
 
 ```{r samples, eval=TRUE}
 
-tab <- data.frame(table(dea$lfq_data_raw$factors()[dea$lfq_data_raw$config$factor_keys_depth()]))
+tab <- data.frame(table(dea$lfq_data_raw$factors()[dea$lfq_data_raw$relevant_factor_keys()]))
 colnames(tab)[length(colnames(tab))] <- "# samples"
 knitr::kable(tab, caption = "Nr of samples assigned to each group.")
 
@@ -106,13 +106,13 @@ fx <- ld$factors()
 sr <- ld$get_Summariser()
 xx <- sr$hierarchy_counts_sample(nr_children = 1)
 xx$isotopeLabel <- NULL
-xx <- xx |> dplyr::rename(nr_1 = ld$config$hierarchy_keys())
+xx <- xx |> dplyr::rename(nr_1 = ld$hierarchy_keys())
 x2 <- sr$hierarchy_counts_sample(nr_children = 2)
 x2$isotopeLabel <- NULL
-x2 <- x2 |> dplyr::rename(nr_2 = ld$config$hierarchy_keys())
+x2 <- x2 |> dplyr::rename(nr_2 = ld$hierarchy_keys())
 
-fx <- dplyr::left_join(fx,xx, by = ld$config$sample_name)
-fx <- dplyr::left_join(fx,x2, by = ld$config$sample_name)
+fx <- dplyr::left_join(fx,xx, by = ld$sample_name())
+fx <- dplyr::left_join(fx,x2, by = ld$sample_name())
 
 
 knitr::kable(fx, caption = paste0(
@@ -332,7 +332,7 @@ The FDR is the expected proportion of false discoveries in a list of proteins, a
 The table (Figure \@ref(fig:tableAllProt)) summarizes the differential expression analysis results by providing the following information:
 
 ```{r}
-hkey <- dea$lfq_data$config$hierarchy_keys()
+hkey <- dea$lfq_data$hierarchy_keys()
 ```
 
 - `r if(hkey[1] == "protein_Id"){ paste0(hkey[1], " - unique protein identifier")} else {hkey[1]}`

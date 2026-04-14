@@ -25,20 +25,20 @@ LFQData_from_anndata <- function(adata) {
   # --- rebuild AnalysisConfiguration ---
   config <- prolfqua::AnalysisConfiguration$new()
   config$sep <- ac$sep
-  config$fileName <- ac$fileName
-  config$sampleName <- ac$sampleName
-  config$isotopeLabel <- ac$isotopeLabel
-  config$ident_qValue <- ac$ident_qValue
-  config$ident_Score <- ac$ident_Score %||% character()
+  config$file_name <- ac$file_name %||% ac$fileName
+  config$sample_name <- ac$sample_name %||% ac$sampleName
+  config$isotope_label <- ac$isotope_label %||% ac$isotopeLabel
+  config$ident_q_value <- ac$ident_q_value %||% ac$ident_qValue
+  config$ident_score <- (ac$ident_score %||% ac$ident_Score) %||% character()
   config$nr_children <- ac$nr_children
   config$is_response_transformed <- ac$is_response_transformed
   config$factors <- ac$factors
-  config$factorDepth <- ac$factorDepth
+  config$factor_depth <- ac$factor_depth %||% ac$factorDepth
   config$hierarchy <- ac$hierarchy
-  config$hierarchyDepth <- ac$hierarchyDepth
+  config$hierarchy_depth <- ac$hierarchy_depth %||% ac$hierarchyDepth
   config$min_peptides_protein <- ac$min_peptides_protein
 
-  for (wi in ac$workIntensity) {
+  for (wi in (ac$work_intensity %||% ac$workIntensity)) {
     config$set_response(wi)
   }
 
@@ -113,7 +113,7 @@ anndata_to_long <- function(adata, config) {
   # Determine which columns from var are hierarchy keys
   hierarchy_cols <- config$hierarchy_keys()
   # isotopeLabel column
-  iso_col <- config$isotopeLabel
+  iso_col <- config$isotope_label
 
   # Get sample names (row names of X = obs rownames)
   sample_names <- rownames(obs_df)
@@ -127,10 +127,10 @@ anndata_to_long <- function(adata, config) {
 
   # Melt X to long format: sampleName, featureID, value
   X_long <- as.data.frame(X, check.names = FALSE)
-  X_long[[config$sampleName]] <- sample_names
+  X_long[[config$sample_name]] <- sample_names
   X_long <- tidyr::pivot_longer(
     X_long,
-    cols = -dplyr::all_of(config$sampleName),
+    cols = -dplyr::all_of(config$sample_name),
     names_to = ".feature_id",
     values_to = config$get_response()
   )
@@ -149,17 +149,17 @@ anndata_to_long <- function(adata, config) {
       rownames(layer_mat) <- sample_names
       colnames(layer_mat) <- feature_ids
       layer_long <- as.data.frame(layer_mat, check.names = FALSE)
-      layer_long[[config$sampleName]] <- sample_names
+      layer_long[[config$sample_name]] <- sample_names
       layer_long <- tidyr::pivot_longer(
         layer_long,
-        cols = -dplyr::all_of(config$sampleName),
+        cols = -dplyr::all_of(config$sample_name),
         names_to = ".feature_id",
         values_to = lname
       )
       X_long <- dplyr::left_join(
         X_long,
         layer_long,
-        by = c(config$sampleName, ".feature_id")
+        by = c(config$sample_name, ".feature_id")
       )
     }
   }
@@ -170,7 +170,7 @@ anndata_to_long <- function(adata, config) {
 
   # Select hierarchy keys + isotopeLabel + identification columns from var
   var_cols_to_join <- intersect(
-    c(hierarchy_cols, iso_col, config$ident_qValue, config$nr_children),
+    c(hierarchy_cols, iso_col, config$ident_q_value, config$nr_children),
     colnames(var_lookup)
   )
   var_join <- var_lookup[, c(".feature_id", var_cols_to_join), drop = FALSE]
@@ -181,14 +181,14 @@ anndata_to_long <- function(adata, config) {
 
   # Join obs metadata (factors, fileName)
   obs_cols_to_join <- intersect(
-    c(config$fileName, config$factor_keys(), iso_col),
+    c(config$file_name, config$factor_keys(), iso_col),
     colnames(obs_df)
   )
-  obs_join <- obs_df[, c(config$sampleName, obs_cols_to_join), drop = FALSE]
+  obs_join <- obs_df[, c(config$sample_name, obs_cols_to_join), drop = FALSE]
   # Deduplicate in case sampleName is already in obs_cols_to_join
   obs_join <- obs_join[, !duplicated(colnames(obs_join)), drop = FALSE]
 
-  long_data <- dplyr::left_join(long_data, obs_join, by = config$sampleName)
+  long_data <- dplyr::left_join(long_data, obs_join, by = config$sample_name)
 
   # Ensure isotopeLabel exists
 

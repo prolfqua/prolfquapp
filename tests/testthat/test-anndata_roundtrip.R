@@ -30,19 +30,19 @@ test_that("round-trip peptide-level (depth=2) preserves data", {
   expect_true(inherits(back$protein_annotation, "ProteinAnnotation"))
 
   # Config fields match
-  expect_equal(back$lfqdata$config$sep, lfqdata$config$sep)
-  expect_equal(back$lfqdata$config$fileName, lfqdata$config$fileName)
-  expect_equal(back$lfqdata$config$sampleName, lfqdata$config$sampleName)
-  expect_equal(back$lfqdata$config$isotopeLabel, lfqdata$config$isotopeLabel)
+  expect_equal(back$lfqdata$get_config()$sep, lfqdata$get_config()$sep)
+  expect_equal(back$lfqdata$file_name(), lfqdata$file_name())
+  expect_equal(back$lfqdata$sample_name(), lfqdata$sample_name())
+  expect_equal(back$lfqdata$isotope_label(), lfqdata$isotope_label())
   expect_equal(back$lfqdata$config$hierarchy, lfqdata$config$hierarchy)
   expect_equal(
-    back$lfqdata$config$hierarchyDepth,
-    lfqdata$config$hierarchyDepth
+    back$lfqdata$get_config()$hierarchy_depth,
+    lfqdata$get_config()$hierarchy_depth
   )
-  expect_equal(back$lfqdata$config$factors, lfqdata$config$factors)
+  expect_equal(back$lfqdata$get_config()$factors, lfqdata$get_config()$factors)
   expect_equal(
-    back$lfqdata$config$get_response(),
-    lfqdata$config$get_response()
+    back$lfqdata$response(),
+    lfqdata$response()
   )
 
   # Hierarchy counts match
@@ -106,16 +106,18 @@ test_that("NA handling: missing values survive round-trip", {
   pannot <- res$pannot
 
   # Inject some NAs
-  na_idx <- sample(seq_len(nrow(lfqdata$data)), size = 10)
-  resp <- lfqdata$config$get_response()
-  lfqdata$data[[resp]][na_idx] <- NA
+  resp <- lfqdata$response()
+  tmp <- lfqdata$data_long()
+  na_idx <- sample(seq_len(nrow(tmp)), size = 10)
+  tmp[[resp]][na_idx] <- NA
+  lfqdata$set_data(tmp)
 
   adata <- prolfquapp::preprocess_anndata_from_lfq(lfqdata, pannot)
   back <- prolfquapp::LFQData_from_anndata(adata)
 
   # Count NAs in original and round-tripped
-  orig_na <- sum(is.na(lfqdata$data[[resp]]))
-  back_na <- sum(is.na(back$lfqdata$data[[resp]]))
+  orig_na <- sum(is.na(lfqdata$data_long()[[resp]]))
+  back_na <- sum(is.na(back$lfqdata$data_long()[[resp]]))
   expect_equal(orig_na, back_na)
 })
 

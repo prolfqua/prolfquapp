@@ -150,13 +150,13 @@ preprocess_DIANN <- function(
   nr_peptides = 1
 ) {
   annot <- annotation$annot
-  atable <- annotation$atable$clone(deep = FALSE)
+  config <- annotation$atable$clone(deep = TRUE)
   annot <- annot |>
     dplyr::mutate(
       raw.file = gsub(
         "^x|\\.d\\.zip$|\\.raw$",
         "",
-        (basename(annot[[atable$fileName]]))
+        (basename(annot[[config$file_name]]))
       )
     )
   data <- readr::read_tsv(quant_data)
@@ -185,13 +185,13 @@ preprocess_DIANN <- function(
     )
   }
 
-  atable$fileName <- "raw.file"
-  atable$nr_children <- "nr_children"
-  atable$ident_qValue <- "qValue"
-  atable$hierarchy[["protein_Id"]] <- c("Protein.Group")
-  atable$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
-  atable$set_response("Peptide.Quantity")
-  atable$hierarchyDepth <- hierarchy_depth
+  config$file_name <- "raw.file"
+  config$nr_children <- "nr_children"
+  config$ident_q_value <- "qValue"
+  config$hierarchy[["protein_Id"]] <- c("Protein.Group")
+  config$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
+  config$set_response("Peptide.Quantity")
+  config$hierarchy_depth <- hierarchy_depth
 
   if (nr_peptides > 1) {
     nrPEP <- nrPEP |> dplyr::filter(nrPeptides >= nr_peptides)
@@ -199,7 +199,6 @@ preprocess_DIANN <- function(
   }
 
   peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
-  config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(peptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()

@@ -14,19 +14,19 @@
 #' xa[[4]]
 #'
 writeLinesPaired <- function(bb, outpath) {
-  nested <- bb$data |>
+  nested <- bb$data_long() |>
     dplyr::ungroup() |>
-    dplyr::group_by(!!!rlang::syms(bb$config$hierarchy_keys())) |>
+    dplyr::group_by(!!!rlang::syms(bb$hierarchy_keys())) |>
     tidyr::nest()
   tr <- nested$data[[1]] # nolint object_usage_linter. used inside plotL
   plotL <- function(tr, pid) {
     ggplot2::ggplot(
       tr,
       ggplot2::aes(
-        x = !!sym(bb$config$factor_keys()[1]),
-        y = !!sym(bb$config$get_response()),
-        group = !!sym(bb$config$factor_keys()[2]),
-        colour = !!sym(bb$config$factor_keys()[2])
+        x = !!sym(bb$factor_keys()[1]),
+        y = !!sym(bb$response()),
+        group = !!sym(bb$factor_keys()[2]),
+        colour = !!sym(bb$factor_keys()[2])
       )
     ) +
       ggplot2::geom_point() +

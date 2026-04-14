@@ -521,13 +521,13 @@ preprocess_FP_PSM <- function(
   parse_fun = tidy_FragPipe_psm
 ) {
   annot <- annotation$annot
-  atable <- annotation$atable
+  config <- annotation$atable$clone(deep = TRUE)
   annot <- annot |>
     dplyr::mutate(
       raw.file = gsub(
         "^x|\\.d\\.zip$|\\.raw$",
         "",
-        (basename(annot[[atable$fileName]]))
+        (basename(annot[[config$file_name]]))
       )
     )
 
@@ -536,7 +536,7 @@ preprocess_FP_PSM <- function(
   psm <- psm$data
   psm$qValue <- 1 - psm$Probability
 
-  nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(psm$channel)))
+  nr <- sum(annot[[config$file_name]] %in% sort(unique(psm$channel)))
   logger::log_info(
     "nr : ",
     nr,
@@ -547,36 +547,35 @@ preprocess_FP_PSM <- function(
   logger::log_info(
     "channels in annotation which are not in psm.tsv file : ",
     paste(
-      setdiff(annot[[annotation$atable$fileName]], sort(unique(psm$channel))),
+      setdiff(annot[[config$file_name]], sort(unique(psm$channel))),
       collapse = " ; "
     )
   )
   logger::log_info(
     "channels in psm.tsv which are not in annotation file : ",
     paste(
-      setdiff(sort(unique(psm$channel)), annot[[annotation$atable$fileName]]),
+      setdiff(sort(unique(psm$channel)), annot[[config$file_name]]),
       collapse = " ; "
     )
   )
 
-  atable$ident_Score <- "Probability"
-  atable$ident_qValue <- "qValue"
-  atable$hierarchy[["protein_Id"]] <- c("Protein")
-  atable$hierarchy[["peptide_Id"]] <- c("Peptide")
-  atable$hierarchy[["mod_peptide_Id"]] <- c(
+  config$ident_score <- "Probability"
+  config$ident_q_value <- "qValue"
+  config$hierarchy[["protein_Id"]] <- c("Protein")
+  config$hierarchy[["peptide_Id"]] <- c("Peptide")
+  config$hierarchy[["mod_peptide_Id"]] <- c(
     "Modified.Peptide",
     "Assigned.Modifications"
   )
-  atable$set_response("abundance")
+  config$set_response("abundance")
   if ("nr_psm" %in% colnames(psm)) {
-    atable$nr_children <- "nr_psm"
+    config$nr_children <- "nr_psm"
   }
-  atable$hierarchyDepth <- hierarchy_depth
+  config$hierarchy_depth <- hierarchy_depth
 
   bycol <- c("channel")
-  names(bycol) <- atable$fileName
+  names(bycol) <- config$file_name
   psma <- dplyr::inner_join(annot, psm, multiple = "all", by = bycol)
-  config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(psma, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
 
@@ -593,7 +592,7 @@ preprocess_FP_PSM <- function(
 
   fasta_annot <- fasta_annot |>
     dplyr::rename(
-      !!lfqdata$config$hierarchy_keys_depth()[1] := !!sym("Protein")
+      !!lfqdata$relevant_hierarchy_keys()[1] := !!sym("Protein")
     )
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
 

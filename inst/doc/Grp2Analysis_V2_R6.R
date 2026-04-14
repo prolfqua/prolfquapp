@@ -13,7 +13,7 @@ cfg <- dea$prolfq_app_config
 
 ## ----samples, eval=TRUE-------------------------------------------------------
 
-tab <- data.frame(table(dea$lfq_data_raw$factors()[dea$lfq_data_raw$config$factor_keys_depth()]))
+tab <- data.frame(table(dea$lfq_data_raw$factors()[dea$lfq_data_raw$relevant_factor_keys()]))
 colnames(tab)[length(colnames(tab))] <- "# samples"
 knitr::kable(tab, caption = "Nr of samples assigned to each group.")
 
@@ -24,13 +24,13 @@ fx <- ld$factors()
 sr <- ld$get_Summariser()
 xx <- sr$hierarchy_counts_sample(nr_children = 1)
 xx$isotopeLabel <- NULL
-xx <- xx |> dplyr::rename(nr_1 = ld$config$hierarchy_keys())
+xx <- xx |> dplyr::rename(nr_1 = ld$hierarchy_keys())
 x2 <- sr$hierarchy_counts_sample(nr_children = 2)
 x2$isotopeLabel <- NULL
-x2 <- x2 |> dplyr::rename(nr_2 = ld$config$hierarchy_keys())
+x2 <- x2 |> dplyr::rename(nr_2 = ld$hierarchy_keys())
 
-fx <- dplyr::left_join(fx,xx, by = ld$config$sample_name)
-fx <- dplyr::left_join(fx,x2, by = ld$config$sample_name)
+fx <- dplyr::left_join(fx,xx, by = ld$sample_name())
+fx <- dplyr::left_join(fx,x2, by = ld$sample_name())
 
 
 knitr::kable(fx, caption = paste0(
@@ -151,7 +151,7 @@ knitr::kable(df, caption = "Name of difference (Contrast), and formula used to c
 
 
 ## -----------------------------------------------------------------------------
-hkey <- dea$lfq_data$config$hierarchy_keys()
+hkey <- dea$lfq_data$hierarchy_keys()
 
 ## ----setupVolcano, echo = FALSE-----------------------------------------------
 datax <- as.data.frame(dea$annotated_contrasts)

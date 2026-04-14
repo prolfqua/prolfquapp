@@ -7,8 +7,7 @@
 #' @export
 #' @examples
 #' istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
-#' config <- prolfqua:::old2new(istar$config)
-#' tmp <- prolfqua::LFQData$new(istar$data, config)
+#' tmp <- prolfqua::LFQData$new(istar$data, istar$config)
 #' tmp2 <- transform_lfqdata(tmp)
 #'
 transform_lfqdata <- function(
@@ -21,7 +20,7 @@ transform_lfqdata <- function(
     logger::log_info("Transforming using robscale.")
     transformed <- lt$log2()$robscale()$lfq
   } else if (method == "vsn") {
-    n_samples <- length(unique(lfqdata$data[[lfqdata$config$sampleName]]))
+    n_samples <- length(unique(lfqdata$data_long()[[lfqdata$sample_name()]]))
     if (n_samples < 2) {
       logger::log_warn(
         "vsn requires >= 2 samples, falling back to log2 transformation."
@@ -46,7 +45,7 @@ transform_lfqdata <- function(
 #' @param lfqTrans transformed LFQData
 #' @export
 exp2 <- function(lfqTrans) {
-  if (!lfqTrans$config$is_response_transformed) {
+  if (!lfqTrans$is_transformed()) {
     warning("Data not transformed.")
   }
   tr <- lfqTrans$get_Transformer()
@@ -54,7 +53,7 @@ exp2 <- function(lfqTrans) {
     2^x
   }
   tr$intensity_array(.exp2, force = TRUE)
-  tr$lfq$config$is_response_transformed <- FALSE
+  tr$lfq$is_transformed() <- FALSE
   lfqdataProt <- tr$lfq
   return(lfqdataProt)
 }

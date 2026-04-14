@@ -121,17 +121,16 @@ preprocess_CD <- function(
   )
   stopifnot(nr > 0)
 
-  atable <- annotation$atable
-  atable$hierarchy[["metabolite_feature_Id"]] <- c("metabolite_feature_Id")
-  atable$set_response("Area")
-  atable$opt_rt <- "RT_min"
-  atable$opt_mz <- "mz"
+  config <- annotation$atable$clone(deep = TRUE)
+  config$hierarchy[["metabolite_feature_Id"]] <- c("metabolite_feature_Id")
+  config$set_response("Area")
+  config$opt_rt <- "RT_min"
+  config$opt_mz <- "mz"
   byv <- c("filename")
-  names(byv) <- atable$fileName
+  names(byv) <- config$file_name
   byv <- c(byv, intersect(colnames(annot), colnames(xdl)))
 
   peptide <- dplyr::inner_join(annot, xdl, by = byv, multiple = "all")
-  config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(peptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()

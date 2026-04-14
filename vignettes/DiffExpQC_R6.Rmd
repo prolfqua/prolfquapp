@@ -128,8 +128,8 @@ The bottom panel in Figure \@ref(fig:densityOFFoldChanges) shows the distributio
 
 ```{r densityOFFoldChanges, fig.width=8, fig.height=4, dpi=300, fig.cap = "(ref:densityOFFoldChanges)", fig.alt=""}
 cpl <- dea$contrast_results[[dea$default_model]]$get_Plotter(
-  FCthreshold = cfg$processing_options$diff_threshold,
-  FDRthreshold = cfg$processing_options$FDR_threshold)
+  fc_threshold = cfg$processing_options$diff_threshold,
+  fdr_threshold = cfg$processing_options$FDR_threshold)
 p1 <- cpl$histogram_diff() + ggplot2::labs(tag = "A")
 p2 <- cpl$histogram()$p.value  + ggplot2::labs(tag = "B")
 gridExtra::grid.arrange(p1,p2)
@@ -142,8 +142,8 @@ To identify abundant proteins with large differences or if only low abundant pro
 
 ```{r MAPlot, fig.width=8, fig.height=5,  fig.cap="(ref:MAPlot)", eval=TRUE, fig.alt=""}
 cpl <- dea$contrast_results[[dea$default_model]]$get_Plotter(
-  FCthreshold = cfg$processing_options$diff_threshold,
-  FDRthreshold = cfg$processing_options$FDR_threshold)
+  fc_threshold = cfg$processing_options$diff_threshold,
+  fdr_threshold = cfg$processing_options$FDR_threshold)
 ppb <- cpl$ma_plot(rank = FALSE) + ggplot2::labs(tag = "A")
 ppc <- cpl$ma_plot(fc = cfg$processing_options$diff_threshold, rank = TRUE) + ggplot2::labs(tag = "B")
 gridExtra::grid.arrange(ppb, ppc, ncol=1)

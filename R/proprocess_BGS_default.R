@@ -103,13 +103,13 @@ preprocess_BGS <- function(
   hierarchy_depth = 2
 ) {
   annot <- annotation$annot
-  atable <- annotation$atable$clone(deep = FALSE)
+  config <- annotation$atable$clone(deep = TRUE)
   annot <- annot |>
     dplyr::mutate(
       raw.file = gsub(
         "^x|\\.d\\.zip$|\\.raw$",
         "",
-        (basename(annot[[atable$fileName]]))
+        (basename(annot[[config$file_name]]))
       )
     )
   report2 <- read_BGS(quant_data)
@@ -137,13 +137,13 @@ preprocess_BGS <- function(
     )
   }
 
-  atable$fileName <- "raw.file"
-  atable$ident_qValue <- "FG.Qvalue"
-  atable$hierarchy[["protein_Id"]] <- c("PG.ProteinGroups")
-  atable$hierarchy[["peptide_Id"]] <- c("PEP.GroupingKey")
-  atable$hierarchy[["elution_group"]] <- c("EG.ModifiedSequence", "FG.Charge")
-  atable$set_response("FG.Quantity")
-  atable$hierarchyDepth <- hierarchy_depth
+  config$file_name <- "raw.file"
+  config$ident_q_value <- "FG.Qvalue"
+  config$hierarchy[["protein_Id"]] <- c("PG.ProteinGroups")
+  config$hierarchy[["peptide_Id"]] <- c("PEP.GroupingKey")
+  config$hierarchy[["elution_group"]] <- c("EG.ModifiedSequence", "FG.Charge")
+  config$set_response("FG.Quantity")
+  config$hierarchy_depth <- hierarchy_depth
 
   report2 <- dplyr::inner_join(
     annot,
@@ -151,7 +151,6 @@ preprocess_BGS <- function(
     multiple = "all",
     by = c("raw.file" = "R.FileName")
   )
-  config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(report2, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()

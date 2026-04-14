@@ -13,7 +13,7 @@
 #' @examples
 #' pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 #' pep <- prolfqua::LFQData$new(pep$data, pep$config)
-#' pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
+#' pA <- data.frame(protein_Id = unique(pep$data_long()$protein_Id))
 #' pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
 #' pA <- prolfquapp::ProteinAnnotation$new(pep, row_annot = pA, description = "fasta.annot")
 #' GRP2 <- prolfquapp::make_DEA_config_R6()
@@ -109,7 +109,7 @@ DEAnalyse <- R6::R6Class(
       facade <- facade_class$new(self$lfq_data, modelstr, self$contrasts)
 
       self$contrast_results[[name]] <- facade
-      self$formula <- paste(self$lfq_data$config$get_response(), modelstr)
+      self$formula <- paste(self$lfq_data$response(), modelstr)
       invisible(facade)
     },
 
@@ -160,12 +160,12 @@ DEAnalyse <- R6::R6Class(
   private = list(
     create_modelstr = function() {
       interaction <- self$prolfq_app_config$processing_options$interaction
-      factors <- self$lfq_data$config$factor_keys_depth()[
-        !grepl("^control", self$lfq_data$config$factor_keys_depth(), ignore.case = TRUE)
+      factors <- self$lfq_data$relevant_factor_keys()[
+        !grepl("^control", self$lfq_data$relevant_factor_keys(), ignore.case = TRUE)
       ]
       sep <- if (is.null(interaction) || !interaction) " + " else " * "
       modelstr <- paste0("~ ", paste(factors, collapse = sep))
-      logger::log_info("model formula: {self$lfq_data$config$get_response()} {modelstr}")
+      logger::log_info("model formula: {self$lfq_data$response()} {modelstr}")
       modelstr
     }
   )

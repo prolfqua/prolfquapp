@@ -193,7 +193,7 @@ run_qc_preprocess <- function(
   )
 
   xd <- procsoft$xd
-  xd$lfqdata$config$hierarchyDepth <- 1
+  xd$lfqdata$set_config_value("hierarchy_depth", 1)
 
   list(xd = xd, files = procsoft$files, config = GRP2)
 }

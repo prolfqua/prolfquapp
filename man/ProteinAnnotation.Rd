@@ -12,17 +12,18 @@ Decorates LFQData with a row annotation and some protein specific functions.
 
 istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 lfq0 <- prolfqua::LFQData$new(istar$data, istar$config)
-xd1 <- prolfqua::nr_obs_experiment(lfq0$get_data(), lfq0$hierarchy_keys(),
-  lfq0$relevant_hierarchy_keys(), lfq0$nr_children_col(),
-  response = lfq0$response(), file_name = lfq0$file_name())
+xd1 <- prolfqua::nr_children_experiment(lfq0$data_long(), lfq0$response(),
+  lfq0$relevant_hierarchy_keys(), lfq0$file_name(), lfq0$nr_children_col())
 
-xd2 <- prolfqua::nr_obs_experiment(lfq0$get_data(), lfq0$hierarchy_keys(),
-  lfq0$relevant_hierarchy_keys(), lfq0$nr_children_col(), from_children = FALSE)
+xd2 <- prolfqua::nr_features_experiment(lfq0$data_long(), lfq0$hierarchy_keys(),
+  lfq0$relevant_hierarchy_keys())
 xd1$nr_child_exp |> table()
 
 lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
-lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
-pids <- grep("^zz|^REV", unique(lfqdata$data$protein_Id), value = TRUE, invert = TRUE)
+tmp <- lfqdata$data_long()
+tmp$protein_Id <- add_RevCon(tmp$protein_Id)
+lfqdata$set_data(tmp)
+pids <- grep("^zz|^REV", unique(lfqdata$data_long()$protein_Id), value = TRUE, invert = TRUE)
 addannot <- data.frame(
   protein_Id = pids,
   description = stringi::stri_rand_strings(length(pids), 13)
@@ -31,10 +32,10 @@ addannot <- data.frame(
 addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID", NA), remove = FALSE)
 # ProteinAnnotation$debug("initialize")
 # debug(nr_obs_sample)
-xd4 <- prolfqua::nr_obs_sample(lfqdata$get_data(), lfqdata$response(),
+xd4 <- prolfqua::nr_obs_sample(lfqdata$data_long(), lfqdata$response(),
   lfqdata$relevant_hierarchy_keys(), lfqdata$file_name(), lfqdata$nr_children_col())
-xd3 <- prolfqua::nr_obs_experiment(lfqdata$get_data(), lfqdata$hierarchy_keys(),
-  lfqdata$relevant_hierarchy_keys(), lfqdata$nr_children_col(), from_children = FALSE)
+xd3 <- prolfqua::nr_features_experiment(lfqdata$data_long(), lfqdata$hierarchy_keys(),
+  lfqdata$relevant_hierarchy_keys())
 
 pannot <- ProteinAnnotation$new(lfqdata,
   addannot,

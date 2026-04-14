@@ -373,13 +373,13 @@ preprocess_MQ_peptide <- function(
   hierarchy_depth = 1
 ) {
   annot <- annotation$annot
-  atable <- annotation$atable
+  config <- annotation$atable$clone(deep = TRUE)
   annot <- annot |>
     dplyr::mutate(
-      !!annotation$atable$fileName := tolower(gsub(
+      !!config$file_name := tolower(gsub(
         "^x|\\.d\\.zip$|\\.raw$",
         "",
-        (basename(annot[[atable$fileName]]))
+        (basename(annot[[config$file_name]]))
       ))
     )
   proteotypic_only <- TRUE
@@ -394,7 +394,7 @@ preprocess_MQ_peptide <- function(
     dplyr::summarize(nrPeptides = n())
 
   nr <- sum(
-    annot[[annotation$atable$fileName]] %in% sort(unique(peptide$raw.file))
+    annot[[config$file_name]] %in% sort(unique(peptide$raw.file))
   )
   logger::log_info(
     "nr : ",
@@ -407,7 +407,7 @@ preprocess_MQ_peptide <- function(
     "channels in annotation which are not in peptide.txt file : ",
     paste(
       setdiff(
-        annot[[annotation$atable$fileName]],
+        annot[[config$file_name]],
         sort(unique(peptide$raw.file))
       ),
       collapse = " ; "
@@ -418,24 +418,23 @@ preprocess_MQ_peptide <- function(
     paste(
       setdiff(
         sort(unique(peptide$raw.file)),
-        annot[[annotation$atable$fileName]]
+        annot[[config$file_name]]
       ),
       collapse = " ; "
     )
   )
 
   peptide$qValue <- 1 - peptide$pep
-  atable$ident_Score <- "pep"
-  atable$ident_qValue <- "qValue"
-  atable$hierarchy[["protein_Id"]] <- c("leading.razor.protein")
-  atable$hierarchy[["peptide_Id"]] <- c("sequence")
-  atable$set_response("peptide.intensity")
-  atable$hierarchyDepth <- hierarchy_depth
+  config$ident_score <- "pep"
+  config$ident_q_value <- "qValue"
+  config$hierarchy[["protein_Id"]] <- c("leading.razor.protein")
+  config$hierarchy[["peptide_Id"]] <- c("sequence")
+  config$set_response("peptide.intensity")
+  config$hierarchy_depth <- hierarchy_depth
 
   bycol <- c("raw.file")
-  names(bycol) <- atable$fileName
+  names(bycol) <- config$file_name
   apeptide <- dplyr::inner_join(annot, peptide, multiple = "all", by = bycol)
-  config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(apeptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
 
@@ -448,7 +447,7 @@ preprocess_MQ_peptide <- function(
 
   fasta_annot <- fasta_annot |>
     dplyr::rename(
-      !!lfqdata$config$hierarchy_keys_depth()[1] := !!sym(
+      !!lfqdata$relevant_hierarchy_keys()[1] := !!sym(
         "leading.razor.protein"
       )
     )

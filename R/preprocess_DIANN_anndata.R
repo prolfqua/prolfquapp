@@ -105,7 +105,7 @@ preprocess_anndata_from_lfq <- function(
     )
   }
 
-  config <- lfqdata$config
+  config <- lfqdata$get_config()
   hierarchy_keys <- config$hierarchy_keys()
 
   # Build layers using to_wide; use rowdata for var construction
@@ -138,7 +138,7 @@ preprocess_anndata_from_lfq <- function(
 
   # Build obs (sample annotation)
   obs_df <- as.data.frame(lfqdata$factors())
-  rownames(obs_df) <- obs_df[[config$sampleName]]
+  rownames(obs_df) <- obs_df[[config$sample_name]]
   obs_df <- obs_df[sample_names, , drop = FALSE]
 
   # Build var (feature annotation) from rowdata + protein annotation
@@ -147,11 +147,11 @@ preprocess_anndata_from_lfq <- function(
 
   # Add identification metadata (aggregate per feature)
   ident_cols <- intersect(
-    c(config$ident_qValue, config$nr_children),
-    colnames(lfqdata$data)
+    c(config$ident_q_value, config$nr_children),
+    colnames(lfqdata$data_long())
   )
   if (length(ident_cols) > 0) {
-    ident_data <- lfqdata$data[, c(hierarchy_keys, ident_cols), drop = FALSE] |>
+    ident_data <- lfqdata$data_long()[, c(hierarchy_keys, ident_cols), drop = FALSE] |>
       as.data.frame() |>
       dplyr::group_by(dplyr::across(dplyr::all_of(hierarchy_keys))) |>
       dplyr::summarize(
@@ -174,7 +174,7 @@ preprocess_anndata_from_lfq <- function(
   rownames(var_df) <- feature_ids
 
   # Remove isotopeLabel from var if present (it's constant)
-  var_df[[config$isotopeLabel]] <- NULL
+  var_df[[config$isotope_label]] <- NULL
 
   # Build uns metadata
   uns <- build_prolfquapp_uns(
@@ -225,7 +225,7 @@ build_prolfquapp_uns <- function(
       ),
       obs = list(
         factor = as.list(config$factor_keys()),
-        label = list(config$sampleName, config$fileName)
+        label = list(config$sample_name, config$file_name)
       )
     )
   )
@@ -236,18 +236,18 @@ build_prolfquapp_uns <- function(
     source_software = source_software,
     analysis_configuration = list(
       sep = config$sep,
-      fileName = config$fileName,
-      sampleName = config$sampleName,
-      isotopeLabel = config$isotopeLabel,
-      ident_qValue = config$ident_qValue,
-      ident_Score = config$ident_Score,
+      file_name = config$file_name,
+      sample_name = config$sample_name,
+      isotope_label = config$isotope_label,
+      ident_q_value = config$ident_q_value,
+      ident_score = config$ident_score,
       nr_children = config$nr_children,
-      workIntensity = config$workIntensity,
+      work_intensity = config$work_intensity,
       is_response_transformed = config$is_response_transformed,
       factors = config$factors,
-      factorDepth = config$factorDepth,
+      factor_depth = config$factor_depth,
       hierarchy = config$hierarchy,
-      hierarchyDepth = config$hierarchyDepth,
+      hierarchy_depth = config$hierarchy_depth,
       min_peptides_protein = config$min_peptides_protein
     ),
     protein_annotation = list(

@@ -8,7 +8,7 @@
 #' @examples
 #' pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 #' pep <- prolfqua::LFQData$new(pep$data, pep$config)
-#' pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
+#' pA <- data.frame(protein_Id = unique(pep$data_long()$protein_Id))
 #' pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
 #' pA <- prolfquapp::ProteinAnnotation$new(pep, row_annot = pA, description = "fasta.annot")
 #' GRP2 <- prolfquapp::make_DEA_config_R6()
@@ -95,8 +95,8 @@ ProteinDataPrep <- R6::R6Class(
       lfqdata_peptide <- self$lfq_data_peptide
 
       if (
-        length(lfqdata_peptide$config$hierarchy_keys()) ==
-          lfqdata_peptide$config$hierarchyDepth
+        length(lfqdata_peptide$hierarchy_keys()) ==
+          lfqdata_peptide$get_config()$hierarchy_depth
       ) {
         warning("nothing to aggregate from, returning unchanged data.")
         self$lfq_data <- lfqdata_peptide

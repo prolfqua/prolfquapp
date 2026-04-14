@@ -38,40 +38,39 @@ preprocess_SIM <- function(
   sim <- prolfqua::sim_lfq_data_peptide_config(Nprot = 50)
 
   # Clone annotation atable and configure for simulated data columns
-  atable <- annotation$atable$clone(deep = TRUE)
-  atable$fileName <- "sample"
-  atable$sampleName <- "sampleName"
-  atable$hierarchy[["protein_Id"]] <- "protein_Id"
-  atable$hierarchy[["peptide_Id"]] <- "peptide_Id"
-  atable$set_response("abundance")
-  atable$hierarchyDepth <- hierarchy_depth
-  atable$nr_children <- "nr_children"
-  atable$ident_qValue <- "qValue"
+  config <- annotation$atable$clone(deep = TRUE)
+  config$file_name <- "sample"
+  config$sample_name <- "sampleName"
+  config$hierarchy[["protein_Id"]] <- "protein_Id"
+  config$hierarchy[["peptide_Id"]] <- "peptide_Id"
+  config$set_response("abundance")
+  config$hierarchy_depth <- hierarchy_depth
+  config$nr_children <- "nr_children"
+  config$ident_q_value <- "qValue"
 
   # Map annotation factor columns onto simulated data
-  # atable$factors maps e.g. G_ -> "group", meaning:
+  # config$factors maps e.g. G_ -> "group", meaning:
   # "create factor column G_ from source column group"
   # The sim data has group_ but not group, so add the source column
   raw <- sim$data
-  for (fkey in names(atable$factors)) {
-    src_col <- atable$factors[[fkey]]
+  for (fkey in names(config$factors)) {
+    src_col <- config$factors[[fkey]]
     if (!src_col %in% colnames(raw)) {
       raw[[src_col]] <- raw[["group_"]]
     }
   }
 
-  config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(raw, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
 
   # Add contaminant/decoy prefixes (same as sim_data_protAnnot)
-  lfqdata$data$protein_Id <- prolfquapp::add_RevCon(
-    lfqdata$data$protein_Id
-  )
+  tmp_data <- lfqdata$data_long()
+  tmp_data$protein_Id <- prolfquapp::add_RevCon(tmp_data$protein_Id)
+  lfqdata$set_data(tmp_data)
 
   pids <- grep(
     "^zz|^REV",
-    unique(lfqdata$data$protein_Id),
+    unique(lfqdata$data_long()$protein_Id),
     value = TRUE,
     invert = TRUE
   )

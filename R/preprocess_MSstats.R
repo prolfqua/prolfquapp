@@ -95,13 +95,13 @@ preprocess_MSstats_FPDIA <- function(
   hierarchy_depth = 1
 ) {
   annot <- annotation$annot
-  atable <- annotation$atable
+  config <- annotation$atable$clone(deep = TRUE)
   annot <- annot |>
     dplyr::mutate(
-      !!annotation$atable$fileName := (gsub(
+      !!config$file_name := (gsub(
         "^x|\\.d\\.zip$|\\.raw$",
         "",
-        (basename(annot[[atable$fileName]]))
+        (basename(annot[[config$file_name]]))
       ))
     )
 
@@ -114,7 +114,7 @@ preprocess_MSstats_FPDIA <- function(
     dplyr::group_by(dplyr::across("ProteinName")) |>
     dplyr::summarize(nrPeptides = dplyr::n())
 
-  nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(peptide$Run)))
+  nr <- sum(annot[[config$file_name]] %in% sort(unique(peptide$Run)))
   logger::log_info(
     "nr : ",
     nr,
@@ -125,31 +125,30 @@ preprocess_MSstats_FPDIA <- function(
   logger::log_info(
     "channels in annotation which are not in peptide.txt file : ",
     paste(
-      setdiff(annot[[annotation$atable$fileName]], sort(unique(peptide$Run))),
+      setdiff(annot[[config$file_name]], sort(unique(peptide$Run))),
       collapse = " ; "
     )
   )
   logger::log_info(
     "channels in peptide.txt which are not in annotation file : ",
     paste(
-      setdiff(sort(unique(peptide$Run)), annot[[annotation$atable$fileName]]),
+      setdiff(sort(unique(peptide$Run)), annot[[config$file_name]]),
       collapse = " ; "
     )
   )
 
   peptide$qValue <- 0
-  atable$ident_qValue <- "qValue"
-  atable$hierarchy[["protein_Id"]] <- c("ProteinName")
-  atable$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
-  atable$nr_children <- "nr_peptides"
-  atable$set_response("Intensity")
-  atable$hierarchyDepth <- hierarchy_depth
+  config$ident_q_value <- "qValue"
+  config$hierarchy[["protein_Id"]] <- c("ProteinName")
+  config$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
+  config$nr_children <- "nr_peptides"
+  config$set_response("Intensity")
+  config$hierarchy_depth <- hierarchy_depth
 
   bycol <- c("Run")
-  names(bycol) <- atable$fileName
+  names(bycol) <- config$file_name
   apeptide <- dplyr::inner_join(annot, peptide, multiple = "all", by = bycol)
 
-  config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(apeptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   logger::log_info("Start reading fasta: ", fasta_file)
@@ -167,7 +166,7 @@ preprocess_MSstats_FPDIA <- function(
 
   fasta_annot <- fasta_annot |>
     dplyr::rename(
-      !!lfqdata$config$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinName")
+      !!lfqdata$relevant_hierarchy_keys()[1] := !!rlang::sym("ProteinName")
     )
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
 
@@ -204,13 +203,13 @@ preprocess_MSstats <- function(
   hierarchy_depth = 1
 ) {
   annot <- annotation$annot
-  atable <- annotation$atable
+  config <- annotation$atable$clone(deep = TRUE)
   annot <- annot |>
     dplyr::mutate(
-      !!annotation$atable$fileName := (gsub(
+      !!config$file_name := (gsub(
         "^x|\\.d\\.zip$|\\.raw$",
         "",
-        (basename(annot[[atable$fileName]]))
+        (basename(annot[[config$file_name]]))
       ))
     )
 
@@ -223,7 +222,7 @@ preprocess_MSstats <- function(
     dplyr::group_by(dplyr::across("ProteinName")) |>
     dplyr::summarize(nrPeptides = dplyr::n())
 
-  nr <- sum(annot[[annotation$atable$fileName]] %in% sort(unique(peptide$Run)))
+  nr <- sum(annot[[config$file_name]] %in% sort(unique(peptide$Run)))
   logger::log_info(
     "nr : ",
     nr,
@@ -234,31 +233,30 @@ preprocess_MSstats <- function(
   logger::log_info(
     "channels in annotation which are not in peptide.txt file : ",
     paste(
-      setdiff(annot[[annotation$atable$fileName]], sort(unique(peptide$Run))),
+      setdiff(annot[[config$file_name]], sort(unique(peptide$Run))),
       collapse = " ; "
     )
   )
   logger::log_info(
     "channels in peptide.txt which are not in annotation file : ",
     paste(
-      setdiff(sort(unique(peptide$Run)), annot[[annotation$atable$fileName]]),
+      setdiff(sort(unique(peptide$Run)), annot[[config$file_name]]),
       collapse = " ; "
     )
   )
 
   peptide$qValue <- 0
-  atable$ident_qValue <- "qValue"
-  atable$hierarchy[["protein_Id"]] <- c("ProteinName")
-  atable$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
-  atable$nr_children <- "nr_peptides"
-  atable$set_response("Intensity")
-  atable$hierarchyDepth <- hierarchy_depth
+  config$ident_q_value <- "qValue"
+  config$hierarchy[["protein_Id"]] <- c("ProteinName")
+  config$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
+  config$nr_children <- "nr_peptides"
+  config$set_response("Intensity")
+  config$hierarchy_depth <- hierarchy_depth
 
   bycol <- c("Run")
-  names(bycol) <- atable$fileName
+  names(bycol) <- config$file_name
   apeptide <- dplyr::inner_join(annot, peptide, multiple = "all", by = bycol)
 
-  config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(apeptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   logger::log_info("Start reading fasta: ", fasta_file)
@@ -276,7 +274,7 @@ preprocess_MSstats <- function(
 
   fasta_annot <- fasta_annot |>
     dplyr::rename(
-      !!lfqdata$config$hierarchy_keys_depth()[1] := !!rlang::sym("ProteinName")
+      !!lfqdata$relevant_hierarchy_keys()[1] := !!rlang::sym("ProteinName")
     )
   fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
   prot_annot <- prolfquapp::ProteinAnnotation$new(

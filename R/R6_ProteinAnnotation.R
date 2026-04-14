@@ -60,10 +60,12 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE) {
     istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
   }
   lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
-  lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
+  tmp_data <- lfqdata$data_long()
+  tmp_data$protein_Id <- add_RevCon(tmp_data$protein_Id)
+  lfqdata$set_data(tmp_data)
   pids <- grep(
     "^zz|^REV",
-    unique(lfqdata$data$protein_Id),
+    unique(lfqdata$data_long()$protein_Id),
     value = TRUE,
     invert = TRUE
   )
@@ -98,10 +100,12 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE) {
 make_annotated_experiment <- function(Nprot = 100) {
   istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
   lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
-  lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
+  tmp_data <- lfqdata$data_long()
+  tmp_data$protein_Id <- add_RevCon(tmp_data$protein_Id)
+  lfqdata$set_data(tmp_data)
   pids <- grep(
     "^zz|^REV",
-    unique(lfqdata$data$protein_Id),
+    unique(lfqdata$data_long()$protein_Id),
     value = TRUE,
     invert = TRUE
   )
@@ -132,17 +136,18 @@ make_annotated_experiment <- function(Nprot = 100) {
 #'
 #' istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
 #' lfq0 <- prolfqua::LFQData$new(istar$data, istar$config)
-#' xd1 <- prolfqua::nr_obs_experiment(lfq0$data_long(), lfq0$hierarchy_keys(),
-#'   lfq0$relevant_hierarchy_keys(), lfq0$nr_children_col(),
-#'   response = lfq0$response(), file_name = lfq0$file_name())
+#' xd1 <- prolfqua::nr_children_experiment(lfq0$data_long(), lfq0$response(),
+#'   lfq0$relevant_hierarchy_keys(), lfq0$file_name(), lfq0$nr_children_col())
 #'
-#' xd2 <- prolfqua::nr_obs_experiment(lfq0$data_long(), lfq0$hierarchy_keys(),
-#'   lfq0$relevant_hierarchy_keys(), lfq0$nr_children_col(), from_children = FALSE)
+#' xd2 <- prolfqua::nr_features_experiment(lfq0$data_long(), lfq0$hierarchy_keys(),
+#'   lfq0$relevant_hierarchy_keys())
 #' xd1$nr_child_exp |> table()
 #'
 #' lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
-#' lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
-#' pids <- grep("^zz|^REV", unique(lfqdata$data$protein_Id), value = TRUE, invert = TRUE)
+#' tmp <- lfqdata$data_long()
+#' tmp$protein_Id <- add_RevCon(tmp$protein_Id)
+#' lfqdata$set_data(tmp)
+#' pids <- grep("^zz|^REV", unique(lfqdata$data_long()$protein_Id), value = TRUE, invert = TRUE)
 #' addannot <- data.frame(
 #'   protein_Id = pids,
 #'   description = stringi::stri_rand_strings(length(pids), 13)
@@ -153,8 +158,8 @@ make_annotated_experiment <- function(Nprot = 100) {
 #' # debug(nr_obs_sample)
 #' xd4 <- prolfqua::nr_obs_sample(lfqdata$data_long(), lfqdata$response(),
 #'   lfqdata$relevant_hierarchy_keys(), lfqdata$file_name(), lfqdata$nr_children_col())
-#' xd3 <- prolfqua::nr_obs_experiment(lfqdata$data_long(), lfqdata$hierarchy_keys(),
-#'   lfqdata$relevant_hierarchy_keys(), lfqdata$nr_children_col(), from_children = FALSE)
+#' xd3 <- prolfqua::nr_features_experiment(lfqdata$data_long(), lfqdata$hierarchy_keys(),
+#'   lfqdata$relevant_hierarchy_keys())
 #'
 #' pannot <- ProteinAnnotation$new(lfqdata,
 #'   addannot,
@@ -218,7 +223,7 @@ ProteinAnnotation <-
         pattern_contaminants = NULL,
         pattern_decoys = NULL
       ) {
-        self$pID <- lfqdata$config$hierarchy_keys_depth()[[1]]
+        self$pID <- lfqdata$relevant_hierarchy_keys()[[1]]
         self$exp_nr_children <- exp_nr_children
         self$pattern_contaminants <- if (is.null(pattern_contaminants)) {
           "a^"
@@ -246,7 +251,7 @@ ProteinAnnotation <-
           self$pID
         }
 
-        self$row_annot <- dplyr::distinct(dplyr::select(lfqdata$data, self$pID))
+        self$row_annot <- dplyr::distinct(dplyr::select(lfqdata$data_long(), self$pID))
         if (!is.null(row_annot)) {
           stopifnot(self$pID %in% colnames(row_annot))
           self$row_annot <- dplyr::left_join(
@@ -259,17 +264,16 @@ ProteinAnnotation <-
         stopifnot(self$description %in% colnames(self$row_annot))
         if (!self$exp_nr_children %in% colnames(row_annot)) {
           warning(
-            "no exp_nr_children column specified, computing using nr_obs_experiment function"
+            "no exp_nr_children column specified, computing using nr_children_experiment"
           )
           self$row_annot <- dplyr::inner_join(
             self$row_annot,
-            prolfqua::nr_obs_experiment(
+            prolfqua::nr_children_experiment(
               lfqdata$data_long(),
-              hierarchy_keys = lfqdata$hierarchy_keys(),
-              hierarchy_keys_depth = lfqdata$hierarchy_keys()[1],
-              nr_children_col = lfqdata$nr_children_col(),
               response = lfqdata$response(),
+              hierarchy_keys_depth = lfqdata$hierarchy_keys()[1],
               file_name = lfqdata$file_name(),
+              nr_children_col = lfqdata$nr_children_col(),
               name_nr_child = self$exp_nr_children
             ),
             by = self$pID

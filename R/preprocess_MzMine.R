@@ -221,7 +221,7 @@ preprocess_mzMine <- function(
   }
 
   annot <- annotation$annot
-  atable <- annotation$atable
+  config <- annotation$atable$clone(deep = TRUE)
   annot$relative_path <- basename(annot$relative_path)
   nr <- sum(annot$relative_path %in% sort(unique(xdl$datafile)))
   logger::log_info(
@@ -231,14 +231,13 @@ preprocess_mzMine <- function(
     length(unique(xdl$datafile))
   )
   stopifnot(nr > 0)
-  atable$hierarchy[["metabolite_feature_Id"]] <- c("metabolite_feature_Id")
-  atable$set_response("area")
+  config$hierarchy[["metabolite_feature_Id"]] <- c("metabolite_feature_Id")
+  config$set_response("area")
   byv <- c("datafile")
-  names(byv) <- atable$fileName
+  names(byv) <- config$file_name
   byv <- c(byv, intersect(colnames(annot), colnames(xdl)))
 
   feature <- dplyr::inner_join(annot, xdl, by = byv, multiple = "all")
-  config <- prolfqua::AnalysisConfiguration$new(atable)
   adata <- prolfqua::setup_analysis(feature, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
