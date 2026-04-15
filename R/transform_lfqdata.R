@@ -53,7 +53,7 @@ exp2 <- function(lfqTrans) {
     2^x
   }
   tr$intensity_array(.exp2, force = TRUE)
-  tr$lfq$is_transformed() <- FALSE
+  tr$lfq$is_transformed(FALSE)
   lfqdataProt <- tr$lfq
   return(lfqdataProt)
 }

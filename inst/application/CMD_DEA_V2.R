@@ -195,10 +195,10 @@ outdir <- reporter$write_DEA_all(
 
 # ---- Parquet + YAML export ----
 arrow::write_parquet(
-  deanalyse$lfq_data$data,
+  deanalyse$lfq_data$data_long(),
   sink = file.path(GRP2$get_result_dir(), "lfqdata_normalized.parquet")
 )
-cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$config)
+cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$get_config())
 yaml::write_yaml(cfg, file.path(GRP2$get_result_dir(), "lfqdata.yaml"))
 
 # ---- IBAQ ----
@@ -212,7 +212,7 @@ ibaq_file <- file.path(
   reporter$resultdir,
   paste0("IBAQ_", opt$workunit, ".xlsx")
 )
-if (length(xd$lfqdata$config$hierarchy_keys_depth()) == 1) {
+if (length(xd$lfqdata$relevant_hierarchy_keys()) == 1) {
   ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
   writexl::write_xlsx(
     ibaq$to_wide()$data,

@@ -44,7 +44,7 @@ if (is.language(params$pap)) {
   pap <- params$pap
 }
 lfqdataProt <-  pap$lfqdata_prot
-tableconfig <- pap$lfqdata_prot$config
+tableconfig <- pap$lfqdata_prot$get_config()
 factors <- params$factors
 project_info <- params$project_info
 
