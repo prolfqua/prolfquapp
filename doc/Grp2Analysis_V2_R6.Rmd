@@ -158,7 +158,7 @@ The absence of a protein measurement in a sample might be biologically relevant 
 
 
 ```{r countProtWithNAs}
-res <- dea$lfq_data_raw$to_wide(as.matrix = TRUE)$data
+res <- dea$lfq_data_raw$data_wide(as.matrix = TRUE)$data
 res[!is.na(res)] <- 0
 res[is.na(res)] <- 1
 allrows <- nrow(res)

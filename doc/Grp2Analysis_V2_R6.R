@@ -50,7 +50,7 @@ sum$plot_hierarchy_counts_sample(nr_children = 2)
 
 
 ## ----countProtWithNAs---------------------------------------------------------
-res <- dea$lfq_data_raw$to_wide(as.matrix = TRUE)$data
+res <- dea$lfq_data_raw$data_wide(as.matrix = TRUE)$data
 res[!is.na(res)] <- 0
 res[is.na(res)] <- 1
 allrows <- nrow(res)

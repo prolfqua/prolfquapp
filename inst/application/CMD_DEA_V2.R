@@ -215,7 +215,7 @@ ibaq_file <- file.path(
 if (length(xd$lfqdata$relevant_hierarchy_keys()) == 1) {
   ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
   writexl::write_xlsx(
-    ibaq$to_wide()$data,
+    ibaq$data_wide()$data,
     path = ibaq_file
   )
 }
