@@ -19,7 +19,7 @@ test_that("round-trip peptide-level (depth=2) preserves data", {
 
   # AnnData dimensions: obs = samples, var = peptides
   n_samples <- nrow(lfqdata$factors())
-  n_features <- nrow(lfqdata$to_wide(as.matrix = TRUE)$data)
+  n_features <- nrow(lfqdata$data_wide(as.matrix = TRUE)$data)
   expect_equal(nrow(adata$obs), n_samples)
   expect_equal(nrow(adata$var), n_features)
 
@@ -51,8 +51,8 @@ test_that("round-trip peptide-level (depth=2) preserves data", {
   expect_equal(nrow(orig_counts), nrow(back_counts))
 
   # Intensity values match (round-trip fidelity)
-  orig_wide <- lfqdata$to_wide(as.matrix = TRUE)$data
-  back_wide <- back$lfqdata$to_wide(as.matrix = TRUE)$data
+  orig_wide <- lfqdata$data_wide(as.matrix = TRUE)$data
+  back_wide <- back$lfqdata$data_wide(as.matrix = TRUE)$data
   expect_equal(orig_wide, back_wide, tolerance = 1e-10)
 
   # ProteinAnnotation fields match
@@ -81,7 +81,7 @@ test_that("round-trip protein-level (depth=1) preserves data", {
 
   # AnnData dimensions: obs = samples, var = proteins
   n_samples <- nrow(lfqdata$factors())
-  n_features <- nrow(lfqdata$to_wide(as.matrix = TRUE)$data)
+  n_features <- nrow(lfqdata$data_wide(as.matrix = TRUE)$data)
   expect_equal(nrow(adata$obs), n_samples)
   expect_equal(nrow(adata$var), n_features)
 
@@ -92,8 +92,8 @@ test_that("round-trip protein-level (depth=1) preserves data", {
   expect_equal(nrow(orig_counts), nrow(back_counts))
 
   # Intensity values match (round-trip fidelity)
-  orig_wide <- lfqdata$to_wide(as.matrix = TRUE)$data
-  back_wide <- back$lfqdata$to_wide(as.matrix = TRUE)$data
+  orig_wide <- lfqdata$data_wide(as.matrix = TRUE)$data
+  back_wide <- back$lfqdata$data_wide(as.matrix = TRUE)$data
   expect_equal(orig_wide, back_wide, tolerance = 1e-10)
 })
 

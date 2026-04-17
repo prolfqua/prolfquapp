@@ -113,7 +113,7 @@ preprocess_anndata_from_lfq <- function(
   layers <- list()
   rowdata <- NULL
   for (val in value_cols) {
-    wide <- lfqdata$to_wide(as.matrix = TRUE, value = val)
+    wide <- lfqdata$data_wide(as.matrix = TRUE, value = val)
     mat <- wide$data
     if (is.null(rowdata)) {
       rowdata <- wide$rowdata

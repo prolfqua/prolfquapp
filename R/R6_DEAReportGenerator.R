@@ -127,12 +127,12 @@ DEAReportGenerator <- R6::R6Class(
 
       wideraw <- dplyr::inner_join(
         ra$row_annot,
-        rd$to_wide()$data,
+        rd$data_wide()$data,
         multiple = "all"
       )
       widetr <- dplyr::inner_join(
         ra$row_annot,
-        tr$to_wide()$data,
+        tr$data_wide()$data,
         multiple = "all"
       )
 
@@ -144,7 +144,7 @@ DEAReportGenerator <- R6::R6Class(
       )
       ctr_wide <- dplyr::inner_join(
         ra$row_annot,
-        contr_obj$to_wide(),
+        contr_obj$data_wide(),
         multiple = "all"
       )
 
@@ -456,8 +456,8 @@ DEAReportGenerator <- R6::R6Class(
       rowname <- dea$lfq_data_raw$hierarchy_keys()
       resTables <- self$prep_result_list()
 
-      matTr <- dea$lfq_data$to_wide(as.matrix = TRUE)
-      matRaw <- dea$lfq_data_raw$to_wide(as.matrix = TRUE)
+      matTr <- dea$lfq_data$data_wide(as.matrix = TRUE)
+      matRaw <- dea$lfq_data_raw$data_wide(as.matrix = TRUE)
 
       mat.raw <- prolfquapp::strip_rownames(matRaw$data, strip)
       mat.trans <- prolfquapp::strip_rownames(matTr$data, strip)

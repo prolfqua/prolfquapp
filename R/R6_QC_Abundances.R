@@ -54,7 +54,7 @@ QC_generator <- R6::R6Class(
       )
       peptide_wide <- dplyr::left_join(
         self$protein_annotation$row_annot,
-        self$lfqdata$to_wide()$data,
+        self$lfqdata$data_wide()$data,
         multiple = "all"
       )
       invisible(peptide_wide)
@@ -81,7 +81,7 @@ QC_generator <- R6::R6Class(
       }
       peptide_wide <- dplyr::left_join(
         self$protein_annotation$row_annot,
-        lfqdata_pep_tr$to_wide()$data,
+        lfqdata_pep_tr$data_wide()$data,
         multiple = "all"
       )
       return(peptide_wide)
@@ -112,7 +112,7 @@ QC_generator <- R6::R6Class(
       lfqdata_prot <- self$get_prot_data()
       proteins_wide <- dplyr::left_join(
         self$protein_annotation$row_annot,
-        lfqdata_prot$to_wide()$data,
+        lfqdata_prot$data_wide()$data,
         multiple = "all"
       )
 
@@ -149,7 +149,7 @@ QC_generator <- R6::R6Class(
       }
       proteins_wide <- dplyr::left_join(
         self$protein_annotation$row_annot,
-        lfqdata_prot_tr$to_wide()$data,
+        lfqdata_prot_tr$data_wide()$data,
         multiple = "all"
       )
       return(proteins_wide)
@@ -240,7 +240,7 @@ QC_generator <- R6::R6Class(
         IBAQ_abundances <-
           dplyr::left_join(
             self$protein_annotation$row_annot,
-            self$get_prot_IBAQ()$to_wide()$data,
+            self$get_prot_IBAQ()$data_wide()$data,
             multiple = "all"
           )
 
@@ -524,7 +524,7 @@ QC_generator <- R6::R6Class(
     get_nr_children_data = function(lfqdata) {
       # Get nr_children data using the configured column name
       nr_children_col_name <- lfqdata$nr_children_col()
-      nr_children_data <- lfqdata$to_wide(value = nr_children_col_name)$data
+      nr_children_data <- lfqdata$data_wide(value = nr_children_col_name)$data
       return(nr_children_data)
     }
   )
