@@ -46,20 +46,31 @@ copy_shell_script <- function(workdir = getwd()) {
 #' @export
 #'
 copy_DEA_R6_Files <- function(workdir = getwd()) {
-  runscripts <- c(
-    "doc/Grp2Analysis_V2_R6.Rmd",
-    "doc/DiffExpQC_R6.Rmd"
-  )
-  prolfqua::script_copy_helper_vec(
-    runscripts,
-    workdir = workdir,
-    packagename = "prolfquapp"
-  )
+  files <- c("Grp2Analysis_V2_R6.Rmd", "DiffExpQC_R6.Rmd")
+  copied <- character()
+  for (file in files) {
+    src <- system.file("doc", file, package = "prolfquapp", mustWork = FALSE)
+    if (!nzchar(src) || !file.exists(src)) {
+      stop(
+        "DEA report template not found in installed prolfquapp package: doc/",
+        file,
+        "\nReinstall prolfquapp with vignettes so installed package doc/ files are available.",
+        call. = FALSE
+      )
+    }
+    dest <- file.path(workdir, file)
+    message("copy ", src, " to ", dest)
+    if (!file.copy(src, dest, overwrite = TRUE)) {
+      stop("Could not copy DEA report template from ", src, " to ", dest, call. = FALSE)
+    }
+    copied <- c(copied, dest)
+  }
+  message("your working directory now should contain: ", length(copied), " new files :\n")
   # bibliography.bib lives in application/, not doc/
   bib_src <- system.file("application", "bibliography.bib", package = "prolfquapp")
   if (nzchar(bib_src) && file.exists(bib_src)) {
     file.copy(bib_src, file.path(workdir, "bibliography.bib"), overwrite = TRUE)
   }
+  invisible(copied)
 }
-
 

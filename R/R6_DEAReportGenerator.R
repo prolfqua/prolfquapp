@@ -144,7 +144,7 @@ DEAReportGenerator <- R6::R6Class(
       )
       ctr_wide <- dplyr::inner_join(
         ra$row_annot,
-        contr_obj$data_wide(),
+        contr_obj$to_wide(),
         multiple = "all"
       )
 
