@@ -24,6 +24,7 @@ R6 class representing ProlfquApp configuration"></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Auxiliary_ExDesignSurvey.html">Auxiliary - Bioinformatics Project Meeting Agenda</a></li>
     <li><a class="dropdown-item" href="../articles/DiffExpQC_R6.html">Differential Expression Analysis Quality Control.</a></li>
     <li><a class="dropdown-item" href="../articles/Grp2Analysis_V2_R6.html">Differential Expression Analysis.</a></li>
+    <li><a class="dropdown-item" href="../articles/QC_ProteinAbundances.html">Protein Signal Intensities within Groups</a></li>
     <li><a class="dropdown-item" href="../articles/QCandSSE.html">Quality Control &amp; Sample Size Estimation</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -81,14 +82,6 @@ R6 class representing ProlfquApp configuration"></head><body>
 
 <dt><code>path</code></dt>
 <dd><p>path to working directory</p></dd>
-
-
-<dt><code>pop</code></dt>
-<dd><p>optional processing options</p></dd>
-
-
-<dt><code>RES</code></dt>
-<dd><p>results</p></dd>
 
 
 <dt><code>group</code></dt>
@@ -251,19 +244,19 @@ R6 class representing ProlfquApp configuration"></head><body>
 <span class="r-in"><span>  <span class="va"><a href="ProjectSpec.html">ProjectSpec</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="va"><a href="ExternalReader.html">ExternalReader</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/prolfqua/man/R6_extract_values.html" class="external-link">R6_extract_values</a></span><span class="op">(</span><span class="va">r6obj_config</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://wolski.github.io/prolfqua/reference/R6_extract_values.html" class="external-link">R6_extract_values</a></span><span class="op">(</span><span class="va">r6obj_config</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">yaml</span><span class="fu">::</span><span class="fu"><a href="https://yaml.r-lib.org/reference/write_yaml.html" class="external-link">write_yaml</a></span><span class="op">(</span><span class="va">xx</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"test.yaml"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">config</span> <span class="op">&lt;-</span> <span class="fu">yaml</span><span class="fu">::</span><span class="fu"><a href="https://yaml.r-lib.org/reference/read_yaml.html" class="external-link">read_yaml</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"test.yaml"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">r6obj_config</span><span class="op">$</span><span class="fu">set_zipdir_name</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "DEA_20260323_vsn"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "DEA_20260428_vsn"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">r6obj_config</span><span class="op">$</span><span class="fu">get_zipdir</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "./DEA_20260323_vsn"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "./DEA_20260428_vsn"</span>
 <span class="r-in"><span><span class="va">r6obj_config</span><span class="op">$</span><span class="fu">get_result_dir</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "./DEA_20260323_vsn/Results_WU_"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "./DEA_20260428_vsn/Results_WU_"</span>
 <span class="r-in"><span><span class="va">r6obj_config</span><span class="op">$</span><span class="fu">get_input_dir</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "./DEA_20260323_vsn/Inputs_WU_"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "./DEA_20260428_vsn/Inputs_WU_"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

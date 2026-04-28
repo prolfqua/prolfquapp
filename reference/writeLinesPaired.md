@@ -23,7 +23,7 @@ writeLinesPaired(bb, outpath)
 ``` r
 
 xd <- prolfqua::sim_lfq_data_protein_config(with_missing = FALSE, paired = TRUE)
-#> creating sampleName from fileName column
+#> creating sampleName from file_name column
 #> completing cases
 #> completing cases done
 #> setup done

@@ -22,6 +22,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Auxiliary_ExDesignSurvey.html">Auxiliary - Bioinformatics Project Meeting Agenda</a></li>
     <li><a class="dropdown-item" href="../articles/DiffExpQC_R6.html">Differential Expression Analysis Quality Control.</a></li>
     <li><a class="dropdown-item" href="../articles/Grp2Analysis_V2_R6.html">Differential Expression Analysis.</a></li>
+    <li><a class="dropdown-item" href="../articles/QC_ProteinAbundances.html">Protein Signal Intensities within Groups</a></li>
     <li><a class="dropdown-item" href="../articles/QCandSSE.html">Quality Control &amp; Sample Size Estimation</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -69,7 +70,7 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">yfile</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/prolfqua/man/find_package_file.html" class="external-link">find_package_file</a></span><span class="op">(</span><span class="st">"prolfquapp"</span>, <span class="st">"application/DIANN/config.yaml"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">yfile</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://wolski.github.io/prolfqua/reference/find_package_file.html" class="external-link">find_package_file</a></span><span class="op">(</span><span class="st">"prolfquapp"</span>, <span class="st">"application/DIANN/config.yaml"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">yfile</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">config</span> <span class="op">&lt;-</span> <span class="fu">read_BF_yamlR6</span><span class="op">(</span><span class="va">yfile</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>

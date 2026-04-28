@@ -12,7 +12,7 @@ transform_lfqdata(lfqdata, method = c("robscale", "vsn", "none", "log2"))
 
 - lfqdata:
 
-  [`LFQData`](https://rdrr.io/pkg/prolfqua/man/LFQData.html)
+  [`LFQData`](https://wolski.github.io/prolfqua/reference/LFQData.html)
 
 - method:
 
@@ -23,12 +23,11 @@ transform_lfqdata(lfqdata, method = c("robscale", "vsn", "none", "log2"))
 ``` r
 istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
 #> Column added : nr_peptide_Id_IN_protein_Id
-config <- prolfqua:::old2new(istar$config)
-tmp <- prolfqua::LFQData$new(istar$data, config)
+tmp <- prolfqua::LFQData$new(istar$data, istar$config)
 tmp2 <- transform_lfqdata(tmp)
-#> INFO [2026-03-23 19:48:37] Transforming using robscale.
+#> INFO [2026-04-28 19:51:56] Transforming using robscale.
 #> Column added : log2_peptide.intensity
 #> data is : TRUE
 #> Joining with `by = join_by(protein_Id, sampleName, isotope, peptide_Id)`
-#> INFO [2026-03-23 19:48:37] Transforming data : robscale.
+#> INFO [2026-04-28 19:51:57] Transforming data : robscale.
 ```

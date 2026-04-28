@@ -38,8 +38,6 @@
   : add vector of contrasts to annotation data frame
 - [`aggregate_data()`](https://prolfqua.github.io/prolfquapp/reference/aggregate_data.md)
   : dataset transform data
-- [`anndata_from_LFQData()`](https://prolfqua.github.io/prolfquapp/reference/anndata_from_LFQData.md)
-  : convert lfqdata to anndata
 - [`bfabric_url_builder()`](https://prolfqua.github.io/prolfquapp/reference/bfabric_url_builder.md)
   : build bfabric urls
 - [`build_protein_annot()`](https://prolfqua.github.io/prolfquapp/reference/build_protein_annot.md)
@@ -50,10 +48,6 @@
   : convert tibble to data.frame with rownames
 - [`compute_IBAQ_values()`](https://prolfqua.github.io/prolfquapp/reference/compute_IBAQ_values.md)
   : compute IBAQ values
-- [`copy_DEA_Files()`](https://prolfqua.github.io/prolfquapp/reference/copy_DEA_Files.md)
-  : copy Markdown templates for DEA (legacy CMD_DEA.R)
-- [`copy_DEA_Metabolomics_Files()`](https://prolfqua.github.io/prolfquapp/reference/copy_DEA_Metabolomics_Files.md)
-  : copy Markdown and runscripts for DEA
 - [`copy_DEA_R6_Files()`](https://prolfqua.github.io/prolfquapp/reference/copy_DEA_R6_Files.md)
   : copy Markdown templates for DEA (R6-based CMD_DEA_V2.R)
 - [`copy_docker_script()`](https://prolfqua.github.io/prolfquapp/reference/copy_docker_script.md)
@@ -81,6 +75,8 @@
   : read DiaNN diann-output.tsv file
 - [`example_deanalyse()`](https://prolfqua.github.io/prolfquapp/reference/example_deanalyse.md)
   : Create an example DEAnalyse object from simulated data
+- [`example_qc_generator()`](https://prolfqua.github.io/prolfquapp/reference/example_qc_generator.md)
+  : Create an example QC_generator object from simulated data
 - [`exp2()`](https://prolfqua.github.io/prolfquapp/reference/exp2.md) :
   transform lfq data with x^2 - apply if non log data is needed
 - [`extract_GN()`](https://prolfqua.github.io/prolfquapp/reference/extract_GN.md)
@@ -103,6 +99,8 @@
   : get petpide.txt and fasta file location in folder
 - [`get_MSstats_files()`](https://prolfqua.github.io/prolfquapp/reference/get_MSstats_files.md)
   : get petpide.txt and fasta file location in folder
+- [`get_SIM_files()`](https://prolfqua.github.io/prolfquapp/reference/get_SIM_files.md)
+  : Discover simulated data files (no real files needed)
 - [`get_annot_from_fasta()`](https://prolfqua.github.io/prolfquapp/reference/get_annot_from_fasta.md)
   : get_annot_from_fasta
 - [`get_config()`](https://prolfqua.github.io/prolfquapp/reference/get_config.md)
@@ -118,9 +116,6 @@
 - [`make_DEA_config_R6()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_config_R6.md)
   : create GRP2 configuration for differential expression analysis Use
   this function if there is no Yaml Input.
-- [`make_SummarizedExperiment()`](https://prolfqua.github.io/prolfquapp/reference/make_SummarizedExperiment.md)
-  : Convert prolfqua differential expression analysis results to
-  SummarizedExperiment
 - [`make_annotated_experiment()`](https://prolfqua.github.io/prolfquapp/reference/make_annotated_experiment.md)
   : make lfqdata with row annotation
 - [`make_feature_annotation()`](https://prolfqua.github.io/prolfquapp/reference/make_feature_annotation.md)
@@ -149,6 +144,8 @@
   : preprocess MSstats file coming from FragPipe
 - [`preprocess_MSstats_FPDIA()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_MSstats_FPDIA.md)
   : preprocess MSstats fragpipe
+- [`preprocess_SIM()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_SIM.md)
+  : Preprocess simulated data
 - [`preprocess_anndata_from_lfq()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_anndata_from_lfq.md)
   : Convert LFQData + ProteinAnnotation to AnnData with round-trip
   metadata
@@ -171,6 +168,16 @@
   : read MSstats.csv files and rollup to ProteinSequence level.
 - [`read_table_data()`](https://prolfqua.github.io/prolfquapp/reference/read_table_data.md)
   : read dataset file in csv, tsv or xlsx format
+- [`run_contrasts_single()`](https://prolfqua.github.io/prolfquapp/reference/run_contrasts_single.md)
+  : Generate contrasts for a single-factor design
+- [`run_contrasts_twofactor()`](https://prolfqua.github.io/prolfquapp/reference/run_contrasts_twofactor.md)
+  : Generate contrasts for a two-factor design
+- [`run_dea()`](https://prolfqua.github.io/prolfquapp/reference/run_dea.md)
+  : Run differential expression analysis pipeline
+- [`run_make_yaml()`](https://prolfqua.github.io/prolfquapp/reference/run_make_yaml.md)
+  : Generate a DEA configuration list
+- [`run_qc_preprocess()`](https://prolfqua.github.io/prolfquapp/reference/run_qc_preprocess.md)
+  : Preprocess quantification data for QC reporting
 - [`set_lib_path()`](https://prolfqua.github.io/prolfquapp/reference/set_lib_path.md)
   : set library path with logging
 - [`set_list_to_R6()`](https://prolfqua.github.io/prolfquapp/reference/set_list_to_R6.md)

@@ -39,14 +39,6 @@ Other ProlfquAppConfig:
 
   path to working directory
 
-- `pop`:
-
-  optional processing options
-
-- `RES`:
-
-  results
-
 - `group`:
 
   group prefix
@@ -222,12 +214,12 @@ yaml::write_yaml(xx, file = file.path(tempdir(), "test.yaml"))
 config <- yaml::read_yaml(file = file.path(tempdir(), "test.yaml"))
 
 r6obj_config$set_zipdir_name()
-#> [1] "DEA_20260323_vsn"
+#> [1] "DEA_20260428_vsn"
 
 r6obj_config$get_zipdir()
-#> [1] "./DEA_20260323_vsn"
+#> [1] "./DEA_20260428_vsn"
 r6obj_config$get_result_dir()
-#> [1] "./DEA_20260323_vsn/Results_WU_"
+#> [1] "./DEA_20260428_vsn/Results_WU_"
 r6obj_config$get_input_dir()
-#> [1] "./DEA_20260323_vsn/Inputs_WU_"
+#> [1] "./DEA_20260428_vsn/Inputs_WU_"
 ```

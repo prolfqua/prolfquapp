@@ -10,5 +10,7 @@
   Analysis.](https://prolfqua.github.io/prolfquapp/articles/Grp2Analysis_V2_R6.md):
 - [prolfquapp - an R package to report differential expression analysis
   results.](https://prolfqua.github.io/prolfquapp/articles/prolfquapp.md):
+- [Protein Signal Intensities within
+  Groups](https://prolfqua.github.io/prolfquapp/articles/QC_ProteinAbundances.md):
 - [Quality Control & Sample Size
   Estimation](https://prolfqua.github.io/prolfquapp/articles/QCandSSE.md):

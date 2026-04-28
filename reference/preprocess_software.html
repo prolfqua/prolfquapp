@@ -22,6 +22,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Auxiliary_ExDesignSurvey.html">Auxiliary - Bioinformatics Project Meeting Agenda</a></li>
     <li><a class="dropdown-item" href="../articles/DiffExpQC_R6.html">Differential Expression Analysis Quality Control.</a></li>
     <li><a class="dropdown-item" href="../articles/Grp2Analysis_V2_R6.html">Differential Expression Analysis.</a></li>
+    <li><a class="dropdown-item" href="../articles/QC_ProteinAbundances.html">Protein Signal Intensities within Groups</a></li>
     <li><a class="dropdown-item" href="../articles/QCandSSE.html">Quality Control &amp; Sample Size Estimation</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -97,16 +98,16 @@
 <span class="r-in"><span><span class="va">annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_annotation.html">read_annotation</a></span><span class="op">(</span><span class="va">annot</span>, QC <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">preprocess_functions</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="prolfqua_preprocess_functions.html">prolfqua_preprocess_functions</a></span><span class="op">[[</span><span class="st">"DUMMY"</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">preprocess_software</span><span class="op">(</span><span class="st">"."</span>, <span class="va">annot</span>, <span class="va">preprocess_functions</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 19:48:24] Files data: data.path</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 19:48:24] Files fasta: fasta.files.path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-04-28 19:51:42] Files data: data.path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-04-28 19:51:42] Files fasta: fasta.files.path</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="ExternalReader.html">ExternalReader</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">xx</span><span class="op">$</span><span class="va">extra_args</span> <span class="op">&lt;-</span> <span class="st">"list()"</span></span></span>
 <span class="r-in"><span><span class="va">xx</span><span class="op">$</span><span class="va">get_files</span> <span class="op">&lt;-</span> <span class="st">"prolfquapp::get_dummy_files"</span></span></span>
 <span class="r-in"><span><span class="va">xx</span><span class="op">$</span><span class="va">preprocess</span> <span class="op">&lt;-</span> <span class="st">"prolfquapp::preprocess_dummy"</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">preprocess_software</span><span class="op">(</span><span class="st">"."</span>, annotation <span class="op">=</span> <span class="va">annot</span>, preprocess_functions <span class="op">=</span> <span class="va">xx</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 19:48:24] Files data: data.path</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-03-23 19:48:24] Files fasta: fasta.files.path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-04-28 19:51:42] Files data: data.path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-04-28 19:51:42] Files fasta: fasta.files.path</span>
 <span class="r-in"><span><span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="ExternalReader.html">ExternalReader</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

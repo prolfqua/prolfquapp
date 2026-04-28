@@ -5,7 +5,7 @@ dataset transform data
 ## Usage
 
 ``` r
-aggregate_data(lfqdata, agg_method = c("medpolish", "lmrob", "topN"), N = 3)
+aggregate_data(lfqdata, agg_method = c("medpolish", "rlm", "topN"), N = 3)
 ```
 
 ## Arguments
@@ -26,7 +26,7 @@ aggregate_data(lfqdata, agg_method = c("medpolish", "lmrob", "topN"), N = 3)
 
 ``` r
 xx <- prolfqua::sim_lfq_data_peptide_config()
-#> creating sampleName from fileName column
+#> creating sampleName from file_name column
 #> completing cases
 #> completing cases done
 #> setup done
@@ -37,7 +37,7 @@ aggregated <- aggregate_data(lfqdata, agg_method = "medpolish")
 #> Column added : exp_medpolish
 aggregated$response()
 #> [1] "exp_medpolish"
-aggregated <- aggregate_data(lfqdata, agg_method = "lmrob")
+aggregated <- aggregate_data(lfqdata, agg_method = "rlm")
 #> Column added : log_abundance
 #> starting aggregation
 #> Warning: 'rlm' failed to converge in 20 steps
@@ -49,5 +49,5 @@ aggregated <- aggregate_data(lfqdata, agg_method = "topN")
 #> Joining with `by = join_by(protein_Id, peptide_Id)`
 #> Columns added : srm_meanInt srm_meanIntRank
 aggregated$response()
-#> [1] "srm_sum_N"
+#> [1] "srm_sum_3"
 ```

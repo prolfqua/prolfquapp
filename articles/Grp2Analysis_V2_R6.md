@@ -340,7 +340,7 @@ to select differentially expressed proteins. Table
 | contrast |   n | Significant | Not Significant |
 |:---------|----:|------------:|----------------:|
 | AVsC     | 100 |          40 |              60 |
-| BVsC     | 100 |          39 |              61 |
+| BVsC     | 100 |          37 |              63 |
 
 Number of not significant and significant proteins.
 
@@ -428,7 +428,7 @@ please contact <protinf@fgcz.uzh.ch>.
 
 ## Session Information
 
-**R version 4.5.3 (2026-03-11)**
+**R version 4.6.0 (2026-04-24)**
 
 **Platform:** x86_64-pc-linux-gnu
 
@@ -440,47 +440,55 @@ please contact <protinf@fgcz.uzh.ch>.
 **attached base packages:** *stats*, *graphics*, *grDevices*, *utils*,
 *datasets*, *methods* and *base*
 
-**other attached packages:** dplyr(v.1.2.0)
+**other attached packages:** dplyr(v.1.2.1)
 
-**loaded via a namespace (and not attached):** *gridExtra(v.2.3)*,
-*writexl(v.1.5.4)*, *logger(v.0.4.1)*, *readxl(v.1.4.5)*,
-*rlang(v.1.1.7)*, *magrittr(v.2.0.4)*, *otel(v.0.2.0)*,
-*matrixStats(v.1.5.0)*, *compiler(v.4.5.3)*, *systemfonts(v.1.3.2)*,
-*vctrs(v.0.7.2)*, *stringr(v.1.6.0)*, *crayon(v.1.5.3)*,
-*pkgconfig(v.2.0.3)*, *fastmap(v.1.2.0)*, *XVector(v.0.50.0)*,
-*labeling(v.0.4.3)*, *pander(v.0.6.6)*, *promises(v.1.5.0)*,
-*rmarkdown(v.2.30)*, *tzdb(v.0.5.0)*, *preprocessCore(v.1.72.0)*,
-*ragg(v.1.5.1)*, *UpSetR(v.1.4.0)*, *purrr(v.1.2.1)*, *bit(v.4.6.0)*,
-*xfun(v.0.57)*, *cachem(v.1.1.0)*, *jsonlite(v.2.0.0)*,
-*progress(v.1.2.3)*, *later(v.1.4.8)*, *DelayedArray(v.0.36.0)*,
-*prettyunits(v.1.2.0)*, *R6(v.2.6.1)*, *bslib(v.0.10.0)*,
-*stringi(v.1.8.7)*, *RColorBrewer(v.1.1-3)*, *limma(v.3.66.0)*,
-*GenomicRanges(v.1.62.1)*, *jquerylib(v.0.1.4)*, *cellranger(v.1.1.0)*,
-*Rcpp(v.1.1.1)*, *Seqinfo(v.1.0.0)*, *bookdown(v.0.46)*,
-*assertthat(v.0.2.1)*, *SummarizedExperiment(v.1.40.0)*,
-*knitr(v.1.51)*, *lobstr(v.1.2.0)*, *readr(v.2.2.0)*,
-*IRanges(v.2.44.0)*, *httpuv(v.1.6.17)*, *Matrix(v.1.7-4)*,
-*tidyselect(v.1.2.1)*, *abind(v.1.4-8)*, *yaml(v.2.3.12)*,
-*affy(v.1.88.0)*, *lattice(v.0.22-9)*, *tibble(v.3.3.1)*,
-*plyr(v.1.8.9)*, *shiny(v.1.13.0)*, *Biobase(v.2.70.0)*,
-*withr(v.3.0.2)*, *S7(v.0.2.1)*, *prolfqua(v.1.5.0)*,
-*evaluate(v.1.0.5)*, *desc(v.1.4.3)*, *getopt(v.1.20.4)*,
-*pillar(v.1.11.1)*, *affyio(v.1.80.0)*, *BiocManager(v.1.30.27)*,
-*MatrixGenerics(v.1.22.0)*, *DT(v.0.34.0)*, *stats4(v.4.5.3)*,
-*plotly(v.4.12.0)*, *generics(v.0.1.4)*, *dtplyr(v.1.3.3)*,
-*S4Vectors(v.0.48.0)*, *hms(v.1.1.4)*, *ggplot2(v.4.0.2)*,
-*scales(v.1.4.0)*, *xtable(v.1.8-8)*, *glue(v.1.8.0)*,
-*pheatmap(v.1.0.13)*, *lazyeval(v.0.2.2)*, *tools(v.4.5.3)*,
-*data.table(v.1.18.2.1)*, *vsn(v.3.78.1)*, *forcats(v.1.0.1)*,
-*fs(v.2.0.0)*, *grid(v.4.5.3)*, *optparse(v.1.7.5)*, *tidyr(v.1.3.2)*,
-*crosstalk(v.1.2.2)*, *cli(v.3.6.5)*, *prolfquapp(v.2.0.11)*,
-*textshaping(v.1.0.5)*, *S4Arrays(v.1.10.1)*, *viridisLite(v.0.4.3)*,
-*arrow(v.23.0.1.1)*, *gtable(v.0.3.6)*, *sass(v.0.4.10)*,
-*digest(v.0.6.39)*, *BiocGenerics(v.0.56.0)*, *SparseArray(v.1.10.9)*,
-*ggrepel(v.0.9.8)*, *htmlwidgets(v.1.6.4)*, *farver(v.2.1.2)*,
-*htmltools(v.0.5.9)*, *pkgdown(v.2.2.0)*, *lifecycle(v.1.0.5)*,
-*httr(v.1.4.8)*, *mime(v.0.13)*, *statmod(v.1.5.1)*, *bit64(v.4.6.0-1)*
-and *MASS(v.7.3-65)*
+**loaded via a namespace (and not attached):** *RColorBrewer(v.1.1-3)*,
+*jsonlite(v.2.0.0)*, *shape(v.1.4.6.1)*, *magrittr(v.2.0.5)*,
+*jomo(v.2.7-6)*, *farver(v.2.1.2)*, *logistf(v.1.26.1)*,
+*nloptr(v.2.2.1)*, *rmarkdown(v.2.31)*, *fs(v.2.1.0)*, *ragg(v.1.5.2)*,
+*vctrs(v.0.7.3)*, *minqa(v.1.2.8)*, *progress(v.1.2.3)*,
+*htmltools(v.0.5.9)*, *S4Arrays(v.1.11.1)*, *forcats(v.1.0.1)*,
+*broom(v.1.0.12)*, *cellranger(v.1.1.0)*, *SparseArray(v.1.11.13)*,
+*mitml(v.0.4-5)*, *sass(v.0.4.10)*, *bslib(v.0.10.0)*,
+*htmlwidgets(v.1.6.4)*, *desc(v.1.4.3)*, *plyr(v.1.8.9)*,
+*plotly(v.4.12.0)*, *cachem(v.1.1.0)*, *mime(v.0.13)*,
+*lifecycle(v.1.0.5)*, *iterators(v.1.0.14)*, *pkgconfig(v.2.0.3)*,
+*Matrix(v.1.7-5)*, *R6(v.2.6.1)*, *fastmap(v.1.2.0)*, *shiny(v.1.13.0)*,
+*rbibutils(v.2.4.1)*, *MatrixGenerics(v.1.23.0)*, *digest(v.0.6.39)*,
+*dtplyr(v.1.3.3)*, *lobstr(v.1.2.1)*, *S4Vectors(v.0.49.3)*,
+*textshaping(v.1.0.5)*, *crosstalk(v.1.2.2)*, *GenomicRanges(v.1.63.2)*,
+*labeling(v.0.4.3)*, *httr(v.1.4.8)*, *abind(v.1.4-8)*, *mgcv(v.1.9-4)*,
+*compiler(v.4.6.0)*, *bit64(v.4.8.0)*, *withr(v.3.0.2)*,
+*pander(v.0.6.6)*, *S7(v.0.2.2)*, *backports(v.1.5.1)*,
+*logger(v.0.4.1)*, *UpSetR(v.1.4.0)*, *pan(v.1.9)*, *MASS(v.7.3-65)*,
+*DelayedArray(v.0.37.1)*, *optparse(v.1.8.2)*, *tools(v.4.6.0)*,
+*otel(v.0.2.0)*, *httpuv(v.1.6.17)*, *nnet(v.7.3-20)*, *glue(v.1.8.1)*,
+*promises(v.1.5.0)*, *nlme(v.3.1-169)*, *grid(v.4.6.0)*,
+*generics(v.0.1.4)*, *operator.tools(v.1.6.3.1)*, *gtable(v.0.3.6)*,
+*tzdb(v.0.5.0)*, *formula.tools(v.1.7.1)*, *preprocessCore(v.1.73.0)*,
+*tidyr(v.1.3.2)*, *data.table(v.1.18.2.1)*, *hms(v.1.1.4)*,
+*XVector(v.0.51.0)*, *BiocGenerics(v.0.57.1)*, *ggrepel(v.0.9.8)*,
+*foreach(v.1.5.2)*, *pillar(v.1.11.1)*, *stringr(v.1.6.0)*,
+*limma(v.3.67.3)*, *later(v.1.4.8)*, *splines(v.4.6.0)*,
+*lattice(v.0.22-9)*, *survival(v.3.8-6)*, *bit(v.4.6.0)*,
+*tidyselect(v.1.2.1)*, *knitr(v.1.51)*, *reformulas(v.0.4.4)*,
+*gridExtra(v.2.3)*, *prolfquapp(v.2.0.11)*, *bookdown(v.0.46)*,
+*IRanges(v.2.45.0)*, *Seqinfo(v.1.1.0)*,
+*SummarizedExperiment(v.1.41.1)*, *stats4(v.4.6.0)*, *xfun(v.0.57)*,
+*prolfqua(v.1.6.1)*, *Biobase(v.2.71.0)*, *statmod(v.1.5.1)*,
+*matrixStats(v.1.5.0)*, *DT(v.0.34.0)*, *pheatmap(v.1.0.13)*,
+*stringi(v.1.8.7)*, *lazyeval(v.0.2.3)*, *yaml(v.2.3.12)*,
+*boot(v.1.3-32)*, *evaluate(v.1.0.5)*, *codetools(v.0.2-20)*,
+*tibble(v.3.3.1)*, *BiocManager(v.1.30.27)*, *cli(v.3.6.6)*,
+*affyio(v.1.81.0)*, *rpart(v.4.1.27)*, *xtable(v.1.8-8)*,
+*arrow(v.23.0.1.2)*, *systemfonts(v.1.3.2)*, *Rdpack(v.2.6.6)*,
+*jquerylib(v.0.1.4)*, *Rcpp(v.1.1.1-1.1)*, *readxl(v.1.4.5)*,
+*pkgdown(v.2.2.0)*, *ggplot2(v.4.0.3)*, *readr(v.2.2.0)*,
+*assertthat(v.0.2.1)*, *prettyunits(v.1.2.0)*, *lme4(v.2.0-1)*,
+*glmnet(v.4.1-10)*, *viridisLite(v.0.4.3)*, *scales(v.1.4.0)*,
+*affy(v.1.89.0)*, *crayon(v.1.5.3)*, *purrr(v.1.2.2)*,
+*writexl(v.1.5.4)*, *rlang(v.1.2.0)*, *vsn(v.3.79.6)* and
+*mice(v.3.19.0)*
 
 ## References
 

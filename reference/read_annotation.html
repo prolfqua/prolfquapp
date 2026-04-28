@@ -22,6 +22,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Auxiliary_ExDesignSurvey.html">Auxiliary - Bioinformatics Project Meeting Agenda</a></li>
     <li><a class="dropdown-item" href="../articles/DiffExpQC_R6.html">Differential Expression Analysis Quality Control.</a></li>
     <li><a class="dropdown-item" href="../articles/Grp2Analysis_V2_R6.html">Differential Expression Analysis.</a></li>
+    <li><a class="dropdown-item" href="../articles/QC_ProteinAbundances.html">Protein Signal Intensities within Groups</a></li>
     <li><a class="dropdown-item" href="../articles/QCandSSE.html">Quality Control &amp; Sample Size Estimation</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -91,38 +92,35 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     annotation_vars: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bin_resp: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     clone: function (deep = FALSE) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     factorDepth: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     factor_depth: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     factor_keys: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     factor_keys_depth: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     factors: list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     fileName: file</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     file_name: file</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     get_response: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     hierarchy: list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     hierarchyDepth: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     hierarchyKeys: function (rev = FALSE) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     hierarchy_depth: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     hierarchy_keys: function (rev = FALSE) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     hierarchy_keys_depth: function (names = TRUE) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     hkeysDepth: function (names = TRUE) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     id_required: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     id_vars: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ident_Score: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ident_qValue: qValue</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     initialize: function (analysisTableAnnotation = NULL, analysisParameter = NULL) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ident_q_value: qValue</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ident_score: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     initialize: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     is_response_transformed: FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     isotopeLabel: isotopeLabel</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     isotope_label: isotopeLabel</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     min_peptides_protein: 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normValue: NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     norm_value: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     nr_children: nr_children</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     opt_mz: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     opt_rt: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parameter: active binding</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     opt_se: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     pop_response: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     sampleName: name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     sample_name: name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     sep: ~</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     set_response: function (colName) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     table: active binding</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     set_response: function (col_name) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     value_vars: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     workIntensity: NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     work_intensity: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $annot</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     file name group</span>

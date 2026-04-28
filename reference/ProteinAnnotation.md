@@ -84,7 +84,7 @@ initialize
 - `lfqdata`:
 
   data frame from
-  [`setup_analysis`](https://rdrr.io/pkg/prolfqua/man/setup_analysis.html)
+  [`setup_analysis`](https://wolski.github.io/prolfqua/reference/setup_analysis.html)
 
 - `row_annot`:
 
@@ -233,21 +233,26 @@ The objects of this class are cloneable with this method.
 
 ``` r
 istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-#> creating sampleName from fileName column
+#> creating sampleName from file_name column
 #> completing cases
 #> completing cases done
 #> setup done
-xd1 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = TRUE)
+lfq0 <- prolfqua::LFQData$new(istar$data, istar$config)
+xd1 <- prolfqua::nr_children_experiment(lfq0$data_long(), lfq0$response(),
+  lfq0$relevant_hierarchy_keys(), lfq0$file_name(), lfq0$nr_children_col())
 
-xd2 <- prolfqua::nr_obs_experiment(istar$data, istar$config, from_children = FALSE)
+xd2 <- prolfqua::nr_features_experiment(lfq0$data_long(), lfq0$hierarchy_keys(),
+  lfq0$relevant_hierarchy_keys())
 xd1$nr_child_exp |> table()
 #> 
 #>  1  2  3  4  5  6  7  8  9 10 11 12 
 #> 22 26 16 10  9  3  5  4  1  1  1  2 
 
 lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
-lfqdata$data$protein_Id <- add_RevCon(lfqdata$data$protein_Id)
-pids <- grep("^zz|^REV", unique(lfqdata$data$protein_Id), value = TRUE, invert = TRUE)
+tmp <- lfqdata$data_long()
+tmp$protein_Id <- add_RevCon(tmp$protein_Id)
+lfqdata$set_data(tmp)
+pids <- grep("^zz|^REV", unique(lfqdata$data_long()$protein_Id), value = TRUE, invert = TRUE)
 addannot <- data.frame(
   protein_Id = pids,
   description = stringi::stri_rand_strings(length(pids), 13)
@@ -256,8 +261,10 @@ addannot <- data.frame(
 addannot <- addannot |> tidyr::separate(protein_Id, c("cleanID", NA), remove = FALSE)
 # ProteinAnnotation$debug("initialize")
 # debug(nr_obs_sample)
-xd4 <- prolfqua::nr_obs_sample(lfqdata$data, lfqdata$config)
-xd3 <- prolfqua::nr_obs_experiment(lfqdata$data, lfqdata$config, from_children = FALSE)
+xd4 <- prolfqua::nr_obs_sample(lfqdata$data_long(), lfqdata$response(),
+  lfqdata$relevant_hierarchy_keys(), lfqdata$file_name(), lfqdata$nr_children_col())
+xd3 <- prolfqua::nr_features_experiment(lfqdata$data_long(), lfqdata$hierarchy_keys(),
+  lfqdata$relevant_hierarchy_keys())
 
 pannot <- ProteinAnnotation$new(lfqdata,
   addannot,
@@ -266,7 +273,7 @@ pannot <- ProteinAnnotation$new(lfqdata,
   pattern_contaminants = "^zz",
   pattern_decoys = "^REV"
 )
-#> Warning: no exp_nr_children column specified, computing using nr_obs_experiment function
+#> Warning: no exp_nr_children column specified, computing using nr_children_experiment
 stopifnot(pannot$annotate_decoys() == 10)
 stopifnot(pannot$annotate_contaminants() == 5)
 dd <- pannot$clean()

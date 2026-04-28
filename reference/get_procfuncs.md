@@ -230,6 +230,17 @@ get_procfuncs()
 #> [1] "list(annotated = TRUE)"
 #> 
 #> 
+#> $prolfquapp.SIM
+#> $prolfquapp.SIM$get_files
+#> [1] "prolfquapp::get_SIM_files"
+#> 
+#> $prolfquapp.SIM$preprocess
+#> [1] "prolfquapp::preprocess_SIM"
+#> 
+#> $prolfquapp.SIM$extra_args
+#> [1] "list(hierarchy_depth = 1)"
+#> 
+#> 
 get_procfuncs("prolfqua_preprocess_functions", "prolfqua")
 #> $prolfquapp.DIANN
 #> $prolfquapp.DIANN$get_files
@@ -432,6 +443,17 @@ get_procfuncs("prolfqua_preprocess_functions", "prolfqua")
 #> [1] "list(annotated = TRUE)"
 #> 
 #> 
+#> $prolfquapp.SIM
+#> $prolfquapp.SIM$get_files
+#> [1] "prolfquapp::get_SIM_files"
+#> 
+#> $prolfquapp.SIM$preprocess
+#> [1] "prolfquapp::preprocess_SIM"
+#> 
+#> $prolfquapp.SIM$extra_args
+#> [1] "list(hierarchy_depth = 1)"
+#> 
+#> 
 get_procfuncs("prolfqua_preprocess_functions", "prolfquapp")
 #> $prolfquapp.DIANN
 #> $prolfquapp.DIANN$get_files
@@ -634,6 +656,17 @@ get_procfuncs("prolfqua_preprocess_functions", "prolfquapp")
 #> [1] "list(annotated = TRUE)"
 #> 
 #> 
+#> $prolfquapp.SIM
+#> $prolfquapp.SIM$get_files
+#> [1] "prolfquapp::get_SIM_files"
+#> 
+#> $prolfquapp.SIM$preprocess
+#> [1] "prolfquapp::preprocess_SIM"
+#> 
+#> $prolfquapp.SIM$extra_args
+#> [1] "list(hierarchy_depth = 1)"
+#> 
+#> 
 get_procfuncs("prolfqua_preprocess_functions", "prolfquapp")
 #> $prolfquapp.DIANN
 #> $prolfquapp.DIANN$get_files
@@ -834,6 +867,17 @@ get_procfuncs("prolfqua_preprocess_functions", "prolfquapp")
 #> 
 #> $prolfquapp.MZMINEannot$extra_args
 #> [1] "list(annotated = TRUE)"
+#> 
+#> 
+#> $prolfquapp.SIM
+#> $prolfquapp.SIM$get_files
+#> [1] "prolfquapp::get_SIM_files"
+#> 
+#> $prolfquapp.SIM$preprocess
+#> [1] "prolfquapp::preprocess_SIM"
+#> 
+#> $prolfquapp.SIM$extra_args
+#> [1] "list(hierarchy_depth = 1)"
 #> 
 #> 
 get_procfuncs("prolfqua_preprocess_functions", "xdx")

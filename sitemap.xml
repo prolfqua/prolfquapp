@@ -7,6 +7,7 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/articles/Auxiliary_ExDesignSurvey.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/articles/DiffExpQC_R6.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/articles/Grp2Analysis_V2_R6.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/articles/QC_ProteinAbundances.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/articles/QCandSSE.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/articles/index.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/articles/prolfquapp.html</loc></url>
@@ -29,7 +30,6 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/add_RevCon.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/add_contrasts_vec.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/aggregate_data.html</loc></url>
-<url><loc>https://prolfqua.github.io/prolfquapp/reference/anndata_from_LFQData.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/anndata_to_long.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/bfabric_url_builder.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/build_prolfquapp_uns.html</loc></url>
@@ -37,8 +37,6 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/capture_output.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/column_to_rownames.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/compute_IBAQ_values.html</loc></url>
-<url><loc>https://prolfqua.github.io/prolfquapp/reference/copy_DEA_Files.html</loc></url>
-<url><loc>https://prolfqua.github.io/prolfquapp/reference/copy_DEA_Metabolomics_Files.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/copy_DEA_R6_Files.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/copy_docker_script.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/copy_shell_script.html</loc></url>
@@ -52,6 +50,7 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/diann_output_to_peptide.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/diann_read_output.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/example_deanalyse.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/example_qc_generator.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/exp2.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/extract_GN.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/extract_contrasts.html</loc></url>
@@ -63,6 +62,7 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/get_FP_multiSite_files.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/get_MQ_peptide_files.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/get_MSstats_files.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/get_SIM_files.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/get_annot_from_fasta.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/get_config.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/get_dummy_files.html</loc></url>
@@ -71,7 +71,6 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/index.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/list_to_R6_app_config.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/make_DEA_config_R6.html</loc></url>
-<url><loc>https://prolfqua.github.io/prolfquapp/reference/make_SummarizedExperiment.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/make_annotated_experiment.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/make_feature_annotation.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/massage_CD.html</loc></url>
@@ -86,6 +85,7 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/preprocess_MQ_peptide.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/preprocess_MSstats.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/preprocess_MSstats_FPDIA.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/preprocess_SIM.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/preprocess_anndata_from_lfq.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/preprocess_dummy.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/preprocess_mzMine.html</loc></url>
@@ -96,6 +96,11 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/read_annotation.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/read_msstats.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/read_table_data.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/run_contrasts_single.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/run_contrasts_twofactor.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/run_dea.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/run_make_yaml.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/run_qc_preprocess.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/set_lib_path.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/set_list_to_R6.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/sim_data_protAnnot.html</loc></url>

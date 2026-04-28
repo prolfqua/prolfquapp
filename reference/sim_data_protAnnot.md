@@ -22,15 +22,15 @@ sim_data_protAnnot(Nprot = 100, PROTEIN = FALSE)
 
 ``` r
 res <- sim_data_protAnnot()
-#> creating sampleName from fileName column
+#> creating sampleName from file_name column
 #> completing cases
 #> completing cases done
 #> setup done
-#> Warning: no exp_nr_children column specified, computing using nr_obs_experiment function
+#> Warning: no exp_nr_children column specified, computing using nr_children_experiment
 res <- sim_data_protAnnot(PROTEIN = TRUE)
-#> creating sampleName from fileName column
+#> creating sampleName from file_name column
 #> completing cases
 #> completing cases done
 #> setup done
-#> Warning: no exp_nr_children column specified, computing using nr_obs_experiment function
+#> Warning: no exp_nr_children column specified, computing using nr_children_experiment
 ```

@@ -61,8 +61,9 @@ Other ProlfquAppConfig:
 
 - `model`:
 
-  name of the model to use "prolfqua", "SE", "ROPECA", default
-  "prolfqua"
+  facade registry key for contrast analysis. Valid keys: lm, lm_missing,
+  lm_impute, limma, limma_impute, rlm, deqms, firth, lmer, ropeca.
+  Default "lm_missing".
 
 - `other`:
 

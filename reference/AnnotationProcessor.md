@@ -216,7 +216,7 @@ aa <- ap$read_annotation(annot)
 #> Registered S3 method overwritten by 'prolfqua':
 #>   method         from    
 #>   print.pheatmap pheatmap
-#> INFO [2026-03-23 19:47:59] levels: c("a", "b") c("C", "T")
+#> INFO [2026-04-28 19:51:17] levels: c("a", "b") c("C", "T")
 #> b a 
 stopifnot(length(aa$atable$factor_keys_depth()) == 2)
 stopifnot(all(c("atable", "annot", "contrasts") %in% names(aa)))
@@ -245,15 +245,15 @@ stopifnot(aa$atable$factor_keys() == "G_")
 stopifnot(aa$atable$factors == "group")
 aa <- ap$read_annotation(annot)
 #> Warning: column starting with :^name is missing.
-aa$atable$fileName
+aa$atable$file_name
 #> [1] "file"
-aa$atable$sampleName
+aa$atable$sample_name
 #> [1] "sampleName"
 as <- annot
 as$sample <- c("s1","s2","s3","s4")
 aa <- ap$read_annotation(annot)
 #> Warning: column starting with :^name is missing.
-aa$atable$sampleName
+aa$atable$sample_name
 #> [1] "sampleName"
 stopifnot(is.null(aa$annotation))
 

@@ -290,7 +290,7 @@ list with dea_file, qc_file, data_files paths
 
 ------------------------------------------------------------------------
 
-### Method [`make_SummarizedExperiment()`](https://prolfqua.github.io/prolfquapp/reference/make_SummarizedExperiment.md)
+### Method `make_SummarizedExperiment()`
 
 Create SummarizedExperiment object from analysis results
 

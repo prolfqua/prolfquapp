@@ -53,16 +53,16 @@ if (requireNamespace("anndataR", quietly = TRUE)) {
   back <- LFQData_from_anndata(adata2)
   back$lfqdata$hierarchy_counts()
 }
-#> creating sampleName from fileName column
+#> creating sampleName from file_name column
 #> completing cases
 #> completing cases done
 #> setup done
-#> Warning: no exp_nr_children column specified, computing using nr_obs_experiment function
-#> creating sampleName from fileName column
+#> Warning: no exp_nr_children column specified, computing using nr_children_experiment
+#> creating sampleName from file_name column
 #> completing cases
 #> completing cases done
 #> setup done
-#> Warning: no exp_nr_children column specified, computing using nr_obs_experiment function
+#> Warning: no exp_nr_children column specified, computing using nr_children_experiment
 #> # A tibble: 1 × 3
 #>   isotopeLabel protein_Id peptide_Id
 #>   <chr>             <int>      <int>

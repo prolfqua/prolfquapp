@@ -64,41 +64,33 @@ ggplot2
 
 ``` r
 library(prolfqua)
-istar <- prolfqua::prolfqua_data('data_ionstar')
-istar$config <- prolfqua::old2new(istar$config)
+istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
+#> Column added : nr_peptide_Id_IN_protein_Id
 data <- istar$data |> dplyr::filter(protein_Id %in% sample(protein_Id, 100))
 lfqdata <- prolfqua::LFQData$new(data, istar$config)
 sr <- lfqdata$get_Summariser()
 undebug(plot_abundance_vs_percent)
 #> Warning: argument is not being debugged
 plot_abundance_vs_percent(sr$percentage_abundance(),
- lfqdata$config,
+ lfqdata$get_config(),
  top_N = 6, factors = FALSE, logY = TRUE)
-#> completing cases
-#> completing cases
 
 
 pd <- plot_abundance_vs_percent(
   sr$percentage_abundance(),
-  lfqdata$config, top_N = NULL, factors = FALSE)
-#> completing cases
-#> completing cases
+  lfqdata$get_config(), top_N = NULL, factors = FALSE)
 #> creating shared data with key :  ~ protein_Id
 plot_abundance_vs_percent(
   sr$percentage_abundance(),
-  lfqdata$config, top_N = 4, factors = TRUE)
-#> completing cases
-#> completing cases
-#> Warning: Removed 215 rows containing missing values or values outside the scale range
+  lfqdata$get_config(), top_N = 4, factors = TRUE)
+#> Warning: Removed 208 rows containing missing values or values outside the scale range
 #> (`geom_point()`).
 
 plot_abundance_vs_percent(
   sr$percentage_abundance(),
-  lfqdata$config, top_N = NULL, factors = TRUE)
-#> completing cases
-#> completing cases
+  lfqdata$get_config(), top_N = NULL, factors = TRUE)
 #> creating shared data with key :  ~ protein_Id
-#> Warning: Removed 215 rows containing missing values or values outside the scale range
+#> Warning: Removed 208 rows containing missing values or values outside the scale range
 #> (`geom_point()`).
 
 

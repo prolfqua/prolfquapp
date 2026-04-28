@@ -192,10 +192,6 @@ to detect a log fold change greater than delta with a significance level
 of $0.05$ and power 0.8 when using a t-test to compare means, in $X\%$
 of proteins (x - axis).
 
-![](QCandSSE_files/figure-html/figSampleSize-1.png)
-
-(ref:figSampleSize)
-
 | probs | sdtrimmed | dilution. | delta = 0.59 | delta = 1 | delta = 2 |
 |------:|----------:|:----------|-------------:|----------:|----------:|
 |  0.50 | 0.1970862 | e         |            4 |         3 |         2 |

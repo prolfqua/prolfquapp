@@ -33,7 +33,6 @@ ProlfquAppConfig R6 object
 get_config()
 #> <ProlfquAppConfig>
 #>   Public:
-#>     RES: list
 #>     as_list: function () 
 #>     clone: function (deep = FALSE) 
 #>     ext_reader: ExternalReader, R6
@@ -43,11 +42,10 @@ get_config()
 #>     group: G_
 #>     initialize: function (processing_options, project_spec, ext_reader, zipdir_name = ".", 
 #>     path: .
-#>     pop: list
 #>     prefix: DEA
 #>     processing_options: ProcessingOptions, R6
 #>     project_spec: ProjectSpec, R6
 #>     set_zipdir_name: function () 
 #>     software: DIANN
-#>     zipdir_name: DEA_20260323_PI123_O123_WUHelloWorld_none
+#>     zipdir_name: DEA_20260428_PI123_O123_WUHelloWorld_none
 ```

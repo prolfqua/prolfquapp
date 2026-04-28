@@ -182,7 +182,7 @@ Build a DEAnalyse object with the correct data for the chosen facade
 
 #### Usage
 
-    ProteinDataPrep$build_deanalyse(contrasts, default_model = "lm_missing")
+    ProteinDataPrep$build_deanalyse(contrasts, default_model = NULL)
 
 #### Arguments
 
@@ -192,7 +192,7 @@ Build a DEAnalyse object with the correct data for the chosen facade
 
 - `default_model`:
 
-  facade registry key (default "lm_missing")
+  facade registry key, or NULL to read from config
 
 #### Returns
 
@@ -218,15 +218,15 @@ The objects of this class are cloneable with this method.
 
 ``` r
 pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
-#> creating sampleName from fileName column
+#> creating sampleName from file_name column
 #> completing cases
 #> completing cases done
 #> setup done
 pep <- prolfqua::LFQData$new(pep$data, pep$config)
-pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
+pA <- data.frame(protein_Id = unique(pep$data_long()$protein_Id))
 pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))
 pA <- prolfquapp::ProteinAnnotation$new(pep, row_annot = pA, description = "fasta.annot")
-#> Warning: no exp_nr_children column specified, computing using nr_obs_experiment function
+#> Warning: no exp_nr_children column specified, computing using nr_children_experiment
 GRP2 <- prolfquapp::make_DEA_config_R6()
 GRP2$processing_options$transform <- "robscale"
 
@@ -238,17 +238,17 @@ data_prep$cont_decoy_summary()
 #> 1                  100
 data_prep$remove_cont_decoy()
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-03-23 19:48:08] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#> INFO [2026-04-28 19:51:25] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
 data_prep$aggregate()
-#> INFO [2026-03-23 19:48:08] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-04-28 19:51:25] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> Column added : exp_medpolish
-#> INFO [2026-03-23 19:48:09] END OF PROTEIN AGGREGATION
+#> INFO [2026-04-28 19:51:27] END OF PROTEIN AGGREGATION
 data_prep$transform_data()
-#> INFO [2026-03-23 19:48:09] Transforming using robscale.
+#> INFO [2026-04-28 19:51:27] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(protein_Id, sampleName, isotopeLabel)`
-#> INFO [2026-03-23 19:48:09] Transforming data : robscale.
+#> INFO [2026-04-28 19:51:27] Transforming data : robscale.
 ```
