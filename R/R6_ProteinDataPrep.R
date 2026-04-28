@@ -205,6 +205,10 @@ ProteinDataPrep <- R6::R6Class(
       if (is.null(default_model)) {
         default_model <- self$prolfq_app_config$processing_options$model
       }
+      default_model <- .resolve_facade_model(
+        default_model,
+        self$prolfq_app_config$processing_options$model_missing
+      )
       entry <- prolfqua::FACADE_REGISTRY[[default_model]]
       if (is.null(entry)) stop("Unknown facade: ", default_model)
 

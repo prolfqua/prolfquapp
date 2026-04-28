@@ -79,6 +79,10 @@ DEAnalyse <- R6::R6Class(
     initialize = function(lfq_data, rowAnnot, prolfq_app_config,
                           contrasts, default_model = "lm_missing",
                           lfq_data_raw = NULL, summary = NULL) {
+      default_model <- .resolve_facade_model(
+        default_model,
+        prolfq_app_config$processing_options$model_missing
+      )
       stopifnot(default_model %in% names(prolfqua::FACADE_REGISTRY))
       stopifnot(length(contrasts) >= 1)
       self$lfq_data <- lfq_data
