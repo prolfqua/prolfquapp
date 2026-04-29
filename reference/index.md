@@ -89,6 +89,10 @@
   : get best feature annotation.
 - [`get_BGS_files()`](https://prolfqua.github.io/prolfquapp/reference/get_BGS_files.md)
   : get BGS and fasta file location in folder
+- [`get_CD_export_files()`](https://prolfqua.github.io/prolfquapp/reference/get_CD_export_files.md)
+  : Locate files inside a CompoundDiscoverer prolfqua ZIP export
+- [`get_CD_subset_columns()`](https://prolfqua.github.io/prolfquapp/reference/get_CD_subset_columns.md)
+  : Detect subset columns in a CompoundDiscoverer long export
 - [`get_DIANN_files()`](https://prolfqua.github.io/prolfquapp/reference/get_DIANN_files.md)
   : get report.tsv and fasta file location in folder
 - [`get_FP_PSM_files()`](https://prolfqua.github.io/prolfquapp/reference/get_FP_PSM_files.md)
@@ -113,6 +117,8 @@
   : Get all processing functions from all packages
 - [`list_to_R6_app_config()`](https://prolfqua.github.io/prolfquapp/reference/list_to_R6_app_config.md)
   : read minimal yaml and convert to R6 object
+- [`make_CD_duplicate_features_unique()`](https://prolfqua.github.io/prolfquapp/reference/make_CD_duplicate_features_unique.md)
+  : Make duplicated CompoundDiscoverer feature/sample rows unique
 - [`make_DEA_config_R6()`](https://prolfqua.github.io/prolfquapp/reference/make_DEA_config_R6.md)
   : create GRP2 configuration for differential expression analysis Use
   this function if there is no Yaml Input.
@@ -132,6 +138,8 @@
   : preprocess DIANN ouput, filter by q_value and nr_peptides
 - [`preprocess_CD()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_CD.md)
   : load compound discoverer (CD) files
+- [`preprocess_CD_export()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_CD_export.md)
+  : Preprocess a CompoundDiscoverer prolfqua ZIP export
 - [`preprocess_DIANN()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_DIANN.md)
   : preprocess DIANN ouput, filter by q_value and nr_peptides
 - [`preprocess_DIANN_anndata()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_DIANN_anndata.md)
@@ -174,10 +182,15 @@
   : Generate contrasts for a two-factor design
 - [`run_dea()`](https://prolfqua.github.io/prolfquapp/reference/run_dea.md)
   : Run differential expression analysis pipeline
+- [`run_dea_cd()`](https://prolfqua.github.io/prolfquapp/reference/run_dea_cd.md)
+  : Run differential expression analysis for CompoundDiscoverer ZIP
+  exports
 - [`run_make_yaml()`](https://prolfqua.github.io/prolfquapp/reference/run_make_yaml.md)
   : Generate a DEA configuration list
 - [`run_qc_preprocess()`](https://prolfqua.github.io/prolfquapp/reference/run_qc_preprocess.md)
   : Preprocess quantification data for QC reporting
+- [`sanitize_CD_subset_name()`](https://prolfqua.github.io/prolfquapp/reference/sanitize_CD_subset_name.md)
+  : Sanitize a CompoundDiscoverer subset name for file paths
 - [`set_lib_path()`](https://prolfqua.github.io/prolfquapp/reference/set_lib_path.md)
   : set library path with logging
 - [`set_list_to_R6()`](https://prolfqua.github.io/prolfquapp/reference/set_list_to_R6.md)

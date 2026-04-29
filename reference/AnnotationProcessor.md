@@ -216,7 +216,7 @@ aa <- ap$read_annotation(annot)
 #> Registered S3 method overwritten by 'prolfqua':
 #>   method         from    
 #>   print.pheatmap pheatmap
-#> INFO [2026-04-29 14:54:33] levels: c("a", "b") c("C", "T")
+#> INFO [2026-04-29 20:37:39] levels: c("a", "b") c("C", "T")
 #> b a 
 stopifnot(length(aa$atable$factor_keys_depth()) == 2)
 stopifnot(all(c("atable", "annot", "contrasts") %in% names(aa)))
