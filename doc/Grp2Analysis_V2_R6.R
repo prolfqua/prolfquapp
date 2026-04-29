@@ -9,6 +9,17 @@ knitr::opts_chunk$set(
 )
 dea <- eval(params$deanalyse)
 cfg <- dea$prolfq_app_config
+empty_report_plot <- function(label) {
+  ggplot2::ggplot() +
+    ggplot2::annotate("text", x = 0, y = 0, label = label) +
+    ggplot2::theme_void()
+}
+plot_or_empty <- function(plot, label) {
+  if (is.null(plot)) {
+    return(empty_report_plot(label))
+  }
+  plot
+}
 
 
 ## ----samples, eval=TRUE-------------------------------------------------------
@@ -46,7 +57,14 @@ sum$plot_hierarchy_counts_sample(nr_children = 1)
 
 ## ----nrPerSample2, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7----
 sum <- dea$lfq_data_raw$get_Summariser()
-sum$plot_hierarchy_counts_sample(nr_children = 2)
+p_nr_per_sample_2 <- tryCatch(
+  sum$plot_hierarchy_counts_sample(nr_children = 2),
+  error = function(e) NULL
+)
+plot_or_empty(
+  p_nr_per_sample_2,
+  "No features with two or more children are available for this data set."
+)
 
 
 ## ----countProtWithNAs---------------------------------------------------------
@@ -59,12 +77,18 @@ allNas <- nrow(res)
 
 ## ----prepHeatmap--------------------------------------------------------------
 pl <- dea$lfq_data_raw$get_Plotter()
-nah <- pl$na_heatmap()
+nah <- tryCatch(
+  pl$na_heatmap(),
+  error = function(e) NULL
+)
 
 
 
 ## ----naHeat, fig.width=7, fig.height=6, dpi=300, fig.cap="(ref:naHeat)", fig.alt="", eval=TRUE----
-nah
+plot_or_empty(
+  nah,
+  "No missing values are available for the missing-value heatmap."
+)
 
 ## ----vennProteins, fig.cap="(ref:vennProteins)",fig.alt=""--------------------
 pups <- prolfqua::upset_interaction_missing_stats(dea$lfq_data_raw, tr = 1)
@@ -183,8 +207,20 @@ DT::datatable(bb, filter = "bottom",
 
 ## ----volcanoplot, fig.cap = "(ref:volcanoplot)",fig.alt="", fig.width=9, fig.height=7, include = TRUE, eval = TRUE----
 
-palette <- c("black","orange")
-palette <- setNames(palette, c("Linear_Model_moderated", "Imputed_Mean_moderated"))
+default_palette <- c(
+  Linear_Model_moderated = "black",
+  Imputed_Mean_moderated = "orange",
+  WaldTest_moderated = "black"
+)
+model_levels <- sort(unique(as.character(stats::na.omit(datax$modelName))))
+palette <- default_palette[model_levels]
+missing_palette <- is.na(palette)
+if (any(missing_palette)) {
+  palette[missing_palette] <- grDevices::hcl.colors(
+    sum(missing_palette),
+    palette = "Dark 3"
+  )
+}
 xd <- prolfqua::volcano_plotly(
   datax ,
   proteinID = "ID",
@@ -281,4 +317,3 @@ if (length(xx) > 1) {
 
 ## ----sessionInfo--------------------------------------------------------------
 pander::pander(sessionInfo())
-

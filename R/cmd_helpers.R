@@ -264,3 +264,63 @@ run_dea <- function(indir, dataset, software, config) {
     files = procsoft$files
   )
 }
+
+#' Run differential expression analysis for CompoundDiscoverer ZIP exports
+#'
+#' Reads the embedded prolfqua sample annotation and long feature table from a
+#' CompoundDiscoverer ZIP export, then runs the same DEA preparation and model
+#' pipeline as \code{\link{run_dea}}.
+#'
+#' @param input ZIP file path or directory containing one ZIP export
+#' @param config a \code{\link{ProlfquAppConfig}} object
+#' @param files optional file list from \code{\link{get_CD_export_files}}
+#' @param subset_column optional long-table subset column to filter features
+#' @return list with \code{deanalyse}, \code{xd}, \code{annotation}, and
+#'   \code{files}
+#' @export
+run_dea_cd <- function(input = NULL, config, files = NULL, subset_column = NULL) {
+  if (is.null(files)) {
+    if (is.null(input)) {
+      stop("Either input or files must be supplied.", call. = FALSE)
+    }
+    files <- prolfquapp::get_CD_export_files(input)
+  }
+
+  cd <- prolfquapp::preprocess_CD_export(
+    long_file = files$data,
+    sample_file = files$samples,
+    config = config,
+    subset_column = subset_column
+  )
+  xd <- list(
+    lfqdata = cd$lfqdata,
+    protein_annotation = cd$protein_annotation
+  )
+  annotation <- cd$annotation
+
+  data_prep <- prolfquapp::ProteinDataPrep$new(
+    xd$lfqdata, xd$protein_annotation, config
+  )
+  data_prep$cont_decoy_summary()
+  data_prep$remove_cont_decoy()
+  if (
+    length(xd$lfqdata$hierarchy_keys()) ==
+      xd$lfqdata$get_config()$hierarchy_depth
+  ) {
+    data_prep$lfq_data <- data_prep$lfq_data_peptide
+  } else {
+    data_prep$aggregate()
+  }
+  data_prep$transform_data()
+
+  deanalyse <- data_prep$build_deanalyse(annotation$contrasts)
+  deanalyse$build_default()
+  deanalyse$get_annotated_contrasts()
+
+  list(
+    deanalyse = deanalyse,
+    xd = xd,
+    annotation = annotation,
+    files = files
+  )
+}

@@ -22,6 +22,7 @@ copy_docker_script <- function(workdir = getwd()) {
 copy_shell_script <- function(workdir = getwd()) {
   runscripts <- c(
     "application/bin/prolfqua_dea",
+    "application/bin/prolfqua_dea_cd",
     "application/bin/prolfqua_yaml",
     "application/bin/prolfqua_qc",
     "application/bin/prolfqua_dataset",
@@ -51,10 +52,30 @@ copy_DEA_R6_Files <- function(workdir = getwd()) {
   for (file in files) {
     src <- system.file("doc", file, package = "prolfquapp", mustWork = FALSE)
     if (!nzchar(src) || !file.exists(src)) {
+      search_roots <- normalizePath(
+        c(
+          getwd(),
+          file.path(getwd(), ".."),
+          file.path(getwd(), "..", ".."),
+          file.path(getwd(), "..", "..", "..")
+        ),
+        mustWork = FALSE
+      )
+      fallback <- c(
+        file.path(search_roots, "doc", file),
+        file.path(search_roots, "vignettes", file)
+      )
+      fallback <- fallback[file.exists(fallback)]
+      if (length(fallback) > 0) {
+        src <- fallback[[1]]
+      }
+    }
+    if (!nzchar(src) || !file.exists(src)) {
       stop(
         "DEA report template not found in installed prolfquapp package: doc/",
         file,
-        "\nReinstall prolfquapp with vignettes so installed package doc/ files are available.",
+        "\nReinstall prolfquapp with vignettes so installed package doc/ files are available,",
+        " or run the command from the package source root so doc/ or vignettes/ can be used.",
         call. = FALSE
       )
     }
@@ -73,4 +94,3 @@ copy_DEA_R6_Files <- function(workdir = getwd()) {
   }
   invisible(copied)
 }
-

@@ -46,10 +46,13 @@ strip_rownames <- function(.data, strip = "~lfq~light$") {
 #' bfabric_url_builder(ps)
 #'
 bfabric_url_builder <- function(project_spec) {
+  as_bfabric_id <- function(x) {
+    suppressWarnings(as.numeric(x))
+  }
   orderURL <- NULL
   workunitURL <- NULL
   projectURL <- NULL
-  orderID <- as.numeric(project_spec$order_Id)
+  orderID <- as_bfabric_id(project_spec$order_Id)
   if ((length(orderID) > 0) && !is.na(orderID)) {
     orderURL <- paste0(
       "https://fgcz-bfabric.uzh.ch/bfabric/order/show.html?id=",
@@ -57,19 +60,19 @@ bfabric_url_builder <- function(project_spec) {
       "&tab=details"
     )
   }
-  workunitID <- as.numeric(project_spec$workunit_Id)
+  workunitID <- as_bfabric_id(project_spec$workunit_Id)
   if ((length(workunitID) > 0) && !is.na(workunitID)) {
     workunitURL <- paste0(
       "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=",
-      orderID,
+      workunitID,
       "&tab=details"
     )
   }
-  projectID <- as.numeric(project_spec$project_Id)
+  projectID <- as_bfabric_id(project_spec$project_Id)
   if ((length(projectID) > 0) && !is.na(projectID)) {
     projectURL <- paste0(
       "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=",
-      orderID,
+      projectID,
       "&tab=details"
     )
   }

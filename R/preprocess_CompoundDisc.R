@@ -157,3 +157,290 @@ preprocess_CD <- function(
   )
   return(list(lfqdata = lfqdata, protein_annotation = prot_annot))
 }
+
+#' Locate files inside a CompoundDiscoverer prolfqua ZIP export
+#' @param input ZIP file path or directory containing one ZIP export
+#' @return list with zip, data, samples, and tempdir entries
+#' @export
+get_CD_export_files <- function(input) {
+  if (!file.exists(input)) {
+    stop("CompoundDiscoverer input not found: ", input, call. = FALSE)
+  }
+
+  zipfile <- input
+  if (dir.exists(input)) {
+    zips <- list.files(
+      input,
+      pattern = "[.]zip$",
+      full.names = TRUE,
+      ignore.case = TRUE
+    )
+    if (length(zips) != 1) {
+      stop(
+        "Expected exactly one CompoundDiscoverer ZIP in directory '",
+        input,
+        "', found ",
+        length(zips),
+        ".",
+        call. = FALSE
+      )
+    }
+    zipfile <- zips[[1]]
+  }
+
+  tempdir_export <- tempfile("compound_discoverer_")
+  dir.create(tempdir_export, recursive = TRUE)
+  utils::unzip(zipfile, exdir = tempdir_export)
+
+  long_file <- list.files(
+    tempdir_export,
+    pattern = "_long[.]csv$",
+    full.names = TRUE,
+    recursive = TRUE
+  )
+  sample_file <- list.files(
+    tempdir_export,
+    pattern = "_prolfqua_samples[.]csv$",
+    full.names = TRUE,
+    recursive = TRUE
+  )
+
+  if (length(long_file) != 1 || length(sample_file) != 1) {
+    unlink(tempdir_export, recursive = TRUE)
+    stop(
+      "CompoundDiscoverer ZIP must contain exactly one *_long.csv and one ",
+      "*_prolfqua_samples.csv. Found long=",
+      length(long_file),
+      ", samples=",
+      length(sample_file),
+      ".",
+      call. = FALSE
+    )
+  }
+
+  list(
+    zip = zipfile,
+    data = long_file[[1]],
+    samples = sample_file[[1]],
+    tempdir = tempdir_export
+  )
+}
+
+#' Sanitize a CompoundDiscoverer subset name for file paths
+#' @param x subset name
+#' @return filesystem-safe subset name
+#' @export
+sanitize_CD_subset_name <- function(x) {
+  x <- gsub("[^A-Za-z0-9_.-]+", "_", x)
+  x <- gsub("^_+|_+$", "", x)
+  ifelse(nchar(x) == 0, "subset", x)
+}
+
+#' Detect subset columns in a CompoundDiscoverer long export
+#' @param long_file path to *_long.csv
+#' @return character vector of columns after Group
+#' @export
+get_CD_subset_columns <- function(long_file) {
+  header <- readr::read_csv(long_file, n_max = 0, show_col_types = FALSE)
+  columns <- colnames(header)
+  group_pos <- match("Group", columns)
+  if (is.na(group_pos) || group_pos >= length(columns)) {
+    return(character())
+  }
+  columns[(group_pos + 1):length(columns)]
+}
+
+.is_cd_subset_selected <- function(x) {
+  x <- trimws(as.character(x))
+  !is.na(x) &
+    x != "" &
+    !tolower(x) %in% c("false", "f", "no", "n", "0", "na", "nan")
+}
+
+#' Make duplicated CompoundDiscoverer feature/sample rows unique
+#' @param data long CompoundDiscoverer data frame
+#' @param feature_col feature identifier column
+#' @param sample_col sample identifier column
+#' @return data frame with unique feature identifiers for affected rows
+#' @export
+make_CD_duplicate_features_unique <- function(
+  data,
+  feature_col = "Feature_ID",
+  sample_col = "Sample"
+) {
+  stopifnot(feature_col %in% colnames(data))
+  stopifnot(sample_col %in% colnames(data))
+
+  data$.cd_row_order <- seq_len(nrow(data))
+  duplicate_features <- data |>
+    dplyr::count(
+      dplyr::across(dplyr::all_of(c(feature_col, sample_col))),
+      name = ".cd_n"
+    ) |>
+    dplyr::filter(.data$.cd_n > 1) |>
+    dplyr::distinct(dplyr::across(dplyr::all_of(feature_col))) |>
+    dplyr::pull(dplyr::all_of(feature_col))
+
+  if (length(duplicate_features) == 0) {
+    data$.cd_row_order <- NULL
+    return(data)
+  }
+
+  logger::log_info(
+    "Making duplicated CompoundDiscoverer Feature_ID x Sample rows unique for ",
+    length(duplicate_features),
+    " feature(s)."
+  )
+
+  data <- data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(feature_col, sample_col)))) |>
+    dplyr::arrange(.data$.cd_row_order, .by_group = TRUE) |>
+    dplyr::mutate(.cd_duplicate_rank = dplyr::row_number()) |>
+    dplyr::ungroup() |>
+    dplyr::arrange(.data$.cd_row_order)
+
+  original_col <- paste0(feature_col, "_original")
+  data[[original_col]] <- data[[feature_col]]
+  is_duplicated_feature <- data[[feature_col]] %in% duplicate_features
+  data[[feature_col]][is_duplicated_feature] <- paste0(
+    data[[feature_col]][is_duplicated_feature],
+    " [duplicate ",
+    data$.cd_duplicate_rank[is_duplicated_feature],
+    "]"
+  )
+
+  data$.cd_row_order <- NULL
+  data
+}
+
+#' Preprocess a CompoundDiscoverer prolfqua ZIP export
+#' @param long_file path to *_long.csv
+#' @param sample_file path to *_prolfqua_samples.csv
+#' @param config ProlfquAppConfig object
+#' @param subset_column optional column in long_file marking features to keep
+#' @return list with lfqdata, protein_annotation, and annotation
+#' @export
+preprocess_CD_export <- function(long_file, sample_file, config, subset_column = NULL) {
+  samples <- prolfquapp::read_table_data(sample_file)
+  if (!"Sample" %in% colnames(samples)) {
+    stop("CD sample file must contain a Sample column.", call. = FALSE)
+  }
+  samples <- dplyr::rename(samples, file = "Sample")
+  annotation <- prolfquapp::read_annotation(samples, prefix = config$group)
+
+  xdl <- readr::read_csv(long_file, show_col_types = FALSE)
+  required <- c("Feature_ID", "Sample", "Intensity")
+  missing <- setdiff(required, colnames(xdl))
+  if (length(missing) > 0) {
+    stop(
+      "CD long file is missing required column(s): ",
+      paste(missing, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  if (!is.null(subset_column) && nchar(subset_column) > 0) {
+    if (!subset_column %in% colnames(xdl)) {
+      stop("CD subset column not found: ", subset_column, call. = FALSE)
+    }
+    before <- nrow(xdl)
+    xdl <- xdl[.is_cd_subset_selected(xdl[[subset_column]]), , drop = FALSE]
+    logger::log_info(
+      "CD subset '",
+      subset_column,
+      "': keeping ",
+      nrow(xdl),
+      " of ",
+      before,
+      " long-format rows."
+    )
+    if (nrow(xdl) == 0) {
+      stop("CD subset column has no selected rows: ", subset_column, call. = FALSE)
+    }
+  }
+
+  xdl <- prolfquapp::make_CD_duplicate_features_unique(xdl)
+  xdl <- dplyr::rename(xdl, metabolite_feature_Id = "Feature_ID")
+
+  feature_source <- if ("Feature_ID_original" %in% colnames(xdl)) {
+    xdl$Feature_ID_original
+  } else {
+    xdl$metabolite_feature_Id
+  }
+  parsed_mz_rt <- stringr::str_match(
+    feature_source,
+    "_mz([0-9.]+)_rt([0-9.]+)"
+  )
+  if (!"mz" %in% colnames(xdl)) {
+    xdl$mz <- as.numeric(parsed_mz_rt[, 2])
+  }
+  if (!"RT_min" %in% colnames(xdl)) {
+    xdl$RT_min <- as.numeric(parsed_mz_rt[, 3])
+  }
+
+  analysis_config <- annotation$atable$clone(deep = TRUE)
+  analysis_config$hierarchy[["metabolite_feature_Id"]] <- "metabolite_feature_Id"
+  analysis_config$set_response("Intensity")
+  analysis_config$hierarchy_depth <- 1
+  analysis_config$opt_rt <- "RT_min"
+  analysis_config$opt_mz <- "mz"
+
+  byv <- "Sample"
+  names(byv) <- analysis_config$file_name
+  byv <- c(byv, intersect(colnames(annotation$annot), colnames(xdl)))
+
+  feature_data <- dplyr::inner_join(
+    annotation$annot,
+    xdl,
+    by = byv,
+    multiple = "all"
+  )
+  if (nrow(feature_data) == 0) {
+    stop("No CD feature rows matched the sample annotation.", call. = FALSE)
+  }
+  if (!"isotopeLabel" %in% colnames(feature_data)) {
+    feature_data$isotopeLabel <- "light"
+  }
+  if (!"qValue" %in% colnames(feature_data)) {
+    feature_data$qValue <- 0
+  }
+  if (!"nr_children" %in% colnames(feature_data)) {
+    feature_data$nr_children <- 1
+  }
+
+  adata <- prolfqua::setup_analysis(feature_data, analysis_config)
+  lfqdata <- prolfqua::LFQData$new(adata, analysis_config)
+  lfqdata$remove_small_intensities()
+
+  m_annot <- xdl |>
+    dplyr::select(
+      "metabolite_feature_Id",
+      dplyr::any_of(c("Feature_ID_original", ".cd_duplicate_rank"))
+    ) |>
+    dplyr::distinct() |>
+    dplyr::mutate(
+      description = .data$metabolite_feature_Id,
+      IDcolumn = .data$metabolite_feature_Id,
+      exp_children = 1,
+      nrPeptides = 1,
+      protein_length = 1,
+      nr_tryptic_peptides = 1
+    )
+
+  prot_annot <- prolfquapp::ProteinAnnotation$new(
+    lfqdata,
+    m_annot,
+    description = "description",
+    cleaned_ids = "IDcolumn",
+    full_id = "metabolite_feature_Id",
+    exp_nr_children = "exp_children",
+    pattern_contaminants = NULL,
+    pattern_decoys = NULL
+  )
+
+  list(
+    lfqdata = lfqdata,
+    protein_annotation = prot_annot,
+    annotation = annotation
+  )
+}
