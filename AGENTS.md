@@ -2,6 +2,10 @@
 
 This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
+## Repository Communication
+
+This is an English-speaking repository. Use English for repository-facing communication, documentation, comments, commit messages, issue/PR text, and agent updates unless the user explicitly requests another language.
+
 ## Overview
 
 Prolfquapp is an R package that provides a command-line interface (CLI) for differential expression analysis (DEA) of proteomics and metabolomics data. It wraps the `prolfqua` R package to streamline analysis workflows in core facilities. The package processes outputs from various quantification software (DIA-NN, MaxQuant, FragPipe, etc.) and generates dynamic HTML reports with quality control plots and statistical results.
