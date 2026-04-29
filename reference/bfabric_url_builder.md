@@ -27,10 +27,10 @@ bfabric_url_builder(ps)
 #> [1] "https://fgcz-bfabric.uzh.ch/bfabric/order/show.html?id=34628&tab=details"
 #> 
 #> $projectURL
-#> [1] "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=34628&tab=details"
+#> [1] "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=32258&tab=details"
 #> 
 #> $workunitURL
-#> [1] "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=34628&tab=details"
+#> [1] "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=302212&tab=details"
 #> 
 
 ps <- ProjectSpec$new()
@@ -44,6 +44,6 @@ bfabric_url_builder(ps)
 #> NULL
 #> 
 #> $workunitURL
-#> [1] "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=34628&tab=details"
+#> [1] "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=302212&tab=details"
 #> 
 ```

@@ -29,18 +29,18 @@ dea <- example_deanalyse(Nprot = 10)
 #> setup done
 #> Warning: no exp_nr_children column specified, computing using nr_children_experiment
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-04-28 19:51:32] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
-#> INFO [2026-04-28 19:51:32] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-04-29 14:54:47] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#> INFO [2026-04-29 14:54:47] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> Column added : exp_medpolish
-#> INFO [2026-04-28 19:51:32] END OF PROTEIN AGGREGATION
-#> INFO [2026-04-28 19:51:32] Transforming using robscale.
+#> INFO [2026-04-29 14:54:48] END OF PROTEIN AGGREGATION
+#> INFO [2026-04-29 14:54:48] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(protein_Id, sampleName, isotopeLabel)`
-#> INFO [2026-04-28 19:51:32] Transforming data : robscale.
-#> INFO [2026-04-28 19:51:32] model formula: normalized_abundance ~ group_
+#> INFO [2026-04-29 14:54:48] Transforming data : robscale.
+#> INFO [2026-04-29 14:54:48] model formula: normalized_abundance ~ group_
 #> determine linear functions:
 #> get_contrasts -> contrasts_linfct
 #> contrasts_linfct
