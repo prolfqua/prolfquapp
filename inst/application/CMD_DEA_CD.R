@@ -42,6 +42,13 @@ option_list <- list(
     metavar = "character"
   ),
   optparse::make_option(
+    c("-n", "--normalization"),
+    type = "character",
+    default = NULL,
+    help = "normalization method override: vsn, robscale, or none. Default without YAML: vsn",
+    metavar = "character"
+  ),
+  optparse::make_option(
     c("--subset-columns"),
     type = "character",
     default = "auto",
@@ -110,6 +117,11 @@ infer_ids <- function(input) {
 }
 
 ids <- infer_ids(opt$input)
+normalization <- if (is.null(opt$normalization)) {
+  NULL
+} else {
+  match.arg(opt$normalization, c("vsn", "robscale", "none"))
+}
 if (!is.null(opt$yaml)) {
   if (!file.exists(opt$yaml)) {
     stop("YAML file not found: ", opt$yaml, call. = FALSE)
@@ -123,7 +135,7 @@ if (!is.null(opt$yaml)) {
     PROJECTID = ids$project,
     ORDERID = ids$order,
     WORKUNITID = ids$workunit,
-    Normalization = "vsn",
+    Normalization = if (is.null(normalization)) "vsn" else normalization,
     application = "CompoundDiscoverer",
     model = "lm_missing"
   )
@@ -137,6 +149,10 @@ if (!is.null(opt$workunit)) {
 }
 if (!is.null(opt$model)) {
   GRP2$processing_options$model <- opt$model
+}
+if (!is.null(normalization) && !identical(GRP2$processing_options$transform, normalization)) {
+  logger::log_info("Setting normalization to: ", normalization)
+  GRP2$processing_options$transform <- normalization
 }
 
 dir.create(opt$outdir, showWarnings = FALSE, recursive = TRUE)

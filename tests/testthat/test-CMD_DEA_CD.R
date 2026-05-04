@@ -146,23 +146,13 @@ test_that("CMD_DEA_CD runs the full output pipeline", {
   dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
   on.exit(unlink(workdir, recursive = TRUE), add = TRUE)
 
-  cfg <- prolfquapp::make_DEA_config_R6(
-    PATH = workdir,
-    WORKUNITID = "CD_TEST",
-    Normalization = "none",
-    application = "CompoundDiscoverer",
-    model = "lm_missing"
-  )
-  cfg_file <- file.path(workdir, "cd_test_config.yaml")
-  yaml::write_yaml(prolfqua::R6_extract_values(cfg), cfg_file)
-
   rscript <- file.path(R.home("bin"), "Rscript")
   status <- system2(
     rscript,
     c(
       script,
       "-i", zipfile,
-      "-y", cfg_file,
+      "-n", "none",
       "-w", "CD_TEST",
       "-o", workdir,
       "--subset-columns", "none"
@@ -179,6 +169,7 @@ test_that("CMD_DEA_CD runs the full output pipeline", {
   result_dirs <- list.dirs(workdir, recursive = FALSE)
   zipdir <- grep("^DEA_", basename(result_dirs), value = TRUE)
   expect_true(length(zipdir) >= 1)
+  expect_true(any(grepl("_none$", zipdir)))
 
   result_dir <- list.dirs(file.path(workdir, zipdir[[1]]), recursive = FALSE)
   result_dir <- grep("Results_WU_CD_TEST$", result_dir, value = TRUE)
