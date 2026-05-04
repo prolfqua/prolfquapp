@@ -38,6 +38,7 @@ Imports:
   readxl,
   rlang,
   seqinr,
+  S4Vectors,
   stringi,
   stringr,
   SummarizedExperiment,

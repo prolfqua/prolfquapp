@@ -130,6 +130,11 @@ write_index_html <- function(file_path_list, result_dir) {
 
   # Helper to make a section
   make_section <- function(title, paths) {
+    paths <- unlist(paths, use.names = TRUE)
+    paths <- paths[!is.na(paths) & nzchar(paths)]
+    if (length(paths) == 0) {
+      return(character())
+    }
     lines <- c(
       sprintf("  <h2>%s</h2>", title),
       "  <ul>"
@@ -204,7 +209,8 @@ write_index_html <- function(file_path_list, result_dir) {
       "Overview files",
       c(
         "<b>DEA Report (read first)</b>" = file_path_list$dea_file,
-        "QC report" = file_path_list$qc_file
+        "QC report" = file_path_list$qc_file,
+        "Quarto DEA report" = file_path_list$quarto_file
       )
     ),
     make_section(

@@ -472,7 +472,9 @@ DEAReportGenerator <- R6::R6Class(
         metadata = list(
           bfabric_urls = .url_builder(self$GRP2$project_spec),
           contrasts = resTables$contrasts,
-          formula = resTables$formula
+          formula = resTables$formula,
+          analysis_configuration_raw = prolfqua::R6_extract_values(dea$lfq_data_raw$get_config()),
+          analysis_configuration_transformed = prolfqua::R6_extract_values(dea$lfq_data$get_config())
         )
       )
 

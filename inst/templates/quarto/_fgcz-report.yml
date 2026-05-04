@@ -31,9 +31,6 @@ format:
     fig-dpi: 300
     fig-align: left
 
-    # Hide title block (title/author/date set in individual qmds if needed)
-    title-block-style: none
-
 # Execution
 execute:
   echo: false

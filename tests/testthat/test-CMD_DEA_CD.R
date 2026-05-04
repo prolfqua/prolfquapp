@@ -146,12 +146,23 @@ test_that("CMD_DEA_CD runs the full output pipeline", {
   dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
   on.exit(unlink(workdir, recursive = TRUE), add = TRUE)
 
+  cfg <- prolfquapp::make_DEA_config_R6(
+    PATH = workdir,
+    WORKUNITID = "CD_TEST",
+    Normalization = "none",
+    application = "CompoundDiscoverer",
+    model = "lm_missing"
+  )
+  cfg_file <- file.path(workdir, "cd_test_config.yaml")
+  yaml::write_yaml(prolfqua::R6_extract_values(cfg), cfg_file)
+
   rscript <- file.path(R.home("bin"), "Rscript")
   status <- system2(
     rscript,
     c(
       script,
       "-i", zipfile,
+      "-y", cfg_file,
       "-w", "CD_TEST",
       "-o", workdir,
       "--subset-columns", "none"
@@ -176,5 +187,11 @@ test_that("CMD_DEA_CD runs the full output pipeline", {
   expect_true(file.exists(file.path(result_dir, "lfqdata_normalized.parquet")))
   expect_true(file.exists(file.path(result_dir, "lfqdata.yaml")))
   expect_true(file.exists(file.path(result_dir, "SummarizedExperiment.rds")))
+  if (nzchar(Sys.which("quarto"))) {
+    quarto_file <- file.path(result_dir, "DE_WUCD_TEST_quarto.html")
+    expect_true(file.exists(quarto_file))
+    index_html <- paste(readLines(file.path(workdir, zipdir[[1]], "index.html"), warn = FALSE), collapse = "\n")
+    expect_match(index_html, "Quarto DEA report", fixed = TRUE)
+  }
   expect_true(length(list.files(result_dir, pattern = "[.]xlsx$", full.names = TRUE)) >= 1)
 })

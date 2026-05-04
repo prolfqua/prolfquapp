@@ -278,11 +278,19 @@ run_one <- function(run, base_config) {
   cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$get_config())
   yaml::write_yaml(cfg, file.path(run_config$get_result_dir(), "lfqdata.yaml"))
 
-  prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
-
   logger::log_info("Writing summarized experiment.")
+  se_file <- file.path(reporter$resultdir, "SummarizedExperiment.rds")
   SE <- reporter$make_SummarizedExperiment()
-  saveRDS(SE, file = file.path(reporter$resultdir, "SummarizedExperiment.rds"))
+  saveRDS(SE, file = se_file)
+
+  logger::log_info("Rendering SE Quarto DEA report.")
+  outdir$quarto_file <- prolfquapp:::render_quarto_se_report(
+    se_file = se_file,
+    output_dir = reporter$resultdir,
+    output_file = paste0(reporter$fname, "_quarto.html")
+  )
+
+  prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
 
   logger::log_info("Creating directory with input files :", run_config$get_input_dir())
   dir.create(run_config$get_input_dir(), showWarnings = FALSE, recursive = TRUE)
