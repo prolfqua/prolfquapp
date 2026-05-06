@@ -3,6 +3,13 @@
 This file provides guidance to Claude Code (claude.ai/code) when working
 with code in this repository.
 
+## Repository Communication
+
+This is an English-speaking repository. Use English for
+repository-facing communication, documentation, comments, commit
+messages, issue/PR text, and agent updates unless the user explicitly
+requests another language.
+
 ## Overview
 
 Prolfquapp is an R package that provides a command-line interface (CLI)
