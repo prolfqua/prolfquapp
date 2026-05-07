@@ -98,7 +98,10 @@ logger::log_info(
 if (!is.null(opt$libPath) && nchar(opt$libPath) > 0) {
   logger::log_info("Setting libPath: ", opt$libPath)
   .libPaths(opt$libPath)
-  logger::log_info("LIBRARY PATHS (.libPaths()):", paste(.libPaths(), collapse = "\n"))
+  logger::log_info(
+    "LIBRARY PATHS (.libPaths()):",
+    paste(.libPaths(), collapse = "\n")
+  )
 }
 
 library(prolfquapp)
@@ -150,7 +153,10 @@ if (!is.null(opt$workunit)) {
 if (!is.null(opt$model)) {
   GRP2$processing_options$model <- opt$model
 }
-if (!is.null(normalization) && !identical(GRP2$processing_options$transform, normalization)) {
+if (
+  !is.null(normalization) &&
+    !identical(GRP2$processing_options$transform, normalization)
+) {
   logger::log_info("Setting normalization to: ", normalization)
   GRP2$processing_options$transform <- normalization
 }
@@ -201,7 +207,11 @@ logger::log_info("Software: CompoundDiscoverer")
 logger::log_info(
   "CD runs: ",
   paste(
-    vapply(runs, function(run) if (is.null(run$label)) "full" else run$label, character(1)),
+    vapply(
+      runs,
+      function(run) if (is.null(run$label)) "full" else run$label,
+      character(1)
+    ),
     collapse = ", "
   )
 )
@@ -218,7 +228,10 @@ run_one <- function(run, base_config) {
   current_time <- Sys.time()
   formatted_time <- format(current_time, "%Y%m%d%H%M")
   logfile <- paste0("prolfqua_", formatted_time, ".log")
-  appender_combined <- logger::appender_tee(file.path(run_config$get_zipdir(), logfile))
+  appender_combined <- logger::appender_tee(file.path(
+    run_config$get_zipdir(),
+    logfile
+  ))
   logger::log_appender(appender_combined)
   logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
   logger::log_info(
@@ -253,7 +266,8 @@ run_one <- function(run, base_config) {
       logger::log_error(conditionMessage(e), "\n")
       logger::log_error("Stack trace:\n")
       logger::log_error(
-        paste(stack_trace, collapse = "\n"), "\n"
+        paste(stack_trace, collapse = "\n"),
+        "\n"
       )
       if (interactive()) stop(e) else quit(save = "no", status = 1)
     }
@@ -278,7 +292,11 @@ run_one <- function(run, base_config) {
   logger::log_info("END OF ANALYSIS")
 
   logger::log_info("CREATING DEAReportGenerator")
-  reporter <- prolfquapp::DEAReportGenerator$new(deanalyse, run_config, name = "")
+  reporter <- prolfquapp::DEAReportGenerator$new(
+    deanalyse,
+    run_config,
+    name = ""
+  )
 
   logger::log_info("Writing results to: ", run_config$get_zipdir())
   outdir <- reporter$write_DEA_all(
@@ -287,10 +305,6 @@ run_one <- function(run, base_config) {
     markdown_qc = "DiffExpQC_R6.Rmd"
   )
 
-  arrow::write_parquet(
-    deanalyse$lfq_data$data_long(),
-    sink = file.path(run_config$get_result_dir(), "lfqdata_normalized.parquet")
-  )
   cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$get_config())
   yaml::write_yaml(cfg, file.path(run_config$get_result_dir(), "lfqdata.yaml"))
 
@@ -308,7 +322,31 @@ run_one <- function(run, base_config) {
 
   prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
 
-  logger::log_info("Creating directory with input files :", run_config$get_input_dir())
+  logger::log_info("Writing normalized LFQData Parquet export.")
+  parquet <- prolfquapp:::write_parquet_isolated(
+    deanalyse$lfq_data$data_long(),
+    sink = file.path(run_config$get_result_dir(), "lfqdata_normalized.parquet")
+  )
+  if (isTRUE(parquet$success)) {
+    logger::log_info("Parquet export written: ", parquet$sink)
+  } else {
+    logger::log_warn(
+      "Parquet export failed with exit status ",
+      parquet$exit_status,
+      ". Continuing because the report outputs were already written."
+    )
+    if (length(parquet$output) > 0) {
+      logger::log_warn(
+        "Parquet export output:\n",
+        paste(parquet$output, collapse = "\n")
+      )
+    }
+  }
+
+  logger::log_info(
+    "Creating directory with input files :",
+    run_config$get_input_dir()
+  )
   dir.create(run_config$get_input_dir(), showWarnings = FALSE, recursive = TRUE)
 
   prolfquapp::copy_DEA_R6_Files(workdir = run_config$get_input_dir())
