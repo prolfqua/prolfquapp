@@ -85,7 +85,6 @@ bfabric_url_builder <- function(project_spec) {
 }
 
 
-
 .base_dir <- paste0(
   "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/",
   "Results_WU_total_proteome"
@@ -115,6 +114,29 @@ bfabric_url_builder <- function(project_spec) {
   )
 )
 
+.path_to_url_path <- function(path) {
+  gsub("\\\\", "/", path)
+}
+
+.encode_url_path <- function(path) {
+  parts <- strsplit(path, "/", fixed = TRUE)[[1]]
+  paste(utils::URLencode(parts, reserved = TRUE), collapse = "/")
+}
+
+.index_relative_href <- function(path, result_dir) {
+  path_url <- .path_to_url_path(path)
+  result_url <- sub("/+$", "", .path_to_url_path(result_dir))
+  result_prefix <- paste0(result_url, "/")
+
+  if (startsWith(tolower(path_url), tolower(result_prefix))) {
+    rel <- substring(path_url, nchar(result_prefix) + 1)
+  } else {
+    rel <- basename(path_url)
+  }
+
+  paste0("./", .encode_url_path(rel))
+}
+
 #' write index.html file with links to all relevant files:
 #' @param file_path_list named list of output file paths
 #' @param result_dir directory for the index.html output
@@ -143,8 +165,7 @@ write_index_html <- function(file_path_list, result_dir) {
       p <- paths[i]
       name <- names(paths)[i]
       text <- if (!is.null(name) && nzchar(name)) name else basename(p)
-      rel <- gsub(result_dir, "", p)
-      rel <- paste0("./", rel)
+      rel <- .index_relative_href(p, result_dir)
       lines <- c(
         lines,
         sprintf('    <li><a href="%s">%s</a></li>', rel, text)
