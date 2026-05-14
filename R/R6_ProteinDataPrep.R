@@ -209,10 +209,14 @@ ProteinDataPrep <- R6::R6Class(
         default_model,
         self$prolfq_app_config$processing_options$model_missing
       )
-      entry <- prolfqua::FACADE_REGISTRY[[default_model]]
-      if (is.null(entry)) stop("Unknown facade: ", default_model)
+      if (!default_model %in% .valid_facade_models()) {
+        stop("Unknown facade: ", default_model)
+      }
 
-      if (entry$needs == "nested") {
+      if (.is_saint_model(default_model)) {
+        lfq <- self$lfq_data_transformed
+        lfq_raw <- self$lfq_data
+      } else if (prolfqua::FACADE_REGISTRY[[default_model]]$needs == "nested") {
         if (is.null(self$lfq_data_peptide_transformed)) {
           self$transform_peptide_data()
         }

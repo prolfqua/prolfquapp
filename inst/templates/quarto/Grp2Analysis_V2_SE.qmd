@@ -1,5 +1,5 @@
 ---
-title: "Differential Expression Analysis"
+title: "Differential Abundance Analysis"
 metadata-files:
   - _fgcz-report.yml
 params:
@@ -10,19 +10,38 @@ params:
 
 ```{r setup}
 #| include: false
-library(DT)
-library(ggplot2)
-library(gridExtra)
-library(prolfqua)
-library(prolfquapp)
+required_packages <- c(
+  "DT",
+  "dplyr",
+  "ggplot2",
+  "grid",
+  "gridExtra",
+  "prolfqua",
+  "prolfquapp",
+  "tibble",
+  "UpSetR"
+)
+missing_packages <- required_packages[
+  !vapply(required_packages, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1))
+]
+if (length(missing_packages) > 0) {
+  stop(
+    "Missing package(s) required to render this report: ",
+    paste(missing_packages, collapse = ", "),
+    call. = FALSE
+  )
+}
 
 report <- prolfquapp:::se_report_lfqdata(params$se_file)
 se <- report$se
 meta <- report$metadata
 lfq_raw <- report$lfq_raw
 lfq_transformed <- report$lfq_transformed
+feature_annotation <- report$feature_annotation
 contrast_table <- report$contrast_table
 contrast_object <- report$contrast_object
+is_saint_report <- identical(report$contrast_model, "saint") ||
+  all(c("Bait", "BFDR", "log2_EFCs") %in% colnames(contrast_table))
 
 dir.create("plots", showWarnings = FALSE, recursive = TRUE)
 
@@ -61,10 +80,40 @@ show_plot <- function(plot) {
 
 save_if_ggplot <- function(plot, name, width = 8, height = 5) {
   if (inherits(plot, "ggplot")) {
-    ggplot2::ggsave(file.path("plots", paste0(name, ".png")), plot, width = width, height = height, dpi = 300)
-    ggplot2::ggsave(file.path("plots", paste0(name, ".pdf")), plot, width = width, height = height)
+    tryCatch(
+      {
+        ggplot2::ggsave(file.path("plots", paste0(name, ".png")), plot, width = width, height = height, dpi = 300)
+        ggplot2::ggsave(file.path("plots", paste0(name, ".pdf")), plot, width = width, height = height)
+      },
+      error = function(e) NULL
+    )
   }
   invisible(plot)
+}
+
+plot_experiment_supported_feature_counts <- function(lfq, annotation, min_children = 2) {
+  if (is.null(annotation) || nrow(annotation) == 0 || !"nrPeptides" %in% colnames(annotation)) {
+    return(NULL)
+  }
+  hierarchy_col <- lfq$relevant_hierarchy_keys()[[1]]
+  if (!hierarchy_col %in% colnames(annotation)) {
+    return(NULL)
+  }
+  supported_features <- annotation |>
+    dplyr::filter(!is.na(.data$nrPeptides), .data$nrPeptides >= min_children)
+  supported_features <- unique(supported_features[[hierarchy_col]])
+  if (length(supported_features) == 0) {
+    return(NULL)
+  }
+  filtered_data <- lfq$data_long() |>
+    dplyr::filter(.data[[hierarchy_col]] %in% supported_features)
+  if (nrow(filtered_data) == 0) {
+    return(NULL)
+  }
+  prolfqua::LFQData$new(
+    tibble::as_tibble(filtered_data),
+    lfq$get_config()
+  )$get_Summariser()$plot_hierarchy_counts_sample(nr_children = 1)
 }
 
 html_escape <- function(x) {
@@ -100,32 +149,116 @@ dt_table <- function(df, caption = NULL, page_length = 10, escape = TRUE) {
   )
 }
 
+contrast_definition_table <- function(contrasts) {
+  if (is.null(contrasts) || length(contrasts) == 0) {
+    return(tibble::tibble())
+  }
+  if (is.data.frame(contrasts)) {
+    return(tibble::as_tibble(contrasts))
+  }
+  values <- unlist(contrasts, recursive = FALSE, use.names = TRUE)
+  if (length(values) == 0) {
+    return(tibble::tibble())
+  }
+  tibble::tibble(
+    contrast = names(values),
+    definition = as.character(values)
+  )
+}
+
+feature_id_column <- function(df) {
+  candidates <- c("feature_id", "protein_Id", "peptide_Id", "metabolite_Id", "compound_Id", "ID")
+  hit <- candidates[candidates %in% colnames(df)]
+  if (length(hit) == 0) {
+    return(NULL)
+  }
+  hit[[1]]
+}
+
+significant_sets_by_direction <- function(significant_contrasts, direction = c("all", "increased", "decreased")) {
+  direction <- match.arg(direction)
+  feature_col <- feature_id_column(significant_contrasts)
+  if (is.null(feature_col) || nrow(significant_contrasts) == 0) {
+    return(list())
+  }
+  contrast_col <- if ("Bait" %in% colnames(significant_contrasts)) "Bait" else "contrast"
+  effect_col <- if ("log2_EFCs" %in% colnames(significant_contrasts)) "log2_EFCs" else "diff"
+  if (!all(c(contrast_col, effect_col) %in% colnames(significant_contrasts))) {
+    return(list())
+  }
+  data <- significant_contrasts
+  if (identical(direction, "increased")) {
+    data <- dplyr::filter(data, .data[[effect_col]] > 0)
+  } else if (identical(direction, "decreased")) {
+    data <- dplyr::filter(data, .data[[effect_col]] < 0)
+  }
+  sets <- split(data[[feature_col]], data[[contrast_col]])
+  sets <- lapply(sets, unique)
+  sets[lengths(sets) > 0]
+}
+
+draw_upset_or_empty <- function(sets, empty_label) {
+  if (length(sets) < 2) {
+    return(show_plot(empty_report_plot(empty_label)))
+  }
+  draw_or_empty(
+    UpSetR::upset(UpSetR::fromList(sets), order.by = "freq"),
+    "Could not draw contrast agreement plot."
+  )
+}
+
 contrast_plotter <- NULL
 if (!is.null(contrast_object)) {
   contrast_plotter <- contrast_object$get_Plotter(
     fc_threshold = params$diff_threshold,
     fdr_threshold = params$fdr_threshold
   )
+} else if (is_saint_report && !is.null(feature_id_column(contrast_table))) {
+  contrast_plotter <- prolfqua::ContrastsPlotter$new(
+    contrast_table,
+    subject_id = feature_id_column(contrast_table),
+    fcthresh = params$diff_threshold,
+    volcano = list(list(score = "BFDR", name = "FDR", thresh = params$fdr_threshold)),
+    histogram = list(
+      list(score = "BFDR", xlim = c(0, 1, 0.05)),
+      list(score = "SaintScore", xlim = c(0, 1, 0.05))
+    ),
+    score = list(list(score = "SaintScore", thresh = 0.75)),
+    modelName = "modelName",
+    diff = "log2_EFCs",
+    contrast = "Bait"
+  )
 }
 
-significant_contrasts <- if (nrow(contrast_table) > 0 &&
-    all(c("FDR", "diff") %in% colnames(contrast_table))) {
+significant_contrasts <- if (
+  is_saint_report &&
+    nrow(contrast_table) > 0 &&
+    all(c("BFDR", "log2_EFCs") %in% colnames(contrast_table))
+) {
+  contrast_table |>
+    dplyr::filter(.data$BFDR < params$fdr_threshold, .data$log2_EFCs > params$diff_threshold)
+} else if (nrow(contrast_table) > 0 && all(c("FDR", "diff") %in% colnames(contrast_table))) {
   contrast_table |>
     dplyr::filter(.data$FDR < params$fdr_threshold, abs(.data$diff) > params$diff_threshold)
 } else {
   tibble::tibble()
 }
+
+feature_col <- feature_id_column(contrast_table)
 ```
 
 ::: {.panel-tabset}
 
 # Settings
 
-::: {.callout-note collapse="true"}
-## Input
+::: {.panel-tabset}
+
+## Run
+
+::: {.callout-note collapse="true" title="Input"}
 
 The report was generated from `r basename(params$se_file)`. It summarizes raw and transformed
-protein abundance data together with differential expression results.
+feature abundance data together with differential abundance results.
 :::
 
 ```{r}
@@ -162,7 +295,7 @@ settings <- data.frame(
 dt_table(settings, caption = "Analysis settings", page_length = 5)
 ```
 
-# Results
+## Design
 
 ```{r}
 #| label: tbl-sample-counts
@@ -172,27 +305,35 @@ dt_table(sample_counts, caption = "Number of samples per condition")
 ```
 
 ```{r}
-#| label: tbl-significant-summary
-if (nrow(significant_contrasts) > 0) {
-  signif_summary <- significant_contrasts |>
-    dplyr::mutate(direction = ifelse(.data$diff > 0, "up", "down")) |>
-    dplyr::count(.data$contrast, .data$direction, name = "proteins")
-} else {
-  signif_summary <- tibble::tibble()
-}
-dt_table(signif_summary, caption = "Significant proteins by contrast and direction")
+#| label: tbl-sample-annotation
+sample_annotation <- lfq_raw$factors()
+dt_table(sample_annotation, caption = "Sample annotation and experimental factors")
 ```
 
-# Protein Identification
+## Contrasts
+
+```{r}
+#| label: tbl-contrast-definitions
+contrast_definitions <- contrast_definition_table(meta$contrasts)
+dt_table(contrast_definitions, caption = "Contrast definitions", page_length = 10)
+```
+
+:::
+
+# Feature Detection
+
+::: {.panel-tabset}
+
+## Counts
 
 ```{r}
 #| label: fig-protein-counts
-#| fig-cap: "Number of quantified proteins per sample."
+#| fig-cap: "Number of quantified features per sample."
 #| fig-width: 10
 #| fig-height: 6
 protein_counts <- safe_plot(
   lfq_raw$get_Summariser()$plot_hierarchy_counts_sample(nr_children = 1),
-  "Could not draw protein counts per sample."
+  "Could not draw feature counts per sample."
 )
 save_if_ggplot(protein_counts, "protein_counts_per_sample", width = 10, height = 6)
 show_plot(protein_counts)
@@ -200,27 +341,40 @@ show_plot(protein_counts)
 
 ```{r}
 #| label: fig-protein-counts-two-peptides
-#| fig-cap: "Number of quantified proteins with at least two peptides per sample."
+#| fig-cap: "Number of quantified features per sample among features with at least two peptides in the experiment."
 #| fig-width: 10
 #| fig-height: 6
 protein_counts_two_peptides <- safe_plot(
-  lfq_raw$get_Summariser()$plot_hierarchy_counts_sample(nr_children = 2),
-  "Could not draw protein counts with at least two peptides per sample."
+  plot_experiment_supported_feature_counts(
+    lfq_raw,
+    feature_annotation,
+    min_children = 2
+  ),
+  "Could not draw feature counts with at least two peptides in the experiment."
 )
 if (is.null(protein_counts_two_peptides)) {
   protein_counts_two_peptides <- empty_report_plot(
-    "No proteins with at least two peptides are available for this data set."
+    "No features with at least two peptides in the experiment are available for this data set."
   )
 }
-save_if_ggplot(protein_counts_two_peptides, "protein_counts_two_peptides_per_sample", width = 10, height = 6)
+save_if_ggplot(protein_counts_two_peptides, "protein_counts_two_peptides_experiment", width = 10, height = 6)
 show_plot(protein_counts_two_peptides)
 ```
 
+## Overlap
+
 ```{r}
-#| label: tbl-sample-annotation
-sample_annotation <- lfq_raw$factors()
-dt_table(sample_annotation, caption = "Sample annotation and experimental factors")
+#| label: fig-protein-detection-overlap
+#| fig-cap: "Feature detections shared across experimental groups."
+#| fig-width: 9
+#| fig-height: 6
+draw_or_empty(
+  lfq_raw$get_Summariser()$upset_interaction_missing_stats(tr = 1),
+  "Could not draw feature detection overlap plot."
+)
 ```
+
+:::
 
 # Quality Control
 
@@ -230,7 +384,7 @@ dt_table(sample_annotation, caption = "Sample annotation and experimental factor
 
 ```{r}
 #| label: fig-missing-heatmap
-#| fig-cap: "Missing values in raw protein abundances."
+#| fig-cap: "Missing values in raw feature abundances."
 #| fig-width: 7
 #| fig-height: 6
 show_plot(safe_plot(
@@ -241,7 +395,7 @@ show_plot(safe_plot(
 
 ```{r}
 #| label: fig-missingness-per-group
-#| fig-cap: "Missingness summaries for raw protein abundances."
+#| fig-cap: "Missingness summaries for raw feature abundances."
 #| fig-width: 15
 #| fig-height: 4.5
 missing_per_group <- safe_plot(
@@ -261,17 +415,6 @@ save_if_ggplot(missing_per_group, "missingness_per_group", width = 9, height = 4
 save_if_ggplot(missing_cumsum, "missingness_per_group_cumsum", width = 9, height = 4)
 save_if_ggplot(missing_hist, "missingness_histogram", width = 9, height = 4)
 grid::grid.draw(combined_missing)
-```
-
-```{r}
-#| label: fig-protein-detection-overlap
-#| fig-cap: "Protein detections shared across experimental groups."
-#| fig-width: 9
-#| fig-height: 6
-draw_or_empty(
-  lfq_raw$get_Summariser()$upset_interaction_missing_stats(tr = 1),
-  "Could not draw protein detection overlap plot."
-)
 ```
 
 ## Abundance Distributions
@@ -298,7 +441,7 @@ gridExtra::grid.arrange(raw_density, trans_density, nrow = 1)
 
 ```{r}
 #| label: fig-variance-violin
-#| fig-cap: "Raw protein abundance CV, log2 raw protein abundance SD, and transformed protein abundance SD distributions."
+#| fig-cap: "Raw feature abundance CV, log2 raw feature abundance SD, and transformed feature abundance SD distributions."
 #| fig-width: 15
 #| fig-height: 5
 raw_violin <- safe_plot(
@@ -338,7 +481,7 @@ dt_table(variance_summary, caption = "Variance quantile summary")
 
 ```{r}
 #| label: fig-pca
-#| fig-cap: "PCA of transformed protein abundances."
+#| fig-cap: "PCA of transformed feature abundances."
 #| fig-width: 7
 #| fig-height: 6
 pca_plot <- safe_plot(
@@ -353,7 +496,7 @@ show_plot(pca_plot)
 
 ```{r}
 #| label: fig-correlation
-#| fig-cap: "Sample correlation heatmap for transformed protein abundances."
+#| fig-cap: "Sample correlation heatmap for transformed feature abundances."
 #| fig-width: 7
 #| fig-height: 6
 show_plot(safe_plot(
@@ -366,7 +509,7 @@ show_plot(safe_plot(
 
 ```{r}
 #| label: fig-abundance-heatmap
-#| fig-cap: "Heatmap of transformed protein abundances."
+#| fig-cap: "Heatmap of transformed feature abundances."
 #| fig-width: 7
 #| fig-height: 6
 show_plot(safe_plot(
@@ -379,33 +522,108 @@ show_plot(safe_plot(
 
 :::
 
-# Differential Expression
+# Differential Abundance
 
 ::: {.panel-tabset}
 
-## Overview
+## Summary
 
 ```{r}
-#| label: fig-fc-pvalue
-#| fig-cap: "Fold-change and p-value summaries."
-#| fig-width: 10
-#| fig-height: 5
-if (!is.null(contrast_plotter)) {
-  fc_hist <- safe_plot(contrast_plotter$histogram_diff(), "Could not draw fold-change histogram.")
-  p_hist <- safe_plot(contrast_plotter$histogram()$p.value, "Could not draw p-value histogram.")
-  save_if_ggplot(fc_hist, "fold_change_histogram")
-  save_if_ggplot(p_hist, "pvalue_histogram")
-  gridExtra::grid.arrange(fc_hist, p_hist, nrow = 1)
+#| label: tbl-significant-summary
+if (nrow(significant_contrasts) > 0) {
+  contrast_col <- if ("Bait" %in% colnames(significant_contrasts)) "Bait" else "contrast"
+  effect_col <- if ("log2_EFCs" %in% colnames(significant_contrasts)) "log2_EFCs" else "diff"
+  signif_summary <- significant_contrasts |>
+    dplyr::mutate(direction = ifelse(.data[[effect_col]] > 0, "increased", "decreased")) |>
+    dplyr::count(.data[[contrast_col]], .data$direction, name = "features")
 } else {
-  show_plot(empty_report_plot("No contrast results are available."))
+  signif_summary <- tibble::tibble()
 }
+dt_table(signif_summary, caption = "Significant features by contrast and direction")
 ```
+
+```{r}
+#| label: tbl-differential-abundance-summary
+if (is_saint_report && nrow(contrast_table) > 0 && all(c("Bait", "BFDR", "log2_EFCs") %in% colnames(contrast_table))) {
+  abundance_summary <- contrast_table |>
+    dplyr::mutate(
+      significant = .data$BFDR < params$fdr_threshold & .data$log2_EFCs > params$diff_threshold
+    ) |>
+    dplyr::group_by(.data$Bait) |>
+    dplyr::summarise(
+      tested = dplyr::n(),
+      significant = sum(.data$significant, na.rm = TRUE),
+      not_significant = tested - significant,
+      .groups = "drop"
+    )
+} else if (nrow(contrast_table) > 0 && all(c("contrast", "FDR", "diff") %in% colnames(contrast_table))) {
+  abundance_summary <- contrast_table |>
+    dplyr::mutate(
+      significant = .data$FDR < params$fdr_threshold & abs(.data$diff) > params$diff_threshold
+    ) |>
+    dplyr::group_by(.data$contrast) |>
+    dplyr::summarise(
+      tested = dplyr::n(),
+      significant = sum(.data$significant, na.rm = TRUE),
+      not_significant = tested - significant,
+      .groups = "drop"
+    )
+} else {
+  abundance_summary <- tibble::tibble()
+}
+dt_table(abundance_summary, caption = "Differential abundance calls by contrast")
+```
+
+## Contrast Agreement
+
+::: {.panel-tabset}
+
+### All
+
+```{r}
+#| label: fig-significant-feature-overlap-all
+#| fig-cap: "Significant features shared across differential-abundance contrasts."
+#| fig-width: 9
+#| fig-height: 6
+draw_upset_or_empty(
+  significant_sets_by_direction(significant_contrasts, "all"),
+  "Significant features are available for fewer than two contrasts."
+)
+```
+
+### Increased
+
+```{r}
+#| label: fig-significant-feature-overlap-increased
+#| fig-cap: "Increased-abundance significant features shared across contrasts."
+#| fig-width: 9
+#| fig-height: 6
+draw_upset_or_empty(
+  significant_sets_by_direction(significant_contrasts, "increased"),
+  "Increased-abundance significant features are available for fewer than two contrasts."
+)
+```
+
+### Decreased
+
+```{r}
+#| label: fig-significant-feature-overlap-decreased
+#| fig-cap: "Decreased-abundance significant features shared across contrasts."
+#| fig-width: 9
+#| fig-height: 6
+draw_upset_or_empty(
+  significant_sets_by_direction(significant_contrasts, "decreased"),
+  "Decreased-abundance significant features are available for fewer than two contrasts."
+)
+```
+
+:::
 
 ## Volcano
 
 ```{r}
 #| label: fig-volcano
-#| fig-cap: "Differential expression volcano plot."
+#| fig-cap: "Differential abundance volcano plot."
 #| fig-width: 9
 #| fig-height: 7
 if (!is.null(contrast_plotter)) {
@@ -421,7 +639,7 @@ if (!is.null(contrast_plotter)) {
 
 ```{r}
 #| label: fig-ma
-#| fig-cap: "Differential expression MA plots by average abundance and abundance rank."
+#| fig-cap: "Differential abundance MA plots by average abundance and abundance rank."
 #| fig-width: 8
 #| fig-height: 9
 if (!is.null(contrast_plotter)) {
@@ -438,58 +656,69 @@ if (!is.null(contrast_plotter)) {
 }
 ```
 
-## Significant Protein Heatmap
+## Significant Features
 
 ```{r}
 #| label: fig-significant-protein-heatmap
-#| fig-cap: "Transformed protein abundances for significant differential-expression results."
+#| fig-cap: "Transformed feature abundances for significant differential-abundance results."
 #| fig-width: 9
 #| fig-height: 8
-if (nrow(significant_contrasts) > 0 && "protein_Id" %in% colnames(significant_contrasts)) {
+if (nrow(significant_contrasts) > 0 && !is.null(feature_col)) {
   significant_lfq <- lfq_transformed$get_copy()
   significant_lfq <- significant_lfq$get_subset(significant_contrasts)
   row_names <- tryCatch(significant_lfq$hierarchy_counts()[[2]] <= 30, error = function(e) FALSE)
   significant_heatmap <- safe_plot(
     significant_lfq$get_Plotter()$raster(rownames = row_names),
-    "Could not draw significant protein heatmap."
+    "Could not draw significant feature heatmap."
   )
   show_plot(significant_heatmap)
 } else {
-  show_plot(empty_report_plot("No significant differential-expression results are available."))
+  show_plot(empty_report_plot("No significant differential-abundance results are available."))
 }
 ```
 
-## Significant Protein Overlap
+```{r}
+#| label: tbl-significant-features
+dt_table(significant_contrasts, caption = "Significant differential abundance results", page_length = 25)
+```
+
+## Distributions
 
 ```{r}
-#| label: fig-significant-protein-overlap
-#| fig-cap: "Significant proteins shared across differential-expression contrasts."
-#| fig-width: 9
-#| fig-height: 6
-if (nrow(significant_contrasts) > 0 &&
-    all(c("protein_Id", "contrast") %in% colnames(significant_contrasts))) {
-  significant_sets <- split(significant_contrasts[["protein_Id"]], significant_contrasts[["contrast"]])
-  significant_sets <- significant_sets[lengths(significant_sets) > 0]
-  if (length(significant_sets) > 1) {
-    draw_or_empty(
-      UpSetR::upset(UpSetR::fromList(significant_sets), order.by = "freq"),
-      "Could not draw significant protein overlap plot."
-    )
+#| label: fig-fc-pvalue
+#| fig-cap: "Fold-change and p-value summaries."
+#| fig-width: 10
+#| fig-height: 5
+if (!is.null(contrast_plotter)) {
+  fc_hist <- safe_plot(contrast_plotter$histogram_diff(), "Could not draw fold-change histogram.")
+  histograms <- contrast_plotter$histogram()
+  score_col <- dplyr::case_when(
+    "p.value" %in% colnames(contrast_table) ~ "p.value",
+    "FDR" %in% colnames(contrast_table) ~ "FDR",
+    "BFDR" %in% colnames(contrast_table) ~ "BFDR",
+    TRUE ~ NA_character_
+  )
+  score_hist <- if (!is.na(score_col) && score_col %in% names(histograms)) {
+    safe_plot(histograms[[score_col]], paste("Could not draw", score_col, "histogram."))
   } else {
-    show_plot(empty_report_plot("Significant proteins are available for fewer than two contrasts."))
+    empty_report_plot("No p-value or FDR histogram is available.")
   }
+  score_name <- if (is.na(score_col)) "score" else score_col
+  save_if_ggplot(fc_hist, "fold_change_histogram")
+  save_if_ggplot(score_hist, paste0(score_name, "_histogram"))
+  gridExtra::grid.arrange(fc_hist, score_hist, nrow = 1)
 } else {
-  show_plot(empty_report_plot("No significant differential-expression results are available."))
+  show_plot(empty_report_plot("No contrast results are available."))
 }
 ```
 
 :::
 
-# Tables
+# Result Table
 
 ```{r}
 #| label: tbl-contrast-results
-dt_table(contrast_table, caption = "Differential expression results", page_length = 25)
+dt_table(contrast_table, caption = "Differential abundance results", page_length = 25)
 ```
 
 # Session Info

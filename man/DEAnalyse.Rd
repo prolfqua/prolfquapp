@@ -10,7 +10,8 @@ Differential expression analysis engine using prolfqua facade classes
 }
 \details{
 Takes prepared LFQData (at the correct hierarchy level for the chosen facade)
-and runs statistical modelling via prolfqua's ContrastsFacade classes.
+and runs statistical modelling via prolfqua's ContrastsFacade classes
+or the prolfquasaint SAINTexpress adapter.
 
 The caller (e.g. \code{ProteinDataPrep$build_deanalyse()}) is responsible for
 providing data at the right level: aggregated protein-level for most facades,
@@ -65,6 +66,10 @@ stopifnot(nrow(deanalyse$contrast_results[[deanalyse$default_model]]$get_contras
 \item{\code{formula}}{model formula}
 
 \item{\code{contrast_results}}{named list of facade objects}
+
+\item{\code{saint_input}}{SAINTexpress input tables for model = "saint"}
+
+\item{\code{saint_result}}{SAINTexpress raw result list for model = "saint"}
 
 \item{\code{default_model}}{facade registry key for the default model}
 }

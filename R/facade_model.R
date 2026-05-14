@@ -7,3 +7,11 @@
   }
   model
 }
+
+.is_saint_model <- function(model) {
+  identical(model, "saint")
+}
+
+.valid_facade_models <- function() {
+  c(names(prolfqua::FACADE_REGISTRY), "saint")
+}

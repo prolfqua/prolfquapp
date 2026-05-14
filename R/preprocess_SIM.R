@@ -55,6 +55,23 @@ preprocess_SIM <- function(
   raw <- sim$data
   for (fkey in names(config$factors)) {
     src_col <- config$factors[[fkey]]
+    if (
+      identical(fkey, "CONTROL") &&
+        src_col %in% colnames(annotation$annot)
+    ) {
+      group_key <- setdiff(names(config$factors), c("CONTROL", "Subject_"))[1]
+      group_src <- config$factors[[group_key]]
+      if (group_src %in% colnames(annotation$annot)) {
+        control_map <- dplyr::distinct(
+          annotation$annot[, c(group_src, src_col), drop = FALSE]
+        )
+        raw[[src_col]] <- control_map[[src_col]][match(
+          raw[["group_"]],
+          control_map[[group_src]]
+        )]
+        next
+      }
+    }
     if (!src_col %in% colnames(raw)) {
       raw[[src_col]] <- raw[["group_"]]
     }
@@ -80,7 +97,9 @@ preprocess_SIM <- function(
   )
   addannot <- addannot |>
     tidyr::separate(
-      protein_Id, c("cleanID", NA), remove = FALSE
+      protein_Id,
+      c("cleanID", NA),
+      remove = FALSE
     )
   pannot <- prolfquapp::ProteinAnnotation$new(
     lfqdata,

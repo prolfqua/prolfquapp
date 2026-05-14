@@ -126,6 +126,16 @@ bfabric_url_builder <- function(project_spec) {
 .index_relative_href <- function(path, result_dir) {
   path_url <- .path_to_url_path(path)
   result_url <- sub("/+$", "", .path_to_url_path(result_dir))
+
+  if (file.exists(path) && dir.exists(result_dir)) {
+    path_url <- .path_to_url_path(normalizePath(path, mustWork = TRUE))
+    result_url <- sub(
+      "/+$",
+      "",
+      .path_to_url_path(normalizePath(result_dir, mustWork = TRUE))
+    )
+  }
+
   result_prefix <- paste0(result_url, "/")
 
   if (startsWith(tolower(path_url), tolower(result_prefix))) {
@@ -135,6 +145,25 @@ bfabric_url_builder <- function(project_spec) {
   }
 
   paste0("./", .encode_url_path(rel))
+}
+
+.model_name_palette <- function(model_names) {
+  default_palette <- c(
+    Linear_Model_moderated = "black",
+    Imputed_Mean_moderated = "orange",
+    WaldTest_moderated = "black"
+  )
+  model_levels <- sort(unique(as.character(stats::na.omit(model_names))))
+  palette <- default_palette[model_levels]
+  missing_palette <- is.na(palette)
+  if (any(missing_palette)) {
+    palette[missing_palette] <- grDevices::hcl.colors(
+      sum(missing_palette),
+      palette = "Dark 3"
+    )
+  }
+  names(palette) <- model_levels
+  palette
 }
 
 #' write index.html file with links to all relevant files:

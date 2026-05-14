@@ -33,6 +33,7 @@ Imports:
   optparse,
   pander,
   prolfqua,
+  prolfquasaint,
   purrr,
   readr,
   readxl,

@@ -54,7 +54,7 @@ option_list <- list(
     default = NULL,
     help = paste0(
       "contrast facade method (overrides config). Options: ",
-      paste(names(prolfqua::FACADE_REGISTRY), collapse = ", ")
+      paste(c(names(prolfqua::FACADE_REGISTRY), "saint"), collapse = ", ")
     ),
     metavar = "character"
   ),
@@ -155,7 +155,8 @@ result <- tryCatch(
     logger::log_error(conditionMessage(e), "\n")
     logger::log_error("Stack trace:\n")
     logger::log_error(
-      paste(stack_trace, collapse = "\n"), "\n"
+      paste(stack_trace, collapse = "\n"),
+      "\n"
     )
     if (interactive()) stop(e) else quit(save = "no", status = 1)
   }
@@ -222,13 +223,21 @@ if (length(xd$lfqdata$relevant_hierarchy_keys()) == 1) {
 
 outdir$data_files$ibaq_file <- ibaq_file
 
-# ---- Index HTML ----
-prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
-
 # ---- SummarizedExperiment ----
 logger::log_info("Writing summarized experiment.")
+se_file <- file.path(reporter$resultdir, "SummarizedExperiment.rds")
 SE <- reporter$make_SummarizedExperiment()
-saveRDS(SE, file = file.path(reporter$resultdir, "SummarizedExperiment.rds"))
+saveRDS(SE, file = se_file)
+
+logger::log_info("Rendering SE Quarto DEA report.")
+outdir$quarto_file <- prolfquapp:::render_quarto_se_report(
+  se_file = se_file,
+  output_dir = reporter$resultdir,
+  output_file = paste0(reporter$fname, "_quarto.html")
+)
+
+# ---- Index HTML ----
+prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
 
 # ---- Archive inputs ----
 logger::log_info("Creating directory with input files :", GRP2$get_input_dir())

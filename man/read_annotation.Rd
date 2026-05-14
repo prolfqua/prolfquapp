@@ -4,7 +4,16 @@
 \alias{read_annotation}
 \title{read annotation files}
 \usage{
-read_annotation(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE)
+read_annotation(
+  dsf,
+  repeated = TRUE,
+  SAINT = FALSE,
+  prefix = "G_",
+  QC = FALSE,
+  shorten_sample_names = TRUE,
+  sample_name_suffix_length = 14L,
+  sample_name_display_column = "sampleName"
+)
 }
 \arguments{
 \item{dsf}{annotation table}
@@ -16,6 +25,12 @@ read_annotation(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE)
 \item{prefix}{prefix for group levels}
 
 \item{QC}{if TRUE, read as QC annotation}
+
+\item{shorten_sample_names}{derive short display sample names from long names}
+
+\item{sample_name_suffix_length}{suffix length used for derived sample names}
+
+\item{sample_name_display_column}{preferred derived display sample-name column}
 }
 \value{
 list with annot (annotation table), atable (analtysis table configuration), contrasts list with contrasts.

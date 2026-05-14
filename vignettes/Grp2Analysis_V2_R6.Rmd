@@ -36,6 +36,7 @@ knitr::opts_chunk$set(
 )
 dea <- eval(params$deanalyse)
 cfg <- dea$prolfq_app_config
+is_saint_report <- identical(dea$default_model, "saint")
 empty_report_plot <- function(label) {
   ggplot2::ggplot() +
     ggplot2::annotate("text", x = 0, y = 0, label = label) +
@@ -60,7 +61,8 @@ __project__: `r cfg$project_spec$project_Id`, __order__: `r cfg$project_spec$ord
 The protein identification and quantification were performed using:
 `r if(!is.null(cfg$software)){cfg$software} else {"<Specify parameter cfg$software>"}`. The input file can be downloaded from here: [`r cfg$project_spec$input_URL`](`r cfg$project_spec$input_URL`). The set of parameters used to run the quantification software can be retrieved from the b-fabric workunit to which this file belongs.
 
-
+```{r introduction, results='asis', eval=!is_saint_report}
+cat(r"(
 # Introduction
 
 The differential expression analysis verifies if the __difference__ between normalized empirical protein abundances measured in two groups is significantly non-zero.
@@ -97,6 +99,9 @@ It is called the $\log$-ratio or $\log$ fold-change (logFC).
 The estimated differences $\Delta$ have an associated error $\epsilon$. Therefore, the differential expression analysis must test if the difference is significantly nonzero.
 
 We run a set of functions implemented in the R package _[prolfqua]_ [@prolfquawolski2023] to filter and normalize the data, generate visualizations, and to compute differential expression analysis. To further improve the power of the differential expression test the protein variances are moderated [@Smyth2004], i.e. the individual protein variances are updated using a variance prior estimated from all the proteins in the experiment.
+
+)")
+```
 
 # Results
 
@@ -154,14 +159,17 @@ sum$plot_hierarchy_counts_sample(nr_children = 1)
 
 ```
 
-Figure \@ref(fig:nrPerSample2) shows the number of quantified proteins with two or more peptides per sample.
-
-```{r nrPerSample2, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
+```{r prepNrPerSample2, include=FALSE}
 sum <- dea$lfq_data_raw$get_Summariser()
 p_nr_per_sample_2 <- tryCatch(
   sum$plot_hierarchy_counts_sample(nr_children = 2),
   error = function(e) NULL
 )
+```
+
+Figure \@ref(fig:nrPerSample2) shows the number of quantified proteins with two or more peptides per sample.
+
+```{r nrPerSample2, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=if (is.null(p_nr_per_sample_2)) 1.2 else 7}
 plot_or_empty(
   p_nr_per_sample_2,
   "No features with two or more children are available for this data set."
@@ -201,7 +209,7 @@ We expect that samples in the same group are more similar and cluster together, 
 
 (ref:naHeat) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing missing protein abundance estimates across the data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Protein is observed, black: Protein is not observed.
 
-```{r naHeat, fig.width=7, fig.height=6, dpi=300, fig.cap="(ref:naHeat)", fig.alt="", eval=TRUE}
+```{r naHeat, fig.width=7, fig.height=if (is.null(nah)) 1.2 else 6, dpi=300, fig.cap="(ref:naHeat)", fig.alt="", eval=TRUE}
 plot_or_empty(
   nah,
   "No missing values are available for the missing-value heatmap."
@@ -371,6 +379,15 @@ The volcano plot \@ref(fig:volcanoplot) helps to identify proteins with large di
 
 ```{r setupVolcano, echo = FALSE}
 datax <- as.data.frame(dea$annotated_contrasts)
+is_saint <- identical(dea$default_model, "saint")
+contrast_col <- if (is_saint) "Bait" else "contrast"
+effect_col <- if (is_saint) "log2_EFCs" else "diff"
+score_col <- if (is_saint) "BFDR" else "FDR"
+table_cols <- if (is_saint) {
+  c("ID", "description", "Bait", "modelName", "log2_EFCs", "BFDR")
+} else {
+  c("ID", "description", "contrast", "modelName", "diff", "FDR")
+}
 ```
 
 
@@ -379,12 +396,7 @@ datax <- as.data.frame(dea$annotated_contrasts)
 datax <- datax |> tidyr::unite("ID" , tidyselect::all_of(hkey), sep = "~")
 
 bb <- datax |> dplyr::select(
-  tidyselect::all_of(c("ID",
-           "description",
-           "contrast",
-           "modelName",
-           "diff",
-           "FDR" )))
+  tidyselect::all_of(table_cols))
 
 bb <- crosstalk::SharedData$new(bb,  as.formula("~ ID"), group = "BB")
 
@@ -396,7 +408,7 @@ DT::datatable(bb, filter = "bottom",
                  scrollY = 300,
                  scrollX = 400,
                  scroller = TRUE) ) |>
-  DT::formatRound(columns = c("FDR", "diff"), digits = 3)
+  DT::formatRound(columns = c(score_col, effect_col), digits = 3)
 
 ```
 
@@ -405,36 +417,18 @@ DT::datatable(bb, filter = "bottom",
 
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)",fig.alt="", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
 
-default_palette <- c(
-  Linear_Model_moderated = "black",
-  Imputed_Mean_moderated = "orange",
-  WaldTest_moderated = "black"
-)
-model_levels <- sort(unique(as.character(stats::na.omit(datax$modelName))))
-palette <- default_palette[model_levels]
-missing_palette <- is.na(palette)
-if (any(missing_palette)) {
-  palette[missing_palette] <- grDevices::hcl.colors(
-    sum(missing_palette),
-    palette = "Dark 3"
+plotter <- if (is_saint) {
+  dea$contrast_results[[dea$default_model]]$get_Plotter(
+    fc_threshold = cfg$processing_options$diff_threshold,
+    bfdr_threshold = cfg$processing_options$FDR_threshold
+  )
+} else {
+  dea$contrast_results[[dea$default_model]]$get_Plotter(
+    fc_threshold = cfg$processing_options$diff_threshold,
+    fdr_threshold = cfg$processing_options$FDR_threshold
   )
 }
-xd <- prolfqua::volcano_plotly(
-  datax ,
-  proteinID = "ID",
-  effect = "diff",
-  significance = "FDR",
-  contrast = "contrast",
-  color = "modelName",
-  palette = palette,
-  xintercept =  c(-cfg$processing_options$diff_threshold,cfg$processing_options$diff_threshold),
-  yintercept = cfg$processing_options$FDR_threshold,
-  title_size = 10,
-  group = "BB")
-
-xd <- lapply(xd, plotly::highlight , off = "plotly_doubleclick")
-nrow <- ceiling(length(xd) / 4)
-plotly::subplot(xd, shareX = TRUE, shareY = TRUE, nrows = nrow)
+plotter$volcano_plotly()$FDR
 
 ```
 
@@ -446,10 +440,15 @@ Here we use the FDR threshold of `r cfg$processing_options$FDR_threshold` and a 
 library(dplyr)
 mx <- datax |>
   dplyr::mutate(
-    passes = abs(diff) > cfg$processing_options$diff_threshold &
-      FDR < cfg$processing_options$FDR_threshold)
+    passes = if (is_saint) {
+      log2_EFCs > cfg$processing_options$diff_threshold &
+        BFDR < cfg$processing_options$FDR_threshold
+    } else {
+      abs(diff) > cfg$processing_options$diff_threshold &
+        FDR < cfg$processing_options$FDR_threshold
+    })
 x <- mx |>
-  dplyr::group_by(contrast) |>
+  dplyr::group_by(.data[[contrast_col]]) |>
   summarize(
     n = n(),
     Significant = sum(passes, na.rm = TRUE),
@@ -482,9 +481,7 @@ cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant pro
 ```{r SigPrey, fig.cap= "(ref:SigPrey)",fig.alt="", eval = showSignificant}
 ctdata <- datax_signif |> tidyr::unite("ID", tidyselect::all_of(hkey), sep = "~")
 ctdata <- ctdata |>
-  dplyr::select(tidyselect::all_of(c(
-    "ID", "description", "contrast",
-    "modelName", "diff", "FDR"))) |>
+  dplyr::select(tidyselect::all_of(table_cols)) |>
   as.data.frame()
 
 sig <- crosstalk::SharedData$new(ctdata,  as.formula( "~ ID"), group = "BB")
@@ -496,7 +493,7 @@ DT::datatable(sig, filter = "bottom",
                  scrollY = 300,
                  scrollX = 400,
                  scroller = TRUE) ) |>
-  DT::formatRound(columns = c("FDR", "diff"), digits = 3)
+  DT::formatRound(columns = c(score_col, effect_col), digits = 3)
 ```
 
 
@@ -534,7 +531,7 @@ sigheat
 
 
 ```{r vennDiagramSig, fig.cap="(ref:vennDiagramSig)", fig.alt="", eval = showSignificant}
-xx <- split(ctdata[["ID"]], ctdata$contrast)
+xx <- split(ctdata[["ID"]], ctdata[[contrast_col]])
 if (length(xx) > 1) {
   UpSetR::upset(UpSetR::fromList(xx))
 }

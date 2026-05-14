@@ -165,6 +165,15 @@ preprocess_DIANN <- function(
     Lib.PG.Q.Value = q_value,
     PG.Q.Value = q_value
   )
+  if (nrow(report2) == 0) {
+    stop(
+      "DIA-NN report contains no rows after filtering at q_value = ",
+      q_value,
+      ". Check that the report has quantified precursors/protein groups ",
+      "and that Lib.PG.Q.Value and PG.Q.Value pass the threshold.",
+      call. = FALSE
+    )
+  }
   nrPEP <- get_nr_pep(report2)
   nrPEP$Protein.Group.2 <- sapply(nrPEP$Protein.Group, function(x) {
     unlist(strsplit(x, "[ ;]"))[1]

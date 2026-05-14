@@ -30,7 +30,11 @@ run_contrasts_single <- function(annotation_file, control, group = NULL) {
 
   if (!control %in% annot[[group_col]]) {
     stop(
-      "control '", control, "' not found in column '", group_col, "'.",
+      "control '",
+      control,
+      "' not found in column '",
+      group_col,
+      "'.",
       call. = FALSE
     )
   }
@@ -68,7 +72,8 @@ run_contrasts_twofactor <- function(
   missing_cols <- setdiff(c(f1, f2), colnames(df))
   if (length(missing_cols) > 0) {
     stop(
-      "Column(s) not found: ", paste(missing_cols, collapse = ", "),
+      "Column(s) not found: ",
+      paste(missing_cols, collapse = ", "),
       call. = FALSE
     )
   }
@@ -95,7 +100,7 @@ run_contrasts_twofactor <- function(
 #' @param workunit workunit ID
 #' @param norm normalization method (e.g. "vsn", "none", "robscale")
 #' @param model contrast facade method (see
-#'   \code{names(prolfqua::FACADE_REGISTRY)})
+#'   \code{names(prolfqua::FACADE_REGISTRY)}) or "saint"
 #' @param outdir optional output directory; if it exists, stored in the
 #'   config so downstream scripts know where to write results
 #' @return named list suitable for \code{yaml::write_yaml()}
@@ -186,8 +191,9 @@ run_qc_preprocess <- function(
   procsoft <- prolfquapp::preprocess_software(
     indir,
     annotation,
-    preprocess_functions =
-      prolfquapp::prolfqua_preprocess_functions[[software]],
+    preprocess_functions = prolfquapp::prolfqua_preprocess_functions[[
+      software
+    ]],
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
@@ -222,13 +228,16 @@ run_dea <- function(indir, dataset, software, config) {
     stop("Annotation file not found: ", dataset, call. = FALSE)
   }
 
+  saint_model <- .is_saint_model(config$processing_options$model)
   annotation <- prolfquapp::read_table_data(dataset) |>
-    prolfquapp::read_annotation(prefix = config$group)
+    prolfquapp::read_annotation(prefix = config$group, SAINT = saint_model)
 
   pfuncs <- prolfquapp::get_procfuncs()
   if (!software %in% names(pfuncs)) {
     stop(
-      "Software '", software, "' not found. Available: ",
+      "Software '",
+      software,
+      "' not found. Available: ",
       paste(names(pfuncs), collapse = ", "),
       call. = FALSE
     )
@@ -238,15 +247,16 @@ run_dea <- function(indir, dataset, software, config) {
     indir,
     annotation,
     preprocess_functions = pfuncs[[software]],
-    pattern_contaminants =
-      config$processing_options$pattern_contaminants,
+    pattern_contaminants = config$processing_options$pattern_contaminants,
     pattern_decoys = config$processing_options$pattern_decoys
   )
 
   xd <- procsoft$xd
 
   data_prep <- prolfquapp::ProteinDataPrep$new(
-    xd$lfqdata, xd$protein_annotation, config
+    xd$lfqdata,
+    xd$protein_annotation,
+    config
   )
   data_prep$cont_decoy_summary()
   data_prep$remove_cont_decoy()
@@ -278,7 +288,12 @@ run_dea <- function(indir, dataset, software, config) {
 #' @return list with \code{deanalyse}, \code{xd}, \code{annotation}, and
 #'   \code{files}
 #' @export
-run_dea_cd <- function(input = NULL, config, files = NULL, subset_column = NULL) {
+run_dea_cd <- function(
+  input = NULL,
+  config,
+  files = NULL,
+  subset_column = NULL
+) {
   if (is.null(files)) {
     if (is.null(input)) {
       stop("Either input or files must be supplied.", call. = FALSE)
@@ -299,7 +314,9 @@ run_dea_cd <- function(input = NULL, config, files = NULL, subset_column = NULL)
   annotation <- cd$annotation
 
   data_prep <- prolfquapp::ProteinDataPrep$new(
-    xd$lfqdata, xd$protein_annotation, config
+    xd$lfqdata,
+    xd$protein_annotation,
+    config
   )
   data_prep$cont_decoy_summary()
   data_prep$remove_cont_decoy()

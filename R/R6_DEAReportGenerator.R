@@ -1,10 +1,76 @@
-.write_ORA <- function(fg, outpath, workunit_id, id_column = "IDcolumn") {
-  fg <- fg |>
-    dplyr::mutate(updown = paste0(contrast, ifelse(diff > 0, "_up", "_down")))
-  ora_sig <- split(fg[[id_column]], fg$updown)
+.safe_enrichment_name <- function(x) {
+  gsub("[^A-Za-z0-9_.-]+", "_", x)
+}
+
+.map_enrichment_ids <- function(data, row_annot, subject_id, id_column) {
+  if (id_column %in% colnames(data)) {
+    return(data)
+  }
+  if (identical(subject_id, id_column)) {
+    data[[id_column]] <- data[[subject_id]]
+    return(data)
+  }
+  id_map <- row_annot |>
+    dplyr::select(dplyr::all_of(c(subject_id, id_column))) |>
+    dplyr::distinct()
+  dplyr::left_join(data, id_map, by = subject_id, multiple = "all")
+}
+
+.as_enrichment_contrasts <- function(contrast_obj, subject_id) {
+  has_rank <- is.function(contrast_obj$get_rank)
+  has_ora <- is.function(contrast_obj$get_ora)
+  if (has_rank && has_ora) {
+    return(contrast_obj)
+  }
+  prolfqua::ContrastsTable$new(
+    contrast_obj$get_contrasts(),
+    subject_id = subject_id
+  )
+}
+
+.write_ORA <- function(
+  contrast_obj,
+  row_annot,
+  outpath,
+  workunit_id,
+  id_column = "IDcolumn",
+  FDR_threshold = 0.05,
+  diff_threshold = 1,
+  saint = FALSE
+) {
+  subject_id <- contrast_obj$subject_id
+  ora_up <- contrast_obj$get_ora(
+    up = TRUE,
+    FDR_threshold = FDR_threshold,
+    diff_threshold = diff_threshold
+  )
+  ora_up <- .map_enrichment_ids(ora_up, row_annot, subject_id, id_column)
+  ora_up <- ora_up |>
+    dplyr::filter(!is.na(.data[[id_column]]))
+  if (saint) {
+    ora_sig <- split(ora_up[[id_column]], ora_up$contrast)
+  } else {
+    ora_down <- contrast_obj$get_ora(
+      up = FALSE,
+      FDR_threshold = FDR_threshold,
+      diff_threshold = diff_threshold
+    )
+    ora_down <- .map_enrichment_ids(ora_down, row_annot, subject_id, id_column)
+    ora_down <- ora_down |>
+      dplyr::filter(!is.na(.data[[id_column]]))
+    ora_up$updown <- paste0(ora_up$contrast, "_up")
+    ora_down$updown <- paste0(ora_down$contrast, "_down")
+    ora_all <- dplyr::bind_rows(ora_up, ora_down)
+    ora_sig <- split(ora_all[[id_column]], ora_all$updown)
+  }
   ora_files <- list()
   for (i in names(ora_sig)) {
-    filename <- paste0("ORA_", i, "_WU", workunit_id, ".txt")
+    contrast_name <- .safe_enrichment_name(i)
+    filename <- if (saint) {
+      paste0("ORA_Bait_", contrast_name, "_WU", workunit_id, ".txt")
+    } else {
+      paste0("ORA_", contrast_name, "_WU", workunit_id, ".txt")
+    }
     ff <- file.path(outpath, filename)
     ora_files[[filename]] <- ff
     logger::log_info("Writing File ", ff)
@@ -19,17 +85,40 @@
   return(ora_files)
 }
 
-.write_GSEA <- function(fg, outpath, workunit_id, id_column) {
-  gsea <- dplyr::select(fg, c("contrast", id_column, "statistic")) |>
-    dplyr::arrange(.data$statistic)
+.write_GSEA <- function(
+  contrast_obj,
+  row_annot,
+  outpath,
+  workunit_id,
+  id_column,
+  saint = FALSE
+) {
+  subject_id <- contrast_obj$subject_id
+  gsea <- contrast_obj$get_rank()
+  gsea <- .map_enrichment_ids(gsea, row_annot, subject_id, id_column)
   gsea <- gsea |>
-    dplyr::group_by(dplyr::across(c("contrast", id_column))) |>
-    dplyr::summarize(statistic = mean(.data$statistic)) |>
+    dplyr::filter(!is.na(.data[[id_column]]))
+  gsea <- dplyr::select(
+    gsea,
+    dplyr::all_of(c("contrast", id_column, "score"))
+  ) |>
+    dplyr::arrange(.data$score)
+  gsea <- gsea |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c("contrast", id_column)))) |>
+    dplyr::summarize(score = mean(.data$score), .groups = "drop") |>
     dplyr::ungroup()
-  gsea <- split(dplyr::select(gsea, c(id_column, "statistic")), gsea$contrast)
+  gsea <- split(
+    dplyr::select(gsea, dplyr::all_of(c(id_column, "score"))),
+    gsea$contrast
+  )
   gsea_files <- list()
   for (i in names(gsea)) {
-    filernk <- paste0("GSEA_", i, "_WU", workunit_id, ".rnk")
+    contrast_name <- .safe_enrichment_name(i)
+    filernk <- if (saint) {
+      paste0("Bait_", contrast_name, ".rnk")
+    } else {
+      paste0("GSEA_", contrast_name, "_WU", workunit_id, ".rnk")
+    }
     ff <- file.path(outpath, filernk)
     gsea_files[[filernk]] <- ff
     logger::log_info("Writing File ", ff)
@@ -173,6 +262,12 @@ DEAReportGenerator <- R6::R6Class(
         tr = 1
       )$data
       resultList$contrasts <- contrasts_df
+      if (.is_saint_model(dea$default_model)) {
+        resultList$saint_inter <- dea$saint_input$inter
+        resultList$saint_prey <- dea$saint_input$prey
+        resultList$saint_bait <- dea$saint_input$bait
+        resultList$saint_list <- dea$saint_result$list
+      }
 
       # add protein statistics
       st <- tr$get_Stats()
@@ -196,6 +291,12 @@ DEAReportGenerator <- R6::R6Class(
       outpath <- self$resultdir
       workunit_id <- self$GRP2$project_spec$workunit_Id
       id_column <- dea$rowAnnot$cleaned_ids
+      contrast_obj <- dea$contrast_results[[dea$default_model]]
+      contrast_obj <- .as_enrichment_contrasts(
+        contrast_obj,
+        subject_id = dea$lfq_data$subject_id()
+      )
+      saint <- .is_saint_model(dea$default_model)
 
       dir.create(outpath, showWarnings = FALSE, recursive = TRUE)
 
@@ -213,20 +314,26 @@ DEAReportGenerator <- R6::R6Class(
           quote = FALSE
         )
         ora_files <- .write_ORA(
-          dea$annotated_contrasts_signif,
+          contrast_obj,
+          dea$rowAnnot$row_annot,
           outpath,
           workunit_id,
-          id_column = id_column
+          id_column = id_column,
+          FDR_threshold = dea$FDR_threshold,
+          diff_threshold = dea$diff_threshold,
+          saint = saint
         )
       }
 
       gsea_files <- list()
       if (GSEA) {
         gsea_files <- .write_GSEA(
-          dea$annotated_contrasts,
+          contrast_obj,
+          dea$rowAnnot$row_annot,
           outpath,
           workunit_id,
-          id_column
+          id_column,
+          saint = saint
         )
       }
 
@@ -269,7 +376,10 @@ DEAReportGenerator <- R6::R6Class(
             toc_float = toc,
             self_contained = TRUE,
             includes = rmarkdown::includes(
-              in_header = system.file("templates/fgcz_header.html", package = "prolfquapp")
+              in_header = system.file(
+                "templates/fgcz_header.html",
+                package = "prolfquapp"
+              )
             ),
             css = system.file("templates/fgcz.css", package = "prolfquapp")
           )
@@ -331,13 +441,23 @@ DEAReportGenerator <- R6::R6Class(
       xdn <- datax |> dplyr::nest_by(!!!syms(hkeys))
 
       stats2grob <- function(data) {
-        res <- data |>
-          dplyr::select(contrast, diff, statistic, FDR) |>
-          dplyr::mutate(
-            diff = custom_round(diff),
-            statistic = custom_round(statistic),
-            FDR = custom_round(FDR)
-          )
+        if (.is_saint_model(dea$default_model)) {
+          res <- data |>
+            dplyr::select(Bait, log2_EFCs, SaintScore, BFDR) |>
+            dplyr::mutate(
+              log2_EFCs = custom_round(log2_EFCs),
+              SaintScore = custom_round(SaintScore),
+              BFDR = custom_round(BFDR)
+            )
+        } else {
+          res <- data |>
+            dplyr::select(contrast, diff, statistic, FDR) |>
+            dplyr::mutate(
+              diff = custom_round(diff),
+              statistic = custom_round(statistic),
+              FDR = custom_round(FDR)
+            )
+        }
         res <- res |> gridExtra::tableGrob()
         res
       }
@@ -426,11 +546,13 @@ DEAReportGenerator <- R6::R6Class(
           markdown = markdown,
           toc = toc
         )
-        qc_file <- self$render_DEA(
-          htmlname = self$qcname,
-          markdown = markdown_qc,
-          toc = toc
-        )
+        if (!.is_saint_model(self$deanalyse$default_model)) {
+          qc_file <- self$render_DEA(
+            htmlname = self$qcname,
+            markdown = markdown_qc,
+            toc = toc
+          )
+        }
       }
 
       self$make_boxplots(boxplot = boxplot)
@@ -461,26 +583,50 @@ DEAReportGenerator <- R6::R6Class(
 
       mat.raw <- prolfquapp::strip_rownames(matRaw$data, strip)
       mat.trans <- prolfquapp::strip_rownames(matTr$data, strip)
+      assays <- list(rawData = mat.raw, transformedData = mat.trans)
+
+      nr_children_col <- dea$lfq_data_raw$nr_children_col()
+      if (
+        length(nr_children_col) == 1 &&
+          nzchar(nr_children_col) &&
+          nr_children_col %in% colnames(dea$lfq_data_raw$data_long())
+      ) {
+        mat_children <- dea$lfq_data_raw$data_wide(
+          as.matrix = TRUE,
+          value = nr_children_col
+        )
+        assays[["nr_children"]] <- prolfquapp::strip_rownames(
+          mat_children$data,
+          strip
+        )[rownames(mat.raw), colnames(mat.raw), drop = FALSE]
+      }
+
       col.data <- prolfquapp::column_to_rownames(
         matRaw$annotation,
         var = colname
       )
       col.data <- col.data[colnames(mat.raw), ]
       x <- SummarizedExperiment::SummarizedExperiment(
-        assays = list(rawData = mat.raw, transformedData = mat.trans),
+        assays = assays,
         colData = col.data,
         metadata = list(
           bfabric_urls = .url_builder(self$GRP2$project_spec),
           contrasts = resTables$contrasts,
           formula = resTables$formula,
+          default_model = dea$default_model,
           analysis_configuration_raw = prolfqua::R6_extract_values(dea$lfq_data_raw$get_config()),
           analysis_configuration_transformed = prolfqua::R6_extract_values(dea$lfq_data$get_config())
         )
       )
 
+      contrast_column <- if (.is_saint_model(dea$default_model)) {
+        "Bait"
+      } else {
+        "contrast"
+      }
       diffbyContrast <- split(
         resTables$diff_exp_analysis,
-        resTables$diff_exp_analysis$contrast
+        resTables$diff_exp_analysis[[contrast_column]]
       )
       for (i in names(diffbyContrast)) {
         row.data <- prolfquapp::column_to_rownames(

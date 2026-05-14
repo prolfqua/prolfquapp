@@ -88,6 +88,12 @@ ax <- ap$read_annotation(annot)
 
 \item{\code{sample_name_pattern}}{sample name column}
 
+\item{\code{sample_name_suffix_length}}{maximum suffix length for display sample names}
+
+\item{\code{sample_name_display_column}}{preferred derived display sample-name column}
+
+\item{\code{shorten_sample_names}}{derive short display names for long sample names}
+
 \item{\code{norm_value_pattern}}{normalization value column (e.g., Creatinine)}
 
 \item{\code{strict}}{should name check be strict}
@@ -115,7 +121,10 @@ initialize
   QC = FALSE,
   prefix = "G_",
   repeated = TRUE,
-  SAINT = FALSE
+  SAINT = FALSE,
+  shorten_sample_names = TRUE,
+  sample_name_suffix_length = 14L,
+  sample_name_display_column = "sampleName"
 )}\if{html}{\out{</div>}}
 }
 
@@ -129,6 +138,12 @@ initialize
 \item{\code{repeated}}{default TRUE}
 
 \item{\code{SAINT}}{default FALSE}
+
+\item{\code{shorten_sample_names}}{derive short display sample names from long names}
+
+\item{\code{sample_name_suffix_length}}{suffix length used for derived sample names}
+
+\item{\code{sample_name_display_column}}{preferred derived display sample-name column}
 }
 \if{html}{\out{</div>}}
 }

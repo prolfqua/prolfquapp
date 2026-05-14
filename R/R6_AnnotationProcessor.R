@@ -137,6 +137,12 @@ AnnotationProcessor <- R6::R6Class(
     control_col_pattern = "^control",
     #' @field sample_name_pattern sample name column
     sample_name_pattern = "^name",
+    #' @field sample_name_suffix_length maximum suffix length for display sample names
+    sample_name_suffix_length = 14L,
+    #' @field sample_name_display_column preferred derived display sample-name column
+    sample_name_display_column = "sampleName",
+    #' @field shorten_sample_names derive short display names for long sample names
+    shorten_sample_names = TRUE,
     #' @field norm_value_pattern normalization value column (e.g., Creatinine)
     norm_value_pattern = "^creatinine|^normvalue",
     #' @field strict should name check be strict
@@ -147,16 +153,25 @@ AnnotationProcessor <- R6::R6Class(
     #' @param prefix default "G_"
     #' @param repeated default TRUE
     #' @param SAINT default FALSE
+    #' @param shorten_sample_names derive short display sample names from long names
+    #' @param sample_name_suffix_length suffix length used for derived sample names
+    #' @param sample_name_display_column preferred derived display sample-name column
     initialize = function(
       QC = FALSE,
       prefix = "G_",
       repeated = TRUE,
-      SAINT = FALSE
+      SAINT = FALSE,
+      shorten_sample_names = TRUE,
+      sample_name_suffix_length = 14L,
+      sample_name_display_column = "sampleName"
     ) {
       self$QC <- QC
       self$prefix <- prefix
       self$repeated <- repeated
       self$SAINT <- SAINT
+      self$shorten_sample_names <- shorten_sample_names
+      self$sample_name_suffix_length <- sample_name_suffix_length
+      self$sample_name_display_column <- sample_name_display_column
     },
     #' @description
     #' check annotation
@@ -243,9 +258,10 @@ AnnotationProcessor <- R6::R6Class(
       self$check_annotation(annot)
       res <- private$dataset_set_factors(annot)
       if (!self$QC) {
+        factor_key <- private$primary_factor_key()
         contrasts <- self$extract_contrasts(
           res$annot,
-          group = res$atable$factors[[self$prefix]]
+          group = res$atable$factors[[factor_key]]
         )
         res[["contrasts"]] <- contrasts
       }
@@ -258,7 +274,8 @@ AnnotationProcessor <- R6::R6Class(
     extract_contrasts = function(annot, group) {
       levels <- private$get_levels(annot, group)
       logger::log_info("levels: ", paste(levels, collapse = " "))
-      if (!length(levels[[self$prefix]]) > 1) {
+      factor_key <- private$primary_factor_key()
+      if (!(length(levels[[factor_key]]) > 1)) {
         logger::log_error("not enough group levels to make comparisons.")
       }
       if (all(c("ContrastName", "Contrast") %in% colnames(annot))) {
@@ -287,6 +304,13 @@ AnnotationProcessor <- R6::R6Class(
   ),
 
   private = list(
+    primary_factor_key = function() {
+      if (self$SAINT) {
+        return("Bait_")
+      }
+      self$prefix
+    },
+
     dataset_set_factors = function(annot) {
       atable <- prolfqua::AnalysisConfiguration$new()
       annot <- private$set_sample_name(annot, atable)
@@ -299,33 +323,78 @@ AnnotationProcessor <- R6::R6Class(
     },
 
     set_sample_name = function(annot, atable) {
-      if (
-        sum(grepl(
-          self$sample_name_pattern,
-          colnames(annot),
-          ignore.case = TRUE
-        )) >
-          0
-      ) {
-        atable$sample_name <- grep(
-          self$sample_name_pattern,
-          colnames(annot),
-          value = TRUE,
-          ignore.case = TRUE
-        )[1]
+      sample_cols <- grep(
+        self$sample_name_pattern,
+        colnames(annot),
+        value = TRUE,
+        ignore.case = TRUE
+      )
+      if (length(sample_cols) == 0) {
+        return(annot)
       }
-      if (self$strict && any(duplicated(annot[[atable$sample_name]]))) {
+
+      source_sample_name <- sample_cols[1]
+      atable$sample_name <- source_sample_name
+      sample_names <- annot[[source_sample_name]]
+      needs_shortening <- self$shorten_sample_names &&
+        any(
+          nchar(sample_names, type = "chars") > self$sample_name_suffix_length,
+          na.rm = TRUE
+        )
+      needs_unique_display <- any(duplicated(sample_names))
+
+      if (self$strict && needs_unique_display) {
         stop("sample Names must be unique.")
-      } else if (any(duplicated(annot[[atable$sample_name]]))) {
-        annot[[atable$sample_name]] <- data.frame(
-          xx = annot[[atable$sample_name]]
-        ) |>
-          dplyr::group_by(xx) |>
-          dplyr::mutate(count = dplyr::row_number()) |>
-          tidyr::unite("name", c("xx", "count")) |>
-          dplyr::pull("name")
-      } else {}
+      }
+
+      if (!needs_shortening && !needs_unique_display) {
+        return(annot)
+      }
+
+      display_col <- private$available_sample_name_column(
+        annot,
+        source_sample_name
+      )
+      display_names <- sample_names
+      if (needs_shortening) {
+        display_names <- private$suffix_sample_names(display_names)
+      }
+      display_names[is.na(display_names) | !nzchar(display_names)] <- "NA"
+      if (any(duplicated(display_names))) {
+        display_names <- make.unique(display_names, sep = "_")
+      }
+
+      annot[[display_col]] <- display_names
+      atable$sample_name <- display_col
+      logger::log_info(
+        "Using derived sample display names in column '{display_col}'."
+      )
       return(annot)
+    },
+
+    available_sample_name_column = function(annot, source_sample_name) {
+      display_col <- self$sample_name_display_column
+      if (
+        !display_col %in% colnames(annot) || display_col == source_sample_name
+      ) {
+        return(display_col)
+      }
+
+      candidate <- display_col
+      index <- 1L
+      while (
+        candidate %in% colnames(annot) && candidate != source_sample_name
+      ) {
+        candidate <- paste0(display_col, "_", index)
+        index <- index + 1L
+      }
+      candidate
+    },
+
+    suffix_sample_names = function(sample_names) {
+      n_chars <- nchar(sample_names, type = "chars")
+      starts <- pmax(1L, n_chars - self$sample_name_suffix_length + 1L)
+      substring(sample_names, starts, n_chars)
     },
 
     set_file_name = function(annot, atable) {
@@ -389,14 +458,15 @@ AnnotationProcessor <- R6::R6Class(
           ignore.case = TRUE
         )
         atable$factors[["Subject_"]] <- subvar
+        factor_key <- private$primary_factor_key()
 
         fct <- dplyr::distinct(annot[, c(
           atable$file_name,
-          atable$factors[[self$prefix]],
+          atable$factors[[factor_key]],
           subvar
         )])
         tmp <- data.frame(table(fct[, c(
-          atable$factors[[self$prefix]],
+          atable$factors[[factor_key]],
           subvar
         )]))
         if (all(tmp$Freq >= 1)) {
@@ -414,10 +484,11 @@ AnnotationProcessor <- R6::R6Class(
       )
       if (length(ctrl) == 1) {
         atable$factors[["CONTROL"]] <- ctrl
+        factor_key <- private$primary_factor_key()
 
         stopifnot(length(setdiff(unique(annot[[ctrl]]), c("C", "T"))) == 0)
         # TODO add check that
-        tt <- table(annot[[ctrl]], annot[[atable$factors[[self$prefix]]]])
+        tt <- table(annot[[ctrl]], annot[[atable$factors[[factor_key]]]])
       }
     },
 
@@ -442,9 +513,10 @@ AnnotationProcessor <- R6::R6Class(
     },
 
     get_levels = function(annot, group) {
+      factor_key <- private$primary_factor_key()
       levels <- annot |>
         dplyr::select(
-          !!self$prefix := starts_with(group, ignore.case = TRUE),
+          !!factor_key := starts_with(group, ignore.case = TRUE),
           control = starts_with("control", ignore.case = TRUE)
         ) |>
         dplyr::distinct()
@@ -452,17 +524,18 @@ AnnotationProcessor <- R6::R6Class(
     },
 
     get_defined_contrasts = function(annot) {
+      factor_key <- private$primary_factor_key()
       contr <- annot |>
         dplyr::select(all_of(c("ContrastName", "Contrast"))) |>
         dplyr::filter(nchar(!!rlang::sym("Contrast")) > 0)
 
       Contrasts <- contr$Contrast
       names(Contrasts) <- contr$ContrastName
-      nrpr <- sum(grepl(paste0("\\b", self$prefix), Contrasts))
+      nrpr <- sum(grepl(paste0("\\b", factor_key), Contrasts))
       if (nrpr < 1) {
         stop(
           "Group prefix should be: ",
-          self$prefix,
+          factor_key,
           "; but contrasts look like this: ",
           paste(Contrasts, collapse = "\n")
         )
@@ -471,6 +544,7 @@ AnnotationProcessor <- R6::R6Class(
     },
 
     generate_contrasts = function(annot, levels, group) {
+      factor_key <- private$primary_factor_key()
       if (ncol(levels) != 2) {
         stop(
           "either column ",
@@ -486,23 +560,23 @@ AnnotationProcessor <- R6::R6Class(
         for (i in seq_len(nrow(levels))) {
           for (j in seq_len(nrow(levels))) {
             if (i != j && levels$control[j] == "C") {
-              cat(levels[[self$prefix]][i], levels[[self$prefix]][j], "\n")
+              cat(levels[[factor_key]][i], levels[[factor_key]][j], "\n")
               Contrasts <- c(
                 Contrasts,
                 paste0(
-                  self$prefix,
-                  levels[[self$prefix]][i],
+                  factor_key,
+                  levels[[factor_key]][i],
                   " - ",
-                  self$prefix,
-                  levels[[self$prefix]][j]
+                  factor_key,
+                  levels[[factor_key]][j]
                 )
               )
               Names <- c(
                 Names,
                 paste0(
-                  levels[[self$prefix]][i],
+                  levels[[factor_key]][i],
                   "_vs_",
-                  levels[[self$prefix]][j]
+                  levels[[factor_key]][j]
                 )
               )
             }
@@ -523,6 +597,9 @@ AnnotationProcessor <- R6::R6Class(
 #' @param SAINT is this a SAINTexpress analysis
 #' @param prefix prefix for group levels
 #' @param QC if TRUE, read as QC annotation
+#' @param shorten_sample_names derive short display sample names from long names
+#' @param sample_name_suffix_length suffix length used for derived sample names
+#' @param sample_name_display_column preferred derived display sample-name column
 #' @export
 #' @examples
 #' annot <- data.frame(
@@ -536,13 +613,19 @@ read_annotation <- function(
   repeated = TRUE,
   SAINT = FALSE,
   prefix = "G_",
-  QC = FALSE
+  QC = FALSE,
+  shorten_sample_names = TRUE,
+  sample_name_suffix_length = 14L,
+  sample_name_display_column = "sampleName"
 ) {
   res <- AnnotationProcessor$new(
     repeated = repeated,
     SAINT = SAINT,
     prefix = prefix,
-    QC = QC
+    QC = QC,
+    shorten_sample_names = shorten_sample_names,
+    sample_name_suffix_length = sample_name_suffix_length,
+    sample_name_display_column = sample_name_display_column
   )$read_annotation(dsf)
   return(res)
 }

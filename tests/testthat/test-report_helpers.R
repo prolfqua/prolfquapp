@@ -20,6 +20,43 @@ test_that("index href helper creates relative links for Windows paths", {
   )
 })
 
+test_that("index href helper handles mixed absolute and relative paths", {
+  result_dir <- file.path(tempdir(), "DEA index mixed paths")
+  result_subdir <- file.path(result_dir, "Results_WU_1")
+  dir.create(result_subdir, showWarnings = FALSE, recursive = TRUE)
+  on.exit(unlink(result_dir, recursive = TRUE), add = TRUE)
+
+  report_file <- file.path(result_subdir, "DE_WU1_quarto.html")
+  file.create(report_file)
+
+  oldwd <- setwd(dirname(result_dir))
+  on.exit(setwd(oldwd), add = TRUE)
+
+  expect_equal(
+    prolfquapp:::.index_relative_href(
+      normalizePath(report_file, mustWork = TRUE),
+      basename(result_dir)
+    ),
+    "./Results_WU_1/DE_WU1_quarto.html"
+  )
+})
+
+test_that("model palette keeps fallback colors named by model levels", {
+  palette <- prolfquapp:::.model_name_palette(c(
+    "ContrastSaint",
+    "Linear_Model_moderated",
+    "UnknownModel"
+  ))
+
+  expect_named(
+    palette,
+    c("ContrastSaint", "Linear_Model_moderated", "UnknownModel")
+  )
+  expect_equal(palette[["Linear_Model_moderated"]], "black")
+  expect_false(any(is.na(names(palette))))
+  expect_false(any(is.na(palette)))
+})
+
 test_that("write_index_html does not emit absolute local paths", {
   result_dir <- file.path(tempdir(), "DEA index test")
   result_subdir <- file.path(result_dir, "Results WU")

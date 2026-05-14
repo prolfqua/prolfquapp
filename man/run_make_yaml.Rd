@@ -23,7 +23,7 @@ run_make_yaml(
 \item{norm}{normalization method (e.g. "vsn", "none", "robscale")}
 
 \item{model}{contrast facade method (see
-\code{names(prolfqua::FACADE_REGISTRY)})}
+\code{names(prolfqua::FACADE_REGISTRY)}) or "saint"}
 
 \item{outdir}{optional output directory; if it exists, stored in the
 config so downstream scripts know where to write results}

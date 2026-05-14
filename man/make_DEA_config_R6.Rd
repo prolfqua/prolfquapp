@@ -55,7 +55,8 @@ make_DEA_config_R6(
 
 \item{prefix}{analysis prefix (DEA or QC)}
 
-\item{model}{facade registry key for contrast analysis (default "lm_missing")}
+\item{model}{facade registry key for contrast analysis. Use "saint" for
+SAINTexpress interaction scoring.}
 }
 \value{
 ProlfquAppConfig R6 object

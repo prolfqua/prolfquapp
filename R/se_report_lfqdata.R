@@ -5,7 +5,10 @@ se_report_lfqdata <- function(se) {
     se <- readRDS(se)
   }
   if (!inherits(se, "SummarizedExperiment")) {
-    stop("Expected a SummarizedExperiment object or path to an .rds file.", call. = FALSE)
+    stop(
+      "Expected a SummarizedExperiment object or path to an .rds file.",
+      call. = FALSE
+    )
   }
 
   assay_names <- SummarizedExperiment::assayNames(se)
@@ -23,6 +26,10 @@ se_report_lfqdata <- function(se) {
   col_data <- .se_report_col_data(se)
   row_data <- SummarizedExperiment::rowData(se)
   contrast_table <- .se_report_contrast_table(row_data, rownames(se))
+  feature_annotation <- .se_report_feature_annotation(
+    contrast_table,
+    rownames(se)
+  )
 
   lfq_raw <- .se_report_lfqdata_from_assay(
     se,
@@ -44,7 +51,10 @@ se_report_lfqdata <- function(se) {
   )
 
   contrast_object <- NULL
-  if (nrow(contrast_table) > 0) {
+  if (
+    nrow(contrast_table) > 0 &&
+      all(c("contrast", "diff", "FDR") %in% colnames(contrast_table))
+  ) {
     contrast_object <- prolfqua::ContrastsTable$new(
       contrast_table,
       subject_id = lfq_transformed$relevant_hierarchy_keys(),
@@ -59,10 +69,18 @@ se_report_lfqdata <- function(se) {
     row_data = row_data,
     lfq_raw = lfq_raw,
     lfq_transformed = lfq_transformed,
+    feature_annotation = feature_annotation,
     contrast_table = contrast_table,
     contrast_object = contrast_object,
-    stats_raw = .se_report_row_data_frame(row_data[["stats_raw_wide"]], rownames(se)),
-    stats_normalized = .se_report_row_data_frame(row_data[["stats_normalized_wide"]], rownames(se))
+    contrast_model = meta$default_model,
+    stats_raw = .se_report_row_data_frame(
+      row_data[["stats_raw_wide"]],
+      rownames(se)
+    ),
+    stats_normalized = .se_report_row_data_frame(
+      row_data[["stats_normalized_wide"]],
+      rownames(se)
+    )
   )
 }
 
@@ -88,7 +106,12 @@ se_report_lfqdata <- function(se) {
   prefix = ""
 ) {
   mat <- SummarizedExperiment::assay(se, assay_name)
-  config <- .se_report_config(col_data, response, metadata_config, is_transformed)
+  config <- .se_report_config(
+    col_data,
+    response,
+    metadata_config,
+    is_transformed
+  )
   sample_col <- config$sample_name
   hierarchy_col <- config$hierarchy_keys_depth()[[1]]
 
@@ -99,6 +122,14 @@ se_report_lfqdata <- function(se) {
     cols = -dplyr::all_of(hierarchy_col),
     names_to = sample_col,
     values_to = response
+  )
+
+  long_data <- .se_report_add_nr_children(
+    se,
+    long_data,
+    config = config,
+    hierarchy_col = hierarchy_col,
+    sample_col = sample_col
   )
 
   col_join <- col_data
@@ -117,6 +148,10 @@ se_report_lfqdata <- function(se) {
   }
   if (!config$nr_children %in% colnames(long_data)) {
     long_data[[config$nr_children]] <- 1L
+  } else {
+    long_data[[config$nr_children]][is.na(long_data[[
+      config$nr_children
+    ]])] <- 1L
   }
   for (factor_col in config$factor_keys()) {
     if (!factor_col %in% colnames(long_data)) {
@@ -127,7 +162,36 @@ se_report_lfqdata <- function(se) {
   prolfqua::LFQData$new(tibble::as_tibble(long_data), config, prefix = prefix)
 }
 
-.se_report_config <- function(col_data, response, metadata_config = NULL, is_transformed = FALSE) {
+.se_report_add_nr_children <- function(
+  se,
+  long_data,
+  config,
+  hierarchy_col,
+  sample_col
+) {
+  if (!"nr_children" %in% SummarizedExperiment::assayNames(se)) {
+    return(long_data)
+  }
+
+  nr_children <- SummarizedExperiment::assay(se, "nr_children")
+  child_data <- as.data.frame(nr_children, check.names = FALSE)
+  child_data[[hierarchy_col]] <- rownames(nr_children)
+  child_data <- tidyr::pivot_longer(
+    child_data,
+    cols = -dplyr::all_of(hierarchy_col),
+    names_to = sample_col,
+    values_to = config$nr_children
+  )
+  child_data[[sample_col]] <- as.character(child_data[[sample_col]])
+  dplyr::left_join(long_data, child_data, by = c(hierarchy_col, sample_col))
+}
+
+.se_report_config <- function(
+  col_data,
+  response,
+  metadata_config = NULL,
+  is_transformed = FALSE
+) {
   if (!is.null(metadata_config)) {
     config <- prolfqua::list_to_AnalysisConfiguration(metadata_config)
     config$hierarchy <- list("protein_Id" = "protein_Id")
@@ -153,17 +217,33 @@ se_report_lfqdata <- function(se) {
   config$set_response(response)
   config$is_response_transformed <- is_transformed
   config$factors <- stats::setNames(as.list(factor_cols), factor_cols)
-  config$factor_depth <- max(1L, length(.se_report_primary_factor_cols(factor_cols)))
+  config$factor_depth <- max(
+    1L,
+    length(.se_report_primary_factor_cols(factor_cols))
+  )
   config
 }
 
 .se_report_factor_cols <- function(col_data) {
   exclude <- c(
-    "sampleName", "raw.file", "fileName", "File.Name", "filename", "Name",
-    "CONTROL", "control", "isotopeLabel", "nr_children", "n_proteins"
+    "sampleName",
+    "raw.file",
+    "fileName",
+    "File.Name",
+    "filename",
+    "Name",
+    "CONTROL",
+    "control",
+    "isotopeLabel",
+    "nr_children",
+    "n_proteins"
   )
   candidates <- setdiff(colnames(col_data), exclude)
-  candidates <- candidates[vapply(col_data[candidates], .se_report_is_factor_like, logical(1))]
+  candidates <- candidates[vapply(
+    col_data[candidates],
+    .se_report_is_factor_like,
+    logical(1)
+  )]
   if (length(candidates) == 0) {
     col_data$group_ <- "all"
     return("group_")
@@ -173,7 +253,12 @@ se_report_lfqdata <- function(se) {
 }
 
 .se_report_primary_factor_cols <- function(cols) {
-  primary <- grep("group|condition|treatment|background|genotype", cols, ignore.case = TRUE, value = TRUE)
+  primary <- grep(
+    "group|condition|treatment|background|genotype",
+    cols,
+    ignore.case = TRUE,
+    value = TRUE
+  )
   if (length(primary) > 0) {
     return(primary)
   }
@@ -186,7 +271,10 @@ se_report_lfqdata <- function(se) {
   if (distinct <= 1 || distinct >= n) {
     return(FALSE)
   }
-  is.character(x) || is.factor(x) || is.logical(x) || distinct <= min(10, ceiling(n / 2))
+  is.character(x) ||
+    is.factor(x) ||
+    is.logical(x) ||
+    distinct <= min(10, ceiling(n / 2))
 }
 
 .se_report_first_existing <- function(candidates, values, default) {
@@ -214,9 +302,45 @@ se_report_lfqdata <- function(se) {
     if (!"modelName" %in% colnames(df)) {
       df$modelName <- "SummarizedExperiment"
     }
+    contrast_col <- if ("Bait" %in% colnames(df)) {
+      "Bait"
+    } else {
+      "contrast"
+    }
+    df <- dplyr::filter(
+      df,
+      !is.na(.data$protein_Id),
+      !is.na(.data[[contrast_col]])
+    )
     df
   })
   dplyr::bind_rows(res)
+}
+
+.se_report_feature_annotation <- function(contrast_table, feature_ids) {
+  child_cols <- c("nrPeptides", "nr_peptides", "exp_nr_children")
+  child_cols <- intersect(child_cols, colnames(contrast_table))
+  if (nrow(contrast_table) == 0 || length(child_cols) == 0) {
+    return(tibble::tibble(protein_Id = feature_ids))
+  }
+
+  child_col <- child_cols[[1]]
+  contrast_table |>
+    dplyr::filter(!is.na(.data$protein_Id)) |>
+    dplyr::select(dplyr::all_of(c("protein_Id", child_col))) |>
+    dplyr::rename(nrPeptides = dplyr::all_of(child_col)) |>
+    dplyr::group_by(.data$protein_Id) |>
+    dplyr::summarize(
+      nrPeptides = max(.data$nrPeptides, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    dplyr::mutate(
+      nrPeptides = dplyr::if_else(
+        is.infinite(.data$nrPeptides),
+        NA_real_,
+        as.numeric(.data$nrPeptides)
+      )
+    )
 }
 
 .se_report_row_data_frame <- function(value, feature_ids) {

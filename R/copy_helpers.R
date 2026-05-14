@@ -55,6 +55,7 @@ copy_DEA_R6_Files <- function(workdir = getwd()) {
       search_roots <- normalizePath(
         c(
           getwd(),
+          file.path(getwd(), "prolfquapp"),
           file.path(getwd(), ".."),
           file.path(getwd(), "..", ".."),
           file.path(getwd(), "..", "..", "..")
@@ -82,13 +83,27 @@ copy_DEA_R6_Files <- function(workdir = getwd()) {
     dest <- file.path(workdir, file)
     message("copy ", src, " to ", dest)
     if (!file.copy(src, dest, overwrite = TRUE)) {
-      stop("Could not copy DEA report template from ", src, " to ", dest, call. = FALSE)
+      stop(
+        "Could not copy DEA report template from ",
+        src,
+        " to ",
+        dest,
+        call. = FALSE
+      )
     }
     copied <- c(copied, dest)
   }
-  message("your working directory now should contain: ", length(copied), " new files :\n")
+  message(
+    "your working directory now should contain: ",
+    length(copied),
+    " new files :\n"
+  )
   # bibliography.bib lives in application/, not doc/
-  bib_src <- system.file("application", "bibliography.bib", package = "prolfquapp")
+  bib_src <- system.file(
+    "application",
+    "bibliography.bib",
+    package = "prolfquapp"
+  )
   if (nzchar(bib_src) && file.exists(bib_src)) {
     file.copy(bib_src, file.path(workdir, "bibliography.bib"), overwrite = TRUE)
   }

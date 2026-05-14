@@ -3,6 +3,8 @@
 utils::globalVariables(c(
   "abundance",
   "adduct",
+  "BFDR",
+  "Bait",
   "compound_name",
   "config",
   "contrast",
@@ -17,6 +19,7 @@ utils::globalVariables(c(
   "id",
   "Intensity",
   "leading.razor.protein",
+  "log2_EFCs",
   "metabolite_feature_Id",
   "mol_formula",
   "nrPeptides",

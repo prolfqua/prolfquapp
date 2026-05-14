@@ -60,7 +60,7 @@ option_list <- list(
     default = "lm_missing",
     help = paste0(
       "contrast facade method. Options: ",
-      paste(names(prolfqua::FACADE_REGISTRY), collapse = ", ")
+      paste(c(names(prolfqua::FACADE_REGISTRY), "saint"), collapse = ", ")
     ),
     metavar = "character"
   )

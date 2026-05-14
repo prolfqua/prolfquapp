@@ -28,8 +28,10 @@ ProcessingOptions <- R6::R6Class(
     #' @field model_missing model missigness, default TRUE
     model_missing = TRUE,
     #' @field model facade registry key for contrast analysis.
-    #'   Valid keys: lm, lm_missing, lm_impute, limma, limma_impute,
-    #'   rlm, deqms, firth, lmer, ropeca. Default "lm_missing".
+    #'   Valid keys include prolfqua facade keys such as lm, lm_missing,
+    #'   lm_impute, limma, limma_impute, rlm, deqms, firth, lmer,
+    #'   ropeca, plus the prolfquasaint-backed key saint.
+    #'   Default "lm_missing".
     model = "lm_missing",
     #' @field other list with additional options
     other = NULL,
@@ -349,7 +351,8 @@ list_to_R6_app_config <- function(dd) {
 #' @param patternContaminants pattern for contaminant proteins
 #' @param application software application name
 #' @param prefix analysis prefix (DEA or QC)
-#' @param model facade registry key for contrast analysis (default "lm_missing")
+#' @param model facade registry key for contrast analysis. Use "saint" for
+#'   SAINTexpress interaction scoring.
 #' @return ProlfquAppConfig R6 object
 #' @export
 #' @family ProlfquAppConfig
