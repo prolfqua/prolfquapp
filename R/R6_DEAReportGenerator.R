@@ -35,10 +35,18 @@
   workunit_id,
   id_column = "IDcolumn",
   FDR_threshold = 0.05,
-  diff_threshold = 1,
-  saint = FALSE
+  diff_threshold = 1
 ) {
-  subject_id <- contrast_obj$subject_id
+  cfg <- if (is.function(contrast_obj$get_config)) contrast_obj$get_config() else NULL
+  subject_id <- if (!is.null(cfg) && length(cfg$subject_id) > 0) {
+    cfg$subject_id
+  } else {
+    contrast_obj$subject_id
+  }
+  # Directional backends (SAINT) only output the "up" ORA list and use
+  # a contrast-column-named filename prefix; symmetric backends (LM)
+  # output both up/down lists.
+  saint <- isTRUE(cfg$significance_directional)
   ora_up <- contrast_obj$get_ora(
     up = TRUE,
     FDR_threshold = FDR_threshold,
@@ -90,10 +98,15 @@
   row_annot,
   outpath,
   workunit_id,
-  id_column,
-  saint = FALSE
+  id_column
 ) {
-  subject_id <- contrast_obj$subject_id
+  cfg <- if (is.function(contrast_obj$get_config)) contrast_obj$get_config() else NULL
+  subject_id <- if (!is.null(cfg) && length(cfg$subject_id) > 0) {
+    cfg$subject_id
+  } else {
+    contrast_obj$subject_id
+  }
+  saint <- isTRUE(cfg$significance_directional)
   gsea <- contrast_obj$get_rank()
   gsea <- .map_enrichment_ids(gsea, row_annot, subject_id, id_column)
   gsea <- gsea |>
@@ -262,11 +275,12 @@ DEAReportGenerator <- R6::R6Class(
         tr = 1
       )$data
       resultList$contrasts <- contrasts_df
-      if (.is_saint_model(dea$default_model)) {
-        resultList$saint_inter <- dea$saint_input$inter
-        resultList$saint_prey <- dea$saint_input$prey
-        resultList$saint_bait <- dea$saint_input$bait
-        resultList$saint_list <- dea$saint_result$list
+      # Backend-specific extras (SAINT input tables, etc.) are surfaced
+      # through ContrastsInterface$extra_artifacts(); the default
+      # returns an empty list, so LM-style backends add nothing here.
+      extras <- contr_obj$extra_artifacts()
+      if (length(extras) > 0) {
+        resultList <- c(resultList, extras)
       }
 
       # add protein statistics
@@ -296,7 +310,6 @@ DEAReportGenerator <- R6::R6Class(
         contrast_obj,
         subject_id = dea$lfq_data$subject_id()
       )
-      saint <- .is_saint_model(dea$default_model)
 
       dir.create(outpath, showWarnings = FALSE, recursive = TRUE)
 
@@ -320,8 +333,7 @@ DEAReportGenerator <- R6::R6Class(
           workunit_id,
           id_column = id_column,
           FDR_threshold = dea$FDR_threshold,
-          diff_threshold = dea$diff_threshold,
-          saint = saint
+          diff_threshold = dea$diff_threshold
         )
       }
 
@@ -332,8 +344,7 @@ DEAReportGenerator <- R6::R6Class(
           dea$rowAnnot$row_annot,
           outpath,
           workunit_id,
-          id_column,
-          saint = saint
+          id_column
         )
       }
 
@@ -433,39 +444,32 @@ DEAReportGenerator <- R6::R6Class(
     },
 
     #' @description
-    #' Convert significant contrast results to table grobs
+    #' Convert significant contrast results to table grobs. Column
+    #' selection and rounding are driven by the contrast object's
+    #' \code{ContrastConfiguration} so SAINT and LM backends both
+    #' produce grobs with canonical \code{contrast}/\code{effect}/
+    #' \code{score}/\code{fdr} columns without backend-specific code.
     contrasts_to_Grob = function() {
       dea <- self$deanalyse
+      contrast_obj <- dea$contrast_results[[dea$default_model]]
+      cfg <- contrast_obj$get_config()
       datax <- dea$filter_contrasts()
       hkeys <- dea$lfq_data$relevant_hierarchy_keys()
-      xdn <- datax |> dplyr::nest_by(!!!syms(hkeys))
 
-      stats2grob <- function(data) {
-        if (.is_saint_model(dea$default_model)) {
-          res <- data |>
-            dplyr::select(Bait, log2_EFCs, SaintScore, BFDR) |>
-            dplyr::mutate(
-              log2_EFCs = custom_round(log2_EFCs),
-              SaintScore = custom_round(SaintScore),
-              BFDR = custom_round(BFDR)
-            )
-        } else {
-          res <- data |>
-            dplyr::select(contrast, diff, statistic, FDR) |>
-            dplyr::mutate(
-              diff = custom_round(diff),
-              statistic = custom_round(statistic),
-              FDR = custom_round(FDR)
-            )
-        }
-        res <- res |> gridExtra::tableGrob()
-        res
-      }
-      grobs <- vector(mode = "list", length = length(nrow(xdn)))
+      canonical <- dplyr::transmute(
+        datax,
+        !!!rlang::syms(hkeys),
+        contrast = .data[[cfg$contrast_col]],
+        effect = custom_round(.data[[cfg$effect_col]]),
+        score = custom_round(.data[[cfg$score_col]]),
+        fdr = custom_round(.data[[cfg$fdr_col]])
+      )
+      xdn <- canonical |> dplyr::nest_by(!!!rlang::syms(hkeys))
+      grobs <- vector(mode = "list", length = nrow(xdn))
       pb <- progress::progress_bar$new(total = nrow(xdn))
       for (i in seq_len(nrow(xdn))) {
         pb$tick()
-        grobs[[i]] <- stats2grob(xdn$data[[i]])
+        grobs[[i]] <- gridExtra::tableGrob(xdn$data[[i]])
       }
       xdn$grobs <- grobs
       return(xdn)
@@ -546,7 +550,10 @@ DEAReportGenerator <- R6::R6Class(
           markdown = markdown,
           toc = toc
         )
-        if (!.is_saint_model(self$deanalyse$default_model)) {
+        contrast_obj <- self$deanalyse$contrast_results[[
+          self$deanalyse$default_model
+        ]]
+        if (isTRUE(contrast_obj$get_config()$supports_dea_qc)) {
           qc_file <- self$render_DEA(
             htmlname = self$qcname,
             markdown = markdown_qc,
@@ -619,11 +626,8 @@ DEAReportGenerator <- R6::R6Class(
         )
       )
 
-      contrast_column <- if (.is_saint_model(dea$default_model)) {
-        "Bait"
-      } else {
-        "contrast"
-      }
+      contrast_obj <- dea$contrast_results[[dea$default_model]]
+      contrast_column <- contrast_obj$get_config()$contrast_col
       diffbyContrast <- split(
         resTables$diff_exp_analysis,
         resTables$diff_exp_analysis[[contrast_column]]

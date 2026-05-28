@@ -3,6 +3,7 @@
 export(AnnotationProcessor)
 export(DEAReportGenerator)
 export(DEAnalyse)
+export(DEAnalysePeptideToProtein)
 export(ExternalReader)
 export(LFQData_from_anndata)
 export(ProcessingOptions)

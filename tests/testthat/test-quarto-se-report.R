@@ -162,7 +162,12 @@ test_that("SE Quarto templates render with reconstructed LFQData", {
   writeLines(
     c(
       "source_path <- Sys.getenv('PROLFQUAPP_SOURCE_PATH')",
-      "if (nzchar(source_path) && file.exists(file.path(source_path, 'DESCRIPTION'))) {",
+      "r_dir <- file.path(source_path, 'R')",
+      "is_source <- nzchar(source_path) &&",
+      "  file.exists(file.path(source_path, 'DESCRIPTION')) &&",
+      "  dir.exists(r_dir) &&",
+      "  length(list.files(r_dir, pattern = '[.]R$')) > 0",
+      "if (is_source) {",
       "  suppressPackageStartupMessages(devtools::load_all(source_path, quiet = TRUE))",
       "}"
     ),
@@ -231,7 +236,12 @@ test_that("internal SE Quarto report helper renders HTML", {
   writeLines(
     c(
       "source_path <- Sys.getenv('PROLFQUAPP_SOURCE_PATH')",
-      "if (nzchar(source_path) && file.exists(file.path(source_path, 'DESCRIPTION'))) {",
+      "r_dir <- file.path(source_path, 'R')",
+      "is_source <- nzchar(source_path) &&",
+      "  file.exists(file.path(source_path, 'DESCRIPTION')) &&",
+      "  dir.exists(r_dir) &&",
+      "  length(list.files(r_dir, pattern = '[.]R$')) > 0",
+      "if (is_source) {",
       "  suppressPackageStartupMessages(devtools::load_all(source_path, quiet = TRUE))",
       "}"
     ),

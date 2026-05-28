@@ -28,11 +28,16 @@ ENV R_LIBS_USER=/opt/r-libs-site
 RUN mkdir -p /opt/r-libs-site
 
 RUN R -e 'options(warn=2); install.packages("pak", repos = "https://stat.ethz.ch/CRAN/")'
-RUN R -e 'options(warn=2); pak::pkg_install(c("any::seqinr", "any::prozor", "any::logger", "any::lubridate", "git::https://gitlab.bfabric.org/wolski/prolfquadata.git", "github::fgcz/prolfqua"))'
+RUN R -e 'options(warn=2); pak::pkg_install(c("any::seqinr", "any::prozor", "any::logger", "any::lubridate", "git::https://gitlab.bfabric.org/wolski/prolfquadata.git", "github::fgcz/prolfqua", "github::prolfqua/prolfquasaint"))'
 COPY ./DESCRIPTION /opt/prolfqua/DESCRIPTION
 RUN R -e 'options(warn=2); pak::local_install_deps("/opt/prolfqua", upgrade = FALSE)'
 COPY . /opt/prolfqua
-RUN R -e 'options(warn=2); pak::pkg_install("/opt/prolfqua", upgrade = FALSE)'
+RUN R -e 'options(warn=2); install.packages(c("knitr", "rmarkdown", "DT", "gridExtra", "KernSmooth", "plotly"), repos = "https://stat.ethz.ch/CRAN/")'
+RUN cd /tmp \
+  && R CMD build /opt/prolfqua --no-manual \
+  && R CMD INSTALL prolfquapp_*.tar.gz
+RUN Rscript -e "stopifnot(file.exists(system.file('doc', 'Grp2Analysis_V2_R6.Rmd', package = 'prolfquapp', mustWork = TRUE)))" \
+  && Rscript -e "stopifnot(file.exists(system.file('doc', 'DiffExpQC_R6.Rmd', package = 'prolfquapp', mustWork = TRUE)))"
 
 # Validate data.table loads correctly at build time
 RUN Rscript -e "cat('Testing data.table load...\\n'); library(data.table); cat('data.table loaded successfully.\\n')"

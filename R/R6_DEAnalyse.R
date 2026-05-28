@@ -1,3 +1,19 @@
+# Legacy YAML alias: the user-facing config keyword "prolfqua" maps to
+# the lm facade, or lm_impute when processing_options$model_missing is
+# set. The lm_impute facade refits failed/singular per-protein fits at
+# LOD with borrowed variance and (since the per-row imputed flag was
+# added) tags rescued rows as modelName = "WaldTest_imputed_moderated"
+# so the rescue is visible in the contrast output. The older alias
+# target lm_missing relied on ContrastsMissing (group-mean
+# substitution) which is now deprecated.
+.resolve_facade_model <- function(model, model_missing = FALSE) {
+  if (identical(model, "prolfqua")) {
+    if (isTRUE(model_missing)) "lm_impute" else "lm"
+  } else {
+    model
+  }
+}
+
 # DEAnalyse ----
 #' Differential expression analysis engine using prolfqua facade classes
 #'
@@ -94,8 +110,11 @@ DEAnalyse <- R6::R6Class(
         default_model,
         prolfq_app_config$processing_options$model_missing
       )
-      stopifnot(default_model %in% .valid_facade_models())
-      if (!.is_saint_model(default_model)) {
+      entry <- prolfqua::lookup_facade(default_model)
+      if (is.null(entry)) {
+        stop("Unknown facade: ", default_model)
+      }
+      if (!isTRUE(entry$needs_saint_annotation)) {
         stopifnot(length(contrasts) >= 1)
       }
       self$lfq_data <- lfq_data
@@ -110,40 +129,66 @@ DEAnalyse <- R6::R6Class(
     },
 
     #' @description
-    #' Build a facade by registry key
-    #' @param name facade registry key (e.g. "lm", "lm_missing", "limma")
-    #' @param modelstr model formula string; auto-generated if NULL
+    #' Build a facade by registry key. Dispatches through
+    #' \code{prolfqua::lookup_facade()} so any facade registered by a
+    #' downstream package (e.g. \code{prolfquasaint::ContrastsSAINTFacade}
+    #' registered as \code{"saint"}) is reachable the same way as the
+    #' built-in prolfqua facades. SAINT-style backends that need the
+    #' protein annotation (registry attribute
+    #' \code{needs_saint_annotation = TRUE}) receive \code{row_annot}
+    #' from \code{self$rowAnnot}.
+    #' @param name facade registry key (e.g. "lm", "lm_missing", "limma",
+    #'   "saint")
+    #' @param modelstr model formula string; auto-generated if NULL.
+    #'   Ignored by facades whose backend derives contrasts from
+    #'   annotation (e.g. SAINT).
     #' @return the facade object (invisibly)
     build_facade = function(name, modelstr = NULL) {
       if (!is.null(self$contrast_results[[name]])) {
         return(invisible(self$contrast_results[[name]]))
       }
-      if (.is_saint_model(name)) {
-        saint <- .build_saint_contrast_result(
-          self$lfq_data,
-          self$rowAnnot,
-          spc = FALSE,
-          engine = "r"
-        )
-        self$contrast_results[[name]] <- saint$contrast
-        self$saint_input <- saint$input
-        self$saint_result <- saint$result
-        self$formula <- "SAINTexpress intensity model"
-        return(invisible(saint$contrast))
-      }
-      entry <- prolfqua::FACADE_REGISTRY[[name]]
+      entry <- prolfqua::lookup_facade(name)
       if (is.null(entry)) {
         stop("Unknown facade: ", name)
       }
-      if (is.null(modelstr)) {
-        modelstr <- private$create_modelstr()
+      facade_class <- utils::getFromNamespace(
+        entry$class,
+        entry$package %||% "prolfqua"
+      )
+
+      if (isTRUE(entry$needs_saint_annotation)) {
+        facade <- facade_class$new(
+          self$lfq_data,
+          modelstr = NULL,
+          contrasts = NULL,
+          row_annot = self$rowAnnot$row_annot
+        )
+        self$formula <- "SAINTexpress intensity model"
+      } else {
+        if (is.null(modelstr)) {
+          modelstr <- private$create_modelstr()
+        }
+        facade <- facade_class$new(self$lfq_data, modelstr, self$contrasts)
+        self$formula <- paste(self$lfq_data$response(), modelstr)
       }
 
-      facade_class <- utils::getFromNamespace(entry$class, "prolfqua")
-      facade <- facade_class$new(self$lfq_data, modelstr, self$contrasts)
-
       self$contrast_results[[name]] <- facade
-      self$formula <- paste(self$lfq_data$response(), modelstr)
+      # Back-compat: surface SAINT input/result on the DEAnalyse object so
+      # existing report code that reads dea$saint_input / dea$saint_result
+      # keeps working. Prefer facade$extra_artifacts() in new code.
+      extras <- facade$extra_artifacts()
+      if (length(extras) > 0) {
+        if (!is.null(extras$saint_inter) || !is.null(extras$saint_prey)) {
+          self$saint_input <- list(
+            inter = extras$saint_inter,
+            prey = extras$saint_prey,
+            bait = extras$saint_bait
+          )
+        }
+        if (!is.null(extras$saint_list)) {
+          self$saint_result <- list(list = extras$saint_list)
+        }
+      }
       invisible(facade)
     },
 
@@ -154,42 +199,32 @@ DEAnalyse <- R6::R6Class(
     },
 
     #' @description
-    #' Join default model contrasts with protein row annotations
+    #' Join default-model contrasts with protein row annotations.
+    #' Significance filtering is delegated to
+    #' \code{contrast_obj$filter_significant()}; backends with
+    #' \code{ContrastConfiguration$significance_directional = TRUE}
+    #' (e.g. SAINT) get one-sided filtering automatically.
     get_annotated_contrasts = function() {
       if (is.null(self$contrast_results[[self$default_model]])) {
         stop("no default model contrasts yet: ", self$default_model)
       }
       contrast_obj <- self$contrast_results[[self$default_model]]
       datax <- contrast_obj$get_contrasts()
-      datax_signif <- if (.is_saint_model(self$default_model)) {
-        contrast_obj$get_ora(
-          up = TRUE,
-          FDR_threshold = self$FDR_threshold,
-          diff_threshold = self$diff_threshold
-        )
-      } else {
-        private$filter_significant_contrasts(datax)
-      }
-      if (.is_saint_model(self$default_model)) {
-        datax_signif <- dplyr::inner_join(
-          self$rowAnnot$row_annot,
-          datax_signif,
-          multiple = "all"
-        )
-      }
+      datax_signif <- contrast_obj$filter_significant(
+        FDR_threshold = self$FDR_threshold,
+        diff_threshold = self$diff_threshold
+      )
       datax <- dplyr::inner_join(
         self$rowAnnot$row_annot,
         datax,
         multiple = "all"
       )
+      datax_signif <- dplyr::inner_join(
+        self$rowAnnot$row_annot,
+        datax_signif,
+        multiple = "all"
+      )
       self$annotated_contrasts <- datax
-      if (!.is_saint_model(self$default_model)) {
-        datax_signif <- dplyr::inner_join(
-          self$rowAnnot$row_annot,
-          datax_signif,
-          multiple = "all"
-        )
-      }
       self$annotated_contrasts_signif <- datax_signif
       invisible(self$annotated_contrasts)
     },
@@ -201,37 +236,15 @@ DEAnalyse <- R6::R6Class(
         stop("no default model contrasts yet:", self$default_model)
       }
       contrast_obj <- self$contrast_results[[self$default_model]]
-      if (.is_saint_model(self$default_model)) {
-        datax <- contrast_obj$get_ora(
-          up = TRUE,
+      invisible(
+        contrast_obj$filter_significant(
           FDR_threshold = self$FDR_threshold,
           diff_threshold = self$diff_threshold
         )
-      } else {
-        datax <- contrast_obj$get_contrasts()
-        datax <- private$filter_significant_contrasts(datax)
-      }
-      invisible(datax)
+      )
     }
   ),
   private = list(
-    filter_significant_contrasts = function(datax) {
-      if (.is_saint_model(self$default_model)) {
-        return(
-          datax |>
-            dplyr::filter(
-              .data$BFDR < self$FDR_threshold &
-                abs(.data$log2_EFCs) > self$diff_threshold
-            )
-        )
-      }
-      datax |>
-        dplyr::filter(
-          .data$FDR < self$FDR_threshold &
-            abs(.data$diff) > self$diff_threshold
-        )
-    },
-
     create_modelstr = function() {
       interaction <- self$prolfq_app_config$processing_options$interaction
       factors <- self$lfq_data$relevant_factor_keys()[
@@ -245,6 +258,32 @@ DEAnalyse <- R6::R6Class(
       modelstr <- paste0("~ ", paste(factors, collapse = sep))
       logger::log_info("model formula: {self$lfq_data$response()} {modelstr}")
       modelstr
+    }
+  )
+)
+
+# DEAnalysePeptideToProtein ----
+#' Differential expression analysis from peptide input to protein output
+#'
+#' Runs facades that consume peptide-level measurements but emit protein-level
+#' contrasts. The input \code{LFQData} keeps peptide hierarchy columns, while its
+#' active hierarchy depth points to the protein level.
+#'
+#' @export
+DEAnalysePeptideToProtein <- R6::R6Class(
+  "DEAnalysePeptideToProtein",
+  inherit = DEAnalyse,
+  public = list(
+    #' @description
+    #' Build the default peptide-to-protein facade.
+    build_default = function() {
+      # All nested facades (lmer_nested, ropeca_nested, firth_nested,
+      # limpa_nested) accept a fixed-effects-only modelstr. The lmer facade
+      # augments it internally with random effects derived from the LFQData.
+      self$build_facade(
+        self$default_model,
+        modelstr = private$create_modelstr()
+      )
     }
   )
 )

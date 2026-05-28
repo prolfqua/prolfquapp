@@ -175,7 +175,11 @@ Get per-protein boxplots for significant proteins
 \if{html}{\out{<a id="method-DEAReportGenerator-contrasts_to_Grob"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-contrasts_to_Grob}{}}}
 \subsection{Method \code{contrasts_to_Grob()}}{
-Convert significant contrast results to table grobs
+Convert significant contrast results to table grobs. Column
+selection and rounding are driven by the contrast object's
+\code{ContrastConfiguration} so SAINT and LM backends both
+produce grobs with canonical \code{contrast}/\code{effect}/
+\code{score}/\code{fdr} columns without backend-specific code.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$contrasts_to_Grob()}\if{html}{\out{</div>}}
 }

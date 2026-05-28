@@ -20,9 +20,15 @@ test_that("run_dea supports the prolfquasaint-backed saint model", {
   ))
 
   expect_equal(result$deanalyse$default_model, "saint")
+  # SAINT is reached through the prolfqua facade registry; the stored
+  # object is a ContrastsSAINTFacade wrapping a ContrastsSAINTexpress.
   expect_match(
     paste(class(result$deanalyse$contrast_results$saint), collapse = " "),
-    "ContrastsSAINTexpress"
+    "ContrastsSAINTFacade"
+  )
+  expect_s3_class(
+    result$deanalyse$contrast_results$saint,
+    "ContrastsInterface"
   )
   expect_named(result$deanalyse$saint_input, c("inter", "prey", "bait"))
   expect_gt(nrow(result$deanalyse$saint_result$list), 0)

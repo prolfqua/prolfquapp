@@ -120,6 +120,12 @@ ProteinDataPrep <- R6::R6Class(
         lfq_data <- tr$lfq
         lfq_data$is_transformed(FALSE)
         self$lfq_data <- lfq_data
+      } else if (agg_method == "limpa") {
+        self$aggregator <- prolfqua::AggregateLimpa$new(
+          lfqdata_peptide,
+          "protein"
+        )
+        self$lfq_data <- self$aggregator$aggregate()
       } else {
         logger::log_warn("no such aggregator {agg_method}.")
       }
@@ -209,18 +215,27 @@ ProteinDataPrep <- R6::R6Class(
         default_model,
         self$prolfq_app_config$processing_options$model_missing
       )
-      if (!default_model %in% .valid_facade_models()) {
+      entry <- prolfqua::lookup_facade(default_model)
+      if (is.null(entry)) {
         stop("Unknown facade: ", default_model)
       }
 
-      if (.is_saint_model(default_model)) {
-        lfq <- self$lfq_data_transformed
-        lfq_raw <- self$lfq_data
-      } else if (prolfqua::FACADE_REGISTRY[[default_model]]$needs == "nested") {
+      if (identical(entry$needs, "nested")) {
         if (is.null(self$lfq_data_peptide_transformed)) {
           self$transform_peptide_data()
         }
         lfq <- self$lfq_data_peptide_transformed
+        lfq_raw <- self$lfq_data_peptide
+      } else if (identical(entry$needs, "aggregated_limpa")) {
+        if (
+          is.null(self$lfq_data) ||
+            length(self$lfq_data$get_config()$opt_se) == 0 ||
+            nchar(self$lfq_data$get_config()$opt_se) == 0
+        ) {
+          self$prolfq_app_config$processing_options$aggregate <- "limpa"
+          self$aggregate()
+        }
+        lfq <- self$lfq_data
         lfq_raw <- self$lfq_data_peptide
       } else {
         lfq <- self$lfq_data_transformed

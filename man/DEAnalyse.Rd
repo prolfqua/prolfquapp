@@ -127,7 +127,14 @@ Initialize DEAnalyse
 \if{html}{\out{<a id="method-DEAnalyse-build_facade"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-build_facade}{}}}
 \subsection{Method \code{build_facade()}}{
-Build a facade by registry key
+Build a facade by registry key. Dispatches through
+\code{prolfqua::lookup_facade()} so any facade registered by a
+downstream package (e.g. \code{prolfquasaint::ContrastsSAINTFacade}
+registered as \code{"saint"}) is reachable the same way as the
+built-in prolfqua facades. SAINT-style backends that need the
+protein annotation (registry attribute
+\code{needs_saint_annotation = TRUE}) receive \code{row_annot}
+from \code{self$rowAnnot}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_facade(name, modelstr = NULL)}\if{html}{\out{</div>}}
 }
@@ -135,9 +142,12 @@ Build a facade by registry key
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{name}}{facade registry key (e.g. "lm", "lm_missing", "limma")}
+\item{\code{name}}{facade registry key (e.g. "lm", "lm_missing", "limma",
+"saint")}
 
-\item{\code{modelstr}}{model formula string; auto-generated if NULL}
+\item{\code{modelstr}}{model formula string; auto-generated if NULL.
+Ignored by facades whose backend derives contrasts from
+annotation (e.g. SAINT).}
 }
 \if{html}{\out{</div>}}
 }
@@ -159,7 +169,11 @@ Build the default facade (as set in default_model)
 \if{html}{\out{<a id="method-DEAnalyse-get_annotated_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-get_annotated_contrasts}{}}}
 \subsection{Method \code{get_annotated_contrasts()}}{
-Join default model contrasts with protein row annotations
+Join default-model contrasts with protein row annotations.
+Significance filtering is delegated to
+\code{contrast_obj$filter_significant()}; backends with
+\code{ContrastConfiguration$significance_directional = TRUE}
+(e.g. SAINT) get one-sided filtering automatically.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_annotated_contrasts()}\if{html}{\out{</div>}}
 }
