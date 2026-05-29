@@ -38,7 +38,8 @@ run_make_yaml(
 
 - model:
 
-  contrast facade method (see `names(prolfqua::FACADE_REGISTRY)`)
+  contrast facade method (see `names(prolfqua::FACADE_REGISTRY)`) or
+  "saint"
 
 - outdir:
 

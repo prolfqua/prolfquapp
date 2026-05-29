@@ -8,7 +8,7 @@ Differential expression analysis engine using prolfqua facade classes
 
 Takes prepared LFQData (at the correct hierarchy level for the chosen
 facade) and runs statistical modelling via prolfqua's ContrastsFacade
-classes.
+classes or the prolfquasaint SAINTexpress adapter.
 
 The caller (e.g. `ProteinDataPrep$build_deanalyse()`) is responsible for
 providing data at the right level: aggregated protein-level for most
@@ -63,6 +63,14 @@ facades, or nested peptide-level for `lmer`/`ropeca`.
 - `contrast_results`:
 
   named list of facade objects
+
+- `saint_input`:
+
+  SAINTexpress input tables for model = "saint"
+
+- `saint_result`:
+
+  SAINTexpress raw result list for model = "saint"
 
 - `default_model`:
 
@@ -136,7 +144,14 @@ Initialize DEAnalyse
 
 ### Method `build_facade()`
 
-Build a facade by registry key
+Build a facade by registry key. Dispatches through
+[`prolfqua::lookup_facade()`](https://wolski.github.io/prolfqua/reference/lookup_facade.html)
+so any facade registered by a downstream package (e.g.
+[`prolfquasaint::ContrastsSAINTFacade`](https://rdrr.io/pkg/prolfquasaint/man/ContrastsSAINTFacade.html)
+registered as `"saint"`) is reachable the same way as the built-in
+prolfqua facades. SAINT-style backends that need the protein annotation
+(registry attribute `needs_saint_annotation = TRUE`) receive `row_annot`
+from `self$rowAnnot`.
 
 #### Usage
 
@@ -146,11 +161,12 @@ Build a facade by registry key
 
 - `name`:
 
-  facade registry key (e.g. "lm", "lm_missing", "limma")
+  facade registry key (e.g. "lm", "lm_missing", "limma", "saint")
 
 - `modelstr`:
 
-  model formula string; auto-generated if NULL
+  model formula string; auto-generated if NULL. Ignored by facades whose
+  backend derives contrasts from annotation (e.g. SAINT).
 
 #### Returns
 
@@ -170,7 +186,10 @@ Build the default facade (as set in default_model)
 
 ### Method `get_annotated_contrasts()`
 
-Join default model contrasts with protein row annotations
+Join default-model contrasts with protein row annotations. Significance
+filtering is delegated to `contrast_obj$filter_significant()`; backends
+with `ContrastConfiguration$significance_directional = TRUE` (e.g.
+SAINT) get one-sided filtering automatically.
 
 #### Usage
 
@@ -229,23 +248,25 @@ data_prep$cont_decoy_summary()
 #> 1                  100
 data_prep$remove_cont_decoy()
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-05-07 12:43:32] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#> INFO [2026-05-29 09:58:48] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
 data_prep$aggregate()
-#> INFO [2026-05-07 12:43:32] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-05-29 09:58:48] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
+#> completing cases
 #> Column added : exp_medpolish
-#> INFO [2026-05-07 12:43:34] END OF PROTEIN AGGREGATION
+#> INFO [2026-05-29 09:58:50] END OF PROTEIN AGGREGATION
 data_prep$transform_data()
-#> INFO [2026-05-07 12:43:34] Transforming using robscale.
+#> INFO [2026-05-29 09:58:50] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
-#> Joining with `by = join_by(protein_Id, sampleName, isotopeLabel)`
-#> INFO [2026-05-07 12:43:34] Transforming data : robscale.
+#> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`
+#> INFO [2026-05-29 09:58:50] Transforming data : robscale.
 
 deanalyse <- data_prep$build_deanalyse(contrasts)
 deanalyse$build_default()
-#> INFO [2026-05-07 12:43:34] model formula: normalized_abundance ~ group_
+#> INFO [2026-05-29 09:58:50] model formula: normalized_abundance ~ group_
+#> Warning: ContrastsLMMissingFacade (method = 'lm_missing') is deprecated: its second leg uses ContrastsMissing (group-mean substitution, no model fit). Prefer 'lm_impute' which refits failed/singular proteins with LOD imputation and borrowed variance, tagging rescued rows as 'WaldTest_moderated_imputed'. See ?ContrastsLMMissingFacade for migration.
 #> determine linear functions:
 #> get_contrasts -> contrasts_linfct
 #> contrasts_linfct

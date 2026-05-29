@@ -43,6 +43,7 @@ pAlf <- sim_data_protAnnot()
 xd <- compute_IBAQ_values(pAlf$lfqdata, pAlf$pannot)
 #> Joining with `by = join_by(protein_Id, peptide_Id)`
 #> Columns added : srm_meanInt srm_meanIntRank
+#> completing cases
 xd$response()
 #> [1] "IBAQValue"
 pAlf <- sim_data_protAnnot(PROTEIN = TRUE)

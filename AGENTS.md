@@ -102,12 +102,19 @@ The package uses R6 classes to manage state and orchestrate analysis:
 - **DEAnalyse** (`R6_DEAnalyse.R`): Complete DEA pipeline
   - Aggregates peptides to proteins (medpolish, lmrob, topN)
   - Transforms data (VSN, quantile, robscale, or none)
-  - Builds 4 model types:
-    - m1_linear: Protein-level moderated t-tests
-    - m2_missing: Imputation-based analysis
-    - m3_merged: Combined linear and missing results
-    - m4_glm: Logistic models for missingness patterns
-  - Computes contrasts with FDR correction
+  - Dispatches to a prolfqua **facade** by short name via
+    [`prolfqua::lookup_facade()`](https://wolski.github.io/prolfqua/reference/lookup_facade.html).
+    Built-in facades: `lm`, `lm_impute`, `lm_missing`, `limma`,
+    `limma_impute`, `limma_voom`, `limma_voom_impute`, `limpa`, `rlm`,
+    `deqms`, `deqms_voom`, `firth`, `lmer`, `ropeca`. Downstream
+    packages register more via
+    [`prolfqua::register_facade()`](https://wolski.github.io/prolfqua/reference/register_facade.html)
+    — `prolfquasaint` registers `saint` from its `.onLoad`, so SAINT is
+    reached the same way as every other modelling backend (no
+    `.is_saint_model` branches in this package).
+  - Computes contrasts with FDR correction; thresholding is delegated to
+    `contrast_obj$filter_significant(FDR, diff)` which reads the
+    backend’s `ContrastConfiguration` (column names + flags).
 - **QC_generator** (`R6_QC_Abundances.R`): QC report generator
   - Computes IBAQ (intensity-based absolute quantification)
   - Generates protein abundance distributions

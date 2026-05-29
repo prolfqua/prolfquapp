@@ -31,6 +31,7 @@ pap <- example_qc_generator(Nprot = 10)
 #> Warning: no exp_nr_children column specified, computing using nr_children_experiment
 #> Column added : log_abundance
 #> starting aggregation
+#> completing cases
 #> Column added : exp_medpolish
 pap$get_prot_data()
 ```

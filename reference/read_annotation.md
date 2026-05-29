@@ -5,7 +5,16 @@ read annotation files
 ## Usage
 
 ``` r
-read_annotation(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE)
+read_annotation(
+  dsf,
+  repeated = TRUE,
+  SAINT = FALSE,
+  prefix = "G_",
+  QC = FALSE,
+  shorten_sample_names = TRUE,
+  sample_name_suffix_length = 14L,
+  sample_name_display_column = "sampleName"
+)
 ```
 
 ## Arguments
@@ -30,6 +39,18 @@ read_annotation(dsf, repeated = TRUE, SAINT = FALSE, prefix = "G_", QC = FALSE)
 
   if TRUE, read as QC annotation
 
+- shorten_sample_names:
+
+  derive short display sample names from long names
+
+- sample_name_suffix_length:
+
+  suffix length used for derived sample names
+
+- sample_name_display_column:
+
+  preferred derived display sample-name column
+
 ## Value
 
 list with annot (annotation table), atable (analtysis table
@@ -43,6 +64,7 @@ file = c("a1.raw","a2.raw","a3.raw","a4.raw"),
 name = c("aa","ba","aa","ba"),
 group = c("a","a","b","b"))
 read_annotation(annot, QC = TRUE)
+#> INFO [2026-05-29 09:59:12] Using derived sample display names in column 'sampleName'.
 #> $atable
 #> <AnalysisConfiguration>
 #>   Public:
@@ -73,17 +95,17 @@ read_annotation(annot, QC = TRUE)
 #>     opt_rt: 
 #>     opt_se: 
 #>     pop_response: function () 
-#>     sample_name: name
+#>     sample_name: sampleName
 #>     sep: ~
 #>     set_response: function (col_name) 
 #>     value_vars: function () 
 #>     work_intensity: NULL
 #> 
 #> $annot
-#>     file name group
-#> 1 a1.raw aa_1     a
-#> 2 a2.raw ba_1     a
-#> 3 a3.raw aa_2     b
-#> 4 a4.raw ba_2     b
+#>     file name group sampleName
+#> 1 a1.raw   aa     a         aa
+#> 2 a2.raw   ba     a         ba
+#> 3 a3.raw   aa     b       aa_1
+#> 4 a4.raw   ba     b       ba_1
 #> 
 ```

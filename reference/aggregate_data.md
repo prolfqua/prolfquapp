@@ -34,6 +34,7 @@ lfqdata <- prolfqua::LFQData$new(xx$data, xx$config)
 aggregated <- aggregate_data(lfqdata, agg_method = "medpolish")
 #> Column added : log_abundance
 #> starting aggregation
+#> completing cases
 #> Column added : exp_medpolish
 aggregated$response()
 #> [1] "exp_medpolish"
@@ -42,12 +43,14 @@ aggregated <- aggregate_data(lfqdata, agg_method = "rlm")
 #> starting aggregation
 #> Warning: 'rlm' failed to converge in 20 steps
 #> Warning: 'rlm' failed to converge in 20 steps
+#> completing cases
 #> Column added : exp_lmrob
 aggregated$response()
 #> [1] "exp_lmrob"
 aggregated <- aggregate_data(lfqdata, agg_method = "topN")
 #> Joining with `by = join_by(protein_Id, peptide_Id)`
 #> Columns added : srm_meanInt srm_meanIntRank
+#> completing cases
 aggregated$response()
 #> [1] "srm_sum_3"
 ```

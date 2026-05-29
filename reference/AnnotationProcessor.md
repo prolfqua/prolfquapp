@@ -46,6 +46,18 @@ AnnotationProcessor
 
   sample name column
 
+- `sample_name_suffix_length`:
+
+  maximum suffix length for display sample names
+
+- `sample_name_display_column`:
+
+  preferred derived display sample-name column
+
+- `shorten_sample_names`:
+
+  derive short display names for long sample names
+
 - `norm_value_pattern`:
 
   normalization value column (e.g., Creatinine)
@@ -82,7 +94,10 @@ initialize
       QC = FALSE,
       prefix = "G_",
       repeated = TRUE,
-      SAINT = FALSE
+      SAINT = FALSE,
+      shorten_sample_names = TRUE,
+      sample_name_suffix_length = 14L,
+      sample_name_display_column = "sampleName"
     )
 
 #### Arguments
@@ -102,6 +117,18 @@ initialize
 - `SAINT`:
 
   default FALSE
+
+- `shorten_sample_names`:
+
+  derive short display sample names from long names
+
+- `sample_name_suffix_length`:
+
+  suffix length used for derived sample names
+
+- `sample_name_display_column`:
+
+  preferred derived display sample-name column
 
 ------------------------------------------------------------------------
 
@@ -213,10 +240,7 @@ testthat::expect_error(ap$check_annotation(af),"column starting with :")
 #> Warning: column starting with :^name is missing.
 aa <- ap$read_annotation(annot)
 #> Warning: column starting with :^name is missing.
-#> Registered S3 method overwritten by 'prolfqua':
-#>   method         from    
-#>   print.pheatmap pheatmap
-#> INFO [2026-05-07 12:43:31] levels: c("a", "b") c("C", "T")
+#> INFO [2026-05-29 09:58:47] levels: c("a", "b") c("C", "T")
 #> b a 
 stopifnot(length(aa$atable$factor_keys_depth()) == 2)
 stopifnot(all(c("atable", "annot", "contrasts") %in% names(aa)))

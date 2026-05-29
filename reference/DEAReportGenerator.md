@@ -204,7 +204,11 @@ Get per-protein boxplots for significant proteins
 
 ### Method `contrasts_to_Grob()`
 
-Convert significant contrast results to table grobs
+Convert significant contrast results to table grobs. Column selection
+and rounding are driven by the contrast object's `ContrastConfiguration`
+so SAINT and LM backends both produce grobs with canonical
+`contrast`/`effect`/ `score`/`fdr` columns without backend-specific
+code.
 
 #### Usage
 

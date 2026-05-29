@@ -193,6 +193,9 @@ prolfquapp_ASMS_poster
 - [`DEAnalyse`](https://prolfqua.github.io/prolfquapp/reference/DEAnalyse.md)
   : Differential expression analysis engine using prolfqua facade
   classes
+- [`DEAnalysePeptideToProtein`](https://prolfqua.github.io/prolfquapp/reference/DEAnalysePeptideToProtein.md)
+  : Differential expression analysis from peptide input to protein
+  output
 - [`ExternalReader`](https://prolfqua.github.io/prolfquapp/reference/ExternalReader.md)
   : external reader R6 class for handling external data sources
 - [`FragPipe`](https://prolfqua.github.io/prolfquapp/reference/FragPipe.md)
