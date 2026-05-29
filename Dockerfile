@@ -75,7 +75,7 @@ RUN Rscript -e "cat('Testing data.table load...\\n'); library(data.table); cat('
 
 FROM base
 ENV HOME=/home/user
-ARG TINYTEX_VERSION=2025.07
+ARG TINYTEX_VERSION=2026.05
 RUN wget "https://github.com/rstudio/tinytex-releases/releases/download/v${TINYTEX_VERSION}/TinyTeX-1-v${TINYTEX_VERSION}.tar.gz" -O /tmp/tinytex.tar.gz \
   && tar -xzf /tmp/tinytex.tar.gz -C /opt \
   && rm /tmp/tinytex.tar.gz
