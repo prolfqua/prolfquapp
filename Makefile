@@ -18,7 +18,10 @@ SITE_CMD = Rscript -e "pkgdown::build_site(install = FALSE)"
 DEPLOY_CMD = Rscript -e "pkgdown::deploy_to_branch()"
 NEW_VERSION_CMD = Rscript -e "d <- read.dcf('DESCRIPTION'); old <- d[1, 'Version']; parts <- as.integer(strsplit(old, '.', fixed = TRUE)[[1]]); if (length(parts) < 3) parts <- c(parts, rep(0L, 3L - length(parts))); parts[3] <- parts[3] + 1L; new <- paste(parts, collapse = '.'); x <- readLines('DESCRIPTION'); x <- sub('^Version: .*', paste0('Version: ', new), x); writeLines(x, 'DESCRIPTION'); cat(new)"
 
-.PHONY: all help document build build-vignettes vignettes install test check-fast check-bioc check coverage lint format site deploy clean new-version new_version vignette
+DOCKER_IMAGE ?= prolfqua/$(PKG_NAME)
+DOCKER_TAG   ?= dev
+
+.PHONY: all help document build build-vignettes vignettes install test check-fast check-bioc check coverage lint format site deploy clean new-version new_version vignette docker-build docker-check
 
 all: check
 
@@ -41,6 +44,8 @@ help:
 	@echo "  make vignette V=Name - render a single vignette"
 	@echo "  make new-version     - bump patch version, commit, tag, and push"
 	@echo "  make clean           - remove build artifacts"
+	@echo "  make docker-build    - build $(DOCKER_IMAGE):$(DOCKER_TAG) from Dockerfile"
+	@echo "  make docker-check    - re-run vignette + Quarto build-time checks inside the image"
 
 document:
 	$(DOCUMENT_CMD)
@@ -106,3 +111,10 @@ clean:
 	rm -f Rplots.pdf
 	rm -rf inst/doc doc Meta
 	rm -f vignettes/*.html vignettes/*.R
+
+docker-build:
+	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) -f Dockerfile .
+
+docker-check:
+	docker run --rm $(DOCKER_IMAGE):$(DOCKER_TAG) -c \
+	  'Rscript /opt/checks/check_vignettes.R && Rscript /opt/checks/check_quarto.R'
