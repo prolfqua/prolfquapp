@@ -74,11 +74,13 @@ RUN Rscript -e "cat('Testing data.table load...\\n'); library(data.table); cat('
 
 
 FROM base
+ARG TARGETPLATFORM
 ENV HOME=/home/user
 ARG TINYTEX_VERSION=2026.05
-RUN wget "https://github.com/rstudio/tinytex-releases/releases/download/v${TINYTEX_VERSION}/TinyTeX-1-v${TINYTEX_VERSION}.tar.gz" -O /tmp/tinytex.tar.gz \
-  && tar -xzf /tmp/tinytex.tar.gz -C /opt \
-  && rm /tmp/tinytex.tar.gz
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCH=linux-arm64; else ARCH=linux-x86_64; fi \
+  && wget "https://github.com/rstudio/tinytex-releases/releases/download/v${TINYTEX_VERSION}/TinyTeX-1-${ARCH}-v${TINYTEX_VERSION}.tar.xz" -O /tmp/tinytex.tar.xz \
+  && tar -xJf /tmp/tinytex.tar.xz -C /opt \
+  && rm /tmp/tinytex.tar.xz
 RUN mkdir -p /home/user && chmod -R 777 /home/user
 COPY --from=build /opt/r-libs-site /opt/r-libs-site
 # Bake the build-time check scripts into the deploy image so
