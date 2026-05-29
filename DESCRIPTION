@@ -16,6 +16,9 @@ Description: The prolfquapp is a user-friendly application to streamline protein
   expression data in a core facility setting.
 URL: https://prolfqua.github.io/prolfquapp/, https://github.com/prolfqua/prolfquapp
 BugReports: https://github.com/prolfqua/prolfquapp/issues
+Remotes:
+    github::fgcz/prolfqua,
+    github::prolfqua/prolfquasaint
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
