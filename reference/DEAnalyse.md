@@ -147,7 +147,7 @@ Initialize DEAnalyse
 Build a facade by registry key. Dispatches through
 [`prolfqua::lookup_facade()`](https://wolski.github.io/prolfqua/reference/lookup_facade.html)
 so any facade registered by a downstream package (e.g.
-[`prolfquasaint::ContrastsSAINTFacade`](https://rdrr.io/pkg/prolfquasaint/man/ContrastsSAINTFacade.html)
+[`prolfquasaint::ContrastsSAINTFacade`](https://prolfqua.github.io/prolfquasaint/reference/ContrastsSAINTFacade.html)
 registered as `"saint"`) is reachable the same way as the built-in
 prolfqua facades. SAINT-style backends that need the protein annotation
 (registry attribute `needs_saint_annotation = TRUE`) receive `row_annot`
@@ -248,24 +248,24 @@ data_prep$cont_decoy_summary()
 #> 1                  100
 data_prep$remove_cont_decoy()
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-05-29 11:23:15] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#> INFO [2026-06-01 15:01:42] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
 data_prep$aggregate()
-#> INFO [2026-05-29 11:23:15] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-06-01 15:01:42] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> completing cases
 #> Column added : exp_medpolish
-#> INFO [2026-05-29 11:23:16] END OF PROTEIN AGGREGATION
+#> INFO [2026-06-01 15:01:43] END OF PROTEIN AGGREGATION
 data_prep$transform_data()
-#> INFO [2026-05-29 11:23:16] Transforming using robscale.
+#> INFO [2026-06-01 15:01:43] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`
-#> INFO [2026-05-29 11:23:16] Transforming data : robscale.
+#> INFO [2026-06-01 15:01:43] Transforming data : robscale.
 
 deanalyse <- data_prep$build_deanalyse(contrasts)
 deanalyse$build_default()
-#> INFO [2026-05-29 11:23:16] model formula: normalized_abundance ~ group_
+#> INFO [2026-06-01 15:01:43] model formula: normalized_abundance ~ group_
 #> Warning: ContrastsLMMissingFacade (method = 'lm_missing') is deprecated: its second leg uses ContrastsMissing (group-mean substitution, no model fit). Prefer 'lm_impute' which refits failed/singular proteins with LOD imputation and borrowed variance, tagging rescued rows as 'WaldTest_moderated_imputed'. See ?ContrastsLMMissingFacade for migration.
 #> determine linear functions:
 #> get_contrasts -> contrasts_linfct

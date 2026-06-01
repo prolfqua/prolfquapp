@@ -16,6 +16,17 @@ downstream tools such as [ExploreDE](https://github.com/fgcz/exploreDE).
 
 prolfquapp
 
+## Using an LLM agent to set up the analysis
+
+If you are using an LLM coding agent (such as Claude Code) to set up
+your differential expression analysis with prolfquapp, point it at the
+bundled [prolfquapp-dea
+skill](https://prolfqua.github.io/prolfquapp/prolfquapp-dea/SKILL.md).
+The skill file captures the full CLI workflow — preparing the input
+directory, designing the annotation and contrasts, choosing the software
+key, and troubleshooting common failures — so the agent can drive
+`prolfqua_dea.sh` correctly.
+
 # Differential Expression Analysis Workflow with prolfquapp
 
 After running your quantification software (DIA-NN, MaxQuant,
