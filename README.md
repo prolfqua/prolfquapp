@@ -8,6 +8,13 @@ Read on JPR <https://pubs.acs.org/doi/10.1021/acs.jproteome.4c00911> "prolfquapp
 
 ![prolfquapp](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/Prolfqapp_Highlight.png?raw=true)
 
+## Using an LLM agent to set up the analysis
+
+If you are using an LLM coding agent (such as Claude Code) to set up your differential expression analysis with
+prolfquapp, point it at the bundled [prolfquapp-dea skill](prolfquapp-dea/SKILL.md). The skill file captures the full
+CLI workflow — preparing the input directory, designing the annotation and contrasts, choosing the software key, and
+troubleshooting common failures — so the agent can drive `prolfqua_dea.sh` correctly.
+
 # Differential Expression Analysis Workflow with prolfquapp
 
 After running your quantification software (DIA-NN, MaxQuant, FragPipe-TMT, FragPipe-DIA, or FragPipe-LFQ), place the quantification outputs and the `.fasta` file used for the search into a single `data_dir`.

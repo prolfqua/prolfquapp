@@ -8,6 +8,7 @@
 ^\.claude$
 ^\.github$
 ^\.vscode$
+^prolfquapp-dea$
 ^inst/application/DIANN$
 ^inst/application/FragPipeDDA$
 ^inst/application/FragPipeTMT$
