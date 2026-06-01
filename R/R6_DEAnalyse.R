@@ -168,6 +168,7 @@ DEAnalyse <- R6::R6Class(
         if (is.null(modelstr)) {
           modelstr <- private$create_modelstr()
         }
+        private$validate_group_coverage()
         facade <- facade_class$new(self$lfq_data, modelstr, self$contrasts)
         self$formula <- paste(self$lfq_data$response(), modelstr)
       }
@@ -258,6 +259,78 @@ DEAnalyse <- R6::R6Class(
       modelstr <- paste0("~ ", paste(factors, collapse = sep))
       logger::log_info("model formula: {self$lfq_data$response()} {modelstr}")
       modelstr
+    },
+
+    # Abort early with an informative error when a contrast references a group
+    # that has no samples after matching the annotation to the quantification
+    # data. Without this guard the run fails much later inside prolfqua's
+    # linfct construction with a cryptic "subscript out of bounds", because the
+    # missing factor level has no model coefficient. The annotation file alone
+    # cannot reveal this: a group only disappears once its raw files are found
+    # to be absent from the quant report, so the check reads the populated
+    # LFQData rather than the annotation.
+    validate_group_coverage = function() {
+      factor_cols <- self$lfq_data$relevant_factor_keys()
+      factor_cols <- factor_cols[
+        !grepl("^control", factor_cols, ignore.case = TRUE)
+      ]
+      if (length(factor_cols) == 0 || length(self$contrasts) == 0) {
+        return(invisible(NULL))
+      }
+      data <- self$lfq_data$data_long(na.omit = TRUE)
+      # Reconstruct the level tokens that have data, mirroring how contrasts are
+      # built: paste0(factor_key, level), e.g. "G_OPENTRON".
+      present_tokens <- character(0)
+      level_counts <- integer(0)
+      for (f in factor_cols) {
+        if (!f %in% colnames(data)) {
+          next
+        }
+        levels_present <- unique(stats::na.omit(data[[f]]))
+        tokens <- paste0(f, levels_present)
+        counts <- vapply(
+          levels_present,
+          function(l) sum(data[[f]] == l, na.rm = TRUE),
+          integer(1)
+        )
+        present_tokens <- c(present_tokens, tokens)
+        names(counts) <- tokens
+        level_counts <- c(level_counts, counts)
+      }
+      for (i in seq_along(self$contrasts)) {
+        contrast_str <- self$contrasts[[i]]
+        contrast_name <- names(self$contrasts)[i] %||% paste0("contrast_", i)
+        referenced <- tryCatch(
+          all.vars(str2lang(contrast_str)),
+          error = function(e) character(0)
+        )
+        # Interaction terms appear as a single backticked symbol "A:B".
+        referenced <- unique(unlist(strsplit(referenced, ":", fixed = TRUE)))
+        for (token in referenced) {
+          # Only classify tokens that look like <factor_key><level>.
+          if (!any(startsWith(token, factor_cols))) {
+            next
+          }
+          if (!(token %in% present_tokens)) {
+            present_summary <- paste(
+              sprintf("%s [n=%d]", names(level_counts), level_counts),
+              collapse = ", "
+            )
+            stop(
+              "Contrast '", contrast_name, "' (", contrast_str,
+              ") cannot be computed: group '", token,
+              "' has 0 samples after matching the annotation to the ",
+              "quantification data. Groups with data: ",
+              if (length(present_summary)) present_summary else "<none>",
+              ". Check that the quantification report contains the raw files ",
+              "for every group in the annotation (a group whose runs are ",
+              "missing from the report is dropped during annotation).",
+              call. = FALSE
+            )
+          }
+        }
+      }
+      invisible(NULL)
     }
   )
 )
