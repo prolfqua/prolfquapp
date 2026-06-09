@@ -18,6 +18,7 @@ URL: https://prolfqua.github.io/prolfquapp/, https://github.com/prolfqua/prolfqu
 BugReports: https://github.com/prolfqua/prolfquapp/issues
 Remotes:
     github::fgcz/prolfqua,
+    github::prolfqua/saintexpress,
     github::prolfqua/prolfquasaint
 License: MIT + file LICENSE
 Encoding: UTF-8
