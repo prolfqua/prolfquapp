@@ -29,19 +29,19 @@ dea <- example_deanalyse(Nprot = 10)
 #> setup done
 #> Warning: no exp_nr_children column specified, computing using nr_children_experiment
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-06-09 13:57:27] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
-#> INFO [2026-06-09 13:57:27] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-06-09 13:59:15] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#> INFO [2026-06-09 13:59:15] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> completing cases
 #> Column added : exp_medpolish
-#> INFO [2026-06-09 13:57:28] END OF PROTEIN AGGREGATION
-#> INFO [2026-06-09 13:57:28] Transforming using robscale.
+#> INFO [2026-06-09 13:59:15] END OF PROTEIN AGGREGATION
+#> INFO [2026-06-09 13:59:15] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`
-#> INFO [2026-06-09 13:57:28] Transforming data : robscale.
-#> INFO [2026-06-09 13:57:28] model formula: normalized_abundance ~ group_
+#> INFO [2026-06-09 13:59:16] Transforming data : robscale.
+#> INFO [2026-06-09 13:59:16] model formula: normalized_abundance ~ group_
 #> Warning: ContrastsLMMissingFacade (method = 'lm_missing') is deprecated: its second leg uses ContrastsMissing (group-mean substitution, no model fit). Prefer 'lm_impute' which refits failed/singular proteins with LOD imputation and borrowed variance, tagging rescued rows as 'WaldTest_moderated_imputed'. See ?ContrastsLMMissingFacade for migration.
 #> determine linear functions:
 #> get_contrasts -> contrasts_linfct
