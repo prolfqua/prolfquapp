@@ -11,9 +11,53 @@ on:
         type: boolean
         default: false
 
+env:
+  IMAGE: prolfqua/prolfquapp
+
 jobs:
-  build-and-push-image:
+  version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      publish: ${{ steps.v.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v6.0.3
+        with:
+          fetch-depth: 0
+      - id: v
+        name: Determine version and publish flag
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+            PUBLISH=true
+          elif [ "${{ github.event.inputs.test-only }}" = "false" ]; then
+            VERSION=$(git tag --points-at HEAD | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+            if [ -z "$VERSION" ]; then
+              echo "::error::No semantic version tag (X.Y.Z) found at HEAD"
+              exit 1
+            fi
+            PUBLISH=true
+          else
+            VERSION=test
+            PUBLISH=false
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "publish=$PUBLISH" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION, publish: $PUBLISH"
+
+  build:
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            arch: amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       id-token: write
@@ -23,42 +67,92 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get version from Git tag or use test
-        run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            VERSION="${GITHUB_REF#refs/tags/}"
-            echo "VERSION=$VERSION" >> $GITHUB_ENV
-            echo "Using version from tag: $VERSION"
-          elif [ "${{ github.event.inputs.test-only }}" = "false" ]; then
-            VERSION=$(git tag --points-at HEAD | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
-            if [ -z "$VERSION" ]; then
-              echo "::error::No semantic version tag (X.Y.Z) found at HEAD"
-              exit 1
-            fi
-            echo "VERSION=$VERSION" >> $GITHUB_ENV
-            echo "Using version: $VERSION"
-          else
-            echo "VERSION=test" >> $GITHUB_ENV
-            echo "Using test version (no publish)"
-          fi
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        if: env.VERSION != 'test'
+        if: needs.version.outputs.publish == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        id: push
+      # Build this arch locally so we can smoke-test it natively on the runner.
+      - name: Build image for smoke test
         uses: docker/build-push-action@v6.10.0
         with:
           context: .
-          push: ${{ env.VERSION != 'test' }}
-          tags: prolfqua/prolfquapp:latest,prolfqua/prolfquapp:${{ env.VERSION }}
+          platforms: ${{ matrix.platform }}
+          load: true
+          tags: ${{ env.IMAGE }}:ci-${{ matrix.arch }}
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
 
       - name: Test Quarto PDF rendering with TinyTeX
         run: |
-          docker run --rm -v ${{ github.workspace }}/.github/workflows:/workspace prolfqua/prolfquapp:${{ env.VERSION }} \
+          docker run --rm -v ${{ github.workspace }}/.github/workflows:/workspace \
+            ${{ env.IMAGE }}:ci-${{ matrix.arch }} \
             quarto render /workspace/formula.qmd --to pdf
-          echo "✅ Quarto successfully rendered PDF with TinyTeX"
+          echo "✅ Quarto rendered PDF on ${{ matrix.arch }}"
+
+      # Push by digest (no tag). Reuses the cache from the build above.
+      - name: Build and push by digest
+        id: push
+        if: needs.version.outputs.publish == 'true'
+        uses: docker/build-push-action@v6.10.0
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digest
+        if: needs.version.outputs.publish == 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.push.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        if: needs.version.outputs.publish == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    needs: [version, build]
+    if: needs.version.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create and push manifest list
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create \
+            -t ${{ env.IMAGE }}:latest \
+            -t ${{ env.IMAGE }}:${{ needs.version.outputs.version }} \
+            $(printf '${{ env.IMAGE }}@sha256:%s ' *)
+
+      - name: Inspect manifest
+        run: docker buildx imagetools inspect ${{ env.IMAGE }}:${{ needs.version.outputs.version }}

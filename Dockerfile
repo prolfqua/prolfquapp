@@ -1,7 +1,11 @@
 # syntax=docker/dockerfile:1
-ARG R_VERSION=4.5.2
+ARG R_VERSION=4.6.0
 
-FROM r-base:${R_VERSION} AS base
+# Pinned by digest: the r-base tags are mutable and were silently serving R 4.6.0
+# under the 4.5.2 tag, which produced a build-vs-runtime ABI mismatch (packages
+# compiled against 4.6.0, loaded under 4.5.2). Pinning the digest locks the exact
+# image so the build and runtime stages always share one consistent R version.
+FROM r-base:${R_VERSION}@sha256:31f2ab2f0d4eeb8f9b2cbcc9ed8aac242be6fbd2bfa9f4af94d4a41a9d54c818 AS base
 ARG TARGETPLATFORM
 ARG QUARTO_VERSION=1.5.57
 
