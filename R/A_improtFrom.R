@@ -23,7 +23,7 @@
 #' @importFrom writexl write_xlsx
 #' @importFrom yaml read_yaml
 #' @importFrom stats as.formula na.omit rlnorm rt
-#' @importFrom utils getFromNamespace installed.packages packageVersion read.csv tail write.table
+#' @importFrom utils capture.output getFromNamespace head installed.packages packageVersion read.csv tail write.table
 
 NULL
 

@@ -18,7 +18,10 @@ example_deanalyse <- function(Nprot = 100) {
   pA$description <- paste0(pA$protein_Id, "_description")
   pA <- ProteinAnnotation$new(pep, row_annot = pA, description = "description")
 
-  GRP2 <- make_DEA_config_R6()
+  # Write into a unique temp dir so the example/config never points at the
+  # working directory (avoids leaving DEA_<date>_none dirs when a consumer
+  # such as DEAReportGenerator creates the output folder).
+  GRP2 <- make_DEA_config_R6(PATH = tempfile("prolfquapp-example-"))
   GRP2$processing_options$diff_threshold <- 0.2
   GRP2$processing_options$transform <- "robscale"
 
@@ -56,7 +59,9 @@ example_deanalyse <- function(Nprot = 100) {
 #'
 example_qc_generator <- function(Nprot = 100) {
   res <- sim_data_protAnnot(Nprot = Nprot)
-  GRP2 <- make_DEA_config_R6()
+  # Write into a unique temp dir so the example never creates output folders
+  # in the working directory.
+  GRP2 <- make_DEA_config_R6(PATH = tempfile("prolfquapp-example-"))
   GRP2$set_zipdir_name()
   dir.create(GRP2$get_zipdir(), showWarnings = FALSE, recursive = TRUE)
   # Alias nr_peptides -> nrPeptides (expected by QC report templates)

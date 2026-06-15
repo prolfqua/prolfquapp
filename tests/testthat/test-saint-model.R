@@ -1,5 +1,6 @@
 test_that("run_dea supports the prolfquasaint-backed saint model", {
   skip_on_cran()
+  skip_if_not_installed("prolfquasaint")
   dataset <- system.file(
     "application/sim_test/dataset_sim.csv",
     package = "prolfquapp"
@@ -47,6 +48,7 @@ test_that("run_dea supports the prolfquasaint-backed saint model", {
 
 test_that("SAINT report writer adds SAINT sheets and enrichment inputs", {
   skip_on_cran()
+  skip_if_not_installed("prolfquasaint")
   dataset <- system.file(
     "application/sim_test/dataset_sim.csv",
     package = "prolfquapp"
