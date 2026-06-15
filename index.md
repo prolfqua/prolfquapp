@@ -117,6 +117,12 @@ Generate a QC report consisting of two HTML documents and an XLSX file.
 ./prolfqua_qc.sh -i data_dir/ -p ProjectName -O ordername -w WorkunitName -d annotation.xlsx -s DIANN -o where_to_write_results
 ```
 
+By default the report is written into a dated subfolder starting with
+`QC_`. Pass `--flat_outdir` to write the report files
+(`proteinAbundances.html`, `QC_sampleSizeEstimation.html`, `index.html`)
+directly into the `-o`/`--outdir` directory instead — useful for
+pipelines that need a static, predictable path.
+
 ## 3. Generate prolfquapp YAML
 
 Create a YAML configuration file with the DEA parameters.
@@ -155,6 +161,10 @@ previous steps.
 ``` bash
 ./prolfqua_dea.sh -i data_dir/ -d annotation.xlsx -y config.yaml -w NameOfAnalysis -s DIANN
 ```
+
+As with QC, results go into a dated subfolder starting with `DEA_` by
+default. Pass `--flat_outdir` to write results directly into
+`-o`/`--outdir` without the dated subfolder.
 
 ## How to install
 

@@ -35,6 +35,11 @@ Other ProlfquAppConfig:
 
   results should go to zipdir_name
 
+- `flat_outdir`:
+
+  when TRUE, write results directly into \`path\` with no dated zipdir
+  subdir (default FALSE keeps the dated layout)
+
 - `path`:
 
   path to working directory
@@ -81,7 +86,8 @@ external reader
       zipdir_name = ".",
       path = ".",
       software = "DIANN",
-      prefix = "DEA"
+      prefix = "DEA",
+      flat_outdir = FALSE
     )
 
 #### Arguments
@@ -114,6 +120,11 @@ external reader
 
   either QC or DEA
 
+- `flat_outdir`:
+
+  write results directly into \`path\` without a dated subdir (default
+  FALSE)
+
 ------------------------------------------------------------------------
 
 ### Method `set_zipdir_name()`
@@ -133,6 +144,9 @@ the generated zip directory name
 ### Method `get_zipdir()`
 
 Get the full path to the zip directory
+
+When \`flat_outdir\` is TRUE the dated zipdir subdir is skipped and
+results are written directly into \`path\`.
 
 #### Usage
 
@@ -214,12 +228,12 @@ yaml::write_yaml(xx, file = file.path(tempdir(), "test.yaml"))
 config <- yaml::read_yaml(file = file.path(tempdir(), "test.yaml"))
 
 r6obj_config$set_zipdir_name()
-#> [1] "DEA_20260609_vsn"
+#> [1] "DEA_20260615_vsn"
 
 r6obj_config$get_zipdir()
-#> [1] "./DEA_20260609_vsn"
+#> [1] "./DEA_20260615_vsn"
 r6obj_config$get_result_dir()
-#> [1] "./DEA_20260609_vsn/Results_WU_"
+#> [1] "./DEA_20260615_vsn/Results_WU_"
 r6obj_config$get_input_dir()
-#> [1] "./DEA_20260609_vsn/Inputs_WU_"
+#> [1] "./DEA_20260615_vsn/Inputs_WU_"
 ```

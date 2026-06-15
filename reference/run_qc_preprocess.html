@@ -61,7 +61,8 @@ to construct a <code><a href="QC_generator.html">QC_generator</a></code>.</p>
 <span>  outdir <span class="op">=</span> <span class="st">"qc_dir"</span>,</span>
 <span>  project <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  order <span class="op">=</span> <span class="st">""</span>,</span>
-<span>  workunit <span class="op">=</span> <span class="st">""</span></span>
+<span>  workunit <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  flat_outdir <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -101,6 +102,11 @@ instead of generating a default config</p></dd>
 
 <dt id="arg-workunit">workunit<a class="anchor" aria-label="anchor" href="#arg-workunit"></a></dt>
 <dd><p>workunit ID (used only when no yaml_file)</p></dd>
+
+
+<dt id="arg-flat-outdir">flat_outdir<a class="anchor" aria-label="anchor" href="#arg-flat-outdir"></a></dt>
+<dd><p>when TRUE, write QC outputs directly into <code>outdir</code>
+without a dated subdir (default FALSE)</p></dd>
 
 </dl></div>
     <div class="section level2">

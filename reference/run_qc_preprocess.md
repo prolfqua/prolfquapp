@@ -16,7 +16,8 @@ run_qc_preprocess(
   outdir = "qc_dir",
   project = "",
   order = "",
-  workunit = ""
+  workunit = "",
+  flat_outdir = FALSE
 )
 ```
 
@@ -55,6 +56,11 @@ run_qc_preprocess(
 - workunit:
 
   workunit ID (used only when no yaml_file)
+
+- flat_outdir:
+
+  when TRUE, write QC outputs directly into `outdir` without a dated
+  subdir (default FALSE)
 
 ## Value
 

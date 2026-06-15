@@ -136,6 +136,7 @@
 <strong>Output</strong>: subfolder starting with <code>QC_</code> containing QC report and visualizations</li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">./prolfqua_qc.sh</span> <span class="at">-i</span> data_dir/ <span class="at">-p</span> ProjectName <span class="at">-O</span> ordername <span class="at">-w</span> WorkunitName <span class="at">-d</span> annotation.xlsx <span class="at">-s</span> DIANN <span class="at">-o</span> where_to_write_results</span></code></pre></div>
+<p>By default the report is written into a dated subfolder starting with <code>QC_</code>. Pass <code>--flat_outdir</code> to write the report files (<code>proteinAbundances.html</code>, <code>QC_sampleSizeEstimation.html</code>, <code>index.html</code>) directly into the <code>-o</code>/<code>--outdir</code> directory instead — useful for pipelines that need a static, predictable path.</p>
 </div>
 <div class="section level2">
 <h2 id="id_3-generate-prolfquapp-yaml">3. Generate prolfquapp YAML<a class="anchor" aria-label="anchor" href="#id_3-generate-prolfquapp-yaml"></a>
@@ -170,6 +171,7 @@
 </li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">./prolfqua_dea.sh</span> <span class="at">-i</span> data_dir/ <span class="at">-d</span> annotation.xlsx <span class="at">-y</span> config.yaml <span class="at">-w</span> NameOfAnalysis <span class="at">-s</span> DIANN</span></code></pre></div>
+<p>As with QC, results go into a dated subfolder starting with <code>DEA_</code> by default. Pass <code>--flat_outdir</code> to write results directly into <code>-o</code>/<code>--outdir</code> without the dated subfolder.</p>
 </div>
 <div class="section level2">
 <h2 id="how-to-install">How to install<a class="anchor" aria-label="anchor" href="#how-to-install"></a>

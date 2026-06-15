@@ -36,6 +36,7 @@ get_config()
 #>     as_list: function () 
 #>     clone: function (deep = FALSE) 
 #>     ext_reader: ExternalReader, R6
+#>     flat_outdir: FALSE
 #>     get_input_dir: function () 
 #>     get_result_dir: function () 
 #>     get_zipdir: function () 
@@ -47,5 +48,5 @@ get_config()
 #>     project_spec: ProjectSpec, R6
 #>     set_zipdir_name: function () 
 #>     software: DIANN
-#>     zipdir_name: DEA_20260609_PI123_O123_WUHelloWorld_none
+#>     zipdir_name: DEA_20260615_PI123_O123_WUHelloWorld_none
 ```
