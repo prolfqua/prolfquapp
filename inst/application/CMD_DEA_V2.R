@@ -64,6 +64,15 @@ option_list <- list(
     default = NULL,
     help = " (optional) R library path",
     metavar = "string"
+  ),
+  optparse::make_option(
+    c("--flat_outdir"),
+    action = "store_true",
+    default = FALSE,
+    help = paste0(
+      "write outputs directly into --outdir without a dated subdir ",
+      "(default: dated subdir)"
+    )
   )
 )
 
@@ -117,8 +126,8 @@ opt <- res$opt
 GRP2 <- res$config
 
 
-dir.create(opt$outdir)
-dir.create(GRP2$get_zipdir())
+dir.create(opt$outdir, showWarnings = FALSE, recursive = TRUE)
+dir.create(GRP2$get_zipdir(), showWarnings = FALSE, recursive = TRUE)
 
 current_time <- Sys.time()
 

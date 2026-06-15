@@ -49,6 +49,9 @@ Other ProlfquAppConfig:
 
 \item{\code{zipdir_name}}{results should go to zipdir_name}
 
+\item{\code{flat_outdir}}{when TRUE, write results directly into `path`
+with no dated zipdir subdir (default FALSE keeps the dated layout)}
+
 \item{\code{path}}{path to working directory}
 
 \item{\code{group}}{group prefix}
@@ -82,7 +85,8 @@ Initialize ProlfquAppConfig with processing options, project spec, and external 
   zipdir_name = ".",
   path = ".",
   software = "DIANN",
-  prefix = "DEA"
+  prefix = "DEA",
+  flat_outdir = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -102,6 +106,9 @@ Initialize ProlfquAppConfig with processing options, project spec, and external 
 \item{\code{software}}{name of input software}
 
 \item{\code{prefix}}{either QC or DEA}
+
+\item{\code{flat_outdir}}{write results directly into `path` without a dated
+subdir (default FALSE)}
 }
 \if{html}{\out{</div>}}
 }
@@ -124,6 +131,9 @@ the generated zip directory name
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_zipdir}{}}}
 \subsection{Method \code{get_zipdir()}}{
 Get the full path to the zip directory
+
+When `flat_outdir` is TRUE the dated zipdir subdir is skipped and
+results are written directly into `path`.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_zipdir()}\if{html}{\out{</div>}}
 }

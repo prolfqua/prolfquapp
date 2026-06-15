@@ -155,6 +155,8 @@ run_make_yaml <- function(
 #' @param project project ID (used only when no yaml_file)
 #' @param order order ID (used only when no yaml_file)
 #' @param workunit workunit ID (used only when no yaml_file)
+#' @param flat_outdir when TRUE, write QC outputs directly into \code{outdir}
+#'   without a dated subdir (default FALSE)
 #' @return list with \code{xd} (preprocessed data), \code{files}
 #'   (discovered file paths), and \code{config} (ProlfquAppConfig)
 #' @export
@@ -166,7 +168,8 @@ run_qc_preprocess <- function(
   outdir = "qc_dir",
   project = "",
   order = "",
-  workunit = ""
+  workunit = "",
+  flat_outdir = FALSE
 ) {
   if (!is.null(yaml_file) && file.exists(yaml_file)) {
     GRP2 <- prolfquapp::get_config(yaml_file)
@@ -180,6 +183,7 @@ run_qc_preprocess <- function(
       prefix = "QC"
     )
   }
+  GRP2$flat_outdir <- isTRUE(flat_outdir)
 
   if (!file.exists(dataset)) {
     stop("No annotation file found: ", dataset, call. = FALSE)

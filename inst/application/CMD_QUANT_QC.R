@@ -86,6 +86,15 @@ option_list <- list(
     help = " (optional) R library path",
     metavar = "string"
   ),
+  make_option(
+    c("--flat_outdir"),
+    action = "store_true",
+    default = FALSE,
+    help = paste0(
+      "write outputs directly into --outdir without a dated subdir ",
+      "(default: dated subdir)"
+    )
+  ),
   optparse::make_option(
     c("-y", "--yaml"),
     type = "character",
@@ -145,7 +154,8 @@ result <- tryCatch(
     outdir = opt$outdir,
     project = opt$project,
     order = opt$order,
-    workunit = opt$workunit
+    workunit = opt$workunit,
+    flat_outdir = opt$flat_outdir
   ),
   error = function(e) {
     stack_trace <- capture.output(traceback())
