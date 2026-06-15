@@ -180,6 +180,9 @@ ProlfquAppConfig <- R6::R6Class(
     prefix = character(),
     #' @field zipdir_name results should go to zipdir_name
     zipdir_name = character(),
+    #' @field flat_outdir when TRUE, write results directly into `path`
+    #'   with no dated zipdir subdir (default FALSE keeps the dated layout)
+    flat_outdir = FALSE,
     #' @field path path to working directory
     path = character(),
     #' @field group group prefix
@@ -197,6 +200,8 @@ ProlfquAppConfig <- R6::R6Class(
     #' @param path working directory path
     #' @param software name of input software
     #' @param prefix either QC or DEA
+    #' @param flat_outdir write results directly into `path` without a dated
+    #'   subdir (default FALSE)
     initialize = function(
       processing_options,
       project_spec,
@@ -204,7 +209,8 @@ ProlfquAppConfig <- R6::R6Class(
       zipdir_name = ".",
       path = ".",
       software = "DIANN",
-      prefix = "DEA"
+      prefix = "DEA",
+      flat_outdir = FALSE
     ) {
       self$software <- software
       self$processing_options <- processing_options
@@ -213,6 +219,7 @@ ProlfquAppConfig <- R6::R6Class(
       self$zipdir_name <- zipdir_name
       self$path <- path
       self$prefix <- prefix
+      self$flat_outdir <- flat_outdir
     },
 
     #' @description
@@ -231,8 +238,14 @@ ProlfquAppConfig <- R6::R6Class(
 
     #' @description
     #' Get the full path to the zip directory
+    #'
+    #' When `flat_outdir` is TRUE the dated zipdir subdir is skipped and
+    #' results are written directly into `path`.
     #' @return full path to zip directory
     get_zipdir = function() {
+      if (isTRUE(self$flat_outdir)) {
+        return(self$path)
+      }
       return(file.path(self$path, self$zipdir_name))
     },
 
@@ -326,6 +339,7 @@ list_to_R6_app_config <- function(dd) {
   r6obj_config$group <- dd$group
   r6obj_config$path <- dd$path
   r6obj_config$prefix <- dd$prefix
+  r6obj_config$flat_outdir <- isTRUE(dd$flat_outdir)
 
   if (is.null(r6obj_config$zipdir_name)) {
     r6obj_config$set_zipdir_name()

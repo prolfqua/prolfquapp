@@ -12,7 +12,8 @@ run_qc_preprocess(
   outdir = "qc_dir",
   project = "",
   order = "",
-  workunit = ""
+  workunit = "",
+  flat_outdir = FALSE
 )
 }
 \arguments{
@@ -33,6 +34,9 @@ instead of generating a default config}
 \item{order}{order ID (used only when no yaml_file)}
 
 \item{workunit}{workunit ID (used only when no yaml_file)}
+
+\item{flat_outdir}{when TRUE, write QC outputs directly into \code{outdir}
+without a dated subdir (default FALSE)}
 }
 \value{
 list with \code{xd} (preprocessed data), \code{files}
