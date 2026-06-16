@@ -81,10 +81,6 @@ DEAnalyse <- R6::R6Class(
 
     #' @field contrast_results named list of facade objects
     contrast_results = list(),
-    #' @field saint_input SAINTexpress input tables for model = "saint"
-    saint_input = NULL,
-    #' @field saint_result SAINTexpress raw result list for model = "saint"
-    saint_result = NULL,
     #' @field default_model facade registry key for the default model
     default_model = "lm_missing",
 
@@ -174,22 +170,6 @@ DEAnalyse <- R6::R6Class(
       }
 
       self$contrast_results[[name]] <- facade
-      # Back-compat: surface SAINT input/result on the DEAnalyse object so
-      # existing report code that reads dea$saint_input / dea$saint_result
-      # keeps working. Prefer facade$extra_artifacts() in new code.
-      extras <- facade$extra_artifacts()
-      if (length(extras) > 0) {
-        if (!is.null(extras$saint_inter) || !is.null(extras$saint_prey)) {
-          self$saint_input <- list(
-            inter = extras$saint_inter,
-            prey = extras$saint_prey,
-            bait = extras$saint_bait
-          )
-        }
-        if (!is.null(extras$saint_list)) {
-          self$saint_result <- list(list = extras$saint_list)
-        }
-      }
       invisible(facade)
     },
 

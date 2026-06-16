@@ -31,8 +31,12 @@ test_that("run_dea supports the prolfquasaint-backed saint model", {
     result$deanalyse$contrast_results$saint,
     "ContrastsInterface"
   )
-  expect_named(result$deanalyse$saint_input, c("inter", "prey", "bait"))
-  expect_gt(nrow(result$deanalyse$saint_result$list), 0)
+  saint_extras <- result$deanalyse$contrast_results$saint$extra_artifacts()
+  expect_true(all(
+    c("saint_inter", "saint_prey", "saint_bait", "saint_list") %in%
+      names(saint_extras)
+  ))
+  expect_gt(nrow(saint_extras$saint_list), 0)
   expect_true(all(
     c("BFDR", "SaintScore", "log2_EFCs") %in%
       colnames(result$deanalyse$annotated_contrasts)
