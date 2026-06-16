@@ -473,7 +473,7 @@ please contact <protinf@fgcz.uzh.ch>.
 *limma(v.3.68.4)*, *later(v.1.4.8)*, *splines(v.4.6.0)*,
 *lattice(v.0.22-9)*, *survival(v.3.8-6)*, *bit(v.4.6.0)*,
 *tidyselect(v.1.2.1)*, *knitr(v.1.51)*, *reformulas(v.0.4.4)*,
-*gridExtra(v.2.3)*, *prolfquapp(v.2.0.17)*, *bookdown(v.0.46)*,
+*gridExtra(v.2.3)*, *prolfquapp(v.2.0.18)*, *bookdown(v.0.46)*,
 *IRanges(v.2.46.0)*, *Seqinfo(v.1.2.0)*,
 *SummarizedExperiment(v.1.42.0)*, *stats4(v.4.6.0)*, *xfun(v.0.58)*,
 *prolfqua(v.1.6.2)*, *Biobase(v.2.72.0)*, *statmod(v.1.5.2)*,
@@ -567,4 +567,4 @@ Proteome Research* 4 (22): 1092–1104.
 
 *This report was generated from the R Markdown template
 `Grp2Analysis_V2_R6.Rmd` included in the `prolfquapp` R package (version
-2.0.17).*
+2.0.18).*
