@@ -25,9 +25,9 @@ istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
 #> Column added : nr_peptide_Id_IN_protein_Id
 tmp <- prolfqua::LFQData$new(istar$data, istar$config)
 tmp2 <- transform_lfqdata(tmp)
-#> INFO [2026-06-15 15:11:16] Transforming using robscale.
+#> INFO [2026-06-16 20:23:21] Transforming using robscale.
 #> Column added : log2_peptide.intensity
 #> data is : TRUE
 #> Joining with `by = join_by(protein_Id, sampleName, isotope, peptide_Id)`
-#> INFO [2026-06-15 15:11:17] Transforming data : robscale.
+#> INFO [2026-06-16 20:23:22] Transforming data : robscale.
 ```
