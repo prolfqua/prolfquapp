@@ -37,7 +37,7 @@ RUN R -e 'options(warn=2); pak::pkg_install(c("any::seqinr", "any::prozor", "any
 COPY ./DESCRIPTION /opt/prolfqua/DESCRIPTION
 RUN R -e 'options(warn=2); pak::local_install_deps("/opt/prolfqua", upgrade = FALSE)'
 COPY . /opt/prolfqua
-RUN R -e 'options(warn=2); install.packages(c("knitr", "rmarkdown", "DT", "gridExtra", "KernSmooth", "plotly"), repos = "https://stat.ethz.ch/CRAN/")'
+RUN R -e 'options(warn=2); install.packages(c("knitr", "rmarkdown", "DT", "gridExtra", "KernSmooth", "plotly", "Rfit"), repos = "https://stat.ethz.ch/CRAN/")'
 RUN cd /tmp \
   && R CMD build /opt/prolfqua --no-manual \
   && R CMD INSTALL prolfquapp_*.tar.gz
