@@ -67,10 +67,6 @@ stopifnot(nrow(deanalyse$contrast_results[[deanalyse$default_model]]$get_contras
 
 \item{\code{contrast_results}}{named list of facade objects}
 
-\item{\code{saint_input}}{SAINTexpress input tables for model = "saint"}
-
-\item{\code{saint_result}}{SAINTexpress raw result list for model = "saint"}
-
 \item{\code{default_model}}{facade registry key for the default model}
 }
 \if{html}{\out{</div>}}

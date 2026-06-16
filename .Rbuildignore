@@ -4,6 +4,8 @@
 ^R/\.lintr$
 ^Makefile$
 ^CLAUDE\.md$
+^AGENTS\.md$
+^TODO$
 ^\.dockerignore$
 ^\.claude$
 ^\.github$
