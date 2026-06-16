@@ -5,7 +5,7 @@
 ^Makefile$
 ^CLAUDE\.md$
 ^AGENTS\.md$
-^TODO_dockerfile\.md$
+^TODO$
 ^\.dockerignore$
 ^\.claude$
 ^\.github$
