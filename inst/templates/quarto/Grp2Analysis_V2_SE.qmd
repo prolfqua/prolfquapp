@@ -70,11 +70,7 @@ show_plot <- function(plot) {
   if (is.null(plot)) {
     plot <- empty_report_plot("No plot is available for this data set.")
   }
-  if (inherits(plot, "pheatmap")) {
-    grid::grid.draw(plot$gtable)
-  } else {
-    print(plot)
-  }
+  print(plot)
   invisible(plot)
 }
 
@@ -509,7 +505,7 @@ show_plot(safe_plot(
 
 ```{r}
 #| label: fig-abundance-heatmap
-#| fig-cap: "Heatmap of transformed feature abundances."
+#| fig-cap: "Heatmap of transformed feature abundances. Cell color encodes the row z-score on a green-black-red scale (green: low, black: average, red: high); missing values are shown in light gray."
 #| fig-width: 7
 #| fig-height: 6
 show_plot(safe_plot(

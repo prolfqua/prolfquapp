@@ -321,7 +321,7 @@ ph <- pl$heatmap()
 The protein abundance heatmap (Figure \@ref(fig:heatmap)) groups the protein and samples using unsupervised hierarchical clustering. Distances between proteins and samples are computed using normalized protein abundances. Proteins with a large proportion of missing observations are not shown in this heatmap, because for these proteins no distance can be computed.  Proteins and samples showing similar abundances are grouped and shown in adjacent rows and columns respectively.
 
 
-(ref:heatmap) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing the row scaled $\log_2$ transformed protein abundance value. Co-clustering (hierarchical complete linkage, euclidean distance) of samples and proteins was used.
+(ref:heatmap) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing the row scaled $\log_2$ transformed protein abundance value. Co-clustering (hierarchical complete linkage, euclidean distance) of samples and proteins was used. Cell color encodes the row z-score on a green-black-red scale (green: low, black: average, red: high); missing values are shown in light gray.
 
 
 
