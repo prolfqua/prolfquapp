@@ -417,6 +417,21 @@ AnnotationProcessor <- R6::R6Class(
         value = TRUE,
         ignore.case = TRUE
       )
+      # Drop candidate columns that carry no information (all NA / all blank).
+      # Datasets frequently ship an empty "Bait ID" column alongside a populated
+      # "Grouping Var"; without this filter the bait-preference below would pick
+      # the empty column, yielding an all-NA grouping factor that crashes the
+      # missingness heatmap (pheatmap: "'gpar' element 'fill' must not be length 0").
+      non_empty <- vapply(
+        groupingVAR,
+        function(col) {
+          any(!is.na(annot[[col]]) & trimws(as.character(annot[[col]])) != "")
+        },
+        logical(1)
+      )
+      if (any(non_empty)) {
+        groupingVAR <- groupingVAR[non_empty]
+      }
       if (any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
         groupingVAR <- grep(
           "^bait",

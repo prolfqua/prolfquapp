@@ -64,3 +64,25 @@ test_that("read_annotation does not overwrite duplicate short sample names", {
   expect_equal(result$annot$Name, annotation$Name)
   expect_equal(result$annot$sampleName, c("control", "control_1", "treat"))
 })
+
+test_that("empty bait column does not hijack a populated grouping variable", {
+  # Mirrors A386 QC datasets: a populated "Grouping Var" alongside an empty
+  # "Bait ID". The grouping pattern matches both; the empty bait column must
+  # not win, otherwise the grouping factor is all-NA and the QC missingness
+  # heatmap crashes in pheatmap (gpar fill length 0).
+  annotation <- data.frame(
+    raw.file = paste0("file_", 1:3, ".raw"),
+    Name = c("s1", "s2", "s3"),
+    "Grouping Var" = c("A", "A", "B"),
+    "Bait ID" = c("", "", ""),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+
+  result <- prolfquapp::read_annotation(annotation, repeated = FALSE, QC = TRUE)
+
+  grouping_col <- result$atable$factors[[result$atable$factor_keys()[1]]]
+  expect_equal(grouping_col, "Grouping Var")
+  expect_true(all(!is.na(result$annot[[grouping_col]])))
+  expect_setequal(unique(result$annot[[grouping_col]]), c("A", "B"))
+})
