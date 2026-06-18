@@ -239,7 +239,9 @@ respectively.
 (ref:heatmap) Protein abundance heatmap (rows indicate proteins, columns
 indicate samples) showing the row scaled $\log_{2}$ transformed protein
 abundance value. Co-clustering (hierarchical complete linkage, euclidean
-distance) of samples and proteins was used.
+distance) of samples and proteins was used. Cell color encodes the row
+z-score on a green-black-red scale (green: low, black: average, red:
+high); missing values are shown in light gray.
 
 ![](Grp2Analysis_V2_R6_files/figure-html/heatmap-1.png)
 
@@ -444,52 +446,54 @@ please contact <protinf@fgcz.uzh.ch>.
 
 **loaded via a namespace (and not attached):** *RColorBrewer(v.1.1-3)*,
 *jsonlite(v.2.0.0)*, *shape(v.1.4.6.1)*, *magrittr(v.2.0.5)*,
-*jomo(v.2.7-6)*, *farver(v.2.1.2)*, *logistf(v.1.26.1)*,
-*nloptr(v.2.2.1)*, *rmarkdown(v.2.31)*, *fs(v.2.1.0)*, *ragg(v.1.5.2)*,
-*vctrs(v.0.7.3)*, *minqa(v.1.2.8)*, *progress(v.1.2.3)*,
-*htmltools(v.0.5.9)*, *S4Arrays(v.1.12.0)*, *forcats(v.1.0.1)*,
-*broom(v.1.0.13)*, *cellranger(v.1.1.0)*, *SparseArray(v.1.12.2)*,
-*mitml(v.0.4-5)*, *sass(v.0.4.10)*, *bslib(v.0.11.0)*,
-*htmlwidgets(v.1.6.4)*, *desc(v.1.4.3)*, *plyr(v.1.8.9)*,
-*plotly(v.4.12.0)*, *cachem(v.1.1.0)*, *mime(v.0.13)*,
+*jomo(v.2.7-6)*, *nloptr(v.2.2.1)*, *farver(v.2.1.2)*,
+*logistf(v.1.26.1)*, *rmarkdown(v.2.31)*, *GlobalOptions(v.0.1.4)*,
+*fs(v.2.1.0)*, *ragg(v.1.5.2)*, *vctrs(v.0.7.3)*, *minqa(v.1.2.8)*,
+*progress(v.1.2.3)*, *htmltools(v.0.5.9)*, *S4Arrays(v.1.12.0)*,
+*forcats(v.1.0.1)*, *broom(v.1.0.13)*, *cellranger(v.1.1.0)*,
+*SparseArray(v.1.12.2)*, *mitml(v.0.4-5)*, *sass(v.0.4.10)*,
+*bslib(v.0.11.0)*, *htmlwidgets(v.1.6.4)*, *desc(v.1.4.3)*,
+*plyr(v.1.8.9)*, *plotly(v.4.12.0)*, *cachem(v.1.1.0)*, *mime(v.0.13)*,
 *lifecycle(v.1.0.5)*, *iterators(v.1.0.14)*, *pkgconfig(v.2.0.3)*,
 *Matrix(v.1.7-5)*, *R6(v.2.6.1)*, *fastmap(v.1.2.0)*, *shiny(v.1.13.0)*,
-*rbibutils(v.2.4.1)*, *MatrixGenerics(v.1.24.0)*, *digest(v.0.6.39)*,
-*dtplyr(v.1.3.3)*, *lobstr(v.1.2.1)*, *S4Vectors(v.0.50.1)*,
-*textshaping(v.1.0.5)*, *crosstalk(v.1.2.2)*, *GenomicRanges(v.1.64.0)*,
-*labeling(v.0.4.3)*, *httr(v.1.4.8)*, *abind(v.1.4-8)*, *mgcv(v.1.9-4)*,
-*compiler(v.4.6.0)*, *withr(v.3.0.2)*, *bit64(v.4.8.2)*,
+*rbibutils(v.2.4.1)*, *MatrixGenerics(v.1.24.0)*, *clue(v.0.3-68)*,
+*digest(v.0.6.39)*, *dtplyr(v.1.3.3)*, *colorspace(v.2.1-2)*,
+*lobstr(v.1.2.1)*, *S4Vectors(v.0.50.1)*, *textshaping(v.1.0.5)*,
+*crosstalk(v.1.2.2)*, *GenomicRanges(v.1.64.0)*, *labeling(v.0.4.3)*,
+*httr(v.1.4.8)*, *abind(v.1.4-8)*, *mgcv(v.1.9-4)*, *compiler(v.4.6.0)*,
+*withr(v.3.0.2)*, *bit64(v.4.8.2)*, *doParallel(v.1.0.17)*,
 *pander(v.0.6.6)*, *S7(v.0.2.2)*, *backports(v.1.5.1)*,
 *logger(v.0.4.2)*, *UpSetR(v.1.4.1)*, *prolfquasaint(v.0.1.5)*,
 *pan(v.1.9)*, *MASS(v.7.3-65)*, *DelayedArray(v.0.38.2)*,
-*optparse(v.1.8.2)*, *tools(v.4.6.0)*, *otel(v.0.2.0)*,
-*httpuv(v.1.6.17)*, *nnet(v.7.3-20)*, *glue(v.1.8.1)*,
+*rjson(v.0.2.23)*, *optparse(v.1.8.2)*, *tools(v.4.6.0)*,
+*otel(v.0.2.0)*, *httpuv(v.1.6.17)*, *nnet(v.7.3-20)*, *glue(v.1.8.1)*,
 *promises(v.1.5.0)*, *nlme(v.3.1-169)*, *grid(v.4.6.0)*,
-*generics(v.0.1.4)*, *operator.tools(v.1.6.3.1)*, *gtable(v.0.3.6)*,
-*tzdb(v.0.5.0)*, *formula.tools(v.1.7.1)*, *preprocessCore(v.1.74.0)*,
-*tidyr(v.1.3.2)*, *data.table(v.1.18.4)*, *hms(v.1.1.4)*,
-*XVector(v.0.52.0)*, *BiocGenerics(v.0.58.1)*, *ggrepel(v.0.9.8)*,
-*foreach(v.1.5.2)*, *pillar(v.1.11.1)*, *stringr(v.1.6.0)*,
-*limma(v.3.68.4)*, *later(v.1.4.8)*, *splines(v.4.6.0)*,
-*lattice(v.0.22-9)*, *survival(v.3.8-6)*, *bit(v.4.6.0)*,
-*tidyselect(v.1.2.1)*, *knitr(v.1.51)*, *reformulas(v.0.4.4)*,
-*gridExtra(v.2.3)*, *prolfquapp(v.2.0.19)*, *bookdown(v.0.46)*,
+*cluster(v.2.1.8.2)*, *generics(v.0.1.4)*, *operator.tools(v.1.6.3.1)*,
+*gtable(v.0.3.6)*, *tzdb(v.0.5.0)*, *formula.tools(v.1.7.1)*,
+*preprocessCore(v.1.74.0)*, *tidyr(v.1.3.2)*, *data.table(v.1.18.4)*,
+*hms(v.1.1.4)*, *XVector(v.0.52.0)*, *BiocGenerics(v.0.58.1)*,
+*ggrepel(v.0.9.8)*, *foreach(v.1.5.2)*, *pillar(v.1.11.1)*,
+*stringr(v.1.6.0)*, *limma(v.3.68.4)*, *later(v.1.4.8)*,
+*circlize(v.0.4.18)*, *splines(v.4.6.0)*, *lattice(v.0.22-9)*,
+*survival(v.3.8-6)*, *bit(v.4.6.0)*, *tidyselect(v.1.2.1)*,
+*ComplexHeatmap(v.2.28.0)*, *knitr(v.1.51)*, *reformulas(v.0.4.4)*,
+*gridExtra(v.2.3)*, *prolfquapp(v.2.0.20)*, *bookdown(v.0.47)*,
 *IRanges(v.2.46.0)*, *Seqinfo(v.1.2.0)*,
 *SummarizedExperiment(v.1.42.0)*, *stats4(v.4.6.0)*, *xfun(v.0.58)*,
-*prolfqua(v.1.6.2)*, *Biobase(v.2.72.0)*, *statmod(v.1.5.2)*,
-*matrixStats(v.1.5.0)*, *DT(v.0.34.0)*, *pheatmap(v.1.0.13)*,
-*stringi(v.1.8.7)*, *lazyeval(v.0.2.3)*, *yaml(v.2.3.12)*,
-*boot(v.1.3-32)*, *evaluate(v.1.0.5)*, *codetools(v.0.2-20)*,
-*tibble(v.3.3.1)*, *BiocManager(v.1.30.27)*, *cli(v.3.6.6)*,
-*affyio(v.1.82.0)*, *rpart(v.4.1.27)*, *xtable(v.1.8-8)*,
-*arrow(v.24.0.0)*, *systemfonts(v.1.3.2)*, *Rdpack(v.2.6.6)*,
-*jquerylib(v.0.1.4)*, *Rcpp(v.1.1.1-1.1)*, *readxl(v.1.5.0)*,
-*pkgdown(v.2.2.0)*, *ggplot2(v.4.0.3)*, *readr(v.2.2.0)*,
-*assertthat(v.0.2.1)*, *prettyunits(v.1.2.0)*, *lme4(v.2.0-1)*,
-*glmnet(v.5.0)*, *viridisLite(v.0.4.3)*, *scales(v.1.4.0)*,
-*affy(v.1.90.0)*, *crayon(v.1.5.3)*, *purrr(v.1.2.2)*,
-*writexl(v.1.5.4)*, *rlang(v.1.2.0)*, *vsn(v.3.80.0)* and
-*mice(v.3.19.0)*
+*prolfqua(v.1.6.3)*, *Biobase(v.2.72.0)*, *statmod(v.1.5.2)*,
+*matrixStats(v.1.5.0)*, *DT(v.0.34.0)*, *stringi(v.1.8.7)*,
+*lazyeval(v.0.2.3)*, *yaml(v.2.3.12)*, *boot(v.1.3-32)*,
+*evaluate(v.1.0.5)*, *codetools(v.0.2-20)*, *tibble(v.3.3.1)*,
+*BiocManager(v.1.30.27)*, *cli(v.3.6.6)*, *affyio(v.1.82.0)*,
+*rpart(v.4.1.27)*, *xtable(v.1.8-8)*, *arrow(v.24.0.0)*,
+*systemfonts(v.1.3.2)*, *Rdpack(v.2.6.6)*, *jquerylib(v.0.1.4)*,
+*Rcpp(v.1.1.1-1.1)*, *readxl(v.1.5.0)*, *png(v.0.1-9)*,
+*parallel(v.4.6.0)*, *pkgdown(v.2.2.0)*, *ggplot2(v.4.0.3)*,
+*readr(v.2.2.0)*, *assertthat(v.0.2.1)*, *prettyunits(v.1.2.0)*,
+*lme4(v.2.0-1)*, *glmnet(v.5.0)*, *viridisLite(v.0.4.3)*,
+*scales(v.1.4.0)*, *affy(v.1.90.0)*, *purrr(v.1.2.2)*,
+*crayon(v.1.5.3)*, *writexl(v.1.5.4)*, *GetoptLong(v.1.1.1)*,
+*rlang(v.1.2.0)*, *vsn(v.3.80.0)* and *mice(v.3.19.0)*
 
 ## References
 
@@ -567,4 +571,4 @@ Proteome Research* 4 (22): 1092–1104.
 
 *This report was generated from the R Markdown template
 `Grp2Analysis_V2_R6.Rmd` included in the `prolfquapp` R package (version
-2.0.19).*
+2.0.20).*
