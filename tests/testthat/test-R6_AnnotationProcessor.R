@@ -86,3 +86,40 @@ test_that("empty bait column does not hijack a populated grouping variable", {
   expect_true(all(!is.na(result$annot[[grouping_col]])))
   expect_setequal(unique(result$annot[[grouping_col]]), c("A", "B"))
 })
+
+test_that("a fully empty grouping/bait column collapses to a single NA group", {
+  # Both candidate columns are empty: nothing to prefer, so instead of an
+  # all-NA factor (which crashes the QC heatmap) every sample lands in one
+  # group named "NA".
+  annotation <- data.frame(
+    raw.file = paste0("file_", 1:3, ".raw"),
+    Name = c("s1", "s2", "s3"),
+    "Grouping Var" = c("", "", ""),
+    "Bait ID" = c(NA, NA, NA),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+
+  result <- prolfquapp::read_annotation(annotation, repeated = FALSE, QC = TRUE)
+
+  grouping_col <- result$atable$factors[[result$atable$factor_keys()[1]]]
+  expect_true(all(!is.na(result$annot[[grouping_col]])))
+  expect_equal(unique(result$annot[[grouping_col]]), "NA")
+})
+
+test_that("partially empty grouping column keeps real groups plus an NA group", {
+  annotation <- data.frame(
+    raw.file = paste0("file_", 1:4, ".raw"),
+    Name = c("s1", "s2", "s3", "s4"),
+    "Grouping Var" = c("A", "A", "", NA),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+
+  result <- prolfquapp::read_annotation(annotation, repeated = FALSE, QC = TRUE)
+
+  grouping_col <- result$atable$factors[[result$atable$factor_keys()[1]]]
+  expect_equal(grouping_col, "Grouping Var")
+  expect_true(all(!is.na(result$annot[[grouping_col]])))
+  expect_setequal(unique(result$annot[[grouping_col]]), c("A", "NA"))
+})

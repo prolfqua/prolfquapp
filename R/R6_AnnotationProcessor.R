@@ -443,6 +443,16 @@ AnnotationProcessor <- R6::R6Class(
         groupingVAR <- groupingVAR[1]
       }
 
+      # Coerce missing / blank entries to the literal "NA" so an empty (or
+      # partially empty) grouping column still yields a valid factor instead of
+      # an all-NA grouping that crashes downstream (e.g. the missingness
+      # heatmap, pheatmap: "'gpar' element 'fill' must not be length 0").
+      # All-empty -> a single "NA" group; partial -> real groups plus an "NA"
+      # group. Mirrors the display-name handling in set_sample_name().
+      grouping_vals <- as.character(annot[[groupingVAR]])
+      grouping_vals[is.na(grouping_vals) | trimws(grouping_vals) == ""] <- "NA"
+      annot[[groupingVAR]] <- grouping_vals
+
       annot[[groupingVAR]] <- gsub("[[:space:]]", "", annot[[groupingVAR]])
       annot[[groupingVAR]] <- gsub(
         "[-\\+\\/\\*\\(\\)]",
