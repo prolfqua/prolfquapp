@@ -219,6 +219,16 @@ AnnotationProcessor <- R6::R6Class(
         ignore.case = TRUE,
         value = TRUE
       )
+      non_empty_grouping <- vapply(
+        grouping,
+        function(col) {
+          any(!is.na(annot[[col]]) & trimws(as.character(annot[[col]])) != "")
+        },
+        logical(1)
+      )
+      if (any(non_empty_grouping)) {
+        grouping <- grouping[non_empty_grouping]
+      }
       if (length(grouping) < 1) {
         stop("column starting with :", self$sample_name_pattern, " is missing.")
       }
@@ -254,7 +264,7 @@ AnnotationProcessor <- R6::R6Class(
       } else {
         annot <- prolfquapp::read_table_data(dsf)
       }
-      annot <- data.frame(lapply(annot, as.character))
+      annot <- data.frame(lapply(annot, as.character), check.names = FALSE)
       self$check_annotation(annot)
       res <- private$dataset_set_factors(annot)
       if (!self$QC) {
