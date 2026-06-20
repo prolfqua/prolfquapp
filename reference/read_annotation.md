@@ -64,7 +64,7 @@ file = c("a1.raw","a2.raw","a3.raw","a4.raw"),
 name = c("aa","ba","aa","ba"),
 group = c("a","a","b","b"))
 read_annotation(annot, QC = TRUE)
-#> INFO [2026-06-19 20:11:24] Using derived sample display names in column 'sampleName'.
+#> INFO [2026-06-20 19:35:12] Using derived sample display names in column 'sampleName'.
 #> $atable
 #> <AnalysisConfiguration>
 #>   Public:
