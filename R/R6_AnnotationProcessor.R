@@ -88,7 +88,7 @@ write_annotation_file <- function(data, file_path) {
 #' # should not throw exception since QC does not require group or subject
 #' ap <- AnnotationProcessor$new(QC = TRUE)
 #' af <- annot
-#' # af$group <- NULL
+#' af$group <- NULL
 #' af$CONTROL <- NULL
 #' af$Subject <- NULL
 #' ap$check_annotation(af)
@@ -230,7 +230,18 @@ AnnotationProcessor <- R6::R6Class(
         grouping <- grouping[non_empty_grouping]
       }
       if (length(grouping) < 1) {
-        stop("column starting with :", self$sample_name_pattern, " is missing.")
+        # QC does not require a grouping variable: a single dummy group is
+        # injected later in set_grouping_var(). For DEA a grouping column is
+        # mandatory. (Message names grouping_pattern, not sample_name_pattern.)
+        if (self$QC) {
+          warning(
+            "no grouping column (",
+            self$grouping_pattern,
+            ") found; QC will use a single group."
+          )
+        } else {
+          stop("column starting with :", self$grouping_pattern, " is missing.")
+        }
       }
       if (length(grouping) > 1) {
         warning(
@@ -441,6 +452,13 @@ AnnotationProcessor <- R6::R6Class(
       )
       if (any(non_empty)) {
         groupingVAR <- groupingVAR[non_empty]
+      }
+      # QC datasets may carry no grouping column at all. Synthesize one so a
+      # valid factor is still produced; the NA-coercion below turns the empty
+      # column into a single "NA" group (mirrors the all-empty-column case).
+      if (length(groupingVAR) < 1) {
+        annot[["group"]] <- NA_character_
+        groupingVAR <- "group"
       }
       if (any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
         groupingVAR <- grep(

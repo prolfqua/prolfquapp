@@ -123,3 +123,44 @@ test_that("partially empty grouping column keeps real groups plus an NA group", 
   expect_true(all(!is.na(result$annot[[grouping_col]])))
   expect_setequal(unique(result$annot[[grouping_col]]), c("A", "NA"))
 })
+
+test_that("QC injects a single dummy group when no grouping column exists", {
+  # SUSHI/apprunner QC datasets may ship only file + name columns. QC must not
+  # error (unlike DEA); set_grouping_var synthesizes a single "NA" group.
+  annotation <- data.frame(
+    raw.file = paste0("file_", 1:3, ".raw"),
+    Name = c("s1", "s2", "s3"),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+
+  expect_warning(
+    result <- prolfquapp::read_annotation(
+      annotation,
+      repeated = FALSE,
+      QC = TRUE
+    ),
+    "grouping column"
+  )
+
+  grouping_col <- result$atable$factors[[result$atable$factor_keys()[1]]]
+  expect_equal(grouping_col, "group")
+  expect_true(all(!is.na(result$annot[[grouping_col]])))
+  expect_equal(unique(result$annot[[grouping_col]]), "NA")
+})
+
+test_that("non-QC errors naming the grouping pattern when grouping is missing", {
+  # DEA still requires a grouping column; the message must reference the
+  # grouping pattern (^group...), not the sample-name pattern (^name).
+  annotation <- data.frame(
+    raw.file = paste0("file_", 1:3, ".raw"),
+    Name = c("s1", "s2", "s3"),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    prolfquapp::read_annotation(annotation, repeated = FALSE, QC = FALSE),
+    "\\^group"
+  )
+})
