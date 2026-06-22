@@ -210,6 +210,56 @@ run_qc_preprocess <- function(
 
 # --- CMD_DEA_V2 helper -------------------------------------------------------
 
+#' Resolve the reader for a (possibly nested) facade
+#'
+#' Nested facades (e.g. \code{firth_nested}, \code{lmer}, \code{ropeca}) fit
+#' models on peptide-level data and therefore require a peptide-level reader.
+#' Peptide readers are registered as \code{"<reader>_PEPTIDE"} and differ from
+#' their protein-level counterpart only by \code{hierarchy_depth}. When a nested
+#' facade is paired with a protein-level reader, this transparently switches the
+#' software key to the matching peptide-level reader (e.g.
+#' \code{"prolfquapp.DIANN"} -> \code{"prolfquapp.DIANN_PEPTIDE"}) instead of
+#' failing. Non-nested facades, and readers that are already peptide-level, are
+#' returned unchanged.
+#'
+#' @param software software key (e.g. "prolfquapp.DIANN")
+#' @param is_nested logical; whether the facade needs peptide-level data
+#' @param available character vector of registered software keys
+#'   (\code{names(get_procfuncs())})
+#' @param facade facade name, used only for messages
+#' @return the (possibly remapped) software key
+#' @keywords internal
+.resolve_nested_reader <- function(software, is_nested, available, facade = "") {
+  if (!is_nested || grepl("_PEPTIDE$", software)) {
+    return(software)
+  }
+  peptide_software <- paste0(software, "_PEPTIDE")
+  if (!peptide_software %in% available) {
+    stop(
+      "Facade '",
+      facade,
+      "' (needs=\"nested\") requires a peptide-level reader ",
+      "(e.g. DIANN_PEPTIDE), but no peptide-level counterpart '",
+      peptide_software,
+      "' is registered for '",
+      software,
+      "'.",
+      call. = FALSE
+    )
+  }
+  logger::log_info(
+    "Facade '",
+    facade,
+    "' (needs=\"nested\") requires a peptide-level reader; ",
+    "switching software from '",
+    software,
+    "' to '",
+    peptide_software,
+    "'."
+  )
+  peptide_software
+}
+
 #' Run differential expression analysis pipeline
 #'
 #' Reads annotation, preprocesses quantification data, then runs the
@@ -243,23 +293,21 @@ run_dea <- function(indir, dataset, software, config) {
   is_nested <- identical(model_entry$needs, "nested")
   saint_annot <- isTRUE(model_entry$needs_saint_annotation)
 
-  is_peptide_reader <- grepl("_PEPTIDE$", software)
-  if (is_nested && !is_peptide_reader) {
-    stop(
-      "Facade '",
-      default_model,
-      "' (needs=\"nested\") requires a peptide-level reader ",
-      "(e.g. DIANN_PEPTIDE). Got '",
-      software,
-      "'.",
-      call. = FALSE
-    )
-  }
+  pfuncs <- prolfquapp::get_procfuncs()
+
+  # Nested facades (e.g. firth_nested, lmer, ropeca) operate on peptide-level
+  # data, so they require a peptide-level reader. Switch the software key to the
+  # matching peptide-level reader when needed (see .resolve_nested_reader).
+  software <- .resolve_nested_reader(
+    software,
+    is_nested,
+    available = names(pfuncs),
+    facade = default_model
+  )
 
   annotation <- prolfquapp::read_table_data(dataset) |>
     prolfquapp::read_annotation(prefix = config$group, SAINT = saint_annot)
 
-  pfuncs <- prolfquapp::get_procfuncs()
   if (!software %in% names(pfuncs)) {
     stop(
       "Software '",
