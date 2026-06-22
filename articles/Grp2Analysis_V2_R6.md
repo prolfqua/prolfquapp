@@ -455,13 +455,13 @@ please contact <protinf@fgcz.uzh.ch>.
 *bslib(v.0.11.0)*, *htmlwidgets(v.1.6.4)*, *desc(v.1.4.3)*,
 *plyr(v.1.8.9)*, *plotly(v.4.12.0)*, *cachem(v.1.1.0)*, *mime(v.0.13)*,
 *lifecycle(v.1.0.5)*, *iterators(v.1.0.14)*, *pkgconfig(v.2.0.3)*,
-*Matrix(v.1.7-5)*, *R6(v.2.6.1)*, *fastmap(v.1.2.0)*, *shiny(v.1.13.0)*,
+*Matrix(v.1.7-5)*, *R6(v.2.6.1)*, *fastmap(v.1.2.0)*, *shiny(v.1.14.0)*,
 *rbibutils(v.2.4.1)*, *MatrixGenerics(v.1.24.0)*, *clue(v.0.3-68)*,
 *digest(v.0.6.39)*, *dtplyr(v.1.3.3)*, *colorspace(v.2.1-2)*,
 *lobstr(v.1.2.1)*, *S4Vectors(v.0.50.1)*, *textshaping(v.1.0.5)*,
 *crosstalk(v.1.2.2)*, *GenomicRanges(v.1.64.0)*, *labeling(v.0.4.3)*,
 *httr(v.1.4.8)*, *abind(v.1.4-8)*, *mgcv(v.1.9-4)*, *compiler(v.4.6.0)*,
-*withr(v.3.0.2)*, *bit64(v.4.8.2)*, *doParallel(v.1.0.17)*,
+*withr(v.3.0.3)*, *bit64(v.4.8.2)*, *doParallel(v.1.0.17)*,
 *pander(v.0.6.6)*, *S7(v.0.2.2)*, *backports(v.1.5.1)*,
 *logger(v.0.4.2)*, *UpSetR(v.1.4.1)*, *prolfquasaint(v.0.1.5)*,
 *pan(v.1.9)*, *MASS(v.7.3-65)*, *DelayedArray(v.0.38.2)*,
@@ -477,9 +477,9 @@ please contact <protinf@fgcz.uzh.ch>.
 *circlize(v.0.4.18)*, *splines(v.4.6.0)*, *lattice(v.0.22-9)*,
 *survival(v.3.8-6)*, *bit(v.4.6.0)*, *tidyselect(v.1.2.1)*,
 *ComplexHeatmap(v.2.28.0)*, *knitr(v.1.51)*, *reformulas(v.0.4.4)*,
-*gridExtra(v.2.3)*, *prolfquapp(v.2.0.22)*, *bookdown(v.0.47)*,
+*gridExtra(v.2.3)*, *prolfquapp(v.2.2.3)*, *bookdown(v.0.47)*,
 *IRanges(v.2.46.0)*, *Seqinfo(v.1.2.0)*,
-*SummarizedExperiment(v.1.42.0)*, *stats4(v.4.6.0)*, *xfun(v.0.58)*,
+*SummarizedExperiment(v.1.42.0)*, *stats4(v.4.6.0)*, *xfun(v.0.59)*,
 *prolfqua(v.1.6.3)*, *Biobase(v.2.72.0)*, *statmod(v.1.5.2)*,
 *matrixStats(v.1.5.0)*, *DT(v.0.34.0)*, *stringi(v.1.8.7)*,
 *lazyeval(v.0.2.3)*, *yaml(v.2.3.12)*, *boot(v.1.3-32)*,
@@ -571,4 +571,4 @@ Proteome Research* 4 (22): 1092–1104.
 
 *This report was generated from the R Markdown template
 `Grp2Analysis_V2_R6.Rmd` included in the `prolfquapp` R package (version
-2.0.22).*
+2.2.3).*
