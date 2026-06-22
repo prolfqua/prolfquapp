@@ -13,13 +13,13 @@ Source:
 [`DESCRIPTION`](https://github.com/prolfqua/prolfquapp/blob/master/DESCRIPTION)
 
 Wolski W, Schwarz L (2026). *prolfquapp: Generating Dynamic DEA Reports
-with the prolfqua R Package*. R package version 2.2.4,
+with the prolfqua R Package*. R package version 2.2.5,
 <https://prolfqua.github.io/prolfquapp/>.
 
     @Manual{,
       title = {prolfquapp: Generating Dynamic DEA Reports with the prolfqua R Package},
       author = {Witold Wolski and Leonardo Schwarz},
       year = {2026},
-      note = {R package version 2.2.4},
+      note = {R package version 2.2.5},
       url = {https://prolfqua.github.io/prolfquapp/},
     }
