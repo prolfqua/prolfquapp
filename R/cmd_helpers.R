@@ -229,7 +229,12 @@ run_qc_preprocess <- function(
 #' @param facade facade name, used only for messages
 #' @return the (possibly remapped) software key
 #' @keywords internal
-.resolve_nested_reader <- function(software, is_nested, available, facade = "") {
+.resolve_nested_reader <- function(
+  software,
+  is_nested,
+  available,
+  facade = ""
+) {
   if (!is_nested || grepl("_PEPTIDE$", software)) {
     return(software)
   }
@@ -275,12 +280,15 @@ run_qc_preprocess <- function(
 #'   merged with CLI overrides via \code{\link{sync_opt_config}})
 #' @return list with \code{deanalyse} (DEAnalyse), \code{xd}
 #'   (preprocessed data), \code{annotation} (parsed annotation
-#'   including contrasts), and \code{files} (discovered file paths)
+#'   including contrasts), \code{files} (discovered file paths),
+#'   \code{software} (resolved software key), and
+#'   \code{requested_software} (software key requested by the caller)
 #' @export
 run_dea <- function(indir, dataset, software, config) {
   if (!file.exists(dataset)) {
     stop("Annotation file not found: ", dataset, call. = FALSE)
   }
+  requested_software <- software
 
   default_model <- .resolve_facade_model(
     config$processing_options$model,
@@ -304,6 +312,7 @@ run_dea <- function(indir, dataset, software, config) {
     available = names(pfuncs),
     facade = default_model
   )
+  config$software <- software
 
   annotation <- prolfquapp::read_table_data(dataset) |>
     prolfquapp::read_annotation(prefix = config$group, SAINT = saint_annot)
@@ -379,7 +388,9 @@ run_dea <- function(indir, dataset, software, config) {
     deanalyse = deanalyse,
     xd = xd,
     annotation = annotation,
-    files = procsoft$files
+    files = procsoft$files,
+    software = software,
+    requested_software = requested_software
   )
 }
 
@@ -389,7 +400,13 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   annotation <- result$annotation
   files <- result$files
 
-  logger::log_info("Processing done: ", opt$software)
+  resolved_software <- result$software
+  if (is.null(resolved_software)) {
+    resolved_software <- opt$software
+  }
+  config$software <- resolved_software
+
+  logger::log_info("Processing done: ", resolved_software)
   logger::log_info(paste(
     c(
       "Protein Annotation :\n",

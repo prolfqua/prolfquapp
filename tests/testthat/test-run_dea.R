@@ -27,6 +27,9 @@ test_that("run_dea returns deanalyse and supporting data with SIM", {
   )
   expect_true(!is.null(result$annotation$contrasts))
   expect_true(length(result$annotation$contrasts) > 0)
+  expect_equal(result$software, "prolfquapp.SIM")
+  expect_equal(result$requested_software, "prolfquapp.SIM")
+  expect_equal(GRP2$software, "prolfquapp.SIM")
 })
 
 test_that("run_dea maps legacy prolfqua model to current facade names", {
@@ -62,14 +65,11 @@ test_that("run_dea maps legacy prolfqua model to current facade names", {
 
 test_that(".resolve_nested_reader switches a nested facade to the peptide reader", {
   available <- c("prolfquapp.DIANN", "prolfquapp.DIANN_PEPTIDE")
-  expect_message(
-    out <- prolfquapp:::.resolve_nested_reader(
-      "prolfquapp.DIANN",
-      is_nested = TRUE,
-      available = available,
-      facade = "firth_nested"
-    ),
-    "prolfquapp.DIANN_PEPTIDE"
+  out <- prolfquapp:::.resolve_nested_reader(
+    "prolfquapp.DIANN",
+    is_nested = TRUE,
+    available = available,
+    facade = "firth_nested"
   )
   expect_equal(out, "prolfquapp.DIANN_PEPTIDE")
 })

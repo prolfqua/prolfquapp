@@ -175,8 +175,13 @@ deanalyse <- result$deanalyse
 xd <- result$xd
 annotation <- result$annotation
 files <- result$files
+resolved_software <- result$software
+if (is.null(resolved_software)) {
+  resolved_software <- opt$software
+}
+GRP2$software <- resolved_software
 
-logger::log_info("Processing done: ", opt$software)
+logger::log_info("Processing done: ", resolved_software)
 logger::log_info(paste(
   c(
     "Protein Annotation :\n",

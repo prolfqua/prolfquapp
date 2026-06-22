@@ -20,7 +20,9 @@ merged with CLI overrides via \code{\link{sync_opt_config}})}
 \value{
 list with \code{deanalyse} (DEAnalyse), \code{xd}
   (preprocessed data), \code{annotation} (parsed annotation
-  including contrasts), and \code{files} (discovered file paths)
+  including contrasts), \code{files} (discovered file paths),
+  \code{software} (resolved software key), and
+  \code{requested_software} (software key requested by the caller)
 }
 \description{
 Reads annotation, preprocesses quantification data, then runs the

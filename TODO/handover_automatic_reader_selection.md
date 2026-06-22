@@ -66,6 +66,32 @@ was verified in isolation (base R + logger). **Before merging:**
 - [ ] re-run WU347649 end-to-end (`make run-all` in `/scratch/A414_DEA/WU347649`)
       after reinstalling prolfquapp, to confirm the firth_nested run completes
 
+## Follow-up on 2026-06-22
+
+Completed the provenance follow-up in prolfquapp:
+
+- `run_dea()` now returns both `software` (the resolved reader that actually ran) and `requested_software` (the caller's original key).
+- `run_dea()` updates `config$software` after reader resolution, so downstream output writers persist the resolved reader in the app config.
+- `write_dea_run_outputs()` and `CMD_DEA_V2.R` log and persist the resolved reader instead of continuing to use `opt$software`.
+- The helper test no longer expects `logger::log_info()` to be a base R message condition.
+
+Validation:
+
+- `make document` completed and generated/updated the roxygen docs.
+- `Rscript -e 'devtools::test(filter = "run_dea")'` passed: 18 passed, 0 failed, 0 skipped, 4 warnings.
+- `Rscript -e 'devtools::test()'` passed before the final provenance assertion was added: 254 passed, 0 failed, 1 skipped, 28 warnings. The skipped test was the installed-package subprocess test in `test-CMD_DEA_CD.R`.
+- Real-data integration coverage was added in `integration_test/tests/testthat/test-dea-diann-auto-peptide.R`, using the
+  subsetted real DIA-NN WU345302 fixture. It requests `--software prolfquapp.DIANN` with `model: limpa_nested` and asserts
+  that the CLI switches to `prolfquapp.DIANN_PEPTIDE`, writes a `SummarizedExperiment.rds`, and persists
+  `software: prolfquapp.DIANN_PEPTIDE` in `minimal.yaml`.
+- `make install` in `integration_test` completed, then `make test-dea-diann-auto-peptide` passed: 8 passed, 0 failed.
+
+Still open:
+
+- Re-run WU347649 end-to-end (`make run-all` in `/scratch/A414_DEA/WU347649`) after reinstalling prolfquapp.
+- Optional: add `--print-resolved-software` only if the slurmworker needs the resolved reader before launching the job.
+- Optional: decide whether dataset/YAML generation should warn earlier when a nested model is configured with a protein-level reader.
+
 ## Open question — is the slurmworker a better place?
 
 Initially this looked attractive (resolve `software` at dispatch so the
@@ -108,7 +134,7 @@ any cross-language coupling.
 
 ### Follow-up tasks
 
-- [ ] Return the resolved `software` from `run_dea()` and persist it into the
+- [x] Return the resolved `software` from `run_dea()` and persist it into the
       output params/YAML (`write_dea_run_outputs()`) for provenance.
 - [ ] (Optional) Add a `--print-resolved-software` flag to `CMD_DEA_V2.R` /
       `prolfqua_dea.sh` if the slurmworker ever needs the resolved reader at
