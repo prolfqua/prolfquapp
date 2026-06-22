@@ -68,44 +68,51 @@ was verified in isolation (base R + logger). **Before merging:**
 
 ## Open question — is the slurmworker a better place?
 
-Quite possibly **yes**, or at least *also*. Two layers could own this:
+Initially this looked attractive (resolve `software` at dispatch so the
+**recorded** workunit params match what runs). On closer inspection it is *not*
+the better place, for two reasons:
 
-1. **prolfquapp `run_dea()` (done here).** Pro: the invariant "nested facade ⇒
-   peptide reader" lives next to the code that knows about facades and readers;
-   every caller (CLI, tests, ad-hoc) benefits; it is unit-testable. Con: it
-   silently changes the effective reader at run time; the workunit definition on
-   B-Fabric still records the "wrong" `software`, so provenance/params don't
-   reflect what actually ran.
+1. **The slurmworker is Python.** Owning this decision there means either a
+   `python → R` subprocess round-trip just to obtain one string, or
+   reimplementing the logic in Python.
 
-2. **slurmworker / app config** (`/home/bfabric/slurmworker/config/A414_DEA/app.yml`
-   and the dispatch layer that builds `opt$software` for `CMD_DEA_V2.R`). Pro:
-   the correct `software` could be written into the workunit's resolved
-   parameters *before* the job runs, so the recorded params match execution
-   (better provenance); it could also surface the choice back to B-Fabric. Con:
-   the slurmworker would need to know the facade→`needs` mapping (i.e. call
-   `prolfqua::lookup_facade`) and the `_PEPTIDE` naming convention, duplicating
-   knowledge that currently lives in prolfqua/prolfquapp.
+2. **The CLI does not expose enough for Python to decide.**
+   `prolfqua_dea.sh --help` lists the **reader names**
+   (`names(get_procfuncs())`) and the **model names** (`FACADE_REGISTRY`), so
+   Python *could* see that `prolfquapp.DIANN` and `prolfquapp.DIANN_PEPTIDE`
+   both exist and infer the `_PEPTIDE` convention. But `--help` does **not**
+   expose `needs == "nested"` — i.e. *which models require peptide data*.
+   Without that, the worker cannot know *when* to remap; it would have to
+   hardcode the list of nested facades, duplicating prolfqua knowledge that
+   goes stale as soon as a new nested facade is registered.
 
-**Recommendation.** Keep the `run_dea()` safety net (it guarantees correctness
-regardless of how the job was launched), and *additionally* consider resolving
-the reader at the slurmworker/dispatch layer so the **recorded** workunit
-parameters match what runs. The cleanest split:
+So the authoritative "nested facade ⇒ peptide reader" logic belongs in
+prolfquapp (where the facade→`needs` mapping and the reader registry both live),
+which is what this change does. The worker layer's only real added value was
+**provenance** (recording what actually ran), and that is better solved without
+any cross-language coupling.
 
-- prolfquapp keeps the authoritative mapping logic (exporting a tiny helper the
-  worker can call, e.g. a public wrapper around `.resolve_nested_reader`, so the
-  convention is defined in exactly one place);
-- the slurmworker calls that helper during dispatch to normalise `software`
-  *and* writes the normalised value into the workunit params/log.
+**Recommendation.**
 
-That avoids duplicating the `_PEPTIDE` convention in two repos while fixing the
-provenance gap that the in-`run_dea` approach leaves open.
+- Keep the `run_dea()` resolution (done) as the single source of truth.
+- Solve provenance *inside prolfquapp*: surface the resolved `software` in the
+  run outputs so the results record what actually ran. `run_dea()` already logs
+  the switch via `logger::log_info`; additionally return the resolved `software`
+  in the `run_dea()` result list and persist it into the output params/YAML
+  (see `write_dea_run_outputs()`). No Python↔R coupling needed.
+- Only if the worker genuinely must know the reader *before* the job runs:
+  expose it through the CLI (R owns the logic, Python consumes a string) — e.g.
+  a `--print-resolved-software` flag on `prolfqua_dea.sh` that prints the
+  resolved key and exits. Do **not** reimplement the nested-model list in
+  Python.
 
 ### Follow-up tasks
 
-- [ ] Decide whether to expose `.resolve_nested_reader` as an exported function
-      for the slurmworker to reuse.
-- [ ] If yes: implement reader normalisation in the slurmworker dispatch and
-      persist the resolved `software` into the workunit definition/params.
+- [ ] Return the resolved `software` from `run_dea()` and persist it into the
+      output params/YAML (`write_dea_run_outputs()`) for provenance.
+- [ ] (Optional) Add a `--print-resolved-software` flag to `CMD_DEA_V2.R` /
+      `prolfqua_dea.sh` if the slurmworker ever needs the resolved reader at
+      dispatch time.
 - [ ] Consider whether `prolfqua_dataset.sh` / YAML generation should also warn
       when a nested model is configured against a protein-level reader, so users
       see the implication at configuration time rather than only at run time.
