@@ -38,5 +38,6 @@ run_dea(indir, dataset, software, config)
 ## Value
 
 list with `deanalyse` (DEAnalyse), `xd` (preprocessed data),
-`annotation` (parsed annotation including contrasts), and `files`
-(discovered file paths)
+`annotation` (parsed annotation including contrasts), `files`
+(discovered file paths), `software` (resolved software key), and
+`requested_software` (software key requested by the caller)
