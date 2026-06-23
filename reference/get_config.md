@@ -48,5 +48,5 @@ get_config()
 #>     project_spec: ProjectSpec, R6
 #>     set_zipdir_name: function () 
 #>     software: DIANN
-#>     zipdir_name: DEA_20260622_PI123_O123_WUHelloWorld_none
+#>     zipdir_name: DEA_20260623_PI123_O123_WUHelloWorld_none
 ```
