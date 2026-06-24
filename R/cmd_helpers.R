@@ -345,6 +345,21 @@ run_dea <- function(indir, dataset, software, config) {
   data_prep$cont_decoy_summary()
   data_prep$remove_cont_decoy()
 
+  # Route prolfqua's per-protein / per-contrast progress into the watched log.
+  # prolfqua's progress::progress_bar is silently disabled on the non-tty
+  # stderr of a docker/slurm run, so a long fit (e.g. firth_nested) leaves the
+  # log frozen. prolfqua only ever calls this user-supplied
+  # function(i, total, label) -- it takes no logger dependency. Don't clobber a
+  # reporter the caller already set.
+  if (is.null(getOption("prolfqua.progress"))) {
+    options(prolfqua.progress = function(i, total, label) {
+      label <- if (is.null(label) || identical(label, "")) "fit" else label
+      logger::log_info("{label}: {i}/{total} ({round(100 * i / total)}%)")
+    })
+  }
+  fit_start <- Sys.time()
+  logger::log_info("start fitting / contrasts for model: {default_model}")
+
   if (is_nested) {
     lfq_peptide <- data_prep$lfq_data_peptide$get_copy()
     lfq_peptide$set_config_value("hierarchy_depth", 1)
@@ -383,6 +398,9 @@ run_dea <- function(indir, dataset, software, config) {
     deanalyse$build_default()
     deanalyse$get_annotated_contrasts()
   }
+
+  fit_min <- round(as.numeric(difftime(Sys.time(), fit_start, units = "mins")), 2)
+  logger::log_info("done fitting / contrasts for {default_model} in {fit_min} min")
 
   list(
     deanalyse = deanalyse,

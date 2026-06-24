@@ -363,7 +363,7 @@ QC_generator <- R6::R6Class(
           params = list(
             data = self$get_prot_data()$data_long(),
             configuration = self$get_prot_data()$get_config(),
-            project_conf = GRP2$project_spec,
+            project_conf = self$GRP2$project_spec,
             target_type = private$get_target_type()
           ),
           output_file = "QC_sampleSizeEstimation.html"

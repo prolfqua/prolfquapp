@@ -289,16 +289,17 @@ ProlfquAppConfig <- R6::R6Class(
 #' @family ProlfquAppConfig
 #'
 set_list_to_R6 <- function(config_list, r6obj_config) {
-  for (n in seq_along(config)) {
-    if (is.list(config[[n]])) {
-      message(paste0("setting fields in :", names(config)[n], "\n"))
-      r6component <- r6obj_config[[names(config)[n]]]
-      set_config(config[[n]], r6component)
+  for (n in seq_along(config_list)) {
+    field <- names(config_list)[n]
+    value <- config_list[[n]]
+    if (is.list(value)) {
+      # nested section: recurse into the matching R6 sub-object
+      set_list_to_R6(value, r6obj_config[[field]])
     } else {
-      cat(n, ":", names(config)[n], " = ", config[[n]], "\n")
-      r6obj_config[[names(config)[n]]] <- config[[n]]
+      r6obj_config[[field]] <- value
     }
   }
+  invisible(r6obj_config)
 }
 
 

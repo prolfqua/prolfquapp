@@ -55,6 +55,7 @@ Imports:
 RoxygenNote: 7.3.3
 Suggests:
   anndataR,
+  codetools,
   covr,
   devtools,
   DT,

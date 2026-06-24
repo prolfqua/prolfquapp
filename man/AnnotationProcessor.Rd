@@ -40,7 +40,7 @@ testthat::expect_warning(ap$check_annotation(af),"column starting with")
 # should not throw exception since QC does not require group or subject
 ap <- AnnotationProcessor$new(QC = TRUE)
 af <- annot
-# af$group <- NULL
+af$group <- NULL
 af$CONTROL <- NULL
 af$Subject <- NULL
 ap$check_annotation(af)
