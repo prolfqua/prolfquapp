@@ -240,7 +240,7 @@ testthat::expect_error(ap$check_annotation(af),"column starting with :")
 #> Warning: column starting with :^name is missing.
 aa <- ap$read_annotation(annot)
 #> Warning: column starting with :^name is missing.
-#> INFO [2026-06-23 20:42:34] levels: c("a", "b") c("C", "T")
+#> INFO [2026-06-24 13:56:02] levels: c("a", "b") c("C", "T")
 #> b a 
 stopifnot(length(aa$atable$factor_keys_depth()) == 2)
 stopifnot(all(c("atable", "annot", "contrasts") %in% names(aa)))
@@ -257,13 +257,15 @@ testthat::expect_warning(ap$check_annotation(af),"column starting with")
 # should not throw exception since QC does not require group or subject
 ap <- AnnotationProcessor$new(QC = TRUE)
 af <- annot
-# af$group <- NULL
+af$group <- NULL
 af$CONTROL <- NULL
 af$Subject <- NULL
 ap$check_annotation(af)
 #> Warning: column starting with :^name is missing.
+#> Warning: no grouping column (^group|^bait|^Experiment) found; QC will use a single group.
 aa <- ap$read_annotation(af)
 #> Warning: column starting with :^name is missing.
+#> Warning: no grouping column (^group|^bait|^Experiment) found; QC will use a single group.
 
 stopifnot(aa$atable$factor_keys() == "G_")
 stopifnot(aa$atable$factors == "group")

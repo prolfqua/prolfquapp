@@ -2,21 +2,9 @@
 
 preprocess DIANN ouput, filter by q_value and nr_peptides
 
-preprocess DIANN ouput, filter by q_value and nr_peptides
-
 ## Usage
 
 ``` r
-preprocess_BGS(
-  quant_data,
-  fasta_file,
-  annotation,
-  pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = "^REV_|^rev",
-  q_value = 0.01,
-  hierarchy_depth = 2
-)
-
 preprocess_BGS(
   quant_data,
   fasta_file,
@@ -62,21 +50,9 @@ preprocess_BGS(
 
 list with lfqdata and protein annotation
 
-list with lfqdata and protein annotation
-
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-x <- get_BGS_files("DefaultParsing")
-bgs <- read_BGS(x$data)
-annot <- data.frame(raw.file = bgs$R.FileName |> unique(),
- Name = paste(c(rep("A",3),rep("B",3)),1:6, sep="_"),
-group = c(rep("A",3),rep("B",3)))
-annotation <- annot |> prolfquapp::read_annotation(QC = TRUE)
-#debug(preprocess_BGS)
-xd <- preprocess_BGS(x$data, x$fasta, annotation)
-} # }
 if (FALSE) { # \dontrun{
 x <- get_BGS_files("DefaultParsing")
 bgs <- read_BGS(x$data)
