@@ -37,10 +37,21 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05) {
     .Lib.PG.Q.Value = Lib.PG.Q.Value,
     .PG.Q.Value = PG.Q.Value
   )
+  # DIA-NN 2.x main report carries a bare `Run` column (no `File.Name`);
+  # DIA-NN 1.x carries `File.Name` (full path). Prefer `Run` and fall back to
+  # `File.Name`. The `Run` value is already the bare basename, so basename(),
+  # the backslash gsub, and the extension strip are no-ops on it.
+  run_col <- if ("Run" %in% names(report2)) {
+    "Run"
+  } else if ("File.Name" %in% names(report2)) {
+    "File.Name"
+  } else {
+    stop("DIA-NN report has neither 'Run' nor 'File.Name'")
+  }
   report2$raw.file <- gsub(
     "^x|\\.d\\.zip$|\\.d$|\\.raw$|\\.mzML$",
     "",
-    basename(gsub("\\\\", "/", report2$File.Name))
+    basename(gsub("\\\\", "/", report2[[run_col]]))
   )
   report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group)
   return(report2)
@@ -92,10 +103,15 @@ diann_output_to_peptide <- function(report2) {
 #' }
 get_DIANN_files <- function(path) {
   diann.path <- grep(
-    "report\\.tsv$|diann-output\\.tsv",
+    "report\\.parquet$|report\\.tsv$|diann-output\\.tsv",
     dir(path = path, recursive = TRUE, full.names = TRUE),
     value = TRUE
   )
+  # prefer the native DIA-NN 2.x parquet when both a parquet and a tsv are found
+  parquet.path <- grep("\\.parquet$", diann.path, value = TRUE)
+  if (length(parquet.path) > 0) {
+    diann.path <- parquet.path
+  }
   fasta.files <- grep(
     "*.fasta$|*.fas$",
     dir(path = path, recursive = TRUE, full.names = TRUE),
@@ -111,6 +127,19 @@ get_DIANN_files <- function(path) {
     stop()
   }
   return(list(data = diann.path, fasta = fasta.files))
+}
+
+
+#' read a DIA-NN report from parquet (native 2.x) or tsv (legacy)
+#' @param path path to a DIA-NN report (.parquet or .tsv)
+#' @return a data frame / tibble
+#' @noRd
+read_diann_report <- function(path) {
+  if (grepl("\\.parquet$", path)) {
+    arrow::read_parquet(path)
+  } else {
+    readr::read_tsv(path)
+  }
 }
 
 
@@ -159,7 +188,7 @@ preprocess_DIANN <- function(
         (basename(annot[[config$file_name]]))
       )
     )
-  data <- readr::read_tsv(quant_data)
+  data <- read_diann_report(quant_data)
   report2 <- prolfquapp::diann_read_output(
     data,
     Lib.PG.Q.Value = q_value,
@@ -250,7 +279,7 @@ preprocess_DIANN <- function(
 #' @param files list with data and fasta file paths
 #' @export
 dataset_template_diann <- function(files) {
-  data <- readr::read_tsv(files$data)
+  data <- read_diann_report(files$data)
   logger::log_info("Files: ", files$data, " loaded. Starting filtering.")
   xx <- prolfquapp::diann_read_output(
     data,
