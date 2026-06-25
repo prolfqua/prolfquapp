@@ -263,9 +263,10 @@ input.
 ## Differential Expression Analysis
 
 The method used to test for differential expression consists of several
-steps: First a linear model that explains the observed protein
-abundances using the grouping of the samples is fitted using the R
-function *lm* to each protein:
+steps: First a model that explains the observed protein abundances using
+the grouping of the samples is fitted to each protein with the selected
+backend (the `modelName`/facade key; by default a linear model fitted
+with the R function *lm*):
 
 normalized_abundance ~ group\_.
 
@@ -287,12 +288,14 @@ If there are no abundances measured in one of the groups for some
 proteins, we assume the observations are missing because the protein
 abundance is below the detection limit. Therefore, we estimate the
 detection limit using the mean of the $1\%$ smallest group averages.
-Furthermore, to make it explicit for which proteins we did impute the
-unobserved group mean, we label them with `Imputed_Mean` (see table in
-Figures @ref(fig:tableAllProt) column `modelName`) and visualize them
-with gray dots in Figure @ref(fig:volcanoplot). Finally, those proteins
-with a sufficiently large number of observations are labeled with
-`Linear_Model_Moderated`.
+Furthermore, to make it explicit how each estimate was produced, the
+`estimate_type` column (see table in Figure @ref(fig:tableAllProt))
+records whether a row was fit from `observed` data, rescued via LOD
+imputation (`lod_imputed`), or filled from a group-mean fallback
+(`missing_fallback`); rescued/fallback rows are visualized with a
+distinct colour in Figure @ref(fig:volcanoplot). The `modelName` column
+records the selected analysis method (the facade key, e.g. `lm`, `rfit`,
+`limma`).
 
 Next, to increase the power of the analysis variance shrinkage is
 performed (Smyth 2004). Finally, the false discovery rate (FDR) using
@@ -312,8 +315,10 @@ expression analysis results by providing the following information:
 - description - information about the protein provided in the FASTA
   database
 - contrast - name of the comparison
-- modelName - name of the method to estimate differences : Imputed_mean
-  or Linear_Model_Moderated
+- modelName - selected analysis method (facade key, e.g. `lm`, `rfit`,
+  `limma`)
+- estimate_type - how the estimate was produced: `observed`,
+  `lod_imputed`, or `missing_fallback`
 - FDR - false discovery rate
 - diff - difference between groups.
 
@@ -328,8 +333,9 @@ Differential expression analysis results of all proteins.
 (ref:volcanoplot) Volcano plot showing $- \log_{10}$ transformed FDR as
 function of the difference between groups. The red line indicates the
 $- log_{10}(FDR)$ of FDR = 0.1, while the green lines represent the
-difference of minus and plus 0.2. With orange dots differences and FDRs
-estimated using missing value imputation are shown.
+difference of minus and plus 0.2. Points are coloured by
+`estimate_type`, so rows estimated by missing-value imputation or
+group-mean fallback are visually distinguished from observed fits.
 
 (ref:volcanoplot)
 
@@ -430,7 +436,7 @@ please contact <protinf@fgcz.uzh.ch>.
 
 ## Session Information
 
-**R version 4.6.0 (2026-04-24)**
+**R version 4.6.1 (2026-06-24)**
 
 **Platform:** x86_64-pc-linux-gnu
 
@@ -460,26 +466,26 @@ please contact <protinf@fgcz.uzh.ch>.
 *digest(v.0.6.39)*, *dtplyr(v.1.3.3)*, *colorspace(v.2.1-2)*,
 *lobstr(v.1.2.1)*, *S4Vectors(v.0.50.1)*, *textshaping(v.1.0.5)*,
 *crosstalk(v.1.2.2)*, *GenomicRanges(v.1.64.0)*, *labeling(v.0.4.3)*,
-*httr(v.1.4.8)*, *abind(v.1.4-8)*, *mgcv(v.1.9-4)*, *compiler(v.4.6.0)*,
+*httr(v.1.4.8)*, *abind(v.1.4-8)*, *mgcv(v.1.9-4)*, *compiler(v.4.6.1)*,
 *withr(v.3.0.3)*, *bit64(v.4.8.2)*, *doParallel(v.1.0.17)*,
 *pander(v.0.6.6)*, *S7(v.0.2.2)*, *backports(v.1.5.1)*,
 *logger(v.0.4.2)*, *UpSetR(v.1.4.1)*, *prolfquasaint(v.0.1.5)*,
 *pan(v.1.9)*, *MASS(v.7.3-65)*, *DelayedArray(v.0.38.2)*,
-*rjson(v.0.2.23)*, *optparse(v.1.8.2)*, *tools(v.4.6.0)*,
+*rjson(v.0.2.23)*, *optparse(v.1.8.2)*, *tools(v.4.6.1)*,
 *otel(v.0.2.0)*, *httpuv(v.1.6.17)*, *nnet(v.7.3-20)*, *glue(v.1.8.1)*,
-*promises(v.1.5.0)*, *nlme(v.3.1-169)*, *grid(v.4.6.0)*,
+*promises(v.1.5.0)*, *nlme(v.3.1-169)*, *grid(v.4.6.1)*,
 *cluster(v.2.1.8.2)*, *generics(v.0.1.4)*, *operator.tools(v.1.6.3.1)*,
 *gtable(v.0.3.6)*, *tzdb(v.0.5.0)*, *formula.tools(v.1.7.1)*,
 *preprocessCore(v.1.74.0)*, *tidyr(v.1.3.2)*, *data.table(v.1.18.4)*,
 *hms(v.1.1.4)*, *XVector(v.0.52.0)*, *BiocGenerics(v.0.58.1)*,
 *ggrepel(v.0.9.8)*, *foreach(v.1.5.2)*, *pillar(v.1.11.1)*,
 *stringr(v.1.6.0)*, *limma(v.3.68.4)*, *later(v.1.4.8)*,
-*circlize(v.0.4.18)*, *splines(v.4.6.0)*, *lattice(v.0.22-9)*,
+*circlize(v.0.4.18)*, *splines(v.4.6.1)*, *lattice(v.0.22-9)*,
 *survival(v.3.8-6)*, *bit(v.4.6.0)*, *tidyselect(v.1.2.1)*,
 *ComplexHeatmap(v.2.28.0)*, *knitr(v.1.51)*, *reformulas(v.0.4.4)*,
-*gridExtra(v.2.3)*, *prolfquapp(v.2.2.5)*, *bookdown(v.0.47)*,
+*gridExtra(v.2.3)*, *prolfquapp(v.2.2.6)*, *bookdown(v.0.47)*,
 *IRanges(v.2.46.0)*, *Seqinfo(v.1.2.0)*,
-*SummarizedExperiment(v.1.42.0)*, *stats4(v.4.6.0)*, *xfun(v.0.59)*,
+*SummarizedExperiment(v.1.42.0)*, *stats4(v.4.6.1)*, *xfun(v.0.59)*,
 *prolfqua(v.1.6.3)*, *Biobase(v.2.72.0)*, *statmod(v.1.5.2)*,
 *matrixStats(v.1.5.0)*, *DT(v.0.34.0)*, *stringi(v.1.8.7)*,
 *lazyeval(v.0.2.3)*, *yaml(v.2.3.12)*, *boot(v.1.3-32)*,
@@ -488,7 +494,7 @@ please contact <protinf@fgcz.uzh.ch>.
 *rpart(v.4.1.27)*, *xtable(v.1.8-8)*, *arrow(v.24.0.0)*,
 *systemfonts(v.1.3.2)*, *Rdpack(v.2.6.6)*, *jquerylib(v.0.1.4)*,
 *Rcpp(v.1.1.1-1.1)*, *readxl(v.1.5.0)*, *png(v.0.1-9)*,
-*parallel(v.4.6.0)*, *pkgdown(v.2.2.0)*, *ggplot2(v.4.0.3)*,
+*parallel(v.4.6.1)*, *pkgdown(v.2.2.0)*, *ggplot2(v.4.0.3)*,
 *readr(v.2.2.0)*, *assertthat(v.0.2.1)*, *prettyunits(v.1.2.0)*,
 *lme4(v.2.0-1)*, *glmnet(v.5.0)*, *viridisLite(v.0.4.3)*,
 *scales(v.1.4.0)*, *affy(v.1.90.0)*, *purrr(v.1.2.2)*,
@@ -571,4 +577,4 @@ Proteome Research* 4 (22): 1092–1104.
 
 *This report was generated from the R Markdown template
 `Grp2Analysis_V2_R6.Rmd` included in the `prolfquapp` R package (version
-2.2.5).*
+2.2.6).*

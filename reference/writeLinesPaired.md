@@ -5,7 +5,7 @@ nice plot for paired analysis
 ## Usage
 
 ``` r
-writeLinesPaired(bb, outpath)
+writeLinesPaired(bb, outpath = NULL)
 ```
 
 ## Arguments

@@ -9,7 +9,7 @@ Useful for vignette defaults, examples, and testing."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,20 +75,20 @@ Useful for vignette defaults, examples, and testing.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> setup done</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>no exp_nr_children column specified, computing using nr_children_experiment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-24 13:56:17] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-24 13:56:17] AGGREGATING PEPTIDE DATA: medpolish.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-25 09:06:10] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-25 09:06:10] AGGREGATING PEPTIDE DATA: medpolish.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log_abundance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> starting aggregation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : exp_medpolish</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-24 13:56:17] END OF PROTEIN AGGREGATION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-24 13:56:17] Transforming using robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-25 09:06:10] END OF PROTEIN AGGREGATION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-25 09:06:10] Transforming using robscale.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log2_exp_medpolish</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> data is : TRUE</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-24 13:56:17] Transforming data : robscale.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-24 13:56:17] model formula: normalized_abundance ~ group_</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>ContrastsLMMissingFacade (method = 'lm_missing') is deprecated: its second leg uses ContrastsMissing (group-mean substitution, no model fit). Prefer 'lm_impute' which refits failed/singular proteins with LOD imputation and borrowed variance, tagging rescued rows as 'WaldTest_moderated_imputed'. See ?ContrastsLMMissingFacade for migration.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-25 09:06:10] Transforming data : robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-25 09:06:10] model formula: normalized_abundance ~ group_</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>ContrastsLMMissingFacade (method = 'lm_missing') is deprecated: its second leg uses ContrastsMissing (group-mean substitution, no model fit). Prefer 'lm_impute' which refits failed/singular proteins with LOD imputation and borrowed variance, flagging rescued rows as estimate_type 'lod_imputed'. See ?ContrastsLMMissingFacade for migration.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> determine linear functions:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> get_contrasts -&gt; contrasts_linfct</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> contrasts_linfct</span>
@@ -105,30 +105,30 @@ Useful for vignette defaults, examples, and testing.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
 <span class="r-in"><span><span class="va">dea</span><span class="op">$</span><span class="va">contrast_results</span><span class="op">[[</span><span class="va">dea</span><span class="op">$</span><span class="va">default_model</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="fu">get_contrasts</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 20 × 14</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    facade     modelName  protein_Id contrast     diff std.error avgAbd statistic</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> lm_missing WaldTest_… 0EfVhX~00… AVsC     -<span style="color: #BB0000;">0.060</span><span style="color: #BB0000; text-decoration: underline;">1</span>     0.054<span style="text-decoration: underline;">0</span>   4.38   -<span style="color: #BB0000;">1.09</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> lm_missing WaldTest_… 7cbcrd~57… AVsC      0.761      0.117    4.61    6.97  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> lm_missing WaldTest_… 9VUkAq~47… AVsC     -<span style="color: #BB0000;">0.642</span>      0.100    4.51   -<span style="color: #BB0000;">6.71</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> lm_missing WaldTest_… BEJI92~52… AVsC      0.213      0.091<span style="text-decoration: underline;">8</span>   4.30    2.45  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> lm_missing WaldTest_… CGzoYe~21… AVsC     -<span style="color: #BB0000;">0.293</span>      0.080<span style="text-decoration: underline;">4</span>   4.82   -<span style="color: #BB0000;">3.57</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> lm_missing WaldTest_… DoWup2~58… AVsC      0.287      0.042<span style="text-decoration: underline;">7</span>   4.51    4.87  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> lm_missing WaldTest_… Fl4JiV~86… AVsC      0.050<span style="text-decoration: underline;">9</span>     0.043<span style="text-decoration: underline;">5</span>   4.39    1.14  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> lm_missing WaldTest_… HvIpHG~90… AVsC     -<span style="color: #BB0000;">0.394</span>      0.045<span style="text-decoration: underline;">0</span>   4.45   -<span style="color: #BB0000;">7.48</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> lm_missing WaldTest_… JcKVfU~96… AVsC     -<span style="color: #BB0000;">0.021</span><span style="color: #BB0000; text-decoration: underline;">2</span>     0.099<span style="text-decoration: underline;">0</span>   5.07   -<span style="color: #BB0000;">0.250</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> lm_missing WaldTest_… SGIVBl~57… AVsC      0.015<span style="text-decoration: underline;">4</span>     0.057<span style="text-decoration: underline;">3</span>   4.77    0.294 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> lm_missing WaldTest_… 0EfVhX~00… BVsC      0.278      0.051<span style="text-decoration: underline;">5</span>   4.54    5.30  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> lm_missing WaldTest_… 7cbcrd~57… BVsC      0.053<span style="text-decoration: underline;">0</span>     0.125    4.26    0.454 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> lm_missing WaldTest_… 9VUkAq~47… BVsC     -<span style="color: #BB0000;">0.852</span>      0.108    4.41   -<span style="color: #BB0000;">8.25</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> lm_missing WaldTest_… BEJI92~52… BVsC      0.165      0.086<span style="text-decoration: underline;">4</span>   4.28    2.02  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">15</span> lm_missing WaldTest_… CGzoYe~21… BVsC     -<span style="color: #BB0000;">0.157</span>      0.086<span style="text-decoration: underline;">9</span>   4.89   -<span style="color: #BB0000;">1.77</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">16</span> lm_missing WaldTest_… DoWup2~58… BVsC     -<span style="color: #BB0000;">0.299</span>      0.042<span style="text-decoration: underline;">7</span>   4.21   -<span style="color: #BB0000;">5.07</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">17</span> lm_missing WaldTest_… Fl4JiV~86… BVsC      0.082<span style="text-decoration: underline;">5</span>     0.041<span style="text-decoration: underline;">8</span>   4.40    1.92  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">18</span> lm_missing WaldTest_… HvIpHG~90… BVsC      0.002<span style="text-decoration: underline;">08</span>    0.041<span style="text-decoration: underline;">9</span>   4.65    0.042<span style="text-decoration: underline;">5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">19</span> lm_missing WaldTest_… JcKVfU~96… BVsC      0.023<span style="text-decoration: underline;">6</span>     0.099<span style="text-decoration: underline;">0</span>   5.09    0.278 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">20</span> lm_missing WaldTest_… SGIVBl~57… BVsC     -<span style="color: #BB0000;">0.178</span>      0.055<span style="text-decoration: underline;">4</span>   4.68   -<span style="color: #BB0000;">3.51</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 6 more variables: df &lt;dbl&gt;, p.value &lt;dbl&gt;, conf.low &lt;dbl&gt;, conf.high &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   sigma &lt;dbl&gt;, FDR &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    modelName  estimate_type protein_Id  contrast     diff std.error avgAbd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> lm_missing observed      0EfVhX~0087 AVsC     -<span style="color: #BB0000;">0.060</span><span style="color: #BB0000; text-decoration: underline;">1</span>     0.054<span style="text-decoration: underline;">0</span>   4.38</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> lm_missing observed      7cbcrd~5725 AVsC      0.761      0.117    4.61</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> lm_missing observed      9VUkAq~4703 AVsC     -<span style="color: #BB0000;">0.642</span>      0.100    4.51</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> lm_missing observed      BEJI92~5282 AVsC      0.213      0.091<span style="text-decoration: underline;">8</span>   4.30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> lm_missing observed      CGzoYe~2147 AVsC     -<span style="color: #BB0000;">0.293</span>      0.080<span style="text-decoration: underline;">4</span>   4.82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> lm_missing observed      DoWup2~5896 AVsC      0.287      0.042<span style="text-decoration: underline;">7</span>   4.51</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> lm_missing observed      Fl4JiV~8625 AVsC      0.050<span style="text-decoration: underline;">9</span>     0.043<span style="text-decoration: underline;">5</span>   4.39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> lm_missing observed      HvIpHG~9079 AVsC     -<span style="color: #BB0000;">0.394</span>      0.045<span style="text-decoration: underline;">0</span>   4.45</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> lm_missing observed      JcKVfU~9653 AVsC     -<span style="color: #BB0000;">0.021</span><span style="color: #BB0000; text-decoration: underline;">2</span>     0.099<span style="text-decoration: underline;">0</span>   5.07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> lm_missing observed      SGIVBl~5782 AVsC      0.015<span style="text-decoration: underline;">4</span>     0.057<span style="text-decoration: underline;">3</span>   4.77</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> lm_missing observed      0EfVhX~0087 BVsC      0.278      0.051<span style="text-decoration: underline;">5</span>   4.54</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> lm_missing observed      7cbcrd~5725 BVsC      0.053<span style="text-decoration: underline;">0</span>     0.125    4.26</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> lm_missing observed      9VUkAq~4703 BVsC     -<span style="color: #BB0000;">0.852</span>      0.108    4.41</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> lm_missing observed      BEJI92~5282 BVsC      0.165      0.086<span style="text-decoration: underline;">4</span>   4.28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">15</span> lm_missing observed      CGzoYe~2147 BVsC     -<span style="color: #BB0000;">0.157</span>      0.086<span style="text-decoration: underline;">9</span>   4.89</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">16</span> lm_missing observed      DoWup2~5896 BVsC     -<span style="color: #BB0000;">0.299</span>      0.042<span style="text-decoration: underline;">7</span>   4.21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">17</span> lm_missing observed      Fl4JiV~8625 BVsC      0.082<span style="text-decoration: underline;">5</span>     0.041<span style="text-decoration: underline;">8</span>   4.40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">18</span> lm_missing observed      HvIpHG~9079 BVsC      0.002<span style="text-decoration: underline;">08</span>    0.041<span style="text-decoration: underline;">9</span>   4.65</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">19</span> lm_missing observed      JcKVfU~9653 BVsC      0.023<span style="text-decoration: underline;">6</span>     0.099<span style="text-decoration: underline;">0</span>   5.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">20</span> lm_missing observed      SGIVBl~5782 BVsC     -<span style="color: #BB0000;">0.178</span>      0.055<span style="text-decoration: underline;">4</span>   4.68</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 7 more variables: statistic &lt;dbl&gt;, df &lt;dbl&gt;, p.value &lt;dbl&gt;, conf.low &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   conf.high &lt;dbl&gt;, sigma &lt;dbl&gt;, FDR &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

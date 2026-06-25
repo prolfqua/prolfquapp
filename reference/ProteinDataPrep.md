@@ -238,18 +238,18 @@ data_prep$cont_decoy_summary()
 #> 1                  100
 data_prep$remove_cont_decoy()
 #> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-06-24 13:56:11] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#> INFO [2026-06-25 09:06:04] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
 data_prep$aggregate()
-#> INFO [2026-06-24 13:56:11] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-06-25 09:06:04] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> completing cases
 #> Column added : exp_medpolish
-#> INFO [2026-06-24 13:56:12] END OF PROTEIN AGGREGATION
+#> INFO [2026-06-25 09:06:05] END OF PROTEIN AGGREGATION
 data_prep$transform_data()
-#> INFO [2026-06-24 13:56:12] Transforming using robscale.
+#> INFO [2026-06-25 09:06:05] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`
-#> INFO [2026-06-24 13:56:12] Transforming data : robscale.
+#> INFO [2026-06-25 09:06:05] Transforming data : robscale.
 ```

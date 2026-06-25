@@ -52,18 +52,18 @@ annot <- data.frame(
 )
 
 annot <- read_annotation(annot, QC = TRUE)
-#> INFO [2026-06-24 13:56:29] Using derived sample display names in column 'sampleName'.
+#> INFO [2026-06-25 09:06:21] Using derived sample display names in column 'sampleName'.
 preprocess_functions <- prolfquapp::prolfqua_preprocess_functions[["DUMMY"]]
 res <- preprocess_software(".", annot, preprocess_functions)
-#> INFO [2026-06-24 13:56:29] Files data: data.path
-#> INFO [2026-06-24 13:56:29] Files fasta: fasta.files.path
+#> INFO [2026-06-25 09:06:21] Files data: data.path
+#> INFO [2026-06-25 09:06:21] Files fasta: fasta.files.path
 
 xx <- prolfquapp::ExternalReader$new()
 xx$extra_args <- "list()"
 xx$get_files <- "prolfquapp::get_dummy_files"
 xx$preprocess <- "prolfquapp::preprocess_dummy"
 res <- preprocess_software(".", annotation = annot, preprocess_functions = xx)
-#> INFO [2026-06-24 13:56:29] Files data: data.path
-#> INFO [2026-06-24 13:56:29] Files fasta: fasta.files.path
+#> INFO [2026-06-25 09:06:21] Files data: data.path
+#> INFO [2026-06-25 09:06:21] Files fasta: fasta.files.path
 xx <- prolfquapp::ExternalReader$new()
 ```
