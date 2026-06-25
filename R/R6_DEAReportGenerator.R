@@ -414,14 +414,16 @@ DEAReportGenerator <- R6::R6Class(
         return(invisible(NULL))
       }
       bb <- self$deanalyse$lfq_data
+      # Paired layout (connect samples across the second factor) applies only
+      # when there is a pairing factor (factor_keys()[2], used by
+      # writeLinesPaired) and every factor-combination cell holds a single
+      # sample. Group sizes and the factor count must use the SAME accessor.
       grsizes <- bb$factors() |>
-        dplyr::group_by(dplyr::across(bb$relevant_factor_keys())) |>
+        dplyr::group_by(dplyr::across(bb$factor_keys())) |>
         dplyr::summarize(n = dplyr::n(), .groups = "drop") |>
         dplyr::pull(n)
-      nr_controls <- sum(
-        !grepl("^control", bb$factor_keys(), ignore.case = TRUE)
-      )
-      if (nr_controls > 1 && all(grsizes == 1)) {
+      nr_factors <- length(bb$factor_keys())
+      if (nr_factors > 1 && all(grsizes == 1)) {
         prolfquapp::writeLinesPaired(bb, self$resultdir)
       } else {
         pl <- bb$get_Plotter()

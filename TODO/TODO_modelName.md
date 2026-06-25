@@ -1,131 +1,208 @@
-# Make `modelName` report the model/facade, not the contrast-test schema
+# TODO: make `modelName` identify the selected model facade
 
-## Motivation
+## Problem
 
-A user (WU347682, `prolfquapp.DIANN`, `-m rfit`) ran the **rfit** model and was
-confused that the 2-group report / Excel showed:
+A DIA-NN DEA run for WU347682 used the `rfit` backend
+(`prolfquapp.DIANN -m rfit`), but the 2-group report and Excel output showed:
 
-| facade | modelName          |
-|--------|--------------------|
-| rfit   | WaldTest_moderated |
+| facade | modelName |
+| --- | --- |
+| rfit | WaldTest_moderated |
 
-The chosen backend (`rfit`) is only visible in the `facade` column. The
-`modelName` column reports `WaldTest_moderated` — the **contrast-test schema**,
-which is identical for `lm`, `rlm`, `rfit`, `firth`, ... because they all route
-through `Contrasts -> ContrastsModerated`. So `modelName` carries no information
-about *which model was actually fit*, and reads as if a different model was used
-than the one requested on the command line.
+That is technically how the current code works, but it is misleading to users.
+The selected backend is `rfit`; `WaldTest_moderated` describes the shared
+contrast-testing schema used by several backends. In a results table, a column
+called `modelName` should answer "which model was fit?", not "which contrast
+test wrapper produced these columns?".
 
-## Goal
+## Desired output contract
 
-1. **`modelName` should name the model / facade actually used**: `lm`,
-   `lm_impute`, `rlm`, `rfit`, `firth`, `limma`, ... — i.e. mirror the `facade`
-   column's information (or replace the need for a separate `facade` column).
-2. **The "moderated Wald test" wording moves to the report _text_** (methods
-   section), where it belongs as a description of the testing procedure shared
-   by all Wald-type facades — not as a per-row column value.
-3. **Document the change** in the report vignette and **add a test** that pins
-   the expected `modelName` values per facade.
+- `modelName` is the selected model/facade key, for example `lm`, `lm_impute`,
+  `rlm`, `rfit`, `rfit_impute`, `firth`, `limma`, `limma_impute`,
+  `limma_voom`, `limma_voom_impute`, `deqms`, `deqms_voom`, `limpa`,
+  `lmer_nested`, `ropeca_nested`, or `firth_nested`.
+- The `facade` column can remain for compatibility, but when both columns are
+  present they must agree for ordinary facade outputs.
+- Moderated-Wald-test wording belongs in report/methods text, not as a
+  per-result `modelName` value.
+- Rows rescued by LOD imputation or missing-value fallback remain explicitly
+  distinguishable without overloading `modelName`.
 
-## Where the current value comes from (prolfqua, NOT prolfquapp)
+## Current implementation, verified in code
 
-The `modelName` column is produced inside **prolfqua**, not prolfquapp:
+The root cause is in `prolfqua`, not `prolfquapp`.
 
-- `prolfqua/R/Contrasts.R:121` — default `model_name = "WaldTest"`; written to
-  the `modelName` column at `Contrasts.R:225`.
-- `prolfqua/R/ContrastsModerated.R:70` — wraps and appends `_moderated`
-  -> `"WaldTest_moderated"`.
-- `prolfqua/R/ContrastsModerated.R:138-150` — imputed/rescued rows are retagged
-  by string surgery: `*_imputed` -> `*_moderated_imputed`, else
-  append `_moderated`. So **`modelName` currently encodes TWO things at once**:
-  the test schema AND whether the row was imputed.
-- The facade key (`lm`, `rfit`, ...) is added separately as the **`facade`**
-  column by `.add_facade_column()` (`prolfqua/R/ContrastsFacades.R:45`), called
-  per facade (e.g. rfit at `:656`, lm at `:517`, rlm at `:585`).
+- `prolfqua/R/Contrasts.R`: `Contrasts$new()` defaults
+  `model_name = "WaldTest"` and stamps this into `modelName`.
+- `prolfqua/R/Contrasts.R`: if `model$model_df` has an `imputed` flag, the
+  contrast result is retagged as `WaldTest_imputed` for rescued rows.
+- `prolfqua/R/ContrastsModerated.R`: `ContrastsModerated$new()` defaults to
+  `paste0(Contrast$model_name, "_moderated")`, and `get_contrasts()` rewrites
+  result rows from `*_imputed` to `*_moderated_imputed`.
+- `prolfqua/R/ContrastsFacades.R`: `lm`, `rlm`, and `rfit` build
+  `ContrastsModerated$new(Contrasts$new(...))` without passing a facade-specific
+  `model_name`, so all of them produce `WaldTest_moderated`.
+- `prolfqua/R/ContrastsFacades.R`: `.add_facade_column()` adds the selected
+  facade key separately as the `facade` column.
+- `prolfqua/R/ContrastsLimma.R`: limma-family outputs already use `limma` and
+  `limma_imputed` style `modelName` values, so the inconsistency is strongest
+  for the `Contrasts` + `ContrastsModerated` facades.
+- `prolfqua/R/ContrastFirth.R`: firth currently defaults to
+  `WaldTestFirth`, so it also needs an explicit decision.
+- `prolfqua/R/ContrastsChildToParentFacades.R`: nested facades add facade keys
+  such as `lmer_nested`, `ropeca_nested`, `firth_nested`, and `limpa_nested`;
+  check their underlying `modelName` values before changing report semantics.
 
-Because the value originates in prolfqua, decide the fix location:
+## Important constraint: do not lose rescue/imputation information
 
-- **Option A (prolfqua, preferred):** make each facade pass a meaningful
-  `model_name` into `Contrasts$new(..., model_name = <facade>)` so `modelName`
-  becomes the facade name natively, and drop the `_moderated` suffix logic from
-  the column (keep it as a config/methods string). Cleanest, benefits all
-  downstream consumers (prophosqua, prolfquasaint, benchmark). Risk: changes a
-  long-standing public column value — coordinate across the ecosystem.
-- **Option B (prolfquapp-only):** after `get_contrasts()`, overwrite
-  `modelName <- facade` in the output-assembly step in prolfquapp. Lower blast
-  radius, but leaves prolfqua inconsistent and duplicates the `facade`/`modelName`
-  columns.
+Today `modelName` carries two meanings:
 
-Recommend **Option A** with prolfquapp follow-ups below.
+1. the contrast schema, for example `WaldTest_moderated`
+2. whether a row came from an imputation/rescue path, for example
+   `WaldTest_moderated_imputed`
 
-## ⚠️ Do not lose the imputation flag
+That second meaning is user-visible:
 
-This is the crux. Today `modelName` doubles as the "was this row imputed?"
-signal (`WaldTest_moderated_imputed` / `Imputed_Mean_moderated`). Several
-consumers rely on it:
+- `prolfqua/R/ContrastsPlotter.R` uses `modelName` as the default colour column
+  for volcano and related plots.
+- `prolfquapp/R/report_helpers.R` has `.model_name_palette()` keyed to
+  `Linear_Model_moderated`, `Imputed_Mean_moderated`, and
+  `WaldTest_moderated`.
+- `prolfquapp/tests/testthat/test-CMD_DEA_CD.R` duplicates the same palette
+  logic in a test.
+- `prolfqua/tests/testthat/test-ImputeModel.R`,
+  `test-ContrastsRfitImpute.R`, and `test-ContrastsLimma.R` explicitly assert
+  current `_imputed` suffix behavior.
 
-- **Volcano coloring**: `prolfqua/R/ContrastsPlotter.R:171` defaults the point
-  `colour` to the `modelName` column — imputed proteins are drawn as gray dots.
-- **Color palette**: `prolfquapp/R/report_helpers.R:150` `.model_name_palette()`
-  hard-codes keys `Linear_Model_moderated`, `Imputed_Mean_moderated`,
-  `WaldTest_moderated`. Changing `modelName` values **breaks these defaults** —
-  must be updated.
+Before changing `modelName`, introduce or preserve a separate column for this
+state. Prefer a small categorical column over encoding state in a label:
 
-If `modelName` becomes purely the facade name, **add a separate column** (e.g.
-`imputed` boolean, or keep an `estimate_type` column) so the observed-vs-imputed
-distinction survives, and repoint the volcano `colour` and the palette at it.
+| column | suggested values | purpose |
+| --- | --- | --- |
+| `modelName` | `rfit`, `lm_impute`, `limma`, ... | selected facade/backend |
+| `estimate_type` | `observed`, `lod_imputed`, `missing_fallback` | how the estimate row was produced |
 
-## Concrete change list
+An `imputed` boolean is acceptable for the first implementation if all current
+cases are binary, but `estimate_type` will age better because `lm_missing`
+represents a different fallback than LOD refitting.
 
-### prolfqua (if Option A)
-- [ ] `R/ContrastsFacades.R` — each facade passes its key as `model_name` to
-      `Contrasts$new()` (or via `ContrastsModerated`). Confirm: `lm`, `lm_impute`,
-      `lm_missing`, `rlm`, `rfit`, `firth`, `limma`(+voom/impute), `deqms`,
-      `limpa`, and nested facades (`lmer_nested`, `ropeca_nested`, ...).
-- [ ] `R/ContrastsModerated.R:70,138-150` — stop folding `_moderated` /
-      `_moderated_imputed` into `modelName`; surface imputation as its own flag.
-- [ ] `R/Contrasts.R:121` — reconsider the `"WaldTest"` default.
-- [ ] Update `test-ContrastsFacades.R`, `test-Contrasts.R`,
-      `test-ContrastsModerated*` to assert the new `modelName` per facade.
+## Recommended fix
 
-### prolfquapp
-- [ ] `R/report_helpers.R:150` `.model_name_palette()` — rekey the default
-      palette to facade names (or to the new imputation flag), so report colors
-      stay stable.
-- [ ] `R/se_report_lfqdata.R:302-303` and
-      `inst/templates/quarto/Grp2Analysis_V2_SE.qmd:223` — they map/default
-      `modelName`; check they still make sense.
-- [ ] Move the moderated-Wald-test explanation into the **methods text** of the
-      report (already partly present at
-      `vignettes/Grp2Analysis_V2_R6.Rmd:101`: "protein variances are
-      moderated [@Smyth2004]...").
+Fix this upstream in `prolfqua`. Do not patch only the prolfquapp report tables.
 
-### Vignette / docs
-- [ ] `vignettes/Grp2Analysis_V2_R6.Rmd:359,373` currently describe `modelName`
-      as "Imputed_mean or Linear_Model_Moderated" — **already stale** (the actual
-      value is `WaldTest_moderated`). Rewrite to: `modelName` = the model used
-      (`lm`, `rfit`, ...), plus a sentence in the methods section stating all
-      these backends are tested with an empirical-Bayes **moderated Wald test**
-      (Smyth 2004), and that imputed proteins are flagged separately and drawn
-      in gray.
-- [ ] Add/extend a test (prolfquapp `tests/testthat/`) that runs a small DEA per
-      facade and asserts the `modelName` column equals the requested facade key.
+Reason: `modelName` is generated by prolfqua contrast objects and consumed by
+all downstream packages. A prolfquapp-only overwrite after `get_contrasts()`
+would leave the public prolfqua API inconsistent and would duplicate the
+`facade`/`modelName` mismatch for other consumers.
+
+### Phase 1: normalize the prolfqua result schema
+
+- [ ] Add an explicit rescue-state column to contrast outputs before changing
+      `modelName`. Recommended name: `estimate_type`.
+- [ ] In `Contrasts$get_contrasts()`, replace `_imputed` suffixing with
+      `estimate_type = "lod_imputed"` for model rows whose `model_df$imputed`
+      flag is true; use `estimate_type = "observed"` otherwise.
+- [ ] In `ContrastsModerated$get_contrasts()`, stop rewriting `modelName` to
+      append `_moderated` or `_moderated_imputed`. Preserve/pass through
+      `estimate_type`.
+- [ ] In `ContrastsLimma$get_contrasts()`, move current `limma_imputed`
+      information into `estimate_type` and keep `modelName` at the facade key
+      (`limma`, `limma_impute`, `limma_voom`, `limma_voom_impute`) according to
+      the facade that produced the result.
+- [ ] Decide whether non-facade low-level contrast classes keep their historical
+      default (`WaldTest`, `WaldTestFirth`) when used directly, or whether only
+      facade constructors override them. Keep public API changes minimal.
+
+### Phase 2: pass facade names at the source
+
+- [ ] In `ContrastsLMFacade`, call `Contrasts$new(..., model_name = "lm")`.
+- [ ] In `ContrastsLMImputeFacade`, call
+      `Contrasts$new(..., model_name = "lm_impute")`.
+- [ ] In `ContrastsRLMFacade`, call `Contrasts$new(..., model_name = "rlm")`.
+- [ ] In `ContrastsRfitFacade`, call
+      `Contrasts$new(..., model_name = "rfit")`.
+- [ ] In `ContrastsRfitImputeFacade`, call
+      `Contrasts$new(..., model_name = "rfit_impute")`.
+- [ ] In `ContrastsLMMissingFacade`, ensure the merged output reports
+      `modelName = "lm_missing"` and uses `estimate_type` to distinguish
+      observed model rows from missing-value fallback rows.
+- [ ] In `ContrastsFirthFacade` and `ContrastsFirthNestedFacade`, set
+      `modelName` to `firth` / `firth_nested` unless there is a documented
+      reason to keep `WaldTestFirth`.
+- [ ] In nested facades, pin expected `modelName` values for `lmer_nested`,
+      `ropeca_nested`, `firth_nested`, and `limpa_nested`.
+- [ ] Keep `.add_facade_column()` unchanged unless a compatibility decision is
+      made to remove `facade` later.
+
+### Phase 3: update prolfquapp report behavior
+
+- [ ] Update `.model_name_palette()` in `prolfquapp/R/report_helpers.R` so the
+      default color mapping is driven by `estimate_type` when that column is
+      present. Keep observed rows black and imputed/fallback rows visually
+      distinct, matching the current gray/orange intent.
+- [ ] Update report templates to color volcano plots by `estimate_type` when it
+      exists, with a fallback to `modelName` for older result objects.
+- [ ] Review `prolfquapp/R/se_report_lfqdata.R`: when reconstructing contrast
+      tables from `SummarizedExperiment`, preserve `estimate_type` if present
+      and only synthesize `modelName = "SummarizedExperiment"` for legacy rows
+      that lack model metadata.
+- [ ] Update `prolfquapp/inst/templates/quarto/Grp2Analysis_V2_SE.qmd` so its
+      `modelName` mapping and plotting defaults match the new semantics.
+- [ ] Update `prolfquapp/vignettes/Grp2Analysis_V2_R6.Rmd`: replace the stale
+      text saying `modelName` is `Imputed_Mean` or `Linear_Model_Moderated`.
+      Document `modelName` as the selected model/facade and describe the
+      moderated Wald test in the methods paragraph.
+
+## Test plan
+
+### prolfqua tests
+
+- [ ] Extend `tests/testthat/test-ContrastsFacades.R` with a shared expectation:
+      for each facade, `unique(res$modelName)` equals the facade key, and
+      `unique(res$facade)` equals the same key.
+- [ ] Cover at least these same-level facades: `lm`, `lm_impute`, `lm_missing`,
+      `rlm`, `rfit`, `rfit_impute`, `limma`, `limma_impute`, `limma_voom`,
+      `limma_voom_impute`, `limpa`, `deqms`, `deqms_voom`, and `firth`.
+- [ ] Cover nested facades separately: `lmer_nested`, `ropeca_nested`,
+      `firth_nested`, `limpa_nested`.
+- [ ] Replace suffix-based expectations in `test-ImputeModel.R` and
+      `test-ContrastsRfitImpute.R` with expectations on `estimate_type`.
+- [ ] Replace limma `_imputed` expectations in `test-ContrastsLimma.R` with
+      `modelName == <facade>` plus `estimate_type == "lod_imputed"`.
+- [ ] Add a direct low-level contrast test documenting whether
+      `Contrasts$new()` without a facade still returns `WaldTest`.
+
+### prolfquapp tests
+
+- [ ] Add or update a small DEA/report test that runs with `-m rfit` and asserts
+      report/Excel contrast tables contain `modelName = "rfit"`, not
+      `WaldTest_moderated`.
+- [ ] Add the same assertion for at least one ordinary LM facade and one impute
+      facade (`lm`, `lm_impute` or `rfit_impute`).
+- [ ] Update `test-CMD_DEA_CD.R` to use the central palette helper instead of
+      duplicating the old hard-coded modelName palette.
+- [ ] Add a regression around volcano color input: if `estimate_type` exists,
+      imputed/fallback rows are colored by that column; if it does not exist,
+      legacy `modelName` color behavior still works.
+- [ ] Update SE/Quarto tests so `estimate_type` survives
+      SummarizedExperiment round-tripping.
 
 ## Acceptance criteria
 
-- For `-m rfit`, the report/Excel `modelName` column reads `rfit` (not
-  `WaldTest_moderated`); same pattern for `lm`, `lm_impute`, `rlm`, ...
-- Imputed proteins are still distinguishable (separate flag) and still render as
-  gray dots in the volcano; report colors unchanged or intentionally updated.
-- The "moderated Wald test (Smyth 2004)" description appears in the report
-  methods text.
-- Vignette `Grp2Analysis_V2_R6.Rmd` text matches the new column semantics.
-- Tests pin `modelName` per facade and pass.
+- For `prolfquapp.DIANN -m rfit`, the report and Excel output show
+  `modelName = "rfit"`.
+- For each facade, `modelName` identifies the selected facade/backend.
+- Imputed or fallback rows remain visible in tables and volcano plots via
+  `estimate_type` or an equivalent explicit column.
+- The report methods text states that Wald-type facades use moderated testing
+  where applicable, with the Smyth 2004 citation retained.
+- Tests in both `prolfqua` and `prolfquapp` pin the new schema.
 
-## Open questions
+## Decisions still needed
 
-- Option A vs B (change prolfqua vs override in prolfquapp)?
-- Keep the `facade` column at all if `modelName` now carries the same info, or
-  drop one to avoid redundancy?
-- Name of the new imputation flag column (`imputed` boolean vs a categorical
-  `estimate_type` of observed/imputed)?
+- Final column name for rescue state: `estimate_type` is recommended;
+  `imputed` is acceptable only if all supported states remain binary.
+- Whether to keep `facade` permanently once `modelName` carries the same value.
+  Recommendation: keep it for at least one compatibility cycle.
+- Whether low-level, non-facade calls to `Contrasts$new()` should keep
+  `modelName = "WaldTest"` for backward compatibility.

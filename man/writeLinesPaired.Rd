@@ -4,7 +4,7 @@
 \alias{writeLinesPaired}
 \title{nice plot for paired analysis}
 \usage{
-writeLinesPaired(bb, outpath)
+writeLinesPaired(bb, outpath = NULL)
 }
 \arguments{
 \item{bb}{LFQData object with paired data}

@@ -361,10 +361,10 @@ ProteinAnnotation <-
       #' @param decoys remove decoys
       #'
       clean = function(contaminants = TRUE, decoys = TRUE) {
-        if (contaminants && !("REV" %in% colnames(self$row_annot))) {
+        if (decoys && !("REV" %in% colnames(self$row_annot))) {
           stop("annotate REV")
         }
-        if (decoys && !("CON" %in% colnames(self$row_annot))) {
+        if (contaminants && !("CON" %in% colnames(self$row_annot))) {
           stop("annotate CON")
         }
         res <- if (decoys && contaminants) {

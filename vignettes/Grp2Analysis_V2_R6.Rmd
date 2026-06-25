@@ -339,7 +339,7 @@ dea$lfq_data$get_Plotter()$pca_plotly()
 
 # Differential Expression Analysis
 
-The method used to test for differential expression consists of several steps: First a linear model that explains the observed protein abundances using the grouping of the samples is fitted using the R function _lm_ to each protein:
+The method used to test for differential expression consists of several steps: First a model that explains the observed protein abundances using the grouping of the samples is fitted to each protein with the selected backend (the `modelName`/facade key; by default a linear model fitted with the R function _lm_):
 
 `r dea$formula`.
 
@@ -356,7 +356,7 @@ knitr::kable(df, caption = "Name of difference (Contrast), and formula used to c
 and a null hypothesis significance test (NHST) is conducted, where the null hypothesis is that the protein is not differentially expressed [@faraway2004linear].
 
 If there are no abundances measured in one of the groups for some proteins, we assume the observations are missing because the protein abundance is below the detection limit. Therefore, we estimate the detection limit using the mean of the $1\%$ smallest group averages.
-Furthermore, to make it explicit for which proteins we did impute the unobserved group mean, we label them with `Imputed_Mean` (see table in Figures \@ref(fig:tableAllProt) column `modelName`) and visualize them with gray dots in Figure \@ref(fig:volcanoplot). Finally, those proteins with a sufficiently large number of observations are labeled with `Linear_Model_Moderated`.
+Furthermore, to make it explicit how each estimate was produced, the `estimate_type` column (see table in Figure \@ref(fig:tableAllProt)) records whether a row was fit from `observed` data, rescued via LOD imputation (`lod_imputed`), or filled from a group-mean fallback (`missing_fallback`); rescued/fallback rows are visualized with a distinct colour in Figure \@ref(fig:volcanoplot). The `modelName` column records the selected analysis method (the facade key, e.g. `lm`, `rfit`, `limma`).
 
 Next, to increase the power of the analysis variance shrinkage is performed [@Smyth2004]. Finally, the false discovery rate (FDR) using the Benjamini-Hochberg procedure is computed [@benjamini1995controlling].
 The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. By filtering the proteins using an FDR threshold of `r cfg$processing_options$FDR_threshold*100` % we can expect this proportion of false positives in the list and `r (1 - cfg$processing_options$FDR_threshold) * 100` % truly differentially expressed proteins. Because we do not know which of them are true positives follow up experiments are necessary.
@@ -370,7 +370,8 @@ hkey <- dea$lfq_data$hierarchy_keys()
 - `r if(hkey[1] == "protein_Id"){ paste0(hkey[1], " - unique protein identifier")} else {hkey[1]}`
 - description - information about the protein provided in the FASTA database
 - contrast - name of the comparison
-- modelName - name of the method to estimate differences : Imputed_mean or Linear_Model_Moderated
+- modelName - selected analysis method (facade key, e.g. `lm`, `rfit`, `limma`)
+- estimate_type - how the estimate was produced: `observed`, `lod_imputed`, or `missing_fallback`
 - FDR - false discovery rate
 - diff - difference between groups.
 
@@ -386,7 +387,7 @@ score_col <- if (is_saint) "BFDR" else "FDR"
 table_cols <- if (is_saint) {
   c("ID", "description", "Bait", "modelName", "log2_EFCs", "BFDR")
 } else {
-  c("ID", "description", "contrast", "modelName", "diff", "FDR")
+  c("ID", "description", "contrast", "modelName", "estimate_type", "diff", "FDR")
 }
 ```
 
@@ -412,7 +413,7 @@ DT::datatable(bb, filter = "bottom",
 
 ```
 
-(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r cfg$processing_options$FDR_threshold`, while the green lines represent the difference of minus and plus `r cfg$processing_options$diff_threshold`. With orange dots differences and FDRs estimated using missing value imputation are shown.
+(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r cfg$processing_options$FDR_threshold`, while the green lines represent the difference of minus and plus `r cfg$processing_options$diff_threshold`. Points are coloured by `estimate_type`, so rows estimated by missing-value imputation or group-mean fallback are visually distinguished from observed fits.
 
 
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)",fig.alt="", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}

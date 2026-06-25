@@ -3,6 +3,7 @@
 ^\.lintr$
 ^R/\.lintr$
 ^Makefile$
+^tag-diff\.sh$
 ^CLAUDE\.md$
 ^AGENTS\.md$
 ^TODO$

@@ -13,7 +13,7 @@
 #' xa[[3]]
 #' xa[[4]]
 #'
-writeLinesPaired <- function(bb, outpath) {
+writeLinesPaired <- function(bb, outpath = NULL) {
   nested <- bb$data_long() |>
     dplyr::ungroup() |>
     dplyr::group_by(!!!rlang::syms(bb$hierarchy_keys())) |>
@@ -35,5 +35,10 @@ writeLinesPaired <- function(bb, outpath) {
       ggplot2::theme_bw()
   }
   plots <- purrr::map2(nested[[2]], nested[[1]], plotL)
+  if (!is.null(outpath)) {
+    fn <- file.path(outpath, "boxplots_paired.pdf")
+    grDevices::pdf(fn, width = 8, height = 6)
+    tryCatch(for (p in plots) print(p), finally = grDevices::dev.off())
+  }
   return(plots)
 }

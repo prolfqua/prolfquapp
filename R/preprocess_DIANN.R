@@ -9,6 +9,45 @@ get_nr_pep <- function(report) {
 }
 
 
+.normalize_raw_file <- function(x) {
+  gsub(
+    "^x|\\.d\\.zip$|\\.d$|\\.raw$|\\.mzML$",
+    "",
+    basename(gsub("\\\\", "/", x))
+  )
+}
+
+
+.diagnose_sample_join <- function(
+  annotation_keys,
+  quant_keys,
+  matched_keys,
+  context = "reader"
+) {
+  clean_keys <- function(x) {
+    sort(unique(as.character(x[!is.na(x)])))
+  }
+  annotation_keys <- clean_keys(annotation_keys)
+  quant_keys <- clean_keys(quant_keys)
+  matched_keys <- clean_keys(matched_keys)
+
+  annotation_missing <- setdiff(annotation_keys, matched_keys)
+  quant_only <- setdiff(quant_keys, annotation_keys)
+
+  if (length(annotation_missing) > 0) {
+    logger::log_warn(
+      "{context}: annotated files not found in quantification data: ",
+      paste(annotation_missing, collapse = " ; ")
+    )
+  }
+
+  invisible(list(
+    annotation_missing = annotation_missing,
+    quant_only = quant_only
+  ))
+}
+
+
 #' read DiaNN diann-output.tsv file
 #'
 #' filter for 2 peptides per protein, and for Q.Value < 0.01 (default)
@@ -48,11 +87,7 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05) {
   } else {
     stop("DIA-NN report has neither 'Run' nor 'File.Name'")
   }
-  report2$raw.file <- gsub(
-    "^x|\\.d\\.zip$|\\.d$|\\.raw$|\\.mzML$",
-    "",
-    basename(gsub("\\\\", "/", report2[[run_col]]))
-  )
+  report2$raw.file <- .normalize_raw_file(report2[[run_col]])
   report2$Protein.Group <- sub("zz\\|(.+)\\|.+", "\\1", report2$Protein.Group)
   return(report2)
 }
@@ -182,11 +217,7 @@ preprocess_DIANN <- function(
   config <- annotation$atable$clone(deep = TRUE)
   annot <- annot |>
     dplyr::mutate(
-      raw.file = gsub(
-        "^x|\\.d\\.zip$|\\.raw$",
-        "",
-        (basename(annot[[config$file_name]]))
-      )
+      raw.file = .normalize_raw_file(annot[[config$file_name]])
     )
   data <- read_diann_report(quant_data)
   report2 <- prolfquapp::diann_read_output(
@@ -236,7 +267,15 @@ preprocess_DIANN <- function(
     peptide <- peptide[peptide$Protein.Group %in% nrPEP$Protein.Group, ]
   }
 
+  annotation_keys <- unique(annot$raw.file)
+  quant_keys <- unique(peptide$raw.file)
   peptide <- dplyr::inner_join(annot, peptide, multiple = "all")
+  .diagnose_sample_join(
+    annotation_keys = annotation_keys,
+    quant_keys = quant_keys,
+    matched_keys = peptide$raw.file,
+    context = "DIA-NN"
+  )
   adata <- prolfqua::setup_analysis(peptide, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()

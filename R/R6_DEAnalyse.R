@@ -1,10 +1,10 @@
 # Legacy YAML alias: the user-facing config keyword "prolfqua" maps to
 # the lm facade, or lm_impute when processing_options$model_missing is
 # set. The lm_impute facade refits failed/singular per-protein fits at
-# LOD with borrowed variance and (since the per-row imputed flag was
-# added) tags rescued rows as modelName = "WaldTest_imputed_moderated"
-# so the rescue is visible in the contrast output. The older alias
-# target lm_missing relied on ContrastsMissing (group-mean
+# LOD with borrowed variance; modelName is the facade key ("lm_impute")
+# and rescued rows are flagged in the estimate_type column
+# ("lod_imputed") so the rescue is visible in the contrast output. The
+# older alias target lm_missing relied on ContrastsMissing (group-mean
 # substitution) which is now deprecated.
 .resolve_facade_model <- function(model, model_missing = FALSE) {
   if (identical(model, "prolfqua")) {

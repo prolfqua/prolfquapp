@@ -302,6 +302,11 @@ se_report_lfqdata <- function(se) {
     if (!"modelName" %in% colnames(df)) {
       df$modelName <- "SummarizedExperiment"
     }
+    # Preserve the rescue-state column when round-tripping; legacy rows that
+    # predate estimate_type are treated as observed.
+    if (!"estimate_type" %in% colnames(df)) {
+      df$estimate_type <- "observed"
+    }
     contrast_col <- if ("Bait" %in% colnames(df)) {
       "Bait"
     } else {

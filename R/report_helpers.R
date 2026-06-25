@@ -147,14 +147,17 @@ bfabric_url_builder <- function(project_spec) {
   paste0("./", .encode_url_path(rel))
 }
 
-.model_name_palette <- function(model_names) {
+# Colour palette keyed on the estimate_type column. Observed rows are black;
+# rescued rows (LOD imputation or missing-group fallback) get a distinct colour
+# so they stand out in tables/plots. Unknown levels fall back to an auto palette.
+.estimate_type_palette <- function(estimate_types) {
   default_palette <- c(
-    Linear_Model_moderated = "black",
-    Imputed_Mean_moderated = "orange",
-    WaldTest_moderated = "black"
+    observed = "black",
+    lod_imputed = "orange",
+    missing_fallback = "gray60"
   )
-  model_levels <- sort(unique(as.character(stats::na.omit(model_names))))
-  palette <- default_palette[model_levels]
+  levels_ <- sort(unique(as.character(stats::na.omit(estimate_types))))
+  palette <- default_palette[levels_]
   missing_palette <- is.na(palette)
   if (any(missing_palette)) {
     palette[missing_palette] <- grDevices::hcl.colors(
@@ -162,7 +165,7 @@ bfabric_url_builder <- function(project_spec) {
       palette = "Dark 3"
     )
   }
-  names(palette) <- model_levels
+  names(palette) <- levels_
   palette
 }
 

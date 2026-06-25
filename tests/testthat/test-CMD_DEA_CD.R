@@ -139,27 +139,28 @@ test_that("run_dea_cd builds a DEAnalyse object from a CD ZIP export", {
 
   datax <- result$deanalyse$annotated_contrasts |>
     tidyr::unite("ID", metabolite_feature_Id, sep = "~")
-  default_palette <- c(
-    Linear_Model_moderated = "black",
-    Imputed_Mean_moderated = "orange",
-    WaldTest_moderated = "black"
-  )
-  model_levels <- sort(unique(as.character(stats::na.omit(datax$modelName))))
-  palette <- default_palette[model_levels]
-  missing_palette <- is.na(palette)
-  if (any(missing_palette)) {
-    palette[missing_palette] <- grDevices::hcl.colors(
-      sum(missing_palette),
-      palette = "Dark 3"
-    )
-  }
+  # new schema flows through prolfquapp end to end: modelName is the facade key
+  # (no legacy _moderated / _imputed suffixes), rescue state is in estimate_type
+  expect_true(all(c("modelName", "estimate_type") %in% colnames(datax)))
+  # clean break: the legacy `facade` column is gone; modelName is a single
+  # registered facade key (a regression to inner names like "WaldTest" would
+  # fail here because they are not registry keys).
+  expect_false("facade" %in% colnames(datax))
+  expect_equal(length(unique(datax$modelName)), 1L)
+  expect_true(unique(datax$modelName) %in% names(prolfqua::FACADE_REGISTRY))
+  expect_false(any(grepl("_moderated|_imputed", datax$modelName)))
+  expect_true(all(datax$estimate_type %in% c("observed", "lod_imputed", "missing_fallback")))
+  # modelName is now the (uniform) facade key; the rescue-state distinction
+  # lives in estimate_type, which is what we colour the volcano by, using the
+  # central palette helper instead of a duplicated inline palette.
+  palette <- prolfquapp:::.estimate_type_palette(datax$estimate_type)
   volcano <- prolfqua::volcano_plotly(
     datax,
     proteinID = "ID",
     effect = "diff",
     significance = "FDR",
     contrast = "contrast",
-    color = "modelName",
+    color = "estimate_type",
     palette = palette
   )
   built <- plotly::plotly_build(volcano[[1]])
