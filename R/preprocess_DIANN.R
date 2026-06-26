@@ -142,6 +142,9 @@ get_DIANN_files <- function(path) {
     dir(path = path, recursive = TRUE, full.names = TRUE),
     value = TRUE
   )
+  # DIA-NN PTM "site_report.parquet" files also end in "report.parquet" and
+  # would otherwise be matched above; drop them so only the main report remains.
+  diann.path <- diann.path[!grepl("site_report\\.(parquet|tsv)$", diann.path)]
   # prefer the native DIA-NN 2.x parquet when both a parquet and a tsv are found
   parquet.path <- grep("\\.parquet$", diann.path, value = TRUE)
   if (length(parquet.path) > 0) {

@@ -135,6 +135,32 @@ test_that("get_DIANN_files discovers and prefers the native parquet", {
   expect_equal(basename(files$data), "report.parquet")
 })
 
+test_that("get_DIANN_files ignores DIA-NN PTM site_report files", {
+  dir <- withr::local_tempdir()
+  # main report plus DIA-NN PTM site reports, which also end in "report.parquet"
+  arrow::write_parquet(
+    make_report_rows("sample", run_col = "Run"),
+    file.path(dir, "WU1_report.parquet")
+  )
+  arrow::write_parquet(
+    make_report_rows("sample", run_col = "Run"),
+    file.path(dir, "WU1_report.site_report.parquet")
+  )
+  arrow::write_parquet(
+    make_report_rows("sample", run_col = "Run"),
+    file.path(dir, "WU1_report-first-pass.site_report.parquet")
+  )
+  writeLines(
+    c(">sp|P11111|PROT1_TEST one", "PEPTIDEK"),
+    file.path(dir, "database.fasta")
+  )
+
+  files <- prolfquapp::get_DIANN_files(dir)
+  # exactly one data file: the main report, not the site_report variants
+  expect_length(files$data, 1L)
+  expect_equal(basename(files$data), "WU1_report.parquet")
+})
+
 test_that("preprocess_DIANN builds an LFQData from a native DIA-NN 2.x parquet", {
   dir <- withr::local_tempdir()
   runs <- c("sample", "control")
