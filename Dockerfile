@@ -32,6 +32,15 @@ RUN apt-get update \
 ENV R_LIBS_USER=/opt/r-libs-site
 RUN mkdir -p /opt/r-libs-site
 
+# Install arrow with its full feature set (compression codecs incl. zstd) BEFORE any
+# dependency resolution. DIA-NN 2.x writes zstd-compressed report.parquet; the default
+# arrow build is "minimal" (no codecs) and fails to read them with
+# "NotImplemented: Support for codec 'zstd' not built". pak's later upgrade=FALSE keeps
+# this build, so it must be installed first.
+ENV LIBARROW_MINIMAL=false
+ENV ARROW_WITH_ZSTD=ON
+RUN R -e 'options(warn=2); install.packages("arrow", repos = "https://stat.ethz.ch/CRAN/"); stopifnot(arrow::arrow_info()$capabilities[["zstd"]])'
+
 RUN R -e 'options(warn=2); install.packages("pak", repos = "https://stat.ethz.ch/CRAN/")'
 RUN R -e 'options(warn=2); pak::pkg_install(c("any::seqinr", "any::prozor", "any::logger", "any::lubridate", "github::fgcz/prolfqua", "github::prolfqua/prolfquasaint"))'
 COPY ./DESCRIPTION /opt/prolfqua/DESCRIPTION
