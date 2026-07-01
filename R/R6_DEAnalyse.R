@@ -195,15 +195,11 @@ DEAnalyse <- R6::R6Class(
         FDR_threshold = self$FDR_threshold,
         diff_threshold = self$diff_threshold
       )
-      datax <- dplyr::inner_join(
-        self$rowAnnot$row_annot,
-        datax,
-        multiple = "all"
+      datax <- .join_annotation(
+        self$rowAnnot$row_annot, datax, self$rowAnnot$pID
       )
-      datax_signif <- dplyr::inner_join(
-        self$rowAnnot$row_annot,
-        datax_signif,
-        multiple = "all"
+      datax_signif <- .join_annotation(
+        self$rowAnnot$row_annot, datax_signif, self$rowAnnot$pID
       )
       self$annotated_contrasts <- datax
       self$annotated_contrasts_signif <- datax_signif

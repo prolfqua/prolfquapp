@@ -456,8 +456,7 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   yaml::write_yaml(cfg, file.path(config$get_result_dir(), "lfqdata.yaml"))
 
   lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
-    contaminants = config$processing_options$remove_cont,
-    decoys = config$processing_options$remove_decoys
+    contaminants = config$processing_options$remove_cont
   ))
 
   ibaq_file <- file.path(

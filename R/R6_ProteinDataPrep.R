@@ -55,31 +55,21 @@ ProteinDataPrep <- R6::R6Class(
     },
 
     #' @description
-    #' Count number of contaminants and decoys
+    #' Count number of contaminants
     cont_decoy_summary = function() {
-      allProt <- nrow(self$rowAnnot$row_annot)
-      self$summary <- data.frame(
-        totalNrOfProteins = allProt,
-        percentOfContaminants = round(
-          self$rowAnnot$annotate_contaminants() / allProt * 100,
-          digits = 2
-        ),
-        percentOfFalsePositives = round(
-          self$rowAnnot$annotate_decoys() / allProt * 100,
-          digits = 2
-        ),
-        NrOfProteinsNoDecoys = self$rowAnnot$nr_clean()
-      )
+      self$summary <- self$rowAnnot$get_summary()
       self$summary
     },
 
     #' @description
-    #' Remove contaminants and decoys from peptide data
+    #' Remove contaminants (and decoys when a decoy pattern is configured) from
+    #' peptide data
     remove_cont_decoy = function() {
-      self$lfq_data_peptide <- self$lfq_data_peptide$get_subset(self$rowAnnot$clean(
-        contaminants = self$prolfq_app_config$processing_options$remove_cont,
-        decoys = self$prolfq_app_config$processing_options$remove_decoys
-      ))
+      self$lfq_data_peptide <- self$lfq_data_peptide$get_subset(
+        self$rowAnnot$clean(
+          contaminants = self$prolfq_app_config$processing_options$remove_cont
+        )
+      )
       logger::log_info(
         "removing contaminants and reverse sequences with patterns: ",
         self$prolfq_app_config$processing_options$pattern_contaminants,

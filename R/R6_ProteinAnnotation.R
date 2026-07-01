@@ -127,6 +127,87 @@ make_annotated_experiment <- function(Nprot = 100) {
 }
 
 
+# Decoy / duplicate-ID resolution helpers ----
+
+# Anchored, database-agnostic default decoy/reverse prefixes.
+.default_decoy_prefixes <- "^REV_|^rev_|^DECOY|^decoy_|^XXX_|^reverse_|^##"
+
+#' Detect decoy/reverse identifiers (within-duplicate resolution)
+#'
+#' The built-in anchored default prefixes are ALWAYS considered, unioned with an
+#' optional configured \code{pattern}. An empty / \code{NULL} / no-op
+#' (\code{"a^"}) pattern falls back to the defaults only (never
+#' \code{grepl("", x)}, which would match every id).
+#' @param ids character vector of (prefixed) identifiers
+#' @param pattern optional configured decoy regex
+#' @return logical vector
+#' @keywords internal
+.detect_decoy_ids <- function(ids, pattern = NULL) {
+  has_pat <- !is.null(pattern) && length(pattern) == 1 && !is.na(pattern) &&
+    nzchar(pattern) && !identical(pattern, "a^")
+  full <- if (has_pat) {
+    paste(pattern, .default_decoy_prefixes, sep = "|")
+  } else {
+    .default_decoy_prefixes
+  }
+  grepl(full, as.character(ids))
+}
+
+#' Resolve duplicate protein IDs to one row each
+#'
+#' Within each duplicated-id group: drop decoy rows when a forward exists (keep
+#' the forward), then prefer reviewed \code{sp|} over \code{tr|}, else keep the
+#' first. Guarantees one row per id and logs the counts. Standalone decoys (no
+#' forward twin) are left untouched.
+#' @param row_annot annotation data frame
+#' @param pID name of the protein-id column
+#' @param full_id name of the column carrying the raw, prefixed id
+#' @param pattern_decoys optional configured decoy regex
+#' @return \code{row_annot} with one row per \code{pID}
+#' @keywords internal
+.resolve_unique_protein_ids <- function(row_annot, pID, full_id,
+                                        pattern_decoys = NULL) {
+  ids <- as.character(row_annot[[pID]])
+  if (anyDuplicated(ids) == 0L) {
+    return(row_annot)
+  }
+  full <- as.character(row_annot[[full_id]])
+  is_decoy <- .detect_decoy_ids(full, pattern_decoys)
+  is_sp <- grepl("^sp\\|", full)
+  keep <- rep(TRUE, nrow(row_annot))
+  dup_ids <- unique(ids[duplicated(ids)])
+  n_decoy <- 0L
+  n_sp <- 0L
+  n_first <- 0L
+  for (id in dup_ids) {
+    idx <- which(ids == id)
+    if (any(!is_decoy[idx])) {
+      drop_decoy <- idx[is_decoy[idx]]
+      keep[drop_decoy] <- FALSE
+      n_decoy <- n_decoy + length(drop_decoy)
+      idx <- idx[!is_decoy[idx]]
+    }
+    if (length(idx) > 1L) {
+      sp_idx <- idx[is_sp[idx]]
+      if (length(sp_idx) > 0L && length(sp_idx) < length(idx)) {
+        keepidx <- sp_idx[1]
+        n_sp <- n_sp + 1L
+      } else {
+        keepidx <- idx[1]
+        n_first <- n_first + 1L
+      }
+      keep[setdiff(idx, keepidx)] <- FALSE
+    }
+  }
+  logger::log_warn(
+    "ProteinAnnotation: ", length(dup_ids), " duplicated '", pID,
+    "' id(s) collapsed; dropped ", n_decoy, " decoy row(s); ", n_sp,
+    " resolved by sp| preference; ", n_first, " by keep-first."
+  )
+  row_annot[keep, , drop = FALSE]
+}
+
+
 # ProteinAnnotation ----
 #' Decorates LFQData with a row annotation and some protein specific functions.
 #'
@@ -168,17 +249,12 @@ make_annotated_experiment <- function(Nprot = 100) {
 #'   pattern_contaminants = "^zz",
 #'   pattern_decoys = "^REV"
 #' )
-#' stopifnot(pannot$annotate_decoys() == 10)
 #' stopifnot(pannot$annotate_contaminants() == 5)
 #' dd <- pannot$clean()
 #' pannot$nr_clean()
 #' pannot$get_summary()
 #' stopifnot(nrow(dd) == 85)
 #' tmp <- lfqdata$get_subset(dd)
-#' dx <- pannot$clean(contaminants = TRUE, decoys = FALSE)
-#' stopifnot(nrow(dx) == 95)
-#' dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
-#' stopifnot(nrow(dx) == 90)
 #' dx2 <- pannot$filter_by_nr_children(exp_nr_children = 2)
 #' dx3 <- pannot$filter_by_nr_children(exp_nr_children = 3)
 #' stopifnot(nrow(dx2) >= nrow(dx3))
@@ -279,24 +355,22 @@ ProteinAnnotation <-
             by = self$pID
           )
         }
+        # Invariant: one row per protein ID. Resolve duplicates decoy-aware
+        # (drop decoys colliding with a forward; sp| tiebreak; else keep-first).
+        self$row_annot <- .resolve_unique_protein_ids(
+          self$row_annot, self$pID, self$full_id, self$pattern_decoys
+        )
       },
       #' @description
-      #' annotate rev sequences
-      #' @param pattern default "REV_"
-      annotate_decoys = function() {
-        self$row_annot <- self$row_annot |>
-          dplyr::mutate(
-            REV = dplyr::case_when(
-              grepl(
-                self$pattern_decoys,
-                as.character(!!sym(self$full_id)),
-                ignore.case = TRUE
-              ) ~ TRUE,
-              TRUE ~ FALSE
-            )
-          )
-
-        return(sum(self$row_annot$REV))
+      #' configured decoy pattern, or NULL when none was set
+      get_rev_pattern = function() {
+        if (
+          length(self$pattern_decoys) != 1 || is.na(self$pattern_decoys) ||
+            !nzchar(self$pattern_decoys) || identical(self$pattern_decoys, "a^")
+        ) {
+          return(NULL)
+        }
+        self$pattern_decoys
       },
       #' @description
       #' annotate contaminants
@@ -316,70 +390,42 @@ ProteinAnnotation <-
         return(sum(self$row_annot$CON))
       },
       #' @description
-      #' get summary
+      #' get summary (contaminants only; decoys are removed at construction)
       get_summary = function() {
         allProt <- nrow(self$row_annot)
-        contdecoySummary <- data.frame(
+        data.frame(
           totalNrOfProteins = allProt,
           percentOfContaminants = round(
             self$annotate_contaminants() / allProt * 100,
             digits = 2
-          ),
-          percentOfFalsePositives = round(
-            self$annotate_decoys() / allProt * 100,
-            digits = 2
-          ),
-          NrOfProteinsNoDecoys = self$nr_clean()
+          )
         )
-        return(contdecoySummary)
       },
-      #' @description get number of neither contaminants nor decoys
+      #' @description number of proteins kept after \code{clean()}
       #' @param contaminants remove contaminants
-      #' @param decoys remove decoys
-      #' return number of cleans
-      nr_clean = function(contaminants = TRUE, decoys = TRUE) {
-        if (decoys && !("REV" %in% colnames(self$row_annot))) {
-          stop("annotate REV")
-        }
-        if (contaminants & !("CON" %in% colnames(self$row_annot))) {
-          stop("annotate CON")
-        }
-
-        res <- if (decoys && contaminants) {
-          sum(!self$row_annot$REV & !self$row_annot$CON)
-        } else if (contaminants) {
-          sum(!self$row_annot$CON)
-        } else if (decoys) {
-          sum(!self$row_annot$REV)
-        } else {
-          nrow(self$row_annot)
-        }
-        return(res)
+      nr_clean = function(contaminants = TRUE) {
+        nrow(self$clean(contaminants = contaminants))
       },
-      #' @description remove REV and CON sequences
+      #' @description
+      #' remove contaminants (always) and, when a decoy pattern was configured,
+      #' decoy proteins from the annotation
       #' @param contaminants remove contaminants
-      #' @param decoys remove decoys
-      #'
-      clean = function(contaminants = TRUE, decoys = TRUE) {
-        if (decoys && !("REV" %in% colnames(self$row_annot))) {
-          stop("annotate REV")
-        }
+      clean = function(contaminants = TRUE) {
         if (contaminants && !("CON" %in% colnames(self$row_annot))) {
           stop("annotate CON")
         }
-        res <- if (decoys && contaminants) {
-          dplyr::filter(
-            self$row_annot,
-            !self$row_annot$REV & !self$row_annot$CON
-          )
-        } else if (contaminants) {
-          dplyr::filter(self$row_annot, !self$row_annot$CON)
-        } else if (decoys) {
-          dplyr::filter(self$row_annot, !self$row_annot$REV)
-        } else {
-          self$row_annot
+        res <- self$row_annot
+        if (contaminants) {
+          res <- res[!res$CON, , drop = FALSE]
         }
-        return(res)
+        revpat <- self$get_rev_pattern()
+        if (!is.null(revpat)) {
+          res <- res[
+            !grepl(revpat, as.character(res[[self$full_id]])), ,
+            drop = FALSE
+          ]
+        }
+        res
       },
       #' @description
       #' filter by number children

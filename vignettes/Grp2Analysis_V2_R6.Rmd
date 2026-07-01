@@ -144,8 +144,8 @@ The protein matrix is filtered using the following threshold:
 
 - Minimum number of peptides / protein: `r cfg$processing_options$nr_peptides`.
 
-The overall number of proteins including contaminant proteins in this experiment is: `r dea$summary$NrOfProteinsNoDecoys`.
-The percentage of contaminant proteins is:`r dea$summary$percentOfContaminants` %. The percentage of false positive identifications (Decoy sequences) is `r dea$summary$percentOfFalsePositives` %.
+The overall number of proteins in this experiment is: `r dea$summary$totalNrOfProteins`.
+The percentage of contaminant proteins is:`r dea$summary$percentOfContaminants` %.
 
 We keep the contaminant proteins because, for some experiments, these contaminants are relevant. However, they can be recognized since their identifiers start with __zz__ or __CON__.
 We also keep the decoy sequences because they allow us to re-estimate the proportion of falsely identified proteins in the list of differentially expressed proteins, which might differ from that of entire dataset. The identifiers of the decoy proteins start with __REV__ or __rev__.

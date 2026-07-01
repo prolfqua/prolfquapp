@@ -308,6 +308,9 @@ run_one <- function(run, base_config) {
   cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$get_config())
   yaml::write_yaml(cfg, file.path(run_config$get_result_dir(), "lfqdata.yaml"))
 
+  # Mandatory: ProteinAnnotation now guarantees unique protein IDs, so the
+  # duplicate-row-names abort can no longer happen. Any failure here is loud and
+  # fatal so regressions surface immediately.
   logger::log_info("Writing summarized experiment.")
   se_file <- file.path(reporter$resultdir, "SummarizedExperiment.rds")
   SE <- reporter$make_SummarizedExperiment()

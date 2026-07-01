@@ -90,3 +90,42 @@ test_that("write_index_html does not emit absolute local paths", {
     FALSE
   )
 })
+
+test_that(".join_annotation preserves every quant/result row and never multiplies", {
+  annotation <- data.frame(
+    protein_Id = c("P1", "P2", "P3"),
+    description = c("a", "b", "c"),
+    stringsAsFactors = FALSE
+  )
+  # x has several rows per protein (e.g. per-contrast / long format)
+  x <- data.frame(
+    protein_Id = c("P1", "P1", "P2", "P3", "P3"),
+    contrast = c("c1", "c2", "c1", "c1", "c2"),
+    diff = 1:5,
+    stringsAsFactors = FALSE
+  )
+  res <- prolfquapp:::.join_annotation(annotation, x, "protein_Id")
+  expect_equal(nrow(res), nrow(x)) # no row dropped, no row multiplied
+  expect_true(all(c("description", "contrast", "diff") %in% colnames(res)))
+  expect_equal(sort(res$diff), 1:5)
+})
+
+test_that(".join_annotation keeps result rows lacking annotation (NA enrich)", {
+  annotation <- data.frame(protein_Id = "P1", description = "a",
+    stringsAsFactors = FALSE)
+  x <- data.frame(protein_Id = c("P1", "P2"), v = c(10, 20),
+    stringsAsFactors = FALSE)
+  res <- prolfquapp:::.join_annotation(annotation, x, "protein_Id")
+  expect_equal(nrow(res), 2)
+  expect_true(is.na(res$description[res$protein_Id == "P2"]))
+})
+
+test_that(".join_annotation errors when annotation is not unique (safety net)", {
+  annotation <- data.frame(protein_Id = c("P1", "P1"), description = c("a", "b"),
+    stringsAsFactors = FALSE)
+  x <- data.frame(protein_Id = "P1", v = 1, stringsAsFactors = FALSE)
+  expect_error(
+    prolfquapp:::.join_annotation(annotation, x, "protein_Id"),
+    "not unique"
+  )
+})

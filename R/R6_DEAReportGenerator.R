@@ -227,28 +227,12 @@ DEAReportGenerator <- R6::R6Class(
         contrast = dea$contrasts
       )
 
-      wideraw <- dplyr::inner_join(
-        ra$row_annot,
-        rd$data_wide()$data,
-        multiple = "all"
-      )
-      widetr <- dplyr::inner_join(
-        ra$row_annot,
-        tr$data_wide()$data,
-        multiple = "all"
-      )
+      wideraw <- .join_annotation(ra$row_annot, rd$data_wide()$data, ra$pID)
+      widetr <- .join_annotation(ra$row_annot, tr$data_wide()$data, ra$pID)
 
       contr_obj <- dea$contrast_results[[dea$default_model]]
-      ctr <- dplyr::inner_join(
-        ra$row_annot,
-        contr_obj$get_contrasts(),
-        multiple = "all"
-      )
-      ctr_wide <- dplyr::inner_join(
-        ra$row_annot,
-        contr_obj$to_wide(),
-        multiple = "all"
-      )
+      ctr <- .join_annotation(ra$row_annot, contr_obj$get_contrasts(), ra$pID)
+      ctr_wide <- .join_annotation(ra$row_annot, contr_obj$to_wide(), ra$pID)
 
       resultList <- list()
 
@@ -259,10 +243,8 @@ DEAReportGenerator <- R6::R6Class(
         multiple = "all"
       )
 
-      resultList$normalized_abundances <- dplyr::inner_join(
-        ra$row_annot,
-        tr$data_long(),
-        multiple = "all"
+      resultList$normalized_abundances <- .join_annotation(
+        ra$row_annot, tr$data_long(), ra$pID
       )
       resultList$raw_abundances_matrix <- wideraw
       resultList$normalized_abundances_matrix <- widetr

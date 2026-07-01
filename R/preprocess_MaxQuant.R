@@ -337,6 +337,23 @@ get_MQ_peptide_files <- function(path) {
 }
 
 
+#' create template dataset for MAXQUANT data
+#' @param files list with data and fasta file paths
+#' @family MaxQuant
+#' @export
+dataset_template_MAXQUANT <- function(files) {
+  peptide <- prolfquapp::tidyMQ_Peptides(files$data, proteotypic_only = TRUE)
+  datasetannot <- data.frame(
+    raw.file = unique(peptide$raw.file),
+    name = NA,
+    group = NA,
+    subject = NA,
+    CONTROL = NA
+  )
+  return(datasetannot)
+}
+
+
 #' preprocess MQ peptide
 #' @param quant_data path to peptides.txt file
 #' @param fasta_file path to fasta file(s)

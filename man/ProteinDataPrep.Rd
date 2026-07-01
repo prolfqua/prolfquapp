@@ -89,7 +89,7 @@ Initialize ProteinDataPrep
 \if{html}{\out{<a id="method-ProteinDataPrep-cont_decoy_summary"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-cont_decoy_summary}{}}}
 \subsection{Method \code{cont_decoy_summary()}}{
-Count number of contaminants and decoys
+Count number of contaminants
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$cont_decoy_summary()}\if{html}{\out{</div>}}
 }
@@ -99,7 +99,8 @@ Count number of contaminants and decoys
 \if{html}{\out{<a id="method-ProteinDataPrep-remove_cont_decoy"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-remove_cont_decoy}{}}}
 \subsection{Method \code{remove_cont_decoy()}}{
-Remove contaminants and decoys from peptide data
+Remove contaminants (and decoys when a decoy pattern is configured) from
+peptide data
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$remove_cont_decoy()}\if{html}{\out{</div>}}
 }

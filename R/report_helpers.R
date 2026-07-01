@@ -27,6 +27,28 @@ strip_rownames <- function(.data, strip = "~lfq~light$") {
   return(.data)
 }
 
+#' Enrich a quant/result table with the protein annotation
+#'
+#' Right-joins so every row of \code{x} (the quant or result table) is preserved
+#' and never multiplied. \code{annotation} must be unique on \code{by} (the
+#' invariant guaranteed by \code{\link{ProteinAnnotation}}); this is asserted as
+#' a safety net. Replaces ad-hoc \code{inner_join(row_annot, x, multiple = "all")}
+#' calls that relied on an implicit key.
+#' @param annotation protein annotation data frame, unique on \code{by}
+#' @param x quant/result table to annotate
+#' @param by join-key column name (the protein id)
+#' @return \code{x} enriched with annotation columns; one row per row of \code{x}
+#' @keywords internal
+.join_annotation <- function(annotation, x, by) {
+  if (anyDuplicated(annotation[[by]]) > 0) {
+    stop(
+      "internal: protein annotation is not unique on '", by,
+      "' before the annotation->quant join."
+    )
+  }
+  dplyr::right_join(annotation, x, by = by, multiple = "all")
+}
+
 
 #' build bfabric urls
 #' @param project_spec ProjectSpec R6 object with project, order, workunit IDs

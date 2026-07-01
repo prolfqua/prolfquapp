@@ -44,17 +44,12 @@ pannot <- ProteinAnnotation$new(lfqdata,
   pattern_contaminants = "^zz",
   pattern_decoys = "^REV"
 )
-stopifnot(pannot$annotate_decoys() == 10)
 stopifnot(pannot$annotate_contaminants() == 5)
 dd <- pannot$clean()
 pannot$nr_clean()
 pannot$get_summary()
 stopifnot(nrow(dd) == 85)
 tmp <- lfqdata$get_subset(dd)
-dx <- pannot$clean(contaminants = TRUE, decoys = FALSE)
-stopifnot(nrow(dx) == 95)
-dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
-stopifnot(nrow(dx) == 90)
 dx2 <- pannot$filter_by_nr_children(exp_nr_children = 2)
 dx3 <- pannot$filter_by_nr_children(exp_nr_children = 3)
 stopifnot(nrow(dx2) >= nrow(dx3))
@@ -86,7 +81,7 @@ stopifnot(nrow(dx2) >= nrow(dx3))
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-ProteinAnnotation-new}{\code{ProteinAnnotation$new()}}
-\item \href{#method-ProteinAnnotation-annotate_decoys}{\code{ProteinAnnotation$annotate_decoys()}}
+\item \href{#method-ProteinAnnotation-get_rev_pattern}{\code{ProteinAnnotation$get_rev_pattern()}}
 \item \href{#method-ProteinAnnotation-annotate_contaminants}{\code{ProteinAnnotation$annotate_contaminants()}}
 \item \href{#method-ProteinAnnotation-get_summary}{\code{ProteinAnnotation$get_summary()}}
 \item \href{#method-ProteinAnnotation-nr_clean}{\code{ProteinAnnotation$nr_clean()}}
@@ -137,21 +132,14 @@ Must have columns matching \code{config$hierarchy_keys_depth()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ProteinAnnotation-annotate_decoys"></a>}}
-\if{latex}{\out{\hypertarget{method-ProteinAnnotation-annotate_decoys}{}}}
-\subsection{Method \code{annotate_decoys()}}{
-annotate rev sequences
+\if{html}{\out{<a id="method-ProteinAnnotation-get_rev_pattern"></a>}}
+\if{latex}{\out{\hypertarget{method-ProteinAnnotation-get_rev_pattern}{}}}
+\subsection{Method \code{get_rev_pattern()}}{
+configured decoy pattern, or NULL when none was set
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$annotate_decoys()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$get_rev_pattern()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{pattern}}{default "REV_"}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinAnnotation-annotate_contaminants"></a>}}
@@ -174,7 +162,7 @@ annotate contaminants
 \if{html}{\out{<a id="method-ProteinAnnotation-get_summary"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-get_summary}{}}}
 \subsection{Method \code{get_summary()}}{
-get summary
+get summary (contaminants only; decoys are removed at construction)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$get_summary()}\if{html}{\out{</div>}}
 }
@@ -184,18 +172,15 @@ get summary
 \if{html}{\out{<a id="method-ProteinAnnotation-nr_clean"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-nr_clean}{}}}
 \subsection{Method \code{nr_clean()}}{
-get number of neither contaminants nor decoys
+number of proteins kept after \code{clean()}
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$nr_clean(contaminants = TRUE, decoys = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$nr_clean(contaminants = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{contaminants}}{remove contaminants}
-
-\item{\code{decoys}}{remove decoys
-return number of cleans}
 }
 \if{html}{\out{</div>}}
 }
@@ -204,17 +189,16 @@ return number of cleans}
 \if{html}{\out{<a id="method-ProteinAnnotation-clean"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-clean}{}}}
 \subsection{Method \code{clean()}}{
-remove REV and CON sequences
+remove contaminants (always) and, when a decoy pattern was configured,
+decoy proteins from the annotation
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$clean(contaminants = TRUE, decoys = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$clean(contaminants = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{contaminants}}{remove contaminants}
-
-\item{\code{decoys}}{remove decoys}
 }
 \if{html}{\out{</div>}}
 }

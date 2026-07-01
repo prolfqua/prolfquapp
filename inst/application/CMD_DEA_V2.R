@@ -218,8 +218,7 @@ yaml::write_yaml(cfg, file.path(GRP2$get_result_dir(), "lfqdata.yaml"))
 
 # ---- IBAQ ----
 lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
-  contaminants = GRP2$processing_options$remove_cont,
-  decoys = GRP2$processing_options$remove_decoys
+  contaminants = GRP2$processing_options$remove_cont
 ))
 
 # do not write when peptide level analysis
@@ -238,6 +237,9 @@ if (length(xd$lfqdata$relevant_hierarchy_keys()) == 1) {
 outdir$data_files$ibaq_file <- ibaq_file
 
 # ---- SummarizedExperiment ----
+# Mandatory: ProteinAnnotation now guarantees unique protein IDs, so the
+# duplicate-row-names abort can no longer happen. Any failure here is loud and
+# fatal so regressions surface immediately.
 logger::log_info("Writing summarized experiment.")
 se_file <- file.path(reporter$resultdir, "SummarizedExperiment.rds")
 SE <- reporter$make_SummarizedExperiment()

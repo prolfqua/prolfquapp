@@ -125,7 +125,6 @@ get_annot_from_fasta <- function(
       fasta <- c(fasta, x)
     }
   }
-  fasta <- fasta[!(duplicated(names(fasta)))]
 
   logger::log_info("get_annot : finished reading")
   fasta_annot <- data.frame(
@@ -147,45 +146,16 @@ get_annot_from_fasta <- function(
   logger::log_info("get_annot : extract headers")
 
   logger::log_info("get_annot : all seq : ", nrow(fasta_annot))
-  if (!is.null(pattern_decoys) && pattern_decoys != "") {
-    logger::log_info("removing decoy sequences usin patter : ", pattern_decoys)
-    pcdecoy <- mean(grepl(pattern_decoys, fasta_annot$fasta.id))
-    if (pcdecoy < 0.1) {
-      logger::log_warn(
-        "Only ",
-        pcdecoy,
-        " found using pattern : ",
-        pattern_decoys
-      )
-      logger::log_warn("Please specify empty string if no decoy's in fasta.")
-      warning("no decoys found")
-    }
-    fasta_annot <- fasta_annot |>
-      dplyr::filter(!grepl(pattern_decoys, .data$fasta.id))
-    logger::log_info(
-      "get_annot nr seq after decoy removal: ",
-      nrow(fasta_annot)
-    )
-  }
-
+  # Pure parser: every record is returned as read. Decoy removal and protein-ID
+  # uniqueness (including target+decoy collisions) are resolved downstream by
+  # ProteinAnnotation. `pattern_decoys` is accepted for backward compatibility
+  # but is no longer used here.
   logger::log_info("get_annot : isUniprot : ", isUniprot)
   if (isUniprot) {
     fasta_annot <- fasta_annot |>
       dplyr::mutate(proteinname = gsub(".+\\|(.+)\\|.*", "\\1", .data$fasta.id))
   } else {
     fasta_annot <- fasta_annot |> dplyr::mutate(proteinname = .data$fasta.id)
-  }
-  if (any(duplicated(fasta_annot$proteinname))) {
-    logger::log_error(
-      "there are duplicated protein ID's , mean duplicate :",
-      mean(duplicated(fasta_annot$proteinname))
-    )
-    logger::log_error("the pattern_decoys is : [", pattern_decoys, "]")
-    if (!is.null(pattern_decoys) && pattern_decoys != "") {
-      stop("wrong decoys pattern.", pattern_decoys, "\n")
-    } else {
-      warning("wrong decoys pattern.", pattern_decoys, "\n")
-    }
   }
 
   if (sum(grepl(".+ GN=(.+) PE=.+", fasta_annot$fasta.header)) > 1) {
