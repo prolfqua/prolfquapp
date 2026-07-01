@@ -129,28 +129,18 @@ make_annotated_experiment <- function(Nprot = 100) {
 
 # Decoy / duplicate-ID resolution helpers ----
 
-# Anchored, database-agnostic default decoy/reverse prefixes.
-.default_decoy_prefixes <- "^REV_|^rev_|^DECOY|^decoy_|^XXX_|^reverse_|^##"
-
 #' Detect decoy/reverse identifiers (within-duplicate resolution)
 #'
-#' The built-in anchored default prefixes are ALWAYS considered, unioned with an
-#' optional configured \code{pattern}. An empty / \code{NULL} / no-op
-#' (\code{"a^"}) pattern falls back to the defaults only (never
-#' \code{grepl("", x)}, which would match every id).
+#' Thin wrapper delegating to \code{prolfqua::is_decoy} so annotation
+#' de-duplication and the quant layer share ONE detector: built-in anchored
+#' default prefixes unioned with an optional configured \code{pattern}; an empty
+#' / \code{NULL} / no-op (\code{"a^"}) pattern falls back to the defaults only.
 #' @param ids character vector of (prefixed) identifiers
 #' @param pattern optional configured decoy regex
 #' @return logical vector
 #' @keywords internal
 .detect_decoy_ids <- function(ids, pattern = NULL) {
-  has_pat <- !is.null(pattern) && length(pattern) == 1 && !is.na(pattern) &&
-    nzchar(pattern) && !identical(pattern, "a^")
-  full <- if (has_pat) {
-    paste(pattern, .default_decoy_prefixes, sep = "|")
-  } else {
-    .default_decoy_prefixes
-  }
-  grepl(full, as.character(ids))
+  prolfqua::is_decoy(ids, pattern = pattern)
 }
 
 #' Resolve duplicate protein IDs to one row each

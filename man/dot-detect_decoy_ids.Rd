@@ -15,9 +15,9 @@
 logical vector
 }
 \description{
-The built-in anchored default prefixes are ALWAYS considered, unioned with an
-optional configured \code{pattern}. An empty / \code{NULL} / no-op
-(\code{"a^"}) pattern falls back to the defaults only (never
-\code{grepl("", x)}, which would match every id).
+Thin wrapper delegating to \code{prolfqua::is_decoy} so annotation
+de-duplication and the quant layer share ONE detector: built-in anchored
+default prefixes unioned with an optional configured \code{pattern}; an empty
+/ \code{NULL} / no-op (\code{"a^"}) pattern falls back to the defaults only.
 }
 \keyword{internal}
