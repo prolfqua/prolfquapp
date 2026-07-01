@@ -41,7 +41,6 @@
 #'
 #' data_prep <- prolfquapp::ProteinDataPrep$new(pep, pA, GRP2)
 #' data_prep$cont_decoy_summary()
-#' data_prep$remove_cont_decoy()
 #' data_prep$aggregate()
 #' data_prep$transform_data()
 #'
@@ -115,6 +114,14 @@ DEAnalyse <- R6::R6Class(
       }
       self$lfq_data <- lfq_data
       self$lfq_data_raw <- lfq_data_raw
+      # Enable the quant-layer targets-only fit: stamp the app's decoy /
+      # contaminant patterns onto the modelling LFQData config so build_facade's
+      # gate fires. prolfquapp bypasses prolfqua::build_contrast_analysis, and
+      # aggregation/transform may hand back a fresh config, so we stamp here at
+      # the modelling boundary rather than relying on upstream propagation.
+      po <- prolfq_app_config$processing_options
+      self$lfq_data$set_config_value("pattern_decoys", po$pattern_decoys)
+      self$lfq_data$set_config_value("pattern_contaminants", po$pattern_contaminants)
       self$rowAnnot <- rowAnnot
       self$prolfq_app_config <- prolfq_app_config
       self$contrasts <- contrasts
@@ -152,9 +159,30 @@ DEAnalyse <- R6::R6Class(
         entry$package %||% "prolfqua"
       )
 
+      # Targets-only fit (F1): drop decoys immediately before constructing the
+      # facade, so they never enter the fit or the shared variance pool (limma
+      # prior / DEqMS variance-count trend) where they would perturb *target*
+      # q-values. Gated on the stamped pattern_decoys (prolfquapp opts in; core
+      # default is off). self$lfq_data (which keeps decoys) is left untouched so
+      # the abundance export still carries them (NA contrast stats -> invisible).
+      model_lfq <- self$lfq_data
+      rev_pat <- model_lfq$get_config()$pattern_decoys
+      if (!is.null(rev_pat) && nzchar(rev_pat)) {
+        top <- model_lfq$hierarchy_keys()[1]
+        n_before <- length(unique(model_lfq$data_long()[[top]]))
+        model_lfq <- model_lfq$remove_decoys()
+        n_dropped <- n_before - length(unique(model_lfq$data_long()[[top]]))
+        if (n_dropped > 0) {
+          logger::log_info(
+            "targets-only fit: dropped {n_dropped} decoy {top} before modelling ",
+            "(kept in raw data for export)."
+          )
+        }
+      }
+
       if (isTRUE(entry$needs_saint_annotation)) {
         facade <- facade_class$new(
-          self$lfq_data,
+          model_lfq,
           modelstr = NULL,
           contrasts = NULL,
           row_annot = self$rowAnnot$row_annot
@@ -165,8 +193,8 @@ DEAnalyse <- R6::R6Class(
           modelstr <- private$create_modelstr()
         }
         private$validate_group_coverage()
-        facade <- facade_class$new(self$lfq_data, modelstr, self$contrasts)
-        self$formula <- paste(self$lfq_data$response(), modelstr)
+        facade <- facade_class$new(model_lfq, modelstr, self$contrasts)
+        self$formula <- paste(model_lfq$response(), modelstr)
       }
 
       self$contrast_results[[name]] <- facade

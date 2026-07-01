@@ -31,7 +31,6 @@ contrasts <- c("AVsC" = "group_A - group_Ctrl", BVsC = "group_B - group_Ctrl")
 
 data_prep <- prolfquapp::ProteinDataPrep$new(pep, pA, GRP2)
 data_prep$cont_decoy_summary()
-data_prep$remove_cont_decoy()
 data_prep$aggregate()
 data_prep$transform_data()
 

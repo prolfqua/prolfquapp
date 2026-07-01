@@ -16,7 +16,6 @@
 #'
 #' data_prep <- prolfquapp::ProteinDataPrep$new(pep, pA, GRP2)
 #' data_prep$cont_decoy_summary()
-#' data_prep$remove_cont_decoy()
 #' data_prep$aggregate()
 #' data_prep$transform_data()
 #'
@@ -50,31 +49,28 @@ ProteinDataPrep <- R6::R6Class(
       stopifnot("ProteinAnnotation" %in% class(rowAnnot))
       stopifnot("ProlfquAppConfig" %in% class(prolfq_app_config))
       self$lfq_data_peptide <- lfq_data_peptide
+      # Make the decoy / contaminant patterns available on the quant layer for
+      # the proportion QC (decoys are kept here and dropped only at the fit;
+      # contaminants are kept + labelled, never removed).
+      po <- prolfq_app_config$processing_options
+      self$lfq_data_peptide$set_config_value("pattern_decoys", po$pattern_decoys)
+      self$lfq_data_peptide$set_config_value("pattern_contaminants", po$pattern_contaminants)
       self$rowAnnot <- rowAnnot
       self$prolfq_app_config <- prolfq_app_config
     },
 
     #' @description
-    #' Count number of contaminants
+    #' Contaminant + decoy QC summary. Contaminants are kept and only counted
+    #' here (labelled downstream via the annotation `CON` flag); decoys are kept
+    #' in the quant data (dropped only at the model fit) and their proportion is
+    #' reported as an empirical-FDR signal. Neither is removed from the quant.
     cont_decoy_summary = function() {
       self$summary <- self$rowAnnot$get_summary()
+      self$summary$percentOfDecoys <- round(
+        self$lfq_data_peptide$decoy_proportion() * 100,
+        digits = 2
+      )
       self$summary
-    },
-
-    #' @description
-    #' Remove contaminants (and decoys when a decoy pattern is configured) from
-    #' peptide data
-    remove_cont_decoy = function() {
-      self$lfq_data_peptide <- self$lfq_data_peptide$get_subset(
-        self$rowAnnot$clean(
-          contaminants = self$prolfq_app_config$processing_options$remove_cont
-        )
-      )
-      logger::log_info(
-        "removing contaminants and reverse sequences with patterns: ",
-        self$prolfq_app_config$processing_options$pattern_contaminants,
-        self$prolfq_app_config$processing_options$pattern_decoys
-      )
     },
 
     #' @description

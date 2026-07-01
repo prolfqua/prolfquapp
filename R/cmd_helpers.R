@@ -342,8 +342,11 @@ run_dea <- function(indir, dataset, software, config) {
     xd$protein_annotation,
     config
   )
+  # Single filtering path: no quant filtering here. Contaminants are kept +
+  # labelled (annotation CON flag rides the export join); decoys are kept in the
+  # quant and dropped only at the model fit (DEAnalyse$build_facade). This just
+  # records the contaminant / decoy QC proportions.
   data_prep$cont_decoy_summary()
-  data_prep$remove_cont_decoy()
 
   # Route prolfqua's per-protein / per-contrast progress into the watched log.
   # prolfqua's progress::progress_bar is silently disabled on the non-tty
@@ -566,8 +569,8 @@ run_dea_cd <- function(
     xd$protein_annotation,
     config
   )
+  # Single filtering path (see run_dea): QC only, no quant filtering here.
   data_prep$cont_decoy_summary()
-  data_prep$remove_cont_decoy()
   if (
     length(xd$lfqdata$hierarchy_keys()) ==
       xd$lfqdata$get_config()$hierarchy_depth

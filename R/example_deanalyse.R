@@ -32,7 +32,6 @@ example_deanalyse <- function(Nprot = 100) {
 
   data_prep <- ProteinDataPrep$new(pep, pA, GRP2)
   data_prep$cont_decoy_summary()
-  data_prep$remove_cont_decoy()
   data_prep$aggregate()
   data_prep$transform_data()
 

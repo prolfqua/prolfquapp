@@ -23,7 +23,6 @@ GRP2$processing_options$transform <- "robscale"
 
 data_prep <- prolfquapp::ProteinDataPrep$new(pep, pA, GRP2)
 data_prep$cont_decoy_summary()
-data_prep$remove_cont_decoy()
 data_prep$aggregate()
 data_prep$transform_data()
 
@@ -54,7 +53,6 @@ data_prep$transform_data()
 \itemize{
 \item \href{#method-ProteinDataPrep-new}{\code{ProteinDataPrep$new()}}
 \item \href{#method-ProteinDataPrep-cont_decoy_summary}{\code{ProteinDataPrep$cont_decoy_summary()}}
-\item \href{#method-ProteinDataPrep-remove_cont_decoy}{\code{ProteinDataPrep$remove_cont_decoy()}}
 \item \href{#method-ProteinDataPrep-aggregate}{\code{ProteinDataPrep$aggregate()}}
 \item \href{#method-ProteinDataPrep-get_aggregation_plots}{\code{ProteinDataPrep$get_aggregation_plots()}}
 \item \href{#method-ProteinDataPrep-write_aggregation_plots}{\code{ProteinDataPrep$write_aggregation_plots()}}
@@ -89,20 +87,12 @@ Initialize ProteinDataPrep
 \if{html}{\out{<a id="method-ProteinDataPrep-cont_decoy_summary"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-cont_decoy_summary}{}}}
 \subsection{Method \code{cont_decoy_summary()}}{
-Count number of contaminants
+Contaminant + decoy QC summary. Contaminants are kept and only counted
+here (labelled downstream via the annotation `CON` flag); decoys are kept
+in the quant data (dropped only at the model fit) and their proportion is
+reported as an empirical-FDR signal. Neither is removed from the quant.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$cont_decoy_summary()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ProteinDataPrep-remove_cont_decoy"></a>}}
-\if{latex}{\out{\hypertarget{method-ProteinDataPrep-remove_cont_decoy}{}}}
-\subsection{Method \code{remove_cont_decoy()}}{
-Remove contaminants (and decoys when a decoy pattern is configured) from
-peptide data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$remove_cont_decoy()}\if{html}{\out{</div>}}
 }
 
 }
