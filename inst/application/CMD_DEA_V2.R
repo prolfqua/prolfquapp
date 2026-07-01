@@ -217,9 +217,11 @@ cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$get_config())
 yaml::write_yaml(cfg, file.path(GRP2$get_result_dir(), "lfqdata.yaml"))
 
 # ---- IBAQ ----
-lfqdataIB <- xd$lfqdata$get_subset(xd$protein_annotation$clean(
-  contaminants = GRP2$processing_options$remove_cont
-))
+# Single filtering path: no contaminant/decoy pre-filter here. compute_IBAQ_values
+# inner-joins the protein annotation itself for protein_length / nr_tryptic_peptides
+# (a functional join), so contaminants are kept + labelled and decoys need no
+# explicit drop. Use a copy because compute_IBAQ_values mutates its LFQData.
+lfqdataIB <- xd$lfqdata$get_copy()
 
 # do not write when peptide level analysis
 ibaq_file <- file.path(

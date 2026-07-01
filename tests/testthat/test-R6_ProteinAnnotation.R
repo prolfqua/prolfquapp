@@ -156,3 +156,25 @@ test_that("ProteinAnnotation$new resolves a duplicate id (keeps forward)", {
   expect_true(grepl("^sp\\|",
     pa$row_annot$fasta.id[pa$row_annot$protein_Id == pick]))
 })
+
+test_that("annotate_contaminants with empty pattern does NOT flag all (no match-all)", {
+  res <- suppressWarnings(suppressMessages(
+    sim_data_protAnnot(Nprot = 40, PROTEIN = TRUE)
+  ))
+  lfqdata <- res$lfqdata
+  ids <- unique(lfqdata$data_long()$protein_Id)
+  ra <- data.frame(
+    protein_Id = ids, cleanID = ids, description = "d",
+    fasta.id = ids, nr_peptides = 2, stringsAsFactors = FALSE
+  )
+  # pattern_contaminants = "" must fall back to defaults, never grepl("", x)
+  pa <- suppressWarnings(suppressMessages(ProteinAnnotation$new(
+    lfqdata, ra, description = "description", cleaned_ids = "cleanID",
+    full_id = "fasta.id", exp_nr_children = "nr_peptides",
+    pattern_contaminants = "", pattern_decoys = "^REV"
+  )))
+  n_con <- pa$annotate_contaminants()
+  expect_lt(n_con, nrow(pa$row_annot)) # NOT everything flagged
+  expect_gt(n_con, 0) # zz contaminants still flagged (defaults)
+  expect_true(all(prolfqua::is_contaminant(pa$row_annot$fasta.id[pa$row_annot$CON])))
+})

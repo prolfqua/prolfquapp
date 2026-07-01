@@ -364,19 +364,17 @@ ProteinAnnotation <-
       },
       #' @description
       #' annotate contaminants
-      #' @param pattern default "^zz|^CON"
+      #'
+      #' Sets the logical \code{CON} column via the shared
+      #' \code{prolfqua::is_contaminant} detector (configured pattern unioned with
+      #' the built-in defaults; an empty / \code{NULL} / \code{"a^"} pattern falls
+      #' back to the defaults only -- never \code{grepl("", x)}, which would flag
+      #' every protein). This is the same detector the quant layer uses.
       annotate_contaminants = function() {
-        self$row_annot <- self$row_annot |>
-          dplyr::mutate(
-            CON = dplyr::case_when(
-              grepl(
-                self$pattern_contaminants,
-                as.character(!!sym(self$full_id)),
-                ignore.case = TRUE
-              ) ~ TRUE,
-              TRUE ~ FALSE
-            )
-          )
+        self$row_annot$CON <- prolfqua::is_contaminant(
+          as.character(self$row_annot[[self$full_id]]),
+          self$pattern_contaminants
+        )
         return(sum(self$row_annot$CON))
       },
       #' @description

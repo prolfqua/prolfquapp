@@ -75,9 +75,12 @@ test_that("decoys dropped ONLY at the fit; contaminants kept; raw keeps decoys",
   expect_true(any(prolfqua::is_decoy(raw_ids, "^REV")))
 })
 
-test_that("pattern_decoys empty/NULL -> decoys are NOT dropped at the fit", {
+test_that("pattern_decoys NULL -> decoy machinery off, decoys kept in the fit", {
+  # Opt out is NULL (matches prolfqua::build_contrast_analysis; the app maps an
+  # empty REVpattern to NULL upstream). A non-NULL "" would instead opt IN
+  # (defaults only), consistent with the core detector.
   f <- make_fixture()
-  f$GRP2$processing_options$pattern_decoys <- "" # opt out
+  f$GRP2$processing_options$pattern_decoys <- NULL
   dp <- prolfquapp::ProteinDataPrep$new(f$lfq, f$pA, f$GRP2)
   dp$cont_decoy_summary()
   dp$aggregate()
@@ -86,4 +89,17 @@ test_that("pattern_decoys empty/NULL -> decoys are NOT dropped at the fit", {
   dea$build_default()
   contr <- dea$contrast_results[[dea$default_model]]$get_contrasts()
   expect_true(any(prolfqua::is_decoy(unique(contr$protein_Id), "^REV")))
+})
+
+test_that("pattern_decoys '' -> opt in (defaults), decoys dropped at the fit", {
+  f <- make_fixture()
+  f$GRP2$processing_options$pattern_decoys <- ""
+  dp <- prolfquapp::ProteinDataPrep$new(f$lfq, f$pA, f$GRP2)
+  dp$cont_decoy_summary()
+  dp$aggregate()
+  dp$transform_data()
+  dea <- dp$build_deanalyse(c("AVsC" = "group_A - group_Ctrl"))
+  dea$build_default()
+  contr <- dea$contrast_results[[dea$default_model]]$get_contrasts()
+  expect_false(any(prolfqua::is_decoy(unique(contr$protein_Id), "^REV")))
 })

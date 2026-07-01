@@ -162,12 +162,15 @@ DEAnalyse <- R6::R6Class(
       # Targets-only fit (F1): drop decoys immediately before constructing the
       # facade, so they never enter the fit or the shared variance pool (limma
       # prior / DEqMS variance-count trend) where they would perturb *target*
-      # q-values. Gated on the stamped pattern_decoys (prolfquapp opts in; core
-      # default is off). self$lfq_data (which keeps decoys) is left untouched so
-      # the abundance export still carries them (NA contrast stats -> invisible).
+      # q-values. Gated on pattern_decoys being non-NULL -- the SAME opt-in
+      # semantics as prolfqua::build_contrast_analysis(): a non-NULL pattern
+      # (including "", which the shared detector reads as "defaults only") means
+      # opt in; NULL means the decoy machinery is off. The app maps an empty
+      # REVpattern to NULL upstream, so "cleared pattern" == off. self$lfq_data
+      # keeps decoys so the abundance export still carries them (NA stats).
       model_lfq <- self$lfq_data
       rev_pat <- model_lfq$get_config()$pattern_decoys
-      if (!is.null(rev_pat) && nzchar(rev_pat)) {
+      if (!is.null(rev_pat)) {
         top <- model_lfq$hierarchy_keys()[1]
         n_before <- length(unique(model_lfq$data_long()[[top]]))
         model_lfq <- model_lfq$remove_decoys()

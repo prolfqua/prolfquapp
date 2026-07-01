@@ -146,9 +146,10 @@ The protein matrix is filtered using the following threshold:
 
 The overall number of proteins in this experiment is: `r dea$summary$totalNrOfProteins`.
 The percentage of contaminant proteins is:`r dea$summary$percentOfContaminants` %.
+The percentage of decoy proteins among quantified entries is: `r dea$summary$percentOfDecoys` %.
 
-We keep the contaminant proteins because, for some experiments, these contaminants are relevant. However, they can be recognized since their identifiers start with __zz__ or __CON__.
-We also keep the decoy sequences because they allow us to re-estimate the proportion of falsely identified proteins in the list of differentially expressed proteins, which might differ from that of entire dataset. The identifiers of the decoy proteins start with __REV__ or __rev__.
+We keep the contaminant proteins because, for some experiments, these contaminants are relevant. They are recognizable by identifiers starting with __zz__ or __CON__, are flagged in the result tables, and are drawn as triangles in the volcano plot.
+Decoy sequences (identifiers starting with __REV__ or __rev__) are retained in the raw and abundance exports for traceability, but they are **excluded from the model fit** so they cannot distort the variance moderation that is shared across proteins. They therefore carry no fold change, p-value, or FDR, and do not appear in the volcano plot or the differentially-expressed set. Their proportion among quantified entries (reported above) serves as an empirical false-discovery signal for the whole quantified data set — not for the differentially-expressed list.
 
 
 Figure \@ref(fig:nrPerSample) shows the number of quantified proteins with one or more peptides per sample.
