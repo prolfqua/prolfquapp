@@ -514,7 +514,7 @@ if (signif$hierarchy_counts()[2] > 30) {
 } else {
   rownames = TRUE
 }
-sigheat <- signif$get_Plotter()$raster(rownames = rownames)
+sigheat <- signif$get_Plotter()$heatmap(rownames = rownames)
 
 ```
 
@@ -522,13 +522,14 @@ sigheat <- signif$get_Plotter()$raster(rownames = rownames)
 ```{r makeText, eval = showSignificant, results = 'asis'}
 
 cat(paste(
-  "Furthermore, Figure \\@ref(fig:sigroteins) shows a heatmap",
-  "of log2 transformed protein abundances of all",
-  "significant calls."))
+  "Furthermore, Figure \\@ref(fig:sigroteins) shows a co-clustered heatmap",
+  "of the row z-scored protein abundances of all significant calls.",
+  "Proteins and samples with similar abundance profiles are grouped by",
+  "unsupervised hierarchical clustering."))
 
 ```
 
-(ref:sigroteins) Heatmap showing the $\log_2$ transformed protein abundances for proteins which pass the FDR and difference thresholds.
+(ref:sigroteins) Heatmap of the proteins passing the FDR and difference thresholds. Cell colour encodes the row z-score of the $\log_2$ protein abundance (green: low, black: average, red: high; missing values in light gray). Proteins and samples are co-clustered by unsupervised hierarchical clustering (complete linkage, euclidean distance).
 
 ```{r sigroteins, fig.cap="(ref:sigroteins)", fig.alt="", eval = showSignificant}
 sigheat
