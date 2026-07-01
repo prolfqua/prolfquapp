@@ -4,14 +4,15 @@
 \alias{.join_annotation}
 \title{Enrich a quant/result table with the protein annotation}
 \usage{
-.join_annotation(annotation, x, by)
+.join_annotation(annotation, x, hierarchy_keys)
 }
 \arguments{
 \item{annotation}{protein annotation data frame}
 
 \item{x}{quant/result table to annotate}
 
-\item{by}{protein-id column; must be present in both frames}
+\item{hierarchy_keys}{config hierarchy keys (e.g. \code{lfqdata$hierarchy_keys()});
+the join uses the subset present in both frames}
 }
 \value{
 \code{x} enriched with annotation columns; one row per row of \code{x}
@@ -21,15 +22,16 @@ Right-joins so every row of \code{x} (the quant or result table) is preserved
 and never multiplied.
 }
 \details{
-Joins on **every column the annotation shares with \code{x}**, not only
-\code{by}. For a flat protein-level analysis that is just \code{by} (the
-protein id); for a multi-level analysis (e.g. PTM, hierarchy
-\code{protein_Id} + \code{site}) both frames also carry the deeper hierarchy
-key(s) such as \code{site}. Joining only on \code{by} there would suffix the
-shared deeper key to \code{site.x}/\code{site.y} and drop the bare \code{site}
-column the report needs (`unite(all_of(hierarchy_keys))`). This matches the
-historical implicit-key \code{inner_join(row_annot, x, multiple = "all")}
-behaviour, but keeps the row-preserving \code{right_join} and a uniqueness
-guard. \code{annotation} must be unique on the resolved join key(s).
+Joins on the **hierarchy keys** shared by both frames — the config's
+feature-identity columns (e.g. \code{protein_Id}; plus deeper keys like
+\code{site} for a PTM \code{protein_Id} + \code{site} hierarchy) — never on a
+coincidentally-shared value column. \code{hierarchy_keys} is intersected with
+the columns actually present in both frames, so a protein-level annotation
+joined to protein-level contrasts uses \code{protein_Id}, while a site-level
+analysis uses \code{protein_Id} + \code{site}. Joining on only \code{protein_Id}
+when both carry \code{site} would suffix it to \code{site.x}/\code{site.y} and
+drop the bare \code{site} the report needs (`unite(all_of(hierarchy_keys))`).
+Keeps the row-preserving \code{right_join} and a uniqueness guard on the
+resolved key(s).
 }
 \keyword{internal}

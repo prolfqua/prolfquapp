@@ -32,34 +32,39 @@ strip_rownames <- function(.data, strip = "~lfq~light$") {
 #' Right-joins so every row of \code{x} (the quant or result table) is preserved
 #' and never multiplied.
 #'
-#' Joins on **every column the annotation shares with \code{x}**, not only
-#' \code{by}. For a flat protein-level analysis that is just \code{by} (the
-#' protein id); for a multi-level analysis (e.g. PTM, hierarchy
-#' \code{protein_Id} + \code{site}) both frames also carry the deeper hierarchy
-#' key(s) such as \code{site}. Joining only on \code{by} there would suffix the
-#' shared deeper key to \code{site.x}/\code{site.y} and drop the bare \code{site}
-#' column the report needs (`unite(all_of(hierarchy_keys))`). This matches the
-#' historical implicit-key \code{inner_join(row_annot, x, multiple = "all")}
-#' behaviour, but keeps the row-preserving \code{right_join} and a uniqueness
-#' guard. \code{annotation} must be unique on the resolved join key(s).
+#' Joins on the **hierarchy keys** shared by both frames — the config's
+#' feature-identity columns (e.g. \code{protein_Id}; plus deeper keys like
+#' \code{site} for a PTM \code{protein_Id} + \code{site} hierarchy) — never on a
+#' coincidentally-shared value column. \code{hierarchy_keys} is intersected with
+#' the columns actually present in both frames, so a protein-level annotation
+#' joined to protein-level contrasts uses \code{protein_Id}, while a site-level
+#' analysis uses \code{protein_Id} + \code{site}. Joining on only \code{protein_Id}
+#' when both carry \code{site} would suffix it to \code{site.x}/\code{site.y} and
+#' drop the bare \code{site} the report needs (`unite(all_of(hierarchy_keys))`).
+#' Keeps the row-preserving \code{right_join} and a uniqueness guard on the
+#' resolved key(s).
 #' @param annotation protein annotation data frame
 #' @param x quant/result table to annotate
-#' @param by protein-id column; must be present in both frames
+#' @param hierarchy_keys config hierarchy keys (e.g. \code{lfqdata$hierarchy_keys()});
+#'   the join uses the subset present in both frames
 #' @return \code{x} enriched with annotation columns; one row per row of \code{x}
 #' @keywords internal
-.join_annotation <- function(annotation, x, by) {
-  keys <- intersect(colnames(annotation), colnames(x))
-  if (!by %in% keys) {
-    stop("internal: join key '", by, "' not present in both annotation and x.")
+.join_annotation <- function(annotation, x, hierarchy_keys) {
+  join_keys <- intersect(
+    hierarchy_keys,
+    intersect(colnames(annotation), colnames(x))
+  )
+  if (length(join_keys) == 0) {
+    stop("internal: no shared hierarchy key to join annotation on.")
   }
-  if (anyDuplicated(annotation[, keys, drop = FALSE]) > 0) {
+  if (anyDuplicated(annotation[, join_keys, drop = FALSE]) > 0) {
     stop(
-      "internal: protein annotation is not unique on the join key(s) '",
-      paste(keys, collapse = "', '"),
-      "' before the annotation->quant join."
+      "internal: protein annotation is not unique on the hierarchy key(s) '",
+      paste(join_keys, collapse = "', '"),
+      "' before the annotation join."
     )
   }
-  dplyr::right_join(annotation, x, by = keys, multiple = "all")
+  dplyr::right_join(annotation, x, by = join_keys, multiple = "all")
 }
 
 

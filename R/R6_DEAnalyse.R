@@ -226,12 +226,9 @@ DEAnalyse <- R6::R6Class(
         FDR_threshold = self$FDR_threshold,
         diff_threshold = self$diff_threshold
       )
-      datax <- .join_annotation(
-        self$rowAnnot$row_annot, datax, self$rowAnnot$pID
-      )
-      datax_signif <- .join_annotation(
-        self$rowAnnot$row_annot, datax_signif, self$rowAnnot$pID
-      )
+      hkeys <- self$lfq_data$hierarchy_keys()
+      datax <- .join_annotation(self$rowAnnot$row_annot, datax, hkeys)
+      datax_signif <- .join_annotation(self$rowAnnot$row_annot, datax_signif, hkeys)
       self$annotated_contrasts <- datax
       self$annotated_contrasts_signif <- datax_signif
       invisible(self$annotated_contrasts)
