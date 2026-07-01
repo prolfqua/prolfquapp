@@ -9,7 +9,7 @@ ProteinDataPrep"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,7 +98,6 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 
 <ul><li><p><a href="#method-ProteinDataPrep-new"><code>ProteinDataPrep$new()</code></a></p></li>
 <li><p><a href="#method-ProteinDataPrep-cont_decoy_summary"><code>ProteinDataPrep$cont_decoy_summary()</code></a></p></li>
-<li><p><a href="#method-ProteinDataPrep-remove_cont_decoy"><code>ProteinDataPrep$remove_cont_decoy()</code></a></p></li>
 <li><p><a href="#method-ProteinDataPrep-aggregate"><code>ProteinDataPrep$aggregate()</code></a></p></li>
 <li><p><a href="#method-ProteinDataPrep-get_aggregation_plots"><code>ProteinDataPrep$get_aggregation_plots()</code></a></p></li>
 <li><p><a href="#method-ProteinDataPrep-write_aggregation_plots"><code>ProteinDataPrep$write_aggregation_plots()</code></a></p></li>
@@ -132,24 +131,19 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 
 </div><p></p><hr><a id="method-ProteinDataPrep-cont_decoy_summary"></a><div class="section">
 <h3 id="method-cont-decoy-summary-">Method <code>cont_decoy_summary()</code><a class="anchor" aria-label="anchor" href="#method-cont-decoy-summary-"></a></h3>
-<p>Count number of contaminants and decoys</p><div class="section">
+<p>Contaminant + decoy QC summary. Contaminants are kept and only counted
+here (labelled downstream via the annotation `CON` flag); decoys are kept
+in the quant data (dropped only at the model fit) and their proportion is
+reported as an empirical-FDR signal. Neither is removed from the quant.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">cont_decoy_summary</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-
-</div><p></p><hr><a id="method-ProteinDataPrep-remove_cont_decoy"></a><div class="section">
-<h3 id="method-remove-cont-decoy-">Method <code>remove_cont_decoy()</code><a class="anchor" aria-label="anchor" href="#method-remove-cont-decoy-"></a></h3>
-<p>Remove contaminants and decoys from peptide data</p><div class="section">
-<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">remove_cont_decoy</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 
 </div><p></p><hr><a id="method-ProteinDataPrep-aggregate"></a><div class="section">
 <h3 id="method-aggregate-">Method <code><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate()</a></code><a class="anchor" aria-label="anchor" href="#method-aggregate-"></a></h3>
 <p>Aggregate peptide data to protein level</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">aggregate</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -157,7 +151,7 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 </div><p></p><hr><a id="method-ProteinDataPrep-get_aggregation_plots"></a><div class="section">
 <h3 id="method-get-aggregation-plots-">Method <code>get_aggregation_plots()</code><a class="anchor" aria-label="anchor" href="#method-get-aggregation-plots-"></a></h3>
 <p>Get aggregation plots</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">get_aggregation_plots</span><span class="op">(</span>exp_nr_children <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -173,7 +167,7 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 </div><p></p><hr><a id="method-ProteinDataPrep-write_aggregation_plots"></a><div class="section">
 <h3 id="method-write-aggregation-plots-">Method <code>write_aggregation_plots()</code><a class="anchor" aria-label="anchor" href="#method-write-aggregation-plots-"></a></h3>
 <p>Write aggregation plots to file</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">write_aggregation_plots</span><span class="op">(</span>exp_nr_children <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -189,7 +183,7 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 </div><p></p><hr><a id="method-ProteinDataPrep-transform_data"></a><div class="section">
 <h3 id="method-transform-data-">Method <code>transform_data()</code><a class="anchor" aria-label="anchor" href="#method-transform-data-"></a></h3>
 <p>Transform and normalize protein-level data</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">transform_data</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -197,7 +191,7 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 </div><p></p><hr><a id="method-ProteinDataPrep-transform_peptide_data"></a><div class="section">
 <h3 id="method-transform-peptide-data-">Method <code>transform_peptide_data()</code><a class="anchor" aria-label="anchor" href="#method-transform-peptide-data-"></a></h3>
 <p>Transform peptide-level data (for nested facades like lmer/ropeca)</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">transform_peptide_data</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -205,7 +199,7 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 </div><p></p><hr><a id="method-ProteinDataPrep-build_deanalyse"></a><div class="section">
 <h3 id="method-build-deanalyse-">Method <code>build_deanalyse()</code><a class="anchor" aria-label="anchor" href="#method-build-deanalyse-"></a></h3>
 <p>Build a DEAnalyse object with the correct data for the chosen facade</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">build_deanalyse</span><span class="op">(</span><span class="va">contrasts</span>, default_model <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -229,7 +223,7 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 </div><p></p><hr><a id="method-ProteinDataPrep-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -263,26 +257,21 @@ contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.<
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">data_prep</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va">ProteinDataPrep</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">pep</span>, <span class="va">pA</span>, <span class="va">GRP2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">cont_decoy_summary</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   totalNrOfProteins percentOfContaminants percentOfFalsePositives</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1               100                     0                       0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   NrOfProteinsNoDecoys</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  100</span>
-<span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">remove_cont_decoy</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:26] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   totalNrOfProteins percentOfContaminants percentOfDecoys</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               100                     0               0</span>
 <span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">aggregate</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:26] AGGREGATING PEPTIDE DATA: medpolish.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:35] AGGREGATING PEPTIDE DATA: medpolish.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log_abundance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> starting aggregation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> completing cases</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : exp_medpolish</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:27] END OF PROTEIN AGGREGATION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:37] END OF PROTEIN AGGREGATION</span>
 <span class="r-in"><span><span class="va">data_prep</span><span class="op">$</span><span class="fu">transform_data</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:27] Transforming using robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:37] Transforming using robscale.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Column added : log2_exp_medpolish</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> data is : TRUE</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:27] Transforming data : robscale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:37] Transforming data : robscale.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -98,17 +98,22 @@ The protein matrix is filtered using the following threshold:
 
 - Minimum number of peptides / protein: 1.
 
-The overall number of proteins including contaminant proteins in this
-experiment is: 100. The percentage of contaminant proteins is:0 %. The
-percentage of false positive identifications (Decoy sequences) is 0 %.
+The overall number of proteins in this experiment is: 100. The
+percentage of contaminant proteins is:0 %. The percentage of decoy
+proteins among quantified entries is: 0 %.
 
 We keep the contaminant proteins because, for some experiments, these
-contaminants are relevant. However, they can be recognized since their
-identifiers start with **zz** or **CON**. We also keep the decoy
-sequences because they allow us to re-estimate the proportion of falsely
-identified proteins in the list of differentially expressed proteins,
-which might differ from that of entire dataset. The identifiers of the
-decoy proteins start with **REV** or **rev**.
+contaminants are relevant. They are recognizable by identifiers starting
+with **zz** or **CON**, are flagged in the result tables, and are drawn
+as triangles in the volcano plot. Decoy sequences (identifiers starting
+with **REV** or **rev**) are retained in the raw and abundance exports
+for traceability, but they are **excluded from the model fit** so they
+cannot distort the variance moderation that is shared across proteins.
+They therefore carry no fold change, p-value, or FDR, and do not appear
+in the volcano plot or the differentially-expressed set. Their
+proportion among quantified entries (reported above) serves as an
+empirical false-discovery signal for the whole quantified data set — not
+for the differentially-expressed list.
 
 Figure @ref(fig:nrPerSample) shows the number of quantified proteins
 with one or more peptides per sample.
@@ -195,8 +200,6 @@ distribution.
 protein abundances in all samples. Left panel: Empirical protein
 abundance of all samples in the dataset. Right panel: Normalized
 empirical protein abundances of all samples in the dataset.
-
-![](Grp2Analysis_V2_R6_files/figure-html/normalized-1.png)
 
 (ref:normalized)
 
@@ -360,11 +363,16 @@ and FDR thresholds.
 
 (ref:SigPrey)
 
-Furthermore, Figure @ref(fig:sigroteins) shows a heatmap of log2
-transformed protein abundances of all significant calls.
+Furthermore, Figure @ref(fig:sigroteins) shows a co-clustered heatmap of
+the row z-scored protein abundances of all significant calls. Proteins
+and samples with similar abundance profiles are grouped by unsupervised
+hierarchical clustering.
 
-(ref:sigroteins) Heatmap showing the $\log_{2}$ transformed protein
-abundances for proteins which pass the FDR and difference thresholds.
+(ref:sigroteins) Heatmap of the proteins passing the FDR and difference
+thresholds. Cell colour encodes the row z-score of the $\log_{2}$
+protein abundance (green: low, black: average, red: high; missing values
+in light gray). Proteins and samples are co-clustered by unsupervised
+hierarchical clustering (complete linkage, euclidean distance).
 
 ![](Grp2Analysis_V2_R6_files/figure-html/sigroteins-1.png)
 
@@ -470,7 +478,7 @@ please contact <protinf@fgcz.uzh.ch>.
 *withr(v.3.0.3)*, *bit64(v.4.8.2)*, *doParallel(v.1.0.17)*,
 *pander(v.0.6.6)*, *S7(v.0.2.2)*, *backports(v.1.5.1)*,
 *logger(v.0.4.2)*, *UpSetR(v.1.4.1)*, *prolfquasaint(v.0.1.5)*,
-*pan(v.1.9)*, *MASS(v.7.3-65)*, *DelayedArray(v.0.38.2)*,
+*pan(v.2.0)*, *MASS(v.7.3-65)*, *DelayedArray(v.0.38.2)*,
 *rjson(v.0.2.23)*, *optparse(v.1.8.2)*, *tools(v.4.6.1)*,
 *otel(v.0.2.0)*, *httpuv(v.1.6.17)*, *nnet(v.7.3-20)*, *glue(v.1.8.1)*,
 *promises(v.1.5.0)*, *nlme(v.3.1-169)*, *grid(v.4.6.1)*,
@@ -483,7 +491,7 @@ please contact <protinf@fgcz.uzh.ch>.
 *circlize(v.0.4.18)*, *splines(v.4.6.1)*, *lattice(v.0.22-9)*,
 *survival(v.3.8-6)*, *bit(v.4.6.0)*, *tidyselect(v.1.2.1)*,
 *ComplexHeatmap(v.2.28.0)*, *knitr(v.1.51)*, *reformulas(v.0.4.4)*,
-*gridExtra(v.2.3.1)*, *prolfquapp(v.2.2.8)*, *bookdown(v.0.47)*,
+*gridExtra(v.2.3.1)*, *prolfquapp(v.2.2.9)*, *bookdown(v.0.47)*,
 *IRanges(v.2.46.0)*, *Seqinfo(v.1.2.0)*,
 *SummarizedExperiment(v.1.42.0)*, *stats4(v.4.6.1)*, *xfun(v.0.59)*,
 *prolfqua(v.1.6.3)*, *Biobase(v.2.72.0)*, *statmod(v.1.5.2)*,
@@ -577,4 +585,4 @@ Proteome Research* 4 (22): 1092–1104.
 
 *This report was generated from the R Markdown template
 `Grp2Analysis_V2_R6.Rmd` included in the `prolfquapp` R package (version
-2.2.8).*
+2.2.9).*

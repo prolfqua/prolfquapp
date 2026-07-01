@@ -9,7 +9,7 @@ Decorates LFQData with a row annotation and some protein specific functions."></
 
     <a class="navbar-brand me-2" href="../index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,7 @@ Decorates LFQData with a row annotation and some protein specific functions."></
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
 <ul><li><p><a href="#method-ProteinAnnotation-new"><code>ProteinAnnotation$new()</code></a></p></li>
-<li><p><a href="#method-ProteinAnnotation-annotate_decoys"><code>ProteinAnnotation$annotate_decoys()</code></a></p></li>
+<li><p><a href="#method-ProteinAnnotation-get_rev_pattern"><code>ProteinAnnotation$get_rev_pattern()</code></a></p></li>
 <li><p><a href="#method-ProteinAnnotation-annotate_contaminants"><code>ProteinAnnotation$annotate_contaminants()</code></a></p></li>
 <li><p><a href="#method-ProteinAnnotation-get_summary"><code>ProteinAnnotation$get_summary()</code></a></p></li>
 <li><p><a href="#method-ProteinAnnotation-nr_clean"><code>ProteinAnnotation$nr_clean()</code></a></p></li>
@@ -153,41 +153,30 @@ Must have columns matching <code>config$hierarchy_keys_depth()</code></p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-ProteinAnnotation-annotate_decoys"></a><div class="section">
-<h3 id="method-annotate-decoys-">Method <code>annotate_decoys()</code><a class="anchor" aria-label="anchor" href="#method-annotate-decoys-"></a></h3>
-<p>annotate rev sequences</p><div class="section">
+</div><p></p><hr><a id="method-ProteinAnnotation-get_rev_pattern"></a><div class="section">
+<h3 id="method-get-rev-pattern-">Method <code>get_rev_pattern()</code><a class="anchor" aria-label="anchor" href="#method-get-rev-pattern-"></a></h3>
+<p>configured decoy pattern, or NULL when none was set</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinAnnotation</span><span class="op">$</span><span class="fu">annotate_decoys</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinAnnotation</span><span class="op">$</span><span class="fu">get_rev_pattern</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
-<div class="section">
-<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>pattern</code></dt>
-<dd><p>default "REV_"</p></dd>
-
-
-</dl><p></p></div>
-</div>
 
 </div><p></p><hr><a id="method-ProteinAnnotation-annotate_contaminants"></a><div class="section">
 <h3 id="method-annotate-contaminants-">Method <code>annotate_contaminants()</code><a class="anchor" aria-label="anchor" href="#method-annotate-contaminants-"></a></h3>
-<p>annotate contaminants</p><div class="section">
+<p>annotate contaminants</p>
+<p>Sets the logical <code>CON</code> column via the shared
+<code><a href="https://wolski.github.io/prolfqua/reference/is_contaminant.html" class="external-link">prolfqua::is_contaminant</a></code> detector (configured pattern unioned with
+the built-in defaults; an empty / <code>NULL</code> / <code>"a^"</code> pattern falls
+back to the defaults only – never <code>grepl("", x)</code>, which would flag
+every protein). This is the same detector the quant layer uses.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinAnnotation</span><span class="op">$</span><span class="fu">annotate_contaminants</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
-<div class="section">
-<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>pattern</code></dt>
-<dd><p>default "^zz|^CON"</p></dd>
-
-
-</dl><p></p></div>
-</div>
 
 </div><p></p><hr><a id="method-ProteinAnnotation-get_summary"></a><div class="section">
 <h3 id="method-get-summary-">Method <code>get_summary()</code><a class="anchor" aria-label="anchor" href="#method-get-summary-"></a></h3>
-<p>get summary</p><div class="section">
+<p>get summary (contaminants only; decoys are removed at construction)</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinAnnotation</span><span class="op">$</span><span class="fu">get_summary</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -195,20 +184,15 @@ Must have columns matching <code>config$hierarchy_keys_depth()</code></p></dd>
 
 </div><p></p><hr><a id="method-ProteinAnnotation-nr_clean"></a><div class="section">
 <h3 id="method-nr-clean-">Method <code>nr_clean()</code><a class="anchor" aria-label="anchor" href="#method-nr-clean-"></a></h3>
-<p>get number of neither contaminants nor decoys</p><div class="section">
+<p>number of proteins kept after <code>clean()</code></p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinAnnotation</span><span class="op">$</span><span class="fu">nr_clean</span><span class="op">(</span>contaminants <span class="op">=</span> <span class="cn">TRUE</span>, decoys <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinAnnotation</span><span class="op">$</span><span class="fu">nr_clean</span><span class="op">(</span>contaminants <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>contaminants</code></dt>
 <dd><p>remove contaminants</p></dd>
-
-
-<dt><code>decoys</code></dt>
-<dd><p>remove decoys
-return number of cleans</p></dd>
 
 
 </dl><p></p></div>
@@ -216,19 +200,16 @@ return number of cleans</p></dd>
 
 </div><p></p><hr><a id="method-ProteinAnnotation-clean"></a><div class="section">
 <h3 id="method-clean-">Method <code>clean()</code><a class="anchor" aria-label="anchor" href="#method-clean-"></a></h3>
-<p>remove REV and CON sequences</p><div class="section">
+<p>remove contaminants (always) and, when a decoy pattern was configured,
+decoy proteins from the annotation</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinAnnotation</span><span class="op">$</span><span class="fu">clean</span><span class="op">(</span>contaminants <span class="op">=</span> <span class="cn">TRUE</span>, decoys <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ProteinAnnotation</span><span class="op">$</span><span class="fu">clean</span><span class="op">(</span>contaminants <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>contaminants</code></dt>
 <dd><p>remove contaminants</p></dd>
-
-
-<dt><code>decoys</code></dt>
-<dd><p>remove decoys</p></dd>
 
 
 </dl><p></p></div>
@@ -242,7 +223,7 @@ return number of cleans</p></dd>
 </div>
 
 <div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>exp_nr_children</code></dt>
 <dd><p>minimum number of children required</p></dd>
 
@@ -258,7 +239,7 @@ return number of cleans</p></dd>
 </div>
 
 <div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
@@ -315,23 +296,16 @@ return number of cleans</p></dd>
 <span class="r-in"><span>  pattern_decoys <span class="op">=</span> <span class="st">"^REV"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>no exp_nr_children column specified, computing using nr_children_experiment</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="va">pannot</span><span class="op">$</span><span class="fu">annotate_decoys</span><span class="op">(</span><span class="op">)</span> <span class="op">==</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="va">pannot</span><span class="op">$</span><span class="fu">annotate_contaminants</span><span class="op">(</span><span class="op">)</span> <span class="op">==</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dd</span> <span class="op">&lt;-</span> <span class="va">pannot</span><span class="op">$</span><span class="fu">clean</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pannot</span><span class="op">$</span><span class="fu">nr_clean</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 85</span>
 <span class="r-in"><span><span class="va">pannot</span><span class="op">$</span><span class="fu">get_summary</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   totalNrOfProteins percentOfContaminants percentOfFalsePositives</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1               100                     5                      10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   NrOfProteinsNoDecoys</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                   85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   totalNrOfProteins percentOfContaminants</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               100                     5</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span> <span class="op">==</span> <span class="fl">85</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="va">lfqdata</span><span class="op">$</span><span class="fu">get_subset</span><span class="op">(</span><span class="va">dd</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(protein_Id)`</span>
-<span class="r-in"><span><span class="va">dx</span> <span class="op">&lt;-</span> <span class="va">pannot</span><span class="op">$</span><span class="fu">clean</span><span class="op">(</span>contaminants <span class="op">=</span> <span class="cn">TRUE</span>, decoys <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dx</span><span class="op">)</span> <span class="op">==</span> <span class="fl">95</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">dx</span> <span class="op">&lt;-</span> <span class="va">pannot</span><span class="op">$</span><span class="fu">clean</span><span class="op">(</span>contaminants <span class="op">=</span> <span class="cn">FALSE</span>, decoys <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dx</span><span class="op">)</span> <span class="op">==</span> <span class="fl">90</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dx2</span> <span class="op">&lt;-</span> <span class="va">pannot</span><span class="op">$</span><span class="fu">filter_by_nr_children</span><span class="op">(</span>exp_nr_children <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dx3</span> <span class="op">&lt;-</span> <span class="va">pannot</span><span class="op">$</span><span class="fu">filter_by_nr_children</span><span class="op">(</span>exp_nr_children <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dx2</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dx3</span><span class="op">)</span><span class="op">)</span></span></span>

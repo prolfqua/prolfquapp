@@ -46,7 +46,7 @@ functions.
 
 - [`ProteinAnnotation$new()`](#method-ProteinAnnotation-new)
 
-- [`ProteinAnnotation$annotate_decoys()`](#method-ProteinAnnotation-annotate_decoys)
+- [`ProteinAnnotation$get_rev_pattern()`](#method-ProteinAnnotation-get_rev_pattern)
 
 - [`ProteinAnnotation$annotate_contaminants()`](#method-ProteinAnnotation-annotate_contaminants)
 
@@ -117,19 +117,13 @@ initialize
 
 ------------------------------------------------------------------------
 
-### Method `annotate_decoys()`
+### Method `get_rev_pattern()`
 
-annotate rev sequences
+configured decoy pattern, or NULL when none was set
 
 #### Usage
 
-    ProteinAnnotation$annotate_decoys()
-
-#### Arguments
-
-- `pattern`:
-
-  default "REV\_"
+    ProteinAnnotation$get_rev_pattern()
 
 ------------------------------------------------------------------------
 
@@ -137,21 +131,22 @@ annotate rev sequences
 
 annotate contaminants
 
+Sets the logical `CON` column via the shared
+[`prolfqua::is_contaminant`](https://wolski.github.io/prolfqua/reference/is_contaminant.html)
+detector (configured pattern unioned with the built-in defaults; an
+empty / `NULL` / `"a^"` pattern falls back to the defaults only – never
+`grepl("", x)`, which would flag every protein). This is the same
+detector the quant layer uses.
+
 #### Usage
 
     ProteinAnnotation$annotate_contaminants()
-
-#### Arguments
-
-- `pattern`:
-
-  default "^zz\|^CON"
 
 ------------------------------------------------------------------------
 
 ### Method `get_summary()`
 
-get summary
+get summary (contaminants only; decoys are removed at construction)
 
 #### Usage
 
@@ -161,41 +156,34 @@ get summary
 
 ### Method `nr_clean()`
 
-get number of neither contaminants nor decoys
+number of proteins kept after `clean()`
 
 #### Usage
 
-    ProteinAnnotation$nr_clean(contaminants = TRUE, decoys = TRUE)
+    ProteinAnnotation$nr_clean(contaminants = TRUE)
 
 #### Arguments
 
 - `contaminants`:
 
   remove contaminants
-
-- `decoys`:
-
-  remove decoys return number of cleans
 
 ------------------------------------------------------------------------
 
 ### Method `clean()`
 
-remove REV and CON sequences
+remove contaminants (always) and, when a decoy pattern was configured,
+decoy proteins from the annotation
 
 #### Usage
 
-    ProteinAnnotation$clean(contaminants = TRUE, decoys = TRUE)
+    ProteinAnnotation$clean(contaminants = TRUE)
 
 #### Arguments
 
 - `contaminants`:
 
   remove contaminants
-
-- `decoys`:
-
-  remove decoys
 
 ------------------------------------------------------------------------
 
@@ -274,23 +262,16 @@ pannot <- ProteinAnnotation$new(lfqdata,
   pattern_decoys = "^REV"
 )
 #> Warning: no exp_nr_children column specified, computing using nr_children_experiment
-stopifnot(pannot$annotate_decoys() == 10)
 stopifnot(pannot$annotate_contaminants() == 5)
 dd <- pannot$clean()
 pannot$nr_clean()
 #> [1] 85
 pannot$get_summary()
-#>   totalNrOfProteins percentOfContaminants percentOfFalsePositives
-#> 1               100                     5                      10
-#>   NrOfProteinsNoDecoys
-#> 1                   85
+#>   totalNrOfProteins percentOfContaminants
+#> 1               100                     5
 stopifnot(nrow(dd) == 85)
 tmp <- lfqdata$get_subset(dd)
 #> Joining with `by = join_by(protein_Id)`
-dx <- pannot$clean(contaminants = TRUE, decoys = FALSE)
-stopifnot(nrow(dx) == 95)
-dx <- pannot$clean(contaminants = FALSE, decoys = TRUE)
-stopifnot(nrow(dx) == 90)
 dx2 <- pannot$filter_by_nr_children(exp_nr_children = 2)
 dx3 <- pannot$filter_by_nr_children(exp_nr_children = 3)
 stopifnot(nrow(dx2) >= nrow(dx3))

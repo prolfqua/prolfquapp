@@ -2,20 +2,9 @@
 
 preprocess MQ peptide
 
-preprocess MQ peptide
-
 ## Usage
 
 ``` r
-preprocess_MQ_peptide(
-  quant_data,
-  fasta_file,
-  annotation,
-  pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = "^REV_|^rev_",
-  hierarchy_depth = 1
-)
-
 preprocess_MQ_peptide(
   quant_data,
   fasta_file,

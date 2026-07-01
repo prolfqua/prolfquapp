@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,47 +94,61 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">fasta_conn</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fasta_conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/textconnections.html" class="external-link">textConnection</a></span><span class="op">(</span><span class="fu">prolfquapp</span><span class="fu">:::</span><span class="fu">.getSequences</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">prolfquapp</span><span class="fu">::</span><span class="fu">get_annot_from_fasta</span><span class="op">(</span><span class="va">fasta_conn</span>, pattern_decoys <span class="op">=</span> <span class="st">"^REV_|^rev"</span> <span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:35] get_annot : finished reading</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:35] get_annot : extract headers</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:35] get_annot : all seq : 11</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:35] removing decoy sequences usin patter : ^REV_|^rev</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:35] get_annot nr seq after decoy removal: 7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:35] get_annot : isUniprot : TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:35] get_annot : extracted gene names</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:35] get_annot : protein length</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-06-26 11:01:35] get_annot : nr of tryptic peptides per protein computed.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                          fasta.id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A0A385XJL2|YGDT_ECOLI sp|A0A385XJL2|YGDT_ECOLI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A5A615|YNCL_ECOLI         sp|A5A615|YNCL_ECOLI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P03018|UVRD_ECOLI         sp|P03018|UVRD_ECOLI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04982|RBSD_ECOLI         sp|P04982|RBSD_ECOLI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04994|EX7L_ECOLI         sp|P04994|EX7L_ECOLI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00001|           zz|Y-FGCZCont00001|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00002|           zz|Y-FGCZCont00002|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                              fasta.header</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A0A385XJL2|YGDT_ECOLI                         Protein YgdT OS=Escherichia coli (strain K12) OX=83333 GN=ygdT PE=4 SV=1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A5A615|YNCL_ECOLI             Uncharacterized protein YncL OS=Escherichia coli (strain K12) OX=83333 GN=yncL PE=1 SV=1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P03018|UVRD_ECOLI                          DNA helicase II OS=Escherichia coli (strain K12) OX=83333 GN=uvrD PE=1 SV=1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04982|RBSD_ECOLI                        D-ribose pyranase OS=Escherichia coli (strain K12) OX=83333 GN=rbsD PE=1 SV=3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04994|EX7L_ECOLI     Exodeoxyribonuclease 7 large subunit OS=Escherichia coli (strain K12) OX=83333 GN=xseA PE=1 SV=2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00001|                                            zz_FGCZCont0000_P61626_LYSC_HUMAN blastpHomologue_5.0e-107</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00002|                                                 zz_FGCZCont0001_P02534_K1M1_SHEEP blastpHomologue_0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                              proteinname gene_name protein_length</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A0A385XJL2|YGDT_ECOLI      A0A385XJL2      ygdT             48</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A5A615|YNCL_ECOLI              A5A615      yncL             31</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P03018|UVRD_ECOLI              P03018      uvrD             60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04982|RBSD_ECOLI              P04982      rbsD             60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04994|EX7L_ECOLI              P04994      xseA             60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00001|      Y-FGCZCont00001                       60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00002|      Y-FGCZCont00002                       60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          nr_tryptic_peptides</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A0A385XJL2|YGDT_ECOLI                   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A5A615|YNCL_ECOLI                       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P03018|UVRD_ECOLI                       4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04982|RBSD_ECOLI                       3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04994|EX7L_ECOLI                       2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00001|                        4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00002|                        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:45] get_annot : finished reading</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:45] get_annot : extract headers</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:45] get_annot : all seq : 11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:45] get_annot : isUniprot : TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:45] get_annot : extracted gene names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:45] get_annot : protein length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:45] get_annot : nr of tryptic peptides per protein computed.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                              fasta.id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A0A385XJL2|YGDT_ECOLI                     sp|A0A385XJL2|YGDT_ECOLI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A5A615|YNCL_ECOLI                             sp|A5A615|YNCL_ECOLI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P03018|UVRD_ECOLI                             sp|P03018|UVRD_ECOLI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04982|RBSD_ECOLI                             sp|P04982|RBSD_ECOLI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04994|EX7L_ECOLI                             sp|P04994|EX7L_ECOLI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00001|                               zz|Y-FGCZCont00001|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00002|                               zz|Y-FGCZCont00002|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|Q13515|BFSP2_HUMAN                   REV_sp|Q13515|BFSP2_HUMAN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|Q14183|DOC2A_HUMAN                   REV_sp|Q14183|DOC2A_HUMAN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_tr|A0A075B6W8|A0A075B6W8_HUMAN REV_tr|A0A075B6W8|A0A075B6W8_HUMAN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|A0A385XJL2|YGDT_ECOLI             REV_sp|A0A385XJL2|YGDT_ECOLI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                                        fasta.header</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A0A385XJL2|YGDT_ECOLI                                   Protein YgdT OS=Escherichia coli (strain K12) OX=83333 GN=ygdT PE=4 SV=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A5A615|YNCL_ECOLI                       Uncharacterized protein YncL OS=Escherichia coli (strain K12) OX=83333 GN=yncL PE=1 SV=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P03018|UVRD_ECOLI                                    DNA helicase II OS=Escherichia coli (strain K12) OX=83333 GN=uvrD PE=1 SV=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04982|RBSD_ECOLI                                  D-ribose pyranase OS=Escherichia coli (strain K12) OX=83333 GN=rbsD PE=1 SV=3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04994|EX7L_ECOLI               Exodeoxyribonuclease 7 large subunit OS=Escherichia coli (strain K12) OX=83333 GN=xseA PE=1 SV=2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00001|                                                      zz_FGCZCont0000_P61626_LYSC_HUMAN blastpHomologue_5.0e-107</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00002|                                                           zz_FGCZCont0001_P02534_K1M1_SHEEP blastpHomologue_0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|Q13515|BFSP2_HUMAN                                                       Phakinin OS=Homo sapiens OX=9606 GN=BFSP2 PE=1 SV=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|Q14183|DOC2A_HUMAN                 Double C2-like domain-containing protein alpha OS=Homo sapiens OX=9606 GN=DOC2A PE=1 SV=5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_tr|A0A075B6W8|A0A075B6W8_HUMAN          T cell receptor alpha joining 17 (Fragment) OS=Homo sapiens OX=9606 GN=TRAJ17 PE=4 SV=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|A0A385XJL2|YGDT_ECOLI                               Protein YgdT OS=Escherichia coli (strain K12) OX=83333 GN=ygdT PE=4 SV=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                        proteinname gene_name protein_length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A0A385XJL2|YGDT_ECOLI                A0A385XJL2      ygdT             48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A5A615|YNCL_ECOLI                        A5A615      yncL             31</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P03018|UVRD_ECOLI                        P03018      uvrD             60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04982|RBSD_ECOLI                        P04982      rbsD             60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04994|EX7L_ECOLI                        P04994      xseA             60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00001|                Y-FGCZCont00001                       60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00002|                Y-FGCZCont00002                       60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|Q13515|BFSP2_HUMAN                   Q13515     BFSP2             60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|Q14183|DOC2A_HUMAN                   Q14183     DOC2A             60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_tr|A0A075B6W8|A0A075B6W8_HUMAN      A0A075B6W8    TRAJ17             21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|A0A385XJL2|YGDT_ECOLI            A0A385XJL2      ygdT             48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                    nr_tryptic_peptides</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A0A385XJL2|YGDT_ECOLI                             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|A5A615|YNCL_ECOLI                                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P03018|UVRD_ECOLI                                 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04982|RBSD_ECOLI                                 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sp|P04994|EX7L_ECOLI                                 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00001|                                  4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> zz|Y-FGCZCont00002|                                  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|Q13515|BFSP2_HUMAN                            3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|Q14183|DOC2A_HUMAN                            3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_tr|A0A075B6W8|A0A075B6W8_HUMAN                   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> REV_sp|A0A385XJL2|YGDT_ECOLI                         1</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">fasta_conn</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

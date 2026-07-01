@@ -52,8 +52,6 @@ normalization.
 
 - [`ProteinDataPrep$cont_decoy_summary()`](#method-ProteinDataPrep-cont_decoy_summary)
 
-- [`ProteinDataPrep$remove_cont_decoy()`](#method-ProteinDataPrep-remove_cont_decoy)
-
 - [`ProteinDataPrep$aggregate()`](#method-ProteinDataPrep-aggregate)
 
 - [`ProteinDataPrep$get_aggregation_plots()`](#method-ProteinDataPrep-get_aggregation_plots)
@@ -96,21 +94,15 @@ Initialize ProteinDataPrep
 
 ### Method `cont_decoy_summary()`
 
-Count number of contaminants and decoys
+Contaminant + decoy QC summary. Contaminants are kept and only counted
+here (labelled downstream via the annotation \`CON\` flag); decoys are
+kept in the quant data (dropped only at the model fit) and their
+proportion is reported as an empirical-FDR signal. Neither is removed
+from the quant.
 
 #### Usage
 
     ProteinDataPrep$cont_decoy_summary()
-
-------------------------------------------------------------------------
-
-### Method `remove_cont_decoy()`
-
-Remove contaminants and decoys from peptide data
-
-#### Usage
-
-    ProteinDataPrep$remove_cont_decoy()
 
 ------------------------------------------------------------------------
 
@@ -232,24 +224,19 @@ GRP2$processing_options$transform <- "robscale"
 
 data_prep <- prolfquapp::ProteinDataPrep$new(pep, pA, GRP2)
 data_prep$cont_decoy_summary()
-#>   totalNrOfProteins percentOfContaminants percentOfFalsePositives
-#> 1               100                     0                       0
-#>   NrOfProteinsNoDecoys
-#> 1                  100
-data_prep$remove_cont_decoy()
-#> Joining with `by = join_by(protein_Id)`
-#> INFO [2026-06-26 11:01:26] removing contaminants and reverse sequences with patterns: ^zz|^CON|Cont_^REV_|^rev_
+#>   totalNrOfProteins percentOfContaminants percentOfDecoys
+#> 1               100                     0               0
 data_prep$aggregate()
-#> INFO [2026-06-26 11:01:26] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-07-01 15:25:35] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> completing cases
 #> Column added : exp_medpolish
-#> INFO [2026-06-26 11:01:27] END OF PROTEIN AGGREGATION
+#> INFO [2026-07-01 15:25:37] END OF PROTEIN AGGREGATION
 data_prep$transform_data()
-#> INFO [2026-06-26 11:01:27] Transforming using robscale.
+#> INFO [2026-07-01 15:25:37] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`
-#> INFO [2026-06-26 11:01:27] Transforming data : robscale.
+#> INFO [2026-07-01 15:25:37] Transforming data : robscale.
 ```
