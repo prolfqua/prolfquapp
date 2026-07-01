@@ -258,16 +258,17 @@ if (cfg$processing_options$transform == "robscale") {
 
 ```{r normalized,  fig.width=8, fig.height=5,dpi=300, fig.cap="(ref:normalized)",fig.alt="", eval=TRUE}
 
-pl <- dea$lfq_data_raw$get_Plotter()
+showlegend <- nrow(dea$lfq_data_raw$factors()) <= 12
 
-showlegend <- if (nrow(dea$lfq_data_raw$factors()) > 12) {FALSE} else {TRUE}
-p1 <- pl$intensity_distribution_density(legend = showlegend)
-
-plTransformed <- dea$lfq_data$get_Plotter()
-p2 <- plTransformed$intensity_distribution_density(legend = showlegend) +
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1))
-
-gridExtra::grid.arrange(p1, p2, nrow = 1)
+# Interactive per-sample density curves (ggiraph): hover a curve to highlight it
+# and read its sample name. Left panel: empirical abundances; right: normalized.
+prolfquapp::intensity_density_ggiraph(
+  list(
+    "empirical abundance" = dea$lfq_data_raw,
+    "normalized abundance" = dea$lfq_data
+  ),
+  legend = showlegend
+)
 
 ```
 
@@ -413,23 +414,28 @@ DT::datatable(bb, filter = "bottom",
 
 ```
 
-(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r cfg$processing_options$FDR_threshold`, while the green lines represent the difference of minus and plus `r cfg$processing_options$diff_threshold`. Points are coloured by `estimate_type`, so rows estimated by missing-value imputation or group-mean fallback are visually distinguished from observed fits.
+(ref:volcanoplot)  Interactive volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups (hover a point for its identifier and statistics). The red line indicates the $-log_{10}(FDR)$ of FDR = `r cfg$processing_options$FDR_threshold`, while the green lines represent the difference of minus and plus `r cfg$processing_options$diff_threshold`. Points are coloured by `estimate_type`, so rows estimated by missing-value imputation or group-mean fallback are visually distinguished from observed fits. Contaminants are drawn as triangles (and flagged in the tooltip); decoys carry no statistics and are omitted.
 
 
 ```{r volcanoplot, fig.cap = "(ref:volcanoplot)",fig.alt="", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
 
-plotter <- if (is_saint) {
-  dea$contrast_results[[dea$default_model]]$get_Plotter(
-    fc_threshold = cfg$processing_options$diff_threshold,
-    bfdr_threshold = cfg$processing_options$FDR_threshold
-  )
-} else {
-  dea$contrast_results[[dea$default_model]]$get_Plotter(
-    fc_threshold = cfg$processing_options$diff_threshold,
-    fdr_threshold = cfg$processing_options$FDR_threshold
-  )
-}
-plotter$volcano_plotly()$FDR
+# Interactive volcano (ggiraph). Coloured by estimate_type; contaminants (the
+# annotation CON flag) are drawn as triangles and flagged in the tooltip, so they
+# are kept and visible but distinguishable. Decoys carry NA statistics and are
+# therefore dropped automatically (never plotted). Built from annotated_contrasts
+# directly so it does not depend on other chunks' state.
+vdata <- as.data.frame(dea$annotated_contrasts) |>
+  tidyr::unite("ID", tidyselect::all_of(hkey), sep = "~", remove = FALSE)
+
+prolfquapp::volcano_ggiraph(
+  vdata,
+  effect = effect_col,
+  score = score_col,
+  contrast = contrast_col,
+  id_cols = "ID",
+  fc_threshold = cfg$processing_options$diff_threshold,
+  score_threshold = cfg$processing_options$FDR_threshold
+)
 
 ```
 

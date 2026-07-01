@@ -59,6 +59,7 @@ Suggests:
   covr,
   devtools,
   DT,
+  ggiraph,
   gridExtra,
   KernSmooth,
   knitr,
