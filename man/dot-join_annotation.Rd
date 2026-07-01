@@ -7,20 +7,29 @@
 .join_annotation(annotation, x, by)
 }
 \arguments{
-\item{annotation}{protein annotation data frame, unique on \code{by}}
+\item{annotation}{protein annotation data frame}
 
 \item{x}{quant/result table to annotate}
 
-\item{by}{join-key column name (the protein id)}
+\item{by}{protein-id column; must be present in both frames}
 }
 \value{
 \code{x} enriched with annotation columns; one row per row of \code{x}
 }
 \description{
 Right-joins so every row of \code{x} (the quant or result table) is preserved
-and never multiplied. \code{annotation} must be unique on \code{by} (the
-invariant guaranteed by \code{\link{ProteinAnnotation}}); this is asserted as
-a safety net. Replaces ad-hoc \code{inner_join(row_annot, x, multiple = "all")}
-calls that relied on an implicit key.
+and never multiplied.
+}
+\details{
+Joins on **every column the annotation shares with \code{x}**, not only
+\code{by}. For a flat protein-level analysis that is just \code{by} (the
+protein id); for a multi-level analysis (e.g. PTM, hierarchy
+\code{protein_Id} + \code{site}) both frames also carry the deeper hierarchy
+key(s) such as \code{site}. Joining only on \code{by} there would suffix the
+shared deeper key to \code{site.x}/\code{site.y} and drop the bare \code{site}
+column the report needs (`unite(all_of(hierarchy_keys))`). This matches the
+historical implicit-key \code{inner_join(row_annot, x, multiple = "all")}
+behaviour, but keeps the row-preserving \code{right_join} and a uniqueness
+guard. \code{annotation} must be unique on the resolved join key(s).
 }
 \keyword{internal}

@@ -30,23 +30,36 @@ strip_rownames <- function(.data, strip = "~lfq~light$") {
 #' Enrich a quant/result table with the protein annotation
 #'
 #' Right-joins so every row of \code{x} (the quant or result table) is preserved
-#' and never multiplied. \code{annotation} must be unique on \code{by} (the
-#' invariant guaranteed by \code{\link{ProteinAnnotation}}); this is asserted as
-#' a safety net. Replaces ad-hoc \code{inner_join(row_annot, x, multiple = "all")}
-#' calls that relied on an implicit key.
-#' @param annotation protein annotation data frame, unique on \code{by}
+#' and never multiplied.
+#'
+#' Joins on **every column the annotation shares with \code{x}**, not only
+#' \code{by}. For a flat protein-level analysis that is just \code{by} (the
+#' protein id); for a multi-level analysis (e.g. PTM, hierarchy
+#' \code{protein_Id} + \code{site}) both frames also carry the deeper hierarchy
+#' key(s) such as \code{site}. Joining only on \code{by} there would suffix the
+#' shared deeper key to \code{site.x}/\code{site.y} and drop the bare \code{site}
+#' column the report needs (`unite(all_of(hierarchy_keys))`). This matches the
+#' historical implicit-key \code{inner_join(row_annot, x, multiple = "all")}
+#' behaviour, but keeps the row-preserving \code{right_join} and a uniqueness
+#' guard. \code{annotation} must be unique on the resolved join key(s).
+#' @param annotation protein annotation data frame
 #' @param x quant/result table to annotate
-#' @param by join-key column name (the protein id)
+#' @param by protein-id column; must be present in both frames
 #' @return \code{x} enriched with annotation columns; one row per row of \code{x}
 #' @keywords internal
 .join_annotation <- function(annotation, x, by) {
-  if (anyDuplicated(annotation[[by]]) > 0) {
+  keys <- intersect(colnames(annotation), colnames(x))
+  if (!by %in% keys) {
+    stop("internal: join key '", by, "' not present in both annotation and x.")
+  }
+  if (anyDuplicated(annotation[, keys, drop = FALSE]) > 0) {
     stop(
-      "internal: protein annotation is not unique on '", by,
+      "internal: protein annotation is not unique on the join key(s) '",
+      paste(keys, collapse = "', '"),
       "' before the annotation->quant join."
     )
   }
-  dplyr::right_join(annotation, x, by = by, multiple = "all")
+  dplyr::right_join(annotation, x, by = keys, multiple = "all")
 }
 
 
