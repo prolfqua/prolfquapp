@@ -197,7 +197,10 @@ preprocess_mzMine <- function(
   annotation,
   pattern_contaminants = NULL,
   pattern_decoys = NULL,
-  annotated = FALSE
+  annotated = FALSE,
+  # nr_peptides accepted for interface uniformity but ignored: mzMine features
+  # have one child per protein, so a >= 2 cut would drop every feature.
+  nr_peptides = 1
 ) {
   xdl <- readr::read_csv(quant_data)
   xdl <- tidy_mzMineFeatures(xdl)

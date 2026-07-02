@@ -369,7 +369,8 @@ preprocess_MQ_peptide <- function(
   annotation,
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^REV_|^rev_",
-  hierarchy_depth = 1
+  hierarchy_depth = 1,
+  nr_peptides = 1
 ) {
   annot <- annotation$annot
   config <- annotation$atable$clone(deep = TRUE)
@@ -391,6 +392,15 @@ preprocess_MQ_peptide <- function(
     dplyr::distinct() |>
     dplyr::group_by(leading.razor.protein) |>
     dplyr::summarize(nrPeptides = n())
+
+  # Reader-local min-peptides-per-protein filter (distinct stripped `sequence`
+  # per protein). Annotation is right-joined onto the filtered LFQData below.
+  peptide <- prolfquapp::filter_by_peptide_count(
+    peptide,
+    "leading.razor.protein",
+    "sequence",
+    nr_peptides
+  )
 
   nr <- sum(
     annot[[config$file_name]] %in% sort(unique(peptide$raw.file))

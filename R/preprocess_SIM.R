@@ -33,7 +33,8 @@ preprocess_SIM <- function(
   annotation,
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^REV_|^rev_",
-  hierarchy_depth = 1
+  hierarchy_depth = 1,
+  nr_peptides = 1
 ) {
   sim <- prolfqua::sim_lfq_data_peptide_config(Nprot = 50)
 
@@ -77,6 +78,13 @@ preprocess_SIM <- function(
     }
   }
 
+  # Reader-local min-peptides-per-protein filter on the simulated peptide data.
+  raw <- prolfquapp::filter_by_peptide_count(
+    raw,
+    "protein_Id",
+    "peptide_Id",
+    nr_peptides
+  )
   adata <- prolfqua::setup_analysis(raw, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
 

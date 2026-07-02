@@ -10,7 +10,8 @@ preprocess_mzMine(
   annotation,
   pattern_contaminants = NULL,
   pattern_decoys = NULL,
-  annotated = FALSE
+  annotated = FALSE,
+  nr_peptides = 1
 )
 }
 \arguments{

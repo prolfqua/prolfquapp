@@ -118,7 +118,8 @@ preprocess_BGS <- function(
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^REV_|^rev",
   q_value = 0.01,
-  hierarchy_depth = 2
+  hierarchy_depth = 2,
+  nr_peptides = 1
 ) {
   annot <- annotation$annot
   config <- annotation$atable$clone(deep = TRUE)
@@ -141,6 +142,16 @@ preprocess_BGS <- function(
   nrPEP$Protein.Group.2 <- sapply(nrPEP$PG.ProteinGroups, function(x) {
     unlist(strsplit(x, "[ ;]"))[1]
   })
+
+  # Reader-local min-peptides-per-protein filter. `PEP.GroupingKey` is the
+  # Spectronaut peptide-level grouping key (`EG.ModifiedSequence` carries the
+  # mods). Annotation is right-joined onto the filtered LFQData below.
+  report2 <- prolfquapp::filter_by_peptide_count(
+    report2,
+    "PG.ProteinGroups",
+    "PEP.GroupingKey",
+    nr_peptides
+  )
 
   nr <- sum(annot$raw.file %in% sort(unique(report2$R.FileName)))
   logger::log_info(

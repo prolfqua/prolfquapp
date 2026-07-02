@@ -52,6 +52,11 @@ sync_opt_config <- function(opt, config) {
   if (!is.null(opt$model)) {
     config$processing_options$model <- opt$model
   }
+  if (!is.null(opt$nr_peptides)) {
+    config$processing_options$nr_peptides <- .validate_nr_peptides(
+      opt$nr_peptides
+    )
+  }
   if (!is.null(opt$flat_outdir)) {
     config$flat_outdir <- isTRUE(opt$flat_outdir)
   }

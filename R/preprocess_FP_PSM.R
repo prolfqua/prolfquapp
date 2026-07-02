@@ -518,6 +518,7 @@ preprocess_FP_PSM <- function(
   purity_threshold = 0.5,
   PeptideProphetProb = 0.9,
   hierarchy_depth = 1,
+  nr_peptides = 1,
   parse_fun = tidy_FragPipe_psm
 ) {
   annot <- annotation$annot
@@ -535,6 +536,16 @@ preprocess_FP_PSM <- function(
   nrPeptides_exp <- psm$nrPeptides # this is a data.frame
   psm <- psm$data
   psm$qValue <- 1 - psm$Probability
+
+  # Reader-local min-peptides-per-protein filter. FragPipe `Peptide` is the
+  # stripped sequence (`Modified.Peptide` carries the mods). Annotation is
+  # right-joined onto the filtered LFQData below.
+  psm <- prolfquapp::filter_by_peptide_count(
+    psm,
+    "Protein",
+    "Peptide",
+    nr_peptides
+  )
 
   nr <- sum(annot[[config$file_name]] %in% sort(unique(psm$channel)))
   logger::log_info(

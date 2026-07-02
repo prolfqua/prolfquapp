@@ -265,10 +265,15 @@ preprocess_DIANN <- function(
   config$set_response("Peptide.Quantity")
   config$hierarchy_depth <- hierarchy_depth
 
-  if (nr_peptides > 1) {
-    nrPEP <- nrPEP |> dplyr::filter(nrPeptides >= nr_peptides)
-    peptide <- peptide[peptide$Protein.Group %in% nrPEP$Protein.Group, ]
-  }
+  # Reader-local min-peptides-per-protein filter (distinct Stripped.Sequence per
+  # Protein.Group). Filtering the peptide/quant table is enough: prot_annot is
+  # right-joined onto the LFQData proteins below, so it follows automatically.
+  peptide <- prolfquapp::filter_by_peptide_count(
+    peptide,
+    "Protein.Group",
+    "Stripped.Sequence",
+    nr_peptides
+  )
 
   annotation_keys <- unique(annot$raw.file)
   quant_keys <- unique(peptide$raw.file)

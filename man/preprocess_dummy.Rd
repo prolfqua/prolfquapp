@@ -9,7 +9,8 @@ preprocess_dummy(
   fasta_file,
   annotation,
   pattern_contaminants = "^zz|^CON|Cont_",
-  pattern_decoys = "^REV_|^rev"
+  pattern_decoys = "^REV_|^rev",
+  nr_peptides = 1
 )
 }
 \arguments{

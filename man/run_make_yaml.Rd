@@ -10,6 +10,7 @@ run_make_yaml(
   workunit = "",
   norm = "vsn",
   model = "lm_missing",
+  nr_peptides = 1,
   outdir = NULL
 )
 }
@@ -24,6 +25,8 @@ run_make_yaml(
 
 \item{model}{contrast facade method (see
 \code{names(prolfqua::FACADE_REGISTRY)}) or "saint"}
+
+\item{nr_peptides}{minimum distinct peptides per protein (>= 1, default 1)}
 
 \item{outdir}{optional output directory; if it exists, stored in the
 config so downstream scripts know where to write results}

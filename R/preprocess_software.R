@@ -107,6 +107,10 @@ prolfqua_preprocess_functions <- list(
 #' @param preprocess_functions list or R6 object with get_files, preprocess, extra_args
 #' @param pattern_contaminants regex pattern for contaminants
 #' @param pattern_decoys regex pattern for decoys
+#' @param nr_peptides minimum number of distinct (stripped) peptides per parent
+#'   protein; forwarded only to readers that declare an `nr_peptides` argument.
+#'   Readers without it are warned about (and left unfiltered) when
+#'   `nr_peptides > 1`. Default 1 (no filtering).
 #' @param extreader optional external reader configuration
 #' @export
 #' @examples
@@ -134,6 +138,7 @@ preprocess_software <- function(
   preprocess_functions,
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^rev_|^REV_",
+  nr_peptides = 1,
   extreader = NULL
 ) {
   to_function <- function(x) {
@@ -165,19 +170,17 @@ preprocess_software <- function(
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
 
-  xd <- do.call(
-    preprocess_fn,
-    c(
-      list(
-        quant_data = files$data,
-        fasta_file = files$fasta,
-        annotation = annotation,
-        pattern_contaminants = pattern_contaminants,
-        pattern_decoys = pattern_decoys
-      ),
-      extra_args
-    )
+  base_args <- list(
+    quant_data = files$data,
+    fasta_file = files$fasta,
+    annotation = annotation,
+    pattern_contaminants = pattern_contaminants,
+    pattern_decoys = pattern_decoys
   )
+
+  base_args <- .forward_nr_peptides(base_args, preprocess_fn, nr_peptides)
+
+  xd <- do.call(preprocess_fn, c(base_args, extra_args))
 
   return(list(xd = xd, files = files))
 }

@@ -66,6 +66,13 @@ option_list <- list(
     metavar = "string"
   ),
   optparse::make_option(
+    c("--nr_peptides"),
+    type = "integer",
+    default = NULL,
+    help = "minimum distinct peptides per protein (overrides config); >= 1",
+    metavar = "N"
+  ),
+  optparse::make_option(
     c("--flat_outdir"),
     action = "store_true",
     default = FALSE,

@@ -63,6 +63,13 @@ option_list <- list(
       paste(c(names(prolfqua::FACADE_REGISTRY), "saint"), collapse = ", ")
     ),
     metavar = "character"
+  ),
+  make_option(
+    c("--nr_peptides"),
+    type = "integer",
+    default = 1,
+    help = "minimum distinct peptides per protein (>= 1)",
+    metavar = "N"
   )
 )
 
@@ -91,6 +98,7 @@ cfg <- prolfquapp::run_make_yaml(
   workunit = opt$workunit,
   norm = opt$norm,
   model = opt$model,
+  nr_peptides = opt$nr_peptides,
   outdir = opt$outdir
 )
 

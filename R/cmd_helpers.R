@@ -101,6 +101,7 @@ run_contrasts_twofactor <- function(
 #' @param norm normalization method (e.g. "vsn", "none", "robscale")
 #' @param model contrast facade method (see
 #'   \code{names(prolfqua::FACADE_REGISTRY)}) or "saint"
+#' @param nr_peptides minimum distinct peptides per protein (>= 1, default 1)
 #' @param outdir optional output directory; if it exists, stored in the
 #'   config so downstream scripts know where to write results
 #' @return named list suitable for \code{yaml::write_yaml()}
@@ -115,6 +116,7 @@ run_make_yaml <- function(
   workunit = "",
   norm = "vsn",
   model = "lm_missing",
+  nr_peptides = 1,
   outdir = NULL
 ) {
   GRP2 <- prolfquapp::make_DEA_config_R6(
@@ -122,7 +124,8 @@ run_make_yaml <- function(
     ORDERID = order,
     WORKUNITID = workunit,
     Normalization = norm,
-    model = model
+    model = model,
+    nr_peptides = nr_peptides
   )
   GRP2$set_zipdir_name()
   if (!is.null(outdir) && dir.exists(outdir)) {
@@ -332,7 +335,8 @@ run_dea <- function(indir, dataset, software, config) {
     annotation,
     preprocess_functions = pfuncs[[software]],
     pattern_contaminants = config$processing_options$pattern_contaminants,
-    pattern_decoys = config$processing_options$pattern_decoys
+    pattern_decoys = config$processing_options$pattern_decoys,
+    nr_peptides = config$processing_options$nr_peptides
   )
 
   xd <- procsoft$xd

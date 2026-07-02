@@ -92,7 +92,8 @@ preprocess_MSstats_FPDIA <- function(
   annotation,
   pattern_contaminants = "",
   pattern_decoys = "",
-  hierarchy_depth = 1
+  hierarchy_depth = 1,
+  nr_peptides = 1
 ) {
   annot <- annotation$annot
   config <- annotation$atable$clone(deep = TRUE)
@@ -113,6 +114,17 @@ preprocess_MSstats_FPDIA <- function(
     dplyr::distinct() |>
     dplyr::group_by(dplyr::across("ProteinName")) |>
     dplyr::summarize(nrPeptides = dplyr::n())
+
+  # Reader-local min-peptides-per-protein filter. NOTE: MSstats `PeptideSequence`
+  # may carry modifications depending on the upstream converter; if so the count
+  # over-counts (under-filters, never over-drops). Annotation is right-joined
+  # onto the filtered LFQData below.
+  peptide <- prolfquapp::filter_by_peptide_count(
+    peptide,
+    "ProteinName",
+    "PeptideSequence",
+    nr_peptides
+  )
 
   nr <- sum(annot[[config$file_name]] %in% sort(unique(peptide$Run)))
   logger::log_info(
@@ -200,7 +212,8 @@ preprocess_MSstats <- function(
   annotation,
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^REV_|^rev_",
-  hierarchy_depth = 1
+  hierarchy_depth = 1,
+  nr_peptides = 1
 ) {
   annot <- annotation$annot
   config <- annotation$atable$clone(deep = TRUE)
@@ -221,6 +234,17 @@ preprocess_MSstats <- function(
     dplyr::distinct() |>
     dplyr::group_by(dplyr::across("ProteinName")) |>
     dplyr::summarize(nrPeptides = dplyr::n())
+
+  # Reader-local min-peptides-per-protein filter. NOTE: MSstats `PeptideSequence`
+  # may carry modifications depending on the upstream converter; if so the count
+  # over-counts (under-filters, never over-drops). Annotation is right-joined
+  # onto the filtered LFQData below.
+  peptide <- prolfquapp::filter_by_peptide_count(
+    peptide,
+    "ProteinName",
+    "PeptideSequence",
+    nr_peptides
+  )
 
   nr <- sum(annot[[config$file_name]] %in% sort(unique(peptide$Run)))
   logger::log_info(

@@ -324,6 +324,7 @@ list_to_R6_app_config <- function(dd) {
   for (i in names(pop)) {
     popR6[[i]] <- pop[[i]]
   }
+  popR6$nr_peptides <- .validate_nr_peptides(popR6$nr_peptides)
   psR6 <- ProjectSpec$new()
   ps <- dd$project_spec
   for (i in names(ps)) {
@@ -412,7 +413,7 @@ make_DEA_config_R6 <- function(
   pop$diff_threshold <- diff_threshold
   pop$aggregate <- aggregation
   pop$transform <- Normalization
-  pop$nr_peptides <- nr_peptides
+  pop$nr_peptides <- .validate_nr_peptides(nr_peptides)
   pop$model <- model
   ps <- ProjectSpec$new()
   ps$order_Id <- ORDERID

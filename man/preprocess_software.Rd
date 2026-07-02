@@ -10,6 +10,7 @@ preprocess_software(
   preprocess_functions,
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^rev_|^REV_",
+  nr_peptides = 1,
   extreader = NULL
 )
 }
@@ -23,6 +24,11 @@ preprocess_software(
 \item{pattern_contaminants}{regex pattern for contaminants}
 
 \item{pattern_decoys}{regex pattern for decoys}
+
+\item{nr_peptides}{minimum number of distinct (stripped) peptides per parent
+protein; forwarded only to readers that declare an `nr_peptides` argument.
+Readers without it are warned about (and left unfiltered) when
+`nr_peptides > 1`. Default 1 (no filtering).}
 
 \item{extreader}{optional external reader configuration}
 }
