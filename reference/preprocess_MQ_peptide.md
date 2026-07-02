@@ -11,7 +11,8 @@ preprocess_MQ_peptide(
   annotation,
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^REV_|^rev_",
-  hierarchy_depth = 1
+  hierarchy_depth = 1,
+  nr_peptides = 1
 )
 ```
 

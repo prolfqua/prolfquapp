@@ -99,6 +99,10 @@ The package uses R6 classes to manage state and orchestrate analysis:
   - Identifies contaminants (pattern: `^zz|^CON`) and decoys (pattern:
     `^REV`)
   - Provides filtering via `clean()` method
+  - **Right-join invariant:** it is *annotation only, never a data
+    filter* — always right-joined into the `LFQData`. See
+    “ProteinAnnotation is annotation, not a filter” under Important
+    Patterns before adding any behavior to it.
 - **DEAnalyse** (`R6_DEAnalyse.R`): Complete DEA pipeline
   - Aggregates peptides to proteins (medpolish, lmrob, topN)
   - Transforms data (VSN, quantile, robscale, or none)
@@ -199,6 +203,22 @@ Multi-format outputs support different downstream tools:
 - **UpSetR**: Missing data visualization
 
 ## Important Patterns
+
+### ProteinAnnotation is annotation, not a filter (right-join invariant)
+
+`ProteinAnnotation` is **always right-joined into the `LFQData`**, so
+adding protein annotation must **never lose `LFQData`** — no quant rows
+are dropped because annotation was attached. It carries metadata (gene
+names, `nr_peptides` counts, contaminant/decoy flags) but is **not** the
+place to filter proteins, peptides, or sites.
+
+Do **not** use `ProteinAnnotation` methods
+(e.g. `filter_by_nr_children()`) to drive dropping of quant data: that
+breaks the right-join invariant and piles yet more onto a class that
+already has too many responsibilities. Any peptide/protein/site
+filtering (e.g. a minimum-peptides-per-parent-protein cut) must operate
+on the **`LFQData`/quant side**, with `ProteinAnnotation` still
+right-joined afterwards as pure annotation.
 
 ### Configuration-Driven Execution
 

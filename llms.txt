@@ -295,6 +295,9 @@ prolfquapp_ASMS_poster
   : get best feature annotation.
 - [`feature_annotation_get_best_score()`](https://prolfqua.github.io/prolfquapp/reference/feature_annotation_get_best_score.md)
   : get best feature annotation.
+- [`filter_by_peptide_count()`](https://prolfqua.github.io/prolfquapp/reference/filter_by_peptide_count.md)
+  : Drop proteins supported by fewer than \`nr_peptides\` distinct
+  peptides
 - [`get_BGS_files()`](https://prolfqua.github.io/prolfquapp/reference/get_BGS_files.md)
   : get BGS and fasta file location in folder
 - [`get_CD_export_files()`](https://prolfqua.github.io/prolfquapp/reference/get_CD_export_files.md)

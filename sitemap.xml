@@ -52,9 +52,11 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/diann_output_to_peptide.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/diann_read_output.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/dot-detect_decoy_ids.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/dot-forward_nr_peptides.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/dot-join_annotation.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/dot-resolve_nested_reader.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/dot-resolve_unique_protein_ids.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/dot-validate_nr_peptides.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/example_deanalyse.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/example_qc_generator.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/exp2.html</loc></url>
@@ -62,6 +64,7 @@
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/extract_contrasts.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/feature_annotation_collapse_to_single_row.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/feature_annotation_get_best_score.html</loc></url>
+<url><loc>https://prolfqua.github.io/prolfquapp/reference/filter_by_peptide_count.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/get_BGS_files.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/get_CD_export_files.html</loc></url>
 <url><loc>https://prolfqua.github.io/prolfquapp/reference/get_CD_subset_columns.html</loc></url>

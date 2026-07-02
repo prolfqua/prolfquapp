@@ -11,7 +11,8 @@ preprocess_MSstats_FPDIA(
   annotation,
   pattern_contaminants = "",
   pattern_decoys = "",
-  hierarchy_depth = 1
+  hierarchy_depth = 1,
+  nr_peptides = 1
 )
 ```
 

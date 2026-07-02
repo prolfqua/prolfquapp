@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,6 +123,8 @@
 <ul><li>Parses FASTA headers to extract gene names and annotations</li>
 <li>Identifies contaminants (pattern: <code>^zz|^CON</code>) and decoys (pattern: <code>^REV</code>)</li>
 <li>Provides filtering via <code>clean()</code> method</li>
+<li>
+<strong>Right-join invariant:</strong> it is <em>annotation only, never a data filter</em> — always right-joined into the <code>LFQData</code>. See “ProteinAnnotation is annotation, not a filter” under Important Patterns before adding any behavior to it.</li>
 </ul></li>
 <li>
 <strong>DEAnalyse</strong> (<code>R6_DEAnalyse.R</code>): Complete DEA pipeline
@@ -218,6 +220,11 @@
 </ul></div>
 <div class="section level2">
 <h2 id="important-patterns">Important Patterns<a class="anchor" aria-label="anchor" href="#important-patterns"></a></h2>
+<div class="section level3">
+<h3 id="proteinannotation-is-annotation-not-a-filter-right-join-invariant">ProteinAnnotation is annotation, not a filter (right-join invariant)<a class="anchor" aria-label="anchor" href="#proteinannotation-is-annotation-not-a-filter-right-join-invariant"></a></h3>
+<p><code>ProteinAnnotation</code> is <strong>always right-joined into the <code>LFQData</code></strong>, so adding protein annotation must <strong>never lose <code>LFQData</code></strong> — no quant rows are dropped because annotation was attached. It carries metadata (gene names, <code>nr_peptides</code> counts, contaminant/decoy flags) but is <strong>not</strong> the place to filter proteins, peptides, or sites.</p>
+<p>Do <strong>not</strong> use <code>ProteinAnnotation</code> methods (e.g. <code>filter_by_nr_children()</code>) to drive dropping of quant data: that breaks the right-join invariant and piles yet more onto a class that already has too many responsibilities. Any peptide/protein/site filtering (e.g. a minimum-peptides-per-parent-protein cut) must operate on the <strong><code>LFQData</code>/quant side</strong>, with <code>ProteinAnnotation</code> still right-joined afterwards as pure annotation.</p>
+</div>
 <div class="section level3">
 <h3 id="configuration-driven-execution">Configuration-Driven Execution<a class="anchor" aria-label="anchor" href="#configuration-driven-execution"></a></h3>
 <p>All analysis parameters are stored in YAML files. R6 classes serialize/deserialize configurations for reproducibility.</p>

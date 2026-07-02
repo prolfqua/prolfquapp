@@ -12,7 +12,8 @@ preprocess_BGS(
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^REV_|^rev",
   q_value = 0.01,
-  hierarchy_depth = 2
+  hierarchy_depth = 2,
+  nr_peptides = 1
 )
 ```
 

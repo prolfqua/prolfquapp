@@ -11,6 +11,7 @@ preprocess_software(
   preprocess_functions,
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^rev_|^REV_",
+  nr_peptides = 1,
   extreader = NULL
 )
 ```
@@ -37,6 +38,13 @@ preprocess_software(
 
   regex pattern for decoys
 
+- nr_peptides:
+
+  minimum number of distinct (stripped) peptides per parent protein;
+  forwarded only to readers that declare an \`nr_peptides\` argument.
+  Readers without it are warned about (and left unfiltered) when
+  \`nr_peptides \> 1\`. Default 1 (no filtering).
+
 - extreader:
 
   optional external reader configuration
@@ -52,18 +60,18 @@ annot <- data.frame(
 )
 
 annot <- read_annotation(annot, QC = TRUE)
-#> INFO [2026-07-01 15:25:54] Using derived sample display names in column 'sampleName'.
+#> INFO [2026-07-02 13:50:29] Using derived sample display names in column 'sampleName'.
 preprocess_functions <- prolfquapp::prolfqua_preprocess_functions[["DUMMY"]]
 res <- preprocess_software(".", annot, preprocess_functions)
-#> INFO [2026-07-01 15:25:54] Files data: data.path
-#> INFO [2026-07-01 15:25:54] Files fasta: fasta.files.path
+#> INFO [2026-07-02 13:50:29] Files data: data.path
+#> INFO [2026-07-02 13:50:29] Files fasta: fasta.files.path
 
 xx <- prolfquapp::ExternalReader$new()
 xx$extra_args <- "list()"
 xx$get_files <- "prolfquapp::get_dummy_files"
 xx$preprocess <- "prolfquapp::preprocess_dummy"
 res <- preprocess_software(".", annotation = annot, preprocess_functions = xx)
-#> INFO [2026-07-01 15:25:54] Files data: data.path
-#> INFO [2026-07-01 15:25:54] Files fasta: fasta.files.path
+#> INFO [2026-07-02 13:50:29] Files data: data.path
+#> INFO [2026-07-02 13:50:29] Files fasta: fasta.files.path
 xx <- prolfquapp::ExternalReader$new()
 ```

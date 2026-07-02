@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +53,7 @@
 <span>  <span class="va">preprocess_functions</span>,</span>
 <span>  pattern_contaminants <span class="op">=</span> <span class="st">"^zz|^CON|Cont_"</span>,</span>
 <span>  pattern_decoys <span class="op">=</span> <span class="st">"^rev_|^REV_"</span>,</span>
+<span>  nr_peptides <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  extreader <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -81,6 +82,13 @@
 <dd><p>regex pattern for decoys</p></dd>
 
 
+<dt id="arg-nr-peptides">nr_peptides<a class="anchor" aria-label="anchor" href="#arg-nr-peptides"></a></dt>
+<dd><p>minimum number of distinct (stripped) peptides per parent
+protein; forwarded only to readers that declare an `nr_peptides` argument.
+Readers without it are warned about (and left unfiltered) when
+`nr_peptides &gt; 1`. Default 1 (no filtering).</p></dd>
+
+
 <dt id="arg-extreader">extreader<a class="anchor" aria-label="anchor" href="#arg-extreader"></a></dt>
 <dd><p>optional external reader configuration</p></dd>
 
@@ -96,19 +104,19 @@
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_annotation.html">read_annotation</a></span><span class="op">(</span><span class="va">annot</span>, QC <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:54] Using derived sample display names in column 'sampleName'.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-02 13:50:29] Using derived sample display names in column 'sampleName'.</span>
 <span class="r-in"><span><span class="va">preprocess_functions</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="prolfqua_preprocess_functions.html">prolfqua_preprocess_functions</a></span><span class="op">[[</span><span class="st">"DUMMY"</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">preprocess_software</span><span class="op">(</span><span class="st">"."</span>, <span class="va">annot</span>, <span class="va">preprocess_functions</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:54] Files data: data.path</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:54] Files fasta: fasta.files.path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-02 13:50:29] Files data: data.path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-02 13:50:29] Files fasta: fasta.files.path</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="ExternalReader.html">ExternalReader</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">xx</span><span class="op">$</span><span class="va">extra_args</span> <span class="op">&lt;-</span> <span class="st">"list()"</span></span></span>
 <span class="r-in"><span><span class="va">xx</span><span class="op">$</span><span class="va">get_files</span> <span class="op">&lt;-</span> <span class="st">"prolfquapp::get_dummy_files"</span></span></span>
 <span class="r-in"><span><span class="va">xx</span><span class="op">$</span><span class="va">preprocess</span> <span class="op">&lt;-</span> <span class="st">"prolfquapp::preprocess_dummy"</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">preprocess_software</span><span class="op">(</span><span class="st">"."</span>, annotation <span class="op">=</span> <span class="va">annot</span>, preprocess_functions <span class="op">=</span> <span class="va">xx</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:54] Files data: data.path</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-01 15:25:54] Files fasta: fasta.files.path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-02 13:50:29] Files data: data.path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-02 13:50:29] Files fasta: fasta.files.path</span>
 <span class="r-in"><span><span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="ExternalReader.html">ExternalReader</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

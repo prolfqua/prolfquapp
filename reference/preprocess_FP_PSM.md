@@ -14,6 +14,7 @@ preprocess_FP_PSM(
   purity_threshold = 0.5,
   PeptideProphetProb = 0.9,
   hierarchy_depth = 1,
+  nr_peptides = 1,
   parse_fun = tidy_FragPipe_psm
 )
 ```
