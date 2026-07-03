@@ -338,7 +338,14 @@ list_to_R6_app_config <- function(dd) {
   r6obj_config <- ProlfquAppConfig$new(popR6, psR6, extR6)
   r6obj_config$zipdir_name <- dd$zipdir_name
   r6obj_config$software <- dd$software
-  r6obj_config$group <- dd$group
+  # Only override the "G_" default when the config actually carries a group
+  # prefix. Native configs (e.g. from the A414 app-runner) omit `group`; without
+  # this guard dd$group is NULL and clobbers the default, so run_dea() later
+  # passes prefix = NULL to read_annotation and set_grouping_var crashes with
+  # the cryptic "attempt to select less than one element in OneIndex".
+  if (!is.null(dd$group)) {
+    r6obj_config$group <- dd$group
+  }
   r6obj_config$path <- dd$path
   r6obj_config$prefix <- dd$prefix
   r6obj_config$flat_outdir <- isTRUE(dd$flat_outdir)

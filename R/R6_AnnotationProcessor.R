@@ -671,6 +671,17 @@ read_annotation <- function(
   sample_name_suffix_length = 14L,
   sample_name_display_column = "sampleName"
 ) {
+  # A NULL/empty prefix (e.g. run_dea passing a config whose `group` is unset)
+  # would otherwise reach set_grouping_var as `atable$factors[[prefix]] <- ...`
+  # and fail with the cryptic "attempt to select less than one element in
+  # OneIndex". Fall back to the default and say so loudly.
+  if (is.null(prefix) || length(prefix) != 1L || !nzchar(prefix)) {
+    logger::log_warn(
+      "read_annotation: group prefix is empty/NULL; falling back to \"G_\" ",
+      "(usual cause: config$group is not set)."
+    )
+    prefix <- "G_"
+  }
   res <- AnnotationProcessor$new(
     repeated = repeated,
     SAINT = SAINT,
