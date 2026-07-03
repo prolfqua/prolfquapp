@@ -34,6 +34,8 @@ preprocess_FP_PSM(
 
 \item{hierarchy_depth}{hierarchy depth for aggregation}
 
+\item{nr_peptides}{minimum number of distinct (stripped) peptides per protein (>= 1, default 1)}
+
 \item{parse_fun}{function for parsing PSM files}
 }
 \value{

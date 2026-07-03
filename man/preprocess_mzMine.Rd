@@ -26,6 +26,8 @@ preprocess_mzMine(
 \item{pattern_decoys}{regex pattern for decoys}
 
 \item{annotated}{if TRUE only keep annotated features}
+
+\item{nr_peptides}{accepted for interface uniformity but ignored (mzMine features have one child per protein)}
 }
 \description{
 preprocess mzMine input

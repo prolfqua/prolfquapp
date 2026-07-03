@@ -24,6 +24,7 @@ get_SIM_files <- function(path) {
 #' @param pattern_contaminants regex for contaminant proteins
 #' @param pattern_decoys regex for decoy proteins
 #' @param hierarchy_depth 1 = protein level, 2 = peptide level
+#' @param nr_peptides minimum number of distinct (stripped) peptides per protein (>= 1, default 1)
 #' @return list with \code{lfqdata} (LFQData) and
 #'   \code{protein_annotation} (ProteinAnnotation)
 #' @export

@@ -26,6 +26,8 @@ preprocess_SIM(
 \item{pattern_decoys}{regex for decoy proteins}
 
 \item{hierarchy_depth}{1 = protein level, 2 = peptide level}
+
+\item{nr_peptides}{minimum number of distinct (stripped) peptides per protein (>= 1, default 1)}
 }
 \value{
 list with \code{lfqdata} (LFQData) and

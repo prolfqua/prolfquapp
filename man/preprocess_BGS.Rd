@@ -29,6 +29,8 @@ preprocess_BGS(
 \item{q_value}{q-value threshold for filtering}
 
 \item{hierarchy_depth}{hierarchy depth for aggregation}
+
+\item{nr_peptides}{minimum number of distinct (stripped) peptides per protein (>= 1, default 1)}
 }
 \value{
 list with lfqdata and protein annotation

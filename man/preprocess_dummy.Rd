@@ -23,6 +23,8 @@ preprocess_dummy(
 \item{pattern_contaminants}{regex pattern for contaminants}
 
 \item{pattern_decoys}{regex pattern for decoys}
+
+\item{nr_peptides}{accepted for interface uniformity but ignored (interface stub)}
 }
 \description{
 preprocess_dummy

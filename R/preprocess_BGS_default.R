@@ -98,6 +98,7 @@ dataset_template_BGS <- function(files) {
 #' @param pattern_decoys regex pattern for decoys
 #' @param q_value q-value threshold for filtering
 #' @param hierarchy_depth hierarchy depth for aggregation
+#' @param nr_peptides minimum number of distinct (stripped) peptides per protein (>= 1, default 1)
 #' @return list with lfqdata and protein annotation
 #' @export
 #' @examples

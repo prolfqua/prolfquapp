@@ -26,6 +26,8 @@ preprocess_MQ_peptide(
 \item{pattern_decoys}{regex pattern for decoys}
 
 \item{hierarchy_depth}{hierarchy depth for aggregation}
+
+\item{nr_peptides}{minimum number of distinct (stripped) peptides per protein (>= 1, default 1)}
 }
 \description{
 preprocess MQ peptide

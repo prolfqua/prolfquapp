@@ -11,6 +11,7 @@ get_dummy_files <- function(path) {
 #' @param annotation annotation list from read_annotation
 #' @param pattern_contaminants regex pattern for contaminants
 #' @param pattern_decoys regex pattern for decoys
+#' @param nr_peptides accepted for interface uniformity but ignored (interface stub)
 #' @export
 preprocess_dummy <- function(
   quant_data,

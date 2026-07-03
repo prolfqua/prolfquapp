@@ -361,6 +361,7 @@ dataset_template_MAXQUANT <- function(files) {
 #' @param pattern_contaminants regex pattern for contaminants
 #' @param pattern_decoys regex pattern for decoys
 #' @param hierarchy_depth hierarchy depth for aggregation
+#' @param nr_peptides minimum number of distinct (stripped) peptides per protein (>= 1, default 1)
 #' @export
 #'
 preprocess_MQ_peptide <- function(

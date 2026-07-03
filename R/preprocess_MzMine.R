@@ -173,6 +173,7 @@ get_mzMine_files <- function(path) {
 #' @param pattern_contaminants regex pattern for contaminants
 #' @param pattern_decoys regex pattern for decoys
 #' @param annotated if TRUE only keep annotated features
+#' @param nr_peptides accepted for interface uniformity but ignored (mzMine features have one child per protein)
 #' @export
 #'
 #' @examples

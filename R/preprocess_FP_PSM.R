@@ -505,6 +505,7 @@ get_FP_PSM_files <- function(path) {
 #' @param purity_threshold purity threshold for filtering
 #' @param PeptideProphetProb PeptideProphet probability threshold
 #' @param hierarchy_depth hierarchy depth for aggregation
+#' @param nr_peptides minimum number of distinct (stripped) peptides per protein (>= 1, default 1)
 #' @param parse_fun function for parsing PSM files
 #' @return list with lfqdata and protein annotation
 #' @export
