@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG R_VERSION=4.6.0
+ARG R_VERSION=4.6.1
 
 # Pinned by digest: the r-base tags are mutable and were silently serving R 4.6.0
 # under the 4.5.2 tag, which produced a build-vs-runtime ABI mismatch (packages
