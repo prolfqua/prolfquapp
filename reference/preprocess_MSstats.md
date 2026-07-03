@@ -41,3 +41,8 @@ preprocess_MSstats(
 - hierarchy_depth:
 
   hierarchy depth for aggregation
+
+- nr_peptides:
+
+  minimum number of distinct (stripped) peptides per protein (\>= 1,
+  default 1)

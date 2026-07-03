@@ -42,6 +42,11 @@ preprocess_mzMine(
 
   if TRUE only keep annotated features
 
+- nr_peptides:
+
+  accepted for interface uniformity but ignored (mzMine features have
+  one child per protein)
+
 ## Examples
 
 ``` r

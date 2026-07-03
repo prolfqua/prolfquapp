@@ -47,6 +47,11 @@ preprocess_BGS(
 
   hierarchy depth for aggregation
 
+- nr_peptides:
+
+  minimum number of distinct (stripped) peptides per protein (\>= 1,
+  default 1)
+
 ## Value
 
 list with lfqdata and protein annotation

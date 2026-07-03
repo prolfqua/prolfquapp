@@ -44,6 +44,11 @@ preprocess_SIM(
 
   1 = protein level, 2 = peptide level
 
+- nr_peptides:
+
+  minimum number of distinct (stripped) peptides per protein (\>= 1,
+  default 1)
+
 ## Value
 
 list with `lfqdata` (LFQData) and `protein_annotation`

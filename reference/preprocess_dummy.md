@@ -36,3 +36,7 @@ preprocess_dummy(
 - pattern_decoys:
 
   regex pattern for decoys
+
+- nr_peptides:
+
+  accepted for interface uniformity but ignored (interface stub)

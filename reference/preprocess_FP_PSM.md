@@ -53,6 +53,11 @@ preprocess_FP_PSM(
 
   hierarchy depth for aggregation
 
+- nr_peptides:
+
+  minimum number of distinct (stripped) peptides per protein (\>= 1,
+  default 1)
+
 - parse_fun:
 
   function for parsing PSM files
