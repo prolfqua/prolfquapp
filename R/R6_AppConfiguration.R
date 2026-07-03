@@ -319,6 +319,7 @@ set_list_to_R6 <- function(config_list, r6obj_config) {
 #' stopifnot(config$zipdir_name == configList$zipdir_name)
 #'
 list_to_R6_app_config <- function(dd) {
+  .assert_required_config_fields(dd)
   popR6 <- ProcessingOptions$new()
   pop <- dd$processing_options
   for (i in names(pop)) {
@@ -338,14 +339,7 @@ list_to_R6_app_config <- function(dd) {
   r6obj_config <- ProlfquAppConfig$new(popR6, psR6, extR6)
   r6obj_config$zipdir_name <- dd$zipdir_name
   r6obj_config$software <- dd$software
-  # Only override the "G_" default when the config actually carries a group
-  # prefix. Native configs (e.g. from the A414 app-runner) omit `group`; without
-  # this guard dd$group is NULL and clobbers the default, so run_dea() later
-  # passes prefix = NULL to read_annotation and set_grouping_var crashes with
-  # the cryptic "attempt to select less than one element in OneIndex".
-  if (!is.null(dd$group)) {
-    r6obj_config$group <- dd$group
-  }
+  r6obj_config$group <- dd$group
   r6obj_config$path <- dd$path
   r6obj_config$prefix <- dd$prefix
   r6obj_config$flat_outdir <- isTRUE(dd$flat_outdir)
@@ -354,6 +348,39 @@ list_to_R6_app_config <- function(dd) {
     r6obj_config$set_zipdir_name()
   }
   return(r6obj_config)
+}
+
+
+#' Stop unless a native config carries the fields prolfquapp needs
+#' @param dd parsed native config list (project_spec + processing_options + ...)
+#' @keywords internal
+.assert_required_config_fields <- function(dd) {
+  required <- c(
+    "project_spec$project_Id",
+    "project_spec$order_Id",
+    "project_spec$workunit_Id",
+    "processing_options",
+    "prefix",
+    "group"
+  )
+  has_field <- function(path) {
+    node <- dd
+    for (key in strsplit(path, "$", fixed = TRUE)[[1]]) {
+      node <- node[[key]]
+      if (is.null(node)) {
+        return(FALSE)
+      }
+    }
+    TRUE
+  }
+  missing <- required[!vapply(required, has_field, logical(1))]
+  if (length(missing) > 0) {
+    stop(
+      "config is missing required field(s): ",
+      paste(missing, collapse = ", "),
+      call. = FALSE
+    )
+  }
 }
 
 
