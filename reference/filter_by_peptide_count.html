@@ -15,7 +15,7 @@ columns because only the reader knows which column holds the stripped
 
     <a class="navbar-brand me-2" href="../index.html">prolfquapp</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,7 +106,7 @@ invariant in `AGENTS.md`. Apply this to the long table *before*
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># A has 2 distinct peptides, B has 1, C has 2</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">filter_by_peptide_count</span><span class="op">(</span><span class="va">d</span>, <span class="st">"prot"</span>, <span class="st">"pep"</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co"># drops B</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-03 08:17:24] nr_peptides filter (&gt;= 2 distinct pep per prot): kept 2 / 3 proteins (dropped 1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-07-03 08:59:30] nr_peptides filter (&gt;= 2 distinct pep per prot): kept 2 / 3 proteins (dropped 1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">filter_by_peptide_count</span><span class="op">(</span><span class="va">d</span>, <span class="st">"prot"</span>, <span class="st">"pep"</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="co"># keeps all</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6</span>

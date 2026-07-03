@@ -56,7 +56,7 @@ d <- data.frame(
 )
 # A has 2 distinct peptides, B has 1, C has 2
 nrow(filter_by_peptide_count(d, "prot", "pep", 2)) # drops B
-#> INFO [2026-07-03 08:17:24] nr_peptides filter (>= 2 distinct pep per prot): kept 2 / 3 proteins (dropped 1)
+#> INFO [2026-07-03 08:59:30] nr_peptides filter (>= 2 distinct pep per prot): kept 2 / 3 proteins (dropped 1)
 #> [1] 5
 nrow(filter_by_peptide_count(d, "prot", "pep", 1)) # keeps all
 #> [1] 6
