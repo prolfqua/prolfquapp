@@ -63,7 +63,7 @@ if (requireNamespace("anndataR", quietly = TRUE)) {
 #> completing cases done
 #> setup done
 #> Warning: no exp_nr_children column specified, computing using nr_children_experiment
-#> WARN [2026-07-03 12:28:30] ProteinAnnotation: 6 duplicated 'protein_Id' id(s) collapsed; dropped 0 decoy row(s); 0 resolved by sp| preference; 6 by keep-first.
+#> WARN [2026-07-03 13:40:52] ProteinAnnotation: 6 duplicated 'protein_Id' id(s) collapsed; dropped 0 decoy row(s); 0 resolved by sp| preference; 6 by keep-first.
 #> # A tibble: 1 × 3
 #>   isotopeLabel protein_Id peptide_Id
 #>   <chr>             <int>      <int>

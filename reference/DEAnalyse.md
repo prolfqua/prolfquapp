@@ -237,22 +237,22 @@ data_prep$cont_decoy_summary()
 #>   totalNrOfProteins percentOfContaminants percentOfDecoys
 #> 1               100                     0               0
 data_prep$aggregate()
-#> INFO [2026-07-03 12:28:03] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-07-03 13:40:26] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> completing cases
 #> Column added : exp_medpolish
-#> INFO [2026-07-03 12:28:05] END OF PROTEIN AGGREGATION
+#> INFO [2026-07-03 13:40:27] END OF PROTEIN AGGREGATION
 data_prep$transform_data()
-#> INFO [2026-07-03 12:28:05] Transforming using robscale.
+#> INFO [2026-07-03 13:40:27] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`
-#> INFO [2026-07-03 12:28:05] Transforming data : robscale.
+#> INFO [2026-07-03 13:40:28] Transforming data : robscale.
 
 deanalyse <- data_prep$build_deanalyse(contrasts)
 deanalyse$build_default()
-#> INFO [2026-07-03 12:28:05] model formula: normalized_abundance ~ group_
+#> INFO [2026-07-03 13:40:28] model formula: normalized_abundance ~ group_
 #> Warning: ContrastsLMMissingFacade (method = 'lm_missing') is deprecated: its second leg uses ContrastsMissing (group-mean substitution, no model fit). Prefer 'lm_impute' which refits failed/singular proteins with LOD imputation and borrowed variance, flagging rescued rows as estimate_type 'lod_imputed'. See ?ContrastsLMMissingFacade for migration.
 #> determine linear functions:
 #> get_contrasts -> contrasts_linfct
