@@ -1,13 +1,19 @@
 test_package_path <- function() {
-  source_path <- Sys.getenv("PROLFQUAPP_SOURCE_PATH", unset = "")
-  if (
-    nzchar(source_path) && file.exists(file.path(source_path, "DESCRIPTION"))
-  ) {
-    return(normalizePath(source_path, mustWork = TRUE))
-  }
   wd <- normalizePath(getwd(), mustWork = TRUE)
-  if (file.exists(file.path(wd, "DESCRIPTION"))) {
-    return(wd)
+  current <- wd
+  repeat {
+    description <- file.path(current, "DESCRIPTION")
+    if (file.exists(description)) {
+      desc <- read.dcf(description)
+      if (identical(unname(desc[1, "Package"]), "prolfquapp")) {
+        return(current)
+      }
+    }
+    parent <- dirname(current)
+    if (identical(parent, current)) {
+      break
+    }
+    current <- parent
   }
   package_path <- normalizePath(
     file.path(system.file(package = "prolfquapp"), ".."),
@@ -23,9 +29,9 @@ test_package_path <- function() {
 }
 
 test_template_dir <- function() {
-  source_path <- Sys.getenv("PROLFQUAPP_SOURCE_PATH", unset = "")
-  source_template_dir <- file.path(source_path, "inst", "templates", "quarto")
-  if (nzchar(source_path) && dir.exists(source_template_dir)) {
+  package_path <- test_package_path()
+  source_template_dir <- file.path(package_path, "inst", "templates", "quarto")
+  if (dir.exists(source_template_dir)) {
     return(normalizePath(source_template_dir, mustWork = TRUE))
   }
   system.file("templates/quarto", package = "prolfquapp")
@@ -135,7 +141,9 @@ test_that("SE Quarto templates render with reconstructed LFQData", {
   skip_if(Sys.which("quarto") == "", "Quarto CLI not installed")
   skip_if_not_installed("devtools")
   skip_if_not_installed("DT")
+  skip_if_not_installed("fgczquartotemplate")
   skip_if_not_installed("gridExtra")
+  skip_if_not_installed("plotly")
 
   dea <- prolfquapp::example_deanalyse(Nprot = 12)
   reporter <- prolfquapp::DEAReportGenerator$new(dea, dea$prolfq_app_config)
@@ -152,27 +160,11 @@ test_that("SE Quarto templates render with reconstructed LFQData", {
   se_file <- file.path(workdir, "SummarizedExperiment.rds")
   saveRDS(se, se_file)
 
-  support_files <- c("_fgcz-report.yml", "fgcz_header_quarto.html")
-  report_files <- "Grp2Analysis_V2_SE.qmd"
-  file.copy(file.path(template_dir, c(support_files, report_files)), workdir)
+  report_files <- "Grp2Analysis_V2_SE_tabset.qmd"
+  file.copy(file.path(template_dir, report_files), workdir)
+  fgczquartotemplate::fgcz_copy_assets(workdir)
 
   package_path <- test_package_path()
-
-  r_profile <- file.path(workdir, ".Rprofile")
-  writeLines(
-    c(
-      "source_path <- Sys.getenv('PROLFQUAPP_SOURCE_PATH')",
-      "r_dir <- file.path(source_path, 'R')",
-      "is_source <- nzchar(source_path) &&",
-      "  file.exists(file.path(source_path, 'DESCRIPTION')) &&",
-      "  dir.exists(r_dir) &&",
-      "  length(list.files(r_dir, pattern = '[.]R$')) > 0",
-      "if (is_source) {",
-      "  suppressPackageStartupMessages(devtools::load_all(source_path, quiet = TRUE))",
-      "}"
-    ),
-    r_profile
-  )
 
   oldwd <- setwd(workdir)
   on.exit(setwd(oldwd), add = TRUE)
@@ -184,11 +176,9 @@ test_that("SE Quarto templates render with reconstructed LFQData", {
         "render",
         report_file,
         "-P",
-        paste0("se_file:", normalizePath(se_file))
-      ),
-      env = c(
-        paste0("PROLFQUAPP_SOURCE_PATH=", package_path),
-        paste0("R_PROFILE_USER=", r_profile)
+        paste0("se_file:", normalizePath(se_file)),
+        "-P",
+        paste0("prolfquapp_source_path:", package_path)
       ),
       stdout = TRUE,
       stderr = TRUE
@@ -216,7 +206,9 @@ test_that("internal SE Quarto report helper renders HTML", {
   skip_if(Sys.which("quarto") == "", "Quarto CLI not installed")
   skip_if_not_installed("devtools")
   skip_if_not_installed("DT")
+  skip_if_not_installed("fgczquartotemplate")
   skip_if_not_installed("gridExtra")
+  skip_if_not_installed("plotly")
 
   dea <- prolfquapp::example_deanalyse(Nprot = 12)
   reporter <- prolfquapp::DEAReportGenerator$new(dea, dea$prolfq_app_config)
@@ -232,31 +224,13 @@ test_that("internal SE Quarto report helper renders HTML", {
 
   package_path <- test_package_path()
 
-  r_profile <- file.path(workdir, ".Rprofile")
-  writeLines(
-    c(
-      "source_path <- Sys.getenv('PROLFQUAPP_SOURCE_PATH')",
-      "r_dir <- file.path(source_path, 'R')",
-      "is_source <- nzchar(source_path) &&",
-      "  file.exists(file.path(source_path, 'DESCRIPTION')) &&",
-      "  dir.exists(r_dir) &&",
-      "  length(list.files(r_dir, pattern = '[.]R$')) > 0",
-      "if (is_source) {",
-      "  suppressPackageStartupMessages(devtools::load_all(source_path, quiet = TRUE))",
-      "}"
-    ),
-    r_profile
-  )
-
   html_file <- prolfquapp:::render_quarto_se_report(
     se_file = se_file,
     output_dir = workdir,
     output_file = "helper-report.html",
     template_dir = test_template_dir(),
-    env = c(
-      paste0("PROLFQUAPP_SOURCE_PATH=", package_path),
-      paste0("R_PROFILE_USER=", r_profile)
-    )
+    prolfquapp_source_path = package_path,
+    buttons = TRUE
   )
 
   expect_equal(file.exists(html_file), TRUE)
@@ -265,4 +239,5 @@ test_that("internal SE Quarto report helper renders HTML", {
   expect_match(html, "Differential Abundance Analysis", fixed = TRUE)
   expect_match(html, "Feature Detection", fixed = TRUE)
   expect_match(html, "Result Table", fixed = TRUE)
+  expect_match(html, "fgcz-pf-toolbar", fixed = TRUE)
 })

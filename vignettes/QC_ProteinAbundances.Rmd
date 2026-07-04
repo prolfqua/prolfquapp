@@ -54,7 +54,7 @@ project_info <- params$project_info
 - Order : `r project_info$order_Id`
 - Workunit : `r project_info$workunit_Id`
 
-```{r hierachycountspersample, fig.cap="Number of proteins per Sample."}
+```{r hierachycountspersample, fig.cap="Number of proteins quantified per sample."}
 srs <- lfqdataProt$get_Summariser()
 srs$plot_hierarchy_counts_sample()
 ```
@@ -64,7 +64,7 @@ protID <- tableconfig$hierarchy_keys_depth()
 
 precabund <- pap$get_protein_per_group_abundance()
 if (!factors) {
-  precabund <- dplyr::filter(precabund , !!sym(tableconfig$factor_keys()[1]) == "ALL")
+  precabund <- dplyr::filter(precabund, !!sym(tableconfig$factor_keys()[1]) == "ALL")
 }
 
 
@@ -74,9 +74,10 @@ pp <- prolfquapp::plot_abundance_vs_percent(
   cfg_config = tableconfig,
   top_N = NULL,
   factors = factors,
-  colors = c("^zz" = "red","Y-FGCZ" = "red"),
+  colors = c("^zz" = "red", "Y-FGCZ" = "red"),
   columnAb = "abundance_percent",
-  alpha = 0.4, logY = TRUE)
+  alpha = 0.4,
+  logY = TRUE)
 pp <- plotly::ggplotly(pp)
 ```
 
@@ -94,22 +95,24 @@ table <- DT::datatable(
   extensions = "Scroller",
   style = "auto",
   class = "compact",
-  options = list(deferRender = TRUE,
-                 scrollY = 300,
-                 scrollX = 400,
-                 scroller = TRUE))
+  options = list(
+    deferRender = TRUE,
+    scrollY = 300,
+    scrollX = 400,
+    scroller = TRUE
+  ))
 
 
 ```
 
-The columns of the table below contains:
+The columns of the table below contain:
 
 - protein_Id - protein identifier
-- nrPeptides - nr of peptides per protein
-- description - protein description from fasta header
-- nrMeasured_<GroupName> - How often a protein was observed in each of the groups and overall
-- meanAbundance_<GroupName> - average protein abundance (see 1. at the bottom of the document) per group.
-- signal_percent_<GroupName> - percent of the total signal of all identified proteins measured by the mass spectrometric instrument attributed to each protein.
+- nrPeptides - number of peptides assigned to the protein
+- description - protein description from the FASTA header
+- nrMeasured_<GroupName> - number of samples in which the protein was quantified, by group and overall
+- meanAbundance_<GroupName> - mean protein abundance per group
+- signal_percent_<GroupName> - percentage of the total protein signal attributed to the protein
 
 
 
@@ -120,10 +123,10 @@ table
 ```
 
 
-(ref:proteinCumulative) The Y axis presents the percentage of the iBAQ (intensity Based Absolute Quantitation) of each protein. Along the X axis, proteins are organized in ascending order according to their signal proportions.
+(ref:proteinCumulative) Protein-level signal contribution. Each point represents one protein. Proteins are ordered on the x-axis by their contribution to the total signal; the y-axis shows the percentage of the total iBAQ (intensity-based absolute quantification) signal attributed to each protein.
 
 
-Calculating the iBAQ signal per protein involves summing the `Precursor.Quantity` values across all precursors associated with that protein and dividing by the number of theoretically observable peptides of the protein. An intriguing observation is that a significant share of the mass spectrometers recorded signal (Y-axis) is allocated to a limited set of highly abundant proteins. Notably, when the most abundant proteins correspond to entities like the cleavage enzyme, typical contaminants such as human keratins, or the bait protein, this situation could indicate shortcomings in the sample processing.
+The iBAQ signal per protein is calculated by summing the `Precursor.Quantity` values across all precursors assigned to the protein and dividing by the number of theoretically observable peptides. A large share of the recorded signal can be concentrated in a small set of highly abundant proteins. If the dominant proteins are the cleavage enzyme, common contaminants such as human keratins, or the bait protein, this can indicate shortcomings in sample preparation or cleanup.
 
 
 ```{r proteinCumulative, fig.cap = "(ref:proteinCumulative)"}
@@ -157,6 +160,4 @@ pplotPepAbund <- plotly::ggplotly(pplotPepAbund)
 ```{r nrProtplots, fig.cap = "(ref:nrProtplots)", eval = FALSE, include=FALSE}
 pplotPepAbund
 ```
-
-
 

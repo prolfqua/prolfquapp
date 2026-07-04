@@ -75,8 +75,8 @@ out <- tempfile("qmd_check_")
 dir.create(out, recursive = TRUE)
 se <- system.file("extdata", "3106962.rds", package = "prolfquapp", mustWork = TRUE)
 prolfquapp:::render_quarto_se_report(se_file = se, output_dir = out)
-stopifnot(file.exists(file.path(out, "Grp2Analysis_V2_SE.html")))
-cat("Quarto SE report rendered OK ->", file.path(out, "Grp2Analysis_V2_SE.html"), "\n")
+stopifnot(file.exists(file.path(out, "Grp2Analysis_V2_SE_tabset.html")))
+cat("Quarto SE report rendered OK ->", file.path(out, "Grp2Analysis_V2_SE_tabset.html"), "\n")
 EOF
 
 RUN Rscript /tmp/check_vignettes.R \

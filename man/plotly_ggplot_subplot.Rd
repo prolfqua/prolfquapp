@@ -11,6 +11,8 @@ plotly_ggplot_subplot(
   titleX = TRUE,
   titleY = TRUE,
   margin = 0.05,
+  width = "100\%",
+  height = NULL,
   legend_groupclick = "togglegroup"
 )
 }
@@ -24,6 +26,9 @@ plotly_ggplot_subplot(
 \item{titleX, titleY}{Logical values passed to `plotly::subplot()`.}
 
 \item{margin}{Numeric margin passed to `plotly::subplot()`.}
+
+\item{width, height}{Optional htmlwidget width and height. Use `width = "100%"`
+and a pixel `height` to control Plotly sizing in Quarto reports.}
 
 \item{legend_groupclick}{Plotly legend group click behaviour. Use `NULL` to
 leave the Plotly default unchanged.}

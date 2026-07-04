@@ -10,6 +10,8 @@
 #' @param nrows Number of subplot rows passed to `plotly::subplot()`.
 #' @param titleX,titleY Logical values passed to `plotly::subplot()`.
 #' @param margin Numeric margin passed to `plotly::subplot()`.
+#' @param width,height Optional htmlwidget width and height. Use `width = "100%"`
+#'   and a pixel `height` to control Plotly sizing in Quarto reports.
 #' @param legend_groupclick Plotly legend group click behaviour. Use `NULL` to
 #'   leave the Plotly default unchanged.
 #' @return A Plotly htmlwidget.
@@ -29,6 +31,8 @@ plotly_ggplot_subplot <- function(
     titleX = TRUE,
     titleY = TRUE,
     margin = 0.05,
+    width = "100%",
+    height = NULL,
     legend_groupclick = "togglegroup") {
   if (!requireNamespace("plotly", quietly = TRUE)) {
     stop(
@@ -42,13 +46,7 @@ plotly_ggplot_subplot <- function(
     stop("At least one plot must be supplied.", call. = FALSE)
   }
 
-  plotly_plots <- lapply(plots, function(plot) {
-    if (inherits(plot, "plotly")) {
-      plot
-    } else {
-      plotly::ggplotly(plot)
-    }
-  })
+  plotly_plots <- lapply(plots, .as_sized_plotly, width = width, height = height)
 
   plotly_obj <- do.call(
     plotly::subplot,
@@ -59,10 +57,35 @@ plotly_ggplot_subplot <- function(
   )
   plotly_obj <- .deduplicate_plotly_legend(plotly_obj, showlegend = showlegend)
 
-  if (is.null(legend_groupclick)) {
-    return(plotly_obj)
+  if (!is.null(legend_groupclick)) {
+    plotly_obj <- plotly::layout(plotly_obj, legend = list(groupclick = legend_groupclick))
   }
-  plotly::layout(plotly_obj, legend = list(groupclick = legend_groupclick))
+  .set_plotly_widget_size(plotly_obj, width = width, height = height)
+}
+
+.as_sized_plotly <- function(plot, width = NULL, height = NULL) {
+  if (inherits(plot, "plotly")) {
+    return(.set_plotly_widget_size(plot, width = width, height = height))
+  }
+
+  ggplotly_args <- list(p = plot)
+  if (!is.null(width) && is.numeric(width)) {
+    ggplotly_args$width <- width
+  }
+  if (!is.null(height)) {
+    ggplotly_args$height <- height
+  }
+  do.call(plotly::ggplotly, ggplotly_args)
+}
+
+.set_plotly_widget_size <- function(plotly_obj, width = NULL, height = NULL) {
+  if (!is.null(width)) {
+    plotly_obj$width <- width
+  }
+  if (!is.null(height)) {
+    plotly_obj$height <- height
+  }
+  plotly_obj
 }
 
 .deduplicate_plotly_legend <- function(plotly_obj, showlegend = TRUE) {

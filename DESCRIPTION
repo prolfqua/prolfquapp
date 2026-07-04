@@ -17,6 +17,7 @@ Description: The prolfquapp is a user-friendly application to streamline protein
 URL: https://prolfqua.github.io/prolfquapp/, https://github.com/prolfqua/prolfquapp
 BugReports: https://github.com/prolfqua/prolfquapp/issues
 Remotes:
+    github::prolfqua/fgczquartotemplate,
     github::fgcz/prolfqua,
     github::prolfqua/prolfquasaint
 License: MIT + file LICENSE
@@ -29,12 +30,14 @@ Imports:
   data.table,
   dplyr,
   dtplyr,
+  fgczquartotemplate,
   ggplot2,
   ggrepel,
   lobstr,
   logger,
   optparse,
   pander,
+  plotly,
   prolfqua,
   purrr,
   readr,
@@ -64,7 +67,6 @@ Suggests:
   knitr,
   lintr,
   pkgdown,
-  plotly,
   prolfquasaint,
   rcmdcheck,
   rmarkdown,

@@ -1,21 +1,43 @@
 ---
 title: "Differential Abundance Analysis"
-metadata-files:
-  - _fgcz-report.yml
 params:
   se_file: "../../extdata/3106962.rds"
+  prolfquapp_source_path: null
   fdr_threshold: 0.05
   diff_threshold: 1
 ---
 
 ```{r setup}
 #| include: false
+source_path <- params$prolfquapp_source_path
+if (!is.null(source_path) && length(source_path) == 1 && !is.na(source_path) && nzchar(source_path)) {
+  r_dir <- file.path(source_path, "R")
+  description <- file.path(source_path, "DESCRIPTION")
+  package_name <- if (file.exists(description)) {
+    unname(read.dcf(description)[1, "Package"])
+  } else {
+    NA_character_
+  }
+  is_source <- file.exists(file.path(source_path, "DESCRIPTION")) &&
+    identical(package_name, "prolfquapp") &&
+    dir.exists(r_dir) &&
+    length(list.files(r_dir, pattern = "[.]R$")) > 0
+  if (!is_source) {
+    stop("`prolfquapp_source_path` does not point to a prolfquapp source tree.", call. = FALSE)
+  }
+  if (!requireNamespace("devtools", quietly = TRUE)) {
+    stop("Package 'devtools' is required when `prolfquapp_source_path` is set.", call. = FALSE)
+  }
+  suppressPackageStartupMessages(devtools::load_all(source_path, quiet = TRUE))
+}
+
 required_packages <- c(
   "DT",
   "dplyr",
   "ggplot2",
   "grid",
   "gridExtra",
+  "plotly",
   "prolfqua",
   "prolfquapp",
   "tibble",
@@ -417,20 +439,27 @@ grid::grid.draw(combined_missing)
 
 ```{r}
 #| label: fig-abundance-density
-#| fig-cap: "Raw and transformed abundance distributions."
-#| fig-width: 10
+#| fig-cap: "Raw and transformed abundance distributions. Each curve represents one sample; the x-axes show raw abundance and transformed intensity, and the y-axes show kernel density."
+#| fig-width: 12
 #| fig-height: 5
+#| out-width: "100%"
 raw_density <- safe_plot(
   lfq_raw$get_Plotter()$intensity_distribution_density(),
   "Could not draw raw abundance density."
-)
+) +
+  ggplot2::labs(tag = "A")
 trans_density <- safe_plot(
   lfq_transformed$get_Plotter()$intensity_distribution_density(),
   "Could not draw transformed abundance density."
-)
+) +
+  ggplot2::labs(tag = "B")
 save_if_ggplot(raw_density, "raw_abundance_density")
 save_if_ggplot(trans_density, "transformed_abundance_density")
-gridExtra::grid.arrange(raw_density, trans_density, nrow = 1)
+prolfquapp::plotly_ggplot_subplot(
+  raw_density,
+  trans_density,
+  height = 520
+)
 ```
 
 ## Variance
