@@ -8,4 +8,5 @@
   if (requireNamespace("prolfquasaint", quietly = TRUE)) {
     invisible(NULL)
   }
+  invisible()
 }

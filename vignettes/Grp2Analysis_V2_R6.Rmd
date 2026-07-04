@@ -257,7 +257,7 @@ if (cfg$processing_options$transform == "robscale") {
 
 (ref:normalized) Kernel density function showing the distribution of protein abundances in all samples. Left panel: Empirical protein abundance of all samples in the dataset. Right panel: Normalized empirical protein abundances of all samples in the dataset.
 
-```{r normalized,  fig.width=8, fig.height=5,dpi=300, fig.cap="(ref:normalized)",fig.alt="", eval=TRUE}
+```{r normalized, fig.width=8, fig.height=5, fig.cap="(ref:normalized)", fig.alt="", eval=TRUE}
 
 pl <- dea$lfq_data_raw$get_Plotter()
 showlegend <- nrow(dea$lfq_data_raw$factors()) <= 12
@@ -266,14 +266,7 @@ p1 <- pl$intensity_distribution_density(legend = showlegend)
 plTransformed <- dea$lfq_data$get_Plotter()
 p2 <- plTransformed$intensity_distribution_density(legend = showlegend)
 
-# Interactive density plots via plotly/ggplotly. Left panel: empirical
-# abundances; right: transformed + normalized abundances. Hover a curve for the
-# per-sample density; the legend toggles individual samples.
-plotly::subplot(
-  plotly::ggplotly(p1),
-  plotly::ggplotly(p2),
-  nrows = 1, titleX = TRUE, titleY = TRUE, margin = 0.05
-)
+prolfquapp::plotly_ggplot_subplot(p1, p2, showlegend = showlegend)
 
 ```
 

@@ -16,12 +16,27 @@ example_deanalyse <- function(Nprot = 100) {
 
   pA <- data.frame(protein_Id = unique(pep$data_long()$protein_Id))
   pA$description <- paste0(pA$protein_Id, "_description")
+  pA <- dplyr::left_join(
+    pA,
+    prolfqua::nr_children_experiment(
+      pep$data_long(),
+      response = pep$response(),
+      hierarchy_keys_depth = pep$hierarchy_keys()[1],
+      file_name = pep$file_name(),
+      nr_children_col = pep$nr_children_col(),
+      name_nr_child = "nr_peptides"
+    ),
+    by = "protein_Id"
+  )
   pA <- ProteinAnnotation$new(pep, row_annot = pA, description = "description")
 
   # Write into a unique temp dir so the example/config never points at the
   # working directory (avoids leaving DEA_<date>_none dirs when a consumer
   # such as DEAReportGenerator creates the output folder).
-  GRP2 <- make_DEA_config_R6(PATH = tempfile("prolfquapp-example-"))
+  GRP2 <- make_DEA_config_R6(
+    PATH = tempfile("prolfquapp-example-"),
+    model = "lm_impute"
+  )
   GRP2$processing_options$diff_threshold <- 0.2
   GRP2$processing_options$transform <- "robscale"
 

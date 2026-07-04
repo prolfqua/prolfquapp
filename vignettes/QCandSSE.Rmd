@@ -83,6 +83,7 @@ string_translations <- list(
   )
 )
 strings <- string_translations[[params$target_type]]
+
 ```
 
 \clearpage
@@ -96,7 +97,7 @@ strings <- string_translations[[params$target_type]]
 <!--This document does not contain any specific conclusion since it was generated automatically. Hence, please discuss this document with your project bioinformatician/statistician which typically is not the project coach.-->
 
 We did run your samples through the same analysis pipeline, which will be applied in the main experiment.
-This document summarizes the `r strings[["target"]]` variability to asses the reproducibility of the biological samples and estimates the sample sizes needed for the main experiment. 
+This document summarizes the `r strings[["target"]]` variability to assess the reproducibility of the biological samples and estimates the sample sizes needed for the main experiment.
 
 
 # Quality Control: Identifications and Quantifications
@@ -140,7 +141,7 @@ nrSamples <- nrow(lfqdata$factors())
 width = max(8, nrSamples*0.2)
 ```
 
-(ref:hierarchyCountsSampleBarplot) Number of quantified `r strings[["targets"]]` per sample.
+(ref:hierarchyCountsSampleBarplot) Number of quantified `r strings[["targets"]]` per sample. Each bar represents one LC-MS sample and the y-axis shows the count of quantified `r strings[["targets"]]`.
 
 
 ```{r hierarchyCountsSampleBarplot, fig.cap="(ref:hierarchyCountsSampleBarplot)", fig.width=width, fig.height=6}
@@ -148,7 +149,7 @@ summarizer <- lfqdata$get_Summariser()
 summarizer$plot_hierarchy_counts_sample()
 ```
 
-(ref:hierarchyCountsSample) The plot shows the relationships between sets of `r strings[["targets"]]` through their intersections, as well as the size of each set. The elements that are present in each intersection are shown as circles or dots in the matrix, and the size of each set is represented by the height of the corresponding row.
+(ref:hierarchyCountsSample) Overlap of quantified `r strings[["targets"]]` across samples. Bars show set and intersection sizes, and filled dots mark which samples contribute to each intersection.
 
 ```{r upsetMissing, fig.width=9, fig.height=9, fig.cap="(ref:hierarchyCountsSample)"}
 plotter <- lfqdata$get_Plotter()
@@ -164,7 +165,7 @@ Ideally, we identify each `r strings[["target"]]` in all of the samples. However
 height <- max(7, nrSamples * 0.1)
 ```
 
-(ref:missingFigIntensityHistorgram) Top - intensity distribution of `r strings[["targets"]]` with 0, 1 etc. missing values. B - number of `r strings[["targets"]]` with 0, 1, 2 etc. missing value.
+(ref:missingFigIntensityHistorgram) Missing-value structure across `r strings[["target"]]` quantifications. The upper panel shows intensity distributions grouped by the number of missing values, and the lower panels show counts and cumulative counts of missing values per group.
 
 ```{r missingFigIntensityHistorgram, fig.width=height, fig.height=height, fig.cap="(ref:missingFigIntensityHistorgram)"}
 
@@ -175,7 +176,7 @@ gridExtra::grid.arrange(p, xx3, xx4, ncol = 1)
 
 ```
 
-(ref:missingnessHeatmap) Heatmap of missing `r strings[["target"]]` quantifications clustered by sample.
+(ref:missingnessHeatmap) Missing `r strings[["target"]]` quantifications clustered by sample. Rows are `r strings[["targets"]]`, columns are samples, and the heatmap marks observed and missing measurements.
 
 ```{r preparemissingnessHeatmap, include=FALSE}
 pNAmap <- plotter$na_heatmap()
@@ -193,14 +194,38 @@ print(pNAmap)
 show_text <- !lfqdata$is_transformed()
 ```
 
-```{r variability, eval = show_text, results='asis' }
-cat("## Variablity of the raw intensities\n\n")
+```{r transformIntensities, include = FALSE}
+if (show_text) {
+  tr <- lfqdata$get_Transformer()
+  n_samples <- length(unique(lfqdata$data_long()[[lfqdata$sample_name()]]))
+  if (n_samples < 2) {
+    logger::log_warn("vsn requires >= 2 samples, falling back to log2 transformation.")
+    tr$log2()
+  } else {
+    tr$intensity_matrix(.func = vsn::justvsn)
+  }
+  dataTransformed <- tr$lfq
+} else {
+  dataTransformed <- lfqdata
+}
+plotter_transformed <- dataTransformed$get_Plotter()
+```
 
-cat("Without applying any intensity scaling and data preprocessing, the ", strings[["target"]], " intensities in all samples should be similar. To assess this we plotted the distribution of the ", strings[["target"]], " intensities in the samples (Figure \\@ref(fig:plotDistributions)) as well as the distribution of the coefficient of variation CV for all ", strings[["targets"]], " in the samples (Figure \\@ref(fig:intensityDistribution)). Table \\@ref(tab:printTable) summarises the CV.")
+```{r variability, eval = show_text, results='asis' }
+cat("## Variability of raw intensities\n\n")
+
+cat(
+  "Before intensity scaling and preprocessing, the ", strings[["target"]],
+  " intensities should have comparable distributions across samples. We assess ",
+  "this with ", strings[["target"]], "-level coefficient of variation (CV) densities ",
+  "(Figure \\@ref(fig:plotDistributions)) and sample-level raw versus transformed ",
+  "intensity distributions (Figure \\@ref(fig:intensityDistribution)). ",
+  "Table \\@ref(tab:printTable) summarizes CV quantiles."
+)
 
 ```
 
-(ref:plotDistributions) Density plot of `r strings[["target"]]` level Coefficient of Variations (CV).
+(ref:plotDistributions) Distribution of `r strings[["target"]]`-level coefficients of variation (CV) before transformation. The left panel shows CV densities by group, and the right panel splits `r strings[["targets"]]` into below- and above-median abundance strata.
 
 ```{r plotDistributions, fig.cap="(ref:plotDistributions)", fig.height=6, fig.width=8 , eval = show_text}
 
@@ -210,14 +235,14 @@ if ( moreThanOneSample ) {
   stats <- lfqdata$get_Stats()
   if (params$plot_density) {
     p1 <- stats$density() +
+      ggplot2::labs(title = "All quantified targets", x = "CV", y = "density") +
       ggplot2::labs(tag = "A") +
-      ggplot2::xlim(0, 150) #+
-    #ggplot2::theme(legend.position = "none")
+      ggplot2::xlim(0, 150)
     p2 <- stats$density_median() +
+      ggplot2::labs(title = "Below and above median abundance", x = "CV", y = "density") +
       ggplot2::labs(tag = "B") +
-      ggplot2::xlim(0, 150) +
-      ggplot2::theme(legend.position = "bottom")
-    gridExtra::grid.arrange(p1,p2)
+      ggplot2::xlim(0, 150)
+    prolfquapp::plotly_ggplot_subplot(p1, p2)
   } else {
     p1 <- stats$violin() + ggplot2::labs(tag = 'A')
     p2 <- stats$violin_median() + ggplot2::labs(tag = 'B')
@@ -227,13 +252,6 @@ if ( moreThanOneSample ) {
 
 
 ```
-
-```{r eval=show_text}
-if (params$plot_sd_vs_mean) {
-  p0 <- stats$stdv_vs_mean() + ggplot2::labs(tag = 'A')
-}
-```
-
 
 ```{r computeCVQuantiles, include=FALSE, eval = show_text}
 cv_quantiles_res <- stats$stats_quantiles(probs = c(0.5, 0.6, 0.7, 0.8, 0.9))$wide
@@ -247,59 +265,39 @@ prolfqua::table_facade(cv_quantiles_res,
 
 ```
 
-```{r intensityDistribution, fig.cap="Distribution of unnormalized intensities.",fig.height = 6, fig.width=width, eval = show_text }
-if (params$plot_density) {
-  p0 <- plotter$intensity_distribution_density() + 
-    ggplot2::theme(legend.text = ggplot2::element_text(size = 5))
-  p0
-} else{
-  p1 <- plotter$intensity_distribution_violin()
-  p1
-}
-
-```
-
-
 ## Variability of transformed intensities
 
-We applied the `vsn::justvsn` normalization to the data, which should remove systematic differences among the samples and reduce the variance within the groups (Figure \@ref(fig:plotTransformedIntensityDistributions)). Because of this transformation, we can't report $CV's$ anymore but report standard deviations ($sd$). Figure \@ref(fig:sdviolinplots) shows the distribution of the `r strings[["target"]]` standard deviations while Figure \@ref(fig:sdecdf) shows the empirical cumulative distribution function ($ecdf$). Table \@ref(tab:printSDTable) summarises the $sd$. The heatmap in Figure \@ref(fig:correlationHeat) shows the correlation among the QC samples.
+We applied the `vsn::justvsn` normalization to the data, which should remove systematic differences among the samples and reduce the variance within the groups. Figure \@ref(fig:intensityDistribution) shows the sample-level intensity distributions before and after transformation. Because of this transformation, we cannot report CVs on the transformed scale and instead report standard deviations (SD). Figure \@ref(fig:sdviolinplots) shows the distribution of `r strings[["target"]]` SDs, Figure \@ref(fig:sdecdf) shows their empirical cumulative distribution function (ECDF), and Table \@ref(tab:printSDTable) summarizes SD quantiles. The heatmap in Figure \@ref(fig:correlationHeat) shows correlations among the QC samples.
 
 
-```{r transformIntensities}
-if (show_text) {
-  tr <- lfqdata$get_Transformer()
-  n_samples <- length(unique(lfqdata$data_long()[[lfqdata$sample_name()]]))
-  if (n_samples < 2) {
-    logger::log_warn("vsn requires >= 2 samples, falling back to log2 transformation.")
-    tr$log2()
-  } else {
-    tr$intensity_matrix(.func = vsn::justvsn)
-  }
-  dataTransformed <- tr$lfq
-} else{
-  dataTransformed <- lfqdata
-}
+(ref:intensityDistribution) Sample-level intensity distributions before and after transformation. The left panel shows raw `r strings[["target"]]` intensities, the right panel shows transformed intensities, and each curve or violin represents one sample.
 
-```
-
-
-(ref:plotTransformedIntensityDistributions) `r strings[["target"]]` intensity distribution after transformation.
-
-```{r plotTransformedIntensityDistributions, fig.cap="(ref:plotTransformedIntensityDistributions)", fig.height = 6, fig.width= width}
-plotter <- dataTransformed$get_Plotter()
-
+```{r intensityDistribution, fig.cap="(ref:intensityDistribution)", fig.height = 5, fig.width=8, eval = show_text}
 if (params$plot_density) {
-  plotter$intensity_distribution_density() + 
+  raw_intensity <- lfqdata$get_Plotter()$intensity_distribution_density() +
+    ggplot2::labs(title = "Raw intensities") +
     ggplot2::theme(legend.text = ggplot2::element_text(size = 5))
+  transformed_intensity <- plotter_transformed$intensity_distribution_density() +
+    ggplot2::labs(title = "Transformed intensities") +
+    ggplot2::theme(legend.text = ggplot2::element_text(size = 5))
+  prolfquapp::plotly_ggplot_subplot(
+    raw_intensity,
+    transformed_intensity,
+    showlegend = nrow(lfqdata$factors()) <= 12
+  )
 } else {
-  plotter$intensity_distribution_violin()
+  raw_intensity <- lfqdata$get_Plotter()$intensity_distribution_violin() +
+    ggplot2::labs(title = "Raw intensities")
+  transformed_intensity <- plotter_transformed$intensity_distribution_violin() +
+    ggplot2::labs(title = "Transformed intensities")
+  gridExtra::grid.arrange(raw_intensity, transformed_intensity, ncol = 2)
 }
 ```
 
-(ref:correlationHeat) Heatmap of `r strings[["target"]]` intensity correlation between samples.
+(ref:correlationHeat) Sample correlation heatmap after transformation. Rows and columns are samples, and colours encode pairwise correlations of transformed `r strings[["target"]]` intensities.
 
 ```{r preparecorrelationHeat, include= FALSE}
-chmap <- plotter$heatmap_cor()
+chmap <- plotter_transformed$heatmap_cor()
 width <- max(8, nrSamples * 0.15)
 ```
 
@@ -308,54 +306,49 @@ print(chmap)
 ```
 
 
-```{r pairsplotSmooth, fig.cap = "Pairsplot - scatterplot of samples.", fig.height=12, fig.width=12}
-plotter$pairs_smooth(max = 10)
+```{r pairsplotSmooth, fig.cap = "Pairwise scatter plots of transformed sample intensities. Each panel compares two samples, and smoothed trends show agreement between samples.", fig.height=12, fig.width=12}
+invisible(plotter_transformed$pairs_smooth(max = 10))
 ```
 
 
 
 
-(ref:sdviolinplots) Visualization of `r strings[["target"]]` standard deviations. A) all. B) - for low (bottom 50) and high intensity (top 50).
+(ref:sdviolinplots) Distribution of `r strings[["target"]]` standard deviations after transformation. The left panel shows SD densities by group, and the right panel splits `r strings[["targets"]]` into below- and above-median abundance strata.
 
 ```{r sdviolinplots,fig.cap="(ref:sdviolinplots)", fig.height=6, fig.width=8}
 
 st <- dataTransformed$get_Stats()
 
 if (params$plot_density) {
-  p1 <- st$density()
+  p1 <- st$density() +
+    ggplot2::labs(title = "All quantified targets", tag = "A", x = "SD", y = "density")
+  p2 <- st$density_median() +
+    ggplot2::labs(title = "Below and above median abundance", tag = "B", x = "SD", y = "density")
+  prolfquapp::plotly_ggplot_subplot(p1, p2)
+} else {
+  p1 <- st$violin() +
     ggplot2::labs(tag = "A") +
     ggplot2::theme(legend.position = "none")
-  p2 <-
-    st$density_median() +
+  p2 <- st$violin_median() +
     ggplot2::labs(tag = "B") +
     ggplot2::theme(legend.position = "bottom")
   gridExtra::grid.arrange(p1, p2)
-} else {
-  p1 <- st$violin() + 
-    ggplot2::labs(tag = "A")
-  p2 <- st$violin_median()  + 
-    ggplot2::labs(tag = "B")
-  gridExtra::grid.arrange(p1, p2)
 }
 ```
 
 
-(ref:sdecdf) Visualization of `r strings[["target"]]` standard deviations as empirical cumulative distribution function. A) all. B) - for low (bottom 50) and high intensity (top 50).
+(ref:sdecdf) Empirical cumulative distribution function (ECDF) of `r strings[["target"]]` standard deviations after transformation. The left panel shows SD ECDFs by group, and the right panel splits `r strings[["targets"]]` into below- and above-median abundance strata.
 
 ```{r sdecdf,fig.cap="(ref:sdecdf)", fig.height=6, fig.width=8}
-  p1 <- st$density(ggstat = "ecdf")
-    ggplot2::labs(tag = "A") +
-    ggplot2::theme(legend.position = "none")
-  p2 <-
-    st$density_median(ggstat = "ecdf") +
-    ggplot2::theme(legend.position = "bottom")
-  gridExtra::grid.arrange(p1, p2)
+p1 <- st$density(ggstat = "ecdf") +
+  ggplot2::labs(title = "All quantified targets", tag = "A", x = "SD", y = "ECDF")
+p2 <- st$density_median(ggstat = "ecdf") +
+  ggplot2::labs(title = "Below and above median abundance", tag = "B", x = "SD", y = "ECDF")
+prolfquapp::plotly_ggplot_subplot(p1, p2)
 ```
 
-```{r fig.cap="Standard Deviation vs Mean"}
-if (params$plot_sd_vs_mean) {
-  st$stdv_vs_mean()
-}
+```{r sdVsMean, fig.cap="Standard deviation as a function of mean transformed intensity. Each point is one quantified target, the x-axis shows mean transformed intensity, and the y-axis shows SD.", eval=params$plot_sd_vs_mean}
+st$stdv_vs_mean()
 ```
 
 
@@ -371,11 +364,11 @@ prolfqua::table_facade(sd_quantile_res2,
 
 ```
 
-(ref:overviewHeat) Sample and `r strings[["target"]]` Heatmap.
+(ref:overviewHeat) Heatmap of transformed `r strings[["target"]]` intensities across samples. Rows are `r strings[["targets"]]`, columns are samples, and colours encode transformed intensity.
 
 ```{r prepareoverviewHeat, include = FALSE}
 
-hm <- plotter$heatmap()
+hm <- plotter_transformed$heatmap()
 width = max(10, nrSamples * 0.15)
 ```
 
@@ -386,14 +379,14 @@ print(hm)
 # Sample Size Calculation
 
 
-In the previous section, we estimated the `r  strings[["target"]]` variance using the QC samples. Figure \@ref(fig:sdviolinplots) shows the distribution of the standard deviations. We are using this information, as well as some typical values for the size and the power of the test to estimate the required sample sizes for your main experiment. 
+In the previous section, we estimated `r strings[["target"]]` variance from the QC samples. Figure \@ref(fig:sdviolinplots) shows the distribution of standard deviations after transformation. We use these SD estimates, together with typical significance and power settings, to estimate the sample sizes needed for the main experiment.
 
-An important factor in estimating the sample sizes is the smallest effect size (difference) you are interested in detecting between two conditions, e.g. a reference and a treatment. Smaller biologically significant effect sizes require more samples to obtain a statistically significant result. Typical $log_2$ fold change thresholds are $0.59, 1, 2$ which correspond to a fold change of $1.5, 2, 4$.
+An important factor in estimating sample size is the smallest effect size you want to detect between two conditions, such as a reference and a treatment. Smaller biologically relevant effects require more samples. Typical $log_2$ fold-change thresholds are $0.59, 1, 2$, corresponding to fold changes of $1.5, 2, 4$.
 
 
-Table \@ref(tab:sampleSize) and Figure \@ref(fig:figSampleSize) summarizes how many samples are needed to detect a fold change of $0.5, 1, 2$ at a confidence level of $95\%$ and power of $80\%$, for $50, 60, 70, 80$ and $90\%$ percent of the measured `r strings[["targets"]]`.
+Table \@ref(tab:sampleSize) and Figure \@ref(fig:figSampleSize) summarize how many samples are needed to detect $log_2$ fold-change differences of $0.59, 1, 2$ at a significance level of $5\%$ and power of $80\%$, using the SD quantiles for $50\%$ and $75\%$ of the measured `r strings[["targets"]]`.
 
-(ref:figSampleSize) Graphical representation of the sample size needed to detect a log fold change greater than delta with a significance level of $0.05$ and power 0.8 when using a t-test to compare means, in $X\%$ of `r strings[["targets"]]` (x - axis).
+(ref:figSampleSize) Estimated sample size for detecting $log_2$ fold-change differences by t-test. Bars show the number of samples required at significance level $0.05$ and power $0.8$ for the 50% and 75% SD quantiles of the measured `r strings[["targets"]]`; facets show the tested effect sizes.
 
 ```{r figSampleSize, fig.cap="(ref:figSampleSize)", fig.width=8, fig.alt=""}
 
@@ -409,12 +402,13 @@ sampleSize2 <- sampleSize2 |> dplyr::mutate(delta = paste0("delta = ", delta))
 #xx <- summarize_stats_quantiles(stats_res, local_config,probs = c(0.5,0.75))
 #lfq_power_t_test_quantiles_V2(xx$long,delta = c(0.59,1,2))
 
-ggplot2::ggplot(sampleSize2, ggplot2::aes(x = probs, y = N)) +
+sample_size_plot <- ggplot2::ggplot(sampleSize2, ggplot2::aes(x = probs, y = N)) +
   ggplot2::geom_bar(stat = "identity", color = "black", fill = "white") +
   ggplot2::geom_text(ggplot2::aes(label = N), nudge_y = nudgeval) +
   ggplot2::facet_wrap(as.formula(paste0("~ ", "delta + " , paste0(lfqdata$relevant_factor_keys(), collapse = " + "))))
 
 tmp <- sampleSize2 |> tidyr::pivot_wider(id_cols = c("probs", "sdtrimmed", lfqdata$relevant_factor_keys()), names_from = delta, values_from = N)
+print(sample_size_plot)
 }
 
 ```
@@ -423,7 +417,7 @@ tmp <- sampleSize2 |> tidyr::pivot_wider(id_cols = c("probs", "sdtrimmed", lfqda
 ```{r sampleSize}
 if (exists("tmp") && !is.null(tmp)) {
 prolfqua::table_facade(tmp,
-  caption = "Sample size needed to detect a difference log fold change greater than delta with a significance level of 0.05 and power 0.8 when using a t-test to compare means.")
+  caption = "Estimated sample size required to detect each tested log2 fold-change difference at significance level 0.05 and power 0.8 with a t-test.")
 }
 
 ```

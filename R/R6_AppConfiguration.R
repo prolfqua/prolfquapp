@@ -353,7 +353,7 @@ list_to_R6_app_config <- function(dd) {
 
 #' Stop unless a native config carries the fields prolfquapp needs
 #' @param dd parsed native config list (project_spec + processing_options + ...)
-#' @keywords internal
+#' @noRd
 .assert_required_config_fields <- function(dd) {
   required <- c(
     "project_spec$project_Id",
