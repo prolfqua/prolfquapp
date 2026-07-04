@@ -472,16 +472,19 @@ prolfquapp::plotly_ggplot_subplot(
 raw_violin <- safe_plot(
   lfq_raw$get_Stats()$violin(),
   "Could not draw raw CV violin plot."
-)
+) +
+  ggplot2::labs(y = "CV")
 log2_raw <- lfq_raw$get_Transformer()$log2()$lfq
 log2_raw_violin <- safe_plot(
   log2_raw$get_Stats()$violin(),
   "Could not draw log2 raw SD violin plot."
-)
+) +
+  ggplot2::labs(y = "SD (log2 raw)")
 trans_violin <- safe_plot(
   lfq_transformed$get_Stats()$violin(),
   "Could not draw transformed SD violin plot."
-)
+) +
+  ggplot2::labs(y = "SD (transformed)")
 save_if_ggplot(raw_violin, "raw_cv_violin")
 save_if_ggplot(log2_raw_violin, "log2_raw_sd_violin")
 save_if_ggplot(trans_violin, "transformed_sd_violin")
@@ -492,10 +495,12 @@ gridExtra::grid.arrange(raw_violin, log2_raw_violin, trans_violin, nrow = 1)
 #| label: tbl-variance-summary
 variance_summary <- dplyr::bind_rows(
   raw_cv = lfq_raw$get_Stats()$stats_quantiles()$wide,
+  log2_sd = log2_raw$get_Stats()$stats_quantiles()$wide,
   transformed_sd = lfq_transformed$get_Stats()$stats_quantiles()$wide,
   .id = "source"
-)
-dt_table(variance_summary, caption = "Variance quantile summary")
+) |>
+  dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, 3)))
+dt_table(variance_summary, caption = "Variance quantile summary", page_length = 15)
 ```
 
 ## Sample Structure
@@ -685,7 +690,7 @@ if (!is.null(contrast_plotter)) {
 
 ```{r}
 #| label: fig-significant-protein-heatmap
-#| fig-cap: "Transformed feature abundances for significant differential-abundance results."
+#| fig-cap: "Transformed feature abundance row z-scores for significant differential-abundance results."
 #| fig-width: 9
 #| fig-height: 8
 if (nrow(significant_contrasts) > 0 && !is.null(feature_col)) {
@@ -693,7 +698,7 @@ if (nrow(significant_contrasts) > 0 && !is.null(feature_col)) {
   significant_lfq <- significant_lfq$get_subset(significant_contrasts)
   row_names <- tryCatch(significant_lfq$hierarchy_counts()[[2]] <= 30, error = function(e) FALSE)
   significant_heatmap <- safe_plot(
-    significant_lfq$get_Plotter()$raster(rownames = row_names),
+    significant_lfq$get_Plotter()$heatmap(rownames = row_names),
     "Could not draw significant feature heatmap."
   )
   show_plot(significant_heatmap)
