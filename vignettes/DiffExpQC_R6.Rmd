@@ -61,9 +61,10 @@ p2 <- pl$missigness_histogram()
 sr <- dea$lfq_data_raw$get_Summariser()
 p1 <- sr$plot_missingness_per_group()
 
-prolfquapp::plotly_ggplot_subplot(
+gridExtra::grid.arrange(
   p1 + ggplot2::labs(tag = "A"),
-  p2 + ggplot2::labs(tag = "B")
+  p2 + ggplot2::labs(tag = "B"),
+  nrow = 2
 )
 
 ```
@@ -95,7 +96,7 @@ pB <- stback$violin() +
   ggplot2::labs(tag = "B") +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
-prolfquapp::plotly_ggplot_subplot(pA, pB, pC, showlegend = FALSE)
+gridExtra::grid.arrange(pA, pB, pC, nrow = 1)
 
 ```
 
@@ -138,7 +139,7 @@ cpl <- dea$contrast_results[[dea$default_model]]$get_Plotter(
   fdr_threshold = cfg$processing_options$FDR_threshold)
 p1 <- cpl$histogram_diff() + ggplot2::labs(tag = "A")
 p2 <- cpl$histogram()$p.value  + ggplot2::labs(tag = "B")
-prolfquapp::plotly_ggplot_subplot(p1, p2, showlegend = FALSE)
+gridExtra::grid.arrange(p1, p2)
 
 ```
 
@@ -152,6 +153,6 @@ cpl <- dea$contrast_results[[dea$default_model]]$get_Plotter(
   fdr_threshold = cfg$processing_options$FDR_threshold)
 ppb <- cpl$ma_plot(rank = FALSE) + ggplot2::labs(tag = "A")
 ppc <- cpl$ma_plot(fc = cfg$processing_options$diff_threshold, rank = TRUE) + ggplot2::labs(tag = "B")
-prolfquapp::plotly_ggplot_subplot(ppb, ppc, showlegend = FALSE)
+gridExtra::grid.arrange(ppb, ppc, ncol = 1)
 
 ```
