@@ -77,6 +77,7 @@ pp <- prolfquapp::plot_abundance_vs_percent(
   colors = c("^zz" = "red", "Y-FGCZ" = "red"),
   columnAb = "abundance_percent",
   alpha = 0.4,
+  highlight_alpha = 0.8,
   logY = TRUE)
 pp <- plotly::ggplotly(pp)
 ```

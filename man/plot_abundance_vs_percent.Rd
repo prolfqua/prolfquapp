@@ -13,6 +13,7 @@ plot_abundance_vs_percent(
   columnAb = "abundance_percent",
   group = "BB",
   alpha = 1,
+  highlight_alpha = 1,
   logY = TRUE
 )
 }
@@ -31,7 +32,9 @@ plot_abundance_vs_percent(
 
 \item{group}{crosstalk group identifier}
 
-\item{alpha}{point transparency}
+\item{alpha}{point transparency for regular (black) proteins}
+
+\item{highlight_alpha}{point transparency for highlighted (coloured) proteins}
 
 \item{logY}{if TRUE use log10 y-axis}
 }

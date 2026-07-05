@@ -7,7 +7,8 @@
 #' @param colors named vector of colors for special proteins
 #' @param columnAb column name for abundance values
 #' @param group crosstalk group identifier
-#' @param alpha point transparency
+#' @param alpha point transparency for regular (black) proteins
+#' @param highlight_alpha point transparency for highlighted (coloured) proteins
 #' @param logY if TRUE use log10 y-axis
 #' @return ggplot2
 #' @examples
@@ -42,6 +43,7 @@ plot_abundance_vs_percent <- function(
   columnAb = "abundance_percent",
   group = "BB",
   alpha = 1,
+  highlight_alpha = 1,
   logY = TRUE
 ) {
   protID <- cfg_config$hierarchy_keys_depth()
@@ -65,6 +67,19 @@ plot_abundance_vs_percent <- function(
   }
   percInfo$color <- colorV
 
+  # Draw the highlighted proteins (contaminants / decoys) last so they are
+  # plotted on top of the regular (black) points instead of being hidden behind
+  # them when points overlap. order() is stable, so the abundance-rank ordering
+  # within each colour group is preserved. colorV is reordered in lockstep with
+  # percInfo because geom_point() receives it as a positional colour vector.
+  draw_order <- order(colorV != "black")
+  percInfo <- percInfo[draw_order, , drop = FALSE]
+  colorV <- colorV[draw_order]
+
+  # Highlighted proteins get their own (typically higher) opacity so they stand
+  # out from the faded background points. Positional, aligned with colorV.
+  alphaV <- ifelse(colorV == "black", alpha, highlight_alpha)
+
   if (!is.null(top_N)) {
     topN <- percInfo |>
       dplyr::group_by(dplyr::across(cfg_config$factor_keys_depth())) |>
@@ -86,7 +101,7 @@ plot_abundance_vs_percent <- function(
       label = !!rlang::sym(protID)
     )
   ) +
-    geom_point(color = colorV, alpha = alpha) +
+    geom_point(color = colorV, alpha = alphaV) +
     facet_wrap(as.formula(paste0(
       " ~ ",
       paste(cfg_config$factor_keys_depth(), collapse = " + ")
