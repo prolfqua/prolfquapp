@@ -8,7 +8,7 @@
 
 We did run your samples through the same analysis pipeline, which will
 be applied in the main experiment. This document summarizes the protein
-variability to asses the reproducibility of the biological samples and
+variability to assess the reproducibility of the biological samples and
 estimates the sample sizes needed for the main experiment.
 
 ## Quality Control: Identifications and Quantifications
@@ -27,17 +27,16 @@ between your biological replicates is similar (reproducibility).
 Nr of proteins detected in all samples.
 
 (ref:hierarchyCountsSampleBarplot) Number of quantified proteins per
-sample.
+sample. Each bar represents one LC-MS sample and the y-axis shows the
+count of quantified proteins.
 
 ![(ref:hierarchyCountsSampleBarplot)](QCandSSE_files/figure-html/hierarchyCountsSampleBarplot-1.png)
 
 (ref:hierarchyCountsSampleBarplot)
 
-(ref:hierarchyCountsSample) The plot shows the relationships between
-sets of proteins through their intersections, as well as the size of
-each set. The elements that are present in each intersection are shown
-as circles or dots in the matrix, and the size of each set is
-represented by the height of the corresponding row.
+(ref:hierarchyCountsSample) Overlap of quantified proteins across
+samples. Bars show set and intersection sizes, and filled dots mark
+which samples contribute to each intersection.
 
 ![(ref:hierarchyCountsSample)](QCandSSE_files/figure-html/upsetMissing-1.png)
 
@@ -50,35 +49,36 @@ of missingness in biological replicates. The following figures help us
 to verify the reproducibility of the measurement at the level of missing
 data.
 
-(ref:missingFigIntensityHistorgram) Top - intensity distribution of
-proteins with 0, 1 etc. missing values. B - number of proteins with 0,
-1, 2 etc. missing value.
+(ref:missingFigIntensityHistorgram) Missing-value structure across
+protein quantifications. The upper panel shows intensity distributions
+grouped by the number of missing values, and the lower panels show
+counts and cumulative counts of missing values per group.
 
 ![(ref:missingFigIntensityHistorgram)](QCandSSE_files/figure-html/missingFigIntensityHistorgram-1.png)
 
 (ref:missingFigIntensityHistorgram)
 
-(ref:missingnessHeatmap) Heatmap of missing protein quantifications
-clustered by sample.
+(ref:missingnessHeatmap) Missing protein quantifications clustered by
+sample. Rows are proteins, columns are samples, and the heatmap marks
+observed and missing measurements.
 
 ![(ref:missingnessHeatmap)](QCandSSE_files/figure-html/missingnessHeatmap-1.png)
 
 (ref:missingnessHeatmap)
 
-### Variablity of the raw intensities
+### Variability of raw intensities
 
-Without applying any intensity scaling and data preprocessing, the
-protein intensities in all samples should be similar. To assess this we
-plotted the distribution of the protein intensities in the samples
-(Figure @ref(fig:plotDistributions)) as well as the distribution of the
-coefficient of variation CV for all proteins in the samples (Figure
-@ref(fig:intensityDistribution)). Table @ref(tab:printTable) summarises
-the CV.
+Before intensity scaling and preprocessing, the protein intensities
+should have comparable distributions across samples. We assess this with
+protein -level coefficient of variation (CV) densities (Figure
+@ref(fig:plotDistributions)) and sample-level raw versus transformed
+intensity distributions (Figure @ref(fig:intensityDistribution)). Table
+@ref(tab:printTable) summarizes CV quantiles.
 
-(ref:plotDistributions) Density plot of protein level Coefficient of
-Variations (CV).
-
-![(ref:plotDistributions)](QCandSSE_files/figure-html/plotDistributions-1.png)
+(ref:plotDistributions) Distribution of protein-level coefficients of
+variation (CV) before transformation. The left panel shows CV densities
+by group, and the right panel splits proteins into below- and
+above-median abundance strata.
 
 (ref:plotDistributions)
 
@@ -93,60 +93,55 @@ Variations (CV).
 Summary of the coefficient of variation (CV) at the 50th, 60th, 70th,
 80th and 90th percentile.
 
-![Distribution of unnormalized
-intensities.](QCandSSE_files/figure-html/intensityDistribution-1.png)
-
-Distribution of unnormalized intensities.
-
 ### Variability of transformed intensities
 
 We applied the
 [`vsn::justvsn`](https://rdrr.io/pkg/vsn/man/justvsn.html) normalization
 to the data, which should remove systematic differences among the
-samples and reduce the variance within the groups (Figure
-@ref(fig:plotTransformedIntensityDistributions)). Because of this
-transformation, we can’t report $CV\prime s$ anymore but report standard
-deviations ($sd$). Figure @ref(fig:sdviolinplots) shows the distribution
-of the protein standard deviations while Figure @ref(fig:sdecdf) shows
-the empirical cumulative distribution function ($ecdf$). Table
-@ref(tab:printSDTable) summarises the $sd$. The heatmap in Figure
-@ref(fig:correlationHeat) shows the correlation among the QC samples.
+samples and reduce the variance within the groups. Figure
+@ref(fig:intensityDistribution) shows the sample-level intensity
+distributions before and after transformation. Because of this
+transformation, we cannot report CVs on the transformed scale and
+instead report standard deviations (SD). Figure @ref(fig:sdviolinplots)
+shows the distribution of protein SDs, Figure @ref(fig:sdecdf) shows
+their empirical cumulative distribution function (ECDF), and Table
+@ref(tab:printSDTable) summarizes SD quantiles. The heatmap in Figure
+@ref(fig:correlationHeat) shows correlations among the QC samples.
 
-(ref:plotTransformedIntensityDistributions) protein intensity
-distribution after transformation.
+(ref:intensityDistribution) Sample-level intensity distributions before
+and after transformation. The left panel shows raw protein intensities,
+the right panel shows transformed intensities, and each curve or violin
+represents one sample.
 
-![(ref:plotTransformedIntensityDistributions)](QCandSSE_files/figure-html/plotTransformedIntensityDistributions-1.png)
+(ref:intensityDistribution)
 
-(ref:plotTransformedIntensityDistributions)
-
-(ref:correlationHeat) Heatmap of protein intensity correlation between
-samples.
+(ref:correlationHeat) Sample correlation heatmap after transformation.
+Rows and columns are samples, and colours encode pairwise correlations
+of transformed protein intensities.
 
 ![(ref:correlationHeat)](QCandSSE_files/figure-html/correlationHeat-1.png)
 
 (ref:correlationHeat)
 
-![Pairsplot - scatterplot of
+![Pairwise scatter plots of transformed sample intensities. Each panel
+compares two samples, and smoothed trends show agreement between
 samples.](QCandSSE_files/figure-html/pairsplotSmooth-1.png)
 
-Pairsplot - scatterplot of samples.
+Pairwise scatter plots of transformed sample intensities. Each panel
+compares two samples, and smoothed trends show agreement between
+samples.
 
-    ## NULL
-
-(ref:sdviolinplots) Visualization of protein standard deviations. A)
-all. B) - for low (bottom 50) and high intensity (top 50).
-
-![(ref:sdviolinplots)](QCandSSE_files/figure-html/sdviolinplots-1.png)
+(ref:sdviolinplots) Distribution of protein standard deviations after
+transformation. The left panel shows SD densities by group, and the
+right panel splits proteins into below- and above-median abundance
+strata.
 
 (ref:sdviolinplots)
 
-(ref:sdecdf) Visualization of protein standard deviations as empirical
-cumulative distribution function. A) all. B) - for low (bottom 50) and
-high intensity (top 50).
-
-    ## NULL
-
-![(ref:sdecdf)](QCandSSE_files/figure-html/sdecdf-1.png)
+(ref:sdecdf) Empirical cumulative distribution function (ECDF) of
+protein standard deviations after transformation. The left panel shows
+SD ECDFs by group, and the right panel splits proteins into below- and
+above-median abundance strata.
 
 (ref:sdecdf)
 
@@ -161,7 +156,9 @@ high intensity (top 50).
 Summary of the distribution of standard deviations at the 50th, 60th,
 70th, 80th and 90th percentile.
 
-(ref:overviewHeat) Sample and protein Heatmap.
+(ref:overviewHeat) Heatmap of transformed protein intensities across
+samples. Rows are proteins, columns are samples, and colours encode
+transformed intensity.
 
 ![(ref:overviewHeat)](QCandSSE_files/figure-html/overviewHeat-1.png)
 
@@ -169,28 +166,32 @@ Summary of the distribution of standard deviations at the 50th, 60th,
 
 ## Sample Size Calculation
 
-In the previous section, we estimated the protein variance using the QC
-samples. Figure @ref(fig:sdviolinplots) shows the distribution of the
-standard deviations. We are using this information, as well as some
-typical values for the size and the power of the test to estimate the
-required sample sizes for your main experiment.
+In the previous section, we estimated protein variance from the QC
+samples. Figure @ref(fig:sdviolinplots) shows the distribution of
+standard deviations after transformation. We use these SD estimates,
+together with typical significance and power settings, to estimate the
+sample sizes needed for the main experiment.
 
-An important factor in estimating the sample sizes is the smallest
-effect size (difference) you are interested in detecting between two
-conditions, e.g. a reference and a treatment. Smaller biologically
-significant effect sizes require more samples to obtain a statistically
-significant result. Typical $log_{2}$ fold change thresholds are
-$0.59,1,2$ which correspond to a fold change of $1.5,2,4$.
+An important factor in estimating sample size is the smallest effect
+size you want to detect between two conditions, such as a reference and
+a treatment. Smaller biologically relevant effects require more samples.
+Typical $log_{2}$ fold-change thresholds are $0.59,1,2$, corresponding
+to fold changes of $1.5,2,4$.
 
-Table @ref(tab:sampleSize) and Figure @ref(fig:figSampleSize) summarizes
-how many samples are needed to detect a fold change of $0.5,1,2$ at a
-confidence level of $95\%$ and power of $80\%$, for $50,60,70,80$ and
-$90\%$ percent of the measured proteins.
+Table @ref(tab:sampleSize) and Figure @ref(fig:figSampleSize) summarize
+how many samples are needed to detect $log_{2}$ fold-change differences
+of $0.59,1,2$ at a significance level of $5\%$ and power of $80\%$,
+using the SD quantiles for $50\%$ and $75\%$ of the measured proteins.
 
-(ref:figSampleSize) Graphical representation of the sample size needed
-to detect a log fold change greater than delta with a significance level
-of $0.05$ and power 0.8 when using a t-test to compare means, in $X\%$
-of proteins (x - axis).
+(ref:figSampleSize) Estimated sample size for detecting $log_{2}$
+fold-change differences by t-test. Bars show the number of samples
+required at significance level $0.05$ and power $0.8$ for the 50% and
+75% SD quantiles of the measured proteins; facets show the tested effect
+sizes.
+
+![](QCandSSE_files/figure-html/figSampleSize-1.png)
+
+(ref:figSampleSize)
 
 | probs | sdtrimmed | dilution. | delta = 0.59 | delta = 1 | delta = 2 |
 |------:|----------:|:----------|-------------:|----------:|----------:|
@@ -207,9 +208,8 @@ of proteins (x - axis).
 |  0.50 | 0.2702206 | All       |            5 |         3 |         2 |
 |  0.75 | 0.4619799 | All       |           11 |         5 |         3 |
 
-Sample size needed to detect a difference log fold change greater than
-delta with a significance level of 0.05 and power 0.8 when using a
-t-test to compare means.
+Estimated sample size required to detect each tested log2 fold-change
+difference at significance level 0.05 and power 0.8 with a t-test.
 
 The *power* of a test is $1 - \beta$, where $\beta$ is the probability
 of a Type 2 error (failing to reject the null hypothesis when the

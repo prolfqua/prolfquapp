@@ -345,6 +345,8 @@ prolfquapp_ASMS_poster
   : Compute number of tryptic peptides
 - [`plot_abundance_vs_percent()`](https://prolfqua.github.io/prolfquapp/reference/plot_abundance_vs_percent.md)
   : Plot relative protein abundance as a function of rank by abundance
+- [`plotly_ggplot_subplot()`](https://prolfqua.github.io/prolfquapp/reference/plotly_ggplot_subplot.md)
+  : Combine ggplots into a Plotly subplot
 - [`preprocess_BGS()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_BGS.md)
   : preprocess DIANN ouput, filter by q_value and nr_peptides
 - [`preprocess_CD()`](https://prolfqua.github.io/prolfquapp/reference/preprocess_CD.md)
