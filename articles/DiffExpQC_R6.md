@@ -19,6 +19,8 @@ A: number of proteins with $n$ missing values (`nrNA`). Panel B:
 distribution of mean within-group protein intensity by the number of
 missing values.
 
+![](DiffExpQC_R6_files/figure-html/missingProtein-1.png)
+
 (ref:missingProtein)
 
 ## Variance Analysis of the Data
@@ -38,6 +40,8 @@ coefficients of variation (CVs) within groups and across the full
 experiment (`all`) for non-normalized data. Panel B: standard deviations
 (SDs) for log2-transformed data. Panel C: SDs after normalization. Black
 dots indicate medians.
+
+![](DiffExpQC_R6_files/figure-html/SDViolin-1.png)
 
 (ref:SDViolin)
 
@@ -76,6 +80,8 @@ red dotted line marks the median fold change; the green line marks the
 expected median fold change. Panel B: histogram of p-values for all
 proteins.
 
+![](DiffExpQC_R6_files/figure-html/densityOFFoldChanges-1.png)
+
 (ref:densityOFFoldChanges)
 
 The MA plot in Figure @ref(fig:MAPlot) helps identify whether large fold
@@ -88,5 +94,7 @@ rank of average protein abundance.
 (ref:MAPlot) MA plot diagnostics. Panel A: group difference versus
 average protein abundance. Panel B: group difference versus the rank of
 average protein abundance.
+
+![](DiffExpQC_R6_files/figure-html/MAPlot-1.png)
 
 (ref:MAPlot)

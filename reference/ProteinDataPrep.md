@@ -227,16 +227,16 @@ data_prep$cont_decoy_summary()
 #>   totalNrOfProteins percentOfContaminants percentOfDecoys
 #> 1               100                     0               0
 data_prep$aggregate()
-#> INFO [2026-07-05 20:58:33] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-07-05 21:40:28] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> completing cases
 #> Column added : exp_medpolish
-#> INFO [2026-07-05 20:58:34] END OF PROTEIN AGGREGATION
+#> INFO [2026-07-05 21:40:29] END OF PROTEIN AGGREGATION
 data_prep$transform_data()
-#> INFO [2026-07-05 20:58:34] Transforming using robscale.
+#> INFO [2026-07-05 21:40:29] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`
-#> INFO [2026-07-05 20:58:35] Transforming data : robscale.
+#> INFO [2026-07-05 21:40:29] Transforming data : robscale.
 ```

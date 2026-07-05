@@ -27,18 +27,18 @@ dea <- example_deanalyse(Nprot = 10)
 #> completing cases
 #> completing cases done
 #> setup done
-#> INFO [2026-07-05 20:58:40] AGGREGATING PEPTIDE DATA: medpolish.
+#> INFO [2026-07-05 21:40:35] AGGREGATING PEPTIDE DATA: medpolish.
 #> Column added : log_abundance
 #> starting aggregation
 #> completing cases
 #> Column added : exp_medpolish
-#> INFO [2026-07-05 20:58:40] END OF PROTEIN AGGREGATION
-#> INFO [2026-07-05 20:58:40] Transforming using robscale.
+#> INFO [2026-07-05 21:40:35] END OF PROTEIN AGGREGATION
+#> INFO [2026-07-05 21:40:35] Transforming using robscale.
 #> Column added : log2_exp_medpolish
 #> data is : TRUE
 #> Joining with `by = join_by(sampleName, isotopeLabel, protein_Id)`
-#> INFO [2026-07-05 20:58:40] Transforming data : robscale.
-#> INFO [2026-07-05 20:58:40] model formula: normalized_abundance ~ group_
+#> INFO [2026-07-05 21:40:35] Transforming data : robscale.
+#> INFO [2026-07-05 21:40:35] model formula: normalized_abundance ~ group_
 #> determine linear functions:
 #> get_contrasts -> contrasts_linfct
 #> contrasts_linfct
