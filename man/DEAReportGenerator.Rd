@@ -35,7 +35,6 @@ Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.
 \item \href{#method-DEAReportGenerator-new}{\code{DEAReportGenerator$new()}}
 \item \href{#method-DEAReportGenerator-prep_result_list}{\code{DEAReportGenerator$prep_result_list()}}
 \item \href{#method-DEAReportGenerator-write_DEA}{\code{DEAReportGenerator$write_DEA()}}
-\item \href{#method-DEAReportGenerator-render_DEA}{\code{DEAReportGenerator$render_DEA()}}
 \item \href{#method-DEAReportGenerator-make_boxplots}{\code{DEAReportGenerator$make_boxplots()}}
 \item \href{#method-DEAReportGenerator-filter_data}{\code{DEAReportGenerator$filter_data()}}
 \item \href{#method-DEAReportGenerator-get_protein_boxplots}{\code{DEAReportGenerator$get_protein_boxplots()}}
@@ -101,37 +100,6 @@ Write DEA results (XLSX, ORA, GSEA files)
 }
 \subsection{Returns}{
 list with xlsx_file, ora_files, gsea_files paths
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAReportGenerator-render_DEA"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAReportGenerator-render_DEA}{}}}
-\subsection{Method \code{render_DEA()}}{
-Render DEA report using R Markdown
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$render_DEA(
-  htmlname,
-  markdown = "Grp2Analysis_V2_R6.Rmd",
-  word = FALSE,
-  toc = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{htmlname}}{name for the output HTML file}
-
-\item{\code{markdown}}{path to the R Markdown template file}
-
-\item{\code{word}}{logical, if TRUE output Word document, otherwise HTML}
-
-\item{\code{toc}}{logical, if TRUE include table of contents}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-path to the output file
 }
 }
 \if{html}{\out{<hr>}}
@@ -216,17 +184,11 @@ Write per-protein boxplots with contrast tables to PDF
 \if{html}{\out{<a id="method-DEAReportGenerator-write_DEA_all"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_DEA_all}{}}}
 \subsection{Method \code{write_DEA_all()}}{
-Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots
+Write DEA data outputs: XLSX, ORA gene lists, GSEA rank files, and
+boxplots. HTML reports are rendered separately (Quarto) by
+`render_dea_reports()`.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_DEA_all(
-  boxplot = TRUE,
-  render = TRUE,
-  ORA = TRUE,
-  GSEA = TRUE,
-  markdown = "Grp2Analysis_V2_R6.Rmd",
-  markdown_qc = "DiffExpQC_R6.Rmd",
-  toc = TRUE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_DEA_all(boxplot = TRUE, ORA = TRUE, GSEA = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -234,22 +196,15 @@ Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots
 \describe{
 \item{\code{boxplot}}{if TRUE generate boxplots}
 
-\item{\code{render}}{if TRUE render HTML reports}
-
 \item{\code{ORA}}{if TRUE write ORA gene lists}
 
 \item{\code{GSEA}}{if TRUE write GSEA rank files}
-
-\item{\code{markdown}}{Rmd template for main DEA report}
-
-\item{\code{markdown_qc}}{Rmd template for QC report}
-
-\item{\code{toc}}{if TRUE include table of contents}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-list with dea_file, qc_file, data_files paths
+list with `data_files` paths; `dea_file` / `qc_file` are NULL as
+  the Quarto reports are produced by `render_dea_reports()`
 }
 }
 \if{html}{\out{<hr>}}

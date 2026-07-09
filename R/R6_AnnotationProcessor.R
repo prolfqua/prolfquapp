@@ -613,7 +613,9 @@ AnnotationProcessor <- R6::R6Class(
         for (i in seq_len(nrow(levels))) {
           for (j in seq_len(nrow(levels))) {
             if (i != j && levels$control[j] == "C") {
-              cat(levels[[factor_key]][i], levels[[factor_key]][j], "\n")
+              logger::log_info(
+                "contrast: {levels[[factor_key]][i]} vs {levels[[factor_key]][j]}"
+              )
               Contrasts <- c(
                 Contrasts,
                 paste0(

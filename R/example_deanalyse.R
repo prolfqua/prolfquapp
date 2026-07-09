@@ -39,6 +39,11 @@ example_deanalyse <- function(Nprot = 100) {
   )
   GRP2$processing_options$diff_threshold <- 0.2
   GRP2$processing_options$transform <- "robscale"
+  # Populate the B-fabric identifiers so example/vignette renders show the
+  # project context instead of blank Workunit/Project/Order fields.
+  GRP2$project_spec$project_Id <- 3000
+  GRP2$project_spec$order_Id <- 6200
+  GRP2$project_spec$workunit_Id <- 23000
 
   contrasts <- c(
     "AVsC" = "group_A - group_Ctrl",

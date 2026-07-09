@@ -84,6 +84,7 @@ opt <- arguments$options
 args <- arguments$args
 
 logger::log_appender(logger::appender_console)
+prolfquapp::route_messages_to_logger()
 
 if (!is.null(opt$libPath) && nchar(opt$libPath) > 0) {
   .libPaths(c(opt$libPath, .libPaths()))

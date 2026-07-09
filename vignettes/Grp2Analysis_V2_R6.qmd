@@ -1,31 +1,21 @@
 ---
 title: "Differential Expression Analysis."
 author: "Functional Genomics Center Zurich"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  bookdown::html_document2:
-    toc: true
-    toc_float: true
-    self_contained: true
-    includes:
-      in_header: !expr system.file("templates/fgcz_header.html", package="prolfquapp")
-    css: !expr system.file("templates/fgcz.css", package="prolfquapp")
-header-includes:
-  \usepackage{fancyhdr}
-  \pagestyle{fancy}
-  \fancyhead[CO,CE]{Group Comparison}
-  \fancyfoot[CO,CE]{\textbf{FGCZ} - www.fgcz.ch - 2018}
-  \fancyfoot[LE,RO]{\thepage}
+date: today
+format:
+  fgczquartotemplate-html:
+    toc-location: left
+    grid:
+      sidebar-width: 300px
+    include-after-body: _extensions/fgczquartotemplate/fgcz-plot-finder.html
+toc: true
 params:
-  deanalyse: !r quote(prolfquapp::example_deanalyse())
+  deanalyse_file: null
 vignette: >
   %\VignetteIndexEntry{Differential Expression Analysis}
+  %\VignetteEngine{quarto::format}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
 bibliography: bibliography.bib
-editor_options:
-  chunk_output_type: console
-always_allow_html: true
 ---
 
 ```{r setup, include = FALSE}
@@ -34,7 +24,14 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE
 )
-dea <- eval(params$deanalyse)
+deanalyse_file <- params$deanalyse_file
+if (is.null(deanalyse_file) || !nzchar(deanalyse_file)) {
+  deanalyse_file <- file.path(tempdir(), "prolfquapp-example-deanalyse.rds")
+  if (!file.exists(deanalyse_file)) {
+    saveRDS(prolfquapp::example_deanalyse(), deanalyse_file)
+  }
+}
+dea <- readRDS(deanalyse_file)
 cfg <- dea$prolfq_app_config
 is_saint_report <- identical(dea$default_model, "saint")
 empty_report_plot <- function(label) {
@@ -61,7 +58,9 @@ __project__: `r cfg$project_spec$project_Id`, __order__: `r cfg$project_spec$ord
 The protein identification and quantification were performed using:
 `r if(!is.null(cfg$software)){cfg$software} else {"<Specify parameter cfg$software>"}`. The input file can be downloaded from here: [`r cfg$project_spec$input_URL`](`r cfg$project_spec$input_URL`). The set of parameters used to run the quantification software can be retrieved from the b-fabric workunit to which this file belongs.
 
-```{r introduction, results='asis', eval=!is_saint_report}
+```{r introduction}
+#| results: asis
+#| eval: !expr "!is_saint_report"
 cat(r"(
 # Introduction
 
@@ -105,18 +104,24 @@ We run a set of functions implemented in the R package _[prolfqua]_ [@prolfquawo
 
 # Results
 
-Table \@ref(tab:samples) shows the number of samples assigned to each group while Table \@ref(tab:annotation) shows the names of the files assigned to the group.
+@tbl-samples shows the number of samples assigned to each group while @tbl-annotation shows the names of the files assigned to the group.
 
-```{r samples, eval=TRUE}
+```{r}
+#| label: tbl-samples
+#| tbl-cap: "Nr of samples assigned to each group."
+#| eval: true
 
 tab <- data.frame(table(dea$lfq_data_raw$factors()[dea$lfq_data_raw$relevant_factor_keys()]))
 colnames(tab)[length(colnames(tab))] <- "# samples"
-knitr::kable(tab, caption = "Nr of samples assigned to each group.")
+knitr::kable(tab)
 
 ```
 
 
-```{r annotation, eval=TRUE}
+```{r}
+#| label: tbl-annotation
+#| tbl-cap: !expr paste0("LC-MS samples annotation table. The content of the sampleName column ", "is used as a short form to plot labels. The group to which a sample ", "is assigned is shown in the column group.")
+#| eval: true
 ld <- dea$lfq_data_raw
 fx <- ld$factors()
 sr <- ld$get_Summariser()
@@ -131,10 +136,7 @@ fx <- dplyr::left_join(fx,xx, by = ld$sample_name())
 fx <- dplyr::left_join(fx,x2, by = ld$sample_name())
 
 
-knitr::kable(fx, caption = paste0(
-  "LC-MS samples annotation table. The content of the sampleName column ",
-  "is used as a short form to plot labels. The group to which a sample ",
-  "is assigned is shown in the column group."))
+knitr::kable(fx)
 
 ```
 
@@ -152,15 +154,20 @@ We keep the contaminant proteins because, for some experiments, these contaminan
 Decoy sequences (identifiers starting with __REV__ or __rev__) are retained in the raw and abundance exports for traceability, but they are **excluded from the model fit** so they cannot distort the variance moderation that is shared across proteins. They therefore carry no fold change, p-value, or FDR, and do not appear in the volcano plot or the differentially-expressed set. Their proportion among quantified entries (reported above) serves as an empirical false-discovery signal for the whole quantified data set — not for the differentially-expressed list.
 
 
-Figure \@ref(fig:nrPerSample) shows the number of quantified proteins with one or more peptides per sample.
+@fig-nr-per-sample shows the number of quantified proteins with one or more peptides per sample.
 
-```{r nrPerSample, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=7}
+```{r}
+#| label: fig-nr-per-sample
+#| fig-cap: "Number of quantified proteins per sample, counting proteins identified with at least one peptide; bar height is the protein count per sample."
+#| fig-width: 10
+#| fig-height: 7
 sum <- dea$lfq_data_raw$get_Summariser()
 sum$plot_hierarchy_counts_sample(nr_children = 1)
 
 ```
 
-```{r prepNrPerSample2, include=FALSE}
+```{r prepNrPerSample2}
+#| include: false
 sum <- dea$lfq_data_raw$get_Summariser()
 p_nr_per_sample_2 <- tryCatch(
   sum$plot_hierarchy_counts_sample(nr_children = 2),
@@ -168,9 +175,13 @@ p_nr_per_sample_2 <- tryCatch(
 )
 ```
 
-Figure \@ref(fig:nrPerSample2) shows the number of quantified proteins with two or more peptides per sample.
+@fig-nr-per-sample-2 shows the number of quantified proteins with two or more peptides per sample.
 
-```{r nrPerSample2, fig.cap="Number of identified proteins across samples.", fig.with=10, fig.height=if (is.null(p_nr_per_sample_2)) 1.2 else 7}
+```{r}
+#| label: fig-nr-per-sample-2
+#| fig-cap: "Number of quantified proteins per sample, counting only proteins identified with at least two peptides; bar height is the protein count per sample."
+#| fig-width: 10
+#| fig-height: !expr if (is.null(p_nr_per_sample_2)) 1.2 else 7
 plot_or_empty(
   p_nr_per_sample_2,
   "No features with two or more children are available for this data set."
@@ -204,24 +215,30 @@ nah <- tryCatch(
 
 ```
 
-A dichotomous view of the data can be constructed by transforming protein abundance estimates into present/absent calls (Figure \@ref(fig:naHeat) ). The heatmap shows only proteins with at least one missing value. There are `r allNas` proteins with at least one missing value in the data, which is (`r allNas/allrows * 100` %).
+A dichotomous view of the data can be constructed by transforming protein abundance estimates into present/absent calls (@fig-na-heat). The heatmap shows only proteins with at least one missing value. There are `r allNas` proteins with at least one missing value in the data, which is (`r allNas/allrows * 100` %).
 
 We expect that samples in the same group are more similar and cluster together, i.e., they are in the same branch of the dendrogram.
 
-(ref:naHeat) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing missing protein abundance estimates across the data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Protein is observed, black: Protein is not observed.
-
-```{r naHeat, fig.width=7, fig.height=if (is.null(nah)) 1.2 else 6, dpi=300, fig.cap="(ref:naHeat)", fig.alt="", eval=TRUE}
+```{r}
+#| label: fig-na-heat
+#| fig-cap: "Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing missing protein abundance estimates across the data set. Rows and columns are grouped based on the Minkowski distance using hierarchical clustering. White: Protein is observed, black: Protein is not observed."
+#| fig-width: 7
+#| fig-height: !expr if (is.null(nah)) 1.2 else 6
+#| fig-dpi: 300
+#| fig-alt: ""
+#| eval: true
 plot_or_empty(
   nah,
   "No missing values are available for the missing-value heatmap."
 )
 ```
 
-Using Figure \@ref(fig:vennProteins) we examine if we see the same proteins in each group. We say a protein is unobserved in the group if it is absent in all samples and is present otherwise. A significant overlap among groups allows more precise estimation of the protein abundance differences between the groups.
+Using @fig-venn-proteins we examine if we see the same proteins in each group. We say a protein is unobserved in the group if it is absent in all samples and is present otherwise. A significant overlap among groups allows more precise estimation of the protein abundance differences between the groups.
 
-(ref:vennProteins) Venn diagram showing the number of proteins present in each group and in all possible intersections among groups.
-
-```{r vennProteins, fig.cap="(ref:vennProteins)",fig.alt=""}
+```{r}
+#| label: fig-venn-proteins
+#| fig-cap: "UpSet plot of protein presence across groups. Bar heights give the number of proteins observed in each group and in each group intersection; a protein counts as present in a group when observed in at least one of its samples."
+#| fig-alt: ""
 pups <- prolfqua::upset_interaction_missing_stats(dea$lfq_data_raw, tr = 1)
 UpSetR::upset(pups$data, order.by = "freq", nsets = pups$nsets)
 
@@ -230,10 +247,11 @@ UpSetR::upset(pups$data, order.by = "freq", nsets = pups$nsets)
 
 ## Protein Abundance Analysis
 
-The density plot (Figure \@ref(fig:normalized) left panel)  displays the protein abundance distribution for all data set samples. Major differences between samples could indicate that the individual protein abundance values are affected by technical biases. These biases might need to be corrected to separate them from biological effects. The right panel of Figure \@ref(fig:normalized) shows the distribution of the transformed and scaled normalized empirical protein abundances. Normalization is applied to remove systematic differences in protein abundances due to different sample concentrations or amounts of sample loaded on a column. However, in the presence of a large proportion of missing data, normalization potentially amplifies systematic errors.
+The density plot (@fig-normalized left panel)  displays the protein abundance distribution for all data set samples. Major differences between samples could indicate that the individual protein abundance values are affected by technical biases. These biases might need to be corrected to separate them from biological effects. The right panel of @fig-normalized shows the distribution of the transformed and scaled normalized empirical protein abundances. Normalization is applied to remove systematic differences in protein abundances due to different sample concentrations or amounts of sample loaded on a column. However, in the presence of a large proportion of missing data, normalization potentially amplifies systematic errors.
 
 
-```{r normalization, results = 'asis'}
+```{r normalization}
+#| results: asis
 if (cfg$processing_options$transform == "robscale") {
   cat(
     "To do this the z-score of the $\\log_2$ transformed protein",
@@ -255,9 +273,14 @@ if (cfg$processing_options$transform == "robscale") {
 
 ```
 
-(ref:normalized) Kernel density function showing the distribution of protein abundances in all samples. Left panel: Empirical protein abundance of all samples in the dataset. Right panel: Normalized empirical protein abundances of all samples in the dataset.
-
-```{r normalized, fig.width=8, fig.height=5, fig.cap="(ref:normalized)", fig.alt="", eval=TRUE}
+```{r}
+#| label: fig-normalized
+#| fig-dpi: 96
+#| fig-cap: "Kernel density function showing the distribution of protein abundances in all samples. Left panel: Empirical protein abundance of all samples in the dataset. Right panel: Normalized empirical protein abundances of all samples in the dataset."
+#| fig-width: 8
+#| fig-height: 5
+#| fig-alt: ""
+#| eval: true
 
 pl <- dea$lfq_data_raw$get_Plotter()
 showlegend <- nrow(dea$lfq_data_raw$factors()) <= 12
@@ -266,11 +289,12 @@ p1 <- pl$intensity_distribution_density(legend = showlegend)
 plTransformed <- dea$lfq_data$get_Plotter()
 p2 <- plTransformed$intensity_distribution_density(legend = showlegend)
 
-prolfquapp::plotly_ggplot_subplot(p1, p2, showlegend = showlegend)
+prolfquapp::plotly_ggplot_subplot(p1, p2, showlegend = showlegend, height = 450)
 
 ```
 
-```{r internalCalibration, results = 'asis'}
+```{r internalCalibration}
+#| results: asis
 internal_ids <- cfg$processing_options$internal
 if (length(internal_ids) > 0 && !all(is.na(internal_ids)) && !all(internal_ids == "")) {
   cat("In addition to the global normalization described above, **internal standard normalization** was applied.")
@@ -287,53 +311,71 @@ if (length(internal_ids) > 0 && !all(is.na(internal_ids)) && !all(internal_ids =
 The median coefficient of variation (CV) of a group of samples or all samples in the dataset, can be used to compare the experiment with other experiments [@piehowski2013sources]. For example, the median CV for high-performance liquid chromatography experiments ranges from 2% to 35% depending on the biological samples studied, the chromatography method used, label-free or labelled quantification [@taverna2021critical].
 
 
-Figure \@ref(fig:SDViolin) shows the coefficients of variation (CV) for all proteins computed on non-normalized data. Ideally the within group CV should be smaller than the CV of all samples.
+@fig-sd-violin shows the coefficients of variation (CV) for all proteins computed on non-normalized data. Ideally the within group CV should be smaller than the CV of all samples.
 
-(ref:SDViolin) Distribution of coefficient of variation (CV) within each group and in the entire experiment (all).
-
-```{r SDViolin, fig.height=3, fig.width=7, fig.cap="(ref:SDViolin)",fig.alt="", eval=TRUE}
+```{r}
+#| label: fig-sd-violin
+#| fig-cap: "Coefficient of variation (CV) of non-normalized protein abundances, shown as a violin per group and across all samples (all); the overlaid point marks the median CV."
+#| fig-height: 3
+#| fig-width: 7
+#| fig-alt: ""
+#| eval: true
 stR <- dea$lfq_data_raw$get_Stats()
 pA <- stR$violin() + ggplot2::theme_classic() + ggplot2::labs(tag = "A")
 pA
 
 ```
 
-Table \@ref(tab:CVtable) shows the median CV of all groups and across all samples (all).
+@tbl-cv shows the median CV of all groups and across all samples (all).
 
-```{r CVtable, eval=TRUE}
+```{r}
+#| label: tbl-cv
+#| tbl-cap: "Median coefficient of variation (CV) of non-normalized protein abundances, per group and across all samples (all)."
+#| eval: true
 resR <- stR$stats_quantiles()
 C <- dplyr::bind_rows(CV = resR$wide  |> dplyr::filter(probs == 0.5) |> round(digits = 2))
 C <- C |> dplyr::mutate( what = c("CV"), .before = 1 )
 C$probs <- NULL
-knitr::kable(C, caption = "Median of coefficient of variation (CV).")
+knitr::kable(C)
 
 ```
 
 
 
-```{r generateHeatmaps, inlcude = FALSE}
+```{r generateHeatmaps}
+#| include: false
 pl <- dea$lfq_data$get_Plotter()
 ph <- pl$heatmap()
 
 ```
 
-The protein abundance heatmap (Figure \@ref(fig:heatmap)) groups the protein and samples using unsupervised hierarchical clustering. Distances between proteins and samples are computed using normalized protein abundances. Proteins with a large proportion of missing observations are not shown in this heatmap, because for these proteins no distance can be computed.  Proteins and samples showing similar abundances are grouped and shown in adjacent rows and columns respectively.
+The protein abundance heatmap (@fig-heatmap) groups the protein and samples using unsupervised hierarchical clustering. Distances between proteins and samples are computed using normalized protein abundances. Proteins with a large proportion of missing observations are not shown in this heatmap, because for these proteins no distance can be computed.  Proteins and samples showing similar abundances are grouped and shown in adjacent rows and columns respectively.
 
 
-(ref:heatmap) Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing the row scaled $\log_2$ transformed protein abundance value. Co-clustering (hierarchical complete linkage, euclidean distance) of samples and proteins was used. Cell color encodes the row z-score on a green-black-red scale (green: low, black: average, red: high); missing values are shown in light gray.
-
-
-
-```{r heatmap, fig.width=7, fig.height=8, dpi=300, fig.cap="(ref:heatmap)",fig.alt="", eval=TRUE}
+```{r}
+#| label: fig-heatmap
+#| fig-cap: "Protein abundance heatmap (rows indicate proteins, columns indicate samples) showing the row scaled $\\log_2$ transformed protein abundance value. Co-clustering (hierarchical complete linkage, euclidean distance) of samples and proteins was used. Cell color encodes the row z-score on a green-black-red scale (green: low, black: average, red: high); missing values are shown in light gray."
+#| fig-width: 7
+#| fig-height: 8
+#| fig-dpi: 300
+#| fig-alt: ""
+#| eval: true
 ph
 ```
 
-We use principal component analysis (PCA) to transform the high-dimensional space defined by all proteins into a two-dimensional one containing most of the information. Plot \@ref(fig:pca) shows the location of the samples according to the first and second principal component, which explain most of the variance in the data. Samples close in the PCA plot are more similar than those farther apart.
+We use principal component analysis (PCA) to transform the high-dimensional space defined by all proteins into a two-dimensional one containing most of the information. @fig-pca shows the location of the samples according to the first and second principal component, which explain most of the variance in the data. Samples close in the PCA plot are more similar than those farther apart.
 
-(ref:pca)  Plot of first and second principal component (PC1 and PC2) of principal component analysis (PCA). Normalized abundances were used as input.
-
-```{r pca, fig.cap = "(ref:pca)" ,fig.alt="", fig.width=7, fig.height=7 }
-dea$lfq_data$get_Plotter()$pca_plotly()
+```{r}
+#| label: fig-pca
+#| fig-dpi: 96
+#| fig-cap: "Plot of first and second principal component (PC1 and PC2) of principal component analysis (PCA). Normalized abundances were used as input."
+#| fig-alt: ""
+#| fig-width: 7
+#| fig-height: 7
+pca_widget <- dea$lfq_data$get_Plotter()$pca_plotly()
+pca_widget$width <- "100%"
+pca_widget$height <- 500
+pca_widget
 ```
 
 # Differential Expression Analysis
@@ -342,12 +384,14 @@ The method used to test for differential expression consists of several steps: F
 
 `r dea$formula`.
 
-Secondly, the difference between the groups is computed (Table \@ref(tab:contrtable)).
+Secondly, the difference between the groups is computed (@tbl-contrasts).
 
-```{r contrtable}
+```{r}
+#| label: tbl-contrasts
+#| tbl-cap: "Name of difference (Contrast), and formula used to compute it."
 df <- data.frame(name = names(dea$contrasts), contrast = dea$contrasts)
 rownames(df) <- NULL
-knitr::kable(df, caption = "Name of difference (Contrast), and formula used to compute it.")
+knitr::kable(df)
 
 ```
 
@@ -355,12 +399,12 @@ knitr::kable(df, caption = "Name of difference (Contrast), and formula used to c
 and a null hypothesis significance test (NHST) is conducted, where the null hypothesis is that the protein is not differentially expressed [@faraway2004linear].
 
 If there are no abundances measured in one of the groups for some proteins, we assume the observations are missing because the protein abundance is below the detection limit. Therefore, we estimate the detection limit using the mean of the $1\%$ smallest group averages.
-Furthermore, to make it explicit how each estimate was produced, the `estimate_type` column (see table in Figure \@ref(fig:tableAllProt)) records whether a row was fit from `observed` data, rescued via LOD imputation (`lod_imputed`), or filled from a group-mean fallback (`missing_fallback`); rescued/fallback rows are visualized with a distinct colour in Figure \@ref(fig:volcanoplot). The `modelName` column records the selected analysis method (the facade key, e.g. `lm`, `rfit`, `limma`).
+Furthermore, to make it explicit how each estimate was produced, the `estimate_type` column (see table in @fig-table-all) records whether a row was fit from `observed` data, rescued via LOD imputation (`lod_imputed`), or filled from a group-mean fallback (`missing_fallback`); rescued/fallback rows are visualized with a distinct colour in @fig-volcano. The `modelName` column records the selected analysis method (the facade key, e.g. `lm`, `rfit`, `limma`).
 
 Next, to increase the power of the analysis variance shrinkage is performed [@Smyth2004]. Finally, the false discovery rate (FDR) using the Benjamini-Hochberg procedure is computed [@benjamini1995controlling].
 The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. By filtering the proteins using an FDR threshold of `r cfg$processing_options$FDR_threshold*100` % we can expect this proportion of false positives in the list and `r (1 - cfg$processing_options$FDR_threshold) * 100` % truly differentially expressed proteins. Because we do not know which of them are true positives follow up experiments are necessary.
 
-The table (Figure \@ref(fig:tableAllProt)) summarizes the differential expression analysis results by providing the following information:
+The table (@fig-table-all) summarizes the differential expression analysis results by providing the following information:
 
 ```{r}
 hkey <- dea$lfq_data$hierarchy_keys()
@@ -374,7 +418,7 @@ hkey <- dea$lfq_data$hierarchy_keys()
 - FDR - false discovery rate
 - diff - difference between groups.
 
-The volcano plot \@ref(fig:volcanoplot) helps to identify proteins with large differences among groups and a low FDR. The significance dimension is a $-\log_{10}$ transformed FDR, i.e., small values of FDR become large after transformation. Promising candidate proteins are found in the upper right and left sector of the plot.
+The volcano plot @fig-volcano helps to identify proteins with large differences among groups and a low FDR. The significance dimension is a $-\log_{10}$ transformed FDR, i.e., small values of FDR become large after transformation. Promising candidate proteins are found in the upper right and left sector of the plot.
 
 
 ```{r setupVolcano, echo = FALSE}
@@ -388,10 +432,21 @@ table_cols <- if (is_saint) {
 } else {
   c("ID", "description", "contrast", "modelName", "estimate_type", "diff", "FDR")
 }
+volcano_cap <- paste0(
+  "Volcano plot showing $-\\log_{10}$ transformed FDR as function of the difference ",
+  "between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = ",
+  cfg$processing_options$FDR_threshold,
+  ", while the green lines represent the difference of minus and plus ",
+  cfg$processing_options$diff_threshold,
+  ". Points are coloured by `estimate_type`, so rows estimated by missing-value ",
+  "imputation or group-mean fallback are visually distinguished from observed fits."
+)
 ```
 
 
-```{r tableAllProt, fig.cap="Differential expression analysis results of all proteins."}
+```{r}
+#| label: fig-table-all
+#| fig-cap: "Interactive, filterable table of per-protein, per-contrast differential expression results: protein ID, description, contrast, model, estimate type, log2 fold-change and FDR."
 
 datax <- datax |> tidyr::unite("ID" , tidyselect::all_of(hkey), sep = "~")
 
@@ -412,10 +467,14 @@ DT::datatable(bb, filter = "bottom",
 
 ```
 
-(ref:volcanoplot)  Volcano plot showing $-\log_{10}$ transformed FDR as function of the difference between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = `r cfg$processing_options$FDR_threshold`, while the green lines represent the difference of minus and plus `r cfg$processing_options$diff_threshold`. Points are coloured by `estimate_type`, so rows estimated by missing-value imputation or group-mean fallback are visually distinguished from observed fits.
-
-
-```{r volcanoplot, fig.cap = "(ref:volcanoplot)",fig.alt="", fig.width=9, fig.height=7, include = TRUE, eval = TRUE}
+```{r}
+#| label: fig-volcano
+#| fig-dpi: 96
+#| fig-cap: !expr volcano_cap
+#| fig-alt: ""
+#| fig-width: 9
+#| fig-height: 7
+#| eval: true
 
 plotter <- if (is_saint) {
   dea$contrast_results[[dea$default_model]]$get_Plotter(
@@ -428,15 +487,21 @@ plotter <- if (is_saint) {
     fdr_threshold = cfg$processing_options$FDR_threshold
   )
 }
-plotter$volcano_plotly()$FDR
+volcano_widget <- plotter$volcano_plotly()$FDR
+volcano_widget$width <- "100%"
+volcano_widget$height <- 500
+volcano_widget
 
 ```
 
 ## Differentially Expressed Proteins
 
-Here we use the FDR threshold of `r cfg$processing_options$FDR_threshold` and a difference threshold of `r cfg$processing_options$diff_threshold` to select differentially expressed proteins. Table \@ref(tab:nrsignificant) summarizes the number of significant calls.
+Here we use the FDR threshold of `r cfg$processing_options$FDR_threshold` and a difference threshold of `r cfg$processing_options$diff_threshold` to select differentially expressed proteins. @tbl-nr-significant summarizes the number of significant calls.
 
-```{r nrsignificant, results="markup", eval=TRUE}
+```{r}
+#| label: tbl-nr-significant
+#| tbl-cap: "Number of proteins called significant versus not significant per contrast, applying the fold-change and FDR thresholds (total, significant, not significant)."
+#| eval: true
 library(dplyr)
 mx <- datax |>
   dplyr::mutate(
@@ -454,8 +519,7 @@ x <- mx |>
     Significant = sum(passes, na.rm = TRUE),
     "Not Significant" = n() - sum(passes, na.rm = TRUE))
 
-mycap <- paste0("Number of not significant and significant proteins."  )
-knitr::kable(x, caption = mycap)
+knitr::kable(x)
 
 ```
 
@@ -471,14 +535,17 @@ if (nrow(datax_signif) == 0) {
 ```
 
 
-```{r results = 'asis', eval = showSignificant}
-cat("The table shown in Figure \\@ref(fig:SigPrey) lists all the significant proteins.")
+```{r}
+#| results: asis
+#| eval: !expr showSignificant
+cat("The table shown in @fig-sig-prey lists all the significant proteins.")
 ```
 
-(ref:SigPrey) Significant proteins obtained by applying the difference and FDR thresholds.
-
-
-```{r SigPrey, fig.cap= "(ref:SigPrey)",fig.alt="", eval = showSignificant}
+```{r}
+#| label: fig-sig-prey
+#| fig-cap: "Significant proteins obtained by applying the difference and FDR thresholds."
+#| fig-alt: ""
+#| eval: !expr showSignificant
 ctdata <- datax_signif |> tidyr::unite("ID", tidyselect::all_of(hkey), sep = "~")
 ctdata <- ctdata |>
   dplyr::select(tidyselect::all_of(table_cols)) |>
@@ -499,7 +566,8 @@ DT::datatable(sig, filter = "bottom",
 
 
 
-```{r prepareHeatmap, eval = showSignificant}
+```{r prepareHeatmap}
+#| eval: !expr showSignificant
 signif <- dea$lfq_data$get_copy()
 signif <- signif$get_subset(datax_signif)
 if (signif$hierarchy_counts()[2] > 30) {
@@ -512,26 +580,30 @@ sigheat <- signif$get_Plotter()$heatmap(rownames = rownames)
 ```
 
 
-```{r makeText, eval = showSignificant, results = 'asis'}
+```{r makeText}
+#| eval: !expr showSignificant
+#| results: asis
 
 cat(paste(
-  "Furthermore, Figure \\@ref(fig:sigroteins) shows a co-clustered heatmap",
+  "Furthermore, @fig-sig-proteins shows a co-clustered heatmap",
   "of the row z-scored protein abundances of all significant calls.",
   "Proteins and samples with similar abundance profiles are grouped by",
   "unsupervised hierarchical clustering."))
 
 ```
 
-(ref:sigroteins) Heatmap of the proteins passing the FDR and difference thresholds. Cell colour encodes the row z-score of the $\log_2$ protein abundance (green: low, black: average, red: high; missing values in light gray). Proteins and samples are co-clustered by unsupervised hierarchical clustering (complete linkage, euclidean distance).
-
-```{r sigroteins, fig.cap="(ref:sigroteins)", fig.alt="", eval = showSignificant}
+```{r}
+#| label: fig-sig-proteins
+#| fig-cap: "Heatmap of the proteins passing the FDR and difference thresholds. Cell colour encodes the row z-score of the $\\log_2$ protein abundance (green: low, black: average, red: high; missing values in light gray). Proteins and samples are co-clustered by unsupervised hierarchical clustering (complete linkage, euclidean distance)."
+#| fig-alt: ""
+#| eval: !expr showSignificant
 sigheat
 ```
 
-(ref:vennDiagramSig) Venn diagram showing the number of significant proteins for each contrast and their intersections.
-
-
-```{r vennDiagramSig, fig.cap="(ref:vennDiagramSig)", fig.alt="", eval = showSignificant}
+```{r}
+#| label: fig-venn-sig
+#| fig-cap: "UpSet plot of significant proteins across contrasts. Bar heights give the number of proteins passing the FDR and fold-change thresholds in each contrast and in the contrast intersections."
+#| eval: !expr showSignificant
 xx <- split(ctdata[["ID"]], ctdata[[contrast_col]])
 if (length(xx) > 1) {
   UpSetR::upset(UpSetR::fromList(xx))
@@ -585,9 +657,10 @@ pander::pander(sessionInfo())
 ```
 
 
-# References {-}
+# References {.unnumbered}
 
-<div id="refs"></div>
+::: {#refs}
+:::
 
 
 # Glossary
@@ -599,4 +672,4 @@ pander::pander(sessionInfo())
 
 ---
 
-*This report was generated from the R Markdown template `Grp2Analysis_V2_R6.Rmd` included in the `prolfquapp` R package (version `r packageVersion("prolfquapp")`).*
+*This report was generated from the Quarto template `Grp2Analysis_V2_R6.qmd` included in the `prolfquapp` R package (version `r packageVersion("prolfquapp")`).*

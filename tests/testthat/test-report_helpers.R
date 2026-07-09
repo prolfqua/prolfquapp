@@ -26,7 +26,7 @@ test_that("index href helper handles mixed absolute and relative paths", {
   dir.create(result_subdir, showWarnings = FALSE, recursive = TRUE)
   on.exit(unlink(result_dir, recursive = TRUE), add = TRUE)
 
-  report_file <- file.path(result_subdir, "DE_WU1_quarto.html")
+  report_file <- file.path(result_subdir, "DE_WU1.html")
   file.create(report_file)
 
   oldwd <- setwd(dirname(result_dir))
@@ -37,7 +37,7 @@ test_that("index href helper handles mixed absolute and relative paths", {
       normalizePath(report_file, mustWork = TRUE),
       basename(result_dir)
     ),
-    "./Results_WU_1/DE_WU1_quarto.html"
+    "./Results_WU_1/DE_WU1.html"
   )
 })
 

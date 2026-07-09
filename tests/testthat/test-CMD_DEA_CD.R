@@ -228,13 +228,15 @@ test_that("CMD_DEA_CD runs the full output pipeline", {
   expect_true(file.exists(file.path(result_dir, "lfqdata.yaml")))
   expect_true(file.exists(file.path(result_dir, "SummarizedExperiment.rds")))
   if (nzchar(Sys.which("quarto"))) {
-    quarto_file <- file.path(result_dir, "DE_WUCD_TEST_quarto.html")
-    expect_true(file.exists(quarto_file))
+    dea_report <- file.path(result_dir, "Grp2Analysis_V2_R6.html")
+    tabset_report <- file.path(result_dir, "Grp2Analysis_V2_SE_tabset.html")
+    expect_true(file.exists(dea_report))
+    expect_true(file.exists(tabset_report))
     index_html <- paste(
       readLines(file.path(workdir, zipdir[[1]], "index.html"), warn = FALSE),
       collapse = "\n"
     )
-    expect_match(index_html, "Quarto DEA report", fixed = TRUE)
+    expect_match(index_html, "DEA Report (read first)", fixed = TRUE)
   }
   expect_true(
     length(list.files(result_dir, pattern = "[.]xlsx$", full.names = TRUE)) >= 1

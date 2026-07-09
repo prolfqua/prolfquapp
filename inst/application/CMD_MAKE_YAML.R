@@ -3,6 +3,7 @@ if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
 }
 
+prolfquapp::route_messages_to_logger()
 
 option_list <- list(
   make_option(

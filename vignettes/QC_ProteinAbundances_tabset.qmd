@@ -1,29 +1,22 @@
 ---
 title: "Protein Signal Intensities within Groups"
-date: "`r Sys.Date()`"
 author: "The CompMS team"
-editor_options:
-  chunk_output_type: console
+date: today
+format:
+  fgczquartotemplate-html:
+    grid:
+      sidebar-width: 300px
+    include-after-body: _extensions/fgczquartotemplate/fgcz-plot-finder.html
+toc: false
 params:
-  pap: !r quote(prolfquapp::example_qc_generator(Nprot = 100))
-  factors: TRUE
-  project_info: NULL
-output:
-  bookdown::html_document2:
-    toc: true
-    toc_float: true
-    toc_depth: 2
-    self_contained: true
-    includes:
-      in_header: !expr system.file("templates/fgcz_header.html", package="prolfquapp")
-    css: !expr system.file("templates/fgcz.css", package="prolfquapp")
+  pap_file: null
+  factors: true
+  project_info: null
 vignette: >
   %\VignetteIndexEntry{QC Protein Abundances}
+  %\VignetteEngine{quarto::format}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
 ---
-
-
 
 ```{r setup, include=FALSE}
 library(ggplot2)
@@ -34,16 +27,18 @@ knitr::opts_chunk$set(
   warning = FALSE,
   fig.width = 6.5,
   fig.height = 6.5,
-  fig.align = "center",
-  fig.pos = "H"
+  fig.align = "center"
 )
 
-if (is.language(params$pap)) {
-  pap <- eval(params$pap)
-} else {
-  pap <- params$pap
+pap_file <- params$pap_file
+if (is.null(pap_file) || !nzchar(pap_file)) {
+  pap_file <- file.path(tempdir(), "prolfquapp-example-qc-generator.rds")
+  if (!file.exists(pap_file)) {
+    saveRDS(prolfquapp::example_qc_generator(), pap_file)
+  }
 }
-lfqdataProt <-  pap$lfqdata_prot
+pap <- readRDS(pap_file)
+lfqdataProt <- pap$lfqdata_prot
 tableconfig <- pap$lfqdata_prot$get_config()
 factors <- params$factors
 project_info <- params$project_info
@@ -54,10 +49,9 @@ project_info <- params$project_info
 - Order : `r project_info$order_Id`
 - Workunit : `r project_info$workunit_Id`
 
-```{r hierachycountspersample, fig.cap="Number of proteins quantified per sample."}
-srs <- lfqdataProt$get_Summariser()
-srs$plot_hierarchy_counts_sample()
-```
+::: {.panel-tabset}
+
+# Protein abundances
 
 ```{r createPlot}
 protID <- tableconfig$hierarchy_keys_depth()
@@ -118,47 +112,28 @@ The columns of the table below contain:
 
 
 
-
 ```{r}
 table
 ```
 
 
-(ref:proteinCumulative) Protein-level signal contribution. Each point represents one protein. Proteins are ordered on the x-axis by their contribution to the total signal; the y-axis shows the percentage of the total iBAQ (intensity-based absolute quantification) signal attributed to each protein.
-
-
 The iBAQ signal per protein is calculated by summing the `Precursor.Quantity` values across all precursors assigned to the protein and dividing by the number of theoretically observable peptides. A large share of the recorded signal can be concentrated in a small set of highly abundant proteins. If the dominant proteins are the cleavage enzyme, common contaminants such as human keratins, or the bait protein, this can indicate shortcomings in sample preparation or cleanup.
 
 
-```{r proteinCumulative, fig.cap = "(ref:proteinCumulative)"}
+```{r}
+#| label: fig-protein-cumulative
+#| fig-dpi: 96
+#| fig-cap: "Per-protein iBAQ signal contribution versus abundance rank, one panel per group. Each point is one protein; the x-axis is the protein's abundance-rank percentile (proteins ordered from lowest to highest mean iBAQ abundance) and the y-axis (log10 scale) is the percentage of the total iBAQ (intensity-based absolute quantification) signal contributed by that protein. Contaminant and decoy proteins are highlighted in red."
 pp
 ```
 
+# Proteins per sample
 
-
-```{r prepPeptidePlot, eval = FALSE, include=FALSE}
-precabund <- pap$get_protein_per_group_abundance_with_row_annot()
-datax <- crosstalk::SharedData$new(as.data.frame(precabund) , key = as.formula(paste(" ~ ", protID )), group = "BB")
-
-colors <- c("^zz" = "red", "Y-FGCZ" = "red")
-colorV <- rep("black", nrow(precabund))
-for (i in seq_along(colors)) {
-  colorV[grepl(names(colors)[i], precabund[[protID]])] <- colors[i]
-}
-group <- tableconfig$factor_keys_depth()
-pplotPepAbund <- ggplot(datax,
-                        aes(x = nrPeptides, y = meanAbundance,
-                            label = !!rlang::sym(protID))) + geom_point(color = colorV, alpha = 0.4) +
-  ggplot2::scale_y_continuous(trans = "log10") +
-  ggplot2::scale_x_continuous(trans = "log10") +
-  if (factors) {facet_wrap(as.formula(paste0("~", paste(group, collapse = " + "))))}
-
-pplotPepAbund <- plotly::ggplotly(pplotPepAbund)
+```{r}
+#| label: fig-hierarchy-counts-sample
+#| fig-cap: "Number of proteins quantified per sample."
+srs <- lfqdataProt$get_Summariser()
+srs$plot_hierarchy_counts_sample()
 ```
 
-(ref:nrProtplots) Mean protein abundance per group (column meanAbundance_<GroupName>) as a function of the number of peptides (column nrPeptides).
-
-```{r nrProtplots, fig.cap = "(ref:nrProtplots)", eval = FALSE, include=FALSE}
-pplotPepAbund
-```
-
+:::

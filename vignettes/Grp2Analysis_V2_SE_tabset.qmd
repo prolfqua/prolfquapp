@@ -1,10 +1,21 @@
 ---
 title: "Differential Abundance Analysis"
+format:
+  fgczquartotemplate-html:
+    toc-location: left
+    grid:
+      sidebar-width: 300px
+    include-after-body: _extensions/fgczquartotemplate/fgcz-plot-finder.html
+toc: true
 params:
-  se_file: "../../extdata/3106962.rds"
+  se_file: null
   prolfquapp_source_path: null
   fdr_threshold: 0.05
   diff_threshold: 1
+vignette: >
+  %\VignetteIndexEntry{Differential Abundance Analysis (SE tabset)}
+  %\VignetteEngine{quarto::format}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup}
@@ -54,7 +65,11 @@ if (length(missing_packages) > 0) {
   )
 }
 
-report <- prolfquapp:::se_report_lfqdata(params$se_file)
+se_file <- params$se_file
+if (is.null(se_file) || !nzchar(se_file)) {
+  se_file <- system.file("extdata", "3106962.rds", package = "prolfquapp")
+}
+report <- prolfquapp:::se_report_lfqdata(se_file)
 se <- report$se
 meta <- report$metadata
 lfq_raw <- report$lfq_raw
@@ -275,7 +290,7 @@ feature_col <- feature_id_column(contrast_table)
 
 ::: {.callout-note collapse="true" title="Input"}
 
-The report was generated from `r basename(params$se_file)`. It summarizes raw and transformed
+The report was generated from `r basename(se_file)`. It summarizes raw and transformed
 feature abundance data together with differential abundance results.
 :::
 
@@ -402,7 +417,7 @@ draw_or_empty(
 
 ```{r}
 #| label: fig-missing-heatmap
-#| fig-cap: "Missing values in raw feature abundances."
+#| fig-cap: "Missing-value heatmap of raw feature abundances: rows are the features with at least one missing value, columns are samples, and each cell marks whether the measurement is missing (black) or observed (white); columns are clustered by binary distance."
 #| fig-width: 7
 #| fig-height: 6
 show_plot(safe_plot(
@@ -413,7 +428,7 @@ show_plot(safe_plot(
 
 ```{r}
 #| label: fig-missingness-per-group
-#| fig-cap: "Missingness summaries for raw feature abundances."
+#| fig-cap: "Missingness of raw feature abundances per experimental group (three panels, faceted by group). Left: number of features versus number of missing values in the group (bars); middle: the same counts as a cumulative sum over increasing number of missing values; right: kernel density of mean raw abundance (log10 x-axis) coloured by the number of missing values."
 #| fig-width: 15
 #| fig-height: 4.5
 missing_per_group <- safe_plot(
@@ -500,7 +515,15 @@ variance_summary <- dplyr::bind_rows(
   .id = "source"
 ) |>
   dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, 3)))
-dt_table(variance_summary, caption = "Variance quantile summary", page_length = 15)
+dt_table(
+  variance_summary,
+  caption = paste(
+    "Quantiles of per-feature dispersion across samples for three data layers:",
+    "raw-abundance CV, log2 raw-abundance SD, and transformed-abundance SD",
+    "(one row per source)."
+  ),
+  page_length = 15
+)
 ```
 
 ## Sample Structure
@@ -511,7 +534,7 @@ dt_table(variance_summary, caption = "Variance quantile summary", page_length = 
 
 ```{r}
 #| label: fig-pca
-#| fig-cap: "PCA of transformed feature abundances."
+#| fig-cap: "PCA of transformed feature abundances; each point is a sample plotted on PC1 versus PC2 (percent variance shown on the axes) and coloured by experimental group (features with missing values are removed)."
 #| fig-width: 7
 #| fig-height: 6
 pca_plot <- safe_plot(
@@ -653,7 +676,7 @@ draw_upset_or_empty(
 
 ```{r}
 #| label: fig-volcano
-#| fig-cap: "Differential abundance volcano plot."
+#| fig-cap: "Volcano plot of differential abundance: log2 fold-change (x) versus -log10(FDR) (y), one panel per contrast; each point is a feature, with dashed vertical lines at the fold-change threshold and a dashed horizontal line at the FDR threshold."
 #| fig-width: 9
 #| fig-height: 7
 if (!is.null(contrast_plotter)) {
@@ -714,9 +737,22 @@ dt_table(significant_contrasts, caption = "Significant differential abundance re
 
 ## Distributions
 
+::: {.callout-note}
+## Why look at the fold-change and p-value distributions?
+
+These two histograms are model diagnostics read across all features at once, not per feature. The **fold-change** distribution should be centred near zero, because most features are not differentially abundant; a systematic shift away from zero points to a normalization or experimental-design problem rather than real biology. The **p-value** (or FDR/BFDR) distribution should be roughly uniform under the null hypothesis, with a peak near zero when true effects are present; a peak near one, or a strongly non-uniform shape, indicates that the statistical model does not describe the data well (for example unmodelled variance or outliers), so the significance calls should be interpreted with caution.
+:::
+
 ```{r}
 #| label: fig-fc-pvalue
-#| fig-cap: "Fold-change and p-value summaries."
+#| fig-cap: >-
+#|   Distributions of the differential-abundance statistics across all features.
+#|   Left: histogram of the estimated log2 fold-changes (x-axis log2
+#|   fold-change, y-axis feature count), expected to centre near zero because
+#|   most features are not differentially abundant. Right: histogram of the
+#|   significance score (p-value, or FDR/BFDR depending on the model; x-axis
+#|   0-1, y-axis feature count), expected to be roughly uniform with a peak near
+#|   zero when true effects are present.
 #| fig-width: 10
 #| fig-height: 5
 if (!is.null(contrast_plotter)) {

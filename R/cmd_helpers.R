@@ -450,9 +450,7 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   logger::log_info("Writing results to: ", config$get_zipdir())
 
   outdir <- reporter$write_DEA_all(
-    boxplot = FALSE,
-    markdown = "Grp2Analysis_V2_R6.Rmd",
-    markdown_qc = "DiffExpQC_R6.Rmd"
+    boxplot = FALSE
   )
 
   arrow::write_parquet(
@@ -481,27 +479,16 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   }
   outdir$data_files$ibaq_file <- ibaq_file
 
-  tryCatch(
-    {
-      logger::log_info("Writing summarized experiment.")
-      se_file <- file.path(reporter$resultdir, "SummarizedExperiment.rds")
-      SE <- reporter$make_SummarizedExperiment()
-      saveRDS(SE, file = se_file)
-
-      logger::log_info("Rendering SE Quarto DEA report.")
-      outdir$quarto_file <- render_quarto_se_report(
-        se_file = se_file,
-        output_dir = reporter$resultdir,
-        output_file = paste0(reporter$fname, "_quarto.html")
-      )
-    },
-    error = function(e) {
-      logger::log_warn(
-        "Skipping SummarizedExperiment/Quarto export: ",
-        conditionMessage(e)
-      )
-    }
-  )
+  # Writes SummarizedExperiment.rds + DEAnalyse.rds and renders the Quarto
+  # reports (primary R6 DEA report, SE-tabset overview, differential-expression
+  # QC, and sample-size estimation). Each renders independently; a failure warns
+  # without aborting the run.
+  logger::log_info("Writing summarized experiment and rendering Quarto reports.")
+  reports <- render_dea_reports(reporter)
+  outdir$dea_file <- reports$dea_file
+  outdir$qc_file <- reports$qc_file
+  outdir$quarto_file <- reports$tabset_file
+  outdir$sse_file <- reports$sse_file
 
   prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
 
@@ -511,7 +498,6 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   )
   dir.create(config$get_input_dir())
 
-  prolfquapp::copy_DEA_R6_Files(workdir = config$get_input_dir())
   prolfquapp::copy_shell_script(workdir = config$get_input_dir())
 
   file.copy(

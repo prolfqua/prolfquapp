@@ -1,0 +1,48 @@
+## ─────────────────────────────────────────────────────────────
+## FGCZ Quarto format extension
+## Installed into a project with:  quarto add prolfqua/fgczquartotemplate
+## Reports then declare:           format: fgczquartotemplate-html
+##
+## The format options below mirror inst/quarto/_metadata.yml (the Model-A
+## "directory metadata" variant). fgcz.scss and fgcz_header_quarto.html are
+## kept byte-identical to inst/quarto/ by data-raw/sync_assets.R.
+## ─────────────────────────────────────────────────────────────
+title: FGCZ Quarto Template
+author: FGCZ
+version: 0.1.0
+quarto-required: ">=1.4.0"
+contributes:
+  formats:
+    html:
+      embed-resources: true
+      self-contained: true
+      page-layout: full
+      smooth-scroll: true
+      code-fold: true
+      code-tools: true
+      theme: [spacelab, fgcz.scss]
+      grid:
+        body-width: 1800px
+        sidebar-width: 250px
+        margin-width: 100px
+      include-in-header: fgcz_header_quarto.html
+      # Toolbar (fgcz-plot-finder.html) is opt-in; see inst/quarto/_metadata.yml.
+      # Enable per report with:
+      #   include-after-body: _extensions/fgczquartotemplate/fgcz-plot-finder.html
+      fig-dpi: 300
+      fig-align: left
+      execute:
+        echo: false
+        warning: false
+        message: false
+      knitr:
+        opts_chunk:
+          fig.width: 6
+          fig.height: 5
+          fig.retina: 2
+          out.width: "40%"
+      crossref:
+        fig-title: "Figure"
+        tbl-title: "Table"
+        title-delim: ":"
+      lightbox: true

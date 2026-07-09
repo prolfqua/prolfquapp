@@ -347,51 +347,6 @@ DEAReportGenerator <- R6::R6Class(
     },
 
     #' @description
-    #' Render DEA report using R Markdown
-    #' @param htmlname name for the output HTML file
-    #' @param markdown path to the R Markdown template file
-    #' @param word logical, if TRUE output Word document, otherwise HTML
-    #' @param toc logical, if TRUE include table of contents
-    #' @return path to the output file
-    render_DEA = function(
-      htmlname,
-      markdown = "Grp2Analysis_V2_R6.Rmd",
-      word = FALSE,
-      toc = TRUE
-    ) {
-      dir.create(self$resultdir, showWarnings = FALSE, recursive = TRUE)
-
-      rmarkdown::render(
-        markdown,
-        params = list(deanalyse = self$deanalyse),
-        output_format = if (word) {
-          bookdown::word_document2(toc = toc, toc_float = toc)
-        } else {
-          bookdown::html_document2(
-            toc = toc,
-            toc_float = toc,
-            self_contained = TRUE,
-            includes = rmarkdown::includes(
-              in_header = system.file(
-                "templates/fgcz_header.html",
-                package = "prolfquapp"
-              )
-            ),
-            css = system.file("templates/fgcz.css", package = "prolfquapp")
-          )
-        }
-      )
-
-      extension <- if (word) ".docx" else ".html"
-      tmpname <- paste0(tools::file_path_sans_ext(markdown), extension)
-      outfile <- file.path(self$resultdir, paste0(htmlname, extension))
-      if (file.copy(tmpname, outfile, overwrite = TRUE)) {
-        file.remove(tmpname)
-      }
-      return(outfile)
-    },
-
-    #' @description
     #' Generate sample-level boxplots for quality control
     #' @param boxplot logical, if TRUE write boxplots
     make_boxplots = function(boxplot = TRUE) {
@@ -509,51 +464,26 @@ DEAReportGenerator <- R6::R6Class(
     },
 
     #' @description
-    #' Write all DEA results: XLSX, ORA, GSEA, HTML reports, boxplots
+    #' Write DEA data outputs: XLSX, ORA gene lists, GSEA rank files, and
+    #' boxplots. HTML reports are rendered separately (Quarto) by
+    #' `render_dea_reports()`.
     #' @param boxplot if TRUE generate boxplots
-    #' @param render if TRUE render HTML reports
     #' @param ORA if TRUE write ORA gene lists
     #' @param GSEA if TRUE write GSEA rank files
-    #' @param markdown Rmd template for main DEA report
-    #' @param markdown_qc Rmd template for QC report
-    #' @param toc if TRUE include table of contents
-    #' @return list with dea_file, qc_file, data_files paths
+    #' @return list with `data_files` paths; `dea_file` / `qc_file` are NULL as
+    #'   the Quarto reports are produced by `render_dea_reports()`
     write_DEA_all = function(
       boxplot = TRUE,
-      render = TRUE,
       ORA = TRUE,
-      GSEA = TRUE,
-      markdown = "Grp2Analysis_V2_R6.Rmd",
-      markdown_qc = "DiffExpQC_R6.Rmd",
-      toc = TRUE
+      GSEA = TRUE
     ) {
       data_files <- self$write_DEA(ORA = ORA, GSEA = GSEA)
-
-      dea_file <- NULL
-      qc_file <- NULL
-      if (render) {
-        dea_file <- self$render_DEA(
-          htmlname = self$fname,
-          markdown = markdown,
-          toc = toc
-        )
-        contrast_obj <- self$deanalyse$contrast_results[[
-          self$deanalyse$default_model
-        ]]
-        if (isTRUE(contrast_obj$get_config()$supports_dea_qc)) {
-          qc_file <- self$render_DEA(
-            htmlname = self$qcname,
-            markdown = markdown_qc,
-            toc = toc
-          )
-        }
-      }
 
       self$make_boxplots(boxplot = boxplot)
 
       return(list(
-        dea_file = dea_file,
-        qc_file = qc_file,
+        dea_file = NULL,
+        qc_file = NULL,
         data_files = data_files
       ))
     },

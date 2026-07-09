@@ -117,7 +117,7 @@ The package uses R6 classes to manage state and orchestrate analysis:
 - **QC_generator** (`R6_QC_Abundances.R`): QC report generator
   - Computes IBAQ (intensity-based absolute quantification)
   - Generates protein abundance distributions
-  - Renders R Markdown reports (QC_ProteinAbundances.Rmd, QCandSSE.Rmd)
+  - Renders Quarto reports (QC_ProteinAbundances_quarto.qmd, QCandSSE_quarto.qmd)
 
 ### Software Preprocessing Pipeline
 
@@ -160,15 +160,19 @@ All scripts use `optparse` for argument parsing and `logger` for structured logg
 
 ### Report Generation
 
-R Markdown templates render dynamic HTML reports:
+Quarto reports (in `vignettes/`, styled by the vendored FGCZ Quarto extension) render dynamic HTML reports. They are
+built as package vignettes into `doc/` and rendered at runtime from there — DEA reports via the internal helper
+`render_dea_reports()`, QC reports via the QC generator. Each report reads a serialized `.rds` parameter (a `DEAnalyse`, a
+`SummarizedExperiment`, a QC generator, or a `list(data, configuration)`):
 
-- **_Grp2Analysis_V2.Rmd**: Main DEA report (methods, QC plots, volcano plots, results tables)
-- **_Grp2Analysis_V2_metabo.Rmd**: Metabolomics-specific variant
-- **_DiffExpQC.Rmd**: Differential expression QC
-- **GenericQC/QC_ProteinAbundances.Rmd**: Protein abundance distributions
-- **GenericQC/QCandSSE.Rmd**: Sample size estimation
+- **Grp2Analysis_V2_R6_quarto.qmd**: primary DEA report → `DE_<workunit>.html`
+- **Grp2Analysis_V2_SE_tabset.qmd**: SummarizedExperiment tabset overview → `DE_<workunit>_tabset.html`
+- **DiffExpQC_R6_quarto.qmd**: differential-expression QC (tabbed) → `QC_<workunit>.html`
+- **QCandSSE_quarto.qmd**: sample-size estimation → `QC_sampleSizeEstimation.html`
+- **QC_ProteinAbundances_quarto.qmd**: protein abundance distributions → `proteinAbundances.html`
 
-Reports receive data via `params$GRP2` (list structure with results, configurations, annotations).
+The retired R Markdown reports (`Grp2Analysis_V2_R6.Rmd`, `DiffExpQC_R6.Rmd`, `QC_ProteinAbundances.Rmd`,
+`QCandSSE.Rmd`) have been removed; the pipelines render the Quarto reports only.
 
 ### Output Formats
 

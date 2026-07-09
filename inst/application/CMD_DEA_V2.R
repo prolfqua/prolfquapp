@@ -97,6 +97,7 @@ opt <- arguments$options
 ymlfile <- arguments$args
 
 logger::log_appender(logger::appender_console)
+prolfquapp::route_messages_to_logger()
 logger::log_info(
   "LIBRARY PATHS (.libPaths()):",
   paste(.libPaths(), collapse = "\n")
@@ -156,7 +157,6 @@ logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(prolfqua::R6_extr
 )))))
 
 
-prolfquapp::copy_DEA_R6_Files()
 logger::log_info("Software: ", opt$software)
 
 result <- tryCatch(
@@ -210,9 +210,7 @@ reporter <- prolfquapp::DEAReportGenerator$new(deanalyse, GRP2, name = "")
 logger::log_info("Writing results to: ", GRP2$get_zipdir())
 
 outdir <- reporter$write_DEA_all(
-  boxplot = FALSE,
-  markdown = "Grp2Analysis_V2_R6.Rmd",
-  markdown_qc = "DiffExpQC_R6.Rmd"
+  boxplot = FALSE
 )
 
 # ---- Parquet + YAML export ----
@@ -245,21 +243,17 @@ if (length(xd$lfqdata$relevant_hierarchy_keys()) == 1) {
 
 outdir$data_files$ibaq_file <- ibaq_file
 
-# ---- SummarizedExperiment ----
-# Mandatory: ProteinAnnotation now guarantees unique protein IDs, so the
-# duplicate-row-names abort can no longer happen. Any failure here is loud and
-# fatal so regressions surface immediately.
-logger::log_info("Writing summarized experiment.")
-se_file <- file.path(reporter$resultdir, "SummarizedExperiment.rds")
-SE <- reporter$make_SummarizedExperiment()
-saveRDS(SE, file = se_file)
-
-logger::log_info("Rendering SE Quarto DEA report.")
-outdir$quarto_file <- prolfquapp:::render_quarto_se_report(
-  se_file = se_file,
-  output_dir = reporter$resultdir,
-  output_file = paste0(reporter$fname, "_quarto.html")
-)
+# ---- SummarizedExperiment + Quarto reports ----
+# Writes SummarizedExperiment.rds + DEAnalyse.rds and renders the Quarto reports
+# (primary R6 DEA report, SE-tabset overview, differential-expression QC, and
+# sample-size estimation). Each report renders independently; a failure warns
+# without aborting the run.
+logger::log_info("Writing summarized experiment and rendering Quarto reports.")
+reports <- prolfquapp:::render_dea_reports(reporter)
+outdir$dea_file <- reports$dea_file
+outdir$qc_file <- reports$qc_file
+outdir$quarto_file <- reports$tabset_file
+outdir$sse_file <- reports$sse_file
 
 # ---- Index HTML ----
 prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
@@ -268,7 +262,6 @@ prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
 logger::log_info("Creating directory with input files :", GRP2$get_input_dir())
 dir.create(GRP2$get_input_dir())
 
-prolfquapp::copy_DEA_R6_Files(workdir = GRP2$get_input_dir())
 prolfquapp::copy_shell_script(workdir = GRP2$get_input_dir())
 
 file.copy(

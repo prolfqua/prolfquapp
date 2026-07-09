@@ -8,6 +8,7 @@ if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
 }
 
+prolfquapp::route_messages_to_logger()
 logger::log_info(
   "LIBRARY PATHS (.libPaths()):",
   paste(.libPaths(), collapse = "\n")

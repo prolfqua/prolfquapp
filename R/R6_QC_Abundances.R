@@ -304,76 +304,96 @@ QC_generator <- R6::R6Class(
     #' @description
     #' render QC protein abundances report
     render_QC_protein_abundances = function() {
-      file.copy(
-        system.file(
-          "doc/QC_ProteinAbundances.Rmd",
-          package = "prolfquapp"
-        ),
-        to = self$output_dir,
-        overwrite = TRUE
-      )
-      if (TRUE) {
-        rmarkdown::render(
-          file.path(self$output_dir, "QC_ProteinAbundances.Rmd"),
-          params = list(
-            pap = self,
-            project_info = self$GRP2$project_spec,
+      tryCatch(
+        {
+          pap_file <- file.path(self$output_dir, "proteinAbundances.rds")
+          saveRDS(self, file = pap_file)
+          as_id <- function(x) {
+            if (length(x) >= 1 && nzchar(as.character(x)[[1]])) {
+              as.character(x)[[1]]
+            } else {
+              NULL
+            }
+          }
+          ps <- self$GRP2$project_spec
+          render_quarto_protein_abundances_report(
+            pap_file = pap_file,
+            output_dir = self$output_dir,
+            output_file = "QC_ProteinAbundances_tabset.html",
+            project_info = list(
+              order_Id = as_id(ps$order_Id),
+              workunit_Id = as_id(ps$workunit_Id)
+            ),
             factors = TRUE
-          ),
-          output_file = "proteinAbundances.html"
-        )
-      } else {
-        str <- c(
-          "<!DOCTYPE html>",
-          "<html>",
-          "<head>",
-          "<title>",
-          "There is a problem",
-          "</title>",
-          "</head>",
-          "<body>",
-          "<h1>",
-          paste0("the input file :", files$data, " is empty"),
-          "</h1>",
-          "</body>",
-          "</html>"
-        )
-        cat(
-          str,
-          file = file.path(self$output_dir, "proteinAbundances.html"),
-          sep = "\n"
-        )
-      }
+          )
+        },
+        error = function(e) {
+          logger::log_warn(
+            "Skipping QC protein-abundances Quarto report: ",
+            conditionMessage(e)
+          )
+        }
+      )
       self$links[["QC_ABUNDANCES"]] <- file.path(
         self$output_dir,
-        "proteinAbundances.html"
+        "QC_ProteinAbundances_tabset.html"
       )
     },
     #' @description
     #' render sample size QC report
     render_sample_size_QC = function() {
       if (nrow(self$get_prot_data()$factors()) > 1) {
-        file.copy(
-          system.file("doc/QCandSSE.Rmd", package = "prolfquapp"),
-          to = self$output_dir,
-          overwrite = TRUE
-        )
-        rmarkdown::render(
-          file.path(self$output_dir, "QCandSSE.Rmd"),
-          params = list(
-            data = self$get_prot_data()$data_long(),
-            configuration = self$get_prot_data()$get_config(),
-            project_conf = self$GRP2$project_spec,
-            target_type = private$get_target_type()
-          ),
-          output_file = "QC_sampleSizeEstimation.html"
+        # Render the sample-size (SSE) Quarto report from a serialized copy of
+        # the QC data. Quarto serializes execute params to YAML, so the project
+        # spec is passed as a plain list of scalars (empty fields become NULL and
+        # the report falls back to "n/a") to populate the Workunit/Project/Order
+        # header.
+        tryCatch(
+          {
+            qc_data_file <- file.path(
+              self$output_dir,
+              "QC_sampleSizeEstimation.rds"
+            )
+            saveRDS(
+              list(
+                data = self$get_prot_data()$data_long(),
+                configuration = self$get_prot_data()$get_config()
+              ),
+              file = qc_data_file
+            )
+            as_id <- function(x) {
+              if (length(x) >= 1 && nzchar(as.character(x)[[1]])) {
+                as.character(x)[[1]]
+              } else {
+                NULL
+              }
+            }
+            ps <- self$GRP2$project_spec
+            render_quarto_qc_sse_report(
+              qc_data_file = qc_data_file,
+              output_dir = self$output_dir,
+              output_file = "QCandSSE_tabset.html",
+              project_conf = list(
+                project_Id = as_id(ps$project_Id),
+                order_Id = as_id(ps$order_Id),
+                workunit_Id = as_id(ps$workunit_Id)
+              ),
+              target_type = private$get_target_type()
+            )
+          },
+          error = function(e) {
+            logger::log_warn(
+              "Skipping QC sample-size Quarto report: ",
+              conditionMessage(e)
+            )
+          }
         )
       } else {
         message("only a single sample: ", nrow(self$get_prot_data()$factors()))
       }
       self$links[["QC_SAMPLE_SIZE"]] <- file.path(
         self$output_dir,
-        "QC_sampleSizeEstimation.html"
+        "QCandSSE_tabset.html"
       )
     },
     #' @description

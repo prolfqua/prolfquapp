@@ -217,9 +217,21 @@ bfabric_url_builder <- function(project_spec) {
 #' .resdir <- "."
 #' write_index_html(prolfquapp:::.test_links,tempdir())
 write_index_html <- function(file_path_list, result_dir) {
-  # Determine top-level directory and name
-  dea_path <- file_path_list$dea_file
-  topdir_path <- dirname(dea_path)
+  # Determine the top-level directory/name. Prefer the primary DEA report, then
+  # any other available report, and fall back to result_dir, so the index still
+  # builds when a report is missing.
+  candidate_paths <- c(
+    file_path_list$dea_file,
+    file_path_list$qc_file,
+    file_path_list$quarto_file,
+    file_path_list$sse_file
+  )
+  candidate_paths <- candidate_paths[!is.na(candidate_paths) & nzchar(candidate_paths)]
+  topdir_path <- if (length(candidate_paths) > 0) {
+    dirname(candidate_paths[1])
+  } else {
+    result_dir
+  }
   topdir_name <- basename(topdir_path)
 
   # Helper to make a section
@@ -302,8 +314,9 @@ write_index_html <- function(file_path_list, result_dir) {
       "Overview files",
       c(
         "<b>DEA Report (read first)</b>" = file_path_list$dea_file,
-        "QC report" = file_path_list$qc_file,
-        "Quarto DEA report" = file_path_list$quarto_file
+        "Differential expression QC report" = file_path_list$qc_file,
+        "Sample size estimation report" = file_path_list$sse_file,
+        "Overview report (SE tabset)" = file_path_list$quarto_file
       )
     ),
     make_section(
