@@ -56,6 +56,7 @@ Imports:
   yaml
 RoxygenNote: 7.3.3
 Suggests:
+  altdoc,
   anndataR,
   codetools,
   covr,
@@ -66,7 +67,6 @@ Suggests:
   KernSmooth,
   knitr,
   lintr,
-  pkgdown,
   prolfquasaint,
   quarto,
   rcmdcheck,

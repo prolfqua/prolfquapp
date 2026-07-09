@@ -1,4 +1,4 @@
-name: pkgdown
+name: altdoc
 
 on:
   push:
@@ -9,12 +9,16 @@ permissions:
   contents: write
 
 jobs:
-  pkgdown:
+  altdoc:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v6.0.3
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -23,13 +27,17 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
-            any::pkgdown
+            any::altdoc
             github::fgcz/prolfqua
           needs: website
 
-      - name: Build pkgdown site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = TRUE)
-        shell: Rscript {0}
+      # altdoc renders the report vignettes, which call prolfquapp::example_*();
+      # install the package first so those functions are available.
+      - name: Install package
+        run: R CMD INSTALL .
+
+      - name: Build docs with altdoc
+        run: Rscript -e 'altdoc::render_docs(freeze = FALSE)'
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4

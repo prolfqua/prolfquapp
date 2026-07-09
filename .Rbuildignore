@@ -29,3 +29,5 @@
 ^pkgdown$
 ^doc$
 ^Meta$
+^altdoc$
+^_quarto$

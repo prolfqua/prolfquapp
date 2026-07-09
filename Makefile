@@ -14,16 +14,13 @@ TEST_CMD = Rscript -e "devtools::test()"
 COVERAGE_CMD = Rscript -e "covr::package_coverage() |> print()"
 INSTALL_CMD = R CMD INSTALL $(TARBALL)
 LINT_CMD = Rscript -e "lintr::lint_package()"
-SITE_CMD = Rscript -e "pkgdown::build_site(install = FALSE)"
-DEPLOY_CMD = Rscript -e "pkgdown::deploy_to_branch()"
+SITE_CMD = Rscript -e "altdoc::render_docs()"
 NEW_VERSION_CMD = Rscript -e "d <- read.dcf('DESCRIPTION'); old <- d[1, 'Version']; parts <- as.integer(strsplit(old, '.', fixed = TRUE)[[1]]); if (length(parts) < 3) parts <- c(parts, rep(0L, 3L - length(parts))); parts[3] <- parts[3] + 1L; new <- paste(parts, collapse = '.'); x <- readLines('DESCRIPTION'); x <- sub('^Version: .*', paste0('Version: ', new), x); writeLines(x, 'DESCRIPTION'); cat(new)"
 
 DOCKER_IMAGE ?= prolfqua/$(PKG_NAME)
 DOCKER_TAG   ?= dev
-QUARTO_OUT   ?= quarto-preview
-QUARTO_BUTTONS ?= TRUE
 
-.PHONY: all help document build build-vignettes vignettes install test check-fast check-bioc check coverage lint format site deploy clean new-version new_version vignette quarto render-quarto docker-build docker-check
+.PHONY: all help document build build-vignettes vignettes install test check-fast check-bioc check coverage lint format site clean new-version new_version vignette docker-build docker-check
 
 all: check
 
@@ -41,11 +38,8 @@ help:
 	@echo "  make coverage        - code coverage report"
 	@echo "  make lint            - run lintr"
 	@echo "  make format          - format with air"
-	@echo "  make site            - build pkgdown site locally"
-	@echo "  make deploy          - build and deploy pkgdown site"
+	@echo "  make site            - build the documentation site locally with altdoc"
 	@echo "  make vignette V=Name - render a single vignette"
-	@echo "  make quarto          - render the SE Quarto report preview into $(QUARTO_OUT)"
-	@echo "                         set QUARTO_BUTTONS=FALSE to disable the toolbar"
 	@echo "  make new-version     - bump patch version, commit, tag, and push"
 	@echo "  make clean           - remove build artifacts"
 	@echo "  make docker-build    - build $(DOCKER_IMAGE):$(DOCKER_TAG) from Dockerfile"
@@ -92,19 +86,11 @@ format:
 site: install
 	$(SITE_CMD)
 
-deploy: install
-	$(DEPLOY_CMD)
-
 vignette:
 ifndef V
 	$(error Usage: make vignette V=<vignette_name>, e.g. make vignette V=Benchmark_prolfqua)
 endif
 	Rscript -e "rmarkdown::render('vignettes/$(V).Rmd')"
-
-quarto:
-	Rscript -e "devtools::load_all(quiet = TRUE); out <- '$(QUARTO_OUT)'; buttons <- tolower('$(QUARTO_BUTTONS)') %in% c('true', 't', '1', 'yes', 'y'); dir.create(out, showWarnings = FALSE, recursive = TRUE); se <- system.file('extdata', '3106962.rds', package = 'prolfquapp', mustWork = TRUE); html <- prolfquapp:::render_quarto_se_report(se_file = se, output_dir = out, prolfquapp_source_path = getwd(), buttons = buttons); cat(normalizePath(html), '\n')"
-
-render-quarto: quarto
 
 new-version new_version:
 	@NEW_VERSION="$$( $(NEW_VERSION_CMD) )"; \

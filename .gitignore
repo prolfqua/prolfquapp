@@ -16,3 +16,6 @@ inst/templates/quarto/*.html
 inst/templates/quarto/plots/
 tests/testthat/*.Rmd
 tests/testthat/bibliography.bib
+altdoc/freeze.rds
+_quarto/*
+!_quarto/_freeze/
