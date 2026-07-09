@@ -10,6 +10,7 @@ prolfquapp.Rcheck/
 prolfquapp_*.tar.gz
 docs/
 quarto-preview/
+vignettes/plots/
 inst/templates/quarto/*.html
 !inst/templates/quarto/fgcz_header_quarto.html
 inst/templates/quarto/plots/

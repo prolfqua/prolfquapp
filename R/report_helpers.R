@@ -234,26 +234,47 @@ write_index_html <- function(file_path_list, result_dir) {
   }
   topdir_name <- basename(topdir_path)
 
-  # Helper to make a section
-  make_section <- function(title, paths) {
+  # Build link entries from a (possibly named) vector of paths, e.g. the ORA /
+  # GSEA file sets. Empty/NA paths are dropped; the shared `desc` (if any) is
+  # attached to every entry.
+  paths_to_entries <- function(paths, desc = NULL) {
     paths <- unlist(paths, use.names = TRUE)
     paths <- paths[!is.na(paths) & nzchar(paths)]
-    if (length(paths) == 0) {
+    lapply(seq_along(paths), function(i) {
+      nm <- names(paths)[i]
+      list(
+        label = if (!is.null(nm) && nzchar(nm)) nm else basename(paths[[i]]),
+        path = unname(paths[[i]]),
+        desc = desc
+      )
+    })
+  }
+
+  # Render a titled section. `entries` is a list of list(label=, path=, desc=);
+  # entries with an empty path are dropped and the section is omitted if none
+  # remain. `intro` is optional explanatory text shown above the links.
+  make_section <- function(title, entries, intro = NULL) {
+    entries <- Filter(
+      function(e) length(e$path) == 1 && !is.na(e$path) && nzchar(e$path),
+      entries
+    )
+    if (length(entries) == 0) {
       return(character())
     }
-    lines <- c(
-      sprintf("  <h2>%s</h2>", title),
-      "  <ul>"
-    )
-    for (i in seq_along(paths)) {
-      p <- paths[i]
-      name <- names(paths)[i]
-      text <- if (!is.null(name) && nzchar(name)) name else basename(p)
-      rel <- .index_relative_href(p, result_dir)
-      lines <- c(
-        lines,
-        sprintf('    <li><a href="%s">%s</a></li>', rel, text)
-      )
+    lines <- sprintf("  <h2>%s</h2>", title)
+    if (!is.null(intro) && nzchar(intro)) {
+      lines <- c(lines, sprintf("  <p class='intro'>%s</p>", intro))
+    }
+    lines <- c(lines, "  <ul>")
+    for (e in entries) {
+      rel <- .index_relative_href(e$path, result_dir)
+      label <- if (!is.null(e$label) && nzchar(e$label)) e$label else basename(e$path)
+      desc <- if (!is.null(e$desc) && nzchar(e$desc)) {
+        sprintf("<br><span class='desc'>%s</span>", e$desc)
+      } else {
+        ""
+      }
+      lines <- c(lines, sprintf('    <li><a href="%s">%s</a>%s</li>', rel, label, desc))
     }
     c(lines, "  </ul>")
   }
@@ -287,6 +308,15 @@ write_index_html <- function(file_path_list, result_dir) {
     h1 {
       text-align: center;
     }
+    .desc {
+      color: #7f8c8d;
+      font-size: 0.9em;
+    }
+    .intro {
+      color: #34495e;
+      margin: 6px 0 10px;
+      max-width: 70em;
+    }
   </style>
   )"
 
@@ -307,29 +337,91 @@ write_index_html <- function(file_path_list, result_dir) {
     "<h3>Functional Genomics Center Zurich</h3>"
   )
 
-  # 1. Top-level files: dea + qc
+  # Report links, each with a one-line description of the document.
   html_lines <- c(
     html_lines,
     make_section(
-      "Overview files",
-      c(
-        "<b>DEA Report (read first)</b>" = file_path_list$dea_file,
-        "Differential expression QC report" = file_path_list$qc_file,
-        "Sample size estimation report" = file_path_list$sse_file,
-        "Overview report (SE tabset)" = file_path_list$quarto_file
+      "Reports",
+      list(
+        list(
+          label = "<b>DEA report (read first)</b>",
+          path = file_path_list$dea_file,
+          desc = paste(
+            "Main differential-expression report: analysis settings,",
+            "quality-control plots, volcano plots and the per-contrast results",
+            "tables."
+          )
+        ),
+        list(
+          label = "Differential-expression QC report",
+          path = file_path_list$qc_file,
+          desc = paste(
+            "Model diagnostics: missing values, protein variance, and the",
+            "fold-change / p-value distributions and MA plots used to judge the",
+            "model fit."
+          )
+        ),
+        list(
+          label = "Sample-size estimation report",
+          path = file_path_list$sse_file,
+          desc = paste(
+            "Feature-level variability and a two-sample t-test sample-size /",
+            "power estimate to help plan follow-up experiments."
+          )
+        ),
+        list(
+          label = "Overview report (SummarizedExperiment tabset)",
+          path = file_path_list$quarto_file,
+          desc = paste(
+            "Tabbed overview built from the SummarizedExperiment: settings,",
+            "feature detection, quality control, differential abundance and",
+            "result tables."
+          )
+        )
       )
     ),
     make_section(
-      "Spreadsheet exports",
-      c(
-        "DEA results (XLSX)" = file_path_list$data_files$xlsx_file,
-        "Intensity Based Absolute Quantitation (XLSX)" = file_path_list$data_files$ibaq_file
+      "Spreadsheets",
+      list(
+        list(
+          label = "Differential-expression results (XLSX)",
+          path = file_path_list$data_files$xlsx_file,
+          desc = paste(
+            "All contrasts with estimates, log2 fold-changes, p-values and FDR",
+            "(one sheet per contrast)."
+          )
+        ),
+        list(
+          label = "Protein abundances / iBAQ (XLSX)",
+          path = file_path_list$data_files$ibaq_file,
+          desc = paste(
+            "Intensity-based absolute quantification (iBAQ) per protein and",
+            "sample."
+          )
+        )
       )
     ),
-    make_section("ORA inputs:", unlist(file_path_list$data_files$ora_files)),
     make_section(
-      "GSEA ranklists:",
-      unlist(file_path_list$data_files$gsea_files)
+      "Over-representation analysis (ORA) input",
+      paths_to_entries(file_path_list$data_files$ora_files),
+      intro = paste(
+        "Gene lists of the significantly regulated proteins, one file per",
+        "contrast and direction (up / down). Paste a list into an",
+        "over-representation tool such as STRING, g:Profiler or WebGestalt to",
+        "find which pathways or GO terms are enriched among the regulated",
+        "proteins."
+      )
+    ),
+    make_section(
+      "GSEA rank files",
+      paths_to_entries(file_path_list$data_files$gsea_files),
+      intro = paste(
+        "Pre-ranked protein lists (.rnk), one per contrast: every quantified",
+        "protein ranked by its signed differential-expression statistic. Use",
+        "these with pre-ranked gene-set enrichment analysis (e.g. GSEA Preranked",
+        "or fgsea), which detects gene sets shifted toward the top or bottom of",
+        "the ranking."
+      )
     )
   )
 
