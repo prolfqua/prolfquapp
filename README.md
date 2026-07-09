@@ -1,6 +1,8 @@
-[![DOI](https://zenodo.org/badge/642819797.svg)](https://doi.org/10.5281/zenodo.15845909)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15845909.svg)](https://doi.org/10.5281/zenodo.15845909) [![Documentation](https://img.shields.io/badge/docs-prolfqua.github.io%2Fprolfquapp-blue)](https://prolfqua.github.io/prolfquapp/)
 
 # prolfquapp (ˌproʊˈlɛf.kə.ˌæp): Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package
+
+📖 **Documentation & rendered example reports: <https://prolfqua.github.io/prolfquapp/>** — worth a visit to browse the Quarto vignette reports (differential expression, QC, and sample-size estimation) that show exactly what prolfquapp generates.
 
 Read on JPR <https://pubs.acs.org/doi/10.1021/acs.jproteome.4c00911> "prolfquapp ─ A User-Friendly Command-Line Tool Simplifying Differential Expression Analysis in Quantitative Proteomics"
 
