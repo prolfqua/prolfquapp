@@ -136,8 +136,8 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./vignettes/Auxiliary_ExDesignSurvey.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Auxiliary - Bioinformatics Project Meeting Agenda</span></a>
+  <a href="./vignettes/Grp2Analysis_V2_R6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Differential Expression Analysis.</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -148,20 +148,8 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./vignettes/Grp2Analysis_V2_R6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Differential Expression Analysis.</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./vignettes/Grp2Analysis_V2_SE_tabset.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Differential Abundance Analysis</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./vignettes/prolfquapp.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">prolfquapp - an R package to report differential expression analysis results.</span></a>
+ <span class="menu-text">Differential Expression Analysis (Tabbed Report)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -174,6 +162,12 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="./vignettes/QCandSSE_tabset.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Quality Control &amp; Sample Size Estimation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/Auxiliary_ExDesignSurvey.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Auxiliary - Bioinformatics Project Meeting Agenda</span></a>
   </div>
 </li>
       </ul>
@@ -878,6 +872,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="prolfquapp-2.4.0" class="level1">
 <h1>prolfquapp 2.4.0</h1>
 <ul>
+<li><p>Documentation website Articles menu cleaned up: the entries are now ordered Differential Expression Analysis, its Quality Control report, the tabbed Differential Expression report, Protein Signal Intensities within Groups, Quality Control &amp; Sample Size Estimation, and the Auxiliary meeting-agenda article last. The <code>Grp2Analysis_V2_SE_tabset</code> report was retitled from “Differential Abundance Analysis” to “Differential Expression Analysis (Tabbed Report)” so it is clearly the tabbed variant of the main DEA report. The stub <code>prolfquapp.Rmd</code> introduction vignette (an incomplete skeleton duplicating the README) was removed.</p></li>
+<li><p>Tabbed DEA report (<code>Grp2Analysis_V2_SE_tabset.qmd</code>): rewrote the cryptic UpSet-plot captions (feature-detection overlap between groups; significant / increased / decreased features shared between contrasts) so each states that it is an UpSet plot and explains what the intersection bars, dot matrix, and set-size bars represent, and clarified the MA-plot and significant-feature heatmap captions.</p></li>
 <li><p>The default contrast model is now <code>lm_impute</code> instead of <code>lm_missing</code>. <code>lm_impute</code> refits proteins whose per-protein linear model failed or was singular by imputing at the limit of detection with borrowed variance (flagging rescued rows as <code>lod_imputed</code>), whereas the deprecated <code>lm_missing</code> substituted group means without a model fit. This changes default DEA results for proteins that could not be fit directly, removes the prolfqua deprecation warning emitted on every default run, and applies to <code>make_DEA_config_R6()</code>, <code>run_make_yaml()</code>, the <code>prolfqua_yaml.sh --model</code> default, and the CompoundDiscoverer DEA entry point. <code>lm_missing</code> remains available as an explicit <code>model =</code> / <code>--model</code> choice.</p></li>
 <li><p>The documentation website is now built with <a href="https://altdoc.etiennebacher.com/">altdoc</a> (Quarto Website backend) instead of pkgdown. pkgdown’s <code>tweak_tabsets</code> step crashes on the Quarto <code>panel-tabset</code>s used by the tabbed report vignettes; altdoc renders the vignettes natively through Quarto, so the tabset reports appear on the site with their tabs intact. Removed the obsolete <code>make quarto</code>/<code>render-quarto</code> preview targets from the Makefile.</p></li>
 <li><p>The DEA results <code>index.html</code> (<code>write_index_html</code>) now describes each linked document with a one-line description under the link, groups them under clearer section titles (Reports, Spreadsheets, Over-representation analysis (ORA) input, GSEA rank files), and shows explanatory intro text above the ORA gene-list and GSEA rank-file links. Its styling is aligned with the diann_runner result index (shared palette/fonts and the per-link description style).</p></li>

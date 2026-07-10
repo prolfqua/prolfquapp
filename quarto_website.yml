@@ -20,7 +20,14 @@ website:
     contents:
       - text: Home
         file: index.md
-      - section: $ALTDOC_VIGNETTE_BLOCK
+      - section: Articles
+        contents:
+          - vignettes/Grp2Analysis_V2_R6.qmd
+          - vignettes/DiffExpQC_R6_tabset.qmd
+          - vignettes/Grp2Analysis_V2_SE_tabset.qmd
+          - vignettes/QC_ProteinAbundances_tabset.qmd
+          - vignettes/QCandSSE_tabset.qmd
+          - vignettes/Auxiliary_ExDesignSurvey.Rmd
       - section: $ALTDOC_MAN_BLOCK
       - text: News
         file: $ALTDOC_NEWS
