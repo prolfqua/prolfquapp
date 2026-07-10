@@ -8,7 +8,9 @@ project:
 
 website:
   title: "$ALTDOC_PACKAGE_NAME"
-  code-links: true
+  repo-url: $ALTDOC_PACKAGE_URL_GITHUB
+  repo-branch: master
+  repo-actions: [source]
   navbar:
     search: true
     right:
