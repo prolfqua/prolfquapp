@@ -908,7 +908,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   patternContaminants = "^zz|^CON|Cont_",
   application = "DIANN",
   prefix = "DEA",
-  model = "lm_missing"
+  model = "lm_impute"
 )
 </code></pre>
 </section><section id="arguments" class="level3"><h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
@@ -1044,28 +1044,28 @@ facade registry key for contrast analysis. Use "saint" for SAINTexpress interact
 </tbody></table></section><section id="value" class="level3"><h3 class="anchored" data-anchor-id="value">Value</h3>
 <p>ProlfquAppConfig R6 object</p>
 </section><section id="see-also" class="level3"><h3 class="anchored" data-anchor-id="see-also">See Also</h3>
-<p>Other ProlfquAppConfig: <code>ExternalReader</code>, <code>ProcessingOptions</code>, <code>ProjectSpec</code>, <code>ProlfquAppConfig</code>, <code><a href="https://prolfqua.github.io/prolfquapp/reference/set_list_to_R6.html">set_list_to_R6()</a></code></p>
+<p>Other ProlfquAppConfig: <code>ExternalReader</code>, <code>ProcessingOptions</code>, <code>ProjectSpec</code>, <code>ProlfquAppConfig</code>, <code><a href="https://prolfqua.github.io/prolfquapp/man/set_list_to_R6.html">set_list_to_R6()</a></code></p>
 </section><section id="examples" class="level3"><h3 class="anchored" data-anchor-id="examples">Examples</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://prolfqua.github.io/prolfquapp/">"prolfquapp"</a></span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">DEAconfig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://prolfqua.github.io/prolfquapp/reference/make_DEA_config_R6.html">make_DEA_config_R6</a></span><span class="op">(</span>ORDERID <span class="op">=</span> <span class="st">"1234"</span>, WORKUNITID <span class="op">=</span> <span class="st">"1234"</span><span class="op">)</span></span>
+<span><span class="va">DEAconfig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://prolfqua.github.io/prolfquapp/man/make_DEA_config_R6.html">make_DEA_config_R6</a></span><span class="op">(</span>ORDERID <span class="op">=</span> <span class="st">"1234"</span>, WORKUNITID <span class="op">=</span> <span class="st">"1234"</span><span class="op">)</span></span>
 <span><span class="va">DEAconfig</span><span class="op">$</span><span class="fu">set_zipdir_name</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "DEA_20260709_O1234_WU1234_none"</code></pre>
+<pre><code>[1] "DEA_20260710_O1234_WU1234_none"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">DEAconfig</span><span class="op">$</span><span class="fu">get_zipdir</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "./DEA_20260709_O1234_WU1234_none"</code></pre>
+<pre><code>[1] "./DEA_20260710_O1234_WU1234_none"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">DEAconfig</span><span class="op">$</span><span class="fu">get_result_dir</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "./DEA_20260709_O1234_WU1234_none/Results_WU_1234"</code></pre>
+<pre><code>[1] "./DEA_20260710_O1234_WU1234_none/Results_WU_1234"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">DEAconfig</span><span class="op">$</span><span class="fu">get_input_dir</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "./DEA_20260709_O1234_WU1234_none/Inputs_WU_1234"</code></pre>
+<pre><code>[1] "./DEA_20260710_O1234_WU1234_none/Inputs_WU_1234"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">R6list</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://wolski.github.io/prolfqua/reference/R6_extract_values.html">R6_extract_values</a></span><span class="op">(</span><span class="va">DEAconfig</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
