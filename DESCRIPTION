@@ -30,6 +30,7 @@ Imports:
   data.table,
   dplyr,
   dtplyr,
+  fgczquartotemplate,
   ggplot2,
   ggrepel,
   lobstr,

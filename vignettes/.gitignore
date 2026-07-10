@@ -1,5 +1,10 @@
 *.html
 *.R
 
+# FGCZ Quarto template assets are source, not rendered output: keep them tracked
+# even though rendered report *.html above is ignored.
+!fgcz_header_quarto.html
+!fgcz-plot-finder.html
+
 /.quarto/
 **/*.quarto_ipynb

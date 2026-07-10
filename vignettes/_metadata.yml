@@ -1,0 +1,61 @@
+## ─────────────────────────────────────────────────────────────
+## FGCZ Shared Report Defaults
+## Quarto applies this file automatically to every .qmd in this
+## directory (and subdirectories) because it is named _metadata.yml.
+## Individual reports need NO reference to it in their front matter.
+## Keep fgcz.scss and fgcz_header_quarto.html next to it.
+## ─────────────────────────────────────────────────────────────
+
+format:
+  html:
+    embed-resources: true
+    self-contained: true
+    smooth-scroll: true
+    page-layout: full
+
+    # Code
+    code-fold: true
+    code-tools: true
+
+    # Theme — flatly base + FGCZ overrides (tabset card styling for now)
+    theme: [spacelab, fgcz.scss]
+
+    # Grid sizing
+    grid:
+      body-width: 1800px
+      sidebar-width: 250px
+      margin-width: 100px
+
+    # FGCZ header
+    include-in-header: fgcz_header_quarto.html
+
+    # The search + download toolbar (fgcz-plot-finder.html) is opt-in, not wired
+    # in here: enable it per report via fgczquartotemplate::fgcz_render(buttons =
+    # TRUE), or by adding `include-after-body: fgcz-plot-finder.html` yourself.
+
+    # Figure defaults
+    fig-dpi: 300
+    fig-align: left
+
+# Execution
+execute:
+  echo: false
+  warning: false
+  message: false
+
+# Knitr defaults — plots should fit on screen; click lightbox for full size
+knitr:
+  opts_chunk:
+    fig.width: 6
+    fig.height: 5
+    fig.retina: 2
+    out.width: "40%"
+
+# Cross-references
+crossref:
+  fig-title: "Figure"
+  tbl-title: "Table"
+  title-delim: ":"
+
+# Lightbox for all figures
+lightbox: true

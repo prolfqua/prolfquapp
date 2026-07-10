@@ -1,0 +1,1097 @@
+<!-- ════════════════════════════════════════════════════════════════════
+     FGCZ report search + download toolbar
+     Wired into a report as an after-body include:
+         include-after-body: fgcz-plot-finder.html
+
+     Two floating buttons on the right edge:
+       🔍  FIND — searchable graphical list of every figure & table; clicking
+                  an entry opens the tab(s) it lives in (Quarto hides
+                  inactive-tab content) then scrolls + flashes it.
+       📥  SAVE — tick-box list of every plot; bundle the checked ones into a
+                  single ZIP. Plots save at the resolution knitr embedded them
+                  at (the report's fig-dpi); the browser only has that raster.
+
+     Self-contained: no external libraries, no network calls (CSP- and
+     embed-resources-safe). The ZIP is built with a tiny hand-rolled
+     store-only (no-compression) writer — fine because PNG/JPEG are already
+     compressed. If JS is disabled the report is unchanged and the buttons
+     never appear.
+
+     Source: the search + download buttons of ezRun's fgcz-plot-finder.html
+     (commit uzh/ezRun@32bed9ee, 2026-06-30). The tab-numbering and
+     view-source features from that file are intentionally not included.
+     ════════════════════════════════════════════════════════════════════ -->
+<style>
+  /* ── Right-edge toolbar: docked, labelled, conspicuous. ──────────────
+     Vertically centred on the right edge. Buttons keep their ids
+     (#fgcz-pf-btn / #fgcz-dl-btn) so the JS wiring is unchanged. Move the
+     whole bar by editing `top`; resize buttons via width/padding. */
+  .fgcz-pf-toolbar {
+    position: fixed; right: 0; top: 50%; transform: translateY(-50%);
+    z-index: 1080; display: flex; flex-direction: column;
+  }
+  .fgcz-pf-toolbar button {
+    display: flex; flex-direction: column; align-items: center; gap: .15rem;
+    width: 3.6rem; padding: .6rem .4rem;          /* button size */
+    border: none; cursor: pointer; line-height: 1.1;
+    background: var(--bs-primary, #0b5394); color: #fff;
+    font-size: .7rem; font-weight: 600;            /* label text */
+    box-shadow: -2px 2px 8px rgba(0, 0, 0, .25);
+  }
+  .fgcz-pf-toolbar button + button { border-top: 1px solid rgba(255, 255, 255, .25); }
+  .fgcz-pf-toolbar button:first-child { border-top-left-radius: .6rem; }
+  .fgcz-pf-toolbar button:last-child  { border-bottom-left-radius: .6rem; }
+  .fgcz-pf-toolbar button:hover { filter: brightness(1.12); }
+  .fgcz-pf-toolbar .ic { font-size: 1.25rem; }     /* icon size */
+
+  /* ── Slide-out panels (off-screen until .open). Both share styling. ── */
+  .fgcz-pf-panel {
+    position: fixed; top: 0; right: 0; z-index: 1081;
+    width: 360px; max-width: 90vw; height: 100vh; background: #fff;
+    box-shadow: -2px 0 12px rgba(0, 0, 0, .25);
+    transform: translateX(100%);          /* parked off-screen to the right */
+    transition: transform .2s ease;
+    display: flex; flex-direction: column;
+  }
+  .fgcz-pf-panel.open { transform: translateX(0); }   /* slid into view */
+
+  .fgcz-pf-head {
+    padding: .75rem 1rem; border-bottom: 1px solid #dee2e6;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .fgcz-pf-head h2 { font-size: 1rem; margin: 0; flex: 1; }
+  .fgcz-pf-close {
+    background: none; border: none; font-size: 1.4rem; line-height: 1;
+    cursor: pointer; color: #666;
+  }
+  .fgcz-pf-list {
+    list-style: none; margin: 0; padding: 0 .5rem 1rem;
+    overflow-y: auto; flex: 1;             /* scrolls if the list is long */
+  }
+  .fgcz-pf-item { padding: .5rem .6rem; border-radius: .375rem; cursor: pointer; }
+  .fgcz-pf-item:hover { background: var(--bs-gray-100, #f8f9fa); }
+  .fgcz-pf-item .lbl { display: block; font-weight: 500; }
+  .fgcz-pf-item .crumb { display: block; font-size: .78rem; color: #6c757d; }
+
+  .fgcz-pf-empty { padding: 1rem; color: #6c757d; font-size: .9rem; }
+
+  /* Flash outline applied to a target for ~2s after you jump to it. */
+  .fgcz-pf-flash {
+    outline: 3px solid var(--bs-primary, #0b5394);
+    outline-offset: 4px; border-radius: 2px;
+  }
+
+  /* ── Download-pane bits. ────────────────────────────────────────────── */
+  .fgcz-pf-selall { margin: .6rem 1rem .25rem; font-size: .85rem; }
+  .fgcz-pf-selall label { cursor: pointer; }
+  #fgcz-dl-list {
+    display: grid; gap: .6rem; padding: 0 1rem 1rem;
+  }
+  #fgcz-dl-list .fgcz-pf-item {
+    padding: 0; border: 1px solid #dee2e6; border-radius: .5rem;
+    overflow: hidden; background: #fff; min-height: 220px;
+  }
+  #fgcz-dl-list .fgcz-pf-item:hover { border-color: var(--bs-primary, #0b5394); }
+  .fgcz-dl-card {
+    position: relative; display: flex; flex-direction: column;
+    min-height: 220px; cursor: pointer;
+  }
+  .fgcz-dl-card input {
+    position: absolute; top: .45rem; left: .45rem; z-index: 1; margin: 0;
+    box-shadow: 0 0 0 2px #fff; border-radius: .2rem;
+  }
+  .fgcz-dl-thumb {
+    height: 145px; display: flex; align-items: center; justify-content: center;
+    flex: 0 0 145px; min-height: 145px;
+    background: var(--bs-gray-100, #f8f9fa); overflow: hidden;
+  }
+  .fgcz-dl-thumb img, .fgcz-dl-thumb svg { max-width: 100%; max-height: 145px; }
+  .fgcz-dl-thumb.placeholder { color: #adb5bd; font-size: 1.35rem; }
+  .fgcz-dl-meta {
+    flex: 0 0 auto; min-width: 0; padding: .45rem .55rem;
+    border-top: 1px solid #f0f0f0;
+  }
+  .fgcz-dl-meta .lbl {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    font-size: .78rem; font-weight: 600; line-height: 1.25;
+    overflow: hidden; text-overflow: ellipsis; white-space: normal;
+  }
+  .fgcz-dl-meta .crumb {
+    display: block; margin-top: .2rem; font-size: .68rem; color: #6c757d;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .fgcz-pf-foot { padding: .75rem 1rem; border-top: 1px solid #dee2e6; }
+  .fgcz-pf-dlbtn {
+    width: 100%; padding: .5rem; border: none; border-radius: .375rem;
+    background: var(--bs-primary, #0b5394); color: #fff; font-weight: 600;
+    cursor: pointer;
+  }
+  .fgcz-pf-dlbtn:hover { filter: brightness(1.1); }
+  .fgcz-pf-dlbtn:disabled { opacity: .5; cursor: default; }
+  .fgcz-pf-note { font-size: .75rem; color: #6c757d; margin-top: .5rem; }
+
+  /* ── Results gallery (graphical TOC): one full-width card per result. ─ */
+  .fgcz-toc-panel { width: 440px; }                  /* wider than the lists */
+  #fgcz-toc-search {
+    margin: .75rem 1rem; padding: .4rem .6rem; border: 1px solid #ced4da;
+    border-radius: .375rem; font-size: .9rem;
+  }
+  .fgcz-toc-grid {
+    display: grid; gap: .6rem; align-content: start;
+    grid-template-columns: 1fr;
+    padding: 0 1rem 1rem; overflow-y: auto; flex: 1;   /* scrolls when long */
+  }
+  .fgcz-toc-section-head {
+    grid-column: 1 / -1; padding: .35rem .1rem .25rem;
+    border-bottom: 1px solid #dee2e6; color: #495057;
+    font-size: .74rem; font-weight: 700; line-height: 1.25;
+    overflow-wrap: anywhere; white-space: normal;
+  }
+  .fgcz-toc-cell {
+    border: 1px solid #dee2e6; border-radius: .5rem; overflow: hidden;
+    background: #fff; cursor: pointer; display: flex; flex-direction: column;
+    min-width: 0; min-height: 240px;
+  }
+  .fgcz-toc-cell:hover { border-color: var(--bs-primary, #0b5394); }
+  .fgcz-toc-thumb {
+    height: 145px; display: flex; align-items: center; justify-content: center;
+    flex: 0 0 145px; background: var(--bs-gray-100, #f8f9fa); overflow: hidden;
+  }
+  .fgcz-toc-thumb img, .fgcz-toc-thumb svg { max-width: 100%; max-height: 145px; }
+  .fgcz-toc-thumb.placeholder { color: #adb5bd; font-size: 1.8rem; }
+  .fgcz-toc-thumb.table {
+    align-items: stretch; justify-content: stretch; padding: .5rem;
+  }
+  .fgcz-toc-mini-table {
+    width: 100%; border-collapse: collapse; table-layout: fixed;
+    font-size: .62rem; line-height: 1.25; color: #495057; background: #fff;
+  }
+  .fgcz-toc-mini-table th,
+  .fgcz-toc-mini-table td {
+    padding: .16rem .22rem; border-bottom: 1px solid #dee2e6;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .fgcz-toc-mini-table th { font-weight: 700; background: #f1f3f5; }
+  .fgcz-toc-cap {
+    flex: 0 0 auto; padding: .35rem .5rem; border-top: 1px solid #f0f0f0;
+  }
+  .fgcz-toc-cap .lbl {
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    font-size: .75rem; font-weight: 500; line-height: 1.25;
+    overflow: hidden; text-overflow: ellipsis; white-space: normal;
+  }
+</style>
+
+<!-- Right-edge toolbar -->
+<div class="fgcz-pf-toolbar">
+  <button id="fgcz-pf-btn" title="Find figures and tables" aria-label="Find figures and tables"><span class="ic">🔍</span>Find</button>
+  <button id="fgcz-dl-btn" title="Download plots" aria-label="Download plots"><span class="ic">📥</span>Save</button>
+</div>
+
+<!-- DOWNLOAD panel -->
+<div id="fgcz-dl-panel" class="fgcz-pf-panel" aria-hidden="true">
+  <div class="fgcz-pf-head">
+    <h2>Download plots</h2>
+    <button class="fgcz-pf-close" data-close="fgcz-dl-panel" aria-label="Close">×</button>
+  </div>
+  <div class="fgcz-pf-selall">
+    <label><input type="checkbox" id="fgcz-dl-all" checked> Select all</label>
+  </div>
+  <ul id="fgcz-dl-list" class="fgcz-pf-list"></ul>
+  <div class="fgcz-pf-foot">
+    <button id="fgcz-dl-go" class="fgcz-pf-dlbtn">Download ZIP</button>
+    <div class="fgcz-pf-note">
+      Plots download at the resolution embedded in the report (its fig-dpi).
+      Interactive (plotly) charts aren't listed — export those from their own toolbar.
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS panel — a graphical table of contents for figures and tables -->
+<div id="fgcz-toc-panel" class="fgcz-pf-panel fgcz-toc-panel" aria-hidden="true">
+  <div class="fgcz-pf-head">
+    <h2>Find figures &amp; tables</h2>
+    <button class="fgcz-pf-close" data-close="fgcz-toc-panel" aria-label="Close">×</button>
+  </div>
+  <input id="fgcz-toc-search" type="search" placeholder="Filter figures, tables, or sections…" />
+  <div id="fgcz-toc-grid" class="fgcz-toc-grid"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ─── tab / breadcrumb helpers ──────────────────────────────────────
+
+  // Selector matching the nav-link (tab button) that controls a pane #id.
+  // Memoised: panes share ancestors, so without the cache crumbFor() would
+  // re-run the same document.querySelector once per item per tab-depth. The
+  // link element's identity is stable (only its classes toggle), so the cache
+  // stays valid for the page's lifetime.
+  var _linkCache = {};
+  function linkForPane(id) {
+    if (id in _linkCache) return _linkCache[id];
+    return (_linkCache[id] = document.querySelector(
+      '[aria-controls="' + id + '"], [data-bs-target="#' + id + '"], ' +
+      'a.nav-link[href="#' + id + '"]'
+    ));
+  }
+
+  function textOf(el) {
+    return el ? el.textContent.trim().replace(/\s+/g, ' ') : '';
+  }
+
+  // Breadcrumb (outer → inner) of tab labels enclosing an element.
+  function crumbFor(el) {
+    var parts = [], pane = el.closest('.tab-pane');
+    while (pane) {
+      var link = pane.id ? linkForPane(pane.id) : null;
+      if (link) parts.unshift(textOf(link));
+      pane = pane.parentElement ? pane.parentElement.closest('.tab-pane') : null;
+    }
+    return parts;
+  }
+
+  function headingBelongsTo(el, h) {
+    var pane = h.closest('.tab-pane');
+    while (pane) {
+      if (!pane.contains(el)) return false;
+      pane = pane.parentElement ? pane.parentElement.closest('.tab-pane') : null;
+    }
+    return true;
+  }
+
+  // Section path from the nearest preceding document headings. Tab labels are
+  // handled by crumbFor(); this catches ordinary # / ## / ### sections too.
+  function headingPathFor(el) {
+    var root = document.querySelector('main.content') ||
+      document.querySelector('main') || document.body;
+    var stack = [];
+    root.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(function (h) {
+      if (h.closest('.quarto-title-block, .nav, [role="tablist"], .fgcz-pf-panel')) return;
+      if (!headingBelongsTo(el, h)) return;
+      if (!(h.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+      var txt = textOf(h);
+      if (!txt) return;
+      var level = parseInt(h.tagName.slice(1), 10);
+      while (stack.length && stack[stack.length - 1].level >= level) stack.pop();
+      stack.push({ level: level, text: txt });
+    });
+    return stack.map(function (part) { return part.text; });
+  }
+
+  function compactPath(parts) {
+    var out = [];
+    parts.forEach(function (part) {
+      part = (part || '').trim();
+      if (part && out[out.length - 1] !== part) out.push(part);
+    });
+    return out;
+  }
+
+  function locationFor(el) {
+    return compactPath(headingPathFor(el).concat(crumbFor(el)));
+  }
+
+  function locationText(it) {
+    return it.crumb.join(' › ');
+  }
+
+  function showBootstrapTab(link) {
+    if (!(link && window.bootstrap && window.bootstrap.Tab)) return false;
+    var Tab = window.bootstrap.Tab;
+    var tab = Tab.getOrCreateInstance ? Tab.getOrCreateInstance(link) : new Tab(link);
+    tab.show();
+    return true;
+  }
+
+  function notifyHtmlWidgetsShown() {
+    if (window.jQuery) {
+      window.jQuery(document).trigger('shown.htmlwidgets');
+    } else if (window.dispatchEvent) {
+      window.dispatchEvent(new Event('resize'));
+    }
+  }
+
+  // Activate one tab. Use Bootstrap's API when present so htmlwidgets receive
+  // the shown.bs.tab lifecycle event they use to resize hidden widgets.
+  function activate(pane) {
+    var link = pane.id ? linkForPane(pane.id) : null;
+    if (showBootstrapTab(link)) return;
+    if (link) {
+      var nav = link.closest('.nav-tabs') || link.closest('.nav');
+      if (nav) nav.querySelectorAll('.nav-link').forEach(function (a) {
+        a.classList.remove('active'); a.setAttribute('aria-selected', 'false');
+      });
+      link.classList.add('active'); link.setAttribute('aria-selected', 'true');
+    }
+    var content = pane.closest('.tab-content');
+    if (content) content.querySelectorAll(':scope > .tab-pane').forEach(function (p) {
+      p.classList.remove('active', 'show');
+    });
+    pane.classList.add('active', 'show');
+  }
+
+  // Open every ancestor tab of `el` (outer → inner), then scroll + flash.
+  function reveal(el) {
+    var chain = [], pane = el.closest('.tab-pane');
+    while (pane) {
+      chain.unshift(pane);
+      pane = pane.parentElement ? pane.parentElement.closest('.tab-pane') : null;
+    }
+    chain.forEach(activate);
+    notifyHtmlWidgetsShown();
+    closeAll();
+    setTimeout(function () {            // let the tab switches lay out first
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('fgcz-pf-flash');
+      setTimeout(function () { el.classList.remove('fgcz-pf-flash'); }, 2000);
+    }, 60);
+  }
+
+  // ─── index of figures + tables ─────────────────────────────────────
+
+  // Pull a plotly chart's title out of its embedded htmlwidget JSON
+  // (layout.title — a plain string in older plotly, {text:…} in newer). The
+  // <script> is in the static DOM at load, so this works before plotly draws.
+  function plotlyTitle(widget) {
+    try {
+      if (!widget.id) return null;
+      var s = document.querySelector(
+        'script[type="application/json"][data-for="' + widget.id + '"]');
+      if (!s) return null;
+      var t = JSON.parse(s.textContent).x.layout.title;
+      t = (t && typeof t === 'object') ? t.text : t;
+      return t ? String(t).trim() : null;
+    } catch (e) { return null; }
+  }
+
+  function htmlText(html) {
+    var div = document.createElement('div');
+    div.innerHTML = html || '';
+    return textOf(div);
+  }
+
+  function htmlwidgetData(widget) {
+    try {
+      if (!widget || !widget.id) return null;
+      var s = document.querySelector(
+        'script[type="application/json"][data-for="' + widget.id + '"]');
+      return s ? JSON.parse(s.textContent).x : null;
+    } catch (e) { return null; }
+  }
+
+  function datatableInfo(widget) {
+    var x = htmlwidgetData(widget);
+    if (!x) return { caption: null, preview: null };
+
+    var headers = [];
+    if (x.container) {
+      var div = document.createElement('div');
+      div.innerHTML = x.container;
+      headers = Array.prototype.map.call(div.querySelectorAll('thead th'), textOf);
+    }
+    var data = Array.isArray(x.data) ? x.data : [];
+    var rows = [];
+    var nrow = data.length && Array.isArray(data[0]) ? data[0].length : 0;
+    for (var r = 0; r < Math.min(nrow, 4); r++) {
+      var row = [];
+      for (var c = 0; c < Math.min(data.length, 4); c++) {
+        row.push(data[c] && data[c][r] != null ? String(data[c][r]) : '');
+      }
+      rows.push(row);
+    }
+
+    return {
+      caption: htmlText(x.caption),
+      preview: rows.length ? { headers: headers.slice(0, 4), rows: rows } : null
+    };
+  }
+
+  function datatableWidget(el) {
+    if (!el) return null;
+    if (
+      el.classList &&
+      el.classList.contains('html-widget') &&
+      el.classList.contains('datatables')
+    ) {
+      return el;
+    }
+    return el.querySelector ? el.querySelector('div.html-widget.datatables') : null;
+  }
+
+  function plotlyWidget(el) {
+    if (!el) return null;
+    if (
+      el.classList &&
+      el.classList.contains('plotly') &&
+      el.classList.contains('html-widget')
+    ) {
+      return el;
+    }
+    return el.querySelector ? el.querySelector('div.plotly.html-widget') : null;
+  }
+
+  function plotlyCaption(widget) {
+    var n = widget ? widget.nextSibling : null;
+    while (n) {
+      if (n.nodeType === Node.TEXT_NODE && !n.textContent.trim()) {
+        n = n.nextSibling;
+        continue;
+      }
+      if (
+        n.nodeType === Node.ELEMENT_NODE &&
+        n.tagName &&
+        n.tagName.toLowerCase() === 'script'
+      ) {
+        n = n.nextSibling;
+        continue;
+      }
+      if (
+        n.nodeType === Node.ELEMENT_NODE &&
+        n.tagName &&
+        n.tagName.toLowerCase() === 'p' &&
+        n.parentElement &&
+        n.parentElement.classList.contains('cell-output-display')
+      ) {
+        return textOf(n);
+      }
+      return null;
+    }
+    return null;
+  }
+
+  function buildIndex() {
+    var items = [], seenImgs = new Set(), seenTables = new Set(), seenPlotly = new Set();
+
+    // 1) Figures (Quarto crossref floats + any plain <figure>).
+    document.querySelectorAll('figure').forEach(function (fig) {
+      if (fig.classList.contains('quarto-float-tbl')) return;
+      var cap = fig.querySelector('figcaption');
+      var img = fig.querySelector('img');
+      if (img) seenImgs.add(img);
+      var plotly = fig.querySelector('div.plotly.html-widget');
+      if (plotly) {
+        seenPlotly.add(plotly);
+        items.push({
+          type: 'fig',
+          interactive: true,
+          label: cap ? textOf(cap) : (plotlyCaption(plotly) || plotlyTitle(plotly)),
+          el: fig
+        });
+        return;
+      }
+      items.push({ type: 'fig', label: cap ? textOf(cap) : null, el: fig });
+    });
+
+    // 2) Bare plot images (knitr output that has no fig-cap → no <figure>).
+    document.querySelectorAll('.cell-output-display img').forEach(function (img) {
+      if (seenImgs.has(img)) return;
+      items.push({ type: 'fig', label: null, el: img });
+    });
+
+    // 3) Interactive plotly charts. Plotly widgets inside Quarto figure floats
+    //    are indexed as their outer figure in pass 1 so their figcaption is
+    //    preserved. Bare plotly widgets are still findable here. Flag
+    //    interactive so the bulk download skips them (plotly exports via its
+    //    own modebar camera button).
+    document.querySelectorAll('div.plotly.html-widget').forEach(function (w) {
+      if (seenPlotly.has(w)) return;
+      var fig = w.closest('figure.quarto-float-fig');
+      if (fig) {
+        var cap = fig.querySelector('figcaption');
+        seenPlotly.add(w);
+        items.push({
+          type: 'fig',
+          interactive: true,
+          label: cap ? textOf(cap) : (plotlyCaption(w) || plotlyTitle(w)),
+          el: fig
+        });
+        return;
+      }
+      items.push({
+        type: 'fig',
+        interactive: true,
+        el: w,
+        label: plotlyCaption(w) || plotlyTitle(w)
+      });
+    });
+
+    // 4) Quarto table floats. DT tables inside them are still table floats,
+    //    so index the outer float as a table and use the embedded widget JSON
+    //    for the thumbnail preview. This avoids showing them as generic figure
+    //    placeholders labelled only "Table 1".
+    document.querySelectorAll('figure.quarto-float-tbl').forEach(function (fig) {
+      var widget = datatableWidget(fig);
+      var info = datatableInfo(widget);
+      var cap = fig.querySelector('caption');
+      var figCap = fig.querySelector('figcaption');
+      seenTables.add(fig);
+      if (widget) seenTables.add(widget);
+      items.push({
+        type: 'tbl',
+        label: info.caption || (cap ? textOf(cap) : (figCap ? textOf(figCap) : null)),
+        preview: info.preview,
+        el: fig
+      });
+    });
+
+    // 5) Interactive tables. DT / ezInteractiveTableRmd render as htmlwidgets
+    //    that initialise via JS AFTER page load, so target the htmlwidget
+    //    CONTAINER (always in the DOM); its <caption> is filled by the time
+    //    the panel is opened (we rebuild the index on every open).
+    document.querySelectorAll('div.html-widget.datatables, .dt-container').forEach(function (wrap) {
+      var widget = datatableWidget(wrap);
+      var root = wrap.closest('figure.quarto-float-tbl') ||
+        wrap.closest('div.html-widget.datatables') ||
+        wrap;
+      if (seenTables.has(root)) return;
+      seenTables.add(root);
+      if (widget) seenTables.add(widget);
+      var cap = wrap.querySelector('caption') || root.querySelector('caption');
+      var info = datatableInfo(widget || root);
+      items.push({
+        type: 'tbl',
+        label: cap ? textOf(cap) : info.caption,
+        preview: info.preview,
+        el: wrap
+      });
+    });
+
+    // Collected in passes (figures, bare imgs, plotly, tables), so they're
+    // grouped by TYPE, not by where they sit on the page. Re-sort into document
+    // order so the finder list mirrors the report top-to-bottom.
+    items.sort(function (a, b) {
+      if (a.el === b.el) return 0;
+      var pos = a.el.compareDocumentPosition(b.el);
+      if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1; // a comes before b
+      if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1;  // a comes after b
+      return 0;
+    });
+
+    // Resolve labels (caption → report location → generic), attach a location,
+    // and de-duplicate identical labels with " (n)".
+    var counts = {};
+    items.forEach(function (it) {
+      it.crumb = locationFor(it.el);
+      if (!it.label) {
+        // No caption/title: fall back to the full report location. Same-named
+        // deep tabs (e.g. several "Sepal" panes) then stay distinguishable by
+        // their path instead of only a "(2)/(3)" suffix.
+        it.label = it.crumb.length ? locationText(it)
+                                   : (it.type === 'tbl' ? 'Table' : 'Figure');
+      }
+      counts[it.label] = (counts[it.label] || 0) + 1;
+      if (counts[it.label] > 1) it.label += ' (' + counts[it.label] + ')';
+    });
+    return items;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  // ─── DOWNLOAD panel ────────────────────────────────────────────────
+
+  var dlListEl, dlPanel, dlAllEl, dlGoEl, DL_INDEX = null;
+
+  function isInteractivePlotItem(it) {
+    if (it.interactive) return true;
+    if (!it.el) return false;
+    if (it.el.matches && it.el.matches('div.plotly.html-widget')) return true;
+    return Boolean(it.el.querySelector && it.el.querySelector('div.plotly.html-widget'));
+  }
+
+  // Downloadable plots only: static rasters. Interactive (plotly) charts can't
+  // be re-rendered to a file client-side — users export those via plotly's own
+  // camera button — so they're excluded here despite being findable.
+  function plotItems() {
+    return buildIndex().filter(function (it) { return it.type === 'fig' && !isInteractivePlotItem(it); });
+  }
+
+  function renderDownloads() {
+    DL_INDEX = plotItems();
+    dlListEl.innerHTML = '';
+    if (!DL_INDEX.length) {
+      dlListEl.innerHTML = '<li class="fgcz-pf-empty">No plots to download.</li>';
+      dlGoEl.disabled = true; dlAllEl.checked = false;
+      return;
+    }
+    dlGoEl.disabled = false; dlAllEl.checked = true;
+    DL_INDEX.forEach(function (it, i) {
+      var li = document.createElement('li');
+      li.className = 'fgcz-pf-item';
+      var label = document.createElement('label');
+      label.className = 'fgcz-dl-card';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'fgcz-dl-cb';
+      cb.dataset.i = i;
+      cb.checked = true;
+      label.appendChild(cb);
+      label.appendChild(figureThumb(it, 'fgcz-dl-thumb'));
+      var meta = document.createElement('span');
+      meta.className = 'fgcz-dl-meta';
+      var loc = locationText(it);
+      meta.innerHTML = '<span class="lbl">' + escapeHtml(it.label) + '</span>' +
+        (loc ? '<span class="crumb">' + escapeHtml(loc) + '</span>' : '');
+      label.appendChild(meta);
+      li.appendChild(label);
+      dlListEl.appendChild(li);
+    });
+  }
+
+  function openDownload() {
+    closeAll();
+    renderDownloads();
+    dlPanel.classList.add('open');
+    dlPanel.setAttribute('aria-hidden', 'false');
+  }
+
+  // ── tiny ZIP writer (STORE method, no compression) ──────────────────
+  function u16(v) { return new Uint8Array([v & 0xff, (v >>> 8) & 0xff]); }
+  function u32(v) {
+    return new Uint8Array([v & 0xff, (v >>> 8) & 0xff, (v >>> 16) & 0xff, (v >>> 24) & 0xff]);
+  }
+  function concat(arrs) {
+    var len = 0; arrs.forEach(function (a) { len += a.length; });
+    var out = new Uint8Array(len), p = 0;
+    arrs.forEach(function (a) { out.set(a, p); p += a.length; });
+    return out;
+  }
+  var _crcTable;
+  function crc32(bytes) {
+    if (!_crcTable) {
+      _crcTable = new Uint32Array(256);
+      for (var n = 0; n < 256; n++) {
+        var c = n;
+        for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        _crcTable[n] = c >>> 0;
+      }
+    }
+    var crc = -1;
+    for (var i = 0; i < bytes.length; i++) crc = (crc >>> 8) ^ _crcTable[(crc ^ bytes[i]) & 0xff];
+    return (crc ^ -1) >>> 0;
+  }
+  function makeZip(files) {           // files: [{name, bytes:Uint8Array}]
+    var enc = new TextEncoder(), local = [], central = [], offset = 0;
+    files.forEach(function (f) {
+      var nameBytes = enc.encode(f.name);
+      var crc = crc32(f.bytes), size = f.bytes.length;
+      var header = concat([
+        u32(0x04034b50), u16(20), u16(0), u16(0),    // sig, ver, flags, method(store)
+        u16(0), u16(0),                              // mod time, mod date
+        u32(crc), u32(size), u32(size),              // crc, comp size, uncomp size
+        u16(nameBytes.length), u16(0)                // name len, extra len
+      ]);
+      local.push(header, nameBytes, f.bytes);
+      central.push(concat([
+        u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), // sig, ver made, ver needed, flags, method
+        u16(0), u16(0),                                    // mod time, mod date
+        u32(crc), u32(size), u32(size),                    // crc, comp size, uncomp size
+        u16(nameBytes.length), u16(0), u16(0),             // name, extra, comment len
+        u16(0), u16(0), u32(0),                            // disk #, internal/external attrs
+        u32(offset)                                        // local header offset
+      ]), nameBytes);
+      offset += header.length + nameBytes.length + size;
+    });
+    var cSize = 0; central.forEach(function (c) { cSize += c.length; });
+    var end = concat([
+      u32(0x06054b50), u16(0), u16(0),
+      u16(files.length), u16(files.length),
+      u32(cSize), u32(offset), u16(0)
+    ]);
+    return new Blob(local.concat(central).concat([end]), { type: 'application/zip' });
+  }
+
+  // ── extracting a plot's bytes ───────────────────────────────────────
+  function b64ToBytes(b64) {
+    var bin = atob(b64), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function extFor(mime) {
+    return ({ 'image/png': 'png', 'image/jpeg': 'jpg', 'image/jpg': 'jpg',
+      'image/webp': 'webp', 'image/gif': 'gif', 'image/svg+xml': 'svg' })[mime] || 'png';
+  }
+  function dataUriToFile(uri, baseName) {
+    var comma = uri.indexOf(',');
+    if (uri.slice(0, 5) !== 'data:' || comma < 0) return null;
+    var header = uri.slice(5, comma), data = uri.slice(comma + 1);
+    var isB64 = /;base64$/i.test(header);
+    var mime = header.replace(/;base64$/i, '') || 'application/octet-stream';
+    var bytes = isB64 ? b64ToBytes(data.replace(/\s+/g, ''))
+                      : new TextEncoder().encode(decodeURIComponent(data));
+    return { name: baseName + '.' + extFor(mime), bytes: bytes };
+  }
+  // Turn an indexed figure into a {name, bytes} file, or null if unreadable.
+  function plotToFile(item, baseName) {
+    var el = item.el;
+    var img = el.tagName === 'IMG' ? el : el.querySelector('img');
+    if (img && img.src && img.src.indexOf('data:') === 0) {
+      return dataUriToFile(img.src, baseName);   // embedded raster (PNG/JPEG)
+    }
+    var svg = el.tagName && el.tagName.toLowerCase() === 'svg' ? el : el.querySelector('svg');
+    if (svg) {                                   // inline vector figure
+      return { name: baseName + '.svg',
+        bytes: new TextEncoder().encode(new XMLSerializer().serializeToString(svg)) };
+    }
+    return null;                                 // non-embedded src — can't read offline
+  }
+  function sanitise(s) {
+    return s.replace(/[^A-Za-z0-9._ -]/g, '').trim().replace(/\s+/g, '_').slice(0, 80) || 'plot';
+  }
+  function downloadBlob(blob, filename) {
+    var url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1000);
+  }
+
+  function doDownload() {
+    var files = [], used = {}, skipped = 0;
+    dlListEl.querySelectorAll('.fgcz-dl-cb').forEach(function (cb) {
+      if (!cb.checked) return;
+      var it = DL_INDEX[+cb.dataset.i];
+      var base = sanitise(it.label), name = base, n = 1;
+      while (used[name]) name = base + '_' + (++n);  // unique base name
+      var f = plotToFile(it, name);
+      if (f) { used[name] = true; files.push(f); } else { skipped++; }
+    });
+    if (!files.length) {
+      alert('No downloadable plots selected.\n(Images must be embedded in the report.)');
+      return;
+    }
+    downloadBlob(makeZip(files), 'plots.zip');
+    if (skipped) {
+      // A couple of plots had non-embedded sources; tell the user honestly.
+      setTimeout(function () {
+        alert(skipped + ' plot(s) could not be read (source not embedded) and were skipped.');
+      }, 300);
+    }
+  }
+
+  // ─── RESULTS panel (graphical TOC) ─────────────────────────────────
+
+  var tocGridEl, tocSearchEl, tocPanel, TOC_INDEX = null;
+
+  function cloneMiniRow(row, maxCells) {
+    var out = document.createElement('tr');
+    Array.prototype.slice.call(row.children, 0, maxCells).forEach(function (cell) {
+      var clone = document.createElement(cell.tagName.toLowerCase() === 'th' ? 'th' : 'td');
+      clone.textContent = textOf(cell);
+      out.appendChild(clone);
+    });
+    return out.children.length ? out : null;
+  }
+
+  function tableThumb(it) {
+    var wrap = document.createElement('div');
+    wrap.className = 'fgcz-toc-thumb table';
+    var source = it.el.querySelector ? it.el.querySelector('table') : null;
+    if (!source && !it.preview) {
+      wrap.className += ' placeholder';
+      wrap.textContent = 'Tbl';
+      return wrap;
+    }
+
+    var mini = document.createElement('table');
+    mini.className = 'fgcz-toc-mini-table';
+    if (it.preview) {
+      if (it.preview.headers && it.preview.headers.length) {
+        var theadFromData = document.createElement('thead');
+        var trHead = document.createElement('tr');
+        it.preview.headers.forEach(function (txt) {
+          var th = document.createElement('th');
+          th.textContent = txt;
+          trHead.appendChild(th);
+        });
+        theadFromData.appendChild(trHead);
+        mini.appendChild(theadFromData);
+      }
+      var tbodyFromData = document.createElement('tbody');
+      it.preview.rows.forEach(function (row) {
+        var tr = document.createElement('tr');
+        row.forEach(function (txt) {
+          var td = document.createElement('td');
+          td.textContent = txt;
+          tr.appendChild(td);
+        });
+        tbodyFromData.appendChild(tr);
+      });
+      mini.appendChild(tbodyFromData);
+      wrap.appendChild(mini);
+      return wrap;
+    }
+
+    var headRow = source.querySelector('thead tr');
+    if (headRow) {
+      var thead = document.createElement('thead');
+      var miniHeadRow = cloneMiniRow(headRow, 4);
+      if (miniHeadRow) {
+        thead.appendChild(miniHeadRow);
+        mini.appendChild(thead);
+      }
+    }
+    var body = document.createElement('tbody');
+    Array.prototype.slice.call(source.querySelectorAll('tbody tr'), 0, 4).forEach(function (row) {
+      var miniRow = cloneMiniRow(row, 4);
+      if (miniRow) body.appendChild(miniRow);
+    });
+    if (body.children.length) mini.appendChild(body);
+    if (!mini.children.length) {
+      wrap.className += ' placeholder';
+      wrap.textContent = 'Tbl';
+      return wrap;
+    }
+    wrap.appendChild(mini);
+    return wrap;
+  }
+
+  var plotlyThumbCache = typeof WeakMap === 'function' ? new WeakMap() : null;
+
+  function finitePositive(x) {
+    x = Number(x);
+    return isFinite(x) && x > 0 ? x : null;
+  }
+
+  function plotlyThumbSize(widget, x) {
+    var layout = x && x.layout ? x.layout : {};
+    var graph = widget.querySelector ? widget.querySelector('.js-plotly-plot') : null;
+    graph = graph || widget;
+    var full = graph._fullLayout || {};
+    var width = finitePositive(layout.width) ||
+      finitePositive(full.width) ||
+      finitePositive(widget.clientWidth) ||
+      finitePositive(widget.offsetWidth) ||
+      640;
+    var height = finitePositive(layout.height) ||
+      finitePositive(full.height) ||
+      finitePositive(widget.clientHeight) ||
+      finitePositive(widget.offsetHeight) ||
+      400;
+    return {
+      width: Math.max(320, Math.min(1200, Math.round(width))),
+      height: Math.max(220, Math.min(900, Math.round(height)))
+    };
+  }
+
+  function clonePlainObject(x) {
+    var out = {};
+    if (!x || typeof x !== 'object') return out;
+    Object.keys(x).forEach(function (k) { out[k] = x[k]; });
+    return out;
+  }
+
+  function setThumbImage(wrap, url, label) {
+    wrap.innerHTML = '';
+    wrap.classList.remove('placeholder');
+    wrap.classList.add('plotly');
+    var img = document.createElement('img');
+    img.src = url;
+    img.alt = label || 'interactive figure';
+    img.loading = 'lazy';
+    wrap.appendChild(img);
+  }
+
+  function plotlyThumbPromise(widget) {
+    if (!widget || !window.Plotly || !window.Plotly.newPlot || !window.Plotly.toImage) {
+      return null;
+    }
+    var cached = plotlyThumbCache ? plotlyThumbCache.get(widget) : null;
+    if (cached) return cached;
+
+    var x = htmlwidgetData(widget);
+    if (!x || !Array.isArray(x.data)) return null;
+    var size = plotlyThumbSize(widget, x);
+    var promise = new Promise(function (resolve, reject) {
+      var host = document.createElement('div');
+      host.style.position = 'fixed';
+      host.style.left = '-10000px';
+      host.style.top = '0';
+      host.style.width = size.width + 'px';
+      host.style.height = size.height + 'px';
+      host.style.opacity = '0';
+      host.style.pointerEvents = 'none';
+      document.body.appendChild(host);
+
+      var layout = clonePlainObject(x.layout);
+      layout.width = size.width;
+      layout.height = size.height;
+      layout.autosize = false;
+      var config = clonePlainObject(x.config);
+      config.staticPlot = true;
+      config.displayModeBar = false;
+      config.responsive = false;
+
+      window.Plotly.newPlot(host, x.data, layout, config)
+        .then(function () {
+          return window.Plotly.toImage(host, {
+            format: 'png',
+            width: size.width,
+            height: size.height,
+            scale: 1
+          });
+        })
+        .then(resolve)
+        .catch(reject)
+        .finally(function () {
+          if (window.Plotly && window.Plotly.purge) window.Plotly.purge(host);
+          host.remove();
+        });
+    });
+
+    if (plotlyThumbCache) {
+      plotlyThumbCache.set(widget, promise);
+      promise.then(function (url) {
+        plotlyThumbCache.set(widget, url);
+      }).catch(function () {
+        plotlyThumbCache.delete(widget);
+      });
+    }
+    return promise;
+  }
+
+  function renderPlotlyThumb(it, wrap) {
+    var widget = plotlyWidget(it.el);
+    if (!widget) return;
+    var cached = plotlyThumbCache ? plotlyThumbCache.get(widget) : null;
+    if (typeof cached === 'string') {
+      setThumbImage(wrap, cached, it.label);
+      return;
+    }
+    var promise = cached || plotlyThumbPromise(widget);
+    if (!promise || !promise.then) return;
+    promise.then(function (url) {
+      if (url) setThumbImage(wrap, url, it.label);
+    }).catch(function () {});
+  }
+
+  function figureThumb(it, className) {
+    var wrap = document.createElement('div');
+    wrap.className = className;
+    var el = it.el;
+    var img = el.tagName === 'IMG' ? el
+      : (el.querySelector ? el.querySelector('img') : null);
+    if (!it.interactive && img && img.src) {
+      var t = document.createElement('img');
+      t.src = img.src; t.alt = it.label || 'figure'; t.loading = 'lazy';
+      wrap.appendChild(t);
+      return wrap;
+    }
+    var svg = (el.tagName && el.tagName.toLowerCase() === 'svg') ? el
+      : (el.querySelector ? el.querySelector('svg') : null);
+    if (!it.interactive && svg) {
+      wrap.appendChild(svg.cloneNode(true));
+      return wrap;
+    }
+    wrap.className += ' placeholder';
+    wrap.textContent = it.interactive ? '📈' : '🖼️';
+    if (it.interactive) renderPlotlyThumb(it, wrap);
+    return wrap;
+  }
+
+  // A small thumbnail for a result: reuse embedded figure images, clone inline
+  // SVGs, build a compact table preview, or ask Plotly to rasterize an
+  // interactive chart from its embedded htmlwidget JSON.
+  function tocThumb(it) {
+    if (it.type === 'tbl') return tableThumb(it);
+    return figureThumb(it, 'fgcz-toc-thumb');
+  }
+
+  function renderToc(filter) {
+    filter = (filter || '').toLowerCase();
+    tocGridEl.innerHTML = '';
+    var shown = 0, lastLoc = null;
+    TOC_INDEX.forEach(function (it) {
+      var loc = locationText(it);
+      var hay = (it.label + ' ' + loc).toLowerCase();
+      if (filter && hay.indexOf(filter) === -1) return;
+      shown++;
+      if (loc !== lastLoc) {
+        var head = document.createElement('div');
+        head.className = 'fgcz-toc-section-head';
+        head.textContent = loc || 'Document';
+        tocGridEl.appendChild(head);
+        lastLoc = loc;
+      }
+      var cell = document.createElement('div');
+      cell.className = 'fgcz-toc-cell';
+      cell.title = loc ? (it.label + '\n' + loc) : it.label;
+      cell.appendChild(tocThumb(it));
+      var cap = document.createElement('div');
+      cap.className = 'fgcz-toc-cap';
+      cap.innerHTML = '<span class="lbl">' + escapeHtml(it.label) + '</span>';
+      cell.appendChild(cap);
+      cell.addEventListener('click', function () { reveal(it.el); });
+      tocGridEl.appendChild(cell);
+    });
+    if (!shown) {
+      var empty = document.createElement('div');
+      empty.className = 'fgcz-pf-empty';
+      empty.textContent = filter ? 'No matches.' : 'No figures or tables found.';
+      tocGridEl.appendChild(empty);
+    }
+  }
+
+  function openToc() {
+    closeAll();
+    // Figures and tables, in document order. Rebuilt on every open so late-init
+    // widgets, especially DT tables, are included.
+    TOC_INDEX = buildIndex().filter(function (it) {
+      return it.type === 'fig' || it.type === 'tbl';
+    });
+    renderToc(tocSearchEl.value);
+    tocPanel.classList.add('open');
+    tocPanel.setAttribute('aria-hidden', 'false');
+    tocSearchEl.focus();
+  }
+
+  // ─── shared open/close + wiring ────────────────────────────────────
+
+  function closeAll() {
+    [dlPanel, tocPanel].forEach(function (p) {
+      p.classList.remove('open'); p.setAttribute('aria-hidden', 'true');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    dlPanel   = document.getElementById('fgcz-dl-panel');
+    tocPanel  = document.getElementById('fgcz-toc-panel');
+    dlListEl  = document.getElementById('fgcz-dl-list');
+    dlAllEl   = document.getElementById('fgcz-dl-all');
+    dlGoEl    = document.getElementById('fgcz-dl-go');
+    tocGridEl = document.getElementById('fgcz-toc-grid');
+    tocSearchEl = document.getElementById('fgcz-toc-search');
+
+    document.getElementById('fgcz-pf-btn').addEventListener('click', openToc);
+    document.getElementById('fgcz-dl-btn').addEventListener('click', openDownload);
+    document.querySelectorAll('.fgcz-pf-close').forEach(function (b) {
+      b.addEventListener('click', closeAll);
+    });
+    tocSearchEl.addEventListener('input', function () { renderToc(tocSearchEl.value); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAll();
+    });
+
+    // Select-all toggles every checkbox in the download list.
+    dlAllEl.addEventListener('change', function () {
+      dlListEl.querySelectorAll('.fgcz-dl-cb').forEach(function (cb) {
+        cb.checked = dlAllEl.checked;
+      });
+    });
+    dlGoEl.addEventListener('click', doDownload);
+
+    // Show each button only when there's something for it to act on.
+    var probe = buildIndex();
+    var figs = probe.filter(function (it) { return it.type === 'fig'; });
+    var browsable = probe.filter(function (it) { return it.type === 'fig' || it.type === 'tbl'; });
+    if (!browsable.length) document.getElementById('fgcz-pf-btn').style.display = 'none';
+    if (!figs.some(function (it) { return !it.interactive; })) {
+      document.getElementById('fgcz-dl-btn').style.display = 'none';
+    }
+  });
+})();
+</script>

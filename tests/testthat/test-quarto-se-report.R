@@ -180,37 +180,33 @@ test_that("SE Quarto tabset report renders with reconstructed LFQData", {
 
   report_file <- "Grp2Analysis_V2_SE_tabset.qmd"
   file.copy(file.path(report_source_dir, report_file), workdir, overwrite = TRUE)
-  file.copy(
-    file.path(report_source_dir, "_extensions"),
-    workdir,
-    recursive = TRUE
-  )
 
-  render_args <- c(
-    "render",
-    report_file,
-    "-P",
-    paste0("se_file:", normalizePath(se_file))
-  )
+  # Stage the FGCZ assets and render via fgcz_render (the same path the runtime
+  # report helper uses): fgcz_render copies _metadata.yml / fgcz.scss /
+  # fgcz_header_quarto.html / fgcz-plot-finder.html from the installed
+  # fgczquartotemplate package next to the qmd, so no _extensions/ tree is needed.
+  execute_params <- list(se_file = normalizePath(se_file))
   source_tree <- test_source_tree()
   if (nzchar(source_tree)) {
     skip_if_not_installed("devtools")
-    render_args <- c(
-      render_args,
-      "-P",
-      paste0("prolfquapp_source_path:", source_tree)
-    )
+    execute_params$prolfquapp_source_path <- source_tree
   }
 
   oldwd <- setwd(workdir)
   on.exit(setwd(oldwd), add = TRUE)
 
-  status <- system2("quarto", render_args, stdout = TRUE, stderr = TRUE)
-  exit_code <- attr(status, "status")
-  if (!is.null(exit_code) && exit_code != 0) {
-    message("quarto render output:\n", paste(status, collapse = "\n"))
+  render_result <- tryCatch(
+    fgczquartotemplate::fgcz_render(
+      input = report_file,
+      buttons = FALSE,
+      execute_params = execute_params
+    ),
+    error = function(e) e
+  )
+  if (inherits(render_result, "error")) {
+    message("fgcz_render failed:\n", conditionMessage(render_result))
   }
-  expect_null(exit_code)
+  expect_false(inherits(render_result, "error"))
   html_file <- sub("[.]qmd$", ".html", report_file)
   expect_equal(file.exists(html_file), TRUE)
   html <- paste(readLines(html_file, warn = FALSE), collapse = "\n")
@@ -259,7 +255,7 @@ test_that("internal SE Quarto report helper renders HTML", {
   expect_equal(file.exists(html_file), TRUE)
   html <- paste(readLines(html_file, warn = FALSE), collapse = "\n")
   expect_match(html, "fgcz-banner", fixed = TRUE)
-  expect_match(html, "Differential Abundance Analysis", fixed = TRUE)
+  expect_match(html, "Differential Expression Analysis (Tabbed Report)", fixed = TRUE)
   expect_match(html, "Feature Detection", fixed = TRUE)
   expect_match(html, "Result Table", fixed = TRUE)
   expect_match(html, "fgcz-pf-toolbar", fixed = TRUE)

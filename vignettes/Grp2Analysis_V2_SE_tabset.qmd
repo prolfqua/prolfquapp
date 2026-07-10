@@ -1,11 +1,11 @@
 ---
 title: "Differential Expression Analysis (Tabbed Report)"
 format:
-  fgczquartotemplate-html:
+  html:
     toc-location: left
     grid:
       sidebar-width: 300px
-    include-after-body: _extensions/fgczquartotemplate/fgcz-plot-finder.html
+    include-after-body: fgcz-plot-finder.html
 toc: true
 params:
   se_file: null
@@ -13,7 +13,7 @@ params:
   fdr_threshold: 0.05
   diff_threshold: 1
 vignette: >
-  %\VignetteIndexEntry{Differential Abundance Analysis (SE tabset)}
+  %\VignetteIndexEntry{Differential Expression Analysis (Tabbed Report)}
   %\VignetteEngine{quarto::format}
   %\VignetteEncoding{UTF-8}
 ---

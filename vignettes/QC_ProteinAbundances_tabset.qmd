@@ -3,10 +3,10 @@ title: "Protein Signal Intensities within Groups"
 author: "The CompMS team"
 date: today
 format:
-  fgczquartotemplate-html:
+  html:
     grid:
       sidebar-width: 300px
-    include-after-body: _extensions/fgczquartotemplate/fgcz-plot-finder.html
+    include-after-body: fgcz-plot-finder.html
 toc: false
 params:
   pap_file: null

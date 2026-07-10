@@ -1,2 +1,5 @@
-bibliography.bib
-vignettes/_extensions$
+bibliography\.bib$
+_metadata\.yml$
+fgcz\.scss$
+fgcz_header_quarto\.html$
+fgcz-plot-finder\.html$

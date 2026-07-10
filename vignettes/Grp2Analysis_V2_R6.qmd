@@ -3,11 +3,11 @@ title: "Differential Expression Analysis."
 author: "Functional Genomics Center Zurich"
 date: today
 format:
-  fgczquartotemplate-html:
+  html:
     toc-location: left
     grid:
       sidebar-width: 300px
-    include-after-body: _extensions/fgczquartotemplate/fgcz-plot-finder.html
+    include-after-body: fgcz-plot-finder.html
 toc: true
 params:
   deanalyse_file: null

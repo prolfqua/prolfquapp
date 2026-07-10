@@ -1,14 +1,20 @@
 # Internal Quarto report helpers.
 #
-# The Quarto report sources live in `vignettes/` in the extension style, styled
-# by the vendored `vignettes/_extensions/fgczquartotemplate/`. The file
-# `vignettes/.install_extras` ships both the qmd vignette sources and the
-# `_extensions/` tree into the installed package's `doc/` directory, so they are
-# reachable at runtime via `system.file("doc", ...)`. Rendering therefore copies
-# the qmd plus `_extensions/` out of `doc/` into a temporary directory and calls
-# `quarto::quarto_render()` directly. The FGCZ styling and the Find/Save toolbar
-# are declared in the report front matter, so no `fgcz_render()` call is needed
-# and there is a single source of truth per report (the vignette file itself).
+# The Quarto report sources live in `vignettes/` as plain `format: html` reports
+# whose FGCZ styling (SCSS theme, header) comes from a directory-level
+# `_metadata.yml`, and whose Find/Save toolbar is wired via
+# `include-after-body: fgcz-plot-finder.html`. The file `vignettes/.install_extras`
+# ships the qmd sources into the installed package's `doc/` directory, so they are
+# reachable at runtime via `system.file("doc", ...)`.
+#
+# Rendering copies the qmd out of `doc/` into a temporary directory and calls
+# `fgczquartotemplate::fgcz_render()`, which stages the FGCZ assets
+# (`_metadata.yml`, `fgcz.scss`, `fgcz_header_quarto.html`, `fgcz-plot-finder.html`)
+# next to the qmd from the installed `fgczquartotemplate` package before rendering.
+# The assets thus have a single source of truth (the `fgczquartotemplate` package)
+# and rendering no longer depends on any `_extensions/` tree being shipped into
+# `doc/`. `buttons = FALSE`: the toolbar is already wired by the report's own
+# `include-after-body`, so `fgcz_render()` must not inject it a second time.
 #
 # Because the sources are shipped via the vignette machinery, this requires the
 # package to have been installed with vignettes built (the default for
@@ -35,7 +41,6 @@
     )
     return(NULL)
   }
-  ext_src <- system.file("doc/_extensions", package = "prolfquapp")
   bib_src <- system.file("doc/bibliography.bib", package = "prolfquapp")
 
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
@@ -45,9 +50,6 @@
   on.exit(unlink(render_dir, recursive = TRUE), add = TRUE)
 
   file.copy(qmd_src, render_dir, overwrite = TRUE)
-  if (nzchar(ext_src) && dir.exists(ext_src)) {
-    file.copy(ext_src, render_dir, recursive = TRUE)
-  }
   if (nzchar(bib_src) && file.exists(bib_src)) {
     file.copy(bib_src, render_dir, overwrite = TRUE)
   }
@@ -55,8 +57,15 @@
   oldwd <- setwd(render_dir)
   on.exit(setwd(oldwd), add = TRUE)
 
+  # fgcz_render() stages the FGCZ assets from the installed fgczquartotemplate
+  # package next to the qmd, then renders. buttons = FALSE because the report's
+  # own include-after-body already wires the Find/Save toolbar.
   render_result <- tryCatch(
-    quarto::quarto_render(input = qmd_name, execute_params = execute_params),
+    fgczquartotemplate::fgcz_render(
+      input = qmd_name,
+      buttons = FALSE,
+      execute_params = execute_params
+    ),
     error = function(e) e
   )
   if (inherits(render_result, "error")) {
