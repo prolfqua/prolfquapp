@@ -103,7 +103,7 @@ We ran your samples through the same analysis pipeline that will be applied to t
 
 The report is organized into tabs. The **Quality Control** tab describes how many `r strings[["targets"]]` were identified, how reproducibly they were detected across samples, how comparable their abundance distributions are, and how variable they are. The **Sample Size Calculation** tab then *consumes* the variability estimated during quality control to size the main experiment for a range of biologically relevant effect sizes. Sample names used throughout are defined in @tbl-sample-mapping.
 
-::: {.callout-note}
+::: {.callout-note collapse="true" title="About this report"}
 This report is generated automatically and contains no experiment-specific conclusions. Please discuss it with your project bioinformatician or statistician (who is typically not your project coach).
 :::
 

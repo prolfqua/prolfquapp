@@ -737,7 +737,7 @@ dt_table(significant_contrasts, caption = "Significant differential abundance re
 
 ## Distributions
 
-::: {.callout-note}
+::: {.callout-note collapse="true"}
 ## Why look at the fold-change and p-value distributions?
 
 These two histograms are model diagnostics read across all features at once, not per feature. The **fold-change** distribution should be centred near zero, because most features are not differentially abundant; a systematic shift away from zero points to a normalization or experimental-design problem rather than real biology. The **p-value** (or FDR/BFDR) distribution should be roughly uniform under the null hypothesis, with a peak near zero when true effects are present; a peak near one, or a strongly non-uniform shape, indicates that the statistical model does not describe the data well (for example unmodelled variance or outliers), so the significance calls should be interpreted with caution.
