@@ -2,7 +2,7 @@
 #
 # The Quarto report sources live in `vignettes/` as plain `format: html` reports
 # whose FGCZ styling (SCSS theme, header) comes from a directory-level
-# `_metadata.yml`, and whose Find/Save toolbar is wired via
+# `_metadata.yml`, and whose Find/Download toolbar is wired via
 # `include-after-body: fgcz-plot-finder.html`. The file `vignettes/.install_extras`
 # ships the qmd sources into the installed package's `doc/` directory, so they are
 # reachable at runtime via `system.file("doc", ...)`.
@@ -59,7 +59,7 @@
 
   # fgcz_render() stages the FGCZ assets from the installed fgczquartotemplate
   # package next to the qmd, then renders. buttons = FALSE because the report's
-  # own include-after-body already wires the Find/Save toolbar.
+  # own include-after-body already wires the Find/Download toolbar.
   render_result <- tryCatch(
     fgczquartotemplate::fgcz_render(
       input = qmd_name,

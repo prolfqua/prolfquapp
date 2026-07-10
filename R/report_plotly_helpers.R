@@ -60,6 +60,7 @@ plotly_ggplot_subplot <- function(
   if (!is.null(legend_groupclick)) {
     plotly_obj <- plotly::layout(plotly_obj, legend = list(groupclick = legend_groupclick))
   }
+  plotly_obj <- .highlight_keyed_plotly(plotly_obj)
   .set_plotly_widget_size(plotly_obj, width = width, height = height)
 }
 
@@ -76,6 +77,30 @@ plotly_ggplot_subplot <- function(
     ggplotly_args$height <- height
   }
   do.call(plotly::ggplotly, ggplotly_args)
+}
+
+.highlight_keyed_plotly <- function(plotly_obj, opacity_dim = 0.15) {
+  highlight_groups <- unique(unlist(lapply(
+    plotly_obj$x$data,
+    function(trace) {
+      if (!is.null(trace$key) && !is.null(trace$set)) {
+        return(as.character(trace$set))
+      }
+      character()
+    }
+  ), use.names = FALSE))
+  if (length(highlight_groups) == 0) {
+    return(plotly_obj)
+  }
+  plotly_obj <- plotly::highlight(
+    plotly_obj,
+    on = "plotly_hover",
+    off = "plotly_doubleclick",
+    opacityDim = opacity_dim,
+    selected = plotly::attrs_selected(opacity = 1)
+  )
+  plotly_obj$x$highlight$ctGroups <- I(highlight_groups)
+  plotly_obj
 }
 
 .set_plotly_widget_size <- function(plotly_obj, width = NULL, height = NULL) {

@@ -45,10 +45,6 @@ project_info <- params$project_info
 
 ```
 
-
-- Order : `r project_info$order_Id`
-- Workunit : `r project_info$workunit_Id`
-
 ::: {.panel-tabset}
 
 # Protein abundances
@@ -76,7 +72,6 @@ pp <- prolfquapp::plot_abundance_vs_percent(
 pp <- plotly::ggplotly(pp)
 ```
 
-
 ```{r createDT}
 precabund_table <- pap$get_protein_per_group_small_wide()
 datax <- crosstalk::SharedData$new(
@@ -100,32 +95,33 @@ table <- DT::datatable(
 
 ```
 
-The columns of the table below contain:
-
-- protein_Id - protein identifier
-- nrPeptides - number of peptides assigned to the protein
-- description - protein description from the FASTA header
-- nrMeasured_<GroupName> - number of samples in which the protein was quantified, by group and overall
-- meanAbundance_<GroupName> - mean protein abundance per group
-- signal_percent_<GroupName> - percentage of the total protein signal attributed to the protein
-
-
-
-
-```{r}
-table
-```
-
-
-The iBAQ signal per protein is calculated by summing the `Precursor.Quantity` values across all precursors assigned to the protein and dividing by the number of theoretically observable peptides. A large share of the recorded signal can be concentrated in a small set of highly abundant proteins. If the dominant proteins are the cleavage enzyme, common contaminants such as human keratins, or the bait protein, this can indicate shortcomings in sample preparation or cleanup.
-
-
 ```{r}
 #| label: fig-protein-cumulative
 #| fig-dpi: 96
 #| fig-cap: "Per-protein iBAQ signal contribution versus abundance rank, one panel per group. Each point is one protein; the x-axis is the protein's abundance-rank percentile (proteins ordered from lowest to highest mean iBAQ abundance) and the y-axis (log10 scale) is the percentage of the total iBAQ (intensity-based absolute quantification) signal contributed by that protein. Contaminant and decoy proteins are highlighted in red."
 pp
 ```
+
+```{r}
+table
+```
+
+::: {.callout-note collapse="true"}
+## Table columns
+The columns of the protein abundance table contain:
+
+- `protein_Id` - protein identifier
+- `nrPeptides` - number of peptides assigned to the protein
+- `description` - protein description from the FASTA header
+- `nrMeasured_<GroupName>` - number of samples in which the protein was quantified, by group and overall
+- `meanAbundance_<GroupName>` - mean protein abundance per group
+- `signal_percent_<GroupName>` - percentage of the total protein signal attributed to the protein
+:::
+
+::: {.callout-note collapse="true"}
+## What is the iBAQ signal?
+The iBAQ signal per protein is calculated by summing the `Precursor.Quantity` values across all precursors assigned to the protein and dividing by the number of theoretically observable peptides. A large share of the recorded signal can be concentrated in a small set of highly abundant proteins. If the dominant proteins are the cleavage enzyme, common contaminants such as human keratins, or the bait protein, this can indicate shortcomings in sample preparation or cleanup.
+:::
 
 # Proteins per sample
 
@@ -134,6 +130,18 @@ pp
 #| fig-cap: "Number of proteins quantified per sample."
 srs <- lfqdataProt$get_Summariser()
 srs$plot_hierarchy_counts_sample()
+```
+
+# Session Info
+
+Metadata for this report and the R session used to generate it.
+
+- Order: `r project_info$order_Id %||% "n/a"`
+- Workunit: `r project_info$workunit_Id %||% "n/a"`
+
+```{r}
+#| label: session-info
+sessionInfo()
 ```
 
 :::

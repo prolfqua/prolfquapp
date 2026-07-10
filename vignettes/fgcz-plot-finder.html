@@ -3,13 +3,14 @@
      Wired into a report as an after-body include:
          include-after-body: fgcz-plot-finder.html
 
-     Two floating buttons on the right edge:
+     Two floating buttons in the top right:
        🔍  FIND — searchable graphical list of every figure & table; clicking
                   an entry opens the tab(s) it lives in (Quarto hides
                   inactive-tab content) then scrolls + flashes it.
-       📥  SAVE — tick-box list of every plot; bundle the checked ones into a
-                  single ZIP. Plots save at the resolution knitr embedded them
-                  at (the report's fig-dpi); the browser only has that raster.
+       📥  DOWNLOAD — tick-box list of every plot; bundle the checked ones into
+                  a single ZIP. Plots save at the resolution knitr embedded
+                  them at (the report's fig-dpi); the browser only has that
+                  raster.
 
      Self-contained: no external libraries, no network calls (CSP- and
      embed-resources-safe). The ZIP is built with a tiny hand-rolled
@@ -22,27 +23,25 @@
      view-source features from that file are intentionally not included.
      ════════════════════════════════════════════════════════════════════ -->
 <style>
-  /* ── Right-edge toolbar: docked, labelled, conspicuous. ──────────────
-     Vertically centred on the right edge. Buttons keep their ids
-     (#fgcz-pf-btn / #fgcz-dl-btn) so the JS wiring is unchanged. Move the
-     whole bar by editing `top`; resize buttons via width/padding. */
+  /* ── Top-right toolbar: docked, labelled, conspicuous. ───────────────
+     Buttons keep their ids (#fgcz-pf-btn / #fgcz-dl-btn) so the JS wiring is
+     unchanged. Move the whole bar by editing `top` / `right`; resize buttons
+     via min-width/padding. */
   .fgcz-pf-toolbar {
-    position: fixed; right: 0; top: 50%; transform: translateY(-50%);
-    z-index: 1080; display: flex; flex-direction: column;
+    position: fixed; right: 1rem; top: 1rem; transform: none;
+    z-index: 1080; display: flex; flex-direction: row; gap: .35rem;
   }
   .fgcz-pf-toolbar button {
-    display: flex; flex-direction: column; align-items: center; gap: .15rem;
-    width: 3.6rem; padding: .6rem .4rem;          /* button size */
+    display: flex; align-items: center; justify-content: center; gap: .25rem;
+    min-width: 4.4rem; padding: .45rem .65rem;    /* button size */
     border: none; cursor: pointer; line-height: 1.1;
     background: var(--bs-primary, #0b5394); color: #fff;
     font-size: .7rem; font-weight: 600;            /* label text */
-    box-shadow: -2px 2px 8px rgba(0, 0, 0, .25);
+    border-radius: .55rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
   }
-  .fgcz-pf-toolbar button + button { border-top: 1px solid rgba(255, 255, 255, .25); }
-  .fgcz-pf-toolbar button:first-child { border-top-left-radius: .6rem; }
-  .fgcz-pf-toolbar button:last-child  { border-bottom-left-radius: .6rem; }
   .fgcz-pf-toolbar button:hover { filter: brightness(1.12); }
-  .fgcz-pf-toolbar .ic { font-size: 1.25rem; }     /* icon size */
+  .fgcz-pf-toolbar .ic { font-size: 1.05rem; }     /* icon size */
 
   /* ── Slide-out panels (off-screen until .open). Both share styling. ── */
   .fgcz-pf-panel {
@@ -182,10 +181,10 @@
   }
 </style>
 
-<!-- Right-edge toolbar -->
+<!-- Top-right toolbar -->
 <div class="fgcz-pf-toolbar">
   <button id="fgcz-pf-btn" title="Find figures and tables" aria-label="Find figures and tables"><span class="ic">🔍</span>Find</button>
-  <button id="fgcz-dl-btn" title="Download plots" aria-label="Download plots"><span class="ic">📥</span>Save</button>
+  <button id="fgcz-dl-btn" title="Download plots" aria-label="Download plots"><span class="ic">📥</span>Download</button>
 </div>
 
 <!-- DOWNLOAD panel -->
@@ -650,6 +649,66 @@
     dlPanel.setAttribute('aria-hidden', 'false');
   }
 
+  // ── report metadata + download filenames ───────────────────────────
+  function cleanValue(value) {
+    value = value == null ? '' : String(value).trim();
+    return /^(n\/a|na|null|undefined)$/i.test(value) ? '' : value;
+  }
+
+  function camelToKebab(name) {
+    return name.replace(/_/g, '-').replace(/[A-Z]/g, function (c) {
+      return '-' + c.toLowerCase();
+    });
+  }
+
+  function reportMetadataText(label) {
+    var text = document.body ? (document.body.innerText || document.body.textContent || '') : '';
+    var re = new RegExp(label + '\\s*(?:id|ID)?\\s*[:：]\\s*([A-Za-z0-9._-]+)', 'i');
+    var match = text.match(re);
+    return match ? cleanValue(match[1]) : '';
+  }
+
+  function reportMetadataValue(names, textLabel) {
+    var marker = document.getElementById('fgcz-report-metadata');
+    if (marker && marker.dataset) {
+      for (var i = 0; i < names.length; i++) {
+        var value = cleanValue(marker.dataset[names[i]]);
+        if (value) return value;
+      }
+    }
+    for (var j = 0; j < names.length; j++) {
+      var meta = document.querySelector('meta[name="fgcz-' + camelToKebab(names[j]) + '"]');
+      var content = meta ? cleanValue(meta.getAttribute('content')) : '';
+      if (content) return content;
+    }
+    return reportMetadataText(textLabel);
+  }
+
+  function pad2(n) { return n < 10 ? '0' + n : String(n); }
+
+  function timestampForFilename(date) {
+    return date.getFullYear() +
+      pad2(date.getMonth() + 1) +
+      pad2(date.getDate()) + '-' +
+      pad2(date.getHours()) +
+      pad2(date.getMinutes()) +
+      pad2(date.getSeconds());
+  }
+
+  function sanitiseFilePart(s) {
+    return cleanValue(s).replace(/[^A-Za-z0-9._-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 80);
+  }
+
+  function downloadZipFilename() {
+    var parts = ['plots'];
+    var orderId = sanitiseFilePart(reportMetadataValue(['orderId', 'order'], 'Order'));
+    var workunitId = sanitiseFilePart(reportMetadataValue(['workunitId', 'workunit'], 'Workunit'));
+    if (orderId) parts.push('order_' + orderId);
+    if (workunitId) parts.push('workunit_' + workunitId);
+    parts.push(timestampForFilename(new Date()));
+    return parts.join('_') + '.zip';
+  }
+
   // ── tiny ZIP writer (STORE method, no compression) ──────────────────
   function u16(v) { return new Uint8Array([v & 0xff, (v >>> 8) & 0xff]); }
   function u32(v) {
@@ -675,21 +734,32 @@
     for (var i = 0; i < bytes.length; i++) crc = (crc >>> 8) ^ _crcTable[(crc ^ bytes[i]) & 0xff];
     return (crc ^ -1) >>> 0;
   }
+
+  function zipDosDateTime(date) {
+    if (!(date instanceof Date) || isNaN(date.getTime())) date = new Date();
+    if (date.getFullYear() < 1980) date = new Date(1980, 0, 1, 0, 0, 0);
+    return {
+      time: (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2),
+      date: ((date.getFullYear() - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate()
+    };
+  }
+
   function makeZip(files) {           // files: [{name, bytes:Uint8Array}]
-    var enc = new TextEncoder(), local = [], central = [], offset = 0;
+    var enc = new TextEncoder(), local = [], central = [], offset = 0, now = new Date();
     files.forEach(function (f) {
       var nameBytes = enc.encode(f.name);
       var crc = crc32(f.bytes), size = f.bytes.length;
+      var stamp = zipDosDateTime(f.modified || now);
       var header = concat([
         u32(0x04034b50), u16(20), u16(0), u16(0),    // sig, ver, flags, method(store)
-        u16(0), u16(0),                              // mod time, mod date
+        u16(stamp.time), u16(stamp.date),            // mod time, mod date
         u32(crc), u32(size), u32(size),              // crc, comp size, uncomp size
         u16(nameBytes.length), u16(0)                // name len, extra len
       ]);
       local.push(header, nameBytes, f.bytes);
       central.push(concat([
         u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), // sig, ver made, ver needed, flags, method
-        u16(0), u16(0),                                    // mod time, mod date
+        u16(stamp.time), u16(stamp.date),                  // mod time, mod date
         u32(crc), u32(size), u32(size),                    // crc, comp size, uncomp size
         u16(nameBytes.length), u16(0), u16(0),             // name, extra, comment len
         u16(0), u16(0), u32(0),                            // disk #, internal/external attrs
@@ -764,7 +834,7 @@
       alert('No downloadable plots selected.\n(Images must be embedded in the report.)');
       return;
     }
-    downloadBlob(makeZip(files), 'plots.zip');
+    downloadBlob(makeZip(files), downloadZipFilename());
     if (skipped) {
       // A couple of plots had non-embedded sources; tell the user honestly.
       setTimeout(function () {

@@ -25,3 +25,24 @@ test_that("plotly_ggplot_subplot de-duplicates legend entries across panels", {
   legend_groups <- vapply(legend_data, `[[`, character(1), "legendgroup")
   expect_equal(sort(visible_names), sort(unique(legend_groups)))
 })
+
+test_that("plotly_ggplot_subplot fades keyed traces on hover", {
+  testthat::skip_if_not_installed("plotly")
+
+  keyed_mtcars <- plotly::highlight_key(
+    mtcars,
+    key = as.character(mtcars$cyl),
+    group = "test-density"
+  )
+  p <- ggplot2::ggplot(
+    keyed_mtcars,
+    ggplot2::aes(mpg, colour = factor(cyl), group = factor(cyl))
+  ) +
+    ggplot2::geom_density()
+
+  widget <- plotly_ggplot_subplot(p)
+
+  expect_equal(widget$x$highlight$on, "plotly_hover")
+  expect_equal(widget$x$highlight$opacityDim, 0.15)
+  expect_equal(as.character(widget$x$highlight$ctGroups), "test-density")
+})
