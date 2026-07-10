@@ -1,5 +1,5 @@
 ---
-title: "Differential Abundance Analysis"
+title: "Differential Expression Analysis (Tabbed Report)"
 format:
   fgczquartotemplate-html:
     toc-location: left
@@ -398,7 +398,7 @@ show_plot(protein_counts_two_peptides)
 
 ```{r}
 #| label: fig-protein-detection-overlap
-#| fig-cap: "Feature detections shared across experimental groups."
+#| fig-cap: "UpSet plot of feature-detection overlap between experimental groups: each vertical bar counts the features detected (at least one non-missing measurement) in one specific combination of groups, the combination is shown by the filled dots below the bar, and the horizontal set-size bars on the left give each group's total number of detected features."
 #| fig-width: 9
 #| fig-height: 6
 draw_or_empty(
@@ -635,7 +635,7 @@ dt_table(abundance_summary, caption = "Differential abundance calls by contrast"
 
 ```{r}
 #| label: fig-significant-feature-overlap-all
-#| fig-cap: "Significant features shared across differential-abundance contrasts."
+#| fig-cap: "UpSet plot of significant features (both FDR and fold-change thresholds met, either direction) shared between contrasts: each vertical bar counts the features called significant in one specific combination of contrasts, shown by the filled dots below the bar, and the horizontal set-size bars on the left give each contrast's total number of significant features."
 #| fig-width: 9
 #| fig-height: 6
 draw_upset_or_empty(
@@ -648,7 +648,7 @@ draw_upset_or_empty(
 
 ```{r}
 #| label: fig-significant-feature-overlap-increased
-#| fig-cap: "Increased-abundance significant features shared across contrasts."
+#| fig-cap: "UpSet plot of significantly increased-abundance features (positive fold-change passing both thresholds) shared between contrasts: each vertical bar counts the up-regulated features in one specific combination of contrasts, shown by the filled dots below the bar, and the horizontal set-size bars on the left give each contrast's total number of up-regulated features."
 #| fig-width: 9
 #| fig-height: 6
 draw_upset_or_empty(
@@ -661,7 +661,7 @@ draw_upset_or_empty(
 
 ```{r}
 #| label: fig-significant-feature-overlap-decreased
-#| fig-cap: "Decreased-abundance significant features shared across contrasts."
+#| fig-cap: "UpSet plot of significantly decreased-abundance features (negative fold-change passing both thresholds) shared between contrasts: each vertical bar counts the down-regulated features in one specific combination of contrasts, shown by the filled dots below the bar, and the horizontal set-size bars on the left give each contrast's total number of down-regulated features."
 #| fig-width: 9
 #| fig-height: 6
 draw_upset_or_empty(
@@ -692,7 +692,7 @@ if (!is.null(contrast_plotter)) {
 
 ```{r}
 #| label: fig-ma
-#| fig-cap: "Differential abundance MA plots by average abundance and abundance rank."
+#| fig-cap: "MA plots of differential abundance (two stacked panels, one row of panels per contrast): each point is a feature with its log2 fold-change on the y-axis; the top panel plots this against mean transformed abundance and the bottom panel against abundance rank, with a horizontal line at zero fold-change and dashed lines at the fold-change threshold."
 #| fig-width: 8
 #| fig-height: 9
 if (!is.null(contrast_plotter)) {
@@ -713,7 +713,7 @@ if (!is.null(contrast_plotter)) {
 
 ```{r}
 #| label: fig-significant-protein-heatmap
-#| fig-cap: "Transformed feature abundance row z-scores for significant differential-abundance results."
+#| fig-cap: "Heatmap of the significant differential-abundance features: rows are features called significant in at least one contrast, columns are samples, and each cell encodes the per-feature (row) z-score of the transformed abundance (row labels are shown only when at most 30 features are significant)."
 #| fig-width: 9
 #| fig-height: 8
 if (nrow(significant_contrasts) > 0 && !is.null(feature_col)) {
