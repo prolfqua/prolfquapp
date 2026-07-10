@@ -21,7 +21,7 @@ make_DEA_config_R6(
   patternContaminants = "^zz|^CON|Cont_",
   application = "DIANN",
   prefix = "DEA",
-  model = "lm_missing"
+  model = "lm_impute"
 )
 }
 \arguments{

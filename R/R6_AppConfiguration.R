@@ -31,8 +31,8 @@ ProcessingOptions <- R6::R6Class(
     #'   Valid keys include prolfqua facade keys such as lm, lm_missing,
     #'   lm_impute, limma, limma_impute, rlm, deqms, firth, lmer,
     #'   ropeca, plus the prolfquasaint-backed key saint.
-    #'   Default "lm_missing".
-    model = "lm_missing",
+    #'   Default "lm_impute".
+    model = "lm_impute",
     #' @field other list with additional options
     other = NULL,
     #' @field internal protein IDs for internal standard normalization
@@ -431,7 +431,7 @@ make_DEA_config_R6 <- function(
   patternContaminants = "^zz|^CON|Cont_",
   application = "DIANN",
   prefix = "DEA",
-  model = "lm_missing"
+  model = "lm_impute"
 ) {
   Normalization <- match.arg(Normalization)
   aggregation <- match.arg(aggregation)

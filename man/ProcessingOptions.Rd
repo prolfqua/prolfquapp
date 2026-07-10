@@ -46,7 +46,7 @@ Other ProlfquAppConfig:
 Valid keys include prolfqua facade keys such as lm, lm_missing,
 lm_impute, limma, limma_impute, rlm, deqms, firth, lmer,
 ropeca, plus the prolfquasaint-backed key saint.
-Default "lm_missing".}
+Default "lm_impute".}
 
 \item{\code{other}}{list with additional options}
 

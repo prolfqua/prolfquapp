@@ -141,7 +141,7 @@ if (!is.null(opt$yaml)) {
     WORKUNITID = ids$workunit,
     Normalization = if (is.null(normalization)) "vsn" else normalization,
     application = "CompoundDiscoverer",
-    model = "lm_missing"
+    model = "lm_impute"
   )
 }
 

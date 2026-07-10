@@ -92,7 +92,7 @@ Initialize DEAnalyse
   rowAnnot,
   prolfq_app_config,
   contrasts,
-  default_model = "lm_missing",
+  default_model = "lm_impute",
   lfq_data_raw = NULL,
   summary = NULL
 )}\if{html}{\out{</div>}}
@@ -109,7 +109,7 @@ Initialize DEAnalyse
 
 \item{\code{contrasts}}{named vector of contrast definitions}
 
-\item{\code{default_model}}{facade registry key (default "lm_missing")}
+\item{\code{default_model}}{facade registry key (default "lm_impute")}
 
 \item{\code{lfq_data_raw}}{raw (untransformed) LFQData for reporting (optional)}
 

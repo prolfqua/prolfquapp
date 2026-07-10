@@ -115,7 +115,7 @@ run_make_yaml <- function(
   order = "",
   workunit = "",
   norm = "vsn",
-  model = "lm_missing",
+  model = "lm_impute",
   nr_peptides = 1,
   outdir = NULL
 ) {

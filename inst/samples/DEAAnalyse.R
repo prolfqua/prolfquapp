@@ -21,7 +21,7 @@ data_prep$cont_decoy_summary()
 data_prep$aggregate()
 data_prep$transform_data()
 #'
-# ---- Build DEAnalyse with default facade (lm_missing) ----
+# ---- Build DEAnalyse with default facade (lm_impute) ----
 deanalyse <- data_prep$build_deanalyse(contrasts)
 deanalyse$build_default()
 stopifnot(nrow(deanalyse$contrast_results[[deanalyse$default_model]]$get_contrasts()) == 200)
@@ -35,6 +35,6 @@ deanalyse$build_facade("lm")
 deanalyse$build_facade("limma")
 #'
 # ---- Access facade plotter ----
-cpl <- deanalyse$contrast_results[["lm_missing"]]$get_Plotter()
+cpl <- deanalyse$contrast_results[["lm_impute"]]$get_Plotter()
 cpl$volcano()
 #'

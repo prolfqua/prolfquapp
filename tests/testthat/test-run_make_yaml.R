@@ -18,7 +18,7 @@ test_that("run_make_yaml defaults produce valid config", {
   cfg <- prolfquapp::run_make_yaml()
   expect_type(cfg, "list")
   expect_equal(cfg$processing_options$transform, "vsn")
-  expect_equal(cfg$processing_options$model, "lm_missing")
+  expect_equal(cfg$processing_options$model, "lm_impute")
 })
 
 test_that("run_make_yaml reorders fields (internal sections at bottom)", {

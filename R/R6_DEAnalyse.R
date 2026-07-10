@@ -81,7 +81,7 @@ DEAnalyse <- R6::R6Class(
     #' @field contrast_results named list of facade objects
     contrast_results = list(),
     #' @field default_model facade registry key for the default model
-    default_model = "lm_missing",
+    default_model = "lm_impute",
 
     #' @description
     #' Initialize DEAnalyse
@@ -89,7 +89,7 @@ DEAnalyse <- R6::R6Class(
     #' @param rowAnnot ProteinAnnotation object
     #' @param prolfq_app_config ProlfquAppConfig object
     #' @param contrasts named vector of contrast definitions
-    #' @param default_model facade registry key (default "lm_missing")
+    #' @param default_model facade registry key (default "lm_impute")
     #' @param lfq_data_raw raw (untransformed) LFQData for reporting (optional)
     #' @param summary data.frame with contaminant/decoy summary (optional)
     initialize = function(
@@ -97,7 +97,7 @@ DEAnalyse <- R6::R6Class(
       rowAnnot,
       prolfq_app_config,
       contrasts,
-      default_model = "lm_missing",
+      default_model = "lm_impute",
       lfq_data_raw = NULL,
       summary = NULL
     ) {
