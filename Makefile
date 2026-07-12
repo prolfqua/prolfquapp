@@ -5,6 +5,9 @@ PKG_VERSION := $(shell awk '/^Version:/ {print $$2; exit}' DESCRIPTION)
 TARBALL := ../$(PKG_NAME)_$(PKG_VERSION).tar.gz
 
 DOCUMENT_CMD = Rscript -e "devtools::document()"
+# DIVERGE: Quarto vignettes include bare asset filenames, so sync the package
+# copy from fgczquartotemplate before every package/vignette build.
+SYNC_QUARTO_ASSETS_CMD = Rscript data-raw/sync_quarto_assets.R
 BUILD_CMD = Rscript -e "devtools::build(vignettes = TRUE)"
 CHECK_CMD = Rscript -e "devtools::check()"
 CHECK_FAST_CMD = Rscript -e "devtools::check(build_args = '--no-build-vignettes', args = '--no-vignettes', vignettes = FALSE)"
@@ -20,13 +23,14 @@ NEW_VERSION_CMD = Rscript -e "d <- read.dcf('DESCRIPTION'); old <- d[1, 'Version
 DOCKER_IMAGE ?= prolfqua/$(PKG_NAME)
 DOCKER_TAG   ?= dev
 
-.PHONY: all help document build build-vignettes vignettes install test check-fast check-bioc check coverage lint format site clean new-version new_version vignette docker-build docker-check
+.PHONY: all help document sync-quarto-assets build build-vignettes vignettes install test check-fast check-bioc check coverage lint format site clean new-version new_version vignette docker-build docker-check
 
 all: check
 
 help:
 	@echo "$(PKG_NAME) development targets:"
 	@echo "  make document        - generate roxygen2 docs"
+	@echo "  make sync-quarto-assets - copy current FGCZ Quarto assets into vignettes/"
 	@echo "  make build           - build source tarball with vignettes"
 	@echo "  make build-vignettes - build vignettes into inst/doc"
 	@echo "  make vignettes       - alias for build-vignettes"
@@ -48,10 +52,13 @@ help:
 document:
 	$(DOCUMENT_CMD)
 
-build: document
+sync-quarto-assets:
+	$(SYNC_QUARTO_ASSETS_CMD)
+
+build: document sync-quarto-assets
 	$(BUILD_CMD)
 
-build-vignettes: document
+build-vignettes: document sync-quarto-assets
 	rm -rf doc inst/doc
 	$(BUILD_VIGNETTES_CMD)
 	mkdir -p inst/doc
@@ -62,10 +69,10 @@ vignettes: build-vignettes
 install: build
 	$(INSTALL_CMD)
 
-test: document
+test: document sync-quarto-assets
 	$(TEST_CMD)
 
-check-fast: document
+check-fast: document sync-quarto-assets
 	$(CHECK_FAST_CMD)
 
 check-bioc:
@@ -86,7 +93,7 @@ format:
 site: install
 	$(SITE_CMD)
 
-vignette:
+vignette: sync-quarto-assets
 ifndef V
 	$(error Usage: make vignette V=<vignette_name>, e.g. make vignette V=Benchmark_prolfqua)
 endif
@@ -107,7 +114,7 @@ clean:
 	rm -rf inst/doc doc Meta
 	rm -f vignettes/*.html vignettes/*.R
 
-docker-build:
+docker-build: sync-quarto-assets
 	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) -f Dockerfile .
 
 docker-check:

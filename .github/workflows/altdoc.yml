@@ -31,6 +31,15 @@ jobs:
             github::fgcz/prolfqua
           needs: website
 
+      - name: Verify FGCZ Quarto assets are synchronized
+        run: |
+          Rscript --vanilla data-raw/sync_quarto_assets.R
+          if [ -n "$(git status --porcelain -- vignettes/_metadata.yml vignettes/fgcz.scss vignettes/fgcz_header_quarto.html vignettes/fgcz-plot-finder.html)" ]; then
+            echo "::error::FGCZ Quarto assets are out of sync — run make sync-quarto-assets and commit"
+            git --no-pager diff -- vignettes/_metadata.yml vignettes/fgcz.scss vignettes/fgcz_header_quarto.html vignettes/fgcz-plot-finder.html
+            exit 1
+          fi
+
       # altdoc renders the report vignettes, which call prolfquapp::example_*();
       # install the package first so those functions are available.
       - name: Install package

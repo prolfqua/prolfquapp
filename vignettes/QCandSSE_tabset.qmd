@@ -106,7 +106,7 @@ cat(prolfquapp:::.report_overview_cards(
 ))
 ```
 
-<img src="visual_abstracts/quality-control-sample-size.png" alt="Visual abstract: pilot samples are quantified, quality checked for detection and variability, then used to plan sample size for a main experiment." style="width: 100%; max-height: 22rem; object-fit: contain;">
+<img src="quality-control-sample-size.png" alt="Visual abstract: pilot samples are quantified, quality checked for detection and variability, then used to plan sample size for a main experiment." style="width: 100%; max-height: 22rem; object-fit: contain;">
 
 We ran your samples through the same analysis pipeline that will be applied to the main experiment. This document summarizes the `r strings[["target"]]` variability, assesses the reproducibility of the biological samples, and estimates the sample sizes needed for the main experiment.
 
@@ -259,7 +259,7 @@ plotter_transformed <- dataTransformed$get_Plotter()
 ## Abundance Distributions
 
 ```{r}
-#| eval: !expr show_text
+#| eval: !expr get0("show_text", ifnotfound = FALSE)
 #| results: asis
 cat(
   "Normalization removes systematic differences between samples, for example",
@@ -271,7 +271,7 @@ cat(
 ```
 
 ```{r}
-#| eval: !expr "!show_text"
+#| eval: !expr "!get0('show_text', ifnotfound = TRUE)"
 #| results: asis
 cat("The data were already transformed on import, so only the transformed distribution is shown.")
 ```
@@ -282,7 +282,7 @@ cat("The data were already transformed on import, so only the transformed distri
 #| fig-cap: !expr paste0("Sample-level intensity distributions before and after transformation. The left panel shows raw ", strings[["target"]], " intensities, the right panel transformed intensities; each curve or violin is one sample.")
 #| fig-height: 5
 #| fig-width: 8
-#| eval: !expr show_text
+#| eval: !expr get0("show_text", ifnotfound = FALSE)
 if (plot_density) {
   raw_intensity <- lfqdata$get_Plotter()$intensity_distribution_density() +
     ggplot2::labs(title = "Raw intensities") +
@@ -313,7 +313,7 @@ The coefficient of variation (CV) of a group of samples can be compared against 
 ### Coefficient of variation (raw)
 
 ```{r}
-#| eval: !expr show_text
+#| eval: !expr get0("show_text", ifnotfound = FALSE)
 #| results: asis
 cat(
   "Before scaling and normalization, the", strings[["target"]],
@@ -325,7 +325,7 @@ cat(
 ```
 
 ```{r}
-#| eval: !expr "!show_text"
+#| eval: !expr "!get0('show_text', ifnotfound = TRUE)"
 #| results: asis
 cat("The data were already transformed on import, so raw-intensity coefficients of variation are not reported.")
 ```
@@ -336,7 +336,7 @@ cat("The data were already transformed on import, so raw-intensity coefficients 
 #| fig-cap: !expr paste0("Distribution of ", strings[["target"]], "-level coefficients of variation (CV, in %) before transformation. The left panel shows CV densities by group; the right panel splits ", strings[["targets"]], " into below- and above-median abundance strata.")
 #| fig-height: 6
 #| fig-width: 8
-#| eval: !expr show_text
+#| eval: !expr get0("show_text", ifnotfound = FALSE)
 
 moreThanOneSample <- nrow(lfqdata$factors()) > 1
 
@@ -364,14 +364,14 @@ if ( moreThanOneSample ) {
 
 ```{r computeCVQuantiles}
 #| include: false
-#| eval: !expr show_text
+#| eval: !expr get0("show_text", ifnotfound = FALSE)
 cv_quantiles_res <- stats$stats_quantiles(probs = c(0.5, 0.6, 0.7, 0.8, 0.9))$wide
 ```
 
 ```{r}
 #| label: tbl-cv-quantiles
 #| tbl-cap: "Coefficient of variation (CV, in %) quantiles at the 50th, 60th, 70th, 80th and 90th percentiles."
-#| eval: !expr show_text
+#| eval: !expr get0("show_text", ifnotfound = FALSE)
 cv_quantiles_res |>
   dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, 2))) |>
   knitr::kable()
@@ -421,7 +421,7 @@ prolfquapp::plotly_ggplot_subplot(p1, p2)
 ```
 
 ```{r}
-#| eval: !expr plot_sd_vs_mean
+#| eval: !expr get0("plot_sd_vs_mean", ifnotfound = FALSE)
 #| results: asis
 cat("@fig-sd-vs-mean shows the standard deviation as a function of mean transformed intensity; after vsn the trend should be roughly flat.")
 ```
@@ -429,7 +429,7 @@ cat("@fig-sd-vs-mean shows the standard deviation as a function of mean transfor
 ```{r}
 #| label: fig-sd-vs-mean
 #| fig-cap: "Standard deviation as a function of mean transformed intensity. Each point is one quantified target; the x-axis is mean transformed intensity and the y-axis is SD."
-#| eval: !expr plot_sd_vs_mean
+#| eval: !expr get0("plot_sd_vs_mean", ifnotfound = FALSE)
 st$stdv_vs_mean()
 ```
 
@@ -543,7 +543,7 @@ if (have_sample_size) {
 ```
 
 ```{r}
-#| eval: !expr "!have_sample_size"
+#| eval: !expr "!get0('have_sample_size', ifnotfound = TRUE)"
 #| results: asis
 cat("Sample size estimation requires transformed data and is therefore not available for this data set.")
 ```
@@ -557,14 +557,14 @@ cat("Sample size estimation requires transformed data and is therefore not avail
 #| fig-cap: !expr paste0("Estimated samples per group to detect a log2 fold-change of 0.59 (fold change 1.5) at significance level 0.05 and power 0.8. Each panel is one experimental group; the two bars are the 50% and 75% SD quantiles of the measured ", strings[["targets"]], ".")
 #| fig-width: 8
 #| fig-height: 5
-#| eval: !expr have_sample_size
+#| eval: !expr get0("have_sample_size", ifnotfound = FALSE)
 plot_ssize(0.59)
 ```
 
 ```{r}
 #| label: tbl-ssize-059
 #| tbl-cap: "Samples per group for a log2 fold-change of 0.59 (fold change 1.5), by group and SD quantile."
-#| eval: !expr have_sample_size
+#| eval: !expr get0("have_sample_size", ifnotfound = FALSE)
 table_ssize(0.59)
 ```
 
@@ -575,14 +575,14 @@ table_ssize(0.59)
 #| fig-cap: !expr paste0("Estimated samples per group to detect a log2 fold-change of 1 (fold change 2) at significance level 0.05 and power 0.8. Each panel is one experimental group; the two bars are the 50% and 75% SD quantiles of the measured ", strings[["targets"]], ".")
 #| fig-width: 8
 #| fig-height: 5
-#| eval: !expr have_sample_size
+#| eval: !expr get0("have_sample_size", ifnotfound = FALSE)
 plot_ssize(1)
 ```
 
 ```{r}
 #| label: tbl-ssize-1
 #| tbl-cap: "Samples per group for a log2 fold-change of 1 (fold change 2), by group and SD quantile."
-#| eval: !expr have_sample_size
+#| eval: !expr get0("have_sample_size", ifnotfound = FALSE)
 table_ssize(1)
 ```
 
@@ -593,14 +593,14 @@ table_ssize(1)
 #| fig-cap: !expr paste0("Estimated samples per group to detect a log2 fold-change of 2 (fold change 4) at significance level 0.05 and power 0.8. Each panel is one experimental group; the two bars are the 50% and 75% SD quantiles of the measured ", strings[["targets"]], ".")
 #| fig-width: 8
 #| fig-height: 5
-#| eval: !expr have_sample_size
+#| eval: !expr get0("have_sample_size", ifnotfound = FALSE)
 plot_ssize(2)
 ```
 
 ```{r}
 #| label: tbl-ssize-2
 #| tbl-cap: "Samples per group for a log2 fold-change of 2 (fold change 4), by group and SD quantile."
-#| eval: !expr have_sample_size
+#| eval: !expr get0("have_sample_size", ifnotfound = FALSE)
 table_ssize(2)
 ```
 

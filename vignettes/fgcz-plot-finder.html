@@ -3,7 +3,9 @@
      Wired into a report as an after-body include:
          include-after-body: fgcz-plot-finder.html
 
-     Two floating buttons in the top right:
+     Two compact icon buttons glued to the right edge, stacked (Find above
+     Download), a quarter of the way down the page. They show only their icon
+     until hover/focus, which reveals the Find / Download label:
        🔍  FIND — searchable graphical list of every figure & table; clicking
                   an entry opens the tab(s) it lives in (Quarto hides
                   inactive-tab content) then scrolls + flashes it.
@@ -23,25 +25,42 @@
      view-source features from that file are intentionally not included.
      ════════════════════════════════════════════════════════════════════ -->
 <style>
-  /* ── Right-aligned toolbar: below banner, labelled, conspicuous. ─────
-     Buttons keep their ids (#fgcz-pf-btn / #fgcz-dl-btn) so the JS wiring is
-     unchanged. Move the whole bar by editing `top` / `right`; resize buttons
-     via min-width/padding. */
+  /* ── Right-edge toolbar: flush to the right border, a quarter down the page.
+     Two icon buttons stacked and glued together (Find above Download). Each is
+     icon-only until hover/focus, when the .lbl label slides open. Buttons keep
+     their ids (#fgcz-pf-btn / #fgcz-dl-btn) so the JS wiring is unchanged. Move
+     the whole bar by editing `top` / `right`; resize via padding / .ic size. */
   .fgcz-pf-toolbar {
-    position: fixed; right: 1rem; top: max(7rem, 25vh); transform: none;
-    z-index: 1080; display: flex; flex-direction: row; gap: .35rem;
+    position: fixed; right: 0; top: 25vh; transform: none;
+    z-index: 1080; display: flex; flex-direction: column; align-items: flex-end;
+    gap: 0;                                         /* buttons glued together */
   }
   .fgcz-pf-toolbar button {
-    display: flex; align-items: center; justify-content: center; gap: .25rem;
-    min-width: 4.4rem; padding: .45rem .65rem;    /* button size */
-    border: none; cursor: pointer; line-height: 1.1;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: .5rem .55rem;                          /* compact, icon-sized */
+    border: none; cursor: pointer; line-height: 1;
     background: var(--bs-primary, #0b5394); color: #fff;
-    font-size: .7rem; font-weight: 600;            /* label text */
-    border-radius: .55rem;
+    font-size: .72rem; font-weight: 600;            /* label text (on hover) */
     box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+    white-space: nowrap;
   }
+  /* Round only the outer (left) corners of the stacked pair; the right side
+     stays square against the screen edge, with a hairline between the two. */
+  .fgcz-pf-toolbar button:first-child { border-top-left-radius: .55rem; }
+  .fgcz-pf-toolbar button:last-child  { border-bottom-left-radius: .55rem; }
+  .fgcz-pf-toolbar button + button { border-top: 1px solid rgba(255, 255, 255, .25); }
   .fgcz-pf-toolbar button:hover { filter: brightness(1.12); }
-  .fgcz-pf-toolbar .ic { font-size: 1.05rem; }     /* icon size */
+  .fgcz-pf-toolbar .ic { font-size: 1.15rem; }      /* icon size */
+  /* Label hidden (zero width) until hover/focus, then it slides open. */
+  .fgcz-pf-toolbar .lbl {
+    max-width: 0; margin-left: 0; overflow: hidden;
+    transition: max-width .18s ease, margin-left .18s ease, opacity .18s ease;
+    opacity: 0;
+  }
+  .fgcz-pf-toolbar button:hover .lbl,
+  .fgcz-pf-toolbar button:focus-visible .lbl {
+    max-width: 7rem; margin-left: .3rem; opacity: 1;
+  }
 
   /* ── Slide-out panels (off-screen until .open). Both share styling. ── */
   .fgcz-pf-panel {
@@ -183,8 +202,8 @@
 
 <!-- Top-right toolbar -->
 <div class="fgcz-pf-toolbar">
-  <button id="fgcz-pf-btn" title="Find figures and tables" aria-label="Find figures and tables"><span class="ic">🔍</span>Find</button>
-  <button id="fgcz-dl-btn" title="Download plots" aria-label="Download plots"><span class="ic">📥</span>Download</button>
+  <button id="fgcz-pf-btn" title="Find figures and tables" aria-label="Find figures and tables"><span class="ic">🔍</span><span class="lbl">Find</span></button>
+  <button id="fgcz-dl-btn" title="Download plots" aria-label="Download plots"><span class="ic">📥</span><span class="lbl">Download</span></button>
 </div>
 
 <!-- DOWNLOAD panel -->

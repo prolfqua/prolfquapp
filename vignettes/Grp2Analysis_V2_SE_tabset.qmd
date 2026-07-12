@@ -292,7 +292,7 @@ report_provenance <- prolfquapp:::.report_provenance(
 cat(prolfquapp:::.report_overview_cards(lfq_raw))
 ```
 
-<img src="visual_abstracts/differential-expression-tabset.png" alt="Visual abstract: quantified protein abundances and sample annotation define an analysis design and contrasts, which produce quality checks and differential-abundance results." style="width: 100%; max-height: 22rem; object-fit: contain;">
+<img src="differential-expression-tabset.png" alt="Visual abstract: quantified protein abundances and sample annotation define an analysis design and contrasts, which produce quality checks and differential-abundance results." style="width: 100%; max-height: 22rem; object-fit: contain;">
 
 This report brings together experimental design, feature detection, quality control, and differential-abundance results. The tabs make the analysis path explicit: define the design and contrasts, inspect data quality, then review the result table.
 

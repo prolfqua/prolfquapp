@@ -3,23 +3,32 @@
 # The Quarto report sources live in `vignettes/` as plain `format: html` reports
 # whose FGCZ styling (SCSS theme, header) comes from a directory-level
 # `_metadata.yml`, and whose Find/Download toolbar is wired via
-# `include-after-body: fgcz-plot-finder.html`. The file `vignettes/.install_extras`
-# ships the qmd sources into the installed package's `doc/` directory, so they are
-# reachable at runtime via `system.file("doc", ...)`.
+# `include-after-body: fgcz-plot-finder.html`. `data-raw/sync_quarto_assets.R`
+# keeps these build-time assets synchronized with `fgczquartotemplate`. The file
+# `vignettes/.install_extras` ships the qmd sources into the installed package's
+# `doc/` directory, so they are reachable at runtime via `system.file("doc", ...)`.
 #
 # Rendering copies the qmd out of `doc/` into a temporary directory and calls
 # `fgczquartotemplate::fgcz_render()`, which stages the FGCZ assets
 # (`_metadata.yml`, `fgcz.scss`, `fgcz_header_quarto.html`, `fgcz-plot-finder.html`)
 # next to the qmd from the installed `fgczquartotemplate` package before rendering.
-# The assets thus have a single source of truth (the `fgczquartotemplate` package)
-# and rendering no longer depends on any `_extensions/` tree being shipped into
-# `doc/`. `buttons = FALSE`: the toolbar is already wired by the report's own
-# `include-after-body`, so `fgcz_render()` must not inject it a second time.
+# Runtime rendering therefore receives the same template assets without depending
+# on an `_extensions/` tree being shipped into `doc/`. `buttons = FALSE`: the
+# toolbar is already wired by the report's own `include-after-body`, so
+# `fgcz_render()` must not inject it a second time.
 #
 # Because the sources are shipped via the vignette machinery, this requires the
 # package to have been installed with vignettes built (the default for
 # `R CMD build` + `R CMD INSTALL`, which is how `make install` installs). If the
 # sources are absent from `doc/`, rendering is skipped with a warning.
+
+.quarto_visual_abstract_names <- c(
+  "differential-expression.png",
+  "differential-expression-tabset.png",
+  "differential-expression-qc.png",
+  "protein-abundances.png",
+  "quality-control-sample-size.png"
+)
 
 .render_quarto_doc_report <- function(
   qmd_name,
@@ -42,18 +51,10 @@
     return(NULL)
   }
   bib_src <- system.file("doc/bibliography.bib", package = "prolfquapp")
-  visual_abstracts_candidates <- c(
-    system.file("doc/visual_abstracts", package = "prolfquapp"),
-    file.path(dirname(dirname(qmd_src)), "vignettes", "visual_abstracts")
+  visual_abstracts_src <- file.path(
+    dirname(qmd_src),
+    .quarto_visual_abstract_names
   )
-  visual_abstracts_candidates <- visual_abstracts_candidates[
-    dir.exists(visual_abstracts_candidates)
-  ]
-  visual_abstracts_src <- if (length(visual_abstracts_candidates) > 0) {
-    visual_abstracts_candidates[[1]]
-  } else {
-    ""
-  }
 
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   output_dir <- normalizePath(output_dir, mustWork = TRUE)
@@ -65,18 +66,18 @@
   if (nzchar(bib_src) && file.exists(bib_src)) {
     file.copy(bib_src, render_dir, overwrite = TRUE)
   }
-  if (!dir.exists(visual_abstracts_src)) {
+  if (any(!file.exists(visual_abstracts_src))) {
     stop(
-      "Quarto visual abstracts are missing from the report source.",
+      "One or more Quarto visual abstracts are missing from installed doc/.",
       call. = FALSE
     )
   }
   copied_visual_abstracts <- file.copy(
     visual_abstracts_src,
     render_dir,
-    recursive = TRUE
+    overwrite = TRUE
   )
-  if (!isTRUE(copied_visual_abstracts)) {
+  if (!all(copied_visual_abstracts)) {
     stop(
       "Could not stage Quarto visual abstracts for rendering.",
       call. = FALSE

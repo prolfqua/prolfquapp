@@ -31,3 +31,5 @@
 ^Meta$
 ^altdoc$
 ^_quarto$
+^vignettes/\.quarto($|/)
+^data-raw$

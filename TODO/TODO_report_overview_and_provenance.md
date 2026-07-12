@@ -18,15 +18,20 @@
 
 - Keep report content explicit in each QMD. The FGCZ Quarto template supplies styling and authoring guidance only; it
   does not infer a report type, choose figures, or inject report content.
-- Store one AI-generated PNG visual abstract per report type in `vignettes/visual_abstracts/`. Package and stage that
-  directory beside each runtime-rendered QMD so the report remains self-contained.
+- Store one AI-generated PNG visual abstract per report type beside the QMD sources in `vignettes/`. Package and stage
+  the individual files beside each runtime-rendered QMD so the report remains self-contained; `devtools` can copy
+  individual vignette extras but not an asset directory.
+- Synchronize the vendored FGCZ Quarto assets in `vignettes/` from `fgczquartotemplate` before package and vignette
+  builds, so static vignettes and runtime reports use the same toolbar and styling.
 - Use internal provenance helpers to keep field names, creator/timestamp capture, and missing-value behaviour
   consistent across all five reports.
 
 ## Implementation plan
 
 - [x] Add visual abstracts for primary DEA, tabbed DEA, DEA QC, protein abundances, and QC/sample-size estimation.
-- [x] Package and stage the visual-abstract directory for runtime Quarto rendering.
+- [x] Package and stage individual visual-abstract PNG files for runtime Quarto rendering.
+- [x] Synchronize FGCZ Quarto assets before package and vignette builds.
+- [x] Guard report-local Quarto conditional metadata during vignette source extraction.
 - [x] Add the Overview and final two-subtab Session Info layout to all five QMD reports.
 - [x] Add the compact samples/groups/proteins overview cards to all five QMD reports.
 - [x] Update the FGCZ Quarto report-authoring skill with the agreed layout rules.

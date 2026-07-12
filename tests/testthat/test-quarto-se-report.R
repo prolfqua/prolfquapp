@@ -28,9 +28,9 @@ test_package_path <- function() {
   package_path
 }
 
-# Directory holding the Quarto report sources and visual-abstract assets.
+# Directory holding the Quarto report sources and static visual-abstract assets.
 # Prefers the source `vignettes/` (dev / load_all); falls back to the installed
-# `doc/`, where `vignettes/.install_extras` ships the same files.
+# `doc/`, where `vignettes/.install_extras` ships the same sources and assets.
 test_report_source_dir <- function() {
   package_path <- test_package_path()
   source_vignette_dir <- file.path(package_path, "vignettes")
@@ -185,9 +185,9 @@ test_that("SE Quarto tabset report renders with reconstructed LFQData", {
     overwrite = TRUE
   )
   file.copy(
-    file.path(report_source_dir, "visual_abstracts"),
+    file.path(report_source_dir, prolfquapp:::.quarto_visual_abstract_names),
     workdir,
-    recursive = TRUE
+    overwrite = TRUE
   )
 
   # Stage the FGCZ assets and render via fgcz_render (the same path the runtime
@@ -338,23 +338,89 @@ test_that("all Quarto reports use the Overview and Session Info layout", {
   report_source_dir <- test_report_source_dir()
   skip_if(!nzchar(report_source_dir), "Quarto report sources not available")
 
-  report_files <- c(
-    "Grp2Analysis_V2_R6.qmd",
-    "Grp2Analysis_V2_SE_tabset.qmd",
-    "DiffExpQC_R6_tabset.qmd",
-    "QC_ProteinAbundances_tabset.qmd",
-    "QCandSSE_tabset.qmd"
+  report_visual_abstracts <- c(
+    "Grp2Analysis_V2_R6.qmd" = "differential-expression.png",
+    "Grp2Analysis_V2_SE_tabset.qmd" = "differential-expression-tabset.png",
+    "DiffExpQC_R6_tabset.qmd" = "differential-expression-qc.png",
+    "QC_ProteinAbundances_tabset.qmd" = "protein-abundances.png",
+    "QCandSSE_tabset.qmd" = "quality-control-sample-size.png"
   )
-  for (report_file in report_files) {
+  for (report_file in names(report_visual_abstracts)) {
     qmd <- paste(
       readLines(file.path(report_source_dir, report_file), warn = FALSE),
       collapse = "\n"
     )
     expect_match(qmd, "# Overview", fixed = TRUE, info = report_file)
-    expect_match(qmd, ".report_overview_cards", fixed = TRUE, info = report_file)
-    expect_match(qmd, "visual_abstracts/", fixed = TRUE, info = report_file)
+    expect_match(
+      qmd,
+      ".report_overview_cards",
+      fixed = TRUE,
+      info = report_file
+    )
+    expect_match(
+      qmd,
+      sprintf('<img src="%s"', report_visual_abstracts[[report_file]]),
+      fixed = TRUE,
+      info = report_file
+    )
     expect_match(qmd, "# Session Info", fixed = TRUE, info = report_file)
     expect_match(qmd, "## Report provenance", fixed = TRUE, info = report_file)
     expect_match(qmd, "## R session info", fixed = TRUE, info = report_file)
   }
+})
+
+test_that("visual abstracts are individual vignette extras", {
+  source_vignette_dir <- file.path(test_package_path(), "vignettes")
+  skip_if_not(
+    file.exists(file.path(source_vignette_dir, ".install_extras")),
+    "Source vignette extras are not available"
+  )
+
+  extra_files <- readLines(
+    file.path(source_vignette_dir, ".install_extras"),
+    warn = FALSE
+  )
+  expected_extra_files <- c(
+    "differential-expression\\.png$",
+    "differential-expression-tabset\\.png$",
+    "differential-expression-qc\\.png$",
+    "protein-abundances\\.png$",
+    "quality-control-sample-size\\.png$"
+  )
+
+  expect_equal(
+    file.exists(file.path(
+      source_vignette_dir,
+      prolfquapp:::.quarto_visual_abstract_names
+    )),
+    rep(TRUE, length(prolfquapp:::.quarto_visual_abstract_names))
+  )
+  expect_equal("visual_abstracts" %in% extra_files, FALSE)
+  expect_equal(
+    tail(extra_files, length(expected_extra_files)),
+    expected_extra_files
+  )
+})
+
+test_that("vendored FGCZ Quarto assets match the installed template", {
+  source_vignette_dir <- file.path(test_package_path(), "vignettes")
+  asset_names <- c(
+    "_metadata.yml",
+    "fgcz.scss",
+    "fgcz_header_quarto.html",
+    "fgcz-plot-finder.html"
+  )
+  skip_if_not(
+    all(file.exists(file.path(source_vignette_dir, asset_names))),
+    "Source Quarto assets are not available"
+  )
+
+  source_hashes <- unname(tools::md5sum(
+    fgczquartotemplate::fgcz_quarto_dir(asset_names)
+  ))
+  vendored_hashes <- unname(tools::md5sum(
+    file.path(source_vignette_dir, asset_names)
+  ))
+
+  expect_equal(vendored_hashes, source_hashes)
 })

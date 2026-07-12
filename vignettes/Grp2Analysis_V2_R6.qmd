@@ -60,7 +60,7 @@ plot_or_empty <- function(plot, label) {
 cat(prolfquapp:::.report_overview_cards(dea$lfq_data_raw))
 ```
 
-<img src="visual_abstracts/differential-expression.png" alt="Visual abstract: quantified protein abundances from two sample groups are normalized and statistically compared to produce differential-expression results." style="width: 100%; max-height: 22rem; object-fit: contain;">
+<img src="differential-expression.png" alt="Visual abstract: quantified protein abundances from two sample groups are normalized and statistically compared to produce differential-expression results." style="width: 100%; max-height: 22rem; object-fit: contain;">
 
 This report tests whether normalized protein abundances differ between experimental groups. It provides the sample design, quality diagnostics, and statistical evidence needed to interpret differential protein abundance.
 
@@ -68,7 +68,7 @@ Input: quantified protein abundances from `r nrow(dea$lfq_data_raw$factors())` s
 
 ```{r introduction}
 #| results: asis
-#| eval: !expr "!is_saint_report"
+#| eval: !expr "!get0('is_saint_report', ifnotfound = FALSE)"
 cat(r"(
 # Analysis background
 
@@ -545,7 +545,7 @@ if (nrow(datax_signif) == 0) {
 
 ```{r}
 #| results: asis
-#| eval: !expr showSignificant
+#| eval: !expr get0("showSignificant", ifnotfound = FALSE)
 cat("The table shown in @fig-sig-prey lists all the significant proteins.")
 ```
 
@@ -553,7 +553,7 @@ cat("The table shown in @fig-sig-prey lists all the significant proteins.")
 #| label: fig-sig-prey
 #| fig-cap: "Significant proteins obtained by applying the difference and FDR thresholds."
 #| fig-alt: ""
-#| eval: !expr showSignificant
+#| eval: !expr get0("showSignificant", ifnotfound = FALSE)
 ctdata <- datax_signif |> tidyr::unite("ID", tidyselect::all_of(hkey), sep = "~")
 ctdata <- ctdata |>
   dplyr::select(tidyselect::all_of(table_cols)) |>
@@ -575,7 +575,7 @@ DT::datatable(sig, filter = "bottom",
 
 
 ```{r prepareHeatmap}
-#| eval: !expr showSignificant
+#| eval: !expr get0("showSignificant", ifnotfound = FALSE)
 signif <- dea$lfq_data$get_copy()
 signif <- signif$get_subset(datax_signif)
 if (signif$hierarchy_counts()[2] > 30) {
@@ -589,7 +589,7 @@ sigheat <- signif$get_Plotter()$heatmap(rownames = rownames)
 
 
 ```{r makeText}
-#| eval: !expr showSignificant
+#| eval: !expr get0("showSignificant", ifnotfound = FALSE)
 #| results: asis
 
 cat(paste(
@@ -604,14 +604,14 @@ cat(paste(
 #| label: fig-sig-proteins
 #| fig-cap: "Heatmap of the proteins passing the FDR and difference thresholds. Cell colour encodes the row z-score of the $\\log_2$ protein abundance (green: low, black: average, red: high; missing values in light gray). Proteins and samples are co-clustered by unsupervised hierarchical clustering (complete linkage, euclidean distance)."
 #| fig-alt: ""
-#| eval: !expr showSignificant
+#| eval: !expr get0("showSignificant", ifnotfound = FALSE)
 sigheat
 ```
 
 ```{r}
 #| label: fig-venn-sig
 #| fig-cap: "UpSet plot of significant proteins across contrasts. Bar heights give the number of proteins passing the FDR and fold-change thresholds in each contrast and in the contrast intersections."
-#| eval: !expr showSignificant
+#| eval: !expr get0("showSignificant", ifnotfound = FALSE)
 xx <- split(ctdata[["ID"]], ctdata[[contrast_col]])
 if (length(xx) > 1) {
   UpSetR::upset(UpSetR::fromList(xx))

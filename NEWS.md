@@ -1,6 +1,10 @@
 # prolfquapp 2.4.0
 
 - All five Quarto reports now open with a compact, report-specific visual Overview: three summary cards show the number of samples, experimental groups, and quantified proteins (or the analysed feature type), followed by the visual abstract. The reports finish with a two-subtab Session Info area: Report provenance records the B-Fabric/input context, creator, timestamp, software/model, and package version, while R session info contains only `sessionInfo()`. The visual abstracts are packaged with the reports, so the same layout is retained in runtime-rendered HTML output.
+- Quarto visual abstracts are now copied as individual vignette assets, so `make build-vignettes` no longer fails when `devtools` stages report assets into `doc/`.
+- Package builds now exclude Quarto's transient `vignettes/.quarto` freeze cache, avoiding nonportable tar-path warnings and cache files in source tarballs.
+- Package and vignette builds now synchronize the four FGCZ Quarto assets from `fgczquartotemplate`, so generated reports use the current shared toolbar and styling.
+- Quarto vignette extraction now uses safe defaults for report-local conditional metadata, preventing spurious missing-object errors while creating the companion `.R` sources.
 - Differential Expression Analysis Quality Control report (`DiffExpQC_R6_tabset.qmd`) now presents its report/analysis
   metadata (Workunit, Order, Project, generated-by, timestamp, software, model, package version) once — as a table in a
   final Session Info tab, alongside `sessionInfo()` — instead of duplicating it in a top-of-page callout.
