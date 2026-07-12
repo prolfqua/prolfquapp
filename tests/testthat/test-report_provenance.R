@@ -22,3 +22,25 @@ test_that("report provenance supplies stable compact fields", {
   expect_equal(table$Field[[1]], "Workunit ID")
   expect_equal(table$Value[[7]], "https://example.org/input")
 })
+
+test_that("overview cards summarize samples, groups, and quantified proteins", {
+  dea <- prolfquapp::example_deanalyse(Nprot = 12)
+  lfq_data <- dea$lfq_data_raw
+
+  overview <- prolfquapp:::.report_overview_summary(lfq_data)
+  factor_columns <- lfq_data$relevant_factor_keys()
+  expected_group_count <- nrow(unique(
+    lfq_data$factors()[, factor_columns, drop = FALSE]
+  ))
+
+  expect_equal(overview$label, c("Samples", "Groups", "Proteins"))
+  expect_equal(overview$count[[1]], nrow(lfq_data$factors()))
+  expect_equal(overview$count[[2]], expected_group_count)
+  expect_equal(overview$count[[3]], nrow(lfq_data$hierarchy()))
+
+  cards <- prolfquapp:::.report_overview_cards(lfq_data)
+  expect_match(cards, "prolfquapp-overview-cards", fixed = TRUE)
+  expect_match(cards, "Samples", fixed = TRUE)
+  expect_match(cards, "Groups", fixed = TRUE)
+  expect_match(cards, "Proteins", fixed = TRUE)
+})

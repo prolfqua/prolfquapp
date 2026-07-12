@@ -1,6 +1,6 @@
 # prolfquapp 2.4.0
 
-- All five Quarto reports now open with a compact, report-specific visual Overview and finish with a two-subtab Session Info area: Report provenance records the B-Fabric/input context, creator, timestamp, software/model, and package version, while R session info contains only `sessionInfo()`. The visual abstracts are packaged with the reports, so the same layout is retained in runtime-rendered HTML output.
+- All five Quarto reports now open with a compact, report-specific visual Overview: three summary cards show the number of samples, experimental groups, and quantified proteins (or the analysed feature type), followed by the visual abstract. The reports finish with a two-subtab Session Info area: Report provenance records the B-Fabric/input context, creator, timestamp, software/model, and package version, while R session info contains only `sessionInfo()`. The visual abstracts are packaged with the reports, so the same layout is retained in runtime-rendered HTML output.
 - Differential Expression Analysis Quality Control report (`DiffExpQC_R6_tabset.qmd`) now presents its report/analysis
   metadata (Workunit, Order, Project, generated-by, timestamp, software, model, package version) once — as a table in a
   final Session Info tab, alongside `sessionInfo()` — instead of duplicating it in a top-of-page callout.

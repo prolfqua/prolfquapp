@@ -224,6 +224,10 @@ test_that("SE Quarto tabset report renders with reconstructed LFQData", {
   expect_match(html, "Feature Detection", fixed = TRUE)
   expect_match(html, "Differential Abundance", fixed = TRUE)
   expect_match(html, "Result Table", fixed = TRUE)
+  expect_match(html, "prolfquapp-overview-cards", fixed = TRUE)
+  expect_match(html, "Samples", fixed = TRUE)
+  expect_match(html, "Groups", fixed = TRUE)
+  expect_match(html, "Proteins", fixed = TRUE)
   expect_match(html, "at least two peptides in the experiment", fixed = TRUE)
   expect_equal(grepl("Protein Identification", html, fixed = TRUE), FALSE)
 })
@@ -347,6 +351,7 @@ test_that("all Quarto reports use the Overview and Session Info layout", {
       collapse = "\n"
     )
     expect_match(qmd, "# Overview", fixed = TRUE, info = report_file)
+    expect_match(qmd, ".report_overview_cards", fixed = TRUE, info = report_file)
     expect_match(qmd, "visual_abstracts/", fixed = TRUE, info = report_file)
     expect_match(qmd, "# Session Info", fixed = TRUE, info = report_file)
     expect_match(qmd, "## Report provenance", fixed = TRUE, info = report_file)

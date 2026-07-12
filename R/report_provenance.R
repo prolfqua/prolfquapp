@@ -41,6 +41,80 @@
   .report_provenance_scalar(candidates)
 }
 
+.report_overview_summary <- function(lfq_data, feature_label = "Proteins") {
+  factors <- lfq_data$factors()
+  factor_columns <- lfq_data$relevant_factor_keys()
+  factor_columns <- factor_columns[factor_columns %in% colnames(factors)]
+  factor_columns <- factor_columns[
+    !grepl("^control", factor_columns, ignore.case = TRUE)
+  ]
+
+  group_count <- if (nrow(factors) == 0) {
+    0L
+  } else if (length(factor_columns) == 0) {
+    1L
+  } else {
+    nrow(unique(factors[, factor_columns, drop = FALSE]))
+  }
+
+  data.frame(
+    label = c("Samples", "Groups", feature_label),
+    count = c(
+      nrow(factors),
+      group_count,
+      nrow(lfq_data$hierarchy())
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
+.report_overview_html_escape <- function(x) {
+  x <- as.character(x)
+  x <- gsub("&", "&amp;", x, fixed = TRUE)
+  x <- gsub("<", "&lt;", x, fixed = TRUE)
+  x <- gsub(">", "&gt;", x, fixed = TRUE)
+  x <- gsub('"', "&quot;", x, fixed = TRUE)
+  x
+}
+
+.report_overview_cards <- function(lfq_data, feature_label = "Proteins") {
+  overview <- .report_overview_summary(lfq_data, feature_label)
+  cards <- vapply(
+    seq_len(nrow(overview)),
+    function(i) {
+      sprintf(
+        paste0(
+          '<div class="prolfquapp-overview-card">',
+          '<span class="prolfquapp-overview-card-title">%s</span>',
+          '<strong class="prolfquapp-overview-card-value">%s</strong>',
+          "</div>"
+        ),
+        .report_overview_html_escape(overview$label[[i]]),
+        format(
+          overview$count[[i]],
+          big.mark = ",",
+          scientific = FALSE,
+          trim = TRUE
+        )
+      )
+    },
+    character(1)
+  )
+
+  paste0(
+    "<style>\n",
+    ".prolfquapp-overview-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;margin:0 0 1rem}",
+    ".prolfquapp-overview-card{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;padding:.75rem 1rem;border:1px solid #d7e0e8;border-radius:.35rem;background:#f4f8fb}",
+    ".prolfquapp-overview-card-title{font-size:.95rem;font-weight:600;color:#425466}",
+    ".prolfquapp-overview-card-value{font-size:1.5rem;line-height:1;color:#356da3}",
+    "@media (max-width:600px){.prolfquapp-overview-cards{grid-template-columns:1fr}}\n",
+    "</style>\n",
+    '<div class="prolfquapp-overview-cards">',
+    paste(cards, collapse = ""),
+    "</div>\n"
+  )
+}
+
 .report_provenance <- function(
   project_spec = NULL,
   input_data = NULL,
