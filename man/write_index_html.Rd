@@ -16,5 +16,7 @@ write index.html file with links to all relevant files:
 }
 \examples{
 .resdir <- "."
+\dontrun{
 write_index_html(prolfquapp:::.test_links,tempdir())
+}
 }

@@ -37,7 +37,11 @@
   FDR_threshold = 0.05,
   diff_threshold = 1
 ) {
-  cfg <- if (is.function(contrast_obj$get_config)) contrast_obj$get_config() else NULL
+  cfg <- if (is.function(contrast_obj$get_config)) {
+    contrast_obj$get_config()
+  } else {
+    NULL
+  }
   subject_id <- if (!is.null(cfg) && length(cfg$subject_id) > 0) {
     cfg$subject_id
   } else {
@@ -100,7 +104,11 @@
   workunit_id,
   id_column
 ) {
-  cfg <- if (is.function(contrast_obj$get_config)) contrast_obj$get_config() else NULL
+  cfg <- if (is.function(contrast_obj$get_config)) {
+    contrast_obj$get_config()
+  } else {
+    NULL
+  }
   subject_id <- if (!is.null(cfg) && length(cfg$subject_id) > 0) {
     cfg$subject_id
   } else {
@@ -247,7 +255,9 @@ DEAReportGenerator <- R6::R6Class(
       )
 
       resultList$normalized_abundances <- .join_annotation(
-        ra$row_annot, tr$data_long(), hkeys
+        ra$row_annot,
+        tr$data_long(),
+        hkeys
       )
       resultList$raw_abundances_matrix <- wideraw
       resultList$normalized_abundances_matrix <- widetr
@@ -535,6 +545,15 @@ DEAReportGenerator <- R6::R6Class(
         colData = col.data,
         metadata = list(
           bfabric_urls = .url_builder(self$GRP2$project_spec),
+          report_provenance = list(
+            project_Id = self$GRP2$project_spec$project_Id,
+            project_name = self$GRP2$project_spec$project_name,
+            order_Id = self$GRP2$project_spec$order_Id,
+            workunit_Id = self$GRP2$project_spec$workunit_Id,
+            input_URL = self$GRP2$project_spec$input_URL,
+            software = self$GRP2$software,
+            model = dea$default_model
+          ),
           contrasts = resTables$contrasts,
           formula = resTables$formula,
           default_model = dea$default_model,

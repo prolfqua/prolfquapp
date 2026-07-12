@@ -278,42 +278,26 @@ significant_contrasts <- if (
 }
 
 feature_col <- feature_id_column(contrast_table)
+report_provenance <- prolfquapp:::.report_provenance(
+  project_spec = meta$report_provenance
+)
 ```
 
 ::: {.panel-tabset}
+
+# Overview
+
+<img src="visual_abstracts/differential-expression-tabset.png" alt="Visual abstract: quantified protein abundances and sample annotation define an analysis design and contrasts, which produce quality checks and differential-abundance results." style="width: 100%; max-height: 22rem; object-fit: contain;">
+
+This report brings together experimental design, feature detection, quality control, and differential-abundance results. The tabs make the analysis path explicit: define the design and contrasts, inspect data quality, then review the result table.
+
+Input: quantified feature abundances from `r nrow(lfq_raw$factors())` samples. The detailed source-data reference is recorded in **Session Info**.
 
 # Settings
 
 ::: {.panel-tabset}
 
-## Run
-
-::: {.callout-note collapse="true" title="Input"}
-
-The report was generated from `r basename(se_file)`. It summarizes raw and transformed
-feature abundance data together with differential abundance results.
-:::
-
-```{r}
-#| label: tbl-bfabric
-urls <- meta$bfabric_urls
-url_df <- data.frame(field = character(), url = character())
-if (is.list(urls) && length(urls) > 0) {
-  url_values <- vapply(urls, function(x) {
-    if (is.null(x) || length(x) == 0 || all(is.na(x))) {
-      return(NA_character_)
-    }
-    as.character(x[[1]])
-  }, character(1))
-  url_df <- data.frame(field = names(url_values), url = unname(url_values), stringsAsFactors = FALSE)
-}
-url_df <- url_df[!is.na(url_df$url) & nzchar(url_df$url), , drop = FALSE]
-if (nrow(url_df) > 0) {
-  url_df$field <- html_escape(url_df$field)
-  url_df$url <- html_link(url_df$url)
-}
-dt_table(url_df, caption = "B-Fabric links", page_length = 5, escape = FALSE)
-```
+## Analysis
 
 ```{r}
 #| label: tbl-analysis-settings
@@ -789,8 +773,43 @@ dt_table(contrast_table, caption = "Differential abundance results", page_length
 
 # Session Info
 
+::: {.panel-tabset}
+
+## Report provenance
+
+```{r}
+#| label: tbl-report-provenance
+#| tbl-cap: "Compact report provenance, including the source input-data reference."
+knitr::kable(prolfquapp:::.report_provenance_table(report_provenance))
+```
+
+```{r}
+#| label: tbl-bfabric
+urls <- meta$bfabric_urls
+url_df <- data.frame(field = character(), url = character())
+if (is.list(urls) && length(urls) > 0) {
+  url_values <- vapply(urls, function(x) {
+    if (is.null(x) || length(x) == 0 || all(is.na(x))) {
+      return(NA_character_)
+    }
+    as.character(x[[1]])
+  }, character(1))
+  url_df <- data.frame(field = names(url_values), url = unname(url_values), stringsAsFactors = FALSE)
+}
+url_df <- url_df[!is.na(url_df$url) & nzchar(url_df$url), , drop = FALSE]
+if (nrow(url_df) > 0) {
+  url_df$field <- html_escape(url_df$field)
+  url_df$url <- html_link(url_df$url)
+}
+dt_table(url_df, caption = "B-Fabric links", page_length = 5, escape = FALSE)
+```
+
+## R session info
+
 ```{r}
 sessionInfo()
 ```
+
+:::
 
 :::

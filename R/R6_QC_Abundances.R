@@ -44,10 +44,13 @@ QC_generator <- R6::R6Class(
     #' @return peptide data in wide format
     get_peptides_wide = function() {
       lfqdata <- self$lfqdata$get_copy()
-      lfqdata$set_config_value("hierarchy_depth", min(
-        2,
-        length(self$lfqdata$hierarchy_keys())
-      ))
+      lfqdata$set_config_value(
+        "hierarchy_depth",
+        min(
+          2,
+          length(self$lfqdata$hierarchy_keys())
+        )
+      )
       self$lfqdata_peptide <- prolfquapp::aggregate_data(
         lfqdata,
         agg_method = "medpolish"
@@ -321,8 +324,12 @@ QC_generator <- R6::R6Class(
             output_dir = self$output_dir,
             output_file = "QC_ProteinAbundances_tabset.html",
             project_info = list(
+              project_Id = as_id(ps$project_Id),
+              project_name = as_id(ps$project_name),
               order_Id = as_id(ps$order_Id),
-              workunit_Id = as_id(ps$workunit_Id)
+              workunit_Id = as_id(ps$workunit_Id),
+              input_URL = as_id(ps$input_URL),
+              software = as_id(self$GRP2$software)
             ),
             factors = TRUE
           )
@@ -375,8 +382,11 @@ QC_generator <- R6::R6Class(
               output_file = "QCandSSE_tabset.html",
               project_conf = list(
                 project_Id = as_id(ps$project_Id),
+                project_name = as_id(ps$project_name),
                 order_Id = as_id(ps$order_Id),
-                workunit_Id = as_id(ps$workunit_Id)
+                workunit_Id = as_id(ps$workunit_Id),
+                input_URL = as_id(ps$input_URL),
+                software = as_id(self$GRP2$software)
               ),
               target_type = private$get_target_type()
             )

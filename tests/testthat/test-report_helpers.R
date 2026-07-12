@@ -61,6 +61,10 @@ test_that("estimate_type palette fixes known colours and fills unknown levels", 
 })
 
 test_that("write_index_html does not emit absolute local paths", {
+  skip_if(Sys.which("quarto") == "", "Quarto CLI not installed")
+  skip_if_not_installed("DT")
+  skip_if_not_installed("fgczquartotemplate")
+
   result_dir <- file.path(tempdir(), "DEA index test")
   result_subdir <- file.path(result_dir, "Results WU")
   dir.create(result_subdir, showWarnings = FALSE, recursive = TRUE)
@@ -73,9 +77,15 @@ test_that("write_index_html does not emit absolute local paths", {
     data_files = list(
       xlsx_file = file.path(result_subdir, "DE WU.xlsx"),
       ibaq_file = "",
-      ora_files = list(),
-      gsea_files = list()
+      ora_files = list("contrast ORA" = file.path(result_subdir, "contrast ORA.txt")),
+      gsea_files = list("contrast GSEA" = file.path(result_subdir, "contrast GSEA.rnk"))
     )
+  )
+  vapply(
+    c(links$dea_file, links$qc_file, links$quarto_file, links$data_files$xlsx_file,
+      links$data_files$ora_files[[1]], links$data_files$gsea_files[[1]]),
+    file.create,
+    logical(1)
   )
 
   prolfquapp::write_index_html(links, result_dir)
@@ -84,7 +94,12 @@ test_that("write_index_html does not emit absolute local paths", {
     collapse = "\n"
   )
 
-  expect_match(html, 'href="./Results%20WU/DE%20WU.html"', fixed = TRUE)
+  expect_match(html, "Results%20WU/DE%20WU.html", fixed = TRUE)
+  expect_match(html, "HTML reports", fixed = TRUE)
+  expect_match(html, "Excel workbooks and their contents", fixed = TRUE)
+  expect_match(html, "ORA input gene lists", fixed = TRUE)
+  expect_match(html, "GSEA rank files", fixed = TRUE)
+  expect_match(html, "Feature identifiers and annotation", fixed = TRUE)
   expect_equal(
     grepl(prolfquapp:::.path_to_url_path(result_dir), html, fixed = TRUE),
     FALSE

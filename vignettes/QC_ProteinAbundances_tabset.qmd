@@ -42,10 +42,24 @@ lfqdataProt <- pap$lfqdata_prot
 tableconfig <- pap$lfqdata_prot$get_config()
 factors <- params$factors
 project_info <- params$project_info
+if (is.null(project_info)) {
+  project_info <- list()
+}
+report_provenance <- prolfquapp:::.report_provenance(
+  project_spec = project_info
+)
 
 ```
 
 ::: {.panel-tabset}
+
+# Overview
+
+<img src="visual_abstracts/protein-abundances.png" alt="Visual abstract: quantified protein signals are ranked by abundance, with dominant proteins and per-sample protein counts summarized across groups." style="width: 100%; max-height: 22rem; object-fit: contain;">
+
+This report profiles how quantified protein signal is distributed across sample groups. It identifies dominant proteins and potential contaminants, then compares the number of quantified proteins per sample.
+
+Input: quantified protein abundances from `r nrow(lfqdataProt$factors())` samples. The detailed source-data reference is recorded in **Session Info**.
 
 # Protein abundances
 
@@ -134,14 +148,23 @@ srs$plot_hierarchy_counts_sample()
 
 # Session Info
 
-Metadata for this report and the R session used to generate it.
+::: {.panel-tabset}
 
-- Order: `r project_info$order_Id %||% "n/a"`
-- Workunit: `r project_info$workunit_Id %||% "n/a"`
+## Report provenance
+
+```{r}
+#| label: tbl-report-provenance
+#| tbl-cap: "Compact report provenance, including the source input-data reference."
+knitr::kable(prolfquapp:::.report_provenance_table(report_provenance))
+```
+
+## R session info
 
 ```{r}
 #| label: session-info
 sessionInfo()
 ```
+
+:::
 
 :::

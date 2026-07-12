@@ -215,18 +215,50 @@ bfabric_url_builder <- function(project_spec) {
 #' @export
 #' @examples
 #' .resdir <- "."
+#' \dontrun{
 #' write_index_html(prolfquapp:::.test_links,tempdir())
+#' }
 write_index_html <- function(file_path_list, result_dir) {
-  # Determine the top-level directory/name. Prefer the primary DEA report, then
-  # any other available report, and fall back to result_dir, so the index still
-  # builds when a report is missing.
+  dir.create(result_dir, showWarnings = FALSE, recursive = TRUE)
+  result_dir <- normalizePath(result_dir, mustWork = TRUE)
+  index_file <- file.path(result_dir, "index.html")
+  render_dir <- tempfile("prolfquapp_index_")
+  dir.create(render_dir, recursive = TRUE)
+  on.exit(unlink(render_dir, recursive = TRUE), add = TRUE)
+
+  index_data_file <- file.path(render_dir, "index_data.rds")
+  saveRDS(.index_deliverables(file_path_list, result_dir), index_data_file)
+  index_template <- system.file("templates", "dea_index.qmd", package = "prolfquapp", mustWork = TRUE)
+  file.copy(index_template, file.path(render_dir, "index.qmd"), overwrite = TRUE)
+
+  oldwd <- setwd(render_dir)
+  on.exit(setwd(oldwd), add = TRUE)
+  fgczquartotemplate::fgcz_render(
+    input = "index.qmd",
+    buttons = FALSE,
+    execute_params = list(index_data_file = normalizePath(index_data_file))
+  )
+  setwd(oldwd)
+
+  rendered_file <- file.path(render_dir, "index.html")
+  if (!file.exists(rendered_file)) {
+    stop("Quarto render did not create expected HTML file: ", rendered_file, call. = FALSE)
+  }
+  if (!file.copy(rendered_file, index_file, overwrite = TRUE)) {
+    stop("Could not copy Quarto index to output file: ", index_file, call. = FALSE)
+  }
+  message("Wrote HTML index to: ", index_file)
+  invisible(index_file)
+}
+
+.index_deliverables <- function(file_path_list, result_dir) {
   candidate_paths <- c(
     file_path_list$dea_file,
     file_path_list$qc_file,
     file_path_list$quarto_file,
     file_path_list$sse_file
   )
-  candidate_paths <- candidate_paths[!is.na(candidate_paths) & nzchar(candidate_paths)]
+  candidate_paths <- candidate_paths[.index_has_value(candidate_paths)]
   topdir_path <- if (length(candidate_paths) > 0) {
     dirname(candidate_paths[1])
   } else {
@@ -234,228 +266,159 @@ write_index_html <- function(file_path_list, result_dir) {
   }
   topdir_name <- basename(topdir_path)
 
-  # Build link entries from a (possibly named) vector of paths, e.g. the ORA /
-  # GSEA file sets. Empty/NA paths are dropped; the shared `desc` (if any) is
-  # attached to every entry.
-  paths_to_entries <- function(paths, desc = NULL) {
-    paths <- unlist(paths, use.names = TRUE)
-    paths <- paths[!is.na(paths) & nzchar(paths)]
-    lapply(seq_along(paths), function(i) {
-      nm <- names(paths)[i]
-      list(
-        label = if (!is.null(nm) && nzchar(nm)) nm else basename(paths[[i]]),
-        path = unname(paths[[i]]),
-        desc = desc
-      )
-    })
-  }
-
-  # Render a titled section. `entries` is a list of list(label=, path=, desc=);
-  # entries with an empty path are dropped and the section is omitted if none
-  # remain. `intro` is optional explanatory text shown above the links.
-  make_section <- function(title, entries, intro = NULL) {
-    entries <- Filter(
-      function(e) length(e$path) == 1 && !is.na(e$path) && nzchar(e$path),
-      entries
-    )
-    if (length(entries) == 0) {
-      return(character())
-    }
-    lines <- sprintf("  <h2>%s</h2>", title)
-    if (!is.null(intro) && nzchar(intro)) {
-      lines <- c(lines, sprintf("  <p class='intro'>%s</p>", intro))
-    }
-    lines <- c(lines, "  <ul>")
-    for (e in entries) {
-      rel <- .index_relative_href(e$path, result_dir)
-      label <- if (!is.null(e$label) && nzchar(e$label)) e$label else basename(e$path)
-      desc <- if (!is.null(e$desc) && nzchar(e$desc)) {
-        sprintf("<br><span class='desc'>%s</span>", e$desc)
-      } else {
-        ""
-      }
-      lines <- c(lines, sprintf('    <li><a href="%s">%s</a>%s</li>', rel, label, desc))
-    }
-    c(lines, "  </ul>")
-  }
-
-  style_block <- R"(
-  <style>
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid #ecf0f1;
-      color: #7f8c8d;
-    }
-    h2 {
-      text-align: left;
-      margin-top: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #ecf0f1;
-      color: #2c3e50;
-    }
-
-    h3 {
-      text-align: center;
-      margin-top: 10px;
-      color: #7f8c8d;
-    }
-    body {
-      font-family: Arial, sans-serif;
-    }
-
-    h1 {
-      text-align: center;
-    }
-    .desc {
-      color: #7f8c8d;
-      font-size: 0.9em;
-    }
-    .intro {
-      color: #34495e;
-      margin: 6px 0 10px;
-      max-width: 70em;
-    }
-  </style>
-  )"
-
-  # Build html
-  title <- paste0("Differential Expression Analysis (DEA)")
-  html_lines <- c(
-    "<!DOCTYPE html>",
-    "<html>",
-    "<head>",
-    "  <meta charset='UTF-8'>",
-    sprintf("  <title>%s results</title>", title),
-
-    style_block,
-    "</head>",
-    "<body>",
-    sprintf("  <h1>%s results</h1>", title),
-    sprintf(" <h3>for: %s</h3>", topdir_name),
-    "<h3>Functional Genomics Center Zurich</h3>"
-  )
-
-  # Report links, each with a one-line description of the document.
-  html_lines <- c(
-    html_lines,
-    make_section(
-      "Reports",
+  list(
+    workunit = sub("^Results_WU_", "", topdir_name),
+    result_name = topdir_name,
+    generated_at = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),
+    prolfquapp_version = as.character(packageVersion("prolfquapp")),
+    reports = .index_entry_table(
+      result_dir,
       list(
         list(
-          label = "<b>DEA report (read first)</b>",
-          path = file_path_list$dea_file,
-          desc = paste(
-            "Main differential-expression report: analysis settings,",
-            "quality-control plots, volcano plots and the per-contrast results",
-            "tables."
+          file = file_path_list$dea_file,
+          label = "DEA Report (read first)",
+          description = paste(
+            "Main differential-expression report with analysis settings,",
+            "quality-control plots, volcano plots and per-contrast result tables."
           )
         ),
         list(
+          file = file_path_list$qc_file,
           label = "Differential-expression QC report",
-          path = file_path_list$qc_file,
-          desc = paste(
-            "Model diagnostics: missing values, protein variance, and the",
-            "fold-change / p-value distributions and MA plots used to judge the",
-            "model fit."
+          description = paste(
+            "Model diagnostics covering missing values, protein variance,",
+            "fold-change and p-value distributions, and MA plots."
           )
         ),
         list(
+          file = file_path_list$sse_file,
           label = "Sample-size estimation report",
-          path = file_path_list$sse_file,
-          desc = paste(
-            "Feature-level variability and a two-sample t-test sample-size /",
-            "power estimate to help plan follow-up experiments."
+          description = paste(
+            "Feature-level variability and two-sample t-test sample-size /",
+            "power estimates for follow-up experiment planning."
           )
         ),
         list(
+          file = file_path_list$quarto_file,
           label = "Overview report (SummarizedExperiment tabset)",
-          path = file_path_list$quarto_file,
-          desc = paste(
-            "Tabbed overview built from the SummarizedExperiment: settings,",
-            "feature detection, quality control, differential abundance and",
-            "result tables."
+          description = paste(
+            "Tabbed overview of settings, feature detection, quality control,",
+            "differential abundance and result tables."
           )
         )
       )
     ),
-    make_section(
-      "Spreadsheets",
+    spreadsheets = .index_entry_table(
+      result_dir,
       list(
         list(
+          file = file_path_list$data_files$xlsx_file,
           label = "Differential-expression results (XLSX)",
-          path = file_path_list$data_files$xlsx_file,
-          desc = paste(
-            "All contrasts with estimates, log2 fold-changes, p-values and FDR",
-            "(one sheet per contrast)."
+          description = "Workbook with the differential-expression result tables.",
+          contents = paste(
+            "Feature identifiers and annotation, model estimates, log2 fold",
+            "changes, p-values, FDR values, significance flags and model metadata",
+            "where available."
           )
         ),
         list(
+          file = file_path_list$data_files$ibaq_file,
           label = "Protein abundances / iBAQ (XLSX)",
-          path = file_path_list$data_files$ibaq_file,
-          desc = paste(
-            "Intensity-based absolute quantification (iBAQ) per protein and",
-            "sample."
+          description = "Workbook with protein abundance and iBAQ summaries.",
+          contents = paste(
+            "Protein-level abundance summaries per sample or group for downstream",
+            "review, filtering and quality-control interpretation."
           )
         )
-      )
+      ),
+      include_contents = TRUE
     ),
-    make_section(
-      "Over-representation analysis (ORA) input",
-      paths_to_entries(file_path_list$data_files$ora_files),
-      intro = paste(
-        "Gene lists of the significantly regulated proteins, one file per",
-        "contrast and direction (up / down). Paste a list into an",
-        "over-representation tool such as STRING, g:Profiler or WebGestalt to",
-        "find which pathways or GO terms are enriched among the regulated",
-        "proteins."
-      )
-    ),
-    make_section(
-      "GSEA rank files",
-      paths_to_entries(file_path_list$data_files$gsea_files),
-      intro = paste(
-        "Pre-ranked protein lists (.rnk), one per contrast: every quantified",
-        "protein ranked by its signed differential-expression statistic. Use",
-        "these with pre-ranked gene-set enrichment analysis (e.g. GSEA Preranked",
-        "or fgsea), which detects gene sets shifted toward the top or bottom of",
-        "the ranking."
-      )
+    ora = .index_file_table(file_path_list$data_files$ora_files, result_dir),
+    gsea = .index_file_table(file_path_list$data_files$gsea_files, result_dir)
+  )
+}
+
+.index_has_value <- function(x) {
+  if (is.null(x)) {
+    return(logical(0))
+  }
+  !is.na(x) & nzchar(as.character(x))
+}
+
+.index_entry_table <- function(result_dir, entries, include_contents = FALSE) {
+  entries <- Filter(function(entry) isTRUE(.index_has_value(entry$file)[1]), entries)
+  columns <- c("File", "Description", if (include_contents) "Contents", "Size")
+  if (length(entries) == 0) {
+    return(.index_empty_table(columns))
+  }
+
+  rows <- lapply(entries, function(entry) {
+    values <- data.frame(
+      File = .index_file_link(entry$file, result_dir, entry$label),
+      Description = entry$description,
+      stringsAsFactors = FALSE,
+      check.names = FALSE
     )
-  )
+    if (include_contents) {
+      values$Contents <- entry$contents
+    }
+    values$Size <- .index_file_size(entry$file)
+    values
+  })
+  data.frame(do.call(rbind, rows), row.names = NULL, check.names = FALSE)
+}
 
-  analysis_date <- format(Sys.time(), "%B %d, %Y")
-  version <- as.character(packageVersion("prolfquapp"))
-
-  # Close out
-  html_lines <- c(
-    html_lines,
-    "  <div class='footer'>",
-    sprintf("    <p><strong>Analysis Date:</strong> %s</p>", analysis_date),
-    "    <p><strong>Project:</strong> Differential Expression analysis</p>",
-    sprintf(
-      "    <p><strong>Generated by:</strong> prolfquapp package v%s</p>",
-      version
-    ),
-    "    <p><strong>Publications (please cite):</strong></p>",
-    paste0(
-      "    <p><a href=\"https://doi.org/10.1021/acs.jproteome.2c00441\"",
-      " target=\"_blank\">prolfqua - Wolski et al.,",
-      " J Proteome Res. 2023;22(4):1092-1104</a></p>"
-    ),
-    paste0(
-      "    <p><a href=\"https://doi.org/10.1021/acs.jproteome.4c00911\"",
-      " target=\"_blank\">prolfquapp - Wolski et al.,",
-      " J Proteome Res. 2025;24(2):955-965</a></p>"
-    ),
-    "  </div>",
-    "</body>",
-    "</html>"
+.index_file_table <- function(paths, result_dir) {
+  paths <- unlist(paths, use.names = TRUE)
+  paths <- paths[.index_has_value(paths)]
+  if (length(paths) == 0) {
+    return(.index_empty_table(c("File", "Size")))
+  }
+  data.frame(
+    File = vapply(seq_along(paths), function(index) {
+      label <- names(paths)[index]
+      .index_file_link(paths[[index]], result_dir, label)
+    }, character(1)),
+    Size = vapply(paths, .index_file_size, character(1), USE.NAMES = FALSE),
+    row.names = NULL,
+    check.names = FALSE
   )
-  # Write it
-  index_file <- file.path(result_dir, "index.html")
-  writeLines(html_lines, con = index_file)
-  message("Wrote HTML index to: ", index_file)
-  invisible(html_lines)
+}
+
+.index_empty_table <- function(columns) {
+  stats::setNames(data.frame(matrix(ncol = length(columns), nrow = 0)), columns)
+}
+
+.index_file_link <- function(path, result_dir, label = NULL) {
+  label <- if (isTRUE(.index_has_value(label)[1])) label else basename(path)
+  sprintf(
+    "<a href='%s'>%s</a>",
+    .index_relative_href(path, result_dir),
+    .index_html_escape(label)
+  )
+}
+
+.index_file_size <- function(path) {
+  if (!file.exists(path)) {
+    return("")
+  }
+  size <- file.info(path)$size
+  if (is.na(size)) {
+    return("")
+  }
+  if (size >= 1e6) {
+    return(sprintf("%.1f MB", size / 1e6))
+  }
+  if (size >= 1e3) {
+    return(sprintf("%.0f KB", size / 1e3))
+  }
+  sprintf("%d B", size)
+}
+
+.index_html_escape <- function(x) {
+  x <- gsub("&", "&amp;", x, fixed = TRUE)
+  x <- gsub("<", "&lt;", x, fixed = TRUE)
+  x <- gsub(">", "&gt;", x, fixed = TRUE)
+  x <- gsub('"', "&quot;", x, fixed = TRUE)
+  x
 }

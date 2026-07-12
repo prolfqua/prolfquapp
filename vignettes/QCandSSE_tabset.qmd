@@ -88,20 +88,23 @@ string_translations <- list(
   )
 )
 strings <- string_translations[[params$target_type]]
+report_provenance <- prolfquapp:::.report_provenance(
+  project_spec = local_project_conf
+)
 
 ```
 
 ::: {.panel-tabset}
 
-# Introduction
+# Overview
 
-- Workunit: `r local_project_conf$workunit_Id %||% "n/a"`
-- Project: `r local_project_conf$project_Id %||% "n/a"`
-- Order : `r local_project_conf$order_Id %||% "n/a"`
+<img src="visual_abstracts/quality-control-sample-size.png" alt="Visual abstract: pilot samples are quantified, quality checked for detection and variability, then used to plan sample size for a main experiment." style="width: 100%; max-height: 22rem; object-fit: contain;">
 
 We ran your samples through the same analysis pipeline that will be applied to the main experiment. This document summarizes the `r strings[["target"]]` variability, assesses the reproducibility of the biological samples, and estimates the sample sizes needed for the main experiment.
 
-The report is organized into tabs. The **Quality Control** tab describes how many `r strings[["targets"]]` were identified, how reproducibly they were detected across samples, how comparable their abundance distributions are, and how variable they are. The **Sample Size Calculation** tab then *consumes* the variability estimated during quality control to size the main experiment for a range of biologically relevant effect sizes. Sample names used throughout are defined in @tbl-sample-mapping.
+Input: a pilot data set with `r nrSamples` samples and quantified `r strings[["targets"]]`. The detailed source-data reference is recorded in **Session Info**.
+
+The **Quality Control** tab describes detection, reproducibility, abundance distributions, and variability. **Sample Size Calculation** then uses the measured variability to size the main experiment for biologically relevant effect sizes.
 
 ::: {.callout-note collapse="true" title="About this report"}
 This report is generated automatically and contains no experiment-specific conclusions. Please discuss it with your project bioinformatician or statistician (who is typically not your project coach).
@@ -613,10 +616,24 @@ knitr::kable(dataTransformed$get_Summariser()$hierarchy_counts_sample())
 
 # Session Info
 
+::: {.panel-tabset}
+
+## Report provenance
+
+```{r}
+#| label: tbl-report-provenance
+#| tbl-cap: "Compact report provenance, including the source input-data reference."
+knitr::kable(prolfquapp:::.report_provenance_table(report_provenance))
+```
+
+## R session info
+
 ```{r}
 #| label: session-info
 sessionInfo()
 ```
+
+:::
 
 ```{r resetTheme}
 #| include: false

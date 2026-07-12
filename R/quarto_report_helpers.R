@@ -42,6 +42,18 @@
     return(NULL)
   }
   bib_src <- system.file("doc/bibliography.bib", package = "prolfquapp")
+  visual_abstracts_candidates <- c(
+    system.file("doc/visual_abstracts", package = "prolfquapp"),
+    file.path(dirname(dirname(qmd_src)), "vignettes", "visual_abstracts")
+  )
+  visual_abstracts_candidates <- visual_abstracts_candidates[
+    dir.exists(visual_abstracts_candidates)
+  ]
+  visual_abstracts_src <- if (length(visual_abstracts_candidates) > 0) {
+    visual_abstracts_candidates[[1]]
+  } else {
+    ""
+  }
 
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   output_dir <- normalizePath(output_dir, mustWork = TRUE)
@@ -52,6 +64,23 @@
   file.copy(qmd_src, render_dir, overwrite = TRUE)
   if (nzchar(bib_src) && file.exists(bib_src)) {
     file.copy(bib_src, render_dir, overwrite = TRUE)
+  }
+  if (!dir.exists(visual_abstracts_src)) {
+    stop(
+      "Quarto visual abstracts are missing from the report source.",
+      call. = FALSE
+    )
+  }
+  copied_visual_abstracts <- file.copy(
+    visual_abstracts_src,
+    render_dir,
+    recursive = TRUE
+  )
+  if (!isTRUE(copied_visual_abstracts)) {
+    stop(
+      "Could not stage Quarto visual abstracts for rendering.",
+      call. = FALSE
+    )
   }
 
   oldwd <- setwd(render_dir)
@@ -234,7 +263,12 @@ render_dea_reports <- function(reporter) {
   out <- list()
   try_step <- function(expr, label) {
     tryCatch(expr, error = function(e) {
-      logger::log_warn("prolfquapp: skipping ", label, ": ", conditionMessage(e))
+      logger::log_warn(
+        "prolfquapp: skipping ",
+        label,
+        ": ",
+        conditionMessage(e)
+      )
       NULL
     })
   }
@@ -306,7 +340,10 @@ render_dea_reports <- function(reporter) {
   # Sample-size (SSE) report, built from the raw feature-level data.
   out$sse_file <- try_step(
     {
-      qc_data_file <- file.path(reporter$resultdir, "QC_sampleSizeEstimation.rds")
+      qc_data_file <- file.path(
+        reporter$resultdir,
+        "QC_sampleSizeEstimation.rds"
+      )
       saveRDS(
         list(
           data = reporter$deanalyse$lfq_data_raw$data_long(),
@@ -321,8 +358,14 @@ render_dea_reports <- function(reporter) {
         output_file = "QCandSSE_tabset.html",
         project_conf = list(
           project_Id = .as_project_id(ps$project_Id),
+          project_name = .as_project_id(ps$project_name),
           order_Id = .as_project_id(ps$order_Id),
-          workunit_Id = .as_project_id(ps$workunit_Id)
+          workunit_Id = .as_project_id(ps$workunit_Id),
+          input_URL = .as_project_id(ps$input_URL),
+          software = .as_project_id(
+            reporter$deanalyse$prolfq_app_config$software
+          ),
+          model = .as_project_id(reporter$deanalyse$default_model)
         ),
         target_type = "protein"
       )

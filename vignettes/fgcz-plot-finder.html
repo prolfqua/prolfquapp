@@ -23,12 +23,12 @@
      view-source features from that file are intentionally not included.
      ════════════════════════════════════════════════════════════════════ -->
 <style>
-  /* ── Top-right toolbar: docked, labelled, conspicuous. ───────────────
+  /* ── Right-aligned toolbar: below banner, labelled, conspicuous. ─────
      Buttons keep their ids (#fgcz-pf-btn / #fgcz-dl-btn) so the JS wiring is
      unchanged. Move the whole bar by editing `top` / `right`; resize buttons
      via min-width/padding. */
   .fgcz-pf-toolbar {
-    position: fixed; right: 1rem; top: 1rem; transform: none;
+    position: fixed; right: 1rem; top: max(7rem, 25vh); transform: none;
     z-index: 1080; display: flex; flex-direction: row; gap: .35rem;
   }
   .fgcz-pf-toolbar button {
