@@ -1,3 +1,8 @@
+# prolfquapp 2.6.0
+
+- The full Docker image now includes the fixed-size Quarto report figures and
+  interactive widgets introduced in 2.5.1.
+
 # prolfquapp 2.5.1
 
 - Quarto report figures now use fixed display dimensions based on the historic
