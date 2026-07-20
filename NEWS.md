@@ -1,5 +1,14 @@
-# prolfquapp 2.4.2
+# prolfquapp 2.5.0
 
+- Docker releases now derive their build mode from the semantic version: `X.Y.0`
+  tags run the full multi-architecture build and runtime checks, while later
+  `X.Y.Z` patch tags update the packages declared in `Remotes` and rebuild
+  prolfquapp on the matching `X.Y.0` image. An urgent patch release fails if
+  that full base image is unavailable or if the Docker environment or package
+  dependencies changed since `X.Y.0`.
+- Docker builds now use Posit's Ubuntu Noble R base image and native Posit
+  Package Manager binaries on AMD64 and ARM64, avoiding lengthy source
+  compilation while retaining Arrow's zstd support.
 - Docker images are now published to the GitHub Container Registry
   (`ghcr.io/prolfqua/prolfquapp`) instead of Docker Hub. Images from earlier
   versions remain available on Docker Hub; new releases are published to GHCR.

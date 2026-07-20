@@ -3,7 +3,7 @@ name: Publish a Docker image
 on:
   push:
     tags:
-      - '**'
+      - '[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
     inputs:
       test-only:
@@ -20,30 +20,93 @@ jobs:
     outputs:
       version: ${{ steps.v.outputs.version }}
       publish: ${{ steps.v.outputs.publish }}
+      mode: ${{ steps.v.outputs.mode }}
+      base_version: ${{ steps.v.outputs.base_version }}
     steps:
       - uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0
       - id: v
-        name: Determine version and publish flag
+        name: Determine version and build mode
+        shell: bash
         run: |
+          set -euo pipefail
+
           if [ "${{ github.event_name }}" = "push" ]; then
             VERSION="${GITHUB_REF#refs/tags/}"
             PUBLISH=true
           elif [ "${{ github.event.inputs.test-only }}" = "false" ]; then
-            VERSION=$(git tag --points-at HEAD | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
-            if [ -z "$VERSION" ]; then
-              echo "::error::No semantic version tag (X.Y.Z) found at HEAD"
+            if [[ "$GITHUB_REF" != refs/tags/* ]]; then
+              echo "::error::Publishing a manually dispatched build requires selecting a semantic-version tag"
               exit 1
             fi
+            VERSION="${GITHUB_REF#refs/tags/}"
             PUBLISH=true
           else
             VERSION=test
             PUBLISH=false
           fi
+
+          if [ "$VERSION" = "test" ]; then
+            MODE=full
+            BASE_VERSION=
+          elif [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            PATCH_VERSION="${BASH_REMATCH[3]}"
+            if [ "$PATCH_VERSION" -eq 0 ]; then
+              MODE=full
+              BASE_VERSION=
+            else
+              MODE=urgent
+              BASE_VERSION="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.0"
+            fi
+          else
+            echo "::error::Docker releases require a semantic version tag in X.Y.Z form, got '$VERSION'"
+            exit 1
+          fi
+
+          if [ "$MODE" = "urgent" ]; then
+            if ! git rev-parse --verify --quiet "refs/tags/${BASE_VERSION}^{commit}" >/dev/null; then
+              echo "::error::Urgent release $VERSION requires the full-release tag $BASE_VERSION"
+              exit 1
+            fi
+            if ! git merge-base --is-ancestor "$BASE_VERSION" HEAD; then
+              echo "::error::Full-release tag $BASE_VERSION is not an ancestor of $VERSION"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_VERSION" HEAD -- Dockerfile; then
+              echo "::error::Dockerfile changed since $BASE_VERSION; create a new X.Y.0 full release"
+              exit 1
+            fi
+
+            extract_dependency_fields() {
+              awk '
+                /^[^[:space:]][^:]*:/ {
+                  field = $0
+                  sub(/:.*/, "", field)
+                  keep = field ~ /^(Depends|Imports|Suggests|LinkingTo|Remotes|SystemRequirements)$/
+                }
+                keep { print }
+              ' "$1"
+            }
+
+            base_description="$(mktemp)"
+            base_dependencies="$(mktemp)"
+            current_dependencies="$(mktemp)"
+            trap 'rm -f "$base_description" "$base_dependencies" "$current_dependencies"' EXIT
+            git show "${BASE_VERSION}:DESCRIPTION" > "$base_description"
+            extract_dependency_fields "$base_description" > "$base_dependencies"
+            extract_dependency_fields DESCRIPTION > "$current_dependencies"
+            if ! diff -u "$base_dependencies" "$current_dependencies"; then
+              echo "::error::Package dependencies changed since $BASE_VERSION; create a new X.Y.0 full release"
+              exit 1
+            fi
+          fi
+
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "publish=$PUBLISH" >> "$GITHUB_OUTPUT"
-          echo "Version: $VERSION, publish: $PUBLISH"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "base_version=$BASE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION, mode: $MODE, base: ${BASE_VERSION:-none}, publish: $PUBLISH"
 
   build:
     needs: version
@@ -72,25 +135,31 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GHCR
-        if: needs.version.outputs.publish == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Verify urgent base image
+        if: needs.version.outputs.mode == 'urgent'
+        run: docker buildx imagetools inspect ${{ env.IMAGE }}:${{ needs.version.outputs.base_version }}
+
       # Build this arch locally so we can smoke-test it natively on the runner.
       - name: Build image for smoke test
+        if: needs.version.outputs.mode == 'full'
         uses: docker/build-push-action@v6.10.0
         with:
           context: .
           platforms: ${{ matrix.platform }}
+          target: full
           load: true
           tags: ${{ env.IMAGE }}:ci-${{ matrix.arch }}
-          cache-from: type=gha,scope=${{ matrix.arch }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
+          cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }}
+          cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }},mode=max
 
       - name: Test Quarto PDF rendering with TinyTeX
+        if: needs.version.outputs.mode == 'full'
         run: |
           docker run --rm -v ${{ github.workspace }}/.github/workflows:/workspace \
             ${{ env.IMAGE }}:ci-${{ matrix.arch }} \
@@ -99,21 +168,41 @@ jobs:
 
       # Push by digest (no tag). Reuses the cache from the build above.
       - name: Build and push by digest
-        id: push
-        if: needs.version.outputs.publish == 'true'
+        id: full_push
+        if: needs.version.outputs.publish == 'true' && needs.version.outputs.mode == 'full'
         uses: docker/build-push-action@v6.10.0
         with:
           context: .
           platforms: ${{ matrix.platform }}
-          cache-from: type=gha,scope=${{ matrix.arch }}
+          target: full
+          cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }}
+          cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }},mode=max
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Build urgent package overlay and push by digest
+        id: urgent_push
+        if: needs.version.outputs.publish == 'true' && needs.version.outputs.mode == 'urgent'
+        uses: docker/build-push-action@v6.10.0
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          target: urgent
+          build-args: |
+            URGENT_BASE_IMAGE=${{ env.IMAGE }}:${{ needs.version.outputs.base_version }}
+            RELEASE_VERSION=${{ needs.version.outputs.version }}
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
         if: needs.version.outputs.publish == 'true'
+        env:
+          DIGEST: ${{ steps.full_push.outputs.digest || steps.urgent_push.outputs.digest }}
         run: |
           mkdir -p ${{ runner.temp }}/digests
-          digest="${{ steps.push.outputs.digest }}"
-          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+          if [ -z "$DIGEST" ]; then
+            echo "::error::Docker build did not produce an image digest"
+            exit 1
+          fi
+          touch "${{ runner.temp }}/digests/${DIGEST#sha256:}"
 
       - name: Upload digest
         if: needs.version.outputs.publish == 'true'

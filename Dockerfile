@@ -1,24 +1,31 @@
 # syntax=docker/dockerfile:1
 ARG R_VERSION=4.6.1
+ARG URGENT_BASE_IMAGE=ghcr.io/prolfqua/prolfquapp:latest
 
-# Pinned by digest: the r-base tags are mutable and were silently serving R 4.6.0
-# under the 4.5.2 tag, which produced a build-vs-runtime ABI mismatch (packages
-# compiled against 4.6.0, loaded under 4.5.2). Pinning the digest locks the exact
-# image so the build and runtime stages always share one consistent R version.
-FROM r-base:${R_VERSION}@sha256:31f2ab2f0d4eeb8f9b2cbcc9ed8aac242be6fbd2bfa9f4af94d4a41a9d54c818 AS base
+# Pin the multi-architecture Posit Ubuntu Noble image by digest so the build and
+# runtime stages always share the same R version and operating-system ABI.
+FROM posit/r-base:${R_VERSION}-noble@sha256:632f7e3e493c10817a17b52065efb9f48a977ecc1f470e236323f36f4ed1db19 AS base
 ARG TARGETPLATFORM
+ARG TARGETARCH
 ARG QUARTO_VERSION=1.5.57
+ARG RSPM_R_VERSION=4.6
 
-RUN apt-get update \
-  && apt-get install -y pandoc gdebi \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update
+# Use Posit's native Ubuntu Noble binaries for both target architectures.
+RUN case "$TARGETARCH" in \
+    amd64) RSPM_ARCH=x86_64 ;; \
+    arm64) RSPM_ARCH=aarch64 ;; \
+    *) echo "Unsupported target architecture for RSPM: $TARGETARCH" >&2; exit 1 ;; \
+  esac \
+  && RSPM_REPO="https://packagemanager.posit.co/cran/latest/bin/linux/noble-${RSPM_ARCH}/${RSPM_R_VERSION}" \
+  && printf 'options(repos = c(CRAN = "%s"))\n' "$RSPM_REPO" >> "$(R RHOME)/etc/Rprofile.site"
 
 RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; else ARCHITECTURE=amd64; fi \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates pandoc wget \
   && wget "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${ARCHITECTURE}.deb" -O /tmp/quarto.deb \
-  && gdebi --non-interactive /tmp/quarto.deb \
-  && rm /tmp/quarto.deb
+  && apt-get install -y --no-install-recommends /tmp/quarto.deb \
+  && rm /tmp/quarto.deb \
+  && rm -rf /var/lib/apt/lists/*
 
 
 
@@ -26,27 +33,52 @@ FROM base AS build
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update \
-  && apt-get upgrade -y \
   && apt-get install -y libcurl4-openssl-dev cmake libglpk-dev libxml2-dev libfontconfig1-dev libfreetype6-dev \
   && rm -rf /var/lib/apt/lists/*
 ENV R_LIBS_USER=/opt/r-libs-site
 RUN mkdir -p /opt/r-libs-site
 
-# Install arrow with its full feature set (compression codecs incl. zstd) BEFORE any
-# dependency resolution. DIA-NN 2.x writes zstd-compressed report.parquet; the default
-# arrow build is "minimal" (no codecs) and fails to read them with
-# "NotImplemented: Support for codec 'zstd' not built". pak's later upgrade=FALSE keeps
-# this build, so it must be installed first.
+# Install arrow with its full feature set (compression codecs incl. zstd) before
+# dependency resolution. RSPM normally supplies a native Noble binary; the build
+# flags preserve full codec support if it falls back to a source installation.
 ENV LIBARROW_MINIMAL=false
 ENV ARROW_WITH_ZSTD=ON
-RUN R -e 'options(warn=2); install.packages("arrow", repos = "https://stat.ethz.ch/CRAN/"); stopifnot(arrow::arrow_info()$capabilities[["zstd"]])'
+RUN R -e 'options(warn=2); install.packages("arrow"); stopifnot(arrow::arrow_info()$capabilities[["zstd"]])'
 
-RUN R -e 'options(warn=2); install.packages("pak", repos = "https://stat.ethz.ch/CRAN/")'
+RUN R -e 'options(warn=2); install.packages("pak")'
+COPY <<'EOF' /tmp/install_cran_binary_deps.R
+args <- commandArgs(trailingOnly = TRUE)
+mode <- args[[1]]
+targets <- args[-1]
+deps <- switch(
+  mode,
+  refs = pak::pkg_deps(targets, upgrade = FALSE),
+  local = pak::local_deps(targets[[1]], upgrade = FALSE),
+  description = {
+    description <- read.dcf(targets[[1]], fields = "Remotes")
+    remotes <- trimws(strsplit(description[1, "Remotes"], ",", fixed = TRUE)[[1]])
+    stopifnot(length(remotes) > 0L, all(nzchar(remotes)))
+    pak::pkg_deps(remotes, upgrade = FALSE)
+  },
+  stop("Unknown dependency mode: ", mode)
+)
+available <- rownames(available.packages())
+installed <- rownames(installed.packages())
+packages <- sort(setdiff(intersect(unique(deps$package), available), installed))
+if (length(packages) > 0L) {
+  message("Installing ", length(packages), " resolved CRAN dependencies as native binaries")
+  install.packages(packages)
+}
+EOF
+RUN Rscript /tmp/install_cran_binary_deps.R refs \
+  any::seqinr any::prozor any::logger any::lubridate \
+  github::fgcz/prolfqua github::prolfqua/prolfquasaint
 RUN R -e 'options(warn=2); pak::pkg_install(c("any::seqinr", "any::prozor", "any::logger", "any::lubridate", "github::fgcz/prolfqua", "github::prolfqua/prolfquasaint"))'
 COPY ./DESCRIPTION /opt/prolfqua/DESCRIPTION
+RUN Rscript /tmp/install_cran_binary_deps.R local /opt/prolfqua
 RUN R -e 'options(warn=2); pak::local_install_deps("/opt/prolfqua", upgrade = FALSE)'
 COPY . /opt/prolfqua
-RUN R -e 'options(warn=2); install.packages(c("knitr", "rmarkdown", "DT", "gridExtra", "KernSmooth", "plotly", "Rfit"), repos = "https://stat.ethz.ch/CRAN/")'
+RUN R -e 'options(warn=2); install.packages(c("knitr", "rmarkdown", "DT", "gridExtra", "KernSmooth", "plotly", "Rfit"))'
 RUN cd /tmp \
   && R CMD build /opt/prolfqua --no-manual \
   && R CMD INSTALL prolfquapp_*.tar.gz
@@ -86,7 +118,7 @@ RUN Rscript /tmp/check_vignettes.R \
 RUN Rscript -e "cat('Testing data.table load...\\n'); library(data.table); cat('data.table loaded successfully.\\n')"
 
 
-FROM base
+FROM base AS full
 ARG TARGETPLATFORM
 ENV HOME=/home/user
 ARG TINYTEX_VERSION=2026.05
@@ -99,10 +131,52 @@ COPY --from=build /opt/r-libs-site /opt/r-libs-site
 # Bake the build-time check scripts into the deploy image so
 # `make docker-check` can re-run them against a published image without
 # needing a rebuild.
-COPY --from=build /tmp/check_vignettes.R /tmp/check_quarto.R /opt/checks/
+COPY --from=build /tmp/check_vignettes.R /tmp/check_quarto.R /tmp/install_cran_binary_deps.R /opt/checks/
 RUN mkdir -p /tmp/quarto-cache && chmod 0777 /tmp/quarto-cache
 ENV XDG_CACHE_HOME=/tmp/quarto-cache
 ENV R_LIBS_USER=/opt/r-libs-site
 RUN for dir in /opt/.TinyTeX/bin/*/; do ln -sf $dir* /usr/local/bin/; done
 ENV PATH="/opt/r-libs-site/prolfquapp/application/bin:/root/.local/bin:${PATH}"
 ENTRYPOINT ["/bin/bash"]
+
+
+# Urgent patch releases reuse the environment from their matching X.Y.0 full
+# image, refresh every package declared in Remotes, and rebuild prolfquapp. The
+# workflow verifies that Dockerfile and package dependencies have not changed
+# since that full-release tag.
+FROM ${URGENT_BASE_IMAGE} AS urgent-dependencies
+COPY DESCRIPTION /tmp/prolfquapp-DESCRIPTION
+RUN Rscript /opt/checks/install_cran_binary_deps.R description /tmp/prolfquapp-DESCRIPTION \
+  && R -e 'description <- read.dcf("/tmp/prolfquapp-DESCRIPTION", fields = "Remotes"); remotes <- trimws(strsplit(description[1, "Remotes"], ",", fixed = TRUE)[[1]]); stopifnot(length(remotes) > 0L, all(nzchar(remotes))); message("Updating urgent release remotes: ", paste(remotes, collapse = ", ")); pak::pkg_install(remotes, upgrade = FALSE)'
+
+
+FROM urgent-dependencies AS urgent-build
+ARG RELEASE_VERSION
+COPY . /opt/prolfqua
+RUN set -eu; \
+  actual_version="$(sed -n 's/^Version:[[:space:]]*//p' /opt/prolfqua/DESCRIPTION)"; \
+  if [ "$actual_version" != "$RELEASE_VERSION" ]; then \
+    echo "DESCRIPTION version $actual_version does not match release tag $RELEASE_VERSION" >&2; \
+    exit 1; \
+  fi; \
+  cd /tmp; \
+  R CMD build /opt/prolfqua --no-manual; \
+  set -- /tmp/prolfquapp_*.tar.gz; \
+  if [ "$#" -ne 1 ]; then \
+    echo "Expected exactly one prolfquapp source tarball, found $#" >&2; \
+    exit 1; \
+  fi; \
+  mv "$1" /tmp/prolfquapp-release.tar.gz
+
+
+FROM urgent-dependencies AS urgent
+ARG RELEASE_VERSION
+COPY --from=urgent-build /tmp/prolfquapp-release.tar.gz /tmp/prolfquapp-release.tar.gz
+RUN set -eu; \
+  R CMD INSTALL /tmp/prolfquapp-release.tar.gz; \
+  rm /tmp/prolfquapp-release.tar.gz; \
+  installed_version="$(Rscript -e 'library(prolfquapp); cat(as.character(packageVersion("prolfquapp")))')"; \
+  if [ "$installed_version" != "$RELEASE_VERSION" ]; then \
+    echo "Installed prolfquapp version $installed_version does not match release tag $RELEASE_VERSION" >&2; \
+    exit 1; \
+  fi
