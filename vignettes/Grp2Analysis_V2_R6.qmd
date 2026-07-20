@@ -22,7 +22,9 @@ bibliography: bibliography.bib
 knitr::opts_chunk$set(
   echo = FALSE,
   message = FALSE,
-  warning = FALSE
+  warning = FALSE,
+  out.width = "66%",
+  fig.align = "center"
 )
 deanalyse_file <- params$deanalyse_file
 if (is.null(deanalyse_file) || !nzchar(deanalyse_file)) {
@@ -297,7 +299,13 @@ p1 <- pl$intensity_distribution_density(legend = showlegend)
 plTransformed <- dea$lfq_data$get_Plotter()
 p2 <- plTransformed$intensity_distribution_density(legend = showlegend)
 
-prolfquapp::plotly_ggplot_subplot(p1, p2, showlegend = showlegend, height = 450)
+prolfquapp::plotly_ggplot_subplot(
+  p1,
+  p2,
+  showlegend = showlegend,
+  width = "66%",
+  height = 450
+)
 
 ```
 
@@ -381,7 +389,7 @@ We use principal component analysis (PCA) to transform the high-dimensional spac
 #| fig-width: 7
 #| fig-height: 7
 pca_widget <- dea$lfq_data$get_Plotter()$pca_plotly()
-pca_widget$width <- "100%"
+pca_widget$width <- "66%"
 pca_widget$height <- 500
 pca_widget
 ```
@@ -496,7 +504,7 @@ plotter <- if (is_saint) {
   )
 }
 volcano_widget <- plotter$volcano_plotly()$FDR
-volcano_widget$width <- "100%"
+volcano_widget$width <- "66%"
 volcano_widget$height <- 500
 volcano_widget
 

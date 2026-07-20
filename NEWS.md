@@ -1,5 +1,14 @@
+# prolfquapp 2.4.2
+
+- Docker images are now published to the GitHub Container Registry
+  (`ghcr.io/prolfqua/prolfquapp`) instead of Docker Hub. Images from earlier
+  versions remain available on Docker Hub; new releases are published to GHCR.
+
 # prolfquapp 2.4.1
 
+- Quarto analysis reports now render standard static and interactive figures at a
+  centred two-thirds of the content width. Intentional multi-column figure
+  layouts, data tables, and compact Overview visual abstracts are unchanged.
 - All five Quarto reports now open with a compact, report-specific visual Overview: three summary cards show the number of samples, experimental groups, and quantified proteins (or the analysed feature type), followed by the visual abstract. The reports finish with a two-subtab Session Info area: Report provenance records the B-Fabric/input context, creator, timestamp, software/model, and package version, while R session info contains only `sessionInfo()`. The visual abstracts are packaged with the reports, so the same layout is retained in runtime-rendered HTML output.
 - Quarto visual abstracts are now copied as individual vignette assets, so `make build-vignettes` no longer fails when `devtools` stages report assets into `doc/`.
 - Package builds now exclude Quarto's transient `vignettes/.quarto` freeze cache, avoiding nonportable tar-path warnings and cache files in source tarballs.

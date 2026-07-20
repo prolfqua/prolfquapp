@@ -33,6 +33,7 @@ knitr::opts_chunk$set(
   warning = FALSE,
   fig.width = 5.5,
   fig.height = 3.5,
+  out.width = "66%",
   fig.align = "center"
 )
 
@@ -293,7 +294,8 @@ if (plot_density) {
   prolfquapp::plotly_ggplot_subplot(
     raw_intensity,
     transformed_intensity,
-    showlegend = nrow(lfqdata$factors()) <= 12
+    showlegend = nrow(lfqdata$factors()) <= 12,
+    width = "66%"
   )
 } else {
   raw_intensity <- lfqdata$get_Plotter()$intensity_distribution_violin() +
@@ -351,7 +353,7 @@ if ( moreThanOneSample ) {
       ggplot2::labs(title = "Below and above median abundance", x = "CV [%]", y = "density") +
       ggplot2::labs(tag = "B") +
       ggplot2::xlim(0, 150)
-    prolfquapp::plotly_ggplot_subplot(p1, p2)
+    prolfquapp::plotly_ggplot_subplot(p1, p2, width = "66%")
   } else {
     p1 <- stats$violin() + ggplot2::labs(tag = 'A')
     p2 <- stats$violin_median() + ggplot2::labs(tag = 'B')
@@ -395,7 +397,7 @@ if (plot_density) {
     ggplot2::labs(title = "All quantified targets", tag = "A", x = "SD", y = "density")
   p2 <- st$density_median() +
     ggplot2::labs(title = "Below and above median abundance", tag = "B", x = "SD", y = "density")
-  prolfquapp::plotly_ggplot_subplot(p1, p2)
+  prolfquapp::plotly_ggplot_subplot(p1, p2, width = "66%")
 } else {
   p1 <- st$violin() +
     ggplot2::labs(tag = "A") +
@@ -417,7 +419,7 @@ p1 <- st$density(ggstat = "ecdf") +
   ggplot2::labs(title = "All quantified targets", tag = "A", x = "SD", y = "ECDF")
 p2 <- st$density_median(ggstat = "ecdf") +
   ggplot2::labs(title = "Below and above median abundance", tag = "B", x = "SD", y = "ECDF")
-prolfquapp::plotly_ggplot_subplot(p1, p2)
+prolfquapp::plotly_ggplot_subplot(p1, p2, width = "66%")
 ```
 
 ```{r}
@@ -491,7 +493,7 @@ print(hm)
 #| fig-cap: "Pairwise scatter plots of transformed sample intensities. Each panel compares two samples; smoothed trends show agreement between samples."
 #| fig-height: 12
 #| fig-width: 12
-#| out-width: "100%"
+#| out-width: "66%"
 invisible(plotter_transformed$pairs_smooth(max = 10))
 ```
 

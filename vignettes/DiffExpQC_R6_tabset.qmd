@@ -22,7 +22,9 @@ vignette: >
 knitr::opts_chunk$set(
   echo = FALSE,
   message = FALSE,
-  warning = FALSE
+  warning = FALSE,
+  out.width = "66%",
+  fig.align = "center"
 )
 
 deanalyse_file <- params$deanalyse_file
@@ -92,7 +94,7 @@ Missing values can reveal potential biases or technical problems in the data. @f
 #| fig-cap: "Missing protein abundance estimates by group. Panel A: number of proteins with n missing values (nrNA). Panel B: distribution of mean within-group protein intensity by the number of missing values."
 #| fig-height: 5
 #| fig-width: 8
-#| out-width: "100%"
+#| out-width: "66%"
 pl <- dea$lfq_data_raw$get_Plotter()
 p2 <- pl$missigness_histogram()
 
@@ -115,7 +117,7 @@ Panel A in @fig-sd-violin shows the coefficients of variation (CVs) for all prot
 #| fig-cap: "Protein-level variance distributions. Panel A: coefficients of variation (CVs) within groups and across the full experiment (all) for non-normalized data. Panel B: standard deviations (SDs) for log2-transformed data. Panel C: SDs after normalization. Black dots indicate medians."
 #| fig-height: 3
 #| fig-width: 7
-#| out-width: "100%"
+#| out-width: "66%"
 stR <- dea$lfq_data_raw$get_Stats()
 pA <- stR$violin() + ggplot2::theme_classic() +
   ggplot2::labs(tag = "A") +
@@ -171,7 +173,7 @@ Panel B in @fig-fc-density shows the distribution of p-values for all proteins. 
 #| fig-cap: "Differential expression diagnostic distributions. Panel A: differences between groups for all proteins. The red dotted line marks the median fold change; the green line marks the expected median fold change. Panel B: histogram of p-values for all proteins."
 #| fig-width: 8
 #| fig-height: 4
-#| out-width: "100%"
+#| out-width: "66%"
 cpl <- dea$contrast_results[[dea$default_model]]$get_Plotter(
   fc_threshold = cfg$processing_options$diff_threshold,
   fdr_threshold = cfg$processing_options$FDR_threshold)
@@ -187,7 +189,7 @@ The MA plot in @fig-ma helps identify whether large fold changes are concentrate
 #| fig-cap: "MA plot diagnostics. Panel A: group difference versus average protein abundance. Panel B: group difference versus the rank of average protein abundance."
 #| fig-width: 8
 #| fig-height: 5
-#| out-width: "100%"
+#| out-width: "66%"
 cpl <- dea$contrast_results[[dea$default_model]]$get_Plotter(
   fc_threshold = cfg$processing_options$diff_threshold,
   fdr_threshold = cfg$processing_options$FDR_threshold)

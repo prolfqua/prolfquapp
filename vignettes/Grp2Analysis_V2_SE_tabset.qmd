@@ -65,6 +65,11 @@ if (length(missing_packages) > 0) {
   )
 }
 
+knitr::opts_chunk$set(
+  out.width = "66%",
+  fig.align = "center"
+)
+
 se_file <- params$se_file
 if (is.null(se_file) || !nzchar(se_file)) {
   se_file <- system.file("extdata", "3106962.rds", package = "prolfquapp")
@@ -446,7 +451,7 @@ grid::grid.draw(combined_missing)
 #| fig-cap: "Raw and transformed abundance distributions. Each curve represents one sample; the x-axes show raw abundance and transformed intensity, and the y-axes show kernel density."
 #| fig-width: 12
 #| fig-height: 5
-#| out-width: "100%"
+#| out-width: "66%"
 raw_density <- safe_plot(
   lfq_raw$get_Plotter()$intensity_distribution_density(),
   "Could not draw raw abundance density."
@@ -462,6 +467,7 @@ save_if_ggplot(trans_density, "transformed_abundance_density")
 prolfquapp::plotly_ggplot_subplot(
   raw_density,
   trans_density,
+  width = "66%",
   height = 520
 )
 ```
