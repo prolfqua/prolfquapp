@@ -33,9 +33,15 @@ knitr::opts_chunk$set(
   warning = FALSE,
   fig.width = 5.5,
   fig.height = 3.5,
-  out.width = "66%",
+  out.width = "600px",
   fig.align = "center"
 )
+sized_widget <- function(widget, width = 600) {
+  htmltools::tags$div(
+    style = sprintf("max-width: %dpx; margin: 0 auto;", width),
+    widget
+  )
+}
 
 qc_file <- params$qc_data_file
 if (is.null(qc_file) || !nzchar(qc_file)) {
@@ -161,7 +167,7 @@ knitr::kable(data.frame(NR = lfqdata$hierarchy_counts()))
 #| fig-cap: !expr paste0("Number of quantified ", strings[["targets"]], " per sample. Each bar is one LC-MS sample; the y-axis is the count of quantified ", strings[["targets"]], ".")
 #| fig-width: !expr max(8, nrSamples * 0.2)
 #| fig-height: 6
-#| out-width: "100%"
+#| out-width: "450px"
 summarizer <- lfqdata$get_Summariser()
 summarizer$plot_hierarchy_counts_sample()
 ```
@@ -171,7 +177,7 @@ summarizer$plot_hierarchy_counts_sample()
 #| fig-cap: !expr paste0("Overlap of quantified ", strings[["targets"]], " across samples. Bars show set and intersection sizes; filled dots mark which samples contribute to each intersection.")
 #| fig-width: 9
 #| fig-height: 9
-#| out-width: "100%"
+#| out-width: "450px"
 plotter <- lfqdata$get_Plotter()
 plotter$upset_missing()
 ```
@@ -195,7 +201,7 @@ width_na <- max(8, nrSamples * 0.15)
 #| fig-cap: !expr paste0("Missing-value structure across ", strings[["target"]], " quantifications. The upper panel shows intensity distributions grouped by the number of missing values; the lower panels show counts and cumulative counts of missing values per group.")
 #| fig-width: !expr max(7, nrSamples * 0.1)
 #| fig-height: !expr max(7, nrSamples * 0.1)
-#| out-width: "100%"
+#| out-width: "450px"
 p <- plotter$missigness_histogram()
 xx3 <- summarizer$plot_missingness_per_group()
 xx4 <- summarizer$plot_missingness_per_group_cumsum()
@@ -208,7 +214,7 @@ gridExtra::grid.arrange(p, xx3, xx4, ncol = 1)
 #| fig-width: !expr width_na
 #| fig-height: !expr width_na
 #| fig-align: center
-#| out-width: "100%"
+#| out-width: "450px"
 if (is.null(pNAmap)) {
   # na_heatmap() returns NULL when the data have no missing values; draw an
   # informative placeholder so the figure stays numbered and its cross-reference
@@ -291,11 +297,13 @@ if (plot_density) {
   transformed_intensity <- plotter_transformed$intensity_distribution_density() +
     ggplot2::labs(title = "Transformed intensities") +
     ggplot2::theme(legend.text = ggplot2::element_text(size = 5))
-  prolfquapp::plotly_ggplot_subplot(
-    raw_intensity,
-    transformed_intensity,
-    showlegend = nrow(lfqdata$factors()) <= 12,
-    width = "66%"
+  sized_widget(
+    prolfquapp::plotly_ggplot_subplot(
+      raw_intensity,
+      transformed_intensity,
+      showlegend = nrow(lfqdata$factors()) <= 12,
+      width = 600
+    )
   )
 } else {
   raw_intensity <- lfqdata$get_Plotter()$intensity_distribution_violin() +
@@ -353,7 +361,7 @@ if ( moreThanOneSample ) {
       ggplot2::labs(title = "Below and above median abundance", x = "CV [%]", y = "density") +
       ggplot2::labs(tag = "B") +
       ggplot2::xlim(0, 150)
-    prolfquapp::plotly_ggplot_subplot(p1, p2, width = "66%")
+    sized_widget(prolfquapp::plotly_ggplot_subplot(p1, p2, width = 600))
   } else {
     p1 <- stats$violin() + ggplot2::labs(tag = 'A')
     p2 <- stats$violin_median() + ggplot2::labs(tag = 'B')
@@ -397,7 +405,7 @@ if (plot_density) {
     ggplot2::labs(title = "All quantified targets", tag = "A", x = "SD", y = "density")
   p2 <- st$density_median() +
     ggplot2::labs(title = "Below and above median abundance", tag = "B", x = "SD", y = "density")
-  prolfquapp::plotly_ggplot_subplot(p1, p2, width = "66%")
+  sized_widget(prolfquapp::plotly_ggplot_subplot(p1, p2, width = 600))
 } else {
   p1 <- st$violin() +
     ggplot2::labs(tag = "A") +
@@ -419,7 +427,7 @@ p1 <- st$density(ggstat = "ecdf") +
   ggplot2::labs(title = "All quantified targets", tag = "A", x = "SD", y = "ECDF")
 p2 <- st$density_median(ggstat = "ecdf") +
   ggplot2::labs(title = "Below and above median abundance", tag = "B", x = "SD", y = "ECDF")
-prolfquapp::plotly_ggplot_subplot(p1, p2, width = "66%")
+sized_widget(prolfquapp::plotly_ggplot_subplot(p1, p2, width = 600))
 ```
 
 ```{r}
@@ -473,7 +481,7 @@ width_overview <- max(10, nrSamples * 0.15)
 #| fig-cap: !expr paste0("Sample correlation heatmap after transformation. Rows and columns are samples; colours encode pairwise correlations of transformed ", strings[["target"]], " intensities.")
 #| fig-width: !expr width_cor
 #| fig-height: !expr width_cor
-#| out-width: "100%"
+#| out-width: "450px"
 print(chmap)
 ```
 
@@ -482,7 +490,7 @@ print(chmap)
 #| fig-cap: !expr paste0("Heatmap of transformed ", strings[["target"]], " intensities across samples. Rows are ", strings[["targets"]], ", columns are samples; colours encode transformed intensity.")
 #| fig-width: !expr width_overview
 #| fig-height: 7
-#| out-width: "100%"
+#| out-width: "450px"
 print(hm)
 ```
 
@@ -493,7 +501,7 @@ print(hm)
 #| fig-cap: "Pairwise scatter plots of transformed sample intensities. Each panel compares two samples; smoothed trends show agreement between samples."
 #| fig-height: 12
 #| fig-width: 12
-#| out-width: "66%"
+#| out-width: "600px"
 invisible(plotter_transformed$pairs_smooth(max = 10))
 ```
 

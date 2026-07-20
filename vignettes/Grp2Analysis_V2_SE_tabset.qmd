@@ -66,7 +66,7 @@ if (length(missing_packages) > 0) {
 }
 
 knitr::opts_chunk$set(
-  out.width = "66%",
+  out.width = "600px",
   fig.align = "center"
 )
 
@@ -97,6 +97,12 @@ safe_plot <- function(expr, label) {
   tryCatch(expr, error = function(e) {
     empty_report_plot(paste(label, conditionMessage(e), sep = "\n"))
   })
+}
+sized_widget <- function(widget, width = 600) {
+  htmltools::tags$div(
+    style = sprintf("max-width: %dpx; margin: 0 auto;", width),
+    widget
+  )
 }
 
 draw_or_empty <- function(expr, label) {
@@ -451,7 +457,7 @@ grid::grid.draw(combined_missing)
 #| fig-cap: "Raw and transformed abundance distributions. Each curve represents one sample; the x-axes show raw abundance and transformed intensity, and the y-axes show kernel density."
 #| fig-width: 12
 #| fig-height: 5
-#| out-width: "66%"
+#| out-width: "600px"
 raw_density <- safe_plot(
   lfq_raw$get_Plotter()$intensity_distribution_density(),
   "Could not draw raw abundance density."
@@ -464,11 +470,13 @@ trans_density <- safe_plot(
   ggplot2::labs(tag = "B")
 save_if_ggplot(raw_density, "raw_abundance_density")
 save_if_ggplot(trans_density, "transformed_abundance_density")
-prolfquapp::plotly_ggplot_subplot(
-  raw_density,
-  trans_density,
-  width = "66%",
-  height = 520
+sized_widget(
+  prolfquapp::plotly_ggplot_subplot(
+    raw_density,
+    trans_density,
+    width = 600,
+    height = 520
+  )
 )
 ```
 

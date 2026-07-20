@@ -1,3 +1,9 @@
+# prolfquapp 2.5.1
+
+- Quarto report figures now use fixed display dimensions based on the historic
+  six-inch figures, so QC and differential-expression diagnostics remain a
+  readable size and fit vertically on ultrawide screens.
+
 # prolfquapp 2.5.0
 
 - Docker releases now derive their build mode from the semantic version: `X.Y.0`
