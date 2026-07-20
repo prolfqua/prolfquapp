@@ -867,9 +867,11 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="prolfquapp-2.4.2" class="level1">
-<h1>prolfquapp 2.4.2</h1>
+<section id="prolfquapp-2.5.0" class="level1">
+<h1>prolfquapp 2.5.0</h1>
 <ul>
+<li>Docker releases now derive their build mode from the semantic version: <code>X.Y.0</code> tags run the full multi-architecture build and runtime checks, while later <code>X.Y.Z</code> patch tags update the packages declared in <code>Remotes</code> and rebuild prolfquapp on the matching <code>X.Y.0</code> image. An urgent patch release fails if that full base image is unavailable or if the Docker environment or package dependencies changed since <code>X.Y.0</code>.</li>
+<li>Docker builds now use Posit’s Ubuntu Noble R base image and native Posit Package Manager binaries on AMD64 and ARM64, avoiding lengthy source compilation while retaining Arrow’s zstd support.</li>
 <li>Docker images are now published to the GitHub Container Registry (<code>ghcr.io/prolfqua/prolfquapp</code>) instead of Docker Hub. Images from earlier versions remain available on Docker Hub; new releases are published to GHCR.</li>
 </ul>
 </section>
