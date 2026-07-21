@@ -1,3 +1,9 @@
+# prolfquapp 2.6.1
+
+- The Docker image now installs the `prolfqua` Firth-model performance fix, so
+  `firth_nested` analyses with very large peptide effects complete instead of
+  spending days on unused coefficient profile-likelihood intervals.
+
 # prolfquapp 2.6.0
 
 - The full Docker image now includes the fixed-size Quarto report figures and
