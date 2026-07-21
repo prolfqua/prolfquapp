@@ -1,5 +1,8 @@
 # prolfquapp 2.6.1
 
+- Quarto reports now vendor the dynamic horizontal FGCZ toolbar: it stays below
+  the visible banner, pins to the top-right while scrolling, and expands its
+  Find/Download text labels on hover or keyboard focus.
 - The Docker image now installs the `prolfqua` Firth-model performance fix, so
   `firth_nested` analyses with very large peptide effects complete instead of
   spending days on unused coefficient profile-likelihood intervals.

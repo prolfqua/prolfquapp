@@ -3,9 +3,9 @@
      Wired into a report as an after-body include:
          include-after-body: fgcz-plot-finder.html
 
-     Two compact icon buttons glued to the right edge, stacked (Find above
-     Download), a quarter of the way down the page. They show only their icon
-     until hover/focus, which reveals the Find / Download label:
+     A horizontal row of compact icon buttons pinned at the top-right, just
+     below the FGCZ banner. They show only their icon until hover/focus, which
+     reveals the Find / Download label:
        🔍  FIND — searchable graphical list of every figure & table; clicking
                   an entry opens the tab(s) it lives in (Quarto hides
                   inactive-tab content) then scrolls + flashes it.
@@ -25,18 +25,18 @@
      view-source features from that file are intentionally not included.
      ════════════════════════════════════════════════════════════════════ -->
 <style>
-  /* ── Right-edge toolbar: flush to the right border, a quarter down the page.
-     Two icon buttons stacked and glued together (Find above Download). Each is
-     icon-only until hover/focus, when the .lbl label slides open. Buttons keep
-     their ids (#fgcz-pf-btn / #fgcz-dl-btn) so the JS wiring is unchanged. Move
-     the whole bar by editing `top` / `right`; resize via padding / .ic size. */
+  /* ── Top-right toolbar: a horizontal row glued just below the banner. The JS
+     tracks the banner while it scrolls, then keeps the toolbar 12px from the
+     viewport top. The value here is the pre-JS fallback: 12px plus the banner's
+     approximate 95px height. Buttons keep their ids so the JS wiring is
+     unchanged. */
   .fgcz-pf-toolbar {
-    position: fixed; right: 0; top: 25vh; transform: none;
-    z-index: 1080; display: flex; flex-direction: column; align-items: flex-end;
+    position: fixed; top: 107px; right: .75rem; transform: none;
+    z-index: 1080; display: flex; flex-direction: row; align-items: stretch;
     gap: 0;                                         /* buttons glued together */
   }
   .fgcz-pf-toolbar button {
-    display: flex; align-items: center; justify-content: flex-end;
+    display: flex; align-items: center; justify-content: center;
     padding: .5rem .55rem;                          /* compact, icon-sized */
     border: none; cursor: pointer; line-height: 1;
     background: var(--bs-primary, #0b5394); color: #fff;
@@ -44,11 +44,15 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
     white-space: nowrap;
   }
-  /* Round only the outer (left) corners of the stacked pair; the right side
-     stays square against the screen edge, with a hairline between the two. */
-  .fgcz-pf-toolbar button:first-child { border-top-left-radius: .55rem; }
-  .fgcz-pf-toolbar button:last-child  { border-bottom-left-radius: .55rem; }
-  .fgcz-pf-toolbar button + button { border-top: 1px solid rgba(255, 255, 255, .25); }
+  /* Round only the outer corners of the horizontal pair. JS fully rounds a
+     lone visible button because hidden elements still count as children. */
+  .fgcz-pf-toolbar button:first-child {
+    border-top-left-radius: .55rem; border-bottom-left-radius: .55rem;
+  }
+  .fgcz-pf-toolbar button:last-child {
+    border-top-right-radius: .55rem; border-bottom-right-radius: .55rem;
+  }
+  .fgcz-pf-toolbar button + button { border-left: 1px solid rgba(255, 255, 255, .25); }
   .fgcz-pf-toolbar button:hover { filter: brightness(1.12); }
   .fgcz-pf-toolbar .ic { font-size: 1.15rem; }      /* icon size */
   /* Label hidden (zero width) until hover/focus, then it slides open. */
@@ -60,6 +64,9 @@
   .fgcz-pf-toolbar button:hover .lbl,
   .fgcz-pf-toolbar button:focus-visible .lbl {
     max-width: 7rem; margin-left: .3rem; opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fgcz-pf-toolbar .lbl { transition: none; }
   }
 
   /* ── Slide-out panels (off-screen until .open). Both share styling. ── */
@@ -238,6 +245,21 @@
 <script>
 (function () {
   "use strict";
+
+  // ─── which buttons the author enabled ──────────────────────────────
+  // Precedence: (1) `fgcz-buttons:` injected by the Quarto extension;
+  // (2) the token below, patched in a staged copy by fgcz_render(); (3) both
+  // buttons when the toolbar was included manually without either mechanism.
+  var FGCZ_BUTTONS;
+  if (window.FGCZ_BUTTONS && window.FGCZ_BUTTONS.length) {
+    FGCZ_BUTTONS = window.FGCZ_BUTTONS;
+  } else {
+    FGCZ_BUTTONS = "__FGCZ_BUTTONS__".split(/\s+/).filter(Boolean);
+    if (FGCZ_BUTTONS.length === 1 && FGCZ_BUTTONS[0] === "__FGCZ_" + "BUTTONS__") {
+      FGCZ_BUTTONS = ["search", "download"];
+    }
+  }
+  var FGCZ_BUTTON_IDS = { search: "fgcz-pf-btn", download: "fgcz-dl-btn" };
 
   // ─── tab / breadcrumb helpers ──────────────────────────────────────
 
@@ -1155,6 +1177,30 @@
     tocGridEl = document.getElementById('fgcz-toc-grid');
     tocSearchEl = document.getElementById('fgcz-toc-search');
 
+    // Keep the toolbar a constant gap below the visible banner, then pin it at
+    // that same gap from the viewport top once the banner has scrolled away.
+    var GAP_PX = 12;
+    var toolbar = document.querySelector('.fgcz-pf-toolbar');
+    var banner = document.querySelector('.fgcz-banner');
+    if (toolbar && banner) {
+      var ticking = false;
+      var positionToolbar = function () {
+        ticking = false;
+        toolbar.style.top = (
+          GAP_PX + Math.max(0, banner.getBoundingClientRect().bottom)
+        ) + 'px';
+      };
+      var onViewportChange = function () {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(positionToolbar);
+        }
+      };
+      positionToolbar();
+      window.addEventListener('scroll', onViewportChange, { passive: true });
+      window.addEventListener('resize', onViewportChange);
+    }
+
     document.getElementById('fgcz-pf-btn').addEventListener('click', openToc);
     document.getElementById('fgcz-dl-btn').addEventListener('click', openDownload);
     document.querySelectorAll('.fgcz-pf-close').forEach(function (b) {
@@ -1173,6 +1219,14 @@
     });
     dlGoEl.addEventListener('click', doDownload);
 
+    // Hide buttons not selected by the author. Content checks below may hide
+    // selected buttons as well when there is nothing for them to act on.
+    Object.keys(FGCZ_BUTTON_IDS).forEach(function (name) {
+      if (FGCZ_BUTTONS.indexOf(name) === -1) {
+        document.getElementById(FGCZ_BUTTON_IDS[name]).style.display = 'none';
+      }
+    });
+
     // Show each button only when there's something for it to act on.
     var probe = buildIndex();
     var figs = probe.filter(function (it) { return it.type === 'fig'; });
@@ -1180,6 +1234,13 @@
     if (!browsable.length) document.getElementById('fgcz-pf-btn').style.display = 'none';
     if (!figs.some(function (it) { return !it.interactive; })) {
       document.getElementById('fgcz-dl-btn').style.display = 'none';
+    }
+
+    var visible = ['fgcz-pf-btn', 'fgcz-dl-btn'].filter(function (id) {
+      return document.getElementById(id).style.display !== 'none';
+    });
+    if (visible.length === 1) {
+      document.getElementById(visible[0]).style.borderRadius = '.55rem';
     }
   });
 })();
