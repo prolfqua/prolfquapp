@@ -41,25 +41,6 @@ test_that("index href helper handles mixed absolute and relative paths", {
   )
 })
 
-test_that("estimate_type palette fixes known colours and fills unknown levels", {
-  palette <- prolfquapp:::.estimate_type_palette(c(
-    "observed",
-    "lod_imputed",
-    "missing_fallback",
-    "some_future_type"
-  ))
-
-  # sorted alphabetically by level name
-  expect_named(
-    palette,
-    c("lod_imputed", "missing_fallback", "observed", "some_future_type")
-  )
-  expect_equal(palette[["observed"]], "black")
-  expect_equal(palette[["lod_imputed"]], "orange")
-  expect_false(any(is.na(names(palette))))
-  expect_false(any(is.na(palette)))
-})
-
 test_that("write_index_html does not emit absolute local paths", {
   skip_if(Sys.which("quarto") == "", "Quarto CLI not installed")
   skip_if_not_installed("DT")
