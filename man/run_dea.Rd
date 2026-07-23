@@ -30,3 +30,16 @@ full DEA pipeline: aggregation, transformation, model fitting, and
 contrast computation. Returns the \code{\link{DEAnalyse}} object and
 supporting data needed for report generation.
 }
+\examples{
+dataset <- system.file(
+  "application/sim_test/dataset_sim.csv",
+  package = "prolfquapp"
+)
+config <- make_DEA_config_R6(
+  PATH = tempdir(),
+  application = "SIM",
+  model = "lm"
+)
+result <- run_dea(tempdir(), dataset, "prolfquapp.SIM", config)
+names(result)
+}

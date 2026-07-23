@@ -97,6 +97,7 @@ diann_read_output <- function(data, Lib.PG.Q.Value = 0.01, PG.Q.Value = 0.05) {
 #'
 #' \code{\link{diann_read_output}}
 #' @param report2 filtered DIA-NN report data frame
+#' @return A peptide-level tibble with aggregated precursor abundances.
 #' @export
 #'
 diann_output_to_peptide <- function(report2) {

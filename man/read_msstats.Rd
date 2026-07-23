@@ -9,6 +9,9 @@ read_msstats(file)
 \arguments{
 \item{file}{path to MSstats csv file}
 }
+\value{
+A tibble with peptide-level intensities and child counts.
+}
 \description{
 read MSstats.csv files and rollup to ProteinSequence level.
 }

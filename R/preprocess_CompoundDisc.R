@@ -106,6 +106,8 @@ massage_CD <- function(in_file, EXCEL = TRUE) {
 #' load compound discoverer (CD) files
 #' @param xdl data frame from massage_CD
 #' @param annotation list returned by `read_annotation` function
+#' @return A list containing the prepared \code{LFQData} and
+#'   \code{ProteinAnnotation} objects.
 #' @export
 preprocess_CD <- function(
   xdl,

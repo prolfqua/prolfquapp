@@ -12,6 +12,8 @@ get_dummy_files <- function(path) {
 #' @param pattern_contaminants regex pattern for contaminants
 #' @param pattern_decoys regex pattern for decoys
 #' @param nr_peptides accepted for interface uniformity but ignored (interface stub)
+#' @return A placeholder list matching the reader contract, with
+#'   \code{lfqdata} and \code{protein_annotation} entries.
 #' @export
 preprocess_dummy <- function(
   quant_data,

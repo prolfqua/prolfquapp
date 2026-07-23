@@ -36,6 +36,7 @@ get_MSstats_files <- function(path) {
 
 #' read MSstats.csv files and rollup to ProteinSequence level.
 #' @param file path to MSstats csv file
+#' @return A tibble with peptide-level intensities and child counts.
 #' @export
 read_msstats <- function(file) {
   msstats <- readr::read_csv(file)
@@ -78,13 +79,9 @@ dataset_template_MSSTATS <- function(files) {
 }
 
 #' preprocess MSstats fragpipe
-#' @param quant_data path to MSstats csv file
-#' @param fasta_file path to fasta file(s)
-#' @param annotation annotation list from read_annotation
-#' @param pattern_contaminants regex pattern for contaminants
-#' @param pattern_decoys regex pattern for decoys
-#' @param hierarchy_depth hierarchy depth for aggregation
-#' @param nr_peptides minimum number of distinct (stripped) peptides per protein (>= 1, default 1)
+#' @inheritParams preprocess_MSstats
+#' @return A list containing the prepared \code{LFQData} and
+#'   \code{ProteinAnnotation} objects.
 #' @export
 #'
 preprocess_MSstats_FPDIA <- function(
@@ -206,6 +203,8 @@ preprocess_MSstats_FPDIA <- function(
 #' @param pattern_decoys regex pattern for decoys
 #' @param hierarchy_depth hierarchy depth for aggregation
 #' @param nr_peptides minimum number of distinct (stripped) peptides per protein (>= 1, default 1)
+#' @return A list containing the prepared \code{LFQData} and
+#'   \code{ProteinAnnotation} objects.
 #' @export
 #'
 preprocess_MSstats <- function(

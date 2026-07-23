@@ -28,6 +28,9 @@ default "Quan Usage"}
 
 \item{aggregate}{aggregate spectra to psm level}
 }
+\value{
+A list with the long-format PSM data and expected peptide counts.
+}
 \description{
 read psm.tsv produced by FragPipe and convert into long format
 }

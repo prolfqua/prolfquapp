@@ -362,6 +362,8 @@ dataset_template_MAXQUANT <- function(files) {
 #' @param pattern_decoys regex pattern for decoys
 #' @param hierarchy_depth hierarchy depth for aggregation
 #' @param nr_peptides minimum number of distinct (stripped) peptides per protein (>= 1, default 1)
+#' @return A list containing the prepared \code{LFQData} and
+#'   \code{ProteinAnnotation} objects.
 #' @export
 #'
 preprocess_MQ_peptide <- function(

@@ -112,6 +112,8 @@ prolfqua_preprocess_functions <- list(
 #'   Readers without it are warned about (and left unfiltered) when
 #'   `nr_peptides > 1`. Default 1 (no filtering).
 #' @param extreader optional external reader configuration
+#' @return A list with \code{xd}, the reader result, and \code{files}, the
+#'   discovered quantification and annotation file paths.
 #' @export
 #' @examples
 #' # example code

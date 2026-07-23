@@ -32,6 +32,10 @@ Readers without it are warned about (and left unfiltered) when
 
 \item{extreader}{optional external reader configuration}
 }
+\value{
+A list with \code{xd}, the reader result, and \code{files}, the
+  discovered quantification and annotation file paths.
+}
 \description{
 collects preprocess methods for various software
 }

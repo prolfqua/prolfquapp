@@ -11,6 +11,10 @@ preprocess_CD(xdl, annotation)
 
 \item{annotation}{list returned by `read_annotation` function}
 }
+\value{
+A list containing the prepared \code{LFQData} and
+  \code{ProteinAnnotation} objects.
+}
 \description{
 load compound discoverer (CD) files
 }

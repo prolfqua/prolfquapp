@@ -251,11 +251,9 @@ tidy_FragPipe_combined_protein <- function(
 #' read psm.tsv produced by FragPipe and convert into long format
 #' @export
 #' @param psm_files path(s) to psm.tsv file(s)
-#' @param purity_threshold purity threshold default = 0.5
-#' @param PeptideProphetProb default 0.9
-#' @param abundance_threshold minimum abundance threshold
+#' @inheritParams tidy_FragPipe_psm
 #' @param quan_column_prefix regex prefix for quantitative columns
-#' @param aggregate aggregate spectra to psm level
+#' @return A list with the long-format PSM data and expected peptide counts.
 tidy_FragPipe_psm_V2 <- function(
   psm_files,
   purity_threshold = 0.5,
@@ -367,6 +365,7 @@ tidy_FragPipe_psm_V2 <- function(
 #'   quantitative values (not consistent across FP versions),
 #'   default "Quan Usage"
 #' @param aggregate aggregate spectra to psm level
+#' @return A list with the long-format PSM data and expected peptide counts.
 tidy_FragPipe_psm <- function(
   psm_files,
   purity_threshold = 0.5,

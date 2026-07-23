@@ -1,6 +1,7 @@
 # Create a named list of functions
 #' read dataset file in csv, tsv or xlsx format
 #' @param file_path path to csv, tsv, or xlsx file
+#' @return A data frame read from \code{file_path}.
 #' @export
 read_table_data <- function(file_path) {
   read_functions <- list(

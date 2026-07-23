@@ -29,6 +29,10 @@ preprocess_MSstats_FPDIA(
 
 \item{nr_peptides}{minimum number of distinct (stripped) peptides per protein (>= 1, default 1)}
 }
+\value{
+A list containing the prepared \code{LFQData} and
+  \code{ProteinAnnotation} objects.
+}
 \description{
 preprocess MSstats fragpipe
 }

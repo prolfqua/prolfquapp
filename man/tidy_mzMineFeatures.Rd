@@ -9,6 +9,9 @@ tidy_mzMineFeatures(data)
 \arguments{
 \item{data}{path to csv or data frame of mzMine features}
 }
+\value{
+A long-format tibble with one row per feature and data file.
+}
 \description{
 convert mzmine features to tidy table
 }

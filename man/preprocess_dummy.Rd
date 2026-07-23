@@ -26,6 +26,10 @@ preprocess_dummy(
 
 \item{nr_peptides}{accepted for interface uniformity but ignored (interface stub)}
 }
+\value{
+A placeholder list matching the reader contract, with
+  \code{lfqdata} and \code{protein_annotation} entries.
+}
 \description{
 preprocess_dummy
 }

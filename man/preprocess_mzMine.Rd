@@ -29,6 +29,10 @@ preprocess_mzMine(
 
 \item{nr_peptides}{accepted for interface uniformity but ignored (mzMine features have one child per protein)}
 }
+\value{
+A list containing the prepared \code{LFQData} and
+  \code{ProteinAnnotation} objects.
+}
 \description{
 preprocess mzMine input
 }

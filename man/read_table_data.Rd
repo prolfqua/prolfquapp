@@ -9,6 +9,9 @@ read_table_data(file_path)
 \arguments{
 \item{file_path}{path to csv, tsv, or xlsx file}
 }
+\value{
+A data frame read from \code{file_path}.
+}
 \description{
 read dataset file in csv, tsv or xlsx format
 }

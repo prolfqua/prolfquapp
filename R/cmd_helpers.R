@@ -440,6 +440,18 @@ run_qc_preprocess <- function(
 #'   \code{software} (resolved software key), and
 #'   \code{requested_software} (software key requested by the caller)
 #' @export
+#' @examples
+#' dataset <- system.file(
+#'   "application/sim_test/dataset_sim.csv",
+#'   package = "prolfquapp"
+#' )
+#' config <- make_DEA_config_R6(
+#'   PATH = tempdir(),
+#'   application = "SIM",
+#'   model = "lm"
+#' )
+#' result <- run_dea(tempdir(), dataset, "prolfquapp.SIM", config)
+#' names(result)
 run_dea <- function(indir, dataset, software, config) {
   if (!file.exists(dataset)) {
     stop("Annotation file not found: ", dataset, call. = FALSE)

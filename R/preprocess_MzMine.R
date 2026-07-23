@@ -1,5 +1,6 @@
 #' convert mzmine features to tidy table
 #' @param data path to csv or data frame of mzMine features
+#' @return A long-format tibble with one row per feature and data file.
 #' @export
 #' @examples
 #' # example code
@@ -174,6 +175,8 @@ get_mzMine_files <- function(path) {
 #' @param pattern_decoys regex pattern for decoys
 #' @param annotated if TRUE only keep annotated features
 #' @param nr_peptides accepted for interface uniformity but ignored (mzMine features have one child per protein)
+#' @return A list containing the prepared \code{LFQData} and
+#'   \code{ProteinAnnotation} objects.
 #' @export
 #'
 #' @examples

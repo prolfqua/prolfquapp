@@ -9,6 +9,9 @@ diann_output_to_peptide(report2)
 \arguments{
 \item{report2}{filtered DIA-NN report data frame}
 }
+\value{
+A peptide-level tibble with aggregated precursor abundances.
+}
 \description{
 \code{\link{diann_read_output}}
 }
