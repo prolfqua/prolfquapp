@@ -233,47 +233,112 @@ render_quarto_protein_abundances_report <- function(
   }
 }
 
+.try_report_step <- function(expr, label) {
+  tryCatch(
+    expr,
+    error = function(error) {
+      logger::log_warn(
+        "prolfquapp: skipping ",
+        label,
+        ": ",
+        conditionMessage(error)
+      )
+      NULL
+    }
+  )
+}
+
+.write_dea_report_inputs <- function(reporter) {
+  deanalyse_file <- file.path(
+    reporter$resultdir,
+    "DEAnalyse.rds"
+  )
+  se_file <- file.path(
+    reporter$resultdir,
+    "SummarizedExperiment.rds"
+  )
+  list(
+    deanalyse_file = .try_report_step(
+      {
+        saveRDS(reporter$deanalyse, file = deanalyse_file)
+        deanalyse_file
+      },
+      "DEAnalyse.rds"
+    ),
+    se_file = .try_report_step(
+      {
+        saveRDS(
+          reporter$make_SummarizedExperiment(),
+          file = se_file
+        )
+        se_file
+      },
+      "SummarizedExperiment.rds"
+    )
+  )
+}
+
+.deanalyse_supports_qc <- function(deanalyse) {
+  tryCatch(
+    isTRUE(
+      deanalyse$contrast_results[[
+        deanalyse$default_model
+      ]]$get_config()$supports_dea_qc
+    ),
+    error = function(error) FALSE
+  )
+}
+
+.dea_report_project_conf <- function(deanalyse) {
+  project_spec <- deanalyse$prolfq_app_config$project_spec
+  list(
+    project_Id = .as_project_id(project_spec$project_Id),
+    project_name = .as_project_id(project_spec$project_name),
+    order_Id = .as_project_id(project_spec$order_Id),
+    workunit_Id = .as_project_id(project_spec$workunit_Id),
+    input_URL = .as_project_id(project_spec$input_URL),
+    software = .as_project_id(
+      deanalyse$prolfq_app_config$software
+    ),
+    model = .as_project_id(deanalyse$default_model)
+  )
+}
+
+.render_dea_sse_report <- function(reporter) {
+  qc_data_file <- file.path(
+    reporter$resultdir,
+    "QC_sampleSizeEstimation.rds"
+  )
+  saveRDS(
+    list(
+      data = reporter$deanalyse$lfq_data_raw$data_long(),
+      configuration = reporter$deanalyse$lfq_data_raw$get_config()
+    ),
+    file = qc_data_file
+  )
+  render_quarto_qc_sse_report(
+    qc_data_file = qc_data_file,
+    output_dir = reporter$resultdir,
+    output_file = "QCandSSE_tabset.html",
+    project_conf = .dea_report_project_conf(
+      reporter$deanalyse
+    ),
+    target_type = "protein"
+  )
+}
+
 # Render the full set of DEA Quarto reports from a DEAReportGenerator and write
 # the SummarizedExperiment + DEAnalyse `.rds`. Each report is rendered
 # independently, so one failure logs a warning without dropping the others.
 # Returns a named list of output paths (NULL for any that could not be produced).
 render_dea_reports <- function(reporter) {
-  out <- list()
-  try_step <- function(expr, label) {
-    tryCatch(expr, error = function(e) {
-      logger::log_warn(
-        "prolfquapp: skipping ",
-        label,
-        ": ",
-        conditionMessage(e)
-      )
-      NULL
-    })
-  }
-
-  deanalyse_file <- file.path(reporter$resultdir, "DEAnalyse.rds")
-  out$deanalyse_file <- try_step(
-    {
-      saveRDS(reporter$deanalyse, file = deanalyse_file)
-      deanalyse_file
-    },
-    "DEAnalyse.rds"
-  )
-
-  se_file <- file.path(reporter$resultdir, "SummarizedExperiment.rds")
-  out$se_file <- try_step(
-    {
-      saveRDS(reporter$make_SummarizedExperiment(), file = se_file)
-      se_file
-    },
-    "SummarizedExperiment.rds"
-  )
+  out <- .write_dea_report_inputs(reporter)
 
   # Primary DEA report (R6 Quarto).
   out$dea_file <- if (!is.null(out$deanalyse_file)) {
-    try_step(
+    .try_report_step(
       render_quarto_dea_report(
-        deanalyse_file = deanalyse_file,
+        deanalyse_file = out$deanalyse_file,
         output_dir = reporter$resultdir,
         output_file = "Grp2Analysis_V2_R6.html"
       ),
@@ -283,9 +348,9 @@ render_dea_reports <- function(reporter) {
 
   # Secondary overview report (SE tabset).
   out$tabset_file <- if (!is.null(out$se_file)) {
-    try_step(
+    .try_report_step(
       render_quarto_se_report(
-        se_file = se_file,
+        se_file = out$se_file,
         output_dir = reporter$resultdir,
         output_file = "Grp2Analysis_V2_SE_tabset.html",
         fdr_threshold = reporter$deanalyse$FDR_threshold,
@@ -296,18 +361,11 @@ render_dea_reports <- function(reporter) {
   }
 
   # Differential-expression QC report, when the model supports it.
-  supports_qc <- tryCatch(
-    isTRUE(
-      reporter$deanalyse$contrast_results[[
-        reporter$deanalyse$default_model
-      ]]$get_config()$supports_dea_qc
-    ),
-    error = function(e) FALSE
-  )
+  supports_qc <- .deanalyse_supports_qc(reporter$deanalyse)
   out$qc_file <- if (!is.null(out$deanalyse_file) && supports_qc) {
-    try_step(
+    .try_report_step(
       render_quarto_diffexpqc_report(
-        deanalyse_file = deanalyse_file,
+        deanalyse_file = out$deanalyse_file,
         output_dir = reporter$resultdir,
         output_file = "DiffExpQC_R6_tabset.html"
       ),
@@ -316,38 +374,8 @@ render_dea_reports <- function(reporter) {
   }
 
   # Sample-size (SSE) report, built from the raw feature-level data.
-  out$sse_file <- try_step(
-    {
-      qc_data_file <- file.path(
-        reporter$resultdir,
-        "QC_sampleSizeEstimation.rds"
-      )
-      saveRDS(
-        list(
-          data = reporter$deanalyse$lfq_data_raw$data_long(),
-          configuration = reporter$deanalyse$lfq_data_raw$get_config()
-        ),
-        file = qc_data_file
-      )
-      ps <- reporter$deanalyse$prolfq_app_config$project_spec
-      render_quarto_qc_sse_report(
-        qc_data_file = qc_data_file,
-        output_dir = reporter$resultdir,
-        output_file = "QCandSSE_tabset.html",
-        project_conf = list(
-          project_Id = .as_project_id(ps$project_Id),
-          project_name = .as_project_id(ps$project_name),
-          order_Id = .as_project_id(ps$order_Id),
-          workunit_Id = .as_project_id(ps$workunit_Id),
-          input_URL = .as_project_id(ps$input_URL),
-          software = .as_project_id(
-            reporter$deanalyse$prolfq_app_config$software
-          ),
-          model = .as_project_id(reporter$deanalyse$default_model)
-        ),
-        target_type = "protein"
-      )
-    },
+  out$sse_file <- .try_report_step(
+    .render_dea_sse_report(reporter),
     "sample-size report"
   )
 
