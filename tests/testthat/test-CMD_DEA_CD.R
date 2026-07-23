@@ -170,6 +170,147 @@ test_that("run_dea_cd builds a DEAnalyse object from a CD ZIP export", {
   )))
 })
 
+test_that("preprocess_CD_export validates sample and long-file schemas", {
+  workdir <- tempfile("cd-schema-")
+  dir.create(workdir)
+  on.exit(unlink(workdir, recursive = TRUE), add = TRUE)
+  sample_file <- file.path(workdir, "samples.csv")
+  long_file <- file.path(workdir, "long.csv")
+  config <- prolfquapp::make_DEA_config_R6(application = "CompoundDiscoverer")
+
+  readr::write_csv(
+    data.frame(Name = "sample1"),
+    sample_file
+  )
+  readr::write_csv(
+    data.frame(
+      Feature_ID = "F1_mz100_rt1",
+      Sample = "sample1",
+      Intensity = 100
+    ),
+    long_file
+  )
+  expect_error(
+    prolfquapp::preprocess_CD_export(
+      long_file,
+      sample_file,
+      config
+    ),
+    "CD sample file must contain a Sample column",
+    fixed = TRUE
+  )
+
+  readr::write_csv(
+    data.frame(
+      Sample = "sample1",
+      Name = "sample1",
+      Group = "control",
+      Control = "C"
+    ),
+    sample_file
+  )
+  readr::write_csv(
+    data.frame(
+      Feature_ID = "F1_mz100_rt1",
+      Sample = "sample1"
+    ),
+    long_file
+  )
+  expect_error(
+    prolfquapp::preprocess_CD_export(
+      long_file,
+      sample_file,
+      config
+    ),
+    "missing required column(s): Intensity",
+    fixed = TRUE
+  )
+})
+
+test_that("preprocess_CD_export validates requested subsets", {
+  workdir <- tempfile("cd-subset-")
+  dir.create(workdir)
+  on.exit(unlink(workdir, recursive = TRUE), add = TRUE)
+  sample_file <- file.path(workdir, "samples.csv")
+  long_file <- file.path(workdir, "long.csv")
+  config <- prolfquapp::make_DEA_config_R6(application = "CompoundDiscoverer")
+  readr::write_csv(
+    data.frame(
+      Sample = "sample1",
+      Name = "sample1",
+      Group = "control",
+      Control = "C"
+    ),
+    sample_file
+  )
+  readr::write_csv(
+    data.frame(
+      Feature_ID = "F1_mz100_rt1",
+      Sample = "sample1",
+      Intensity = 100,
+      Curated = NA_character_
+    ),
+    long_file
+  )
+
+  expect_error(
+    prolfquapp::preprocess_CD_export(
+      long_file,
+      sample_file,
+      config,
+      subset_column = "Missing"
+    ),
+    "CD subset column not found: Missing",
+    fixed = TRUE
+  )
+  expect_error(
+    prolfquapp::preprocess_CD_export(
+      long_file,
+      sample_file,
+      config,
+      subset_column = "Curated"
+    ),
+    "CD subset column has no selected rows: Curated",
+    fixed = TRUE
+  )
+})
+
+test_that("preprocess_CD_export rejects unmatched sample identifiers", {
+  workdir <- tempfile("cd-unmatched-")
+  dir.create(workdir)
+  on.exit(unlink(workdir, recursive = TRUE), add = TRUE)
+  sample_file <- file.path(workdir, "samples.csv")
+  long_file <- file.path(workdir, "long.csv")
+  config <- prolfquapp::make_DEA_config_R6(application = "CompoundDiscoverer")
+  readr::write_csv(
+    data.frame(
+      Sample = "annotated-sample",
+      Name = "sample1",
+      Group = "control",
+      Control = "C"
+    ),
+    sample_file
+  )
+  readr::write_csv(
+    data.frame(
+      Feature_ID = "F1_mz100_rt1",
+      Sample = "different-sample",
+      Intensity = 100
+    ),
+    long_file
+  )
+
+  expect_error(
+    prolfquapp::preprocess_CD_export(
+      long_file,
+      sample_file,
+      config
+    ),
+    "No CD feature rows matched the sample annotation",
+    fixed = TRUE
+  )
+})
+
 test_that("CMD_DEA_CD runs the full output pipeline", {
   skip_on_cran()
 
