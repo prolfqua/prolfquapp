@@ -313,24 +313,23 @@ make_CD_duplicate_features_unique <- function(
   data
 }
 
-#' Preprocess a CompoundDiscoverer prolfqua ZIP export
-#' @param long_file path to *_long.csv
-#' @param sample_file path to *_prolfqua_samples.csv
-#' @param config ProlfquAppConfig object
-#' @param subset_column optional column in long_file marking features to keep
-#' @return list with lfqdata, protein_annotation, and annotation
-#' @export
-preprocess_CD_export <- function(long_file, sample_file, config, subset_column = NULL) {
+.read_cd_annotation <- function(sample_file, config) {
   samples <- prolfquapp::read_table_data(sample_file)
   if (!"Sample" %in% colnames(samples)) {
-    stop("CD sample file must contain a Sample column.", call. = FALSE)
+    stop(
+      "CD sample file must contain a Sample column.",
+      call. = FALSE
+    )
   }
-  samples <- dplyr::rename(samples, file = "Sample")
-  annotation <- prolfquapp::read_annotation(samples, prefix = config$group)
+  samples |>
+    dplyr::rename(file = "Sample") |>
+    prolfquapp::read_annotation(prefix = config$group)
+}
 
-  xdl <- readr::read_csv(long_file, show_col_types = FALSE)
+.read_cd_long <- function(long_file) {
+  data <- readr::read_csv(long_file, show_col_types = FALSE)
   required <- c("Feature_ID", "Sample", "Intensity")
-  missing <- setdiff(required, colnames(xdl))
+  missing <- setdiff(required, colnames(data))
   if (length(missing) > 0) {
     stop(
       "CD long file is missing required column(s): ",
@@ -338,65 +337,95 @@ preprocess_CD_export <- function(long_file, sample_file, config, subset_column =
       call. = FALSE
     )
   }
+  data
+}
 
-  if (!is.null(subset_column) && nchar(subset_column) > 0) {
-    if (!subset_column %in% colnames(xdl)) {
-      stop("CD subset column not found: ", subset_column, call. = FALSE)
-    }
-    before <- nrow(xdl)
-    xdl <- xdl[.is_cd_subset_selected(xdl[[subset_column]]), , drop = FALSE]
-    logger::log_info(
-      "CD subset '",
-      subset_column,
-      "': keeping ",
-      nrow(xdl),
-      " of ",
-      before,
-      " long-format rows."
-    )
-    if (nrow(xdl) == 0) {
-      stop("CD subset column has no selected rows: ", subset_column, call. = FALSE)
-    }
+.subset_cd_long <- function(data, subset_column) {
+  if (is.null(subset_column) || nchar(subset_column) == 0) {
+    return(data)
+  }
+  if (!subset_column %in% colnames(data)) {
+    stop("CD subset column not found: ", subset_column, call. = FALSE)
   }
 
-  xdl <- prolfquapp::make_CD_duplicate_features_unique(xdl)
-  xdl <- dplyr::rename(xdl, metabolite_feature_Id = "Feature_ID")
+  before <- nrow(data)
+  data <- data[
+    .is_cd_subset_selected(data[[subset_column]]),
+    ,
+    drop = FALSE
+  ]
+  logger::log_info(
+    "CD subset '",
+    subset_column,
+    "': keeping ",
+    nrow(data),
+    " of ",
+    before,
+    " long-format rows."
+  )
+  if (nrow(data) == 0) {
+    stop(
+      "CD subset column has no selected rows: ",
+      subset_column,
+      call. = FALSE
+    )
+  }
+  data
+}
 
-  feature_source <- if ("Feature_ID_original" %in% colnames(xdl)) {
-    xdl$Feature_ID_original
+.prepare_cd_features <- function(data) {
+  data <- prolfquapp::make_CD_duplicate_features_unique(data)
+  data <- dplyr::rename(
+    data,
+    metabolite_feature_Id = "Feature_ID"
+  )
+  feature_source <- if ("Feature_ID_original" %in% colnames(data)) {
+    data$Feature_ID_original
   } else {
-    xdl$metabolite_feature_Id
+    data$metabolite_feature_Id
   }
   parsed_mz_rt <- stringr::str_match(
     feature_source,
     "_mz([0-9.]+)_rt([0-9.]+)"
   )
-  if (!"mz" %in% colnames(xdl)) {
-    xdl$mz <- as.numeric(parsed_mz_rt[, 2])
+  if (!"mz" %in% colnames(data)) {
+    data$mz <- as.numeric(parsed_mz_rt[, 2])
   }
-  if (!"RT_min" %in% colnames(xdl)) {
-    xdl$RT_min <- as.numeric(parsed_mz_rt[, 3])
+  if (!"RT_min" %in% colnames(data)) {
+    data$RT_min <- as.numeric(parsed_mz_rt[, 3])
   }
+  data
+}
 
-  analysis_config <- annotation$atable$clone(deep = TRUE)
-  analysis_config$hierarchy[["metabolite_feature_Id"]] <- "metabolite_feature_Id"
-  analysis_config$set_response("Intensity")
-  analysis_config$hierarchy_depth <- 1
-  analysis_config$opt_rt <- "RT_min"
-  analysis_config$opt_mz <- "mz"
+.configure_cd_analysis <- function(annotation) {
+  config <- annotation$atable$clone(deep = TRUE)
+  config$hierarchy[["metabolite_feature_Id"]] <-
+    "metabolite_feature_Id"
+  config$set_response("Intensity")
+  config$hierarchy_depth <- 1
+  config$opt_rt <- "RT_min"
+  config$opt_mz <- "mz"
+  config
+}
 
-  byv <- "Sample"
-  names(byv) <- analysis_config$file_name
-  byv <- c(byv, intersect(colnames(annotation$annot), colnames(xdl)))
-
+.join_cd_features <- function(annotation, data, config) {
+  by <- "Sample"
+  names(by) <- config$file_name
+  by <- c(
+    by,
+    intersect(colnames(annotation$annot), colnames(data))
+  )
   feature_data <- dplyr::inner_join(
     annotation$annot,
-    xdl,
-    by = byv,
+    data,
+    by = by,
     multiple = "all"
   )
   if (nrow(feature_data) == 0) {
-    stop("No CD feature rows matched the sample annotation.", call. = FALSE)
+    stop(
+      "No CD feature rows matched the sample annotation.",
+      call. = FALSE
+    )
   }
   if (!"isotopeLabel" %in% colnames(feature_data)) {
     feature_data$isotopeLabel <- "light"
@@ -407,15 +436,16 @@ preprocess_CD_export <- function(long_file, sample_file, config, subset_column =
   if (!"nr_children" %in% colnames(feature_data)) {
     feature_data$nr_children <- 1
   }
+  feature_data
+}
 
-  adata <- prolfqua::setup_analysis(feature_data, analysis_config)
-  lfqdata <- prolfqua::LFQData$new(adata, analysis_config)
-  lfqdata$remove_small_intensities()
-
-  m_annot <- xdl |>
+.cd_feature_annotation <- function(data) {
+  data |>
     dplyr::select(
       "metabolite_feature_Id",
-      dplyr::any_of(c("Feature_ID_original", ".cd_duplicate_rank"))
+      dplyr::any_of(
+        c("Feature_ID_original", ".cd_duplicate_rank")
+      )
     ) |>
     dplyr::distinct() |>
     dplyr::mutate(
@@ -426,10 +456,32 @@ preprocess_CD_export <- function(long_file, sample_file, config, subset_column =
       protein_length = 1,
       nr_tryptic_peptides = 1
     )
+}
 
+#' Preprocess a CompoundDiscoverer prolfqua ZIP export
+#' @param long_file path to *_long.csv
+#' @param sample_file path to *_prolfqua_samples.csv
+#' @param config ProlfquAppConfig object
+#' @param subset_column optional column in long_file marking features to keep
+#' @return list with lfqdata, protein_annotation, and annotation
+#' @export
+preprocess_CD_export <- function(long_file, sample_file, config, subset_column = NULL) {
+  annotation <- .read_cd_annotation(sample_file, config)
+  xdl <- .read_cd_long(long_file) |>
+    .subset_cd_long(subset_column) |>
+    .prepare_cd_features()
+  analysis_config <- .configure_cd_analysis(annotation)
+  feature_data <- .join_cd_features(
+    annotation,
+    xdl,
+    analysis_config
+  )
+  adata <- prolfqua::setup_analysis(feature_data, analysis_config)
+  lfqdata <- prolfqua::LFQData$new(adata, analysis_config)
+  lfqdata$remove_small_intensities()
   prot_annot <- prolfquapp::ProteinAnnotation$new(
     lfqdata,
-    m_annot,
+    .cd_feature_annotation(xdl),
     description = "description",
     cleaned_ids = "IDcolumn",
     full_id = "metabolite_feature_Id",
