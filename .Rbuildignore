@@ -2,6 +2,8 @@
 ^\.Rproj\.user$
 ^\.lintr$
 ^R/\.lintr$
+^\.githooks$
+^air\.toml$
 ^Makefile$
 ^tag-diff\.sh$
 ^CLAUDE\.md$
