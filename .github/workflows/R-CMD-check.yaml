@@ -48,3 +48,19 @@ jobs:
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+      - name: Run goodpractice report
+        if: ${{ always() && runner.os == 'Linux' }}
+        continue-on-error: true
+        run: |
+          mkdir -p goodpractice-report
+          Rscript -e 'result <- goodpractice::gp("."); print(result); saveRDS(result, "goodpractice-report/result.rds")' \
+            > goodpractice-report/report.txt 2>&1
+
+      - name: Upload goodpractice report
+        if: ${{ always() && runner.os == 'Linux' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: goodpractice-${{ runner.os }}-R-${{ matrix.config.r }}
+          path: goodpractice-report
+          if-no-files-found: warn
