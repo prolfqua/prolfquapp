@@ -29,6 +29,14 @@
   NULL
 }
 
+.report_provenance_value <- function(value, project_spec, name) {
+  if (is.null(value) || length(value) == 0 || all(is.na(value))) {
+    return(.report_provenance_field(project_spec, name))
+  }
+
+  value
+}
+
 .report_provenance_creator <- function() {
   candidates <- c(
     Sys.getenv("BFABRIC_USER", unset = ""),
@@ -124,15 +132,9 @@
   software = NULL,
   model = NULL
 ) {
-  if (is.null(input_data) || length(input_data) == 0 || all(is.na(input_data))) {
-    input_data <- .report_provenance_field(project_spec, "input_URL")
-  }
-  if (is.null(software) || length(software) == 0 || all(is.na(software))) {
-    software <- .report_provenance_field(project_spec, "software")
-  }
-  if (is.null(model) || length(model) == 0 || all(is.na(model))) {
-    model <- .report_provenance_field(project_spec, "model")
-  }
+  input_data <- .report_provenance_value(input_data, project_spec, "input_URL")
+  software <- .report_provenance_value(software, project_spec, "software")
+  model <- .report_provenance_value(model, project_spec, "model")
 
   list(
     workunit_id = .report_provenance_scalar(.report_provenance_field(

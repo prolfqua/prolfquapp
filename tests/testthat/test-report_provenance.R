@@ -23,6 +23,33 @@ test_that("report provenance supplies stable compact fields", {
   expect_equal(table$Value[[7]], "https://example.org/input")
 })
 
+test_that("report provenance uses project defaults only for missing overrides", {
+  project_spec <- list(
+    input_URL = "project input",
+    software = "project software",
+    model = "project model"
+  )
+
+  defaults <- prolfquapp:::.report_provenance(
+    project_spec = project_spec,
+    input_data = character(),
+    software = NA_character_
+  )
+  expect_equal(defaults$input_data, "project input")
+  expect_equal(defaults$software, "project software")
+  expect_equal(defaults$model, "project model")
+
+  overrides <- prolfquapp:::.report_provenance(
+    project_spec = project_spec,
+    input_data = "explicit input",
+    software = "explicit software",
+    model = "explicit model"
+  )
+  expect_equal(overrides$input_data, "explicit input")
+  expect_equal(overrides$software, "explicit software")
+  expect_equal(overrides$model, "explicit model")
+})
+
 test_that("overview cards summarize samples, groups, and quantified proteins", {
   dea <- prolfquapp::example_deanalyse(Nprot = 12)
   lfq_data <- dea$lfq_data_raw
