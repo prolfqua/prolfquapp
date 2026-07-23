@@ -106,6 +106,7 @@ validate_prolfquapp_anndata <- function(adata) {
 #' @param config AnalysisConfiguration
 #' @return tibble in long format
 #' @keywords internal
+#' @noRd
 anndata_to_long <- function(adata, config) {
   obs_df <- as.data.frame(adata$obs)
   var_df <- as.data.frame(adata$var)

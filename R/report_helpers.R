@@ -49,6 +49,7 @@ strip_rownames <- function(.data, strip = "~lfq~light$") {
 #'   the join uses the subset present in both frames
 #' @return \code{x} enriched with annotation columns; one row per row of \code{x}
 #' @keywords internal
+#' @noRd
 .join_annotation <- function(annotation, x, hierarchy_keys) {
   join_keys <- intersect(
     hierarchy_keys,

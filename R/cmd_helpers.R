@@ -232,6 +232,7 @@ run_qc_preprocess <- function(
 #' @param facade facade name, used only for messages
 #' @return the (possibly remapped) software key
 #' @keywords internal
+#' @noRd
 .resolve_nested_reader <- function(
   software,
   is_nested,

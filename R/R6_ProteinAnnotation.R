@@ -139,6 +139,7 @@ make_annotated_experiment <- function(Nprot = 100) {
 #' @param pattern optional configured decoy regex
 #' @return logical vector
 #' @keywords internal
+#' @noRd
 .detect_decoy_ids <- function(ids, pattern = NULL) {
   prolfqua::is_decoy(ids, pattern = pattern)
 }
@@ -155,6 +156,7 @@ make_annotated_experiment <- function(Nprot = 100) {
 #' @param pattern_decoys optional configured decoy regex
 #' @return \code{row_annot} with one row per \code{pID}
 #' @keywords internal
+#' @noRd
 .resolve_unique_protein_ids <- function(row_annot, pID, full_id, pattern_decoys = NULL) {
   ids <- as.character(row_annot[[pID]])
   if (anyDuplicated(ids) == 0L) {

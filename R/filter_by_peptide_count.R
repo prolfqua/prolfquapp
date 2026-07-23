@@ -79,6 +79,7 @@ filter_by_peptide_count <- function(data, protein_col, peptide_col, nr_peptides 
 #'   defaults to `1L`
 #' @return the value coerced to a positive whole-number integer
 #' @keywords internal
+#' @noRd
 .validate_nr_peptides <- function(x) {
   if (is.null(x)) {
     return(1L)
@@ -116,6 +117,7 @@ filter_by_peptide_count <- function(data, protein_col, peptide_col, nr_peptides 
 #' @param nr_peptides minimum distinct peptides per protein
 #' @return `base_args`, with `nr_peptides` added iff the reader supports it
 #' @keywords internal
+#' @noRd
 .forward_nr_peptides <- function(base_args, preprocess_fn, nr_peptides) {
   if ("nr_peptides" %in% names(formals(preprocess_fn))) {
     base_args$nr_peptides <- nr_peptides

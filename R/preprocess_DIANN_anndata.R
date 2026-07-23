@@ -207,6 +207,7 @@ preprocess_anndata_from_lfq <- function(
 #' @param source_software character, name of the source software
 #' @return list to be assigned to \code{adata$uns}
 #' @keywords internal
+#' @noRd
 build_prolfquapp_uns <- function(
   config,
   protAnnot,
