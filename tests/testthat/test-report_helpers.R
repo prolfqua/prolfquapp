@@ -82,8 +82,14 @@ test_that("write_index_html does not emit absolute local paths", {
     )
   )
   vapply(
-    c(links$dea_file, links$qc_file, links$quarto_file, links$data_files$xlsx_file,
-      links$data_files$ora_files[[1]], links$data_files$gsea_files[[1]]),
+    c(
+      links$dea_file,
+      links$qc_file,
+      links$quarto_file,
+      links$data_files$xlsx_file,
+      links$data_files$ora_files[[1]],
+      links$data_files$gsea_files[[1]]
+    ),
     file.create,
     logical(1)
   )
@@ -126,18 +132,15 @@ test_that(".join_annotation preserves every quant/result row and never multiplie
 })
 
 test_that(".join_annotation keeps result rows lacking annotation (NA enrich)", {
-  annotation <- data.frame(protein_Id = "P1", description = "a",
-    stringsAsFactors = FALSE)
-  x <- data.frame(protein_Id = c("P1", "P2"), v = c(10, 20),
-    stringsAsFactors = FALSE)
+  annotation <- data.frame(protein_Id = "P1", description = "a", stringsAsFactors = FALSE)
+  x <- data.frame(protein_Id = c("P1", "P2"), v = c(10, 20), stringsAsFactors = FALSE)
   res <- prolfquapp:::.join_annotation(annotation, x, "protein_Id")
   expect_equal(nrow(res), 2)
   expect_true(is.na(res$description[res$protein_Id == "P2"]))
 })
 
 test_that(".join_annotation errors when annotation is not unique (safety net)", {
-  annotation <- data.frame(protein_Id = c("P1", "P1"), description = c("a", "b"),
-    stringsAsFactors = FALSE)
+  annotation <- data.frame(protein_Id = c("P1", "P1"), description = c("a", "b"), stringsAsFactors = FALSE)
   x <- data.frame(protein_Id = "P1", v = 1, stringsAsFactors = FALSE)
   expect_error(
     prolfquapp:::.join_annotation(annotation, x, "protein_Id"),
@@ -149,12 +152,17 @@ test_that(".join_annotation joins on the shared hierarchy keys (PTM: protein_Id 
   # Both frames carry `site`; joining only on protein_Id would yield
   # site.x/site.y and drop the bare `site` the report's unite(all_of(hkey)) needs.
   annotation <- data.frame(
-    protein_Id = c("P1", "P1", "P2"), site = c("s1", "s2", "s1"),
-    description = c("a", "a", "b"), stringsAsFactors = FALSE
+    protein_Id = c("P1", "P1", "P2"),
+    site = c("s1", "s2", "s1"),
+    description = c("a", "a", "b"),
+    stringsAsFactors = FALSE
   )
   x <- data.frame(
-    protein_Id = c("P1", "P1", "P2"), site = c("s1", "s2", "s1"),
-    contrast = "c1", diff = c(1, 2, 3), stringsAsFactors = FALSE
+    protein_Id = c("P1", "P1", "P2"),
+    site = c("s1", "s2", "s1"),
+    contrast = "c1",
+    diff = c(1, 2, 3),
+    stringsAsFactors = FALSE
   )
   res <- prolfquapp:::.join_annotation(annotation, x, c("protein_Id", "site"))
   expect_true("site" %in% colnames(res))
@@ -167,11 +175,15 @@ test_that(".join_annotation never joins on a coincidentally-shared value column"
   # `avgAbd` is shared by name but is NOT a hierarchy key -> must not be a join
   # key (else the mismatch would break enrichment). Joins on protein_Id only.
   annotation <- data.frame(
-    protein_Id = c("P1", "P2"), avgAbd = c(99, 99),
-    description = c("a", "b"), stringsAsFactors = FALSE
+    protein_Id = c("P1", "P2"),
+    avgAbd = c(99, 99),
+    description = c("a", "b"),
+    stringsAsFactors = FALSE
   )
   x <- data.frame(
-    protein_Id = c("P1", "P2"), avgAbd = c(1, 2), diff = c(5, 6),
+    protein_Id = c("P1", "P2"),
+    avgAbd = c(1, 2),
+    diff = c(5, 6),
     stringsAsFactors = FALSE
   )
   res <- prolfquapp:::.join_annotation(annotation, x, c("protein_Id", "site"))

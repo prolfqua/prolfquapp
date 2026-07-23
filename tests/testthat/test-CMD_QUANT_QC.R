@@ -32,12 +32,18 @@ test_that("CMD_QUANT_QC runs with SIM preprocessor", {
     rscript,
     c(
       script,
-      "-i", workdir,
-      "-d", dataset,
-      "-s", "SIM",
-      "-w", "TEST_QC",
-      "-o", workdir,
-      "-y", yaml_path
+      "-i",
+      workdir,
+      "-d",
+      dataset,
+      "-s",
+      "SIM",
+      "-w",
+      "TEST_QC",
+      "-o",
+      workdir,
+      "-y",
+      yaml_path
     ),
     stdout = TRUE,
     stderr = TRUE

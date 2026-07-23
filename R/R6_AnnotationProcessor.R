@@ -395,17 +395,13 @@ AnnotationProcessor <- R6::R6Class(
 
     available_sample_name_column = function(annot, source_sample_name) {
       display_col <- self$sample_name_display_column
-      if (
-        !display_col %in% colnames(annot) || display_col == source_sample_name
-      ) {
+      if (!display_col %in% colnames(annot) || display_col == source_sample_name) {
         return(display_col)
       }
 
       candidate <- display_col
       index <- 1L
-      while (
-        candidate %in% colnames(annot) && candidate != source_sample_name
-      ) {
+      while (candidate %in% colnames(annot) && candidate != source_sample_name) {
         candidate <- paste0(display_col, "_", index)
         index <- index + 1L
       }
@@ -500,8 +496,7 @@ AnnotationProcessor <- R6::R6Class(
 
     process_subject_var = function(annot, atable) {
       if (
-        sum(grepl(self$subject_pattern, colnames(annot), ignore.case = TRUE)) ==
-          1 &
+        sum(grepl(self$subject_pattern, colnames(annot), ignore.case = TRUE)) == 1 &
           self$repeated
       ) {
         subvar <- grep(

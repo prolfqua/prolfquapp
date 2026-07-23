@@ -12,13 +12,20 @@ test_that("CMD_MAKE_YAML generates valid YAML with expected fields", {
     rscript,
     c(
       script,
-      "--norm", "robscale",
-      "--model", "limma",
-      "--workunit", "WU_TEST",
-      "--project", "P_TEST",
-      "--order", "O_TEST",
-      "-o", outdir,
-      "-y", "test_config.yaml"
+      "--norm",
+      "robscale",
+      "--model",
+      "limma",
+      "--workunit",
+      "WU_TEST",
+      "--project",
+      "P_TEST",
+      "--order",
+      "O_TEST",
+      "-o",
+      outdir,
+      "-y",
+      "test_config.yaml"
     ),
     stdout = TRUE,
     stderr = TRUE

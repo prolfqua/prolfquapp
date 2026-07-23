@@ -20,8 +20,7 @@ test_that(".detect_decoy_ids unions a configured pattern with the defaults", {
 
 # ---- .resolve_unique_protein_ids: the resolution chain --------------------
 test_that(".resolve_unique_protein_ids leaves unique input untouched", {
-  df <- data.frame(protein_Id = c("P1", "P2"),
-    fid = c("sp|P1|G", "tr|P2|G"), stringsAsFactors = FALSE)
+  df <- data.frame(protein_Id = c("P1", "P2"), fid = c("sp|P1|G", "tr|P2|G"), stringsAsFactors = FALSE)
   res <- prolfquapp:::.resolve_unique_protein_ids(df, "protein_Id", "fid")
   expect_equal(nrow(res), 2)
 })
@@ -115,13 +114,20 @@ test_that("clean() keeps decoys when no decoy pattern is configured", {
   lfqdata <- res$lfqdata
   pids <- unique(lfqdata$data_long()$protein_Id)
   addannot <- data.frame(
-    protein_Id = pids, cleanID = pids, description = "d",
-    nr_peptides = 2, stringsAsFactors = FALSE
+    protein_Id = pids,
+    cleanID = pids,
+    description = "d",
+    nr_peptides = 2,
+    stringsAsFactors = FALSE
   )
   pa <- suppressWarnings(suppressMessages(ProteinAnnotation$new(
-    lfqdata, addannot, description = "description", cleaned_ids = "cleanID",
+    lfqdata,
+    addannot,
+    description = "description",
+    cleaned_ids = "cleanID",
     exp_nr_children = "nr_peptides",
-    pattern_contaminants = "^zz", pattern_decoys = NULL
+    pattern_contaminants = "^zz",
+    pattern_decoys = NULL
   )))
   expect_null(pa$get_rev_pattern())
   pa$annotate_contaminants()
@@ -135,8 +141,7 @@ test_that("ProteinAnnotation$new resolves a duplicate id (keeps forward)", {
     sim_data_protAnnot(Nprot = 30, PROTEIN = TRUE)
   ))
   lfqdata <- res$lfqdata
-  fwd <- grep("^zz|^REV", unique(lfqdata$data_long()$protein_Id),
-    value = TRUE, invert = TRUE)
+  fwd <- grep("^zz|^REV", unique(lfqdata$data_long()$protein_Id), value = TRUE, invert = TRUE)
   testthat::skip_if(length(fwd) < 2)
   pick <- fwd[1]
   ra <- data.frame(
@@ -148,13 +153,17 @@ test_that("ProteinAnnotation$new resolves a duplicate id (keeps forward)", {
     stringsAsFactors = FALSE
   )
   pa <- suppressWarnings(suppressMessages(ProteinAnnotation$new(
-    lfqdata, ra, description = "description", cleaned_ids = "cleanID",
-    full_id = "fasta.id", exp_nr_children = "nr_peptides",
-    pattern_contaminants = "^zz", pattern_decoys = "^REV"
+    lfqdata,
+    ra,
+    description = "description",
+    cleaned_ids = "cleanID",
+    full_id = "fasta.id",
+    exp_nr_children = "nr_peptides",
+    pattern_contaminants = "^zz",
+    pattern_decoys = "^REV"
   )))
   expect_equal(sum(pa$row_annot$protein_Id == pick), 1L)
-  expect_true(grepl("^sp\\|",
-    pa$row_annot$fasta.id[pa$row_annot$protein_Id == pick]))
+  expect_true(grepl("^sp\\|", pa$row_annot$fasta.id[pa$row_annot$protein_Id == pick]))
 })
 
 test_that("annotate_contaminants with empty pattern does NOT flag all (no match-all)", {
@@ -164,14 +173,23 @@ test_that("annotate_contaminants with empty pattern does NOT flag all (no match-
   lfqdata <- res$lfqdata
   ids <- unique(lfqdata$data_long()$protein_Id)
   ra <- data.frame(
-    protein_Id = ids, cleanID = ids, description = "d",
-    fasta.id = ids, nr_peptides = 2, stringsAsFactors = FALSE
+    protein_Id = ids,
+    cleanID = ids,
+    description = "d",
+    fasta.id = ids,
+    nr_peptides = 2,
+    stringsAsFactors = FALSE
   )
   # pattern_contaminants = "" must fall back to defaults, never grepl("", x)
   pa <- suppressWarnings(suppressMessages(ProteinAnnotation$new(
-    lfqdata, ra, description = "description", cleaned_ids = "cleanID",
-    full_id = "fasta.id", exp_nr_children = "nr_peptides",
-    pattern_contaminants = "", pattern_decoys = "^REV"
+    lfqdata,
+    ra,
+    description = "description",
+    cleaned_ids = "cleanID",
+    full_id = "fasta.id",
+    exp_nr_children = "nr_peptides",
+    pattern_contaminants = "",
+    pattern_decoys = "^REV"
   )))
   n_con <- pa$annotate_contaminants()
   expect_lt(n_con, nrow(pa$row_annot)) # NOT everything flagged

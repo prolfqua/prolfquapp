@@ -32,12 +32,18 @@ test_that("CMD_DEA_V2 runs full pipeline with SIM preprocessor", {
     rscript,
     c(
       script,
-      "-i", workdir,
-      "-d", dataset,
-      "-y", yaml_path,
-      "-s", "prolfquapp.SIM",
-      "-w", "TEST_WU",
-      "-o", workdir
+      "-i",
+      workdir,
+      "-d",
+      dataset,
+      "-y",
+      yaml_path,
+      "-s",
+      "prolfquapp.SIM",
+      "-w",
+      "TEST_WU",
+      "-o",
+      workdir
     ),
     stdout = TRUE,
     stderr = TRUE

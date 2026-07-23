@@ -121,9 +121,7 @@
   software = NULL,
   model = NULL
 ) {
-  if (
-    is.null(input_data) || length(input_data) == 0 || all(is.na(input_data))
-  ) {
+  if (is.null(input_data) || length(input_data) == 0 || all(is.na(input_data))) {
     input_data <- .report_provenance_field(project_spec, "input_URL")
   }
   if (is.null(software) || length(software) == 0 || all(is.na(software))) {

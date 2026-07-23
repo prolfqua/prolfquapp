@@ -52,6 +52,7 @@ test_that("run_qc_preprocess uses yaml config when provided", {
     yaml_file = tmp_yaml
   )
   expect_equal(
-    result$config$project_spec$workunit_Id, "WU_YAML"
+    result$config$project_spec$workunit_Id,
+    "WU_YAML"
   )
 })

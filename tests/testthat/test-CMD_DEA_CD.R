@@ -129,8 +129,7 @@ test_that("run_dea_cd builds a DEAnalyse object from a CD ZIP export", {
   )
   curated_ids <- unique(curated$xd$lfqdata$data_long()$metabolite_feature_Id)
   expect_true(
-    length(curated_ids) <
-      length(unique(result$xd$lfqdata$data_long()$metabolite_feature_Id))
+    length(curated_ids) < length(unique(result$xd$lfqdata$data_long()$metabolite_feature_Id))
   )
   expect_true(all(
     grepl("^Feature0(0[1-9]|10)_", curated_ids) |

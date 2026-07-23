@@ -80,10 +80,7 @@ ProteinDataPrep <- R6::R6Class(
       logger::log_info("AGGREGATING PEPTIDE DATA: {agg_method}.")
       lfqdata_peptide <- self$lfq_data_peptide
 
-      if (
-        length(lfqdata_peptide$hierarchy_keys()) ==
-          lfqdata_peptide$get_config()$hierarchy_depth
-      ) {
+      if (length(lfqdata_peptide$hierarchy_keys()) == lfqdata_peptide$get_config()$hierarchy_depth) {
         warning("nothing to aggregate from, returning unchanged data.")
         self$lfq_data <- lfqdata_peptide
         return(invisible(self$lfq_data))

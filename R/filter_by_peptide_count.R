@@ -49,9 +49,19 @@ filter_by_peptide_count <- function(data, protein_col, peptide_col, nr_peptides 
   n_total <- nrow(counts)
   n_kept <- length(keep)
   logger::log_info(
-    "nr_peptides filter (>= ", nr_peptides, " distinct ", peptide_col,
-    " per ", protein_col, "): kept ", n_kept, " / ", n_total,
-    " proteins (dropped ", n_total - n_kept, ")"
+    "nr_peptides filter (>= ",
+    nr_peptides,
+    " distinct ",
+    peptide_col,
+    " per ",
+    protein_col,
+    "): kept ",
+    n_kept,
+    " / ",
+    n_total,
+    " proteins (dropped ",
+    n_total - n_kept,
+    ")"
   )
 
   data[data[[protein_col]] %in% keep, , drop = FALSE]

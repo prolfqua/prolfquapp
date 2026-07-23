@@ -77,9 +77,15 @@ test_that(".forward_nr_peptides adds the arg only for readers that declare it", 
 
 test_that("every reader declares nr_peptides (MZMine/dummy accept + ignore)", {
   readers <- c(
-    "preprocess_DIANN", "preprocess_MQ_peptide", "preprocess_FP_PSM",
-    "preprocess_MSstats", "preprocess_MSstats_FPDIA", "preprocess_BGS",
-    "preprocess_SIM", "preprocess_mzMine", "preprocess_dummy"
+    "preprocess_DIANN",
+    "preprocess_MQ_peptide",
+    "preprocess_FP_PSM",
+    "preprocess_MSstats",
+    "preprocess_MSstats_FPDIA",
+    "preprocess_BGS",
+    "preprocess_SIM",
+    "preprocess_mzMine",
+    "preprocess_dummy"
   )
   for (r in readers) {
     fn <- utils::getFromNamespace(r, "prolfquapp")
@@ -99,7 +105,8 @@ test_that("ProteinAnnotation follows the filtered quant (annotation is not a fil
     dplyr::mutate(description = "d", nr_peptides = 1)
 
   pannot <- prolfquapp::ProteinAnnotation$new(
-    lfq, addannot,
+    lfq,
+    addannot,
     description = "description"
   )
 

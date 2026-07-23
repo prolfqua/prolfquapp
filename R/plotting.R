@@ -38,7 +38,12 @@ writeLinesPaired <- function(bb, outpath = NULL) {
   if (!is.null(outpath)) {
     fn <- file.path(outpath, "boxplots_paired.pdf")
     grDevices::pdf(fn, width = 8, height = 6)
-    tryCatch(for (p in plots) print(p), finally = grDevices::dev.off())
+    tryCatch(
+      for (p in plots) {
+        print(p)
+      },
+      finally = grDevices::dev.off()
+    )
   }
   return(plots)
 }

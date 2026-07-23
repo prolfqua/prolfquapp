@@ -242,8 +242,7 @@ test_that("internal SE Quarto report helper renders HTML", {
   skip_if_not_installed("gridExtra")
   skip_if_not_installed("plotly")
   skip_if(
-    system.file("doc/Grp2Analysis_V2_SE_tabset.qmd", package = "prolfquapp") ==
-      "",
+    system.file("doc/Grp2Analysis_V2_SE_tabset.qmd", package = "prolfquapp") == "",
     "Report sources not installed in doc/ (needs a vignette-built install)."
   )
 

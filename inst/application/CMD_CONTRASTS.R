@@ -123,21 +123,27 @@ if (!one_factor && !two_factor) {
 
 if (one_factor) {
   annot_out <- prolfquapp::run_contrasts_single(
-    annotation_file, opt$control, opt$group
+    annotation_file,
+    opt$control,
+    opt$group
   )
   logger::log_info(
-    "CONTROL column added (C = '", opt$control, "'):\n",
+    "CONTROL column added (C = '",
+    opt$control,
+    "'):\n",
     paste(
       capture.output(print(
-        table(annot_out[[grep("group", colnames(annot_out), value = TRUE)[1]]],
-              annot_out$CONTROL)
+        table(annot_out[[grep("group", colnames(annot_out), value = TRUE)[1]]], annot_out$CONTROL)
       )),
       collapse = "\n"
     )
   )
 } else {
   annot_out <- prolfquapp::run_contrasts_twofactor(
-    annotation_file, opt$f1, opt$f2, opt$interactions
+    annotation_file,
+    opt$f1,
+    opt$f2,
+    opt$interactions
   )
   ct <- dplyr::distinct(annot_out[
     !is.na(annot_out$ContrastName),

@@ -170,9 +170,7 @@ QC_generator <- R6::R6Class(
           self$lfqdata,
           self$protein_annotation
         )
-      } else if (
-        !all(relevant_columns %in% colnames(self$protein_annotation$row_annot))
-      ) {
+      } else if (!all(relevant_columns %in% colnames(self$protein_annotation$row_annot))) {
         warning(
           "skipping IBAQ computation, no:",
           paste(relevant_columns, collapse = "; ")

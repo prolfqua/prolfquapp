@@ -13,9 +13,11 @@ make_fixture <- function(Nprot = 40) {
   ids <- unique(lfq$data_long()$protein_Id)
   addannot <- data.frame(protein_Id = ids, description = paste0(ids, "_desc"))
   pA <- prolfquapp::ProteinAnnotation$new(
-    lfq, addannot,
+    lfq,
+    addannot,
     description = "description",
-    pattern_contaminants = "^zz", pattern_decoys = "^REV"
+    pattern_contaminants = "^zz",
+    pattern_decoys = "^REV"
   )
   GRP2 <- prolfquapp::make_DEA_config_R6()
   GRP2$processing_options$transform <- "robscale"

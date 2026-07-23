@@ -22,7 +22,9 @@ test_that("run_contrasts_single with explicit group column", {
   skip_if(nchar(csv_s1) == 0, "scenario1 CSV not installed")
 
   result <- prolfquapp::run_contrasts_single(
-    csv_s1, control = "WT", group = "group"
+    csv_s1,
+    control = "WT",
+    group = "group"
   )
   expect_true("CONTROL" %in% colnames(result))
   expect_equal(sum(result$CONTROL == "C"), 3)
@@ -49,7 +51,9 @@ test_that("run_contrasts_twofactor adds contrast columns", {
   skip_if(nchar(csv_s2) == 0, "scenario2 CSV not installed")
 
   result <- prolfquapp::run_contrasts_twofactor(
-    csv_s2, f1 = "treatment", f2 = "time"
+    csv_s2,
+    f1 = "treatment",
+    f2 = "time"
   )
   expect_true("ContrastName" %in% colnames(result))
   expect_true("Contrast" %in% colnames(result))
@@ -66,7 +70,10 @@ test_that("run_contrasts_twofactor without interactions", {
   skip_if(nchar(csv_s2) == 0, "scenario2 CSV not installed")
 
   result <- prolfquapp::run_contrasts_twofactor(
-    csv_s2, f1 = "treatment", f2 = "time", interactions = FALSE
+    csv_s2,
+    f1 = "treatment",
+    f2 = "time",
+    interactions = FALSE
   )
   ct <- dplyr::distinct(result[
     !is.na(result$ContrastName),

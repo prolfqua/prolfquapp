@@ -321,8 +321,12 @@ DEAnalyse <- R6::R6Class(
               collapse = ", "
             )
             stop(
-              "Contrast '", contrast_name, "' (", contrast_str,
-              ") cannot be computed: group '", token,
+              "Contrast '",
+              contrast_name,
+              "' (",
+              contrast_str,
+              ") cannot be computed: group '",
+              token,
               "' has 0 samples after matching the annotation to the ",
               "quantification data. Groups with data: ",
               if (length(present_summary)) present_summary else "<none>",

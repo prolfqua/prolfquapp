@@ -563,10 +563,7 @@ run_dea_cd <- function(
   )
   # Single filtering path (see run_dea): QC only, no quant filtering here.
   data_prep$cont_decoy_summary()
-  if (
-    length(xd$lfqdata$hierarchy_keys()) ==
-      xd$lfqdata$get_config()$hierarchy_depth
-  ) {
+  if (length(xd$lfqdata$hierarchy_keys()) == xd$lfqdata$get_config()$hierarchy_depth) {
     data_prep$lfq_data <- data_prep$lfq_data_peptide
   } else {
     data_prep$aggregate()

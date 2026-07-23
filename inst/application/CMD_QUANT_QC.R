@@ -163,7 +163,8 @@ result <- tryCatch(
     logger::log_error(conditionMessage(e), "\n")
     logger::log_error("Stack trace:\n")
     logger::log_error(
-      paste(stack_trace, collapse = "\n"), "\n"
+      paste(stack_trace, collapse = "\n"),
+      "\n"
     )
     if (interactive()) stop(e) else quit(save = "no", status = 1)
   }
@@ -178,7 +179,9 @@ if (!dir.exists(GRP2$get_zipdir())) {
 }
 
 pap <- QC_generator$new(
-  xd$lfqdata, xd$protein_annotation, GRP2
+  xd$lfqdata,
+  xd$protein_annotation,
+  GRP2
 )
 pap$copy_dataset(opt$dataset)
 

@@ -9,14 +9,22 @@ test_that("get_annot_from_fasta returns every record (no dedup of accessions)", 
   file_a <- tempfile(fileext = ".fasta")
   file_b <- tempfile(fileext = ".fasta")
   on.exit(unlink(c(file_a, file_b)), add = TRUE)
-  writeLines(c(
-    ">tr|ACC1|ACC1_TEST Protein one OS=Test OX=1 GN=GENEA PE=4 SV=1", seq1,
-    ">sp|ACC2|ACC2_TEST Protein two OS=Test OX=1 GN=GENE2 PE=1 SV=1", seq1
-  ), file_a)
-  writeLines(c(
-    ">sp|ACC1|ACC1_TEST Protein one reviewed OS=Test OX=1 GN=GENEB PE=1 SV=2",
-    seq1
-  ), file_b)
+  writeLines(
+    c(
+      ">tr|ACC1|ACC1_TEST Protein one OS=Test OX=1 GN=GENEA PE=4 SV=1",
+      seq1,
+      ">sp|ACC2|ACC2_TEST Protein two OS=Test OX=1 GN=GENE2 PE=1 SV=1",
+      seq1
+    ),
+    file_a
+  )
+  writeLines(
+    c(
+      ">sp|ACC1|ACC1_TEST Protein one reviewed OS=Test OX=1 GN=GENEB PE=1 SV=2",
+      seq1
+    ),
+    file_b
+  )
 
   fa <- suppressWarnings(suppressMessages(
     prolfquapp:::get_annot_from_fasta(c(file_a, file_b))
@@ -31,10 +39,15 @@ test_that("get_annot_from_fasta does not filter decoys (deferred to ProteinAnnot
   seq1 <- paste(rep("A", 28), collapse = "")
   fasta <- tempfile(fileext = ".fasta")
   on.exit(unlink(fasta), add = TRUE)
-  writeLines(c(
-    ">sp|ACC1|ACC1_TEST forward OS=Test OX=1 GN=GENE1 PE=1 SV=1", seq1,
-    ">REV_sp|ACC1|ACC1_TEST decoy OS=Test OX=1 GN=GENE1 PE=1 SV=1", seq1
-  ), fasta)
+  writeLines(
+    c(
+      ">sp|ACC1|ACC1_TEST forward OS=Test OX=1 GN=GENE1 PE=1 SV=1",
+      seq1,
+      ">REV_sp|ACC1|ACC1_TEST decoy OS=Test OX=1 GN=GENE1 PE=1 SV=1",
+      seq1
+    ),
+    fasta
+  )
 
   fa <- suppressWarnings(suppressMessages(
     prolfquapp:::get_annot_from_fasta(fasta, pattern_decoys = "^REV_|^rev_")

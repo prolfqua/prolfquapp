@@ -21,9 +21,7 @@ aggregate_data <- function(
   N = 3
 ) {
   agg_method <- match.arg(agg_method)
-  if (
-    length(lfqdata$hierarchy_keys()) == lfqdata$get_config()$hierarchy_depth
-  ) {
+  if (length(lfqdata$hierarchy_keys()) == lfqdata$get_config()$hierarchy_depth) {
     warning("nothing to aggregate from, returning unchanged data.")
     return(lfqdata)
   }
@@ -85,16 +83,20 @@ compute_IBAQ_values <- function(
     rel_annot,
     by = protein_annotation$pID
   ))
-  lfqdataProtTotal$set_data(lfqdataProtTotal$data_long() |>
-    dplyr::mutate(
-      IBAQValue_proteinLength = !!sym(lfqdataProtTotal$response()) /
-        !!sym(protein_length)
-    ))
-  lfqdataProtTotal$set_data(lfqdataProtTotal$data_long() |>
-    dplyr::mutate(
-      IBAQValue = !!sym(lfqdataProtTotal$response()) /
-        ifelse(!!sym(nr_tryptic_peptides) > 0, !!sym(nr_tryptic_peptides), 1)
-    ))
+  lfqdataProtTotal$set_data(
+    lfqdataProtTotal$data_long() |>
+      dplyr::mutate(
+        IBAQValue_proteinLength = !!sym(lfqdataProtTotal$response()) /
+          !!sym(protein_length)
+      )
+  )
+  lfqdataProtTotal$set_data(
+    lfqdataProtTotal$data_long() |>
+      dplyr::mutate(
+        IBAQValue = !!sym(lfqdataProtTotal$response()) /
+          ifelse(!!sym(nr_tryptic_peptides) > 0, !!sym(nr_tryptic_peptides), 1)
+      )
+  )
   lfqdataProtTotal$get_config()$set_response("IBAQValue")
   return(lfqdataProtTotal)
 }

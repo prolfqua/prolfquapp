@@ -25,15 +25,16 @@
 #'   plotly_ggplot_subplot(p1, p2)
 #' }
 plotly_ggplot_subplot <- function(
-    ...,
-    showlegend = TRUE,
-    nrows = 1,
-    titleX = TRUE,
-    titleY = TRUE,
-    margin = 0.05,
-    width = "100%",
-    height = NULL,
-    legend_groupclick = "togglegroup") {
+  ...,
+  showlegend = TRUE,
+  nrows = 1,
+  titleX = TRUE,
+  titleY = TRUE,
+  margin = 0.05,
+  width = "100%",
+  height = NULL,
+  legend_groupclick = "togglegroup"
+) {
   if (!requireNamespace("plotly", quietly = TRUE)) {
     stop(
       "Package 'plotly' is required to build this interactive subplot.",
@@ -80,15 +81,18 @@ plotly_ggplot_subplot <- function(
 }
 
 .highlight_keyed_plotly <- function(plotly_obj, opacity_dim = 0.15) {
-  highlight_groups <- unique(unlist(lapply(
-    plotly_obj$x$data,
-    function(trace) {
-      if (!is.null(trace$key) && !is.null(trace$set)) {
-        return(as.character(trace$set))
+  highlight_groups <- unique(unlist(
+    lapply(
+      plotly_obj$x$data,
+      function(trace) {
+        if (!is.null(trace$key) && !is.null(trace$set)) {
+          return(as.character(trace$set))
+        }
+        character()
       }
-      character()
-    }
-  ), use.names = FALSE))
+    ),
+    use.names = FALSE
+  ))
   if (length(highlight_groups) == 0) {
     return(plotly_obj)
   }

@@ -375,10 +375,14 @@ write_index_html <- function(file_path_list, result_dir) {
     return(.index_empty_table(c("File", "Size")))
   }
   data.frame(
-    File = vapply(seq_along(paths), function(index) {
-      label <- names(paths)[index]
-      .index_file_link(paths[[index]], result_dir, label)
-    }, character(1)),
+    File = vapply(
+      seq_along(paths),
+      function(index) {
+        label <- names(paths)[index]
+        .index_file_link(paths[[index]], result_dir, label)
+      },
+      character(1)
+    ),
     Size = vapply(paths, .index_file_size, character(1), USE.NAMES = FALSE),
     row.names = NULL,
     check.names = FALSE

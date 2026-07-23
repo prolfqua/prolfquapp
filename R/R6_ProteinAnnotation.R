@@ -155,8 +155,7 @@ make_annotated_experiment <- function(Nprot = 100) {
 #' @param pattern_decoys optional configured decoy regex
 #' @return \code{row_annot} with one row per \code{pID}
 #' @keywords internal
-.resolve_unique_protein_ids <- function(row_annot, pID, full_id,
-                                        pattern_decoys = NULL) {
+.resolve_unique_protein_ids <- function(row_annot, pID, full_id, pattern_decoys = NULL) {
   ids <- as.character(row_annot[[pID]])
   if (anyDuplicated(ids) == 0L) {
     return(row_annot)
@@ -190,9 +189,17 @@ make_annotated_experiment <- function(Nprot = 100) {
     }
   }
   logger::log_warn(
-    "ProteinAnnotation: ", length(dup_ids), " duplicated '", pID,
-    "' id(s) collapsed; dropped ", n_decoy, " decoy row(s); ", n_sp,
-    " resolved by sp| preference; ", n_first, " by keep-first."
+    "ProteinAnnotation: ",
+    length(dup_ids),
+    " duplicated '",
+    pID,
+    "' id(s) collapsed; dropped ",
+    n_decoy,
+    " decoy row(s); ",
+    n_sp,
+    " resolved by sp| preference; ",
+    n_first,
+    " by keep-first."
   )
   row_annot[keep, , drop = FALSE]
 }
@@ -348,15 +355,20 @@ ProteinAnnotation <-
         # Invariant: one row per protein ID. Resolve duplicates decoy-aware
         # (drop decoys colliding with a forward; sp| tiebreak; else keep-first).
         self$row_annot <- .resolve_unique_protein_ids(
-          self$row_annot, self$pID, self$full_id, self$pattern_decoys
+          self$row_annot,
+          self$pID,
+          self$full_id,
+          self$pattern_decoys
         )
       },
       #' @description
       #' configured decoy pattern, or NULL when none was set
       get_rev_pattern = function() {
         if (
-          length(self$pattern_decoys) != 1 || is.na(self$pattern_decoys) ||
-            !nzchar(self$pattern_decoys) || identical(self$pattern_decoys, "a^")
+          length(self$pattern_decoys) != 1 ||
+            is.na(self$pattern_decoys) ||
+            !nzchar(self$pattern_decoys) ||
+            identical(self$pattern_decoys, "a^")
         ) {
           return(NULL)
         }
@@ -409,7 +421,8 @@ ProteinAnnotation <-
         revpat <- self$get_rev_pattern()
         if (!is.null(revpat)) {
           res <- res[
-            !grepl(revpat, as.character(res[[self$full_id]])), ,
+            !grepl(revpat, as.character(res[[self$full_id]])),
+            ,
             drop = FALSE
           ]
         }
