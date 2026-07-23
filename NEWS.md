@@ -1,5 +1,7 @@
 # prolfquapp 2.6.1
 
+- The experimental-design survey now links to NIST's maintained guidance on
+  blocking factors instead of an obsolete external URL.
 - Package builds now install Quarto visual abstracts as dedicated runtime
   assets instead of vignette output, eliminating an R CMD check NOTE while
   preserving runtime-rendered report overviews.

@@ -335,7 +335,7 @@ A blocking factor is some variable that affects an experimental outcome but is i
 
 
 
-[^7]: A blocking factor is a factor used to create blocks. It is some variable that has an effect on an experimental outcome, but is itself of no interest. Blocking factors vary wildly depending on the experiment. For example: in human studies age or gender are often used as blocking factors. Blocking factors can be included into the model to describe the variance of the data [data science central](https://www.statisticshowto.datasciencecentral.com/blocking-factor/). 
+[^7]: A blocking factor is a factor used to create blocks. It is some variable that has an effect on an experimental outcome, but is itself of no interest. Blocking factors vary wildly depending on the experiment. For example: in human studies age or gender are often used as blocking factors. Blocking factors can be included into the model to describe the variance of the data [NIST/SEMATECH e-Handbook of Statistical Methods](https://www.itl.nist.gov/div898/handbook/pri/section3/pri332.htm).
 
 
 
@@ -453,4 +453,3 @@ $~$
 
 
 Date: 
-
