@@ -104,7 +104,10 @@
   paste0(
     "<style>\n",
     ".prolfquapp-overview-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;margin:0 0 1rem}",
-    ".prolfquapp-overview-card{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;padding:.75rem 1rem;border:1px solid #d7e0e8;border-radius:.35rem;background:#f4f8fb}",
+    ".prolfquapp-overview-card{",
+    "display:flex;align-items:baseline;justify-content:space-between;",
+    "gap:.5rem;padding:.75rem 1rem;border:1px solid #d7e0e8;",
+    "border-radius:.35rem;background:#f4f8fb}",
     ".prolfquapp-overview-card-title{font-size:.95rem;font-weight:600;color:#425466}",
     ".prolfquapp-overview-card-value{font-size:1.5rem;line-height:1;color:#356da3}",
     "@media (max-width:600px){.prolfquapp-overview-cards{grid-template-columns:1fr}}\n",

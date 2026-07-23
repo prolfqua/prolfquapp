@@ -407,7 +407,13 @@ run_dea <- function(indir, dataset, software, config) {
   }
 
   fit_min <- round(as.numeric(difftime(Sys.time(), fit_start, units = "mins")), 2)
-  logger::log_info("done fitting / contrasts for {default_model} in {fit_min} min")
+  logger::log_info(paste0(
+    "done fitting / contrasts for ",
+    default_model,
+    " in ",
+    fit_min,
+    " min"
+  ))
 
   list(
     deanalyse = deanalyse,
