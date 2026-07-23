@@ -1,8 +1,8 @@
 ## Keep the vendored Quarto assets used by package vignettes in step with the
-## installed fgczquartotemplate package.
+## installed fgczQuartoTemplate package.
 ##
 ## `devtools::build_vignettes()` renders the QMD sources directly, so it does
-## not call fgczquartotemplate::fgcz_render() to stage assets at runtime. The
+## not call fgczQuartoTemplate::fgcz_render() to stage assets at runtime. The
 ## reports refer to the assets by bare filename; copy and verify them here
 ## before package or vignette builds.
 ##
@@ -15,10 +15,10 @@ assets <- c(
   "fgcz-plot-finder.html"
 )
 target_dir <- normalizePath("vignettes", mustWork = TRUE)
-source_files <- fgczquartotemplate::fgcz_quarto_dir(assets)
+source_files <- fgczQuartoTemplate::fgcz_quarto_dir(assets)
 target_files <- file.path(target_dir, assets)
 
-fgczquartotemplate::fgcz_copy_assets(target_dir)
+fgczQuartoTemplate::fgcz_copy_assets(target_dir)
 
 if (
   !identical(

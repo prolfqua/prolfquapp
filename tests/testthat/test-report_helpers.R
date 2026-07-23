@@ -44,7 +44,7 @@ test_that("index href helper handles mixed absolute and relative paths", {
 test_that("write_index_html does not emit absolute local paths", {
   skip_if(Sys.which("quarto") == "", "Quarto CLI not installed")
   skip_if_not_installed("DT")
-  skip_if_not_installed("fgczquartotemplate")
+  skip_if_not_installed("fgczQuartoTemplate")
 
   result_dir <- file.path(tempdir(), "DEA index test")
   result_subdir <- file.path(result_dir, "Results WU")

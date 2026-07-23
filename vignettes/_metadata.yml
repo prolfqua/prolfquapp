@@ -30,7 +30,7 @@ format:
     include-in-header: fgcz_header_quarto.html
 
     # The search + download toolbar (fgcz-plot-finder.html) is opt-in, not wired
-    # in here: enable it per report via fgczquartotemplate::fgcz_render(buttons =
+    # in here: enable it per report via fgczQuartoTemplate::fgcz_render(buttons =
     # TRUE) and optionally select "search" or "download" by name, or add
     # `include-after-body: fgcz-plot-finder.html` yourself.
 

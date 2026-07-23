@@ -116,3 +116,151 @@ document.addEventListener('DOMContentLoaded', function() {
     vertical-align: middle;
   }
 </style>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     FEATURE FLAGS  —  everything below this line is report behaviour, not
+     branding. Kept in this file because it is the one asset wired into every
+     report unconditionally (`include-in-header`, see _metadata.yml and the
+     Quarto extension), so the features it carries work in both channels
+     without any per-report opt-in.
+
+     Two optional features, both OFF by default and both driven by a class on
+     <html>:
+       fgcz-colour  → the per-depth tab palette at the foot of fgcz.scss
+       fgcz-number  → the tab-numbering script below
+
+     The class is set by ONE of two mechanisms, mirroring how the Find/Download
+     toolbar is configured (see fgcz-plot-finder.html):
+       1. fgcz-buttons.lua reads `fgcz-colour:` / `fgcz-number:` from a report's
+          front matter and injects the class directly (Quarto extension route).
+       2. fgcz_render(report.qmd, colour = TRUE, number = TRUE) patches the
+          placeholder token below in the staged copy of this file (R route).
+          That token must appear exactly ONCE in this file -- do not repeat it
+          in prose, or .fgcz_set_header_flags() will refuse to patch.
+     Both only ADD classes, so they union cleanly and need no precedence rule.
+     ════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  "use strict";
+  // Unpatched token means the R route was not used (the report either asked for
+  // nothing, or configured itself through the Lua filter instead). The literal
+  // is split across a concatenation so that R's fixed-string substitution
+  // rewrites the token above but NOT this check — see .fgcz_set_header_flags().
+  var flags = "__FGCZ_FLAGS__";
+  if (flags === "__FGCZ_" + "FLAGS__") return;
+  flags.split(/\s+/).filter(Boolean).forEach(function (cls) {
+    document.documentElement.classList.add(cls);
+  });
+})();
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     Tab numbering  (opt-in: colour/number flags above → html.fgcz-number)
+     Prepends a hierarchical section number to every tab label:
+         top level → 1, 2, 3 …
+         nested    → 1.1, 1.2, 2.1 …
+         deeper    → 1.1.1, 1.1.2 …
+     Numbering continues across sibling tabsets at the same depth, so two
+     separate top-level tabsets read 1,2 then 3,4 (not 1,2 then 1,2).
+
+     WHY JS AND NOT CSS COUNTERS: Quarto emits ALL of a tabset's nav buttons
+     first, then all of its tab-content. By the time a CSS counter reached the
+     first nested tab row it would already have counted every outer button — so
+     pure counters give "3.1" where we want "1.1". We instead walk the real
+     tab→pane hierarchy in document order. The number span carries class
+     .fgcz-tabnum, styled in fgcz.scss.
+
+     Idempotent: re-running updates the existing number span rather than stacking
+     a second one. The plot finder reads tab labels via textContent, so its
+     breadcrumbs pick up the numbers for free.
+
+     TWO NOTES ON TIMING, both load-bearing:
+       - The flag test lives INSIDE the DOMContentLoaded handler, not at the top
+         of this IIFE. The Lua route injects its class further down the document
+         than this script, so a top-level test would run before the class exists
+         and silently skip numbering for every extension-based report.
+       - It tests documentElement, not document.body: depending on Quarto's
+         output this include may land in <head> or at the top of <body>, and
+         documentElement is the one that exists either way.
+     ════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  "use strict";
+
+  // First direct child of `parent` carrying class `cls` (Quarto puts the
+  // nav-tabs <ul> and tab-content <div> as direct children of .panel-tabset).
+  function directChild(parent, cls) {
+    for (var i = 0; i < parent.children.length; i++) {
+      if (parent.children[i].classList.contains(cls)) return parent.children[i];
+    }
+    return null;
+  }
+
+  // The tab buttons of ONE tabset (this tabset's own row, not descendants').
+  function tabLinks(ts) {
+    var nav = directChild(ts, 'nav-tabs') || directChild(ts, 'nav');
+    if (!nav) return [];
+    return Array.prototype.slice.call(
+      nav.querySelectorAll(':scope > .nav-item > .nav-link, :scope > .nav-link'));
+  }
+
+  // The tab panes of ONE tabset, in the same order as its links.
+  function tabPanes(ts) {
+    var content = directChild(ts, 'tab-content');
+    if (!content) return [];
+    return Array.prototype.slice.call(content.querySelectorAll(':scope > .tab-pane'));
+  }
+
+  // The shallowest .panel-tabset(s) inside `container`: those with no other
+  // .panel-tabset between them and `container`. From document.body this yields
+  // the top-level tabsets; from a tab-pane it yields that pane's direct
+  // sub-tabsets (skipping any deeper than one level).
+  function shallowTabsets(container) {
+    return Array.prototype.filter.call(
+      container.querySelectorAll('.panel-tabset'),
+      function (ts) {
+        var p = ts.parentElement;
+        while (p && p !== container) {
+          if (p.classList.contains('panel-tabset')) return false;
+          p = p.parentElement;
+        }
+        return true;
+      });
+  }
+
+  // Prepend (or update) the number span on a tab button. The trailing space
+  // keeps the finder's textContent breadcrumb readable ("1.1 Sepal").
+  function applyNumber(link, num) {
+    var badge = link.querySelector(':scope > .fgcz-tabnum');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'fgcz-tabnum';
+      link.insertBefore(badge, link.firstChild);
+    }
+    badge.textContent = num + ' ';
+  }
+
+  // Number a GROUP of sibling tabsets sharing `prefix` (''=top level), with a
+  // single counter running across the whole group, then recurse into each tab's
+  // pane for the next level down.
+  function numberGroup(tabsets, prefix) {
+    var next = 1;
+    tabsets.forEach(function (ts) {
+      var links = tabLinks(ts), panes = tabPanes(ts);
+      links.forEach(function (link, i) {
+        var num = (prefix ? prefix + '.' : '') + next;
+        applyNumber(link, num);
+        if (panes[i]) numberGroup(shallowTabsets(panes[i]), num);
+        next++;
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Opt-in only, and tested here rather than earlier — see the timing note
+    // above. Independent of the Find/Download toolbar.
+    if (!document.documentElement.classList.contains('fgcz-number')) return;
+    numberGroup(shallowTabsets(document.body), '');
+  });
+})();
+</script>

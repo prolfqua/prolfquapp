@@ -212,7 +212,7 @@ write_index_html <- function(file_path_list, result_dir) {
 
   oldwd <- setwd(render_dir)
   on.exit(setwd(oldwd), add = TRUE)
-  fgczquartotemplate::fgcz_render(
+  fgczQuartoTemplate::fgcz_render(
     input = "index.qmd",
     buttons = FALSE,
     execute_params = list(index_data_file = normalizePath(index_data_file))

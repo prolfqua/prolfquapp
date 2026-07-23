@@ -6,7 +6,7 @@ TARBALL := ../$(PKG_NAME)_$(PKG_VERSION).tar.gz
 
 DOCUMENT_CMD = Rscript -e "devtools::document()"
 # DIVERGE: Quarto vignettes include bare asset filenames, so sync the package
-# copy from fgczquartotemplate before every package/vignette build.
+# copy from fgczQuartoTemplate before every package/vignette build.
 SYNC_QUARTO_ASSETS_CMD = Rscript data-raw/sync_quarto_assets.R
 BUILD_CMD = Rscript -e "devtools::build(vignettes = TRUE)"
 CHECK_CMD = Rscript -e "devtools::check()"

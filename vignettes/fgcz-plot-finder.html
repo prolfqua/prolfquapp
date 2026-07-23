@@ -4,15 +4,20 @@
          include-after-body: fgcz-plot-finder.html
 
      A horizontal row of compact icon buttons pinned at the top-right, just
-     below the FGCZ banner. They show only their icon until hover/focus, which
-     reveals the Find / Download label:
+     below the FGCZ banner. They are icon-only — no visible text label — and
+     rely on `title` / `aria-label` for the browser tooltip and screen readers:
        🔍  FIND — searchable graphical list of every figure & table; clicking
                   an entry opens the tab(s) it lives in (Quarto hides
                   inactive-tab content) then scrolls + flashes it.
-       📥  DOWNLOAD — tick-box list of every plot; bundle the checked ones into
-                  a single ZIP. Plots save at the resolution knitr embedded
-                  them at (the report's fig-dpi); the browser only has that
-                  raster.
+       📥  DOWNLOAD — bundles the checked items into a single ZIP: a tick-box
+                  gallery of every static plot, plus two whole-report extras,
+                  the .qmd source and a standalone .html copy. Plots save at
+                  the resolution knitr embedded them at (the report's fig-dpi);
+                  the browser only has that raster. The qmd is the source
+                  Quarto embeds under `code-tools: true`, and the html is a
+                  snapshot of the live page — an extra the report cannot supply
+                  is shown disabled with the reason. When an extra is included
+                  the plots move into plots/ so nothing collides at the root.
 
      Self-contained: no external libraries, no network calls (CSP- and
      embed-resources-safe). The ZIP is built with a tiny hand-rolled
@@ -21,8 +26,15 @@
      never appear.
 
      Source: the search + download buttons of ezRun's fgcz-plot-finder.html
-     (commit uzh/ezRun@32bed9ee, 2026-06-30). The tab-numbering and
-     view-source features from that file are intentionally not included.
+     (commit uzh/ezRun@32bed9ee, 2026-06-30). The view-source feature from that
+     file is intentionally not included.
+
+     Tab numbering came from that file too, but does NOT live here: it sits in
+     fgcz_header_quarto.html, which every report includes unconditionally. This
+     toolbar is opt-in, and numbering should not depend on whether a report
+     asked for buttons. The finder does benefit from it either way — crumbFor()
+     reads tab labels via textContent, so when numbering is on the breadcrumbs
+     read "1.1 Sepal" for free.
      ════════════════════════════════════════════════════════════════════ -->
 <style>
   /* ── Top-right toolbar: a horizontal row glued just below the banner. The JS
@@ -55,19 +67,9 @@
   .fgcz-pf-toolbar button + button { border-left: 1px solid rgba(255, 255, 255, .25); }
   .fgcz-pf-toolbar button:hover { filter: brightness(1.12); }
   .fgcz-pf-toolbar .ic { font-size: 1.15rem; }      /* icon size */
-  /* Label hidden (zero width) until hover/focus, then it slides open. */
-  .fgcz-pf-toolbar .lbl {
-    max-width: 0; margin-left: 0; overflow: hidden;
-    transition: max-width .18s ease, margin-left .18s ease, opacity .18s ease;
-    opacity: 0;
-  }
-  .fgcz-pf-toolbar button:hover .lbl,
-  .fgcz-pf-toolbar button:focus-visible .lbl {
-    max-width: 7rem; margin-left: .3rem; opacity: 1;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .fgcz-pf-toolbar .lbl { transition: none; }
-  }
+  /* The controls are icon-only — no visible text label, at rest or on hover.
+     Each button still carries `title` and `aria-label`, so the browser tooltip
+     and screen readers announce what it does. */
 
   /* ── Slide-out panels (off-screen until .open). Both share styling. ── */
   .fgcz-pf-panel {
@@ -107,6 +109,24 @@
   }
 
   /* ── Download-pane bits. ────────────────────────────────────────────── */
+  /* Whole-report extras (qmd / html): plain rows above the plot gallery, so
+     they read as "what else goes in the ZIP" rather than as another plot. */
+  .fgcz-dl-extras {
+    flex: 0 0 auto; overflow: visible;      /* don't compete with the gallery's scroll */
+    padding: .6rem 1rem .25rem; margin: 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+  .fgcz-dl-opt { padding: .25rem 0; font-size: .85rem; }
+  .fgcz-dl-opt label { cursor: pointer; display: block; }
+  .fgcz-dl-opt .lbl { font-weight: 500; margin-left: .3rem; }
+  .fgcz-dl-opt .crumb {
+    display: block; margin-left: 1.4rem; font-size: .75rem; color: #6c757d;
+  }
+  /* An option the report cannot supply — greyed, unticked and non-interactive,
+     with .crumb carrying the reason. */
+  .fgcz-dl-opt.disabled { opacity: .55; }
+  .fgcz-dl-opt.disabled label { cursor: default; }
+
   .fgcz-pf-selall { margin: .6rem 1rem .25rem; font-size: .85rem; }
   .fgcz-pf-selall label { cursor: pointer; }
   #fgcz-dl-list {
@@ -209,18 +229,37 @@
 
 <!-- Top-right toolbar -->
 <div class="fgcz-pf-toolbar">
-  <button id="fgcz-pf-btn" title="Find figures and tables" aria-label="Find figures and tables"><span class="ic">🔍</span><span class="lbl">Find</span></button>
-  <button id="fgcz-dl-btn" title="Download plots" aria-label="Download plots"><span class="ic">📥</span><span class="lbl">Download</span></button>
+  <button id="fgcz-pf-btn" title="Find figures and tables" aria-label="Find figures and tables"><span class="ic">🔍</span></button>
+  <button id="fgcz-dl-btn" title="Download plots" aria-label="Download plots"><span class="ic">📥</span></button>
 </div>
 
 <!-- DOWNLOAD panel -->
 <div id="fgcz-dl-panel" class="fgcz-pf-panel" aria-hidden="true">
   <div class="fgcz-pf-head">
-    <h2>Download plots</h2>
+    <h2>Download</h2>
     <button class="fgcz-pf-close" data-close="fgcz-dl-panel" aria-label="Close">×</button>
   </div>
+  <!-- Whole-report extras, ticked independently of the per-plot gallery below.
+       An extra the report cannot supply is shown disabled with the reason
+       rather than silently producing an empty file. -->
+  <ul id="fgcz-dl-extras" class="fgcz-pf-list fgcz-dl-extras">
+    <li class="fgcz-dl-opt" id="fgcz-dl-opt-qmd">
+      <label>
+        <input type="checkbox" class="fgcz-dl-extra" data-what="qmd">
+        <span class="lbl">Qmd source</span>
+        <span class="crumb"></span>
+      </label>
+    </li>
+    <li class="fgcz-dl-opt" id="fgcz-dl-opt-html">
+      <label>
+        <input type="checkbox" class="fgcz-dl-extra" data-what="html">
+        <span class="lbl">HTML page</span>
+        <span class="crumb"></span>
+      </label>
+    </li>
+  </ul>
   <div class="fgcz-pf-selall">
-    <label><input type="checkbox" id="fgcz-dl-all" checked> Select all</label>
+    <label><input type="checkbox" id="fgcz-dl-all" checked> Select all plots</label>
   </div>
   <ul id="fgcz-dl-list" class="fgcz-pf-list"></ul>
   <div class="fgcz-pf-foot">
@@ -635,7 +674,7 @@
 
   // ─── DOWNLOAD panel ────────────────────────────────────────────────
 
-  var dlListEl, dlPanel, dlAllEl, dlGoEl, DL_INDEX = null;
+  var dlListEl, dlPanel, dlAllEl, dlGoEl, dlExtrasEl, DL_INDEX = null;
 
   function isInteractivePlotItem(it) {
     if (it.interactive) return true;
@@ -651,15 +690,81 @@
     return buildIndex().filter(function (it) { return it.type === 'fig' && !isInteractivePlotItem(it); });
   }
 
+  // The .qmd source, if the report was rendered with `code-tools: true` —
+  // Quarto then embeds it verbatim in the view-source modal. Without that flag
+  // the source simply isn't in the file, and the option is offered as disabled
+  // rather than silently producing an empty .qmd.
+  function qmdSource() {
+    var modal = document.getElementById('quarto-embedded-source-code-modal');
+    var pre = modal && modal.querySelector('pre');
+    if (!pre) return null;
+    var clone = pre.cloneNode(true);
+    // Strip the hover "Copy to Clipboard" control; its text is not source.
+    clone.querySelectorAll('button, .code-copy-button').forEach(function (b) { b.remove(); });
+    var txt = clone.textContent;
+    return txt && txt.trim() ? txt : null;
+  }
+
+  // A standalone copy of the report. This is a snapshot of the LIVE DOM, not
+  // the original file off disk — a file:// page cannot re-read itself without
+  // tripping CSP. It is self-contained (reports render with embed-resources),
+  // but it carries whatever state the page is in, so close our own panels in
+  // the clone first.
+  function htmlSnapshot() {
+    var root = document.documentElement.cloneNode(true);
+    root.querySelectorAll('.fgcz-pf-panel').forEach(function (p) {
+      p.classList.remove('open');
+      p.setAttribute('aria-hidden', 'true');
+    });
+    return '<!DOCTYPE html>\n' + root.outerHTML;
+  }
+
+  // Enable/disable one extra row and set the sub-label explaining what it will
+  // yield — or why it cannot.
+  function setExtraOpt(id, available, note) {
+    var li = document.getElementById(id);
+    if (!li) return;
+    var cb = li.querySelector('.fgcz-dl-extra');
+    li.classList.toggle('disabled', !available);
+    cb.disabled = !available;
+    if (!available) cb.checked = false;
+    li.querySelector('.crumb').textContent = note;
+  }
+
+  // Any tickable extra that is actually ticked.
+  function wantsExtra(what) {
+    var cb = dlExtrasEl &&
+      dlExtrasEl.querySelector('.fgcz-dl-extra[data-what="' + what + '"]');
+    return Boolean(cb && cb.checked && !cb.disabled);
+  }
+
+  // The ZIP is buildable if ANY plot or ANY extra is ticked — a report with no
+  // static figures can still yield its source and page.
+  function syncGo() {
+    var anyPlot = Boolean(dlListEl.querySelector('.fgcz-dl-cb:checked'));
+    var anyExtra = wantsExtra('qmd') || wantsExtra('html');
+    dlGoEl.disabled = !(anyPlot || anyExtra);
+  }
+
+  function renderExtras() {
+    var qmd = qmdSource();
+    setExtraOpt('fgcz-dl-opt-qmd', Boolean(qmd),
+      qmd ? 'The Quarto source of this report'
+          : 'Source not embedded (needs code-tools: true)');
+    setExtraOpt('fgcz-dl-opt-html', true, 'This report as a standalone page');
+  }
+
   function renderDownloads() {
+    renderExtras();
     DL_INDEX = plotItems();
     dlListEl.innerHTML = '';
     if (!DL_INDEX.length) {
       dlListEl.innerHTML = '<li class="fgcz-pf-empty">No plots to download.</li>';
-      dlGoEl.disabled = true; dlAllEl.checked = false;
+      dlAllEl.checked = false;
+      syncGo();                       // extras alone may still be downloadable
       return;
     }
-    dlGoEl.disabled = false; dlAllEl.checked = true;
+    dlAllEl.checked = true;
     DL_INDEX.forEach(function (it, i) {
       var li = document.createElement('li');
       li.className = 'fgcz-pf-item';
@@ -681,6 +786,7 @@
       li.appendChild(label);
       dlListEl.appendChild(li);
     });
+    syncGo();
   }
 
   function openDownload() {
@@ -863,16 +969,43 @@
 
   function doDownload() {
     var files = [], used = {}, skipped = 0;
+    var wantQmd = wantsExtra('qmd'), wantHtml = wantsExtra('html');
+    // With an extra in the bundle the plots move into plots/ so they cannot
+    // collide with the .qmd/.html at the ZIP root. A plots-only download keeps
+    // its historic flat layout, so existing habits are undisturbed.
+    var prefix = (wantQmd || wantHtml) ? 'plots/' : '';
+
     dlListEl.querySelectorAll('.fgcz-dl-cb').forEach(function (cb) {
       if (!cb.checked) return;
       var it = DL_INDEX[+cb.dataset.i];
       var base = sanitise(it.label), name = base, n = 1;
       while (used[name]) name = base + '_' + (++n);  // unique base name
       var f = plotToFile(it, name);
-      if (f) { used[name] = true; files.push(f); } else { skipped++; }
+      if (f) {
+        used[name] = true;
+        f.name = prefix + f.name;
+        files.push(f);
+      } else {
+        skipped++;
+      }
     });
+
+    var stem = downloadZipFilename().replace(/\.zip$/i, '');
+    if (wantQmd) {
+      var src = qmdSource();
+      if (src) {
+        files.push({ name: stem + '.qmd', bytes: new TextEncoder().encode(src) });
+      }
+    }
+    if (wantHtml) {
+      files.push({
+        name: stem + '.html',
+        bytes: new TextEncoder().encode(htmlSnapshot())
+      });
+    }
+
     if (!files.length) {
-      alert('No downloadable plots selected.\n(Images must be embedded in the report.)');
+      alert('Nothing selected to download.\n(Images must be embedded in the report.)');
       return;
     }
     downloadBlob(makeZip(files), downloadZipFilename());
@@ -1172,6 +1305,7 @@
     dlPanel   = document.getElementById('fgcz-dl-panel');
     tocPanel  = document.getElementById('fgcz-toc-panel');
     dlListEl  = document.getElementById('fgcz-dl-list');
+    dlExtrasEl = document.getElementById('fgcz-dl-extras');
     dlAllEl   = document.getElementById('fgcz-dl-all');
     dlGoEl    = document.getElementById('fgcz-dl-go');
     tocGridEl = document.getElementById('fgcz-toc-grid');
@@ -1211,12 +1345,19 @@
       if (e.key === 'Escape') closeAll();
     });
 
-    // Select-all toggles every checkbox in the download list.
+    // Select-all toggles every checkbox in the plot gallery. It deliberately
+    // does NOT reach the qmd/html extras — those are whole-report outputs, not
+    // plots, and are ticked independently.
     dlAllEl.addEventListener('change', function () {
       dlListEl.querySelectorAll('.fgcz-dl-cb').forEach(function (cb) {
         cb.checked = dlAllEl.checked;
       });
+      syncGo();
     });
+    // Any tick anywhere can make the ZIP (un)buildable, so re-evaluate the
+    // button from both lists.
+    dlListEl.addEventListener('change', syncGo);
+    dlExtrasEl.addEventListener('change', syncGo);
     dlGoEl.addEventListener('click', doDownload);
 
     // Hide buttons not selected by the author. Content checks below may hide

@@ -1,5 +1,8 @@
 # prolfquapp 2.6.1
 
+- The FGCZ Quarto dependency now follows its canonical
+  `fgcz/fgczQuartoTemplate` upstream and camel-cased package name, including
+  the latest shared report assets and tab/download controls.
 - The experimental-design survey now links to NIST's maintained guidance on
   blocking factors instead of an obsolete external URL.
 - Package builds now install Quarto visual abstracts as dedicated runtime

@@ -187,7 +187,7 @@ test_that("SE Quarto tabset report renders with reconstructed LFQData", {
   # Stage the FGCZ assets and render via fgcz_render (the same path the runtime
   # report helper uses): fgcz_render copies _metadata.yml / fgcz.scss /
   # fgcz_header_quarto.html / fgcz-plot-finder.html from the installed
-  # fgczquartotemplate package next to the qmd, so no _extensions/ tree is needed.
+  # fgczQuartoTemplate package next to the qmd, so no _extensions/ tree is needed.
   execute_params <- list(se_file = normalizePath(se_file))
   source_tree <- test_source_tree()
   if (nzchar(source_tree)) {
@@ -199,7 +199,7 @@ test_that("SE Quarto tabset report renders with reconstructed LFQData", {
   on.exit(setwd(oldwd), add = TRUE)
 
   render_result <- tryCatch(
-    fgczquartotemplate::fgcz_render(
+    fgczQuartoTemplate::fgcz_render(
       input = report_file,
       buttons = FALSE,
       execute_params = execute_params
@@ -418,7 +418,7 @@ test_that("vendored FGCZ Quarto assets match the installed template", {
   )
 
   source_hashes <- unname(tools::md5sum(
-    fgczquartotemplate::fgcz_quarto_dir(asset_names)
+    fgczQuartoTemplate::fgcz_quarto_dir(asset_names)
   ))
   vendored_hashes <- unname(tools::md5sum(
     file.path(source_vignette_dir, asset_names)

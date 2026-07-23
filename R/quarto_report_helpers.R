@@ -4,14 +4,14 @@
 # whose FGCZ styling (SCSS theme, header) comes from a directory-level
 # `_metadata.yml`, and whose Find/Download toolbar is wired via
 # `include-after-body: fgcz-plot-finder.html`. `data-raw/sync_quarto_assets.R`
-# keeps these build-time assets synchronized with `fgczquartotemplate`. The file
+# keeps these build-time assets synchronized with `fgczQuartoTemplate`. The file
 # `vignettes/.install_extras` ships the qmd sources into the installed package's
 # `doc/` directory, so they are reachable at runtime via `system.file("doc", ...)`.
 #
 # Rendering copies the qmd out of `doc/` into a temporary directory and calls
-# `fgczquartotemplate::fgcz_render()`, which stages the FGCZ assets
+# `fgczQuartoTemplate::fgcz_render()`, which stages the FGCZ assets
 # (`_metadata.yml`, `fgcz.scss`, `fgcz_header_quarto.html`, `fgcz-plot-finder.html`)
-# next to the qmd from the installed `fgczquartotemplate` package before rendering.
+# next to the qmd from the installed `fgczQuartoTemplate` package before rendering.
 # Runtime rendering therefore receives the same template assets without depending
 # on an `_extensions/` tree being shipped into `doc/`. `buttons = FALSE`: the
 # toolbar is already wired by the report's own `include-after-body`, so
@@ -64,11 +64,11 @@
   oldwd <- setwd(render_dir)
   on.exit(setwd(oldwd), add = TRUE)
 
-  # fgcz_render() stages the FGCZ assets from the installed fgczquartotemplate
+  # fgcz_render() stages the FGCZ assets from the installed fgczQuartoTemplate
   # package next to the qmd, then renders. buttons = FALSE because the report's
   # own include-after-body already wires the Find/Download toolbar.
   render_result <- tryCatch(
-    fgczquartotemplate::fgcz_render(
+    fgczQuartoTemplate::fgcz_render(
       input = qmd_name,
       buttons = FALSE,
       execute_params = execute_params

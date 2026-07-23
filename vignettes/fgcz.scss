@@ -10,6 +10,18 @@
 // ─────────────────────────────────────────────────────────────────
 $web-font-path: "https://fonts.googleapis.com/css2?family=Jura:wght@400;500;600;700&display=swap";
 
+// ─────────────────────────────────────────────────────────────────
+// Per-depth tab palette — used ONLY by the opt-in colour layer at the foot of
+// this file, which stays inert unless a report asks for it. Each level sets a
+// SELECTED fill plus its text, and an UNSELECTED fill plus its text (light fill
+// → hue text; dark fill → white text). Swap any hex to re-tune a level.
+// ─────────────────────────────────────────────────────────────────
+$tab1-sel: #1B4079; $tab1-sel-fg: #ffffff; $tab1-un: #DCE6F2; $tab1-un-fg: #1B4079; // L1 deep blue
+$tab2-sel: #3F84A6; $tab2-sel-fg: #0A3043; $tab2-un: #DBEAF1; $tab2-un-fg: #0A3043; // L2 cyan-blue
+$tab3-sel: #9CC6DE; $tab3-sel-fg: #123A5C; $tab3-un: #EAF3F8; $tab3-un-fg: #123A5C; // L3 sky blue
+$tab4-sel: #14697A; $tab4-sel-fg: #ffffff; $tab4-un: #D5E8EA; $tab4-un-fg: #14697A; // L4 teal-blue
+$tab5-sel: #3D3F8F; $tab5-sel-fg: #ffffff; $tab5-un: #E0DEF2; $tab5-un-fg: #3D3F8F; // L5 indigo
+
 /*-- scss:rules --*/
 
 // ─────────────────────────────────────────────────────────────────
@@ -155,4 +167,120 @@ caption h1 {
   font-size: 1.05rem;        // caption title size (was a giant default h1)
   font-weight: 600;          // caption title weight
   margin: 0 0 0.4rem 0;      // top right bottom left — small gap under the title
+}
+
+// ═════════════════════════════════════════════════════════════════
+// OPT-IN colour layer — per-nesting-level tab palette
+// ═════════════════════════════════════════════════════════════════
+// Everything above styles every tabset as an identical grey→white "folder tab"
+// at all depths — deliberately no per-level colour. This layer is for reports
+// that want depth to read as COLOUR instead: deep blue → cyan → sky → teal →
+// indigo, one hue per nesting level. It ONLY overrides colours; the folder-tab
+// geometry (radii, borders, padding, tab numbers, .fig-row, caption fix) stays
+// inherited from the rules above.
+//
+// It ships compiled into EVERY report but is scoped under `.fgcz-colour`, so it
+// stays completely inert until that class is present. The class is added to
+// <html> at render time by the flags script in fgcz_header_quarto.html, driven
+// from either channel:
+//
+//   fgcz_render(report.qmd, colour = TRUE)   # R helper
+//   fgcz-colour: true                        # front matter, Quarto extension
+//
+// Default (no flag) = the minimal folder-tab house style above, untouched.
+//
+// The class sits on <html>, which is an ancestor of everything, so the plain
+// descendant selectors below match as written. The extra class also lifts
+// specificity above the base tab rules, so these colours win.
+// ─────────────────────────────────────────────────────────────────
+
+.fgcz-colour {
+
+  // LEVEL 1 (deep blue) — recolours the base .nav-link at every depth; the
+  // nested rules below then override levels 2–5. Only colour props are set, so
+  // the folder-tab shape/borders above are preserved. border-color is given for
+  // ALL sides so the coloured tab reads as a solid chip (this intentionally
+  // drops the base's white folder-fusion, which only makes sense uncoloured).
+  .panel-tabset > .nav-tabs .nav-link {
+    background-color: $tab1-un;                              // L1 INACTIVE fill
+    color: $tab1-un-fg;                                      // L1 INACTIVE text
+    border-color: color-mix(in srgb, #{$tab1-sel} 30%, #fff);
+
+    &:hover {
+      background-color: color-mix(in srgb, #{$tab1-sel} 22%, #{$tab1-un}); // deeper tint on hover
+      color: $tab1-sel;
+      border-color: $tab1-sel;                              // HOVER outline = full hue
+    }
+
+    &.active {
+      background-color: $tab1-sel;                          // L1 SELECTED fill
+      border-color: $tab1-sel;                              // solid hue all round
+      color: $tab1-sel-fg;                                  // L1 SELECTED text
+    }
+  }
+
+  // LEVEL 2 (cyan-blue).
+  .panel-tabset .panel-tabset > .nav-tabs .nav-link {
+    &:not(.active):not(:hover) {
+      background-color: $tab2-un;
+      border-color: color-mix(in srgb, #{$tab2-sel} 25%, #fff);
+      color: $tab2-un-fg;
+    }
+    &.active {
+      background-color: $tab2-sel;
+      border-color: $tab2-sel;
+      color: $tab2-sel-fg;
+    }
+  }
+
+  // LEVEL 3 (sky blue).
+  .panel-tabset .panel-tabset .panel-tabset > .nav-tabs .nav-link {
+    &:not(.active):not(:hover) {
+      background-color: $tab3-un;
+      border-color: color-mix(in srgb, #{$tab3-sel} 25%, #fff);
+      color: $tab3-un-fg;
+    }
+    &.active {
+      background-color: $tab3-sel;
+      border-color: $tab3-sel;
+      color: $tab3-sel-fg;
+    }
+  }
+
+  // LEVEL 4 (teal-blue).
+  .panel-tabset .panel-tabset .panel-tabset .panel-tabset > .nav-tabs .nav-link {
+    &:not(.active):not(:hover) {
+      background-color: $tab4-un;
+      border-color: color-mix(in srgb, #{$tab4-sel} 25%, #fff);
+      color: $tab4-un-fg;
+    }
+    &.active {
+      background-color: $tab4-sel;
+      border-color: $tab4-sel;
+      color: $tab4-sel-fg;
+    }
+  }
+
+  // LEVEL 5 (indigo).
+  .panel-tabset .panel-tabset .panel-tabset .panel-tabset .panel-tabset > .nav-tabs .nav-link {
+    &:not(.active):not(:hover) {
+      background-color: $tab5-un;
+      border-color: color-mix(in srgb, #{$tab5-sel} 25%, #fff);
+      color: $tab5-un-fg;
+    }
+    &.active {
+      background-color: $tab5-sel;
+      border-color: $tab5-sel;
+      color: $tab5-sel-fg;
+    }
+  }
+
+  // Jura's heaviest real weight is 700. A hair of same-colour text-stroke pushes
+  // the SELECTED tab glyphs a touch bolder at every level (currentColor tracks
+  // the per-level active text set above). Raise for heavier, drop toward 0 to
+  // back off.
+  .panel-tabset .nav-tabs .nav-link.active {
+    -webkit-text-stroke: 0.4px currentColor;
+    text-stroke: 0.4px currentColor;
+  }
 }
