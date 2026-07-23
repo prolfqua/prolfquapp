@@ -947,61 +947,21 @@ if TRUE include protein sequences
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://prolfqua.github.io/prolfquapp/">"prolfquapp"</a></span><span class="op">)</span></span>
 <span></span>
-<span></span>
-<span><span class="va">fasta_conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/textconnections.html">textConnection</a></span><span class="op">(</span><span class="fu">prolfquapp</span><span class="fu">:::</span><span class="fu">.getSequences</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#testthat::expect_error(prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "" ))</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/connections.html">close</a></span><span class="op">(</span><span class="va">fasta_conn</span><span class="op">)</span></span>
-<span><span class="va">fasta_conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/textconnections.html">textConnection</a></span><span class="op">(</span><span class="fu">prolfquapp</span><span class="fu">:::</span><span class="fu">.getSequences</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">prolfquapp</span><span class="fu">::</span><span class="fu"><a href="https://prolfqua.github.io/prolfquapp/man/get_annot_from_fasta.html">get_annot_from_fasta</a></span><span class="op">(</span><span class="va">fasta_conn</span>, pattern_decoys <span class="op">=</span> <span class="st">"^REV_|^rev"</span> <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span><span class="va">fasta_text</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"&gt;sp|P00001|TEST Protein OS=Human GN=TEST PE=1 SV=1"</span>,</span>
+<span>  <span class="st">"MKRISTTITTT"</span>,</span>
+<span>  <span class="st">"&gt;REV_sp|P00002|DECOY Protein OS=Human GN=DECOY PE=1 SV=1"</span>,</span>
+<span>  <span class="st">"MPEPTIDER"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">fasta_conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/textconnections.html">textConnection</a></span><span class="op">(</span><span class="va">fasta_text</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://prolfqua.github.io/prolfquapp/man/get_annot_from_fasta.html">get_annot_from_fasta</a></span><span class="op">(</span><span class="va">fasta_conn</span>, pattern_decoys <span class="op">=</span> <span class="st">"^REV_"</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                                                             fasta.id
-sp|A0A385XJL2|YGDT_ECOLI                     sp|A0A385XJL2|YGDT_ECOLI
-sp|A5A615|YNCL_ECOLI                             sp|A5A615|YNCL_ECOLI
-sp|P03018|UVRD_ECOLI                             sp|P03018|UVRD_ECOLI
-sp|P04982|RBSD_ECOLI                             sp|P04982|RBSD_ECOLI
-sp|P04994|EX7L_ECOLI                             sp|P04994|EX7L_ECOLI
-zz|Y-FGCZCont00001|                               zz|Y-FGCZCont00001|
-zz|Y-FGCZCont00002|                               zz|Y-FGCZCont00002|
-REV_sp|Q13515|BFSP2_HUMAN                   REV_sp|Q13515|BFSP2_HUMAN
-REV_sp|Q14183|DOC2A_HUMAN                   REV_sp|Q14183|DOC2A_HUMAN
-REV_tr|A0A075B6W8|A0A075B6W8_HUMAN REV_tr|A0A075B6W8|A0A075B6W8_HUMAN
-REV_sp|A0A385XJL2|YGDT_ECOLI             REV_sp|A0A385XJL2|YGDT_ECOLI
-                                                                                                                       fasta.header
-sp|A0A385XJL2|YGDT_ECOLI                                   Protein YgdT OS=Escherichia coli (strain K12) OX=83333 GN=ygdT PE=4 SV=1
-sp|A5A615|YNCL_ECOLI                       Uncharacterized protein YncL OS=Escherichia coli (strain K12) OX=83333 GN=yncL PE=1 SV=1
-sp|P03018|UVRD_ECOLI                                    DNA helicase II OS=Escherichia coli (strain K12) OX=83333 GN=uvrD PE=1 SV=1
-sp|P04982|RBSD_ECOLI                                  D-ribose pyranase OS=Escherichia coli (strain K12) OX=83333 GN=rbsD PE=1 SV=3
-sp|P04994|EX7L_ECOLI               Exodeoxyribonuclease 7 large subunit OS=Escherichia coli (strain K12) OX=83333 GN=xseA PE=1 SV=2
-zz|Y-FGCZCont00001|                                                      zz_FGCZCont0000_P61626_LYSC_HUMAN blastpHomologue_5.0e-107
-zz|Y-FGCZCont00002|                                                           zz_FGCZCont0001_P02534_K1M1_SHEEP blastpHomologue_0.0
-REV_sp|Q13515|BFSP2_HUMAN                                                       Phakinin OS=Homo sapiens OX=9606 GN=BFSP2 PE=1 SV=1
-REV_sp|Q14183|DOC2A_HUMAN                 Double C2-like domain-containing protein alpha OS=Homo sapiens OX=9606 GN=DOC2A PE=1 SV=5
-REV_tr|A0A075B6W8|A0A075B6W8_HUMAN          T cell receptor alpha joining 17 (Fragment) OS=Homo sapiens OX=9606 GN=TRAJ17 PE=4 SV=1
-REV_sp|A0A385XJL2|YGDT_ECOLI                               Protein YgdT OS=Escherichia coli (strain K12) OX=83333 GN=ygdT PE=4 SV=1
-                                       proteinname gene_name protein_length
-sp|A0A385XJL2|YGDT_ECOLI                A0A385XJL2      ygdT             48
-sp|A5A615|YNCL_ECOLI                        A5A615      yncL             31
-sp|P03018|UVRD_ECOLI                        P03018      uvrD             60
-sp|P04982|RBSD_ECOLI                        P04982      rbsD             60
-sp|P04994|EX7L_ECOLI                        P04994      xseA             60
-zz|Y-FGCZCont00001|                Y-FGCZCont00001                       60
-zz|Y-FGCZCont00002|                Y-FGCZCont00002                       60
-REV_sp|Q13515|BFSP2_HUMAN                   Q13515     BFSP2             60
-REV_sp|Q14183|DOC2A_HUMAN                   Q14183     DOC2A             60
-REV_tr|A0A075B6W8|A0A075B6W8_HUMAN      A0A075B6W8    TRAJ17             21
-REV_sp|A0A385XJL2|YGDT_ECOLI            A0A385XJL2      ygdT             48
-                                   nr_tryptic_peptides
-sp|A0A385XJL2|YGDT_ECOLI                             0
-sp|A5A615|YNCL_ECOLI                                 1
-sp|P03018|UVRD_ECOLI                                 4
-sp|P04982|RBSD_ECOLI                                 3
-sp|P04994|EX7L_ECOLI                                 2
-zz|Y-FGCZCont00001|                                  4
-zz|Y-FGCZCont00002|                                  1
-REV_sp|Q13515|BFSP2_HUMAN                            3
-REV_sp|Q14183|DOC2A_HUMAN                            3
-REV_tr|A0A075B6W8|A0A075B6W8_HUMAN                   1
-REV_sp|A0A385XJL2|YGDT_ECOLI                         1</code></pre>
+<pre><code>                               fasta.id                        fasta.header
+sp|P00001|TEST           sp|P00001|TEST  Protein OS=Human GN=TEST PE=1 SV=1
+REV_sp|P00002|DECOY REV_sp|P00002|DECOY Protein OS=Human GN=DECOY PE=1 SV=1
+                    proteinname gene_name protein_length nr_tryptic_peptides
+sp|P00001|TEST           P00001      TEST             11                   1
+REV_sp|P00002|DECOY      P00002     DECOY              9                   1</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/connections.html">close</a></span><span class="op">(</span><span class="va">fasta_conn</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
