@@ -268,6 +268,158 @@ run_qc_preprocess <- function(
   peptide_software
 }
 
+.resolve_dea_pipeline <- function(software, config) {
+  default_model <- .resolve_facade_model(
+    config$processing_options$model,
+    config$processing_options$model_missing
+  )
+  model_entry <- prolfqua::lookup_facade(default_model)
+  if (is.null(model_entry)) {
+    stop("Unknown facade: ", default_model, call. = FALSE)
+  }
+
+  preprocess_functions <- prolfquapp::get_procfuncs()
+  is_nested <- identical(model_entry$needs, "nested")
+  resolved_software <- .resolve_nested_reader(
+    software,
+    is_nested,
+    available = names(preprocess_functions),
+    facade = default_model
+  )
+  config$software <- resolved_software
+
+  list(
+    default_model = default_model,
+    is_nested = is_nested,
+    saint_annotation = isTRUE(
+      model_entry$needs_saint_annotation
+    ),
+    preprocess_functions = preprocess_functions,
+    software = resolved_software
+  )
+}
+
+.read_dea_annotation <- function(dataset, config, saint_annotation) {
+  prolfquapp::read_table_data(dataset) |>
+    prolfquapp::read_annotation(
+      prefix = config$group,
+      SAINT = saint_annotation
+    )
+}
+
+.preprocess_dea_data <- function(
+  indir,
+  annotation,
+  pipeline,
+  config
+) {
+  if (!pipeline$software %in% names(pipeline$preprocess_functions)) {
+    stop(
+      "Software '",
+      pipeline$software,
+      "' not found. Available: ",
+      paste(names(pipeline$preprocess_functions), collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  prolfquapp::preprocess_software(
+    indir,
+    annotation,
+    preprocess_functions = pipeline$preprocess_functions[[
+      pipeline$software
+    ]],
+    pattern_contaminants = config$processing_options$pattern_contaminants,
+    pattern_decoys = config$processing_options$pattern_decoys,
+    nr_peptides = config$processing_options$nr_peptides
+  )
+}
+
+.configure_dea_progress <- function() {
+  if (!is.null(getOption("prolfqua.progress"))) {
+    return(invisible(NULL))
+  }
+  options(prolfqua.progress = function(i, total, label) {
+    label <- if (is.null(label) || identical(label, "")) {
+      "fit"
+    } else {
+      label
+    }
+    logger::log_info(
+      "{label}: {i}/{total} ({round(100 * i / total)}%)"
+    )
+  })
+  invisible(NULL)
+}
+
+.build_nested_deanalyse <- function(
+  data_prep,
+  config,
+  contrasts,
+  default_model
+) {
+  lfq_peptide <- data_prep$lfq_data_peptide$get_copy()
+  lfq_peptide$set_config_value("hierarchy_depth", 1)
+  lfq_raw <- lfq_peptide
+  lfq_model <- prolfquapp::transform_lfqdata(
+    lfq_peptide,
+    method = config$processing_options$transform
+  )
+
+  report_prep <- prolfquapp::ProteinDataPrep$new(
+    lfq_peptide$get_copy(),
+    data_prep$rowAnnot,
+    config
+  )
+  report_prep$aggregate()
+  report_prep$transform_data()
+  lfq_raw$rename_response("abundance")
+  lfq_model$rename_response("normalized_abundance")
+
+  deanalyse <- DEAnalysePeptideToProtein$new(
+    lfq_data = lfq_model,
+    rowAnnot = data_prep$rowAnnot,
+    prolfq_app_config = config,
+    contrasts = contrasts,
+    default_model = default_model,
+    lfq_data_raw = lfq_raw,
+    summary = data_prep$summary
+  )
+  deanalyse$build_default()
+  deanalyse$get_annotated_contrasts()
+  deanalyse$lfq_data <- report_prep$lfq_data_transformed
+  deanalyse$lfq_data_raw <- report_prep$lfq_data
+  deanalyse
+}
+
+.build_protein_deanalyse <- function(data_prep, contrasts) {
+  data_prep$aggregate()
+  data_prep$transform_data()
+  deanalyse <- data_prep$build_deanalyse(contrasts)
+  deanalyse$build_default()
+  deanalyse$get_annotated_contrasts()
+  deanalyse
+}
+
+.build_deanalyse <- function(
+  data_prep,
+  config,
+  contrasts,
+  pipeline
+) {
+  if (pipeline$is_nested) {
+    return(
+      .build_nested_deanalyse(
+        data_prep,
+        config,
+        contrasts,
+        pipeline$default_model
+      )
+    )
+  }
+  .build_protein_deanalyse(data_prep, contrasts)
+}
+
 #' Run differential expression analysis pipeline
 #'
 #' Reads annotation, preprocesses quantification data, then runs the
@@ -292,53 +444,18 @@ run_dea <- function(indir, dataset, software, config) {
     stop("Annotation file not found: ", dataset, call. = FALSE)
   }
   requested_software <- software
-
-  default_model <- .resolve_facade_model(
-    config$processing_options$model,
-    config$processing_options$model_missing
+  pipeline <- .resolve_dea_pipeline(software, config)
+  annotation <- .read_dea_annotation(
+    dataset,
+    config,
+    pipeline$saint_annotation
   )
-  model_entry <- prolfqua::lookup_facade(default_model)
-  if (is.null(model_entry)) {
-    stop("Unknown facade: ", default_model, call. = FALSE)
-  }
-  is_nested <- identical(model_entry$needs, "nested")
-  saint_annot <- isTRUE(model_entry$needs_saint_annotation)
-
-  pfuncs <- prolfquapp::get_procfuncs()
-
-  # Nested facades (e.g. firth_nested, lmer, ropeca) operate on peptide-level
-  # data, so they require a peptide-level reader. Switch the software key to the
-  # matching peptide-level reader when needed (see .resolve_nested_reader).
-  software <- .resolve_nested_reader(
-    software,
-    is_nested,
-    available = names(pfuncs),
-    facade = default_model
-  )
-  config$software <- software
-
-  annotation <- prolfquapp::read_table_data(dataset) |>
-    prolfquapp::read_annotation(prefix = config$group, SAINT = saint_annot)
-
-  if (!software %in% names(pfuncs)) {
-    stop(
-      "Software '",
-      software,
-      "' not found. Available: ",
-      paste(names(pfuncs), collapse = ", "),
-      call. = FALSE
-    )
-  }
-
-  procsoft <- prolfquapp::preprocess_software(
+  procsoft <- .preprocess_dea_data(
     indir,
     annotation,
-    preprocess_functions = pfuncs[[software]],
-    pattern_contaminants = config$processing_options$pattern_contaminants,
-    pattern_decoys = config$processing_options$pattern_decoys,
-    nr_peptides = config$processing_options$nr_peptides
+    pipeline,
+    config
   )
-
   xd <- procsoft$xd
 
   data_prep <- prolfquapp::ProteinDataPrep$new(
@@ -358,58 +475,22 @@ run_dea <- function(indir, dataset, software, config) {
   # log frozen. prolfqua only ever calls this user-supplied
   # function(i, total, label) -- it takes no logger dependency. Don't clobber a
   # reporter the caller already set.
-  if (is.null(getOption("prolfqua.progress"))) {
-    options(prolfqua.progress = function(i, total, label) {
-      label <- if (is.null(label) || identical(label, "")) "fit" else label
-      logger::log_info("{label}: {i}/{total} ({round(100 * i / total)}%)")
-    })
-  }
+  .configure_dea_progress()
   fit_start <- Sys.time()
-  logger::log_info("start fitting / contrasts for model: {default_model}")
-
-  if (is_nested) {
-    lfq_peptide <- data_prep$lfq_data_peptide$get_copy()
-    lfq_peptide$set_config_value("hierarchy_depth", 1)
-    lfq_raw <- lfq_peptide
-    lfq_model <- prolfquapp::transform_lfqdata(
-      lfq_peptide,
-      method = config$processing_options$transform
-    )
-    report_prep <- prolfquapp::ProteinDataPrep$new(
-      lfq_peptide$get_copy(),
-      data_prep$rowAnnot,
-      config
-    )
-    report_prep$aggregate()
-    report_prep$transform_data()
-    lfq_raw$rename_response("abundance")
-    lfq_model$rename_response("normalized_abundance")
-
-    deanalyse <- DEAnalysePeptideToProtein$new(
-      lfq_data = lfq_model,
-      rowAnnot = data_prep$rowAnnot,
-      prolfq_app_config = config,
-      contrasts = annotation$contrasts,
-      default_model = default_model,
-      lfq_data_raw = lfq_raw,
-      summary = data_prep$summary
-    )
-    deanalyse$build_default()
-    deanalyse$get_annotated_contrasts()
-    deanalyse$lfq_data <- report_prep$lfq_data_transformed
-    deanalyse$lfq_data_raw <- report_prep$lfq_data
-  } else {
-    data_prep$aggregate()
-    data_prep$transform_data()
-    deanalyse <- data_prep$build_deanalyse(annotation$contrasts)
-    deanalyse$build_default()
-    deanalyse$get_annotated_contrasts()
-  }
+  logger::log_info(
+    "start fitting / contrasts for model: {pipeline$default_model}"
+  )
+  deanalyse <- .build_deanalyse(
+    data_prep,
+    config,
+    annotation$contrasts,
+    pipeline
+  )
 
   fit_min <- round(as.numeric(difftime(Sys.time(), fit_start, units = "mins")), 2)
   logger::log_info(paste0(
     "done fitting / contrasts for ",
-    default_model,
+    pipeline$default_model,
     " in ",
     fit_min,
     " min"
@@ -420,7 +501,7 @@ run_dea <- function(indir, dataset, software, config) {
     xd = xd,
     annotation = annotation,
     files = procsoft$files,
-    software = software,
+    software = pipeline$software,
     requested_software = requested_software
   )
 }
