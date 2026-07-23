@@ -30,12 +30,14 @@ get_annot_from_fasta(
 get_annot_from_fasta
 }
 \examples{
-
-fasta_conn <- textConnection(prolfquapp:::.getSequences())
-#testthat::expect_error(prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "" ))
-close(fasta_conn)
-fasta_conn <- textConnection(prolfquapp:::.getSequences())
-prolfquapp::get_annot_from_fasta(fasta_conn, pattern_decoys = "^REV_|^rev" )
+fasta_text <- c(
+  ">sp|P00001|TEST Protein OS=Human GN=TEST PE=1 SV=1",
+  "MKRISTTITTT",
+  ">REV_sp|P00002|DECOY Protein OS=Human GN=DECOY PE=1 SV=1",
+  "MPEPTIDER"
+)
+fasta_conn <- textConnection(fasta_text)
+get_annot_from_fasta(fasta_conn, pattern_decoys = "^REV_")
 close(fasta_conn)
 
 }
