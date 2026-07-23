@@ -28,9 +28,9 @@ test_package_path <- function() {
   package_path
 }
 
-# Directory holding the Quarto report sources and static visual-abstract assets.
+# Directory holding the Quarto report sources.
 # Prefers the source `vignettes/` (dev / load_all); falls back to the installed
-# `doc/`, where `vignettes/.install_extras` ships the same sources and assets.
+# `doc/`, where the vignette machinery ships the same sources.
 test_report_source_dir <- function() {
   package_path <- test_package_path()
   source_vignette_dir <- file.path(package_path, "vignettes")
@@ -184,12 +184,6 @@ test_that("SE Quarto tabset report renders with reconstructed LFQData", {
     workdir,
     overwrite = TRUE
   )
-  file.copy(
-    file.path(report_source_dir, prolfquapp:::.quarto_visual_abstract_names),
-    workdir,
-    overwrite = TRUE
-  )
-
   # Stage the FGCZ assets and render via fgcz_render (the same path the runtime
   # report helper uses): fgcz_render copies _metadata.yml / fgcz.scss /
   # fgcz_header_quarto.html / fgcz-plot-finder.html from the installed
@@ -358,7 +352,10 @@ test_that("all Quarto reports use the Overview and Session Info layout", {
     )
     expect_match(
       qmd,
-      sprintf('<img src="%s"', report_visual_abstracts[[report_file]]),
+      sprintf(
+        'system.file("report-assets", "%s", package = "prolfquapp")',
+        report_visual_abstracts[[report_file]]
+      ),
       fixed = TRUE,
       info = report_file
     )
@@ -368,7 +365,7 @@ test_that("all Quarto reports use the Overview and Session Info layout", {
   }
 })
 
-test_that("visual abstracts are individual vignette extras", {
+test_that("visual abstracts are runtime assets rather than vignette extras", {
   source_vignette_dir <- file.path(test_package_path(), "vignettes")
   skip_if_not(
     file.exists(file.path(source_vignette_dir, ".install_extras")),
@@ -379,25 +376,31 @@ test_that("visual abstracts are individual vignette extras", {
     file.path(source_vignette_dir, ".install_extras"),
     warn = FALSE
   )
-  expected_extra_files <- c(
-    "differential-expression\\.png$",
-    "differential-expression-tabset\\.png$",
-    "differential-expression-qc\\.png$",
-    "protein-abundances\\.png$",
-    "quality-control-sample-size\\.png$"
+  visual_abstract_sources <- file.path(
+    source_vignette_dir,
+    prolfquapp:::.quarto_visual_abstract_names
   )
 
   expect_equal(
-    file.exists(file.path(
-      source_vignette_dir,
-      prolfquapp:::.quarto_visual_abstract_names
-    )),
-    rep(TRUE, length(prolfquapp:::.quarto_visual_abstract_names))
+    basename(extra_files) %in% prolfquapp:::.quarto_visual_abstract_names,
+    rep(FALSE, length(extra_files))
   )
-  expect_equal("visual_abstracts" %in% extra_files, FALSE)
   expect_equal(
-    tail(extra_files, length(expected_extra_files)),
-    expected_extra_files
+    file.exists(visual_abstract_sources),
+    rep(FALSE, length(visual_abstract_sources))
+  )
+})
+
+test_that("visual abstracts are available as runtime report assets", {
+  visual_abstract_paths <- system.file(
+    "report-assets",
+    prolfquapp:::.quarto_visual_abstract_names,
+    package = "prolfquapp"
+  )
+
+  expect_equal(
+    file.exists(visual_abstract_paths),
+    rep(TRUE, length(prolfquapp:::.quarto_visual_abstract_names))
   )
 })
 

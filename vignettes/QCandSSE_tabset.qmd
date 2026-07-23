@@ -113,7 +113,7 @@ cat(prolfquapp:::.report_overview_cards(
 ))
 ```
 
-<img src="quality-control-sample-size.png" alt="Visual abstract: pilot samples are quantified, quality checked for detection and variability, then used to plan sample size for a main experiment." style="width: 100%; max-height: 22rem; object-fit: contain;">
+<img src="`r knitr::image_uri(system.file("report-assets", "quality-control-sample-size.png", package = "prolfquapp"))`" alt="Visual abstract: pilot samples are quantified, quality checked for detection and variability, then used to plan sample size for a main experiment." style="width: 100%; max-height: 22rem; object-fit: contain;">
 
 We ran your samples through the same analysis pipeline that will be applied to the main experiment. This document summarizes the `r strings[["target"]]` variability, assesses the reproducibility of the biological samples, and estimates the sample sizes needed for the main experiment.
 

@@ -1,5 +1,8 @@
 # prolfquapp 2.6.1
 
+- Package builds now install Quarto visual abstracts as dedicated runtime
+  assets instead of vignette output, eliminating an R CMD check NOTE while
+  preserving runtime-rendered report overviews.
 - Quarto reports now vendor the dynamic horizontal FGCZ toolbar: it stays below
   the visible banner, pins to the top-right while scrolling, and expands its
   Find/Download text labels on hover or keyboard focus.

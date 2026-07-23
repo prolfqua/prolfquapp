@@ -79,7 +79,7 @@ cat(sprintf(
 cat(prolfquapp:::.report_overview_cards(dea$lfq_data_raw))
 ```
 
-<img src="differential-expression-qc.png" alt="Visual abstract: quantified proteins are checked for missingness, variance, abundance distributions, and sample structure before differential-expression quality is assessed." style="width: 100%; max-height: 22rem; object-fit: contain;">
+<img src="`r knitr::image_uri(system.file("report-assets", "differential-expression-qc.png", package = "prolfquapp"))`" alt="Visual abstract: quantified proteins are checked for missingness, variance, abundance distributions, and sample structure before differential-expression quality is assessed." style="width: 100%; max-height: 22rem; object-fit: contain;">
 
 This report checks whether quantified protein abundances are suitable for differential-expression interpretation. It examines missing values, within-group variability, abundance distributions, and sample structure before the differential-expression diagnostics are read.
 

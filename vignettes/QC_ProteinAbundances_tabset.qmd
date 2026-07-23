@@ -61,7 +61,7 @@ report_provenance <- prolfquapp:::.report_provenance(
 cat(prolfquapp:::.report_overview_cards(lfqdataProt))
 ```
 
-<img src="protein-abundances.png" alt="Visual abstract: quantified protein signals are ranked by abundance, with dominant proteins and per-sample protein counts summarized across groups." style="width: 100%; max-height: 22rem; object-fit: contain;">
+<img src="`r knitr::image_uri(system.file("report-assets", "protein-abundances.png", package = "prolfquapp"))`" alt="Visual abstract: quantified protein signals are ranked by abundance, with dominant proteins and per-sample protein counts summarized across groups." style="width: 100%; max-height: 22rem; object-fit: contain;">
 
 This report profiles how quantified protein signal is distributed across sample groups. It identifies dominant proteins and potential contaminants, then compares the number of quantified proteins per sample.
 

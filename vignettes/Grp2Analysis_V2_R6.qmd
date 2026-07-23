@@ -68,7 +68,7 @@ sized_widget <- function(widget, width = 600) {
 cat(prolfquapp:::.report_overview_cards(dea$lfq_data_raw))
 ```
 
-<img src="differential-expression.png" alt="Visual abstract: quantified protein abundances from two sample groups are normalized and statistically compared to produce differential-expression results." style="width: 100%; max-height: 22rem; object-fit: contain;">
+<img src="`r knitr::image_uri(system.file("report-assets", "differential-expression.png", package = "prolfquapp"))`" alt="Visual abstract: quantified protein abundances from two sample groups are normalized and statistically compared to produce differential-expression results." style="width: 100%; max-height: 22rem; object-fit: contain;">
 
 This report tests whether normalized protein abundances differ between experimental groups. It provides the sample design, quality diagnostics, and statistical evidence needed to interpret differential protein abundance.
 

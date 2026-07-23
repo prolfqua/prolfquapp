@@ -51,11 +51,6 @@
     return(NULL)
   }
   bib_src <- system.file("doc/bibliography.bib", package = "prolfquapp")
-  visual_abstracts_src <- file.path(
-    dirname(qmd_src),
-    .quarto_visual_abstract_names
-  )
-
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   output_dir <- normalizePath(output_dir, mustWork = TRUE)
   render_dir <- tempfile("prolfquapp_quarto_report_")
@@ -66,24 +61,6 @@
   if (nzchar(bib_src) && file.exists(bib_src)) {
     file.copy(bib_src, render_dir, overwrite = TRUE)
   }
-  if (any(!file.exists(visual_abstracts_src))) {
-    stop(
-      "One or more Quarto visual abstracts are missing from installed doc/.",
-      call. = FALSE
-    )
-  }
-  copied_visual_abstracts <- file.copy(
-    visual_abstracts_src,
-    render_dir,
-    overwrite = TRUE
-  )
-  if (!all(copied_visual_abstracts)) {
-    stop(
-      "Could not stage Quarto visual abstracts for rendering.",
-      call. = FALSE
-    )
-  }
-
   oldwd <- setwd(render_dir)
   on.exit(setwd(oldwd), add = TRUE)
 
