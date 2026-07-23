@@ -188,28 +188,6 @@ bfabric_url_builder <- function(project_spec) {
   paste0("./", .encode_url_path(rel))
 }
 
-# Colour palette keyed on the estimate_type column. Observed rows are black;
-# rescued rows (LOD imputation or missing-group fallback) get a distinct colour
-# so they stand out in tables/plots. Unknown levels fall back to an auto palette.
-.estimate_type_palette <- function(estimate_types) {
-  default_palette <- c(
-    observed = "black",
-    lod_imputed = "orange",
-    missing_fallback = "gray60"
-  )
-  levels_ <- sort(unique(as.character(stats::na.omit(estimate_types))))
-  palette <- default_palette[levels_]
-  missing_palette <- is.na(palette)
-  if (any(missing_palette)) {
-    palette[missing_palette] <- grDevices::hcl.colors(
-      sum(missing_palette),
-      palette = "Dark 3"
-    )
-  }
-  names(palette) <- levels_
-  palette
-}
-
 #' write index.html file with links to all relevant files:
 #' @param file_path_list named list of output file paths
 #' @param result_dir directory for the index.html output

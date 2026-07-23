@@ -149,25 +149,6 @@ test_that("run_dea_cd builds a DEAnalyse object from a CD ZIP export", {
   expect_true(unique(datax$modelName) %in% names(prolfqua::FACADE_REGISTRY))
   expect_false(any(grepl("_moderated|_imputed", datax$modelName)))
   expect_true(all(datax$estimate_type %in% c("observed", "lod_imputed", "missing_fallback")))
-  # modelName is now the (uniform) facade key; the rescue-state distinction
-  # lives in estimate_type, which is what we colour the volcano by, using the
-  # central palette helper instead of a duplicated inline palette.
-  palette <- prolfquapp:::.estimate_type_palette(datax$estimate_type)
-  volcano <- prolfqua::volcano_plotly(
-    datax,
-    proteinID = "ID",
-    effect = "diff",
-    significance = "FDR",
-    contrast = "contrast",
-    color = "estimate_type",
-    palette = palette
-  )
-  built <- plotly::plotly_build(volcano[[1]])
-  expect_false(any(vapply(
-    built$x$data,
-    function(trace) identical(trace$marker$color, "transparent"),
-    logical(1)
-  )))
 })
 
 test_that("preprocess_CD_export validates sample and long-file schemas", {
