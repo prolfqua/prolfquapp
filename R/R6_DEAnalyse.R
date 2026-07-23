@@ -14,6 +14,87 @@
   }
 }
 
+.factor_level_counts <- function(data, factor_col) {
+  if (!(factor_col %in% colnames(data))) {
+    return(integer())
+  }
+
+  levels_present <- unique(stats::na.omit(data[[factor_col]]))
+  counts <- vapply(
+    levels_present,
+    function(level) sum(data[[factor_col]] == level, na.rm = TRUE),
+    integer(1)
+  )
+  stats::setNames(counts, paste0(factor_col, levels_present))
+}
+
+.group_level_counts <- function(data, factor_cols) {
+  do.call(
+    c,
+    lapply(factor_cols, function(factor_col) {
+      .factor_level_counts(data, factor_col)
+    })
+  )
+}
+
+.contrast_group_tokens <- function(contrast) {
+  referenced <- tryCatch(
+    all.vars(str2lang(contrast)),
+    error = function(e) character()
+  )
+  unique(unlist(strsplit(referenced, ":", fixed = TRUE)))
+}
+
+.assert_group_token_present <- function(
+  token,
+  factor_cols,
+  level_counts,
+  contrast_name,
+  contrast
+) {
+  if (!any(startsWith(token, factor_cols)) || token %in% names(level_counts)) {
+    return(invisible(NULL))
+  }
+
+  present_summary <- paste(
+    sprintf("%s [n=%d]", names(level_counts), level_counts),
+    collapse = ", "
+  )
+  stop(
+    "Contrast '",
+    contrast_name,
+    "' (",
+    contrast,
+    ") cannot be computed: group '",
+    token,
+    "' has 0 samples after matching the annotation to the ",
+    "quantification data. Groups with data: ",
+    if (length(present_summary)) present_summary else "<none>",
+    ". Check that the quantification report contains the raw files ",
+    "for every group in the annotation (a group whose runs are ",
+    "missing from the report is dropped during annotation).",
+    call. = FALSE
+  )
+}
+
+.validate_contrast_group_coverage <- function(
+  contrast,
+  contrast_name,
+  factor_cols,
+  level_counts
+) {
+  for (token in .contrast_group_tokens(contrast)) {
+    .assert_group_token_present(
+      token,
+      factor_cols,
+      level_counts,
+      contrast_name,
+      contrast
+    )
+  }
+  invisible(NULL)
+}
+
 # DEAnalyse ----
 #' Differential expression analysis engine using prolfqua facade classes
 #'
@@ -284,59 +365,16 @@ DEAnalyse <- R6::R6Class(
       data <- self$lfq_data$data_long(na.omit = TRUE)
       # Reconstruct the level tokens that have data, mirroring how contrasts are
       # built: paste0(factor_key, level), e.g. "G_OPENTRON".
-      present_tokens <- character(0)
-      level_counts <- integer(0)
-      for (f in factor_cols) {
-        if (!f %in% colnames(data)) {
-          next
-        }
-        levels_present <- unique(stats::na.omit(data[[f]]))
-        tokens <- paste0(f, levels_present)
-        counts <- vapply(
-          levels_present,
-          function(l) sum(data[[f]] == l, na.rm = TRUE),
-          integer(1)
-        )
-        present_tokens <- c(present_tokens, tokens)
-        names(counts) <- tokens
-        level_counts <- c(level_counts, counts)
-      }
+      level_counts <- .group_level_counts(data, factor_cols)
+      contrast_names <- names(self$contrasts)
       for (i in seq_along(self$contrasts)) {
-        contrast_str <- self$contrasts[[i]]
-        contrast_name <- names(self$contrasts)[i] %||% paste0("contrast_", i)
-        referenced <- tryCatch(
-          all.vars(str2lang(contrast_str)),
-          error = function(e) character(0)
+        contrast_name <- contrast_names[i] %||% paste0("contrast_", i)
+        .validate_contrast_group_coverage(
+          self$contrasts[[i]],
+          contrast_name,
+          factor_cols,
+          level_counts
         )
-        # Interaction terms appear as a single backticked symbol "A:B".
-        referenced <- unique(unlist(strsplit(referenced, ":", fixed = TRUE)))
-        for (token in referenced) {
-          # Only classify tokens that look like <factor_key><level>.
-          if (!any(startsWith(token, factor_cols))) {
-            next
-          }
-          if (!(token %in% present_tokens)) {
-            present_summary <- paste(
-              sprintf("%s [n=%d]", names(level_counts), level_counts),
-              collapse = ", "
-            )
-            stop(
-              "Contrast '",
-              contrast_name,
-              "' (",
-              contrast_str,
-              ") cannot be computed: group '",
-              token,
-              "' has 0 samples after matching the annotation to the ",
-              "quantification data. Groups with data: ",
-              if (length(present_summary)) present_summary else "<none>",
-              ". Check that the quantification report contains the raw files ",
-              "for every group in the annotation (a group whose runs are ",
-              "missing from the report is dropped during annotation).",
-              call. = FALSE
-            )
-          }
-        }
       }
       invisible(NULL)
     }
