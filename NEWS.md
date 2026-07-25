@@ -1,5 +1,8 @@
 # prolfquapp 2.6.1
 
+- Protein annotations are now joined to peptide and PTM results by protein ID,
+  so every quantified feature retains its protein metadata without losing or
+  multiplying result rows.
 - The FGCZ Quarto dependency now follows its canonical
   `fgcz/fgczQuartoTemplate` upstream and camel-cased package name, including
   the latest shared report assets and tab/download controls.

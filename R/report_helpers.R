@@ -32,40 +32,31 @@ strip_rownames <- function(.data, strip = "~lfq~light$") {
 #' Right-joins so every row of \code{x} (the quant or result table) is preserved
 #' and never multiplied.
 #'
-#' Joins on the **hierarchy keys** shared by both frames — the config's
-#' feature-identity columns (e.g. \code{protein_Id}; plus deeper keys like
-#' \code{site} for a PTM \code{protein_Id} + \code{site} hierarchy) — never on a
-#' coincidentally-shared value column. \code{hierarchy_keys} is intersected with
-#' the columns actually present in both frames, so a protein-level annotation
-#' joined to protein-level contrasts uses \code{protein_Id}, while a site-level
-#' analysis uses \code{protein_Id} + \code{site}. Joining on only \code{protein_Id}
-#' when both carry \code{site} would suffix it to \code{site.x}/\code{site.y} and
-#' drop the bare \code{site} the report needs (`unite(all_of(hierarchy_keys))`).
-#' Keeps the row-preserving \code{right_join} and a uniqueness guard on the
-#' resolved key(s).
+#' Protein annotation has one row per protein and is therefore joined only by
+#' the configured protein ID. Deeper hierarchy keys such as peptide or PTM site
+#' remain on the quant/result side.
 #' @param annotation protein annotation data frame
 #' @param x quant/result table to annotate
-#' @param hierarchy_keys config hierarchy keys (e.g. \code{lfqdata$hierarchy_keys()});
-#'   the join uses the subset present in both frames
+#' @param protein_id configured protein-ID column
 #' @return \code{x} enriched with annotation columns; one row per row of \code{x}
 #' @keywords internal
 #' @noRd
-.join_annotation <- function(annotation, x, hierarchy_keys) {
-  join_keys <- intersect(
-    hierarchy_keys,
-    intersect(colnames(annotation), colnames(x))
-  )
-  if (length(join_keys) == 0) {
-    stop("internal: no shared hierarchy key to join annotation on.")
+.join_annotation <- function(annotation, x, protein_id) {
+  if (
+    length(protein_id) != 1L ||
+      !(protein_id %in% colnames(annotation)) ||
+      !(protein_id %in% colnames(x))
+  ) {
+    stop("internal: protein annotation and result must share one protein-ID column.")
   }
-  if (anyDuplicated(annotation[, join_keys, drop = FALSE]) > 0) {
+  if (anyDuplicated(annotation[[protein_id]]) > 0) {
     stop(
-      "internal: protein annotation is not unique on the hierarchy key(s) '",
-      paste(join_keys, collapse = "', '"),
+      "internal: protein annotation is not unique on protein ID '",
+      protein_id,
       "' before the annotation join."
     )
   }
-  dplyr::right_join(annotation, x, by = join_keys, multiple = "all")
+  dplyr::right_join(annotation, x, by = protein_id, multiple = "all")
 }
 
 

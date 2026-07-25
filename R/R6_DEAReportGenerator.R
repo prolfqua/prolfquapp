@@ -229,21 +229,35 @@ DEAReportGenerator <- R6::R6Class(
       rd <- dea$lfq_data_raw
       tr <- dea$lfq_data
       ra <- dea$rowAnnot
-      # Join annotation on the analysis hierarchy keys (protein_Id, plus deeper
-      # keys like `site` for PTM) shared by both frames -- see .join_annotation.
-      hkeys <- rd$hierarchy_keys()
+      protein_id <- ra$pID
 
       contrasts_df <- data.frame(
         contrast_name = names(dea$contrasts),
         contrast = dea$contrasts
       )
 
-      wideraw <- .join_annotation(ra$row_annot, rd$data_wide()$data, hkeys)
-      widetr <- .join_annotation(ra$row_annot, tr$data_wide()$data, hkeys)
+      wideraw <- .join_annotation(
+        ra$row_annot,
+        rd$data_wide()$data,
+        protein_id
+      )
+      widetr <- .join_annotation(
+        ra$row_annot,
+        tr$data_wide()$data,
+        protein_id
+      )
 
       contr_obj <- dea$contrast_results[[dea$default_model]]
-      ctr <- .join_annotation(ra$row_annot, contr_obj$get_contrasts(), hkeys)
-      ctr_wide <- .join_annotation(ra$row_annot, contr_obj$to_wide(), hkeys)
+      ctr <- .join_annotation(
+        ra$row_annot,
+        contr_obj$get_contrasts(),
+        protein_id
+      )
+      ctr_wide <- .join_annotation(
+        ra$row_annot,
+        contr_obj$to_wide(),
+        protein_id
+      )
 
       resultList <- list()
 
@@ -257,7 +271,7 @@ DEAReportGenerator <- R6::R6Class(
       resultList$normalized_abundances <- .join_annotation(
         ra$row_annot,
         tr$data_long(),
-        hkeys
+        protein_id
       )
       resultList$raw_abundances_matrix <- wideraw
       resultList$normalized_abundances_matrix <- widetr

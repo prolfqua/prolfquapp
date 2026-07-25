@@ -129,13 +129,10 @@ test_that(".join_annotation errors when annotation is not unique (safety net)", 
   )
 })
 
-test_that(".join_annotation joins on the shared hierarchy keys (PTM: protein_Id + site)", {
-  # Both frames carry `site`; joining only on protein_Id would yield
-  # site.x/site.y and drop the bare `site` the report's unite(all_of(hkey)) needs.
+test_that(".join_annotation propagates protein annotation to every PTM site", {
   annotation <- data.frame(
-    protein_Id = c("P1", "P1", "P2"),
-    site = c("s1", "s2", "s1"),
-    description = c("a", "a", "b"),
+    protein_Id = c("P1", "P2"),
+    description = c("a", "b"),
     stringsAsFactors = FALSE
   )
   x <- data.frame(
@@ -145,11 +142,11 @@ test_that(".join_annotation joins on the shared hierarchy keys (PTM: protein_Id 
     diff = c(1, 2, 3),
     stringsAsFactors = FALSE
   )
-  res <- prolfquapp:::.join_annotation(annotation, x, c("protein_Id", "site"))
-  expect_true("site" %in% colnames(res))
-  expect_false(any(grepl("^site\\.", colnames(res)))) # no site.x / site.y
+  res <- prolfquapp:::.join_annotation(annotation, x, "protein_Id")
   expect_equal(nrow(res), nrow(x))
-  expect_true(all(c("description", "diff") %in% colnames(res)))
+  expect_equal(res$site, x$site)
+  expect_equal(res$description, c("a", "a", "b"))
+  expect_equal(grep("^site\\.", colnames(res), value = TRUE), character())
 })
 
 test_that(".join_annotation never joins on a coincidentally-shared value column", {
@@ -167,7 +164,7 @@ test_that(".join_annotation never joins on a coincidentally-shared value column"
     diff = c(5, 6),
     stringsAsFactors = FALSE
   )
-  res <- prolfquapp:::.join_annotation(annotation, x, c("protein_Id", "site"))
+  res <- prolfquapp:::.join_annotation(annotation, x, "protein_Id")
   expect_equal(nrow(res), 2)
   # enrichment succeeds despite avgAbd differing (avgAbd was not a join key)
   expect_equal(res$description[res$protein_Id == "P1"], "a")
