@@ -147,6 +147,54 @@ $tab5-sel: #3D3F8F; $tab5-sel-fg: #ffffff; $tab5-un: #E0DEF2; $tab5-un-fg: #3D3F
   .fig-row .fig-main { flex: 1 1 auto; }
 }
 
+// ─────────────────────────────────────────────────────────────────
+// OPTIONAL .fig-grid — wrap several outputs of ONE chunk side by side.
+//
+// For htmlwidgets (plotly) that carry their own explicit pixel width. Quarto's
+// `layout-ncol` imposes a fixed N-up grid that overflows its container when the
+// column is narrow — inside a .fig-main next to a callout, that pushes the plots
+// over the callout. This instead lets them FLOW: as many per row as fit, then
+// wrap. Use it as:
+//
+//   ::: {.fig-grid}
+//   ```{r}
+//   # several widgets, each with an explicit width
+//   ```
+//   :::
+//
+// KNOW THE DOM: Quarto wraps each chunk in a single `div.cell`, and each output
+// inside it in `div.cell-output-display`. So the widgets are GRANDCHILDREN of
+// .fig-grid, not children — flexing .fig-grid alone would only lay out that one
+// intermediate .cell and appear to do nothing. The rule therefore targets the
+// .cell, with the direct-child case covered too for non-chunk content.
+// ─────────────────────────────────────────────────────────────────
+.fig-grid,
+.fig-grid > .cell {
+  display: flex;
+  flex-wrap: wrap;          // as many per row as fit, then wrap — the whole point
+  gap: 1rem;                // space between adjacent widgets
+  align-items: flex-start;  // top-align items of unequal height
+}
+// The intermediate .cell must span the grid so it can lay out its own children.
+.fig-grid > .cell { width: 100%; }
+// Size each output to the widget's own width instead of stretching it.
+//
+// The width reset is load-bearing. When a .fig-grid sits inside a .fig-main
+// (the common case — plots beside a callout), the .fig-row rule above matches
+// these same elements and sets `width: 100%` so a lone plot fills its column.
+// `flex: 0 0 auto` resolves flex-basis from `width`, so without overriding it
+// every item is a full row wide and the grid silently collapses to one column.
+// Equal specificity (0,3,0) with that rule, so these win purely by coming
+// later — keep them below it.
+.fig-grid > .cell > .cell-output-display,
+.fig-grid > .cell-output-display,
+.fig-grid > .cell figure,
+.fig-grid > .cell img {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 100%;
+}
+
 // Auto tab numbers (1, 1.1, 1.1.1 …) prepended by the tab-numbering script in
 // fgcz-plot-finder.html. Inherits the tab's own text colour (primary when
 // inactive, white when active); just a touch lighter + tabular so the digits
@@ -283,4 +331,34 @@ caption h1 {
     -webkit-text-stroke: 0.4px currentColor;
     text-stroke: 0.4px currentColor;
   }
+}
+
+
+// ─────────────────────────────────────────────────────────────────
+// OPTIONAL: full-width body (opt-in, off by default)
+//
+// The template caps the body at grid.body-width (default 1800px) and centres
+// it, which leaves wide margins on large displays. Reports that prefer the old
+// ezRun html_document behaviour -- content filling the screen -- switch this on
+// from either channel:
+//
+//   fgcz_render(report.qmd, full_width = TRUE)   # R helper
+//   fgcz-full-width: true                        # front matter, Quarto extension
+//
+// It collapses the page grid to one fluid column. Trade-off: this drops the
+// right-hand margin track, so `.column-margin` margin notes and `.column-screen`
+// full-bleed blocks are unsupported while it is on. The FGCZ house style
+// (tabsets, callouts, layout-ncol figures, tables) does not use those.
+//
+// The class sits on <html> (added by the flags script in
+// fgcz_header_quarto.html), so the descendant selector matches; !important lifts
+// it over Quarto's own `.page-columns` grid rules.
+// ─────────────────────────────────────────────────────────────────
+.fgcz-full-width .page-columns {
+  grid-template-columns:
+    [screen-start] 1.5em
+    [screen-start-inset page-start page-start-inset body-start-outset body-start body-content-start]
+    minmax(0, 1fr)
+    [body-content-end body-end body-end-outset page-end-inset page-end screen-end-inset] 1.5em
+    [screen-end] !important;
 }

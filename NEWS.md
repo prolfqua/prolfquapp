@@ -1,5 +1,9 @@
 # prolfquapp 2.6.1
 
+- Repeated-measures annotation processing now evaluates its subject-column
+  and repeated-design checks as a single scalar condition.
+- Shared Quarto reports now include the current FGCZ responsive figure-grid
+  styling and opt-in full-width layout.
 - Protein annotations are now joined to peptide and PTM results by protein ID,
   so every quantified feature retains its protein metadata without losing or
   multiplying result rows.

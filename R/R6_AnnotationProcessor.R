@@ -497,7 +497,7 @@ AnnotationProcessor <- R6::R6Class(
 
     process_subject_var = function(annot, atable) {
       if (
-        sum(grepl(self$subject_pattern, colnames(annot), ignore.case = TRUE)) == 1 &
+        sum(grepl(self$subject_pattern, colnames(annot), ignore.case = TRUE)) == 1 &&
           self$repeated
       ) {
         subvar <- grep(
