@@ -36,3 +36,6 @@
 ^quarto-preview$
 ^vignettes/\.quarto($|/)
 ^data-raw$
+^make$
+^.*\.BiocCheck$
+^AGENTS\.md$

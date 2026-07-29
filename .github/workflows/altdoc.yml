@@ -3,6 +3,7 @@ name: altdoc
 on:
   push:
     branches: [master]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -49,6 +50,7 @@ jobs:
         run: Rscript -e 'altdoc::render_docs(freeze = FALSE)'
 
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
