@@ -1,5 +1,5 @@
 library(hexSticker)
-imgurl = "4X43_Merge_APP.png"
+imgurl <- "4X43_Merge_APP.png"
 
 
 sticker(

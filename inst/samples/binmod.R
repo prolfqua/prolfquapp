@@ -19,8 +19,8 @@ head(xd)
 
 f <- formula(binresp ~ group_ + peptide_Id)
 tt <- ftable(f, xd)
-multiplier = 1
-offset = 0.5
+multiplier <- 1
+offset <- 0.5
 tt <- tt * multiplier + offset
 DFT <- as.data.frame(tt)
 head(DFT)

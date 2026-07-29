@@ -85,14 +85,14 @@ ProjectStructure <-
         qc_dir = "qc_results",
         modelling_dir = "modelling_results"
       ) {
-        self$outpath = outpath
-        self$project_Id = project_Id
-        self$order_Id = order_Id
-        self$workunit_Id = workunit_Id
-        self$inputData = .checkForFile(inputData)
-        self$inputAnnotation = .checkForFile(inputAnnotation)
-        self$qc_dir = qc_dir
-        self$modelling_dir = modelling_dir
+        self$outpath <- outpath
+        self$project_Id <- project_Id
+        self$order_Id <- order_Id
+        self$workunit_Id <- workunit_Id
+        self$inputData <- .checkForFile(inputData)
+        self$inputAnnotation <- .checkForFile(inputAnnotation)
+        self$qc_dir <- qc_dir
+        self$modelling_dir <- modelling_dir
       },
       #' @description
       #' create outpath
