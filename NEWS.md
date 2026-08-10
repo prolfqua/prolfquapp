@@ -1,4 +1,4 @@
-# prolfquapp 2.7.2
+# prolfquapp 2.8.0
 
 - Quarto reports now vendor and install the synchronized FGCZ template from
   `fgczQuartoTemplate@dbeb852`, including the current report DPI and
