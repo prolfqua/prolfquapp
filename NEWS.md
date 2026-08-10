@@ -1,3 +1,9 @@
+# prolfquapp 2.7.1
+
+- The Docker image now installs the SAINTexpress constant-control-variance fix,
+  allowing SAINT intensity analyses with constant complete control profiles to
+  finish instead of failing with `NA/NaN/Inf in 'y'`.
+
 # prolfquapp 2.7.0
 
 - Command-line failures now retain and log their originating R call stack
