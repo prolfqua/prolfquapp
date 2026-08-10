@@ -1,5 +1,8 @@
 # prolfquapp 2.7.0
 
+- Volcano, MA, and score plots now consistently display observed estimates in
+  black, LOD-imputed estimates in green, and group-mean fallback estimates in
+  blue.
 - Repeated-measures annotation processing now evaluates its subject-column
   and repeated-design checks as a single scalar condition.
 - Shared Quarto reports now include the current FGCZ responsive figure-grid
