@@ -1,4 +1,4 @@
-# prolfquapp 2.6.1
+# prolfquapp 2.7.0
 
 - Repeated-measures annotation processing now evaluates its subject-column
   and repeated-design checks as a single scalar condition.
@@ -18,6 +18,9 @@
 - Quarto reports now vendor the dynamic horizontal FGCZ toolbar: it stays below
   the visible banner, pins to the top-right while scrolling, and expands its
   Find/Download text labels on hover or keyboard focus.
+
+# prolfquapp 2.6.1
+
 - The Docker image now installs the `prolfqua` Firth-model performance fix, so
   `firth_nested` analyses with very large peptide effects complete instead of
   spending days on unused coefficient profile-likelihood intervals.
