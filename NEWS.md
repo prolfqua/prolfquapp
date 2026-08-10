@@ -1,3 +1,9 @@
+# prolfquapp 2.7.2
+
+- Quarto reports now vendor and install the synchronized FGCZ template from
+  `fgczQuartoTemplate@dbeb852`, including the current report DPI and
+  View Source/per-figure code controls.
+
 # prolfquapp 2.7.1
 
 - The Docker image now installs the SAINTexpress constant-control-variance fix,

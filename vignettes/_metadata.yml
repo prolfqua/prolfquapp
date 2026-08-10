@@ -35,7 +35,7 @@ format:
     # `include-after-body: fgcz-plot-finder.html` yourself.
 
     # Figure defaults
-    fig-dpi: 300
+    fig-dpi: 96
     fig-align: left
 
 # Execution

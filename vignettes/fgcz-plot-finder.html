@@ -18,6 +18,25 @@
                   snapshot of the live page — an extra the report cannot supply
                   is shown disabled with the reason. When an extra is included
                   the plots move into plots/ so nothing collides at the root.
+      </>  VIEW SOURCE — opens Quarto's own view-source overlay (the whole
+                  .qmd, verbatim) in place, for a quick look without going
+                  through the Download panel. Only appears when the report was
+                  rendered with `code-tools: true`; drives Quarto's native
+                  machinery (`#quarto-view-source` / the embedded-source modal
+                  / the native code-tools button, whichever exists) rather than
+                  reimplementing it.
+
+     "Show code" per plot/table: a labelled figure or table chunk (`#| label:
+     fig-xxx` / `#| label: tbl-xxx`, with a matching `fig-cap:`/`tbl-cap:`)
+     gets a small `</>` badge — in the top-right corner of the figure/table
+     itself (decorateInlineCode()) AND on its card in the Find panel — click
+     either to open View Source already scrolled to and highlighting that
+     exact chunk. Fully automatic: resolved entirely client-side from what's
+     already in the rendered page (crossrefIdFor() reads the crossref id
+     Quarto stamps on the figure/table's ancestor div, chunkRangeForId() finds
+     the matching `label:` line and its enclosing fence in the embedded
+     source), so an unlabelled chunk — most of them, today — just shows
+     nothing extra, in either place. No render-time hook or Lua filter needed.
 
      Self-contained: no external libraries, no network calls (CSP- and
      embed-resources-safe). The ZIP is built with a tiny hand-rolled
@@ -25,9 +44,8 @@
      compressed. If JS is disabled the report is unchanged and the buttons
      never appear.
 
-     Source: the search + download buttons of ezRun's fgcz-plot-finder.html
-     (commit uzh/ezRun@32bed9ee, 2026-06-30). The view-source feature from that
-     file is intentionally not included.
+     Source: the search + download + view-source buttons of ezRun's
+     fgcz-plot-finder.html (commit uzh/ezRun@32bed9ee, 2026-06-30).
 
      Tab numbering came from that file too, but does NOT live here: it sits in
      fgcz_header_quarto.html, which every report includes unconditionally. This
@@ -56,8 +74,9 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
     white-space: nowrap;
   }
-  /* Round only the outer corners of the horizontal pair. JS fully rounds a
-     lone visible button because hidden elements still count as children. */
+  /* Pre-JS fallback: rounds the outer corners assuming all buttons are
+     visible. Once JS runs it recomputes rounding from the buttons actually
+     visible (any of the three can be independently hidden), overriding this. */
   .fgcz-pf-toolbar button:first-child {
     border-top-left-radius: .55rem; border-bottom-left-radius: .55rem;
   }
@@ -67,6 +86,11 @@
   .fgcz-pf-toolbar button + button { border-left: 1px solid rgba(255, 255, 255, .25); }
   .fgcz-pf-toolbar button:hover { filter: brightness(1.12); }
   .fgcz-pf-toolbar .ic { font-size: 1.15rem; }      /* icon size */
+  /* The `</>` view-source glyph is three characters where the emoji icons are
+     one, so it renders wider than 🔍/📥 at the shared icon size -- shrink and
+     tighten it to match their visual width instead of swapping to a less
+     precise emoji. */
+  .fgcz-pf-toolbar #fgcz-src-btn .ic { font-size: .85rem; letter-spacing: -.05em; }
   /* The controls are icon-only — no visible text label, at rest or on hover.
      Each button still carries `title` and `aria-label`, so the browser tooltip
      and screen readers announce what it does. */
@@ -225,12 +249,44 @@
     font-size: .75rem; font-weight: 500; line-height: 1.25;
     overflow: hidden; text-overflow: ellipsis; white-space: normal;
   }
+  /* Per-item "show code" affordance: only rendered for a labelled fig-/tbl-
+     item whose chunk can be located in the embedded source (see
+     chunkRangeForId()), so most reports never show it at all. */
+  .fgcz-toc-code {
+    display: inline-flex; align-items: center; margin-top: .3rem;
+    padding: .08rem .4rem; border: 1px solid #dee2e6; border-radius: .3rem;
+    background: #fff; font-size: .68rem; font-weight: 600;
+    color: var(--bs-primary, #0b5394); cursor: pointer;
+  }
+  .fgcz-toc-code:hover { background: var(--bs-gray-100, #f8f9fa); }
+  /* Same action, surfaced directly on a labelled figure/table in the report
+     body itself -- absolutely positioned in its corner so it adds no layout
+     weight and works the same regardless of which surrounding layout (bare
+     figure, .fig-row/.fig-main, .fig-grid) the figure sits in. */
+  .fgcz-inline-code {
+    position: absolute; top: .4rem; right: .4rem; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    width: 1.7rem; height: 1.7rem; padding: 0; border: none; border-radius: .35rem;
+    background: rgba(11, 83, 148, .85); color: #fff; font-size: .8rem;
+    font-weight: 700; line-height: 1; cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+  }
+  .fgcz-inline-code:hover { background: var(--bs-primary, #0b5394); }
+  /* Highlight applied to the source lines of the chunk jumped to. inline (not
+     block) so it decorates only the matched text, not a synthetic full-width
+     row -- these spans are cloned verbatim into the Download panel's "Qmd
+     source" extra, so they must not alter the reconstructed .qmd text. */
+  .fgcz-src-hl {
+    background: rgba(255, 210, 0, .45);
+    box-decoration-break: clone; -webkit-box-decoration-break: clone;
+  }
 </style>
 
 <!-- Top-right toolbar -->
 <div class="fgcz-pf-toolbar">
   <button id="fgcz-pf-btn" title="Find figures and tables" aria-label="Find figures and tables"><span class="ic">🔍</span></button>
   <button id="fgcz-dl-btn" title="Download plots" aria-label="Download plots"><span class="ic">📥</span></button>
+  <button id="fgcz-src-btn" title="View source (the .qmd)" aria-label="View source"><span class="ic">&lt;/&gt;</span></button>
 </div>
 
 <!-- DOWNLOAD panel -->
@@ -287,18 +343,19 @@
 
   // ─── which buttons the author enabled ──────────────────────────────
   // Precedence: (1) `fgcz-buttons:` injected by the Quarto extension;
-  // (2) the token below, patched in a staged copy by fgcz_render(); (3) both
-  // buttons when the toolbar was included manually without either mechanism.
+  // (2) the token below, patched in a staged copy by fgcz_render(); (3) all
+  // three buttons when the toolbar was included manually without either
+  // mechanism.
   var FGCZ_BUTTONS;
   if (window.FGCZ_BUTTONS && window.FGCZ_BUTTONS.length) {
     FGCZ_BUTTONS = window.FGCZ_BUTTONS;
   } else {
     FGCZ_BUTTONS = "__FGCZ_BUTTONS__".split(/\s+/).filter(Boolean);
     if (FGCZ_BUTTONS.length === 1 && FGCZ_BUTTONS[0] === "__FGCZ_" + "BUTTONS__") {
-      FGCZ_BUTTONS = ["search", "download"];
+      FGCZ_BUTTONS = ["search", "download", "source"];
     }
   }
-  var FGCZ_BUTTON_IDS = { search: "fgcz-pf-btn", download: "fgcz-dl-btn" };
+  var FGCZ_BUTTON_IDS = { search: "fgcz-pf-btn", download: "fgcz-dl-btn", source: "fgcz-src-btn" };
 
   // ─── tab / breadcrumb helpers ──────────────────────────────────────
 
@@ -703,6 +760,110 @@
     clone.querySelectorAll('button, .code-copy-button').forEach(function (b) { b.remove(); });
     var txt = clone.textContent;
     return txt && txt.trim() ? txt : null;
+  }
+
+  // ─── per-plot "show code": jump to & highlight the producing chunk ─────
+  // Quarto's embedded-source modal already renders each source line as its
+  // own <span id="cbN-M"> (Pandoc's line-numbered syntax highlighting), so
+  // the chunk behind a labelled figure/table can be found by searching those
+  // spans directly — no need to rebuild anything, which matters because
+  // qmdSource() clones this same <pre> to reconstruct the downloadable .qmd
+  // and Quarto's own "Copy to Clipboard" control lives inside it too.
+  function sourceLineSpans() {
+    var modal = document.getElementById('quarto-embedded-source-code-modal');
+    var code = modal && modal.querySelector('pre > code');
+    if (!code) return [];
+    return Array.prototype.filter.call(code.children, function (el) {
+      return el.tagName === 'SPAN' && el.id;
+    });
+  }
+
+  // The crossref id ("fig-xxx"/"tbl-xxx") behind a figure/table item, or null
+  // when its chunk wasn't labelled. Quarto puts the id on an ANCESTOR div
+  // (".quarto-figure"/".quarto-float"), not on the <figure> element itself
+  // that buildIndex() indexes as `it.el` — confirmed by inspecting real
+  // rendered output for both a labelled figure and a labelled table, where in
+  // both cases the inner <figure> carries no id of its own.
+  function crossrefIdFor(it) {
+    var el = it.el;
+    if (el.id && /^(fig|tbl)-/.test(el.id)) return el.id;
+    var wrap = el.closest && el.closest('[id^="fig-"], [id^="tbl-"]');
+    return wrap ? wrap.id : null;
+  }
+
+  // The line-span range of the chunk that produced #id ("fig-xxx"/"tbl-xxx"),
+  // or null when it can't be resolved: the id isn't a Quarto cross-ref label,
+  // no `label: <id>` chunk option matches it (the chunk wasn't labelled), or
+  // its enclosing ```{...} / ``` fence can't be found.
+  function chunkRangeForId(id) {
+    if (!id || !/^(fig|tbl)-/.test(id)) return null;
+    var lines = sourceLineSpans();
+    if (!lines.length) return null;
+    var idRe = new RegExp(
+      'label:\\s*["\']?' + id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '["\']?\\s*$'
+    );
+    var labelAt = -1;
+    for (var i = 0; i < lines.length; i++) {
+      if (idRe.test(textOf(lines[i]))) { labelAt = i; break; }
+    }
+    if (labelAt === -1) return null;
+    var start = -1;
+    for (var s = labelAt; s >= 0; s--) {
+      var t = textOf(lines[s]);
+      if (/^```+\{/.test(t)) { start = s; break; }
+      if (/^```+\s*$/.test(t)) break; // hit a closing fence first: not inside a chunk
+    }
+    if (start === -1) return null;
+    var end = -1;
+    for (var e = labelAt; e < lines.length; e++) {
+      if (/^```+\s*$/.test(textOf(lines[e]))) { end = e; break; }
+    }
+    if (end === -1) return null;
+    return lines.slice(start, end + 1);
+  }
+
+  // Open the view-source modal (if not already) and highlight + scroll to the
+  // chunk behind #id. Returns whether a chunk was actually found, so callers
+  // can skip offering the action at all when it would do nothing.
+  function showChunkForId(id) {
+    var range = chunkRangeForId(id);
+    if (!range) return false;
+    document.querySelectorAll('.fgcz-src-hl').forEach(function (el) {
+      el.classList.remove('fgcz-src-hl');
+    });
+    range.forEach(function (el) { el.classList.add('fgcz-src-hl'); });
+    var modal = document.getElementById('quarto-embedded-source-code-modal');
+    if (modal && window.bootstrap && window.bootstrap.Modal) {
+      window.bootstrap.Modal.getOrCreateInstance(modal).show();
+    }
+    setTimeout(function () {                // let the modal finish opening first
+      range[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+    return true;
+  }
+
+  // The same "show code" action, surfaced directly on a labelled figure/table
+  // in the report body itself, not only inside the Find panel. Independent of
+  // buildIndex()/TOC_INDEX — scans every element Quarto stamped a crossref id
+  // on, so it also covers labelled items a user never opens Find to see.
+  function decorateInlineCode() {
+    document.querySelectorAll('[id^="fig-"], [id^="tbl-"]').forEach(function (wrap) {
+      if (!chunkRangeForId(wrap.id)) return;
+      if (getComputedStyle(wrap).position === 'static') {
+        wrap.style.position = 'relative';
+      }
+      var badge = document.createElement('button');
+      badge.type = 'button';
+      badge.className = 'fgcz-inline-code';
+      badge.title = 'Show code for this ' + (wrap.id.indexOf('tbl-') === 0 ? 'table' : 'plot');
+      badge.setAttribute('aria-label', badge.title);
+      badge.textContent = '</>';
+      badge.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showChunkForId(wrap.id);
+      });
+      wrap.appendChild(badge);
+    });
   }
 
   // A standalone copy of the report. This is a snapshot of the LIVE DOM, not
@@ -1268,6 +1429,27 @@
       var cap = document.createElement('div');
       cap.className = 'fgcz-toc-cap';
       cap.innerHTML = '<span class="lbl">' + escapeHtml(it.label) + '</span>';
+      // Offered only for a labelled fig-/tbl- item whose chunk actually
+      // resolves in the embedded source — most items (unlabelled chunks, or
+      // no code-tools at all) show nothing extra here.
+      var crossrefId = crossrefIdFor(it);
+      if (chunkRangeForId(crossrefId)) {
+        var codeBtn = document.createElement('button');
+        codeBtn.type = 'button';
+        codeBtn.className = 'fgcz-toc-code';
+        codeBtn.title = 'Show the code for this ' + (it.type === 'tbl' ? 'table' : 'plot');
+        codeBtn.setAttribute(
+          'aria-label',
+          'Show the code for this ' + (it.type === 'tbl' ? 'table' : 'plot')
+        );
+        codeBtn.textContent = '</> Show code';
+        codeBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          closeAll();
+          showChunkForId(crossrefId);
+        });
+        cap.appendChild(codeBtn);
+      }
       cell.appendChild(cap);
       cell.addEventListener('click', function () { reveal(it.el); });
       tocGridEl.appendChild(cell);
@@ -1311,6 +1493,8 @@
     tocGridEl = document.getElementById('fgcz-toc-grid');
     tocSearchEl = document.getElementById('fgcz-toc-search');
 
+    decorateInlineCode();
+
     // Keep the toolbar a constant gap below the visible banner, then pin it at
     // that same gap from the viewport top once the banner has scrolled away.
     var GAP_PX = 12;
@@ -1337,6 +1521,22 @@
 
     document.getElementById('fgcz-pf-btn').addEventListener('click', openToc);
     document.getElementById('fgcz-dl-btn').addEventListener('click', openDownload);
+    // View source — drives Quarto's own "View Source" machinery rather than
+    // reimplementing it: prefer the #quarto-view-source action, fall back to
+    // showing the embedded-source modal directly, else click the native
+    // code-tools button. Quarto's exact markup varies with the code-tools
+    // options, so each is tried in turn.
+    document.getElementById('fgcz-src-btn').addEventListener('click', function () {
+      var viewSrc = document.getElementById('quarto-view-source');
+      if (viewSrc) { viewSrc.click(); return; }
+      var modal = document.getElementById('quarto-embedded-source-code-modal');
+      if (modal && window.bootstrap && window.bootstrap.Modal) {
+        window.bootstrap.Modal.getOrCreateInstance(modal).show();
+        return;
+      }
+      var native = document.querySelector('.code-tools-button');
+      if (native) native.click();
+    });
     document.querySelectorAll('.fgcz-pf-close').forEach(function (b) {
       b.addEventListener('click', closeAll);
     });
@@ -1376,13 +1576,29 @@
     if (!figs.some(function (it) { return !it.interactive; })) {
       document.getElementById('fgcz-dl-btn').style.display = 'none';
     }
+    // The source button needs one of Quarto's own view-source hooks to exist
+    // — absent unless the report was rendered with `code-tools: true`.
+    var hasSource = Boolean(
+      document.getElementById('quarto-view-source') ||
+      document.getElementById('quarto-embedded-source-code-modal') ||
+      document.querySelector('.code-tools-button')
+    );
+    if (!hasSource) document.getElementById('fgcz-src-btn').style.display = 'none';
 
-    var visible = ['fgcz-pf-btn', 'fgcz-dl-btn'].filter(function (id) {
+    // CSS rounds the DOM's structural first/last child, which is wrong
+    // whenever a structural endpoint happens to be the button that's hidden
+    // (any of the three can be hidden independently — by author choice or by
+    // having nothing to act on). Recompute explicitly from the buttons that
+    // are actually visible instead.
+    var visible = ['fgcz-pf-btn', 'fgcz-dl-btn', 'fgcz-src-btn'].filter(function (id) {
       return document.getElementById(id).style.display !== 'none';
     });
-    if (visible.length === 1) {
-      document.getElementById(visible[0]).style.borderRadius = '.55rem';
-    }
+    visible.forEach(function (id, i) {
+      var left = i === 0 ? '.55rem' : '0';
+      var right = i === visible.length - 1 ? '.55rem' : '0';
+      document.getElementById(id).style.borderRadius =
+        left + ' ' + right + ' ' + right + ' ' + left;
+    });
   });
 })();
 </script>
