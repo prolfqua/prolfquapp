@@ -1,5 +1,7 @@
 # prolfquapp 2.7.0
 
+- Command-line failures now retain and log their originating R call stack
+  instead of reporting that no traceback is available.
 - Volcano, MA, and score plots now consistently display observed estimates in
   black, LOD-imputed estimates in green, and group-mean fallback estimates in
   blue.

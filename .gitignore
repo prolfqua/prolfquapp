@@ -14,6 +14,7 @@ vignettes/plots/
 inst/templates/quarto/*.html
 !inst/templates/quarto/fgcz_header_quarto.html
 inst/templates/quarto/plots/
+inst/application/SAINT/
 tests/testthat/*.Rmd
 tests/testthat/bibliography.bib
 altdoc/freeze.rds

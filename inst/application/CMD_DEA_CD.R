@@ -256,13 +256,16 @@ run_one <- function(run, base_config) {
   ))
 
   result <- tryCatch(
-    prolfquapp::run_dea_cd(
-      config = run_config,
-      files = files,
-      subset_column = run$subset_column
+    withCallingHandlers(
+      prolfquapp::run_dea_cd(
+        config = run_config,
+        files = files,
+        subset_column = run$subset_column
+      ),
+      error = rlang::entrace
     ),
     error = function(e) {
-      stack_trace <- capture.output(traceback())
+      stack_trace <- capture.output(print(e$trace, simplify = "branch"))
       logger::log_error(conditionMessage(e), "\n")
       logger::log_error("Stack trace:\n")
       logger::log_error(

@@ -147,19 +147,22 @@ logger::log_info("using : ", system.file(package = "prolfquapp"))
 
 
 result <- tryCatch(
-  prolfquapp::run_qc_preprocess(
-    indir = opt$indir,
-    dataset = opt$dataset,
-    software = opt$software,
-    yaml_file = ymlfile,
-    outdir = opt$outdir,
-    project = opt$project,
-    order = opt$order,
-    workunit = opt$workunit,
-    flat_outdir = opt$flat_outdir
+  withCallingHandlers(
+    prolfquapp::run_qc_preprocess(
+      indir = opt$indir,
+      dataset = opt$dataset,
+      software = opt$software,
+      yaml_file = ymlfile,
+      outdir = opt$outdir,
+      project = opt$project,
+      order = opt$order,
+      workunit = opt$workunit,
+      flat_outdir = opt$flat_outdir
+    ),
+    error = rlang::entrace
   ),
   error = function(e) {
-    stack_trace <- capture.output(traceback())
+    stack_trace <- capture.output(print(e$trace, simplify = "branch"))
     logger::log_error(conditionMessage(e), "\n")
     logger::log_error("Stack trace:\n")
     logger::log_error(

@@ -160,14 +160,17 @@ logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(prolfqua::R6_extr
 logger::log_info("Software: ", opt$software)
 
 result <- tryCatch(
-  prolfquapp::run_dea(
-    indir = opt$indir,
-    dataset = opt$dataset,
-    software = opt$software,
-    config = GRP2
+  withCallingHandlers(
+    prolfquapp::run_dea(
+      indir = opt$indir,
+      dataset = opt$dataset,
+      software = opt$software,
+      config = GRP2
+    ),
+    error = rlang::entrace
   ),
   error = function(e) {
-    stack_trace <- capture.output(traceback())
+    stack_trace <- capture.output(print(e$trace, simplify = "branch"))
     logger::log_error(conditionMessage(e), "\n")
     logger::log_error("Stack trace:\n")
     logger::log_error(
