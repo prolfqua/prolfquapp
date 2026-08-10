@@ -155,6 +155,8 @@ jobs:
           target: full
           load: true
           tags: ${{ env.IMAGE }}:ci-${{ matrix.arch }}
+          build-args: |
+            RELEASE_VERSION=${{ needs.version.outputs.version }}
           cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }}
           cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }},mode=max
 
@@ -175,6 +177,8 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           target: full
+          build-args: |
+            RELEASE_VERSION=${{ needs.version.outputs.version }}
           cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }}
           cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }},mode=max
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true

@@ -31,6 +31,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; else ARCH
 
 FROM base AS build
 SHELL ["/bin/bash", "-c"]
+ARG RELEASE_VERSION=development
 
 RUN apt-get update \
   && apt-get install -y libcurl4-openssl-dev cmake libglpk-dev libxml2-dev libfontconfig1-dev libfreetype6-dev \
@@ -70,7 +71,8 @@ if (length(packages) > 0L) {
   install.packages(packages)
 }
 EOF
-RUN Rscript /tmp/install_cran_binary_deps.R refs \
+RUN echo "Resolving full-release dependencies for ${RELEASE_VERSION}" \
+  && Rscript /tmp/install_cran_binary_deps.R refs \
   any::seqinr any::prozor any::logger any::lubridate \
   github::fgcz/prolfqua github::prolfqua/prolfquasaint
 RUN R -e 'options(warn=2); pak::pkg_install(c("any::seqinr", "any::prozor", "any::logger", "any::lubridate", "github::fgcz/prolfqua", "github::prolfqua/prolfquasaint"))'

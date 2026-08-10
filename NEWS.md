@@ -1,3 +1,9 @@
+# prolfquapp 2.9.0
+
+- Full Docker releases now refresh their GitHub package dependencies once per
+  release version, preventing cached older SAINT packages from replacing the
+  constant-control-variance fix.
+
 # prolfquapp 2.8.0
 
 - Quarto reports now vendor and install the synchronized FGCZ template from
