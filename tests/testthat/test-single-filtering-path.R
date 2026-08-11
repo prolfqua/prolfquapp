@@ -1,4 +1,4 @@
-# Single explicit quant filtering path (see prolfqua/TODO/TODO_revpattern_handling.md):
+# Single explicit quant filtering path (see ../TODO/prolfqua/Archive/TODO_revpattern_handling.md):
 #   - contaminants: KEPT everywhere + labelled (never removed);
 #   - decoys: KEPT through aggregation/normalization, dropped ONLY at the fit,
 #     preserved in the raw/abundance data for export (NA contrast stats).

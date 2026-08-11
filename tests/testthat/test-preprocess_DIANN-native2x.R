@@ -1,5 +1,5 @@
 # Tests for reading native DIA-NN 2.x output (parquet with bare `Run`, no `File.Name`).
-# See TODO/TODO_diann2x_native_output.md.
+# See ../TODO/prolfquapp/TODO_diann2x_native_output.md.
 
 # minimal DIA-NN report rows that pass the q-value filter in diann_read_output()
 make_report_rows <- function(run_values, run_col = "Run") {
