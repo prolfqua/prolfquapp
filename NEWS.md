@@ -1,5 +1,9 @@
 # prolfquapp 2.9.0
 
+- Protein annotation now keys on the level the analysis reports on: a site-level
+  annotation stays one row per protein and site instead of being collapsed to
+  one row per protein, so per-site columns such as the sequence window reach the
+  result tables. Protein- and peptide-level analyses are unaffected.
 - Full Docker releases now refresh their GitHub package dependencies once per
   release version, preventing cached older SAINT packages from replacing the
   constant-control-variance fix.
