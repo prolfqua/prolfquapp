@@ -158,7 +158,14 @@ make_annotated_experiment <- function(Nprot = 100) {
 #' @keywords internal
 #' @noRd
 .resolve_unique_protein_ids <- function(row_annot, pID, full_id, pattern_decoys = NULL) {
-  ids <- as.character(row_annot[[pID]])
+  # pID may name several columns -- protein_Id and site for a site-level
+  # analysis -- in which case uniqueness is a property of the combination, not
+  # of the protein: one protein legitimately carries many sites.
+  ids <- if (length(pID) == 1L) {
+    as.character(row_annot[[pID]])
+  } else {
+    do.call(paste, c(lapply(pID, function(k) as.character(row_annot[[k]])), sep = "\r"))
+  }
   if (anyDuplicated(ids) == 0L) {
     return(row_annot)
   }
@@ -194,7 +201,7 @@ make_annotated_experiment <- function(Nprot = 100) {
     "ProteinAnnotation: ",
     length(dup_ids),
     " duplicated '",
-    pID,
+    paste(pID, collapse = " + "),
     "' id(s) collapsed; dropped ",
     n_decoy,
     " decoy row(s); ",
@@ -206,6 +213,35 @@ make_annotated_experiment <- function(Nprot = 100) {
   row_annot[keep, , drop = FALSE]
 }
 
+
+#' Which hierarchy keys the annotation is keyed on
+#'
+#' The level of a row annotation is decided by the table the reader supplies: one
+#' carrying only the protein id keys on the protein, one that also carries a
+#' deeper key such as \code{site} keys on protein and site together. That keeps
+#' protein- and peptide-level readers, which annotate proteins, working unchanged
+#' while letting a site reader hand over per-site columns such as the sequence
+#' window.
+#' @param keys the analysis's relevant hierarchy keys
+#' @param row_annot the supplied annotation, or NULL
+#' @return the subset of \code{keys} the annotation is keyed on
+#' @keywords internal
+#' @noRd
+.resolve_annotation_keys <- function(keys, row_annot) {
+  if (is.null(row_annot)) {
+    return(keys[[1]])
+  }
+  present <- keys[keys %in% colnames(row_annot)]
+  if (!keys[[1]] %in% present) {
+    stop(
+      "row_annot must carry the '",
+      keys[[1]],
+      "' column; it has: ",
+      paste(colnames(row_annot), collapse = ", ")
+    )
+  }
+  present
+}
 
 # ProteinAnnotation ----
 #' Decorates LFQData with a row annotation and some protein specific functions.
@@ -264,7 +300,8 @@ ProteinAnnotation <-
     public = list(
       #' @field row_annot data.frame containing further information
       row_annot = NULL,
-      #' @field pID column with protein ids
+      #' @field pID key column(s) of the annotation: the protein id, plus the
+      #'   site id when the annotation describes sites
       pID = character(),
       #' @field full_id column with protein id e.g. sp| can be same as pID
       full_id = character(),
@@ -280,8 +317,10 @@ ProteinAnnotation <-
       pattern_decoys = character(),
       #' @description initialize
       #' @param lfqdata data frame from \code{\link[prolfqua]{setup_analysis}}
-      #' @param row_annot data frame with row annotation.
-      #'   Must have columns matching \code{config$hierarchy_keys_depth()}
+      #' @param row_annot data frame with row annotation. Must carry the
+      #'   protein-id column; when it also carries a deeper hierarchy key such
+      #'   as \code{site}, the annotation is taken to describe rows at that
+      #'   level and stays one row per key combination.
       #' @param description name of column with description
       #' @param cleaned_ids names of columns with cleaned Ids
       #' @param full_id column with full protein ID
@@ -298,7 +337,17 @@ ProteinAnnotation <-
         pattern_contaminants = NULL,
         pattern_decoys = NULL
       ) {
-        self$pID <- lfqdata$relevant_hierarchy_keys()[[1]]
+        # The annotation is a row annotation: its key is whatever identifies a
+        # row of the analysis. For a protein-level analysis that is protein_Id;
+        # for a site-level one it is protein_Id and site together, and row_annot
+        # is then one long table carrying the protein columns beside the site
+        # columns. Everything that is a property of the protein alone -- the
+        # description, the full id, the contaminant and decoy patterns -- keys
+        # off the first element.
+        self$pID <- .resolve_annotation_keys(
+          lfqdata$relevant_hierarchy_keys(),
+          row_annot
+        )
         self$exp_nr_children <- exp_nr_children
         self$pattern_contaminants <- if (is.null(pattern_contaminants)) {
           "a^"
@@ -313,22 +362,24 @@ ProteinAnnotation <-
         self$full_id <- if (!is.null(full_id)) {
           full_id
         } else {
-          self$pID
+          self$pID[[1]]
         }
         self$cleaned_ids <- if (!is.null(cleaned_ids)) {
           cleaned_ids
         } else {
-          self$pID
+          self$pID[[1]]
         }
         self$description <- if (!is.null(description)) {
           description
         } else {
-          self$pID
+          self$pID[[1]]
         }
 
-        self$row_annot <- dplyr::distinct(dplyr::select(lfqdata$data_long(), self$pID))
+        self$row_annot <- dplyr::distinct(
+          dplyr::select(lfqdata$data_long(), dplyr::all_of(self$pID))
+        )
         if (!is.null(row_annot)) {
-          stopifnot(self$pID %in% colnames(row_annot))
+          stopifnot(all(self$pID %in% colnames(row_annot)))
           self$row_annot <- dplyr::left_join(
             self$row_annot,
             row_annot,
@@ -346,7 +397,7 @@ ProteinAnnotation <-
             prolfqua::nr_children_experiment(
               lfqdata$data_long(),
               response = lfqdata$response(),
-              hierarchy_keys_depth = lfqdata$hierarchy_keys()[1],
+              hierarchy_keys_depth = self$pID,
               file_name = lfqdata$file_name(),
               nr_children_col = lfqdata$nr_children_col(),
               name_nr_child = self$exp_nr_children
@@ -436,7 +487,8 @@ ProteinAnnotation <-
       filter_by_nr_children = function(exp_nr_children = 2) {
         res <- self$row_annot |>
           dplyr::filter(!!sym(self$exp_nr_children) >= exp_nr_children)
-        res <- res |> dplyr::select(self$pID, self$exp_nr_children)
+        res <- res |>
+          dplyr::select(dplyr::all_of(c(self$pID, self$exp_nr_children)))
         return(res)
       }
     )

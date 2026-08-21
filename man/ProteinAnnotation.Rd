@@ -61,7 +61,8 @@ stopifnot(nrow(dx2) >= nrow(dx3))
 \describe{
 \item{\code{row_annot}}{data.frame containing further information}
 
-\item{\code{pID}}{column with protein ids}
+\item{\code{pID}}{key column(s) of the annotation: the protein id, plus the
+site id when the annotation describes sites}
 
 \item{\code{full_id}}{column with protein id e.g. sp| can be same as pID}
 
@@ -113,8 +114,10 @@ initialize
 \describe{
 \item{\code{lfqdata}}{data frame from \code{\link[prolfqua]{setup_analysis}}}
 
-\item{\code{row_annot}}{data frame with row annotation.
-Must have columns matching \code{config$hierarchy_keys_depth()}}
+\item{\code{row_annot}}{data frame with row annotation. Must carry the
+protein-id column; when it also carries a deeper hierarchy key such
+as \code{site}, the annotation is taken to describe rows at that
+level and stays one row per key combination.}
 
 \item{\code{description}}{name of column with description}
 

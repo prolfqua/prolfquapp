@@ -42,17 +42,19 @@ strip_rownames <- function(.data, strip = "~lfq~light$") {
 #' @keywords internal
 #' @noRd
 .join_annotation <- function(annotation, x, protein_id) {
+  # protein_id is the annotation's key: one column for a protein-level
+  # analysis, several (protein_Id and site) when the rows are sites.
   if (
-    length(protein_id) != 1L ||
-      !(protein_id %in% colnames(annotation)) ||
-      !(protein_id %in% colnames(x))
+    length(protein_id) < 1L ||
+      !all(protein_id %in% colnames(annotation)) ||
+      !all(protein_id %in% colnames(x))
   ) {
-    stop("internal: protein annotation and result must share one protein-ID column.")
+    stop("internal: protein annotation and result must share the key column(s): ", paste(protein_id, collapse = ", "))
   }
-  if (anyDuplicated(annotation[[protein_id]]) > 0) {
+  if (anyDuplicated(annotation[, protein_id, drop = FALSE]) > 0) {
     stop(
-      "internal: protein annotation is not unique on protein ID '",
-      protein_id,
+      "internal: protein annotation is not unique on '",
+      paste(protein_id, collapse = " + "),
       "' before the annotation join."
     )
   }
