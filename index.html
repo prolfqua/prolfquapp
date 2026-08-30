@@ -910,7 +910,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>prolfquapp (ˌproʊˈlɛf.kə.ˌæp): Generating Dynamic DEA Reports using a command line interface to the prolfqua R Package</h1>
 <p>📖 <strong>Documentation &amp; rendered example reports: <a href="https://prolfqua.github.io/prolfquapp/" class="uri">https://prolfqua.github.io/prolfquapp/</a></strong> — worth a visit to browse the Quarto vignette reports (differential expression, QC, and sample-size estimation) that show exactly what prolfquapp generates.</p>
 <p>Read on JPR <a href="https://pubs.acs.org/doi/10.1021/acs.jproteome.4c00911" class="uri">https://pubs.acs.org/doi/10.1021/acs.jproteome.4c00911</a> “prolfquapp ─ A User-Friendly Command-Line Tool Simplifying Differential Expression Analysis in Quantitative Proteomics”</p>
-<p><em>Prolfquapp</em> is a command-line interface to the <a href="https://github.com/fgcz/prolfqua">prolfqua</a> R package (<a href="https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441">doi</a>) for protein differential expression analysis. It preprocesses outputs from DIA-NN, MaxQuant, FragPipe, and Spectronaut, and generates HTML reports, Excel tables, rank files, and SummarizedExperiment objects for downstream tools such as <a href="https://github.com/fgcz/exploreDE">ExploreDE</a>.</p>
+<p><em>Prolfquapp</em> is a command-line interface to the <a href="https://github.com/fgcz/prolfqua">prolfqua</a> R package (<a href="https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441">doi</a>) for protein differential expression analysis. It preprocesses outputs from DIA-NN, MaxQuant, FragPipe, and Spectronaut, and generates HTML reports, Excel tables, rank files, SummarizedExperiment objects, and AnnData files for typed R/Python downstream workflows such as <a href="https://github.com/fgcz/exploreDE">ExploreDE</a>.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/Prolfqapp_Highlight.png?raw=true" class="img-fluid figure-img"></p>
@@ -999,7 +999,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Run the DEA using the annotation and configuration files from the previous steps.</p>
 <ul>
 <li><strong>Input</strong>: quantification output directory, annotation file (step 1 or 4), YAML config (step 3)</li>
-<li><strong>Output</strong>: subfolder starting with <code>DEA_</code> containing HTML reports, Excel tables, rank files, and <code>SummarizedExperiment.rds</code></li>
+<li><strong>Output</strong>: subfolder starting with <code>DEA_</code> containing HTML reports, Excel tables, rank files, <code>SummarizedExperiment.rds</code>, and <code>AnnData.h5ad</code></li>
 </ul>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./prolfqua_dea.sh</span> <span class="at">-i</span> data_dir/ <span class="at">-d</span> annotation.xlsx <span class="at">-y</span> config.yaml <span class="at">-w</span> NameOfAnalysis <span class="at">-s</span> DIANN</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>As with QC, results go into a dated subfolder starting with <code>DEA_</code> by default. Pass <code>--flat_outdir</code> to write results directly into <code>-o</code>/<code>--outdir</code> without the dated subfolder.</p>
