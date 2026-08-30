@@ -348,6 +348,7 @@ test_that("CMD_DEA_CD runs the full output pipeline", {
   expect_true(file.exists(file.path(result_dir, "lfqdata_normalized.parquet")))
   expect_true(file.exists(file.path(result_dir, "lfqdata.yaml")))
   expect_true(file.exists(file.path(result_dir, "SummarizedExperiment.rds")))
+  expect_true(file.exists(file.path(result_dir, "AnnData.h5ad")))
   if (nzchar(Sys.which("quarto"))) {
     dea_report <- file.path(result_dir, "Grp2Analysis_V2_R6.html")
     tabset_report <- file.path(result_dir, "Grp2Analysis_V2_SE_tabset.html")

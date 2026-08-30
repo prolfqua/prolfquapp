@@ -233,6 +233,7 @@ build_prolfquapp_uns <- function(
 
   # prolfquapp namespace for round-trip reconstruction
   prolfquapp_ns <- list(
+    artifact_type = "lfqdata",
     schema_version = "1.0.0",
     source_software = source_software,
     analysis_configuration = list(

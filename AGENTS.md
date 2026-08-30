@@ -182,6 +182,7 @@ Multi-format outputs support different downstream tools:
 - **XLSX files**: Excel-compatible tables with multiple sheets
 - **Parquet files**: Efficient storage of normalized data matrices
 - **RDS files**: R-native serialization (SummarizedExperiment objects)
+- **AnnData H5AD files**: Cross-language DEA results with aligned abundance layers, annotations, and statistics
 - **Rank files (.rnk)**: GSEA-compatible format
 - **SummarizedExperiment**: Bioconductor-compatible for iSEE/OmicsViewer
 
@@ -190,6 +191,8 @@ Multi-format outputs support different downstream tools:
 - **prolfqua**: Core statistical methods (LFQData class, modeling, contrasts, visualization)
 - **arrow**: Parquet file I/O
 - **SummarizedExperiment**: Bioconductor output format
+- **anndataR**: AnnData H5AD construction and validation
+- **rhdf5**: HDF5 backend required by anndataR's H5AD writer
 - **optparse**: CLI argument parsing
 - **logger**: Structured logging
 - **rmarkdown/bookdown**: Dynamic report generation

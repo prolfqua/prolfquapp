@@ -19,6 +19,14 @@ LFQData_from_anndata <- function(adata) {
   validate_prolfquapp_anndata(adata)
 
   pmeta <- adata$uns[["prolfquapp"]]
+  artifact_type <- pmeta$artifact_type %||% "lfqdata"
+  if (!identical(artifact_type, "lfqdata")) {
+    stop(
+      "LFQData_from_anndata() requires a prolfquapp LFQData artifact; got '",
+      artifact_type,
+      "'."
+    )
+  }
   ac <- pmeta$analysis_configuration
   pa <- pmeta$protein_annotation
 
@@ -80,12 +88,29 @@ validate_prolfquapp_anndata <- function(adata) {
     )
   }
   pmeta <- adata$uns[["prolfquapp"]]
-  required <- c(
-    "schema_version",
-    "source_software",
-    "analysis_configuration",
-    "protein_annotation"
+  artifact_type <- pmeta$artifact_type %||% "lfqdata"
+  required_by_type <- list(
+    lfqdata = c(
+      "schema_version",
+      "source_software",
+      "analysis_configuration",
+      "protein_annotation"
+    ),
+    dea_results = c(
+      "artifact_type",
+      "schema_version",
+      "source_software",
+      "analysis_configuration",
+      "layer_names",
+      "contrasts",
+      "formula",
+      "provenance"
+    )
   )
+  required <- required_by_type[[artifact_type]]
+  if (is.null(required)) {
+    stop("Unsupported prolfquapp AnnData artifact type: ", artifact_type)
+  }
   missing <- setdiff(required, names(pmeta))
   if (length(missing) > 0) {
     stop(

@@ -248,7 +248,10 @@ render_quarto_protein_abundances_report <- function(
   )
 }
 
-.write_dea_report_inputs <- function(reporter) {
+.write_dea_report_inputs <- function(
+  reporter,
+  summarized_experiment = reporter$make_SummarizedExperiment()
+) {
   deanalyse_file <- file.path(
     reporter$resultdir,
     "DEAnalyse.rds"
@@ -267,10 +270,7 @@ render_quarto_protein_abundances_report <- function(
     ),
     se_file = .try_report_step(
       {
-        saveRDS(
-          reporter$make_SummarizedExperiment(),
-          file = se_file
-        )
+        saveRDS(summarized_experiment, file = se_file)
         se_file
       },
       "SummarizedExperiment.rds"
@@ -331,8 +331,11 @@ render_quarto_protein_abundances_report <- function(
 # the SummarizedExperiment + DEAnalyse `.rds`. Each report is rendered
 # independently, so one failure logs a warning without dropping the others.
 # Returns a named list of output paths (NULL for any that could not be produced).
-render_dea_reports <- function(reporter) {
-  out <- .write_dea_report_inputs(reporter)
+render_dea_reports <- function(
+  reporter,
+  summarized_experiment = reporter$make_SummarizedExperiment()
+) {
+  out <- .write_dea_report_inputs(reporter, summarized_experiment)
 
   # Primary DEA report (R6 Quarto).
   out$dea_file <- if (!is.null(out$deanalyse_file)) {

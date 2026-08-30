@@ -11,7 +11,7 @@ Description: The prolfquapp is a user-friendly application to streamline protein
   in core facilities. The application leverages the preprocessing methods and statistical models implemented in the R package prolfqua.
   It generates dynamic HTML reports that contain quality control plots and visualizations of the DEA results.
   The prolfquapp also exports results in multiple formats, including XLSX files, .rnk or txt files for gene set enrichment analysis,
-  and Bioconductor SummarizedExperiment format for import into interactive visualization tools like OmicsViewer and iSEE.
+  Bioconductor SummarizedExperiment objects for R workflows, and AnnData H5AD files for typed R/Python downstream workflows.
   The prolfquapp offers a comprehensive and efficient solution for researchers seeking to analyze protein differential
   expression data in a core facility setting.
 URL: https://prolfqua.github.io/prolfquapp/, https://github.com/prolfqua/prolfquapp
@@ -24,6 +24,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
+  anndataR,
   arrow,
   bookdown,
   crosstalk,
@@ -42,6 +43,7 @@ Imports:
   purrr,
   readr,
   readxl,
+  rhdf5,
   rlang,
   seqinr,
   S4Vectors,
@@ -58,7 +60,6 @@ Imports:
 RoxygenNote: 7.3.3
 Suggests:
   altdoc,
-  anndataR,
   codetools,
   covr,
   cyclocomp,

@@ -579,12 +579,21 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   }
   outdir$data_files$ibaq_file <- ibaq_file
 
+  summarized_experiment <- reporter$make_SummarizedExperiment()
+  anndata_file <- write_summarized_experiment_h5ad(
+    summarized_experiment,
+    file.path(reporter$resultdir, "AnnData.h5ad")
+  )
+  outdir$data_files$anndata_file <- anndata_file
+
   # Writes SummarizedExperiment.rds + DEAnalyse.rds and renders the Quarto
   # reports (primary R6 DEA report, SE-tabset overview, differential-expression
   # QC, and sample-size estimation). Each renders independently; a failure warns
   # without aborting the run.
-  logger::log_info("Writing summarized experiment and rendering Quarto reports.")
-  reports <- render_dea_reports(reporter)
+  logger::log_info(
+    "Writing AnnData and summarized experiment, then rendering Quarto reports."
+  )
+  reports <- render_dea_reports(reporter, summarized_experiment)
   outdir$dea_file <- reports$dea_file
   outdir$qc_file <- reports$qc_file
   outdir$quarto_file <- reports$tabset_file

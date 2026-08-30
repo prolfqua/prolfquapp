@@ -6,7 +6,7 @@
 
 Read on JPR <https://pubs.acs.org/doi/10.1021/acs.jproteome.4c00911> "prolfquapp ─ A User-Friendly Command-Line Tool Simplifying Differential Expression Analysis in Quantitative Proteomics"
 
-*Prolfquapp* is a command-line interface to the [prolfqua](https://github.com/fgcz/prolfqua) R package ([doi](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441)) for protein differential expression analysis. It preprocesses outputs from DIA-NN, MaxQuant, FragPipe, and Spectronaut, and generates HTML reports, Excel tables, rank files, and SummarizedExperiment objects for downstream tools such as [ExploreDE](https://github.com/fgcz/exploreDE).
+*Prolfquapp* is a command-line interface to the [prolfqua](https://github.com/fgcz/prolfqua) R package ([doi](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00441)) for protein differential expression analysis. It preprocesses outputs from DIA-NN, MaxQuant, FragPipe, and Spectronaut, and generates HTML reports, Excel tables, rank files, SummarizedExperiment objects, and AnnData files for typed R/Python downstream workflows such as [ExploreDE](https://github.com/fgcz/exploreDE).
 
 ![prolfquapp](https://github.com/prolfqua/prolfquapp/blob/master/inst/poster/Prolfqapp_Highlight.png?raw=true)
 
@@ -122,7 +122,7 @@ Add contrast information to the annotation file.
 Run the DEA using the annotation and configuration files from the previous steps.
 
 -   **Input**: quantification output directory, annotation file (step 1 or 4), YAML config (step 3)
--   **Output**: subfolder starting with `DEA_` containing HTML reports, Excel tables, rank files, and `SummarizedExperiment.rds`
+-   **Output**: subfolder starting with `DEA_` containing HTML reports, Excel tables, rank files, `SummarizedExperiment.rds`, and `AnnData.h5ad`
 
 ``` bash
 ./prolfqua_dea.sh -i data_dir/ -d annotation.xlsx -y config.yaml -w NameOfAnalysis -s DIANN

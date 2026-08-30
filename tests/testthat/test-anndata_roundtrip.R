@@ -14,6 +14,7 @@ test_that("round-trip peptide-level (depth=2) preserves data", {
 
   expect_true(inherits(adata, "AbstractAnnData"))
   expect_true(!is.null(adata$uns[["prolfquapp"]]))
+  expect_equal(adata$uns[["prolfquapp"]]$artifact_type, "lfqdata")
   expect_equal(adata$uns[["prolfquapp"]]$schema_version, "1.0.0")
   expect_equal(adata$uns[["prolfquapp"]]$source_software, "simulated")
 

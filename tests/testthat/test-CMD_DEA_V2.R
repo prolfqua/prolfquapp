@@ -58,4 +58,10 @@ test_that("CMD_DEA_V2 runs full pipeline with SIM preprocessor", {
   result_dirs <- list.dirs(workdir, recursive = FALSE)
   result_dir <- grep("^DEA_", basename(result_dirs), value = TRUE)
   expect_true(length(result_dir) >= 1)
+  expect_true(file.exists(file.path(
+    workdir,
+    result_dir[[1]],
+    "Results_WU_TEST_WU",
+    "AnnData.h5ad"
+  )))
 })

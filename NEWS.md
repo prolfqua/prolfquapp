@@ -1,5 +1,11 @@
 # prolfquapp 2.9.0
 
+- Differential-expression runs now write `AnnData.h5ad` alongside
+  `SummarizedExperiment.rds`, preserving sample and feature axes, abundance
+  layers, feature annotations, contrast statistics, and analysis provenance for
+  typed R/Python downstream workflows.
+- `SummarizedExperiment` contrast tables now retain the authoritative feature
+  names for empty decoy rows instead of synthetic `NA` row names.
 - Protein annotation now keys on the level the analysis reports on: a site-level
   annotation stays one row per protein and site instead of being collapsed to
   one row per protein, so per-site columns such as the sequence window reach the

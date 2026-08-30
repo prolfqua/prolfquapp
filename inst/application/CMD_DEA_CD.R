@@ -309,12 +309,24 @@ run_one <- function(run, base_config) {
   cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$get_config())
   yaml::write_yaml(cfg, file.path(run_config$get_result_dir(), "lfqdata.yaml"))
 
+  summarized_experiment <- reporter$make_SummarizedExperiment()
+  anndata_file <- prolfquapp:::write_summarized_experiment_h5ad(
+    summarized_experiment,
+    file.path(reporter$resultdir, "AnnData.h5ad")
+  )
+  outdir$data_files$anndata_file <- anndata_file
+
   # Writes SummarizedExperiment.rds + DEAnalyse.rds and renders the Quarto
   # reports (primary R6 DEA report, SE-tabset overview, differential-expression
   # QC, and sample-size estimation). Each renders independently; a failure warns
   # without aborting the run.
-  logger::log_info("Writing summarized experiment and rendering Quarto reports.")
-  reports <- prolfquapp:::render_dea_reports(reporter)
+  logger::log_info(
+    "Writing AnnData and summarized experiment, then rendering Quarto reports."
+  )
+  reports <- prolfquapp:::render_dea_reports(
+    reporter,
+    summarized_experiment
+  )
   outdir$dea_file <- reports$dea_file
   outdir$qc_file <- reports$qc_file
   outdir$quarto_file <- reports$tabset_file

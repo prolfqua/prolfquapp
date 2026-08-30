@@ -588,6 +588,7 @@ DEAReportGenerator <- R6::R6Class(
           var = rowname
         )
         row.data <- row.data[rownames(mat.raw), ]
+        rownames(row.data) <- rownames(mat.raw)
         SummarizedExperiment::rowData(x)[[paste0("constrast_", i)]] <- row.data
       }
 
