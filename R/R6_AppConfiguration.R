@@ -38,9 +38,98 @@ ProcessingOptions <- R6::R6Class(
     #' @field internal protein IDs for internal standard normalization
     #'   e.g. `internal: [P01876, P02768]`
     #'   After transformation, intensities are centered relative to these proteins.
-    internal = character()
+    internal = character(),
+
+    #' @description
+    #' Render the processing options as a two-column data frame for reporting.
+    #'
+    #' Contaminant and decoy rows describe what the pipeline actually does:
+    #' contaminants are always kept and flagged, and decoys are dropped before
+    #' the model fit only when `pattern_decoys` is set (the `remove_cont` /
+    #' `remove_decoys` fields are not consulted by the pipeline).
+    #' @param software quantification software; `ProcessingOptions` does not
+    #'   carry it, so the caller passes it (omitted from the table when NULL).
+    #' @param model contrast facade actually used. Defaults to `self$model`;
+    #'   pass the resolved facade when `model_missing` may have changed it.
+    #' @return a data frame with columns `Parameter` and `Value`
+    parameters_table = function(software = NULL, model = self$model) {
+      fmt_pattern <- function(pattern) {
+        if (is.null(pattern) || !any(nzchar(pattern))) {
+          return("no pattern set")
+        }
+        paste0("matching ", paste(pattern, collapse = ", "))
+      }
+      rows <- list(
+        c("Quantification software", software),
+        c("Statistical model", model),
+        c("Minimum peptides per protein (experiment-wide)", self$nr_peptides),
+        c("Protein abundance aggregation", self$aggregate),
+        c("Normalization / transformation", self$transform),
+        c(
+          "Internal standard proteins",
+          if (length(self$internal) > 0) {
+            paste(self$internal, collapse = ", ")
+          } else {
+            "none"
+          }
+        ),
+        c("Missingness modelled", if (isTRUE(self$model_missing)) "yes" else "no"),
+        c("Interaction terms", if (isTRUE(self$interaction)) "yes" else "no"),
+        c("FDR threshold", self$FDR_threshold),
+        c("Difference threshold (|log2 FC|)", self$diff_threshold),
+        c(
+          "Contaminants",
+          paste("kept and flagged,", fmt_pattern(self$pattern_contaminants))
+        ),
+        c(
+          "Decoys",
+          if (is.null(self$pattern_decoys)) {
+            "not identified (no decoy pattern set)"
+          } else {
+            paste(
+              "excluded from the model fit, kept in exports,",
+              fmt_pattern(self$pattern_decoys)
+            )
+          }
+        )
+      )
+      # A row whose value is NULL (e.g. software not supplied) drops out.
+      rows <- Filter(function(x) length(x) == 2L, rows)
+      data.frame(
+        Parameter = vapply(rows, `[[`, character(1), 1),
+        Value = vapply(rows, function(x) as.character(x[[2]]), character(1))
+      )
+    }
   )
 )
+
+
+#' Rebuild a ProcessingOptions R6 object from a plain list
+#'
+#' Counterpart to `prolfqua::R6_extract_values()`, used to restore the options
+#' stored in `SummarizedExperiment` metadata. That extraction drops NULL fields,
+#' so every field the list does not mention is restored as NULL rather than left
+#' at its class default -- a cleared `pattern_decoys` means decoy handling is off
+#' and must not come back as the default pattern.
+#' @param x named list of processing options
+#' @return a `ProcessingOptions` R6 object
+#' @keywords internal
+#' @noRd
+.processing_options_from_list <- function(x) {
+  if (!is.list(x) || length(x) == 0) {
+    stop(
+      "no processing options to restore. A SummarizedExperiment written before ",
+      "processing_options was added to the metadata cannot be reported on; ",
+      "re-run the analysis with the current prolfquapp.",
+      call. = FALSE
+    )
+  }
+  po <- ProcessingOptions$new()
+  for (field in names(ProcessingOptions$public_fields)) {
+    po[[field]] <- x[[field]]
+  }
+  po
+}
 
 
 # ProjectSpec -----

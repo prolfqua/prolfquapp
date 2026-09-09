@@ -103,11 +103,19 @@ cat("All ", length(rmds), " Rmd vignettes rendered via rmarkdown::render().\n", 
 EOF
 
 COPY <<'EOF' /tmp/check_quarto.R
-# Render the Quarto SE report template against the bundled SE fixture to
+# Render the Quarto SE report template against a freshly built example to
 # verify the quarto CLI + every package the template's setup chunk needs.
 out <- tempfile("qmd_check_")
 dir.create(out, recursive = TRUE)
-se <- system.file("extdata", "3106962.rds", package = "prolfquapp", mustWork = TRUE)
+dea <- prolfquapp::example_deanalyse()
+cfg <- dea$prolfq_app_config
+cfg$path <- tempfile()
+dir.create(cfg$path, recursive = TRUE)
+se <- tempfile("se_", fileext = ".rds")
+saveRDS(
+  prolfquapp::DEAReportGenerator$new(dea, cfg)$make_SummarizedExperiment(),
+  se
+)
 prolfquapp:::render_quarto_se_report(se_file = se, output_dir = out)
 stopifnot(file.exists(file.path(out, "Grp2Analysis_V2_SE_tabset.html")))
 cat("Quarto SE report rendered OK ->", file.path(out, "Grp2Analysis_V2_SE_tabset.html"), "\n")

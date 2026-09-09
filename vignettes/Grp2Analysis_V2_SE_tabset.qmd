@@ -72,14 +72,26 @@ knitr::opts_chunk$set(
 
 se_file <- params$se_file
 if (is.null(se_file) || !nzchar(se_file)) {
-  se_file <- system.file("extdata", "3106962.rds", package = "prolfquapp")
+  se_file <- file.path(tempdir(), "prolfquapp-example-se.rds")
+  if (!file.exists(se_file)) {
+    example_dea <- prolfquapp::example_deanalyse()
+    example_cfg <- example_dea$prolfq_app_config
+    example_cfg$path <- tempfile()
+    dir.create(example_cfg$path, recursive = TRUE, showWarnings = FALSE)
+    saveRDS(
+      prolfquapp::DEAReportGenerator$new(
+        example_dea,
+        example_cfg
+      )$make_SummarizedExperiment(),
+      se_file
+    )
+  }
 }
 report <- prolfquapp:::se_report_lfqdata(se_file)
 se <- report$se
 meta <- report$metadata
 lfq_raw <- report$lfq_raw
 lfq_transformed <- report$lfq_transformed
-feature_annotation <- report$feature_annotation
 contrast_table <- report$contrast_table
 contrast_object <- report$contrast_object
 is_saint_report <- identical(report$contrast_model, "saint") ||
@@ -133,31 +145,6 @@ save_if_ggplot <- function(plot, name, width = 8, height = 5) {
     )
   }
   invisible(plot)
-}
-
-plot_experiment_supported_feature_counts <- function(lfq, annotation, min_children = 2) {
-  if (is.null(annotation) || nrow(annotation) == 0 || !"nrPeptides" %in% colnames(annotation)) {
-    return(NULL)
-  }
-  hierarchy_col <- lfq$relevant_hierarchy_keys()[[1]]
-  if (!hierarchy_col %in% colnames(annotation)) {
-    return(NULL)
-  }
-  supported_features <- annotation |>
-    dplyr::filter(!is.na(.data$nrPeptides), .data$nrPeptides >= min_children)
-  supported_features <- unique(supported_features[[hierarchy_col]])
-  if (length(supported_features) == 0) {
-    return(NULL)
-  }
-  filtered_data <- lfq$data_long() |>
-    dplyr::filter(.data[[hierarchy_col]] %in% supported_features)
-  if (nrow(filtered_data) == 0) {
-    return(NULL)
-  }
-  prolfqua::LFQData$new(
-    tibble::as_tibble(filtered_data),
-    lfq$get_config()
-  )$get_Summariser()$plot_hierarchy_counts_sample(nr_children = 1)
 }
 
 html_escape <- function(x) {
@@ -317,15 +304,22 @@ Input: quantified feature abundances from `r nrow(lfq_raw$factors())` samples. T
 
 ```{r}
 #| label: tbl-analysis-settings
-settings <- data.frame(
-  parameter = c("FDR threshold", "Difference threshold", "Model formula"),
-  value = c(
-    params$fdr_threshold,
-    params$diff_threshold,
-    if (!is.null(meta$formula$formula)) meta$formula$formula[[1]] else NA
-  )
+settings <- prolfquapp:::.processing_options_from_list(
+  meta$processing_options
+)$parameters_table(
+  software = meta$report_provenance$software,
+  model = meta$default_model
 )
-dt_table(settings, caption = "Analysis settings", page_length = 5)
+if (!is.null(meta$formula$formula)) {
+  settings <- rbind(
+    settings,
+    data.frame(
+      Parameter = "Model formula",
+      Value = as.character(meta$formula$formula[[1]])
+    )
+  )
+}
+dt_table(settings, caption = "Analysis settings", page_length = 15)
 ```
 
 ## Design
@@ -370,28 +364,6 @@ protein_counts <- safe_plot(
 )
 save_if_ggplot(protein_counts, "protein_counts_per_sample", width = 10, height = 6)
 show_plot(protein_counts)
-```
-
-```{r}
-#| label: fig-protein-counts-two-peptides
-#| fig-cap: "Number of quantified features per sample among features with at least two peptides in the experiment."
-#| fig-width: 10
-#| fig-height: 6
-protein_counts_two_peptides <- safe_plot(
-  plot_experiment_supported_feature_counts(
-    lfq_raw,
-    feature_annotation,
-    min_children = 2
-  ),
-  "Could not draw feature counts with at least two peptides in the experiment."
-)
-if (is.null(protein_counts_two_peptides)) {
-  protein_counts_two_peptides <- empty_report_plot(
-    "No features with at least two peptides in the experiment are available for this data set."
-  )
-}
-save_if_ggplot(protein_counts_two_peptides, "protein_counts_two_peptides_experiment", width = 10, height = 6)
-show_plot(protein_counts_two_peptides)
 ```
 
 ## Overlap

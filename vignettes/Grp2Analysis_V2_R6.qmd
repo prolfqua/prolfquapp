@@ -74,6 +74,22 @@ This report tests whether normalized protein abundances differ between experimen
 
 Input: quantified protein abundances from `r nrow(dea$lfq_data_raw$factors())` samples, analysed with `r report_provenance$software`. The detailed source-data reference is recorded in **Session Info**.
 
+@tbl-parameters lists every processing parameter this analysis was run with. The sections below explain what the individual parameters do.
+
+```{r}
+#| label: tbl-parameters
+#| tbl-cap: "Processing parameters used for this analysis."
+# An html kable renders the decoy/contaminant regexes verbatim; a markdown one
+# double-escapes "|" and reads "^" as a superscript.
+knitr::kable(
+  cfg$processing_options$parameters_table(
+    software = report_provenance$software,
+    model = report_provenance$model
+  ),
+  format = "html"
+)
+```
+
 ```{r introduction}
 #| results: asis
 #| eval: !expr "!get0('is_saint_report', ifnotfound = FALSE)"
@@ -143,14 +159,9 @@ fx <- ld$factors()
 sr <- ld$get_Summariser()
 xx <- sr$hierarchy_counts_sample(nr_children = 1)
 xx$isotopeLabel <- NULL
-xx <- xx |> dplyr::rename(nr_1 = ld$hierarchy_keys())
-x2 <- sr$hierarchy_counts_sample(nr_children = 2)
-x2$isotopeLabel <- NULL
-x2 <- x2 |> dplyr::rename(nr_2 = ld$hierarchy_keys())
+xx <- xx |> dplyr::rename(nr_quantified = ld$hierarchy_keys())
 
-fx <- dplyr::left_join(fx,xx, by = ld$sample_name())
-fx <- dplyr::left_join(fx,x2, by = ld$sample_name())
-
+fx <- dplyr::left_join(fx, xx, by = ld$sample_name())
 
 knitr::kable(fx)
 
@@ -158,9 +169,7 @@ knitr::kable(fx)
 
 ## Peptide and Protein identification
 
-The protein matrix is filtered using the following threshold:
-
-- Minimum number of peptides / protein: `r cfg$processing_options$nr_peptides`.
+The protein matrix is filtered on the minimum number of peptides per protein given in @tbl-parameters. That filter is experiment-wide: a protein is kept only when it is supported by that many distinct peptides across all samples taken together, not per sample. A minimum of 1 means no protein is dropped on peptide count.
 
 The overall number of proteins in this experiment is: `r dea$summary$totalNrOfProteins`.
 The percentage of contaminant proteins is:`r dea$summary$percentOfContaminants` %.
@@ -170,38 +179,14 @@ We keep the contaminant proteins because, for some experiments, these contaminan
 Decoy sequences (identifiers starting with __REV__ or __rev__) are retained in the raw and abundance exports for traceability, but they are **excluded from the model fit** so they cannot distort the variance moderation that is shared across proteins. They therefore carry no fold change, p-value, or FDR, and do not appear in the volcano plot or the differentially-expressed set. Their proportion among quantified entries (reported above) serves as an empirical false-discovery signal for the whole quantified data set — not for the differentially-expressed list.
 
 
-@fig-nr-per-sample shows the number of quantified proteins with one or more peptides per sample.
+@fig-nr-per-sample shows the number of quantified proteins per sample, in the protein matrix exported for this analysis — after the peptide filter of @tbl-parameters, and still including the decoys that are dropped before the model fit.
 
 ```{r}
 #| label: fig-nr-per-sample
-#| fig-cap: "Number of quantified proteins per sample, counting proteins identified with at least one peptide; bar height is the protein count per sample."
+#| fig-cap: "Number of quantified proteins per sample; bar height is the protein count per sample. See @tbl-parameters for the peptide filter applied to this matrix."
 #| fig-width: 10
 #| fig-height: 7
-sum <- dea$lfq_data_raw$get_Summariser()
-sum$plot_hierarchy_counts_sample(nr_children = 1)
-
-```
-
-```{r prepNrPerSample2}
-#| include: false
-sum <- dea$lfq_data_raw$get_Summariser()
-p_nr_per_sample_2 <- tryCatch(
-  sum$plot_hierarchy_counts_sample(nr_children = 2),
-  error = function(e) NULL
-)
-```
-
-@fig-nr-per-sample-2 shows the number of quantified proteins with two or more peptides per sample.
-
-```{r}
-#| label: fig-nr-per-sample-2
-#| fig-cap: "Number of quantified proteins per sample, counting only proteins identified with at least two peptides; bar height is the protein count per sample."
-#| fig-width: 10
-#| fig-height: !expr if (is.null(p_nr_per_sample_2)) 1.2 else 7
-plot_or_empty(
-  p_nr_per_sample_2,
-  "No features with two or more children are available for this data set."
-)
+sr$plot_hierarchy_counts_sample(nr_children = 1)
 
 ```
 
@@ -520,7 +505,7 @@ sized_widget(volcano_widget)
 
 ## Differentially Expressed Proteins
 
-Here we use the FDR threshold of `r cfg$processing_options$FDR_threshold` and a difference threshold of `r cfg$processing_options$diff_threshold` to select differentially expressed proteins. @tbl-nr-significant summarizes the number of significant calls.
+Differentially expressed proteins are selected with the FDR and difference thresholds given in @tbl-parameters. @tbl-nr-significant summarizes the number of significant calls.
 
 ```{r}
 #| label: tbl-nr-significant

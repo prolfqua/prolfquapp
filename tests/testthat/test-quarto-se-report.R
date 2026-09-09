@@ -78,8 +78,6 @@ test_that("se_report_lfqdata reconstructs LFQData objects from SummarizedExperim
   expect_s3_class(report$lfq_transformed$get_Stats(), "LFQDataStats")
   expect_contains(colnames(report$contrast_table), "protein_Id")
   expect_contains(colnames(report$contrast_table), "contrast")
-  expect_contains(colnames(report$feature_annotation), "nrPeptides")
-  expect_gt(sum(report$feature_annotation$nrPeptides >= 2, na.rm = TRUE), 0)
   child_counts <- report$lfq_raw$get_Summariser()$hierarchy_counts_sample(
     value = "long",
     nr_children = 2
@@ -222,7 +220,6 @@ test_that("SE Quarto tabset report renders with reconstructed LFQData", {
   expect_match(html, "Samples", fixed = TRUE)
   expect_match(html, "Groups", fixed = TRUE)
   expect_match(html, "Proteins", fixed = TRUE)
-  expect_match(html, "at least two peptides in the experiment", fixed = TRUE)
   expect_equal(grepl("Protein Identification", html, fixed = TRUE), FALSE)
 })
 

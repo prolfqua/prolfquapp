@@ -59,7 +59,37 @@ After transformation, intensities are centered relative to these proteins.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-ProcessingOptions-parameters_table}{\code{ProcessingOptions$parameters_table()}}
 \item \href{#method-ProcessingOptions-clone}{\code{ProcessingOptions$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ProcessingOptions-parameters_table"></a>}}
+\if{latex}{\out{\hypertarget{method-ProcessingOptions-parameters_table}{}}}
+\subsection{Method \code{parameters_table()}}{
+Render the processing options as a two-column data frame for reporting.
+
+Contaminant and decoy rows describe what the pipeline actually does:
+contaminants are always kept and flagged, and decoys are dropped before
+the model fit only when `pattern_decoys` is set (the `remove_cont` /
+`remove_decoys` fields are not consulted by the pipeline).
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProcessingOptions$parameters_table(software = NULL, model = self$model)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{software}}{quantification software; `ProcessingOptions` does not
+carry it, so the caller passes it (omitted from the table when NULL).}
+
+\item{\code{model}}{contrast facade actually used. Defaults to `self$model`;
+pass the resolved facade when `model_missing` may have changed it.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+a data frame with columns `Parameter` and `Value`
 }
 }
 \if{html}{\out{<hr>}}

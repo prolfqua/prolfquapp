@@ -26,10 +26,6 @@ se_report_lfqdata <- function(se) {
   col_data <- .se_report_col_data(se)
   row_data <- SummarizedExperiment::rowData(se)
   contrast_table <- .se_report_contrast_table(row_data, rownames(se))
-  feature_annotation <- .se_report_feature_annotation(
-    contrast_table,
-    rownames(se)
-  )
 
   lfq_raw <- .se_report_lfqdata_from_assay(
     se,
@@ -69,7 +65,6 @@ se_report_lfqdata <- function(se) {
     row_data = row_data,
     lfq_raw = lfq_raw,
     lfq_transformed = lfq_transformed,
-    feature_annotation = feature_annotation,
     contrast_table = contrast_table,
     contrast_object = contrast_object,
     contrast_model = meta$default_model,
@@ -320,32 +315,6 @@ se_report_lfqdata <- function(se) {
     df
   })
   dplyr::bind_rows(res)
-}
-
-.se_report_feature_annotation <- function(contrast_table, feature_ids) {
-  child_cols <- c("nrPeptides", "nr_peptides", "exp_nr_children")
-  child_cols <- intersect(child_cols, colnames(contrast_table))
-  if (nrow(contrast_table) == 0 || length(child_cols) == 0) {
-    return(tibble::tibble(protein_Id = feature_ids))
-  }
-
-  child_col <- child_cols[[1]]
-  contrast_table |>
-    dplyr::filter(!is.na(.data$protein_Id)) |>
-    dplyr::select(dplyr::all_of(c("protein_Id", child_col))) |>
-    dplyr::rename(nrPeptides = dplyr::all_of(child_col)) |>
-    dplyr::group_by(.data$protein_Id) |>
-    dplyr::summarize(
-      nrPeptides = max(.data$nrPeptides, na.rm = TRUE),
-      .groups = "drop"
-    ) |>
-    dplyr::mutate(
-      nrPeptides = dplyr::if_else(
-        is.infinite(.data$nrPeptides),
-        NA_real_,
-        as.numeric(.data$nrPeptides)
-      )
-    )
 }
 
 .se_report_row_data_frame <- function(value, feature_ids) {

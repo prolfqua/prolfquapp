@@ -1,3 +1,37 @@
+# prolfquapp 2.9.1
+
+- The `SummarizedExperiment` written by a differential-expression run now
+  records the contrast column roles in its metadata as
+  `contrast_configuration`, so downstream tools can find the contrast, effect,
+  score and FDR columns by role instead of guessing their names. This makes
+  results from backends with their own naming — SAINTexpress uses `Bait`,
+  `log2_EFCs`, `SaintScore` and `BFDR` — readable by the same generic code that
+  handles the standard schema.
+
+- The `SummarizedExperiment` written by a differential-expression run now
+  carries the processing options in its metadata, so reports rendered from it
+  can state the settings the analysis actually used.
+- The tabset report reads its settings straight from the `SummarizedExperiment`
+  metadata and no longer falls back when they are absent, so it requires a
+  `SummarizedExperiment` written by this version or later. Its example render
+  now builds an example on the fly instead of loading a shipped snapshot, and
+  the 4.4 MB `inst/extdata/3106962.rds` fixture it used has been dropped.
+- The processing-parameter table is now `ProcessingOptions$parameters_table()`,
+  shared by both differential-expression reports instead of being built inline
+  in one of them. A cleared decoy pattern survives the round-trip through
+  `SummarizedExperiment` metadata and is reported as "not identified".
+- The differential-expression report now opens with a table of every processing
+  parameter it was run with (peptide filter, aggregation, normalization,
+  thresholds, contaminant and decoy handling). The contaminant and decoy rows
+  describe what the pipeline actually does rather than the unused `remove_cont`
+  / `remove_decoys` flags, and the peptide-filter and significance-threshold
+  sections point at the table instead of restating the values.
+- The redundant "at least two peptides" feature-count panel is gone from both
+  differential-expression reports; it ignored the configured minimum peptides
+  per protein and, at any minimum of two or more, simply duplicated the panel
+  above it. The remaining per-sample count plot now says which protein matrix
+  it is drawn from.
+
 # prolfquapp 2.9.0
 
 - Differential-expression runs now write `AnnData.h5ad` alongside

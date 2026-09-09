@@ -554,6 +554,7 @@ DEAReportGenerator <- R6::R6Class(
         var = colname
       )
       col.data <- col.data[colnames(mat.raw), ]
+      contrast_obj <- dea$contrast_results[[dea$default_model]]
       x <- SummarizedExperiment::SummarizedExperiment(
         assays = assays,
         colData = col.data,
@@ -572,11 +573,12 @@ DEAReportGenerator <- R6::R6Class(
           formula = resTables$formula,
           default_model = dea$default_model,
           analysis_configuration_raw = prolfqua::R6_extract_values(dea$lfq_data_raw$get_config()),
-          analysis_configuration_transformed = prolfqua::R6_extract_values(dea$lfq_data$get_config())
+          analysis_configuration_transformed = prolfqua::R6_extract_values(dea$lfq_data$get_config()),
+          contrast_configuration = prolfqua::R6_extract_values(contrast_obj$get_config()),
+          processing_options = prolfqua::R6_extract_values(self$GRP2$processing_options)
         )
       )
 
-      contrast_obj <- dea$contrast_results[[dea$default_model]]
       contrast_column <- contrast_obj$get_config()$contrast_col
       diffbyContrast <- split(
         resTables$diff_exp_analysis,
