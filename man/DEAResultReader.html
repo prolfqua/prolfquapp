@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
-
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.10.18">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
-<title>run_dea_cd – prolfquapp</title>
+<title>dearesultreader – prolfquapp</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,8 +23,42 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
-
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
@@ -45,8 +76,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-3f2496242c16263c0d5ed257b2b27fab.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
+<link href="../site_libs/bootstrap/bootstrap-3f2496242c16263c0d5ed257b2b27fab.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -73,16 +103,11 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-
-
 </head>
-
 <body class="nav-sidebar floating nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">prolfquapp</span>
@@ -94,35 +119,29 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+<li class="nav-item compact">
     <a class="nav-link" href="https://github.com/prolfqua/prolfquapp"> <i class="bi bi-github" role="img" aria-label="prolfquapp GitHub">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
 </ul>
-          </div> <!-- /navcollapse -->
+</div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav>
-  <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex">
+    </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/add_contrasts_vec.html">Reference</a></li><li class="breadcrumb-item"><a href="../man/run_dea_cd.html">run_dea_cd</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/add_contrasts_vec.html">Reference</a></li><li class="breadcrumb-item"><a href="../man/DEAResultReader.html">DEAResultReader</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
-  </nav>
-</header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
-    <div class="sidebar-menu-container"> 
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
-        <li class="sidebar-item">
+<li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Home</span></a>
@@ -136,8 +155,8 @@ ul.task-list li input[type="checkbox"] {
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
-          <li class="sidebar-item">
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../vignettes/Grp2Analysis_V2_R6.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Differential Expression Analysis.</span></a>
@@ -174,7 +193,7 @@ ul.task-list li input[type="checkbox"] {
   </div>
 </li>
       </ul>
-  </li>
+</li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
@@ -183,8 +202,8 @@ ul.task-list li input[type="checkbox"] {
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/add_contrasts_vec.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">add_contrasts_vec</span></a>
@@ -318,7 +337,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/DEAResultReader.html" class="sidebar-item-text sidebar-link">
+  <a href="../man/DEAResultReader.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">DEAResultReader</span></a>
   </div>
 </li>
@@ -732,7 +751,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/run_dea_cd.html" class="sidebar-item-text sidebar-link active">
+  <a href="../man/run_dea_cd.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">run_dea_cd</span></a>
   </div>
 </li>
@@ -845,7 +864,7 @@ ul.task-list li input[type="checkbox"] {
   </div>
 </li>
       </ul>
-  </li>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../NEWS.html" class="sidebar-item-text sidebar-link">
@@ -871,75 +890,249 @@ ul.task-list li input[type="checkbox"] {
   </div>
 </li>
     </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/add_contrasts_vec.html">Reference</a></li><li class="breadcrumb-item"><a href="../man/run_dea_cd.html">run_dea_cd</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/add_contrasts_vec.html">Reference</a></li><li class="breadcrumb-item"><a href="../man/DEAResultReader.html">DEAResultReader</a></li></ol></nav></header><section id="read-prolfquapp-dea-results-into-prolfqua-objects" class="level2 unnumbered"><h2 class="unnumbered anchored" data-anchor-id="read-prolfquapp-dea-results-into-prolfqua-objects">Read prolfquapp DEA results into prolfqua objects</h2>
+<section id="description" class="level3"><h3 class="anchored" data-anchor-id="description">Description</h3>
+<p>Rebuilds the standard prolfqua structures from a DEA result artifact written by [DEAReportGenerator]: the raw and transformed <code><a href="https://wolski.github.io/prolfqua/reference/LFQData.html">prolfqua::LFQData</a></code>, the contrast table with the column names the modelling backend produced, and a <code><a href="https://wolski.github.io/prolfqua/reference/ContrastsTable.html">prolfqua::ContrastsTable</a></code> carrying the backend’s <code><a href="https://wolski.github.io/prolfqua/reference/ContrastConfiguration.html">prolfqua::ContrastConfiguration</a></code>. Accepts a <code>SummarizedExperiment</code>, an <code>anndataR</code> AnnData, or a path to an <code>.rds</code> or <code>.h5ad</code> file.</p>
+<p>Because the column roles travel with the artifact, consumers filter, rank and plot through the configuration instead of hard-coding column names.</p>
+</section><section id="public-fields" class="level3"><h3 class="anchored" data-anchor-id="public-fields">Public fields</h3>
+<div class="r6-fields">
+<dl>
+<dt>
+<code>se</code>
+</dt>
+<dd>
+the <code>SummarizedExperiment</code> the results were read from
+</dd>
+<dt>
+<code>metadata</code>
+</dt>
+<dd>
+the artifact metadata (<code><a href="https://rdrr.io/pkg/S4Vectors/man/Annotated-class.html">S4Vectors::metadata</a></code>)
+</dd>
+<dt>
+<code>contrast_config</code>
+</dt>
+<dd>
+<code><a href="https://wolski.github.io/prolfqua/reference/ContrastConfiguration.html">prolfqua::ContrastConfiguration</a></code> of the backend that produced the results
+</dd>
+<dt>
+<code>lfq_raw</code>
+</dt>
+<dd>
+<code><a href="https://wolski.github.io/prolfqua/reference/LFQData.html">prolfqua::LFQData</a></code> with the raw abundances
+</dd>
+<dt>
+<code>lfq_transformed</code>
+</dt>
+<dd>
+<code><a href="https://wolski.github.io/prolfqua/reference/LFQData.html">prolfqua::LFQData</a></code> with the transformed abundances
+</dd>
+<dt>
+<code>contrast_table</code>
+</dt>
+<dd>
+all contrasts stacked into one tibble
+</dd>
+<dt>
+<code>contrasts</code>
+</dt>
+<dd>
+<code><a href="https://wolski.github.io/prolfqua/reference/ContrastsTable.html">prolfqua::ContrastsTable</a></code> over <code>contrast_table</code>, or <code>NULL</code> when the artifact holds no usable contrast results
+</dd>
+<dt>
+<code>subject_id</code>
+</dt>
+<dd>
+feature-axis column identifying a contrast subject
+</dd>
+</dl>
+</div>
+</section><section id="methods" class="level3"><h3 class="anchored" data-anchor-id="methods">Methods</h3>
+<h4 class="anchored">
+Public methods
+</h4>
+<ul>
+<li>
+<p><a href="#method-DEAResultReader-new"><code>DEAResultReader$new()</code></a></p>
+</li>
+<li>
+<p><a href="#method-DEAResultReader-has_roles"><code>DEAResultReader$has_roles()</code></a></p>
+</li>
+<li>
+<p><a href="#method-DEAResultReader-significant"><code>DEAResultReader$significant()</code></a></p>
+</li>
+<li>
+<p><a href="#method-DEAResultReader-get_Plotter"><code>DEAResultReader$get_Plotter()</code></a></p>
+</li>
+<li>
+<p><a href="#method-DEAResultReader-clone"><code>DEAResultReader$clone()</code></a></p>
+</li>
+</ul>
+<hr>
+<p><a id="method-DEAResultReader-new"></a></p>
+<h4 class="anchored">
+Method <code>new()</code>
+</h4>
+<p>Read a DEA result artifact.</p>
+<h5 class="anchored">
+Usage
+</h5>
+<div class="r">
+<pre>DEAResultReader\$new(source)</pre>
+</div>
+<h5 class="anchored">
+Arguments
+</h5>
+<div class="arguments">
+<dl>
+<dt>
+<code>source</code>
+</dt>
+<dd>
+a <code>SummarizedExperiment</code>, an AnnData, or a path to an <code>.rds</code> or <code>.h5ad</code> file
+</dd>
+</dl>
+</div>
+<hr>
+<p><a id="method-DEAResultReader-has_roles"></a></p>
+<h4 class="anchored">
+Method <code>has_roles()</code>
+</h4>
+<p>Does the contrast table carry these columns?</p>
+<h5 class="anchored">
+Usage
+</h5>
+<div class="r">
+<pre>DEAResultReader\$has_roles(...)</pre>
+</div>
+<h5 class="anchored">
+Arguments
+</h5>
+<div class="arguments">
+<dl>
+<dt>
+<code>…</code>
+</dt>
+<dd>
+column names, or vectors of column names
+</dd>
+</dl>
+</div>
+<hr>
+<p><a id="method-DEAResultReader-significant"></a></p>
+<h4 class="anchored">
+Method <code>significant()</code>
+</h4>
+<p>Contrast rows passing both thresholds. One-sided on the effect column for backends whose negative effects are not interpretable (SAINT).</p>
+<h5 class="anchored">
+Usage
+</h5>
+<div class="r">
+<pre>DEAResultReader\$significant(FDR_threshold = 0.05, diff_threshold = 1)</pre>
+</div>
+<h5 class="anchored">
+Arguments
+</h5>
+<div class="arguments">
+<dl>
+<dt>
+<code>FDR_threshold</code>
+</dt>
+<dd>
+false discovery rate threshold
+</dd>
+<dt>
+<code>diff_threshold</code>
+</dt>
+<dd>
+effect-size threshold
+</dd>
+</dl>
+</div>
+<hr>
+<p><a id="method-DEAResultReader-get_Plotter"></a></p>
+<h4 class="anchored">
+Method <code>get_Plotter()</code>
+</h4>
+<p><code><a href="https://wolski.github.io/prolfqua/reference/ContrastsPlotter.html">prolfqua::ContrastsPlotter</a></code> over the contrast table, with every score panel resolved through the column roles. Returns <code>NULL</code> when the artifact holds no usable contrast results.</p>
+<h5 class="anchored">
+Usage
+</h5>
+<div class="r">
+<pre>DEAResultReader\$get_Plotter(fc_threshold = 1, fdr_threshold = 0.1)</pre>
+</div>
+<h5 class="anchored">
+Arguments
+</h5>
+<div class="arguments">
+<dl>
+<dt>
+<code>fc_threshold</code>
+</dt>
+<dd>
+fold-change threshold
+</dd>
+<dt>
+<code>fdr_threshold</code>
+</dt>
+<dd>
+false discovery rate threshold
+</dd>
+</dl>
+</div>
+<hr>
+<p><a id="method-DEAResultReader-clone"></a></p>
+<h4 class="anchored">
+Method <code>clone()</code>
+</h4>
+<p>The objects of this class are cloneable with this method.</p>
+<h5 class="anchored">
+Usage
+</h5>
+<div class="r">
+<pre>DEAResultReader\$clone(deep = FALSE)</pre>
+</div>
+<h5 class="anchored">
+Arguments
+</h5>
+<div class="arguments">
+<dl>
+<dt>
+<code>deep</code>
+</dt>
+<dd>
+Whether to make a deep clone.
+</dd>
+</dl>
+</div>
+</section><section id="examples" class="level3"><h3 class="anchored" data-anchor-id="examples">Examples</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://prolfqua.github.io/prolfquapp/">"prolfquapp"</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dea</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="fu"><a href="https://prolfqua.github.io/prolfquapp/man/example_deanalyse.html">example_deanalyse</a></span><span class="op">(</span>Nprot <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="https://prolfqua.github.io/prolfquapp/man/DEAReportGenerator.html">DEAReportGenerator</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">dea</span>, <span class="va">dea</span><span class="op">$</span><span class="va">prolfq_app_config</span><span class="op">)</span><span class="op">$</span><span class="fu">make_SummarizedExperiment</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">reader</span> <span class="op">&lt;-</span> <span class="fu">prolfquapp</span><span class="fu">::</span><span class="va"><a href="https://prolfqua.github.io/prolfquapp/man/DEAResultReader.html">DEAResultReader</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span>
+<span><span class="va">reader</span><span class="op">$</span><span class="va">contrast_config</span><span class="op">$</span><span class="va">effect_col</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "diff"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">reader</span><span class="op">$</span><span class="va">contrast_table</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 24</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">reader</span><span class="op">$</span><span class="fu">significant</span><span class="op">(</span>FDR_threshold <span class="op">=</span> <span class="fl">0.25</span>, diff_threshold <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
 
 
-
-
-<section id="run-differential-expression-analysis-for-compounddiscoverer-zip-exports" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="run-differential-expression-analysis-for-compounddiscoverer-zip-exports">Run differential expression analysis for CompoundDiscoverer ZIP exports</h2>
-<section id="description" class="level3">
-<h3 class="anchored" data-anchor-id="description">Description</h3>
-<p>Reads the embedded prolfqua sample annotation and long feature table from a CompoundDiscoverer ZIP export, then runs the same DEA preparation and model pipeline as <code>run_dea</code>.</p>
-</section>
-<section id="usage" class="level3">
-<h3 class="anchored" data-anchor-id="usage">Usage</h3>
-<pre><code class="language-R">run_dea_cd(input = NULL, config, files = NULL, subset_column = NULL)
-</code></pre>
-</section>
-<section id="arguments" class="level3">
-<h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
-<table role="presentation">
-<tbody><tr>
-<td style="white-space: collapse; font-family: monospace; vertical-align: top">
-<code id="input">input</code>
-</td>
-<td>
-ZIP file path or directory containing one ZIP export
-</td>
-</tr>
-<tr>
-<td style="white-space: collapse; font-family: monospace; vertical-align: top">
-<code id="config">config</code>
-</td>
-<td>
-a <code>ProlfquAppConfig</code> object
-</td>
-</tr>
-<tr>
-<td style="white-space: collapse; font-family: monospace; vertical-align: top">
-<code id="files">files</code>
-</td>
-<td>
-optional file list from <code>get_CD_export_files</code>
-</td>
-</tr>
-<tr>
-<td style="white-space: collapse; font-family: monospace; vertical-align: top">
-<code id="subset_column">subset_column</code>
-</td>
-<td>
-optional long-table subset column to filter features
-</td>
-</tr>
-</tbody></table>
-</section>
-<section id="value" class="level3">
-<h3 class="anchored" data-anchor-id="value">Value</h3>
-<p>list with <code>deanalyse</code>, <code>xd</code>, <code>annotation</code>, and <code>files</code></p>
-
-
-</section>
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
+</section></section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
     const anchorJS = new window.AnchorJS();
@@ -1343,5 +1536,4 @@ optional long-table subset column to filter features
 
 
 
-
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/prolfqua/prolfquapp/blob/master/man/run_dea_cd.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/prolfqua/prolfquapp/blob/master/man/DEAResultReader.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>

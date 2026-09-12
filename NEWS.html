@@ -210,6 +210,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./man/as_AnnData.SummarizedExperiment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">as_AnnData.SummarizedExperiment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./man/bfabric_url_builder.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">bfabric_url_builder</span></a>
   </div>
@@ -308,6 +314,12 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="./man/DEAReportGenerator.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">DEAReportGenerator</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./man/DEAResultReader.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DEAResultReader</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -873,6 +885,10 @@ ul.task-list li input[type="checkbox"] {
 <section id="prolfquapp-2.9.1" class="level1">
 <h1>prolfquapp 2.9.1</h1>
 <ul>
+<li><p>New <code>DEAResultReader</code> reads a differential-expression result artifact — a <code>SummarizedExperiment</code>, an AnnData, or a path to an <code>.rds</code> or <code>.h5ad</code> file — back into the familiar prolfqua objects: the raw and transformed <code>LFQData</code>, the contrast table with the column names the backend produced, and a <code>ContrastsTable</code> that already knows the backend’s column roles, so <code>significant()</code> and the contrast plots resolve columns by role. The tabset report is built on it and no longer reimplements any of that.</p></li>
+<li><p>Both differential-expression reports now decide what to show from the backend’s column roles rather than from which backend ran: the significance filter, the volcano and score panels, and the difference-test introduction all follow the recorded roles. Results from a backend without a p-value (SAINT) are presented correctly without the report naming it.</p></li>
+<li><p>AnnData files written by a differential-expression run can now be read back into a <code>SummarizedExperiment</code>, so the <code>.h5ad</code> is a full-fidelity artifact rather than an export: layers, sample and feature annotation, every contrast table, and the analysis metadata all survive the round-trip.</p></li>
+<li><p>The <code>SummarizedExperiment</code> now stores feature annotation once, in its own <code>rowData</code> frame named <code>annotation</code>, and the per-contrast frames carry results only. In the AnnData that annotation frame is <code>var</code> and each contrast frame is its own <code>varm</code> entry under the name prolfquapp gave it. Its metadata states the artifact type and schema version (<code>2.0.0</code>), and carries the analysis configuration and provenance under the names <code>analysis_configuration</code> and <code>provenance</code>; readers of artifacts written by earlier versions must be updated.</p></li>
 <li><p>The <code>SummarizedExperiment</code> written by a differential-expression run now records the contrast column roles in its metadata as <code>contrast_configuration</code>, so downstream tools can find the contrast, effect, score and FDR columns by role instead of guessing their names. This makes results from backends with their own naming — SAINTexpress uses <code>Bait</code>, <code>log2_EFCs</code>, <code>SaintScore</code> and <code>BFDR</code> — readable by the same generic code that handles the standard schema.</p></li>
 <li><p>The <code>SummarizedExperiment</code> written by a differential-expression run now carries the processing options in its metadata, so reports rendered from it can state the settings the analysis actually used.</p></li>
 <li><p>The tabset report reads its settings straight from the <code>SummarizedExperiment</code> metadata and no longer falls back when they are absent, so it requires a <code>SummarizedExperiment</code> written by this version or later. Its example render now builds an example on the fly instead of loading a shipped snapshot, and the 4.4 MB <code>inst/extdata/3106962.rds</code> fixture it used has been dropped.</p></li>
