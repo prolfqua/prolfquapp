@@ -35,7 +35,10 @@ if (is.null(deanalyse_file) || !nzchar(deanalyse_file)) {
 }
 dea <- readRDS(deanalyse_file)
 cfg <- dea$prolfq_app_config
-is_saint_report <- identical(dea$default_model, "saint")
+# The introduction below describes a difference-based test, so it only applies
+# to backends that actually produce one. Ask the backend, not its name.
+contrast_cfg <- dea$contrast_results[[dea$default_model]]$get_config()
+tests_differences <- contrast_cfg$has_pvalue()
 report_provenance <- prolfquapp:::.report_provenance(
   project_spec = cfg$project_spec,
   software = cfg$software,
@@ -92,7 +95,7 @@ knitr::kable(
 
 ```{r introduction}
 #| results: asis
-#| eval: !expr "!get0('is_saint_report', ifnotfound = FALSE)"
+#| eval: !expr "get0('tests_differences', ifnotfound = TRUE)"
 cat(r"(
 # Analysis background
 

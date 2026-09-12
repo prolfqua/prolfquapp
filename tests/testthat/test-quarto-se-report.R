@@ -57,7 +57,7 @@ test_source_tree <- function() {
   ""
 }
 
-test_that("se_report_lfqdata reconstructs LFQData objects from SummarizedExperiment", {
+test_that("DEAResultReader reconstructs LFQData objects from SummarizedExperiment", {
   skip_on_cran()
 
   dea <- prolfquapp::example_deanalyse(Nprot = 20)
@@ -65,7 +65,7 @@ test_that("se_report_lfqdata reconstructs LFQData objects from SummarizedExperim
   se <- reporter$make_SummarizedExperiment()
   expect_contains(SummarizedExperiment::assayNames(se), "nr_children")
 
-  report <- prolfquapp:::se_report_lfqdata(se)
+  report <- prolfquapp::DEAResultReader$new(se)
 
   expect_s3_class(report$lfq_raw, "LFQData")
   expect_s3_class(report$lfq_transformed, "LFQData")
@@ -83,9 +83,20 @@ test_that("se_report_lfqdata reconstructs LFQData objects from SummarizedExperim
     nr_children = 2
   )
   expect_gt(nrow(child_counts), 0)
+
+  # Column roles travel with the artifact, so the reader resolves them without
+  # knowing which modelling backend ran.
+  expect_s3_class(report$contrast_config, "ContrastConfiguration")
+  expect_true(report$contrast_config$has_pvalue())
+  expect_equal(report$subject_id, "protein_Id")
+  expect_s3_class(report$contrasts, "ContrastsTable")
+  expect_s3_class(report$get_Plotter(), "ContrastsPlotter")
+  significant <- report$significant(FDR_threshold = 0.25, diff_threshold = 0.5)
+  expect_contains(colnames(significant), colnames(report$contrast_table))
+  expect_lte(nrow(significant), nrow(report$contrast_table))
 })
 
-test_that("se_report_lfqdata drops padded empty contrast rows", {
+test_that("DEAResultReader drops padded empty contrast rows", {
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = list(
       rawData = matrix(
@@ -112,14 +123,14 @@ test_that("se_report_lfqdata drops padded empty contrast rows", {
     modelName = c("TableTest", "TableTest", NA_character_)
   )
 
-  report <- prolfquapp:::se_report_lfqdata(se)
+  report <- prolfquapp::DEAResultReader$new(se)
 
   expect_equal(nrow(report$contrast_table), 2)
   expect_equal(sum(is.na(report$contrast_table$contrast)), 0)
   expect_equal(sum(is.na(report$contrast_table$protein_Id)), 0)
 })
 
-test_that("se_report_lfqdata drops SAINT rows without bait estimates", {
+test_that("DEAResultReader resolves SAINT column roles", {
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = list(
       rawData = matrix(
@@ -137,7 +148,20 @@ test_that("se_report_lfqdata drops SAINT rows without bait estimates", {
       sampleName = c("S1", "S2"),
       group = c("A", "B")
     ),
-    metadata = list(default_model = "saint")
+    metadata = list(
+      default_model = "saint",
+      contrast_configuration = list(
+        subject_id = "protein_Id",
+        contrast_col = "Bait",
+        effect_col = "log2_EFCs",
+        score_col = "SaintScore",
+        pvalue_col = NA_character_,
+        fdr_col = "BFDR",
+        supports_dea_qc = FALSE,
+        needs_saint_annotation = TRUE,
+        significance_directional = TRUE
+      )
+    )
   )
   SummarizedExperiment::rowData(se)[["constrast_PPE4"]] <- data.frame(
     protein_Id = c("P1", "P2", "P3"),
@@ -148,10 +172,19 @@ test_that("se_report_lfqdata drops SAINT rows without bait estimates", {
     BFDR = c(0.01, NA_real_, 0.8)
   )
 
-  report <- prolfquapp:::se_report_lfqdata(se)
+  report <- prolfquapp::DEAResultReader$new(se)
 
+  # Rows without a bait estimate are padding on the feature axis.
   expect_equal(report$contrast_table$protein_Id, c("P1", "P3"))
   expect_equal(sum(is.na(report$contrast_table$Bait)), 0)
+
+  expect_false(report$contrast_config$has_pvalue())
+  expect_s3_class(report$contrasts, "ContrastsTable")
+  # Filtering is one-sided for SAINT, so the negative log2_EFCs row is out
+  # even though its BFDR passes.
+  significant <- report$significant(FDR_threshold = 0.05, diff_threshold = 0.5)
+  expect_equal(significant$protein_Id, "P1")
+  expect_s3_class(report$get_Plotter(), "ContrastsPlotter")
 })
 
 test_that("SE Quarto tabset report renders with reconstructed LFQData", {

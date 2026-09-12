@@ -555,12 +555,18 @@ DEAReportGenerator <- R6::R6Class(
       )
       col.data <- col.data[colnames(mat.raw), ]
       contrast_obj <- dea$contrast_results[[dea$default_model]]
+      transformed_config <- prolfqua::R6_extract_values(dea$lfq_data$get_config())
       x <- SummarizedExperiment::SummarizedExperiment(
         assays = assays,
         colData = col.data,
         metadata = list(
+          artifact_type = "dea_results",
+          schema_version = "2.0.0",
+          source_software = as.character(self$GRP2$software),
+          feature_keys = as.list(rowname),
+          sample_key = colname,
           bfabric_urls = .url_builder(self$GRP2$project_spec),
-          report_provenance = list(
+          provenance = list(
             project_Id = self$GRP2$project_spec$project_Id,
             project_name = self$GRP2$project_spec$project_name,
             order_Id = self$GRP2$project_spec$order_Id,
@@ -573,11 +579,21 @@ DEAReportGenerator <- R6::R6Class(
           formula = resTables$formula,
           default_model = dea$default_model,
           analysis_configuration_raw = prolfqua::R6_extract_values(dea$lfq_data_raw$get_config()),
-          analysis_configuration_transformed = prolfqua::R6_extract_values(dea$lfq_data$get_config()),
+          analysis_configuration = transformed_config,
           contrast_configuration = prolfqua::R6_extract_values(contrast_obj$get_config()),
           processing_options = prolfqua::R6_extract_values(self$GRP2$processing_options)
         )
       )
+
+      # Feature annotation is stored once, as its own rowData frame, so the
+      # contrast frames carry results only and no column is duplicated.
+      annotation <- prolfquapp::column_to_rownames(
+        dea$rowAnnot$row_annot,
+        var = dea$rowAnnot$pID
+      )
+      annotation <- annotation[rownames(mat.raw), , drop = FALSE]
+      rownames(annotation) <- rownames(mat.raw)
+      SummarizedExperiment::rowData(x)[["annotation"]] <- annotation
 
       contrast_column <- contrast_obj$get_config()$contrast_col
       diffbyContrast <- split(
@@ -591,6 +607,10 @@ DEAReportGenerator <- R6::R6Class(
         )
         row.data <- row.data[rownames(mat.raw), ]
         rownames(row.data) <- rownames(mat.raw)
+        row.data <- row.data[,
+          setdiff(colnames(row.data), colnames(annotation)),
+          drop = FALSE
+        ]
         SummarizedExperiment::rowData(x)[[paste0("constrast_", i)]] <- row.data
       }
 

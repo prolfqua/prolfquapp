@@ -1,5 +1,29 @@
 # prolfquapp 2.9.1
 
+- New `DEAResultReader` reads a differential-expression result artifact — a
+  `SummarizedExperiment`, an AnnData, or a path to an `.rds` or `.h5ad` file —
+  back into the familiar prolfqua objects: the raw and transformed `LFQData`,
+  the contrast table with the column names the backend produced, and a
+  `ContrastsTable` that already knows the backend's column roles, so
+  `significant()` and the contrast plots resolve columns by role. The tabset
+  report is built on it and no longer reimplements any of that.
+- Both differential-expression reports now decide what to show from the
+  backend's column roles rather than from which backend ran: the significance
+  filter, the volcano and score panels, and the difference-test introduction all
+  follow the recorded roles. Results from a backend without a p-value (SAINT)
+  are presented correctly without the report naming it.
+- AnnData files written by a differential-expression run can now be read back
+  into a `SummarizedExperiment`, so the `.h5ad` is a full-fidelity artifact
+  rather than an export: layers, sample and feature annotation, every contrast
+  table, and the analysis metadata all survive the round-trip.
+- The `SummarizedExperiment` now stores feature annotation once, in its own
+  `rowData` frame named `annotation`, and the per-contrast frames carry results
+  only. In the AnnData that annotation frame is `var` and each contrast frame is
+  its own `varm` entry under the name prolfquapp gave it. Its metadata states
+  the artifact type and schema version (`2.0.0`), and carries the analysis
+  configuration and provenance under the names `analysis_configuration` and
+  `provenance`; readers of artifacts written by earlier versions must be
+  updated.
 - The `SummarizedExperiment` written by a differential-expression run now
   records the contrast column roles in its metadata as
   `contrast_configuration`, so downstream tools can find the contrast, effect,

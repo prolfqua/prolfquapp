@@ -87,15 +87,16 @@ if (is.null(se_file) || !nzchar(se_file)) {
     )
   }
 }
-report <- prolfquapp:::se_report_lfqdata(se_file)
-se <- report$se
-meta <- report$metadata
-lfq_raw <- report$lfq_raw
-lfq_transformed <- report$lfq_transformed
-contrast_table <- report$contrast_table
-contrast_object <- report$contrast_object
-is_saint_report <- identical(report$contrast_model, "saint") ||
-  all(c("Bait", "BFDR", "log2_EFCs") %in% colnames(contrast_table))
+reader <- prolfquapp::DEAResultReader$new(se_file)
+meta <- reader$metadata
+lfq_raw <- reader$lfq_raw
+lfq_transformed <- reader$lfq_transformed
+contrast_table <- reader$contrast_table
+# Column roles of the modelling backend that produced this result. Reading the
+# names from here keeps the report free of backend-specific column names.
+contrast_cfg <- reader$contrast_config
+has_pvalue <- contrast_cfg$has_pvalue()
+has_roles <- reader$has_roles
 
 dir.create("plots", showWarnings = FALSE, recursive = TRUE)
 
@@ -197,23 +198,14 @@ contrast_definition_table <- function(contrasts) {
   )
 }
 
-feature_id_column <- function(df) {
-  candidates <- c("feature_id", "protein_Id", "peptide_Id", "metabolite_Id", "compound_Id", "ID")
-  hit <- candidates[candidates %in% colnames(df)]
-  if (length(hit) == 0) {
-    return(NULL)
-  }
-  hit[[1]]
-}
-
 significant_sets_by_direction <- function(significant_contrasts, direction = c("all", "increased", "decreased")) {
   direction <- match.arg(direction)
-  feature_col <- feature_id_column(significant_contrasts)
-  if (is.null(feature_col) || nrow(significant_contrasts) == 0) {
+  if (nrow(significant_contrasts) == 0) {
     return(list())
   }
-  contrast_col <- if ("Bait" %in% colnames(significant_contrasts)) "Bait" else "contrast"
-  effect_col <- if ("log2_EFCs" %in% colnames(significant_contrasts)) "log2_EFCs" else "diff"
+  feature_col <- reader$subject_id
+  contrast_col <- contrast_cfg$contrast_col
+  effect_col <- contrast_cfg$effect_col
   if (!all(c(contrast_col, effect_col) %in% colnames(significant_contrasts))) {
     return(list())
   }
@@ -238,46 +230,18 @@ draw_upset_or_empty <- function(sets, empty_label) {
   )
 }
 
-contrast_plotter <- NULL
-if (!is.null(contrast_object)) {
-  contrast_plotter <- contrast_object$get_Plotter(
-    fc_threshold = params$diff_threshold,
-    fdr_threshold = params$fdr_threshold
-  )
-} else if (is_saint_report && !is.null(feature_id_column(contrast_table))) {
-  contrast_plotter <- prolfqua::ContrastsPlotter$new(
-    contrast_table,
-    subject_id = feature_id_column(contrast_table),
-    fcthresh = params$diff_threshold,
-    volcano = list(list(score = "BFDR", name = "FDR", thresh = params$fdr_threshold)),
-    histogram = list(
-      list(score = "BFDR", xlim = c(0, 1, 0.05)),
-      list(score = "SaintScore", xlim = c(0, 1, 0.05))
-    ),
-    score = list(list(score = "SaintScore", thresh = 0.75)),
-    modelName = "modelName",
-    diff = "log2_EFCs",
-    contrast = "Bait"
-  )
-}
+contrast_plotter <- reader$get_Plotter(
+  fc_threshold = params$diff_threshold,
+  fdr_threshold = params$fdr_threshold
+)
 
-significant_contrasts <- if (
-  is_saint_report &&
-    nrow(contrast_table) > 0 &&
-    all(c("BFDR", "log2_EFCs") %in% colnames(contrast_table))
-) {
-  contrast_table |>
-    dplyr::filter(.data$BFDR < params$fdr_threshold, .data$log2_EFCs > params$diff_threshold)
-} else if (nrow(contrast_table) > 0 && all(c("FDR", "diff") %in% colnames(contrast_table))) {
-  contrast_table |>
-    dplyr::filter(.data$FDR < params$fdr_threshold, abs(.data$diff) > params$diff_threshold)
-} else {
-  tibble::tibble()
-}
+significant_contrasts <- reader$significant(
+  FDR_threshold = params$fdr_threshold,
+  diff_threshold = params$diff_threshold
+)
 
-feature_col <- feature_id_column(contrast_table)
 report_provenance <- prolfquapp:::.report_provenance(
-  project_spec = meta$report_provenance
+  project_spec = meta$provenance
 )
 ```
 
@@ -307,7 +271,7 @@ Input: quantified feature abundances from `r nrow(lfq_raw$factors())` samples. T
 settings <- prolfquapp:::.processing_options_from_list(
   meta$processing_options
 )$parameters_table(
-  software = meta$report_provenance$software,
+  software = meta$provenance$software,
   model = meta$default_model
 )
 if (!is.null(meta$formula$formula)) {
@@ -559,8 +523,8 @@ show_plot(safe_plot(
 ```{r}
 #| label: tbl-significant-summary
 if (nrow(significant_contrasts) > 0) {
-  contrast_col <- if ("Bait" %in% colnames(significant_contrasts)) "Bait" else "contrast"
-  effect_col <- if ("log2_EFCs" %in% colnames(significant_contrasts)) "log2_EFCs" else "diff"
+  contrast_col <- contrast_cfg$contrast_col
+  effect_col <- contrast_cfg$effect_col
   signif_summary <- significant_contrasts |>
     dplyr::mutate(direction = ifelse(.data[[effect_col]] > 0, "increased", "decreased")) |>
     dplyr::count(.data[[contrast_col]], .data$direction, name = "features")
@@ -572,29 +536,17 @@ dt_table(signif_summary, caption = "Significant features by contrast and directi
 
 ```{r}
 #| label: tbl-differential-abundance-summary
-if (is_saint_report && nrow(contrast_table) > 0 && all(c("Bait", "BFDR", "log2_EFCs") %in% colnames(contrast_table))) {
+if (has_roles(contrast_cfg$contrast_col)) {
+  contrast_col <- contrast_cfg$contrast_col
   abundance_summary <- contrast_table |>
-    dplyr::mutate(
-      significant = .data$BFDR < params$fdr_threshold & .data$log2_EFCs > params$diff_threshold
+    dplyr::count(.data[[contrast_col]], name = "tested") |>
+    dplyr::left_join(
+      dplyr::count(significant_contrasts, .data[[contrast_col]], name = "significant"),
+      by = contrast_col
     ) |>
-    dplyr::group_by(.data$Bait) |>
-    dplyr::summarise(
-      tested = dplyr::n(),
-      significant = sum(.data$significant, na.rm = TRUE),
-      not_significant = tested - significant,
-      .groups = "drop"
-    )
-} else if (nrow(contrast_table) > 0 && all(c("contrast", "FDR", "diff") %in% colnames(contrast_table))) {
-  abundance_summary <- contrast_table |>
     dplyr::mutate(
-      significant = .data$FDR < params$fdr_threshold & abs(.data$diff) > params$diff_threshold
-    ) |>
-    dplyr::group_by(.data$contrast) |>
-    dplyr::summarise(
-      tested = dplyr::n(),
-      significant = sum(.data$significant, na.rm = TRUE),
-      not_significant = tested - significant,
-      .groups = "drop"
+      significant = dplyr::coalesce(.data$significant, 0L),
+      not_significant = .data$tested - .data$significant
     )
 } else {
   abundance_summary <- tibble::tibble()
@@ -691,7 +643,7 @@ if (!is.null(contrast_plotter)) {
 #| fig-cap: "Heatmap of the significant differential-abundance features: rows are features called significant in at least one contrast, columns are samples, and each cell encodes the per-feature (row) z-score of the transformed abundance (row labels are shown only when at most 30 features are significant)."
 #| fig-width: 9
 #| fig-height: 8
-if (nrow(significant_contrasts) > 0 && !is.null(feature_col)) {
+if (nrow(significant_contrasts) > 0) {
   significant_lfq <- lfq_transformed$get_copy()
   significant_lfq <- significant_lfq$get_subset(significant_contrasts)
   row_names <- tryCatch(significant_lfq$hierarchy_counts()[[2]] <= 30, error = function(e) FALSE)
@@ -733,12 +685,14 @@ These two histograms are model diagnostics read across all features at once, not
 if (!is.null(contrast_plotter)) {
   fc_hist <- safe_plot(contrast_plotter$histogram_diff(), "Could not draw fold-change histogram.")
   histograms <- contrast_plotter$histogram()
-  score_col <- dplyr::case_when(
-    "p.value" %in% colnames(contrast_table) ~ "p.value",
-    "FDR" %in% colnames(contrast_table) ~ "FDR",
-    "BFDR" %in% colnames(contrast_table) ~ "BFDR",
-    TRUE ~ NA_character_
-  )
+  # Prefer the raw p-value when the backend produces one, otherwise its FDR.
+  score_col <- if (has_pvalue && has_roles(contrast_cfg$pvalue_col)) {
+    contrast_cfg$pvalue_col
+  } else if (has_roles(contrast_cfg$fdr_col)) {
+    contrast_cfg$fdr_col
+  } else {
+    NA_character_
+  }
   score_hist <- if (!is.na(score_col) && score_col %in% names(histograms)) {
     safe_plot(histograms[[score_col]], paste("Could not draw", score_col, "histogram."))
   } else {
