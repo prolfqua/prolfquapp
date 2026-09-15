@@ -1,101 +1,3 @@
-make_dea_summarized_experiment <- function() {
-  feature_names <- c("P1~S10", "P2~S20")
-  sample_names <- c("S1", "S2", "S3")
-  raw <- matrix(
-    c(10, NA, 30, 20, 40, 60),
-    nrow = 2,
-    dimnames = list(feature_names, sample_names)
-  )
-  transformed <- log2(raw)
-  se <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(
-      rawData = raw,
-      transformedData = transformed,
-      nr_children = matrix(
-        c(2, 3, 2, 3, 2, 3),
-        nrow = 2,
-        dimnames = list(feature_names, sample_names)
-      )
-    ),
-    colData = S4Vectors::DataFrame(
-      sampleName = sample_names,
-      group = c("A", "A", "B"),
-      row.names = sample_names
-    ),
-    metadata = list(
-      artifact_type = "dea_results",
-      schema_version = "2.0.0",
-      source_software = "DIANN",
-      feature_keys = list("protein_Id", "site"),
-      sample_key = "sampleName",
-      bfabric_urls = list(projectURL = "https://example.org/project/1"),
-      provenance = list(software = "DIANN", workunit_Id = 42),
-      contrasts = data.frame(
-        contrast_name = c("A/B", "A%2FB"),
-        contrast = c("A - B", "A + B")
-      ),
-      formula = data.frame(formula = "abundance ~ group"),
-      default_model = "lm",
-      analysis_configuration_raw = list(
-        sample_name = "sampleName",
-        hierarchy = list(protein_Id = "protein", site = "site")
-      ),
-      analysis_configuration = list(
-        sample_name = "sampleName",
-        hierarchy = list(protein_Id = "protein", site = "site")
-      ),
-      contrast_configuration = list(
-        subject_id = "protein_Id",
-        model_name_col = "modelName",
-        contrast_col = "contrast",
-        effect_col = "diff",
-        score_col = "statistic",
-        pvalue_col = "p.value",
-        fdr_col = "FDR",
-        avg_abundance_col = "avgAbd"
-      )
-    )
-  )
-  annotation <- data.frame(
-    protein_Id = c("P1", "P2"),
-    site = c("S10", "S20"),
-    SequenceWindow = c("AAAAASAAAAA", "BBBBBSBBBBB"),
-    row.names = feature_names
-  )
-  contrast_result <- function(contrast, diff) {
-    data.frame(
-      modelName = "lm",
-      estimate_type = "observed",
-      contrast = contrast,
-      diff = diff,
-      statistic = diff * 2,
-      p.value = c(0.01, 0.2),
-      FDR = c(0.02, 0.2),
-      row.names = feature_names
-    )
-  }
-  SummarizedExperiment::rowData(se)[["annotation"]] <- annotation
-  SummarizedExperiment::rowData(se)[["constrast_A/B"]] <-
-    contrast_result("A/B", c(1, -1))
-  SummarizedExperiment::rowData(se)[["constrast_A%2FB"]] <-
-    contrast_result("A%2FB", c(2, -2))
-  SummarizedExperiment::rowData(se)[["stats_normalized_wide"]] <-
-    data.frame(
-      protein_Id = c("P1", "P2"),
-      site = c("S10", "S20"),
-      meanAbundance_All = c(5, 6),
-      row.names = feature_names
-    )
-  SummarizedExperiment::rowData(se)[["stats_raw_wide"]] <-
-    data.frame(
-      protein_Id = c("P1", "P2"),
-      site = c("S10", "S20"),
-      meanAbundance_All = c(25, 40),
-      row.names = feature_names
-    )
-  se
-}
-
 test_that("DEA SummarizedExperiment maps to typed AnnData slots", {
   se <- make_dea_summarized_experiment()
 
@@ -293,5 +195,59 @@ test_that("DEA AnnData requires an existing output directory", {
       file.path(missing_dir, "AnnData.h5ad")
     ),
     "output directory does not exist"
+  )
+})
+
+test_that("the AnnData and the SummarizedExperiment read back the same", {
+  se <- make_dea_summarized_experiment()
+  output_dir <- tempfile("dea-artifacts-")
+  dir.create(output_dir)
+  on.exit(unlink(output_dir, recursive = TRUE), add = TRUE)
+  rds <- file.path(output_dir, "SummarizedExperiment.rds")
+  saveRDS(se, rds)
+  h5ad <- prolfquapp:::write_summarized_experiment_h5ad(
+    se,
+    file.path(output_dir, "AnnData.h5ad")
+  )
+
+  from_rds <- prolfquapp::DEAResultReader$new(rds)
+  from_h5ad <- prolfquapp::DEAResultReader$new(h5ad)
+
+  expect_equal(from_h5ad$contrast_table, from_rds$contrast_table)
+  expect_equal(from_h5ad$lfq_raw$data_long(), from_rds$lfq_raw$data_long())
+  expect_equal(
+    from_h5ad$lfq_transformed$data_long(),
+    from_rds$lfq_transformed$data_long()
+  )
+  expect_equal(
+    from_h5ad$significant(0.5, 0.5),
+    from_rds$significant(0.5, 0.5)
+  )
+  expect_equal(
+    prolfqua::R6_extract_values(from_h5ad$contrast_config),
+    prolfqua::R6_extract_values(from_rds$contrast_config)
+  )
+  # Metadata the report reads by name, including the frames that would be lost
+  # if uns flattened them to lists of columns.
+  expect_s3_class(from_h5ad$metadata$contrasts, "data.frame")
+  expect_equal(
+    tibble::as_tibble(from_h5ad$metadata$contrasts),
+    tibble::as_tibble(from_rds$metadata$contrasts)
+  )
+  expect_equal(
+    from_h5ad$metadata$provenance$workunit_Id,
+    from_rds$metadata$provenance$workunit_Id
+  )
+  expect_equal(from_h5ad$metadata$feature_keys, c("protein_Id", "site"))
+  expect_equal(from_h5ad$metadata$sample_key, "sampleName")
+})
+
+test_that("uns rejects a list AnnData cannot store", {
+  se <- make_dea_summarized_experiment()
+  S4Vectors::metadata(se)$feature_keys <- list("protein_Id", "site")
+
+  expect_error(
+    prolfquapp:::summarized_experiment_to_anndata(se),
+    "unnamed list at metadata\\$feature_keys"
   )
 })

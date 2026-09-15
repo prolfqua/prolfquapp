@@ -101,23 +101,24 @@
   out_file
 }
 
-# Render the SummarizedExperiment-backed tabbed Quarto report from a serialized
-# SummarizedExperiment `.rds`.
+# Render the tabbed Quarto report from a DEA result artifact -- an `AnnData.h5ad`
+# or a serialized `SummarizedExperiment`, whichever the caller has; the report
+# reads either through `DEAResultReader`.
 render_quarto_se_report <- function(
-  se_file,
+  artifact_file,
   output_dir,
   output_file = "Grp2Analysis_V2_SE_tabset.html",
   fdr_threshold = 0.05,
   diff_threshold = 1
 ) {
-  if (!file.exists(se_file)) {
-    stop("SummarizedExperiment file not found: ", se_file, call. = FALSE)
+  if (!file.exists(artifact_file)) {
+    stop("DEA result artifact not found: ", artifact_file, call. = FALSE)
   }
-  se_file <- normalizePath(se_file, mustWork = TRUE)
+  artifact_file <- normalizePath(artifact_file, mustWork = TRUE)
   .render_quarto_doc_report(
     qmd_name = "Grp2Analysis_V2_SE_tabset.qmd",
     execute_params = list(
-      se_file = se_file,
+      artifact_file = artifact_file,
       fdr_threshold = fdr_threshold,
       diff_threshold = diff_threshold
     ),
@@ -260,6 +261,7 @@ render_quarto_protein_abundances_report <- function(
     reporter$resultdir,
     "SummarizedExperiment.rds"
   )
+  anndata_file <- file.path(reporter$resultdir, "AnnData.h5ad")
   list(
     deanalyse_file = .try_report_step(
       {
@@ -274,6 +276,12 @@ render_quarto_protein_abundances_report <- function(
         se_file
       },
       "SummarizedExperiment.rds"
+    ),
+    # The tabset report renders from this file, so a DEA run that produces a
+    # report has demonstrated that its AnnData can be read back.
+    anndata_file = .try_report_step(
+      write_summarized_experiment_h5ad(summarized_experiment, anndata_file),
+      "AnnData.h5ad"
     )
   )
 }
@@ -349,11 +357,11 @@ render_dea_reports <- function(
     )
   }
 
-  # Secondary overview report (SE tabset).
-  out$tabset_file <- if (!is.null(out$se_file)) {
+  # Secondary overview report (tabset), rendered from the AnnData artifact.
+  out$tabset_file <- if (!is.null(out$anndata_file)) {
     .try_report_step(
       render_quarto_se_report(
-        se_file = out$se_file,
+        artifact_file = out$anndata_file,
         output_dir = reporter$resultdir,
         output_file = "Grp2Analysis_V2_SE_tabset.html",
         fdr_threshold = reporter$deanalyse$FDR_threshold,

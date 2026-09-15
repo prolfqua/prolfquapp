@@ -261,7 +261,7 @@ build_prolfquapp_uns <- function(
       pattern_contaminants = protAnnot$pattern_contaminants,
       pattern_decoys = protAnnot$pattern_decoys
     ),
-    layer_names = as.list(layer_names)
+    layer_names = layer_names
   )
 
   list(

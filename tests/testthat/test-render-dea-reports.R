@@ -32,7 +32,7 @@ fake_dea_reporter <- function(resultdir, supports_qc = TRUE) {
   list(
     resultdir = resultdir,
     deanalyse = deanalyse,
-    make_SummarizedExperiment = function() list(assay = "test")
+    make_SummarizedExperiment = function() make_dea_summarized_experiment()
   )
 }
 
@@ -65,6 +65,7 @@ test_that("render_dea_reports writes inputs and dispatches every supported repor
     c(
       "deanalyse_file",
       "se_file",
+      "anndata_file",
       "dea_file",
       "tabset_file",
       "qc_file",
@@ -73,6 +74,9 @@ test_that("render_dea_reports writes inputs and dispatches every supported repor
   )
   expect_true(file.exists(result$deanalyse_file))
   expect_true(file.exists(result$se_file))
+  expect_true(file.exists(result$anndata_file))
+  # The tabset report renders from the AnnData, not from the .rds.
+  expect_equal(calls$tabset$artifact_file, result$anndata_file)
   expect_equal(
     basename(result$dea_file),
     "Grp2Analysis_V2_R6.html"
@@ -219,7 +223,7 @@ test_that("Quarto report wrappers validate inputs and forward parameters", {
       "/does/not/exist.rds",
       tempdir()
     ),
-    "SummarizedExperiment file not found"
+    "DEA result artifact not found"
   )
   expect_error(
     prolfquapp:::render_quarto_protein_abundances_report(

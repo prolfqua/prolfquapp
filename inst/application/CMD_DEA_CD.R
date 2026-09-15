@@ -310,16 +310,11 @@ run_one <- function(run, base_config) {
   yaml::write_yaml(cfg, file.path(run_config$get_result_dir(), "lfqdata.yaml"))
 
   summarized_experiment <- reporter$make_SummarizedExperiment()
-  anndata_file <- prolfquapp:::write_summarized_experiment_h5ad(
-    summarized_experiment,
-    file.path(reporter$resultdir, "AnnData.h5ad")
-  )
-  outdir$data_files$anndata_file <- anndata_file
 
-  # Writes SummarizedExperiment.rds + DEAnalyse.rds and renders the Quarto
-  # reports (primary R6 DEA report, SE-tabset overview, differential-expression
-  # QC, and sample-size estimation). Each renders independently; a failure warns
-  # without aborting the run.
+  # Writes AnnData.h5ad + SummarizedExperiment.rds + DEAnalyse.rds and renders
+  # the Quarto reports (primary R6 DEA report, tabset overview from the AnnData,
+  # differential-expression QC, and sample-size estimation). Each renders
+  # independently; a failure warns without aborting the run.
   logger::log_info(
     "Writing AnnData and summarized experiment, then rendering Quarto reports."
   )
@@ -331,6 +326,7 @@ run_one <- function(run, base_config) {
   outdir$qc_file <- reports$qc_file
   outdir$quarto_file <- reports$tabset_file
   outdir$sse_file <- reports$sse_file
+  outdir$data_files$anndata_file <- reports$anndata_file
 
   prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
 

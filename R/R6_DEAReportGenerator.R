@@ -563,7 +563,7 @@ DEAReportGenerator <- R6::R6Class(
           artifact_type = "dea_results",
           schema_version = "2.0.0",
           source_software = as.character(self$GRP2$software),
-          feature_keys = as.list(rowname),
+          feature_keys = rowname,
           sample_key = colname,
           bfabric_urls = .url_builder(self$GRP2$project_spec),
           provenance = list(

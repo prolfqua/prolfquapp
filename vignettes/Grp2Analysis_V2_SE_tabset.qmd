@@ -8,7 +8,7 @@ format:
     include-after-body: fgcz-plot-finder.html
 toc: true
 params:
-  se_file: null
+  artifact_file: null
   prolfquapp_source_path: null
   fdr_threshold: 0.05
   diff_threshold: 1
@@ -70,10 +70,10 @@ knitr::opts_chunk$set(
   fig.align = "center"
 )
 
-se_file <- params$se_file
-if (is.null(se_file) || !nzchar(se_file)) {
-  se_file <- file.path(tempdir(), "prolfquapp-example-se.rds")
-  if (!file.exists(se_file)) {
+artifact_file <- params$artifact_file
+if (is.null(artifact_file) || !nzchar(artifact_file)) {
+  artifact_file <- file.path(tempdir(), "prolfquapp-example-se.rds")
+  if (!file.exists(artifact_file)) {
     example_dea <- prolfquapp::example_deanalyse()
     example_cfg <- example_dea$prolfq_app_config
     example_cfg$path <- tempfile()
@@ -83,20 +83,15 @@ if (is.null(se_file) || !nzchar(se_file)) {
         example_dea,
         example_cfg
       )$make_SummarizedExperiment(),
-      se_file
+      artifact_file
     )
   }
 }
-reader <- prolfquapp::DEAResultReader$new(se_file)
-meta <- reader$metadata
-lfq_raw <- reader$lfq_raw
-lfq_transformed <- reader$lfq_transformed
-contrast_table <- reader$contrast_table
-# Column roles of the modelling backend that produced this result. Reading the
-# names from here keeps the report free of backend-specific column names.
-contrast_cfg <- reader$contrast_config
-has_pvalue <- contrast_cfg$has_pvalue()
-has_roles <- reader$has_roles
+
+# Everything this report shows comes off the reader: the abundances, the
+# contrast table under the column names the modelling backend produced, and
+# the column roles that say which of those names to use.
+reader <- prolfquapp::DEAResultReader$new(artifact_file)
 
 dir.create("plots", showWarnings = FALSE, recursive = TRUE)
 
@@ -204,8 +199,8 @@ significant_sets_by_direction <- function(significant_contrasts, direction = c("
     return(list())
   }
   feature_col <- reader$subject_id
-  contrast_col <- contrast_cfg$contrast_col
-  effect_col <- contrast_cfg$effect_col
+  contrast_col <- reader$contrast_config$contrast_col
+  effect_col <- reader$contrast_config$effect_col
   if (!all(c(contrast_col, effect_col) %in% colnames(significant_contrasts))) {
     return(list())
   }
@@ -241,7 +236,7 @@ significant_contrasts <- reader$significant(
 )
 
 report_provenance <- prolfquapp:::.report_provenance(
-  project_spec = meta$provenance
+  project_spec = reader$metadata$provenance
 )
 ```
 
@@ -251,14 +246,14 @@ report_provenance <- prolfquapp:::.report_provenance(
 
 ```{r overview-data-summary}
 #| results: asis
-cat(prolfquapp:::.report_overview_cards(lfq_raw))
+cat(prolfquapp:::.report_overview_cards(reader$lfq_raw))
 ```
 
 <img src="`r knitr::image_uri(system.file("report-assets", "differential-expression-tabset.png", package = "prolfquapp"))`" alt="Visual abstract: quantified protein abundances and sample annotation define an analysis design and contrasts, which produce quality checks and differential-abundance results." style="width: 100%; max-height: 22rem; object-fit: contain;">
 
 This report brings together experimental design, feature detection, quality control, and differential-abundance results. The tabs make the analysis path explicit: define the design and contrasts, inspect data quality, then review the result table.
 
-Input: quantified feature abundances from `r nrow(lfq_raw$factors())` samples. The detailed source-data reference is recorded in **Session Info**.
+Input: quantified feature abundances from `r nrow(reader$lfq_raw$factors())` samples. The detailed source-data reference is recorded in **Session Info**.
 
 # Settings
 
@@ -269,17 +264,17 @@ Input: quantified feature abundances from `r nrow(lfq_raw$factors())` samples. T
 ```{r}
 #| label: tbl-analysis-settings
 settings <- prolfquapp:::.processing_options_from_list(
-  meta$processing_options
+  reader$metadata$processing_options
 )$parameters_table(
-  software = meta$provenance$software,
-  model = meta$default_model
+  software = reader$metadata$provenance$software,
+  model = reader$metadata$default_model
 )
-if (!is.null(meta$formula$formula)) {
+if (!is.null(reader$metadata$formula$formula)) {
   settings <- rbind(
     settings,
     data.frame(
       Parameter = "Model formula",
-      Value = as.character(meta$formula$formula[[1]])
+      Value = as.character(reader$metadata$formula$formula[[1]])
     )
   )
 }
@@ -290,14 +285,14 @@ dt_table(settings, caption = "Analysis settings", page_length = 15)
 
 ```{r}
 #| label: tbl-sample-counts
-sample_counts <- as.data.frame(table(lfq_raw$factors()[lfq_raw$relevant_factor_keys()]))
+sample_counts <- as.data.frame(table(reader$lfq_raw$factors()[reader$lfq_raw$relevant_factor_keys()]))
 colnames(sample_counts)[ncol(sample_counts)] <- "samples"
 dt_table(sample_counts, caption = "Number of samples per condition")
 ```
 
 ```{r}
 #| label: tbl-sample-annotation
-sample_annotation <- lfq_raw$factors()
+sample_annotation <- reader$lfq_raw$factors()
 dt_table(sample_annotation, caption = "Sample annotation and experimental factors")
 ```
 
@@ -305,7 +300,7 @@ dt_table(sample_annotation, caption = "Sample annotation and experimental factor
 
 ```{r}
 #| label: tbl-contrast-definitions
-contrast_definitions <- contrast_definition_table(meta$contrasts)
+contrast_definitions <- contrast_definition_table(reader$metadata$contrasts)
 dt_table(contrast_definitions, caption = "Contrast definitions", page_length = 10)
 ```
 
@@ -323,7 +318,7 @@ dt_table(contrast_definitions, caption = "Contrast definitions", page_length = 1
 #| fig-width: 10
 #| fig-height: 6
 protein_counts <- safe_plot(
-  lfq_raw$get_Summariser()$plot_hierarchy_counts_sample(nr_children = 1),
+  reader$lfq_raw$get_Summariser()$plot_hierarchy_counts_sample(nr_children = 1),
   "Could not draw feature counts per sample."
 )
 save_if_ggplot(protein_counts, "protein_counts_per_sample", width = 10, height = 6)
@@ -338,7 +333,7 @@ show_plot(protein_counts)
 #| fig-width: 9
 #| fig-height: 6
 draw_or_empty(
-  lfq_raw$get_Summariser()$upset_interaction_missing_stats(tr = 1),
+  reader$lfq_raw$get_Summariser()$upset_interaction_missing_stats(tr = 1),
   "Could not draw feature detection overlap plot."
 )
 ```
@@ -357,7 +352,7 @@ draw_or_empty(
 #| fig-width: 7
 #| fig-height: 6
 show_plot(safe_plot(
-  lfq_raw$get_Plotter()$na_heatmap(),
+  reader$lfq_raw$get_Plotter()$na_heatmap(),
   "Could not draw missing value heatmap."
 ))
 ```
@@ -368,15 +363,15 @@ show_plot(safe_plot(
 #| fig-width: 15
 #| fig-height: 4.5
 missing_per_group <- safe_plot(
-  lfq_raw$get_Summariser()$plot_missingness_per_group(),
+  reader$lfq_raw$get_Summariser()$plot_missingness_per_group(),
   "Could not draw missingness per group."
 )
 missing_cumsum <- safe_plot(
-  lfq_raw$get_Summariser()$plot_missingness_per_group_cumsum(),
+  reader$lfq_raw$get_Summariser()$plot_missingness_per_group_cumsum(),
   "Could not draw cumulative missingness per group."
 )
 missing_hist <- safe_plot(
-  lfq_raw$get_Plotter()$missigness_histogram(),
+  reader$lfq_raw$get_Plotter()$missigness_histogram(),
   "Could not draw missingness intensity histogram."
 )
 combined_missing <- gridExtra::arrangeGrob(missing_per_group, missing_cumsum, missing_hist, ncol = 3)
@@ -395,12 +390,12 @@ grid::grid.draw(combined_missing)
 #| fig-height: 5
 #| out-width: "600px"
 raw_density <- safe_plot(
-  lfq_raw$get_Plotter()$intensity_distribution_density(),
+  reader$lfq_raw$get_Plotter()$intensity_distribution_density(),
   "Could not draw raw abundance density."
 ) +
   ggplot2::labs(tag = "A")
 trans_density <- safe_plot(
-  lfq_transformed$get_Plotter()$intensity_distribution_density(),
+  reader$lfq_transformed$get_Plotter()$intensity_distribution_density(),
   "Could not draw transformed abundance density."
 ) +
   ggplot2::labs(tag = "B")
@@ -424,18 +419,18 @@ sized_widget(
 #| fig-width: 15
 #| fig-height: 5
 raw_violin <- safe_plot(
-  lfq_raw$get_Stats()$violin(),
+  reader$lfq_raw$get_Stats()$violin(),
   "Could not draw raw CV violin plot."
 ) +
   ggplot2::labs(y = "CV")
-log2_raw <- lfq_raw$get_Transformer()$log2()$lfq
+log2_raw <- reader$lfq_raw$get_Transformer()$log2()$lfq
 log2_raw_violin <- safe_plot(
   log2_raw$get_Stats()$violin(),
   "Could not draw log2 raw SD violin plot."
 ) +
   ggplot2::labs(y = "SD (log2 raw)")
 trans_violin <- safe_plot(
-  lfq_transformed$get_Stats()$violin(),
+  reader$lfq_transformed$get_Stats()$violin(),
   "Could not draw transformed SD violin plot."
 ) +
   ggplot2::labs(y = "SD (transformed)")
@@ -448,9 +443,9 @@ gridExtra::grid.arrange(raw_violin, log2_raw_violin, trans_violin, nrow = 1)
 ```{r}
 #| label: tbl-variance-summary
 variance_summary <- dplyr::bind_rows(
-  raw_cv = lfq_raw$get_Stats()$stats_quantiles()$wide,
+  raw_cv = reader$lfq_raw$get_Stats()$stats_quantiles()$wide,
   log2_sd = log2_raw$get_Stats()$stats_quantiles()$wide,
-  transformed_sd = lfq_transformed$get_Stats()$stats_quantiles()$wide,
+  transformed_sd = reader$lfq_transformed$get_Stats()$stats_quantiles()$wide,
   .id = "source"
 ) |>
   dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, 3)))
@@ -477,7 +472,7 @@ dt_table(
 #| fig-width: 7
 #| fig-height: 6
 pca_plot <- safe_plot(
-  lfq_transformed$get_Plotter()$pca(),
+  reader$lfq_transformed$get_Plotter()$pca(),
   "Could not draw PCA."
 )
 save_if_ggplot(pca_plot, "pca", width = 7, height = 6)
@@ -492,7 +487,7 @@ show_plot(pca_plot)
 #| fig-width: 7
 #| fig-height: 6
 show_plot(safe_plot(
-  lfq_transformed$get_Plotter()$heatmap_cor(),
+  reader$lfq_transformed$get_Plotter()$heatmap_cor(),
   "Could not draw sample correlation heatmap."
 ))
 ```
@@ -505,7 +500,7 @@ show_plot(safe_plot(
 #| fig-width: 7
 #| fig-height: 6
 show_plot(safe_plot(
-  lfq_transformed$get_Plotter()$heatmap(),
+  reader$lfq_transformed$get_Plotter()$heatmap(),
   "Could not draw abundance heatmap."
 ))
 ```
@@ -523,8 +518,8 @@ show_plot(safe_plot(
 ```{r}
 #| label: tbl-significant-summary
 if (nrow(significant_contrasts) > 0) {
-  contrast_col <- contrast_cfg$contrast_col
-  effect_col <- contrast_cfg$effect_col
+  contrast_col <- reader$contrast_config$contrast_col
+  effect_col <- reader$contrast_config$effect_col
   signif_summary <- significant_contrasts |>
     dplyr::mutate(direction = ifelse(.data[[effect_col]] > 0, "increased", "decreased")) |>
     dplyr::count(.data[[contrast_col]], .data$direction, name = "features")
@@ -536,9 +531,9 @@ dt_table(signif_summary, caption = "Significant features by contrast and directi
 
 ```{r}
 #| label: tbl-differential-abundance-summary
-if (has_roles(contrast_cfg$contrast_col)) {
-  contrast_col <- contrast_cfg$contrast_col
-  abundance_summary <- contrast_table |>
+if (reader$has_roles(reader$contrast_config$contrast_col)) {
+  contrast_col <- reader$contrast_config$contrast_col
+  abundance_summary <- reader$contrast_table |>
     dplyr::count(.data[[contrast_col]], name = "tested") |>
     dplyr::left_join(
       dplyr::count(significant_contrasts, .data[[contrast_col]], name = "significant"),
@@ -644,7 +639,7 @@ if (!is.null(contrast_plotter)) {
 #| fig-width: 9
 #| fig-height: 8
 if (nrow(significant_contrasts) > 0) {
-  significant_lfq <- lfq_transformed$get_copy()
+  significant_lfq <- reader$lfq_transformed$get_copy()
   significant_lfq <- significant_lfq$get_subset(significant_contrasts)
   row_names <- tryCatch(significant_lfq$hierarchy_counts()[[2]] <= 30, error = function(e) FALSE)
   significant_heatmap <- safe_plot(
@@ -686,10 +681,10 @@ if (!is.null(contrast_plotter)) {
   fc_hist <- safe_plot(contrast_plotter$histogram_diff(), "Could not draw fold-change histogram.")
   histograms <- contrast_plotter$histogram()
   # Prefer the raw p-value when the backend produces one, otherwise its FDR.
-  score_col <- if (has_pvalue && has_roles(contrast_cfg$pvalue_col)) {
-    contrast_cfg$pvalue_col
-  } else if (has_roles(contrast_cfg$fdr_col)) {
-    contrast_cfg$fdr_col
+  score_col <- if (reader$contrast_config$has_pvalue() && reader$has_roles(reader$contrast_config$pvalue_col)) {
+    reader$contrast_config$pvalue_col
+  } else if (reader$has_roles(reader$contrast_config$fdr_col)) {
+    reader$contrast_config$fdr_col
   } else {
     NA_character_
   }
@@ -713,7 +708,7 @@ if (!is.null(contrast_plotter)) {
 
 ```{r}
 #| label: tbl-contrast-results
-dt_table(contrast_table, caption = "Differential abundance results", page_length = 25)
+dt_table(reader$contrast_table, caption = "Differential abundance results", page_length = 25)
 ```
 
 # Session Info
@@ -730,7 +725,7 @@ knitr::kable(prolfquapp:::.report_provenance_table(report_provenance))
 
 ```{r}
 #| label: tbl-bfabric
-urls <- meta$bfabric_urls
+urls <- reader$metadata$bfabric_urls
 url_df <- data.frame(field = character(), url = character())
 if (is.list(urls) && length(urls) > 0) {
   url_values <- vapply(urls, function(x) {

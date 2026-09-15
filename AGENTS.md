@@ -162,11 +162,12 @@ All scripts use `optparse` for argument parsing and `logger` for structured logg
 
 Quarto reports (in `vignettes/`, styled by the vendored FGCZ Quarto extension) render dynamic HTML reports. They are
 built as package vignettes into `doc/` and rendered at runtime from there — DEA reports via the internal helper
-`render_dea_reports()`, QC reports via the QC generator. Each report reads a serialized `.rds` parameter (a `DEAnalyse`, a
-`SummarizedExperiment`, a QC generator, or a `list(data, configuration)`):
+`render_dea_reports()`, QC reports via the QC generator. Each report reads a serialized parameter: the tabset report
+takes a DEA result artifact (`AnnData.h5ad`, or a `SummarizedExperiment` `.rds`) through `DEAResultReader`, the others a
+`.rds` holding a `DEAnalyse`, a QC generator, or a `list(data, configuration)`:
 
 - **Grp2Analysis_V2_R6_quarto.qmd**: primary DEA report → `DE_<workunit>.html`
-- **Grp2Analysis_V2_SE_tabset.qmd**: SummarizedExperiment tabset overview → `DE_<workunit>_tabset.html`
+- **Grp2Analysis_V2_SE_tabset.qmd**: DEA-artifact tabset overview → `DE_<workunit>_tabset.html`
 - **DiffExpQC_R6_quarto.qmd**: differential-expression QC (tabbed) → `QC_<workunit>.html`
 - **QCandSSE_quarto.qmd**: sample-size estimation → `QC_sampleSizeEstimation.html`
 - **QC_ProteinAbundances_quarto.qmd**: protein abundance distributions → `proteinAbundances.html`

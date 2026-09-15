@@ -206,8 +206,12 @@ test_that("SE Quarto tabset report renders with reconstructed LFQData", {
   dir.create(workdir, recursive = TRUE)
   on.exit(unlink(workdir, recursive = TRUE), add = TRUE)
 
-  se_file <- file.path(workdir, "SummarizedExperiment.rds")
-  saveRDS(se, se_file)
+  # The pipeline renders this report from the AnnData artifact, so the render
+  # test reads that too; the helper test below covers the .rds input.
+  artifact_file <- prolfquapp:::write_summarized_experiment_h5ad(
+    se,
+    file.path(workdir, "AnnData.h5ad")
+  )
 
   report_file <- "Grp2Analysis_V2_SE_tabset.qmd"
   file.copy(
@@ -219,7 +223,7 @@ test_that("SE Quarto tabset report renders with reconstructed LFQData", {
   # report helper uses): fgcz_render copies _metadata.yml / fgcz.scss /
   # fgcz_header_quarto.html / fgcz-plot-finder.html from the installed
   # fgczQuartoTemplate package next to the qmd, so no _extensions/ tree is needed.
-  execute_params <- list(se_file = normalizePath(se_file))
+  execute_params <- list(artifact_file = normalizePath(artifact_file))
   source_tree <- test_source_tree()
   if (nzchar(source_tree)) {
     skip_if_not_installed("devtools")
@@ -283,7 +287,7 @@ test_that("internal SE Quarto report helper renders HTML", {
   saveRDS(se, se_file)
 
   html_file <- prolfquapp:::render_quarto_se_report(
-    se_file = se_file,
+    artifact_file = se_file,
     output_dir = workdir,
     output_file = "helper-report.html"
   )

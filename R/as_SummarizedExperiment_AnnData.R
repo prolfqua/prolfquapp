@@ -16,18 +16,31 @@
 
 # uns keys written by the forward conversion to describe the reshape itself.
 # They are not part of the SummarizedExperiment metadata.
-.anndata_reshape_keys <- c("layer_names", "varm_columns", "varm_annotations")
+.anndata_reshape_keys <- c(
+  "layer_names",
+  "varm_columns",
+  "varm_annotations",
+  "varm_column_order",
+  "varm_key_order"
+)
 
 #' Rebuild one nested rowData frame from a varm matrix
 #'
 #' @param values the varm matrix
 #' @param columns column names of `values`
 #' @param annotations list of the frame's non-numeric columns
+#' @param column_order the order the frame's columns had before the split
 #' @param var_names the feature axis
 #' @return data.frame indexed by `var_names`
 #' @keywords internal
 #' @noRd
-.anndata_varm_frame <- function(values, columns, annotations, var_names) {
+.anndata_varm_frame <- function(
+  values,
+  columns,
+  annotations,
+  column_order,
+  var_names
+) {
   values <- as.matrix(values)
   if (ncol(values) != length(columns)) {
     stop(
@@ -41,8 +54,17 @@
   frame <- as.data.frame(values)
   names(frame) <- unlist(columns, use.names = FALSE)
   for (name in names(annotations)) {
-    frame[[name]] <- unlist(annotations[[name]], use.names = FALSE)
+    # HDF5 hands back a one-dimensional array; the frame wants a plain vector.
+    frame[[name]] <- as.vector(unlist(annotations[[name]], use.names = FALSE))
   }
+  column_order <- unlist(column_order, use.names = FALSE)
+  if (!setequal(column_order, names(frame))) {
+    stop(
+      "AnnData varm_column_order does not match the columns of the frame: ",
+      paste(setdiff(column_order, names(frame)), collapse = ", ")
+    )
+  }
+  frame <- frame[, column_order, drop = FALSE]
   rownames(frame) <- var_names
   frame
 }
@@ -70,7 +92,12 @@ anndata_to_summarized_experiment <- function(adata) {
   obs_names <- rownames(obs)
   var_names <- rownames(var)
 
-  layer_keys <- adata$layers_keys()
+  # HDF5 groups are unordered, so slot order comes from the recorded names.
+  layer_keys <- .anndata_ordered_keys(
+    metadata$layer_names,
+    adata$layers_keys(),
+    "layer_names"
+  )
   assays <- lapply(layer_keys, function(key) {
     values <- t(as.matrix(adata$layers[[key]]))
     dimnames(values) <- list(var_names, obs_names)
@@ -81,19 +108,70 @@ anndata_to_summarized_experiment <- function(adata) {
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = assays,
     colData = S4Vectors::DataFrame(obs, check.names = FALSE),
-    metadata = metadata[setdiff(names(metadata), .anndata_reshape_keys)]
+    metadata = .anndata_uns_restore(
+      metadata[setdiff(names(metadata), .anndata_reshape_keys)]
+    )
   )
 
   rownames(var) <- var_names
   SummarizedExperiment::rowData(se)[[.anndata_var_frame_name]] <- var
-  for (key in adata$varm_keys()) {
+  varm_keys <- .anndata_ordered_keys(
+    metadata$varm_key_order,
+    adata$varm_keys(),
+    "varm_key_order"
+  )
+  for (key in varm_keys) {
     SummarizedExperiment::rowData(se)[[utils::URLdecode(key)]] <-
       .anndata_varm_frame(
         adata$varm[[key]],
         metadata$varm_columns[[key]],
         metadata$varm_annotations[[key]],
+        metadata$varm_column_order[[key]],
         var_names
       )
   }
   se
+}
+
+#' Slot keys in the order they were written
+#'
+#' @param recorded the recorded order, from `uns`
+#' @param present the keys the AnnData actually carries
+#' @param label which recorded key is being used, for error messages
+#' @return `present`, ordered by `recorded`
+#' @keywords internal
+#' @noRd
+.anndata_ordered_keys <- function(recorded, present, label) {
+  recorded <- as.vector(unlist(recorded, use.names = FALSE))
+  if (!setequal(recorded, present)) {
+    stop(
+      "AnnData ",
+      label,
+      " does not list the same keys the AnnData carries: ",
+      paste(union(setdiff(recorded, present), setdiff(present, recorded)), collapse = ", ")
+    )
+  }
+  recorded
+}
+
+#' Undo what the h5ad reader does to plain values
+#'
+#' HDF5 returns a vector as a one-dimensional array, which makes metadata read
+#' from an `.h5ad` compare unequal to the same metadata read from an `.rds`.
+#' @param value a value from `uns`
+#' @return the value with one-dimensional array shapes dropped
+#' @keywords internal
+#' @noRd
+.anndata_uns_restore <- function(value) {
+  if (is.data.frame(value)) {
+    value[] <- lapply(value, .anndata_uns_restore)
+    return(value)
+  }
+  if (is.list(value)) {
+    return(lapply(value, .anndata_uns_restore))
+  }
+  if (length(dim(value)) == 1L) {
+    return(as.vector(value))
+  }
+  value
 }

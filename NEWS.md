@@ -1,5 +1,19 @@
 # prolfquapp 2.9.1
 
+- The tabbed differential-expression report now renders from `AnnData.h5ad`
+  rather than from `SummarizedExperiment.rds`, so every analysis run that
+  produces a report has demonstrated that its AnnData can be read back. Both
+  files are still written, and the report reads either one.
+- Fixed silent metadata loss when writing AnnData: a data frame stored in the
+  metadata (the contrast definitions and the model formula) was flattened to a
+  list of columns, and a list without names -- which AnnData cannot represent at
+  all -- was written as an empty group. Data frames now survive the round-trip,
+  unnamed lists are refused with an error naming the offending entry, and the
+  order of layers, contrast tables and their columns is preserved. This also
+  repairs `LFQData_from_anndata()`, which silently dropped every extra
+  abundance layer when reading an `.h5ad` back, because the layer names it
+  needed had been written as an unnamed list.
+
 - New `DEAResultReader` reads a differential-expression result artifact — a
   `SummarizedExperiment`, an AnnData, or a path to an `.rds` or `.h5ad` file —
   back into the familiar prolfqua objects: the raw and transformed `LFQData`,
