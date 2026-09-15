@@ -119,7 +119,7 @@ saveRDS(
 # Permissive thresholds so the significance tables and set plots are
 # populated: the point is to execute every panel, not to assert biology.
 prolfquapp:::render_quarto_se_report(
-  se_file = se,
+  artifact_file = se,
   output_dir = out,
   fdr_threshold = 1,
   diff_threshold = 0

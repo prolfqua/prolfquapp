@@ -11,7 +11,7 @@ params:
   artifact_file: null
   prolfquapp_source_path: null
   fdr_threshold: 0.05
-  diff_threshold: 1
+  diff_threshold: 0.4
 vignette: >
   %\VignetteIndexEntry{Differential Expression Analysis (Tabbed Report)}
   %\VignetteEngine{quarto::format}

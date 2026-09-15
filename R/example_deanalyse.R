@@ -37,7 +37,9 @@ example_deanalyse <- function(Nprot = 100) {
     PATH = tempfile("prolfquapp-example-"),
     model = "lm_impute"
   )
-  GRP2$processing_options$diff_threshold <- 0.2
+  # The simulated effects sit below 1, so the example carries a threshold its
+  # own data can clear -- otherwise every significance panel renders empty.
+  GRP2$processing_options$diff_threshold <- 0.4
   GRP2$processing_options$transform <- "robscale"
   # Populate the B-fabric identifiers so example/vignette renders show the
   # project context instead of blank Workunit/Project/Order fields.

@@ -1,5 +1,12 @@
 # prolfquapp 2.9.1
 
+- The example analysis now carries a fold-change threshold its own data can
+  clear (0.4 rather than 1, against simulated effects that top out near 0.8), so
+  the example and vignette renders of the tabbed report show populated
+  significance tables and contrast-agreement plots instead of empty panels.
+  Real analyses are unaffected: the threshold comes from the run's
+  configuration.
+
 - The tabbed differential-expression report now renders from `AnnData.h5ad`
   rather than from `SummarizedExperiment.rds`, so every analysis run that
   produces a report has demonstrated that its AnnData can be read back. Both
