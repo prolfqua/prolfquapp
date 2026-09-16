@@ -882,9 +882,12 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="prolfquapp-2.9.1" class="level1">
-<h1>prolfquapp 2.9.1</h1>
+<section id="prolfquapp-2.10.0" class="level1">
+<h1>prolfquapp 2.10.0</h1>
 <ul>
+<li><p>The <code>SummarizedExperiment</code> and the AnnData now record <code>identifier_key</code>, the annotation column holding the identifier enrichment tools are given (STRING, ORA). Which column that is depends on the reader that produced the analysis, so a consumer of the artifact no longer has to guess at column names.</p></li>
+<li><p>A metadata table (the contrast definitions, the model formula) is now written into the AnnData column by column rather than as a dataframe group: anndataR encodes a one-row table’s columns as HDF5 scalars, which <code>anndata</code> in Python refuses to read, so every single-contrast analysis produced an <code>.h5ad</code> that Python could not open. Reading the file back in R is unchanged.</p></li>
+<li><p>New <code>SIM_PEPTIDE</code> input, the peptide-level twin of <code>SIM</code>, so the nested modelling facades (<code>lmer_nested</code>, <code>ropeca_nested</code>, <code>firth_nested</code>, <code>limpa_nested</code>, <code>binomial_nested</code>) can be exercised on simulated data.</p></li>
 <li><p>The example analysis now carries a fold-change threshold its own data can clear (0.4 rather than 1, against simulated effects that top out near 0.8), so the example and vignette renders of the tabbed report show populated significance tables and contrast-agreement plots instead of empty panels. Real analyses are unaffected: the threshold comes from the run’s configuration.</p></li>
 <li><p>The tabbed differential-expression report now renders from <code>AnnData.h5ad</code> rather than from <code>SummarizedExperiment.rds</code>, so every analysis run that produces a report has demonstrated that its AnnData can be read back. Both files are still written, and the report reads either one.</p></li>
 <li><p>Fixed silent metadata loss when writing AnnData: a data frame stored in the metadata (the contrast definitions and the model formula) was flattened to a list of columns, and a list without names – which AnnData cannot represent at all – was written as an empty group. Data frames now survive the round-trip, unnamed lists are refused with an error naming the offending entry, and the order of layers, contrast tables and their columns is preserved. This also repairs <code>LFQData_from_anndata()</code>, which silently dropped every extra abundance layer when reading an <code>.h5ad</code> back, because the layer names it needed had been written as an unnamed list.</p></li>
@@ -892,6 +895,11 @@ ul.task-list li input[type="checkbox"] {
 <li><p>Both differential-expression reports now decide what to show from the backend’s column roles rather than from which backend ran: the significance filter, the volcano and score panels, and the difference-test introduction all follow the recorded roles. Results from a backend without a p-value (SAINT) are presented correctly without the report naming it.</p></li>
 <li><p>AnnData files written by a differential-expression run can now be read back into a <code>SummarizedExperiment</code>, so the <code>.h5ad</code> is a full-fidelity artifact rather than an export: layers, sample and feature annotation, every contrast table, and the analysis metadata all survive the round-trip.</p></li>
 <li><p>The <code>SummarizedExperiment</code> now stores feature annotation once, in its own <code>rowData</code> frame named <code>annotation</code>, and the per-contrast frames carry results only. In the AnnData that annotation frame is <code>var</code> and each contrast frame is its own <code>varm</code> entry under the name prolfquapp gave it. Its metadata states the artifact type and schema version (<code>2.0.0</code>), and carries the analysis configuration and provenance under the names <code>analysis_configuration</code> and <code>provenance</code>; readers of artifacts written by earlier versions must be updated.</p></li>
+</ul>
+</section>
+<section id="prolfquapp-2.9.1" class="level1">
+<h1>prolfquapp 2.9.1</h1>
+<ul>
 <li><p>The <code>SummarizedExperiment</code> written by a differential-expression run now records the contrast column roles in its metadata as <code>contrast_configuration</code>, so downstream tools can find the contrast, effect, score and FDR columns by role instead of guessing their names. This makes results from backends with their own naming — SAINTexpress uses <code>Bait</code>, <code>log2_EFCs</code>, <code>SaintScore</code> and <code>BFDR</code> — readable by the same generic code that handles the standard schema.</p></li>
 <li><p>The <code>SummarizedExperiment</code> written by a differential-expression run now carries the processing options in its metadata, so reports rendered from it can state the settings the analysis actually used.</p></li>
 <li><p>The tabset report reads its settings straight from the <code>SummarizedExperiment</code> metadata and no longer falls back when they are absent, so it requires a <code>SummarizedExperiment</code> written by this version or later. Its example render now builds an example on the fly instead of loading a shipped snapshot, and the 4.4 MB <code>inst/extdata/3106962.rds</code> fixture it used has been dropped.</p></li>
