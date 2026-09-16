@@ -18,6 +18,7 @@
 # They are not part of the SummarizedExperiment metadata.
 .anndata_reshape_keys <- c(
   "layer_names",
+  "uns_table_columns",
   "varm_columns",
   "varm_annotations",
   "varm_column_order",
@@ -108,9 +109,7 @@ anndata_to_summarized_experiment <- function(adata) {
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = assays,
     colData = S4Vectors::DataFrame(obs, check.names = FALSE),
-    metadata = .anndata_uns_restore(
-      metadata[setdiff(names(metadata), .anndata_reshape_keys)]
-    )
+    metadata = .anndata_uns_metadata(metadata)
   )
 
   rownames(var) <- var_names
@@ -174,4 +173,33 @@ anndata_to_summarized_experiment <- function(adata) {
     return(as.vector(value))
   }
   value
+}
+
+#' Rebuild SummarizedExperiment metadata from the prolfquapp uns namespace
+#'
+#' Drops the keys that only describe the reshape and turns the entries listed
+#' in `uns_table_columns` back into data frames -- they are stored column by
+#' column because anndataR cannot write a one-row dataframe group that
+#' `anndata` in Python can read.
+#' @param metadata the `uns$prolfquapp` list
+#' @return list suitable for `S4Vectors::metadata()`
+#' @keywords internal
+#' @noRd
+.anndata_uns_metadata <- function(metadata) {
+  values <- .anndata_uns_restore(
+    metadata[setdiff(names(metadata), .anndata_reshape_keys)]
+  )
+  tables <- metadata$uns_table_columns
+  for (name in intersect(names(tables), names(values))) {
+    columns <- .anndata_ordered_keys(
+      tables[[name]],
+      names(values[[name]]),
+      paste0("uns_table_columns$", name)
+    )
+    values[[name]] <- as.data.frame(
+      values[[name]][columns],
+      stringsAsFactors = FALSE
+    )
+  }
+  values
 }

@@ -251,3 +251,42 @@ test_that("uns rejects a list AnnData cannot store", {
     "unnamed list at metadata\\$feature_keys"
   )
 })
+
+test_that("a single-row metadata table survives the h5ad round-trip", {
+  se <- make_dea_summarized_experiment()
+  # A single-contrast analysis writes one-row tables. anndataR encodes a
+  # one-row data frame's columns as HDF5 scalars, which anndata in Python
+  # refuses to read, so the tables are stored column by column instead.
+  S4Vectors::metadata(se)$contrasts <- data.frame(
+    contrast_name = "A/B",
+    contrast = "A - B"
+  )
+  output_dir <- tempfile("single-contrast-")
+  dir.create(output_dir)
+  on.exit(unlink(output_dir, recursive = TRUE), add = TRUE)
+
+  path <- prolfquapp:::write_summarized_experiment_h5ad(
+    se,
+    file.path(output_dir, "AnnData.h5ad")
+  )
+  restored <- prolfquapp::DEAResultReader$new(path)
+
+  expect_s3_class(restored$metadata$contrasts, "data.frame")
+  expect_equal(nrow(restored$metadata$contrasts), 1L)
+  expect_equal(
+    names(restored$metadata$contrasts),
+    c("contrast_name", "contrast")
+  )
+  expect_equal(restored$metadata$contrasts$contrast, "A - B")
+  expect_equal(restored$metadata$formula$formula, "abundance ~ group")
+})
+
+test_that("uns rejects a table nested inside a list", {
+  se <- make_dea_summarized_experiment()
+  S4Vectors::metadata(se)$provenance$tables <- data.frame(a = 1:2)
+
+  expect_error(
+    prolfquapp:::summarized_experiment_to_anndata(se),
+    "nested table at metadata\\$provenance\\$tables"
+  )
+})

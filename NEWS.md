@@ -1,4 +1,17 @@
-# prolfquapp 2.9.1
+# prolfquapp 2.10.0
+
+- The `SummarizedExperiment` and the AnnData now record `identifier_key`, the
+  annotation column holding the identifier enrichment tools are given (STRING,
+  ORA). Which column that is depends on the reader that produced the analysis,
+  so a consumer of the artifact no longer has to guess at column names.
+- A metadata table (the contrast definitions, the model formula) is now written
+  into the AnnData column by column rather than as a dataframe group: anndataR
+  encodes a one-row table's columns as HDF5 scalars, which `anndata` in Python
+  refuses to read, so every single-contrast analysis produced an `.h5ad` that
+  Python could not open. Reading the file back in R is unchanged.
+- New `SIM_PEPTIDE` input, the peptide-level twin of `SIM`, so the nested
+  modelling facades (`lmer_nested`, `ropeca_nested`, `firth_nested`,
+  `limpa_nested`, `binomial_nested`) can be exercised on simulated data.
 
 - The example analysis now carries a fold-change threshold its own data can
   clear (0.4 rather than 1, against simulated effects that top out near 0.8), so
@@ -45,6 +58,9 @@
   configuration and provenance under the names `analysis_configuration` and
   `provenance`; readers of artifacts written by earlier versions must be
   updated.
+
+# prolfquapp 2.9.1
+
 - The `SummarizedExperiment` written by a differential-expression run now
   records the contrast column roles in its metadata as
   `contrast_configuration`, so downstream tools can find the contrast, effect,

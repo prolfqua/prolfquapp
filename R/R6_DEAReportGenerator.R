@@ -565,6 +565,10 @@ DEAReportGenerator <- R6::R6Class(
           source_software = as.character(self$GRP2$software),
           feature_keys = rowname,
           sample_key = colname,
+          # The annotation column carrying the identifier enrichment tools are
+          # given (STRING, ORA). Which column that is depends on the reader, so
+          # recording it keeps a consumer from guessing at column names.
+          identifier_key = dea$rowAnnot$cleaned_ids,
           bfabric_urls = .url_builder(self$GRP2$project_spec),
           provenance = list(
             project_Id = self$GRP2$project_spec$project_Id,

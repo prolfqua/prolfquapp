@@ -98,6 +98,11 @@ prolfqua_preprocess_functions <- list(
     get_files = "prolfquapp::get_SIM_files",
     preprocess = "prolfquapp::preprocess_SIM",
     extra_args = "list(hierarchy_depth = 1)"
+  ),
+  SIM_PEPTIDE = list(
+    get_files = "prolfquapp::get_SIM_files",
+    preprocess = "prolfquapp::preprocess_SIM",
+    extra_args = "list(hierarchy_depth = 2)"
   )
 )
 

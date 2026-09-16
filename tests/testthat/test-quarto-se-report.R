@@ -67,6 +67,16 @@ test_that("DEAResultReader reconstructs LFQData objects from SummarizedExperimen
 
   report <- prolfquapp::DEAResultReader$new(se)
 
+  # Enrichment consumers read the identifier column from the artifact rather
+  # than guessing which annotation column holds it.
+  expect_equal(
+    report$metadata$identifier_key,
+    dea$rowAnnot$cleaned_ids
+  )
+  expect_true(
+    report$metadata$identifier_key %in%
+      colnames(SummarizedExperiment::rowData(se)[["annotation"]])
+  )
   expect_s3_class(report$lfq_raw, "LFQData")
   expect_s3_class(report$lfq_transformed, "LFQData")
   expect_gt(nrow(report$lfq_raw$data_long()), 0)

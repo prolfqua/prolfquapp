@@ -13,8 +13,9 @@
 #     columns, its remaining columns kept in uns
 #   metadata becomes uns$prolfquapp, wholesale
 #
-# Only keys that describe the reshape itself (layer_names, varm_columns,
-# varm_annotations, varm_column_order, varm_key_order) are derived here. Everything a consumer needs to interpret
+# Only keys that describe the reshape itself (layer_names, uns_table_columns,
+# varm_columns, varm_annotations, varm_column_order, varm_key_order) are
+# derived here. Everything a consumer needs to interpret
 # the result -- artifact type, schema version, column roles, provenance -- is
 # read from the SummarizedExperiment, which is the single source of truth.
 
@@ -55,21 +56,34 @@
 #' Coerce a value into something the h5ad writer accepts
 #'
 #' Recurses through lists and data frames, flattens factors, and drops names
-#' that AnnData would not preserve. Data frames stay data frames: AnnData
-#' stores one as a dataframe group, so it survives the round-trip and
-#' flattening it to a list of columns would lose that.
-#' An unnamed list has no AnnData representation -- anndataR writes one as an
-#' empty group, losing its contents without complaining -- so it is rejected
-#' here rather than silently dropped.
+#' that AnnData would not preserve.
+#'
+#' A metadata table is stored column by column rather than as an AnnData
+#' dataframe group: anndataR writes a one-row data frame's columns as HDF5
+#' scalars instead of length-one arrays, which violates the dataframe encoding
+#' and makes the file unreadable for `anndata` in Python -- so any
+#' single-contrast result would be unreadable. The table names are recorded in
+#' `uns_table_names` so a reader can rebuild the frames.
+#'
+#' An unnamed list has no AnnData representation at all -- anndataR writes one
+#' as an empty group, losing its contents without complaining -- so it is
+#' rejected here rather than silently dropped.
 #' @param value any R value taken from SummarizedExperiment metadata
 #' @param path where `value` sits in the metadata, for error messages
+#' @param depth nesting depth; tables are only supported at the top level
 #' @return the coerced value
 #' @keywords internal
 #' @noRd
-.anndata_uns_value <- function(value, path = "metadata") {
+.anndata_uns_value <- function(value, path = "metadata", depth = 0L) {
   if (is.data.frame(value)) {
-    value[] <- .anndata_uns_list(value, path)
-    return(value)
+    if (depth > 1L) {
+      stop(
+        "AnnData cannot store the nested table at ",
+        path,
+        "; metadata tables are supported at the top level only."
+      )
+    }
+    return(.anndata_uns_list(as.list(value), path, depth))
   }
   if (is.list(value)) {
     if (length(value) > 0L && is.null(names(value))) {
@@ -79,7 +93,7 @@
         "; use a vector instead, or name its elements."
       )
     }
-    return(.anndata_uns_list(value, path))
+    return(.anndata_uns_list(value, path, depth))
   }
   if (is.factor(value)) {
     return(unname(as.character(value)))
@@ -87,9 +101,11 @@
   unname(value)
 }
 
-.anndata_uns_list <- function(value, path) {
+.anndata_uns_list <- function(value, path, depth) {
   Map(
-    .anndata_uns_value,
+    function(element, element_path) {
+      .anndata_uns_value(element, element_path, depth + 1L)
+    },
     value,
     paste0(path, "$", names(value)),
     USE.NAMES = TRUE
@@ -325,7 +341,14 @@ as_AnnData.SummarizedExperiment <- function(
     var_names
   )
 
-  metadata <- .anndata_uns_value(as.list(S4Vectors::metadata(x)))
+  metadata_values <- as.list(S4Vectors::metadata(x))
+  metadata <- .anndata_uns_value(metadata_values)
+  # Column order, like every other AnnData group, is not preserved, so each
+  # table's columns are recorded in the order the table had them.
+  metadata$uns_table_columns <- lapply(
+    metadata_values[vapply(metadata_values, is.data.frame, logical(1))],
+    names
+  )
   metadata$layer_names <- assay_names
   metadata$varm_columns <- varm$columns
   metadata$varm_annotations <- varm$annotations

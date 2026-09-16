@@ -115,14 +115,33 @@ test_that("run_dea errors when no peptide-level reader exists for a nested facad
   GRP2$processing_options$model <- "firth_nested"
   GRP2$processing_options$model_missing <- FALSE
 
+  # A metabolomics reader has no peptide-level twin to switch to; SIM does
+  # (SIM_PEPTIDE), so a nested facade resolves there instead of failing.
   expect_error(
     prolfquapp::run_dea(
       indir = tempdir(),
       dataset = dataset,
-      software = "prolfquapp.SIM",
+      software = "prolfquapp.MZMINE",
       config = GRP2
     ),
     "no peptide-level counterpart"
+  )
+})
+
+test_that("a nested facade switches SIM to its peptide-level reader", {
+  skip_if(nchar(dataset) == 0, "sim_test fixture not installed")
+
+  expect_equal(
+    prolfquapp:::.resolve_nested_reader(
+      "prolfquapp.SIM",
+      is_nested = TRUE,
+      available = paste0(
+        "prolfquapp.",
+        names(prolfquapp::prolfqua_preprocess_functions)
+      ),
+      facade = "lmer_nested"
+    ),
+    "prolfquapp.SIM_PEPTIDE"
   )
 })
 

@@ -32,6 +32,7 @@ make_dea_summarized_experiment <- function() {
       source_software = "DIANN",
       feature_keys = c("protein_Id", "site"),
       sample_key = "sampleName",
+      identifier_key = "protein_Id",
       bfabric_urls = list(projectURL = "https://example.org/project/1"),
       provenance = list(software = "DIANN", workunit_Id = 42),
       contrasts = data.frame(
