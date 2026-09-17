@@ -1,5 +1,7 @@
 # prolfquapp 2.10.4
 
+- Read and atomically write complete MuData containers from R, preserving independent AnnData modalities, shared sample annotations, and container metadata for downstream PTM analysis.
+
 - The per-feature peptide count is now called `nrPeptides` everywhere, in the
   annotation, the XLSX sheet and the AnnData artifact. Simulated and MSstats
   analyses used to call it `nr_peptides`, and two readers carried a line
