@@ -1,3 +1,11 @@
+# prolfquapp 2.10.3
+
+- The Docker image now carries the prolfquasaint build that stamps
+  `estimate_type` on SAINT contrast tables, so a SAINT analysis writes an
+  artifact whose per-row estimate provenance downstream enrichment tools can
+  read. Without it, asking to exclude imputed estimates failed on a SAINT
+  result.
+
 # prolfquapp 2.10.2
 
 - The Docker image now refreshes the unpinned `prolfquasaint` and `saintexpress` dependency chain, so SAINT GSEA rank generation uses the current `score = NULL` contract instead of the dependencies embedded in the preceding image.
