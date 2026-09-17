@@ -1,3 +1,12 @@
+# prolfquapp 2.10.1
+
+- GSEA rank files (`.rnk`) now carry the model's test statistic rather than the
+  signed `-log10(p)` derived from it. The statistic is what the modelling
+  backend actually reports, and it distinguishes features that share a p-value.
+  SAINTexpress is unchanged: it reports no p-value, and its `SaintScore` is a
+  bounded probability that carries no direction, so its rank stays `log2_EFCs`.
+  Rank files written by earlier versions are not comparable to these.
+
 # prolfquapp 2.10.0
 
 - The `SummarizedExperiment` and the AnnData now record `identifier_key`, the

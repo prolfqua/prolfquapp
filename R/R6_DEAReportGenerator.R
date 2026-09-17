@@ -115,7 +115,7 @@
     contrast_obj$subject_id
   }
   saint <- isTRUE(cfg$significance_directional)
-  gsea <- contrast_obj$get_rank()
+  gsea <- contrast_obj$get_rank(score = .gsea_rank_column(cfg))
   gsea <- .map_enrichment_ids(gsea, row_annot, subject_id, id_column)
   gsea <- gsea |>
     dplyr::filter(!is.na(.data[[id_column]]))
