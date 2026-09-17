@@ -1,5 +1,12 @@
 # prolfquapp 2.10.3
 
+- New exported `write_h5ad_atomic()`: writes an AnnData to a temporary file
+  beside the destination, reads it back, hands the restored object to a
+  caller-supplied validator, and only then moves it into place. A crash or a
+  failed validation leaves no partial `.h5ad` behind. The DEA artifact writer
+  uses it, and downstream packages writing their own h5ad can share the same
+  protocol instead of copying it.
+
 - The Docker image now carries the prolfquasaint build that stamps
   `estimate_type` on SAINT contrast tables, so a SAINT analysis writes an
   artifact whose per-row estimate provenance downstream enrichment tools can

@@ -66,27 +66,14 @@ summarized_experiment_to_anndata <- function(se) {
 }
 
 write_summarized_experiment_h5ad <- function(se, path) {
-  destination_dir <- dirname(path)
-  if (!dir.exists(destination_dir)) {
-    stop("AnnData output directory does not exist: ", destination_dir)
-  }
-
   obs_names <- .summarized_experiment_axis_names(se, "obs")
   var_names <- .summarized_experiment_axis_names(se, "var")
   adata <- summarized_experiment_to_anndata(se)
-  temporary <- tempfile(
-    pattern = ".AnnData-",
-    tmpdir = destination_dir,
-    fileext = ".h5ad"
+  write_h5ad_atomic(
+    adata,
+    path,
+    validate = function(restored) {
+      .validate_dea_result_anndata(restored, obs_names, var_names)
+    }
   )
-  on.exit(unlink(temporary), add = TRUE)
-
-  invisible(rhdf5::H5get_libversion())
-  adata$write_h5ad(temporary, compression = "gzip", mode = "w")
-  restored <- anndataR::read_h5ad(temporary)
-  .validate_dea_result_anndata(restored, obs_names, var_names)
-  if (!file.rename(temporary, path)) {
-    stop("Could not move validated AnnData file to: ", path)
-  }
-  normalizePath(path, mustWork = TRUE)
 }
