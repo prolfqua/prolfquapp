@@ -828,6 +828,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./man/write_h5ad_atomic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">write_h5ad_atomic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./man/write_index_html.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">write_index_html</span></a>
   </div>
@@ -882,10 +888,17 @@ ul.task-list li input[type="checkbox"] {
 
 
 
+<section id="prolfquapp-2.10.4" class="level1">
+<h1>prolfquapp 2.10.4</h1>
+<ul>
+<li>The per-feature peptide count is now called <code>nrPeptides</code> everywhere, in the annotation, the XLSX sheet and the AnnData artifact. Simulated and MSstats analyses used to call it <code>nr_peptides</code>, and two readers carried a line copying one spelling to the other, so a tool reading the artifact had to know which reader had run. Both aliases are gone. The <code>nr_peptides</code> <em>option</em> (minimum peptides per protein) is unchanged.</li>
+</ul>
+</section>
 <section id="prolfquapp-2.10.3" class="level1">
 <h1>prolfquapp 2.10.3</h1>
 <ul>
-<li>The Docker image now carries the prolfquasaint build that stamps <code>estimate_type</code> on SAINT contrast tables, so a SAINT analysis writes an artifact whose per-row estimate provenance downstream enrichment tools can read. Without it, asking to exclude imputed estimates failed on a SAINT result.</li>
+<li><p>New exported <code>write_h5ad_atomic()</code>: writes an AnnData to a temporary file beside the destination, reads it back, hands the restored object to a caller-supplied validator, and only then moves it into place. A crash or a failed validation leaves no partial <code>.h5ad</code> behind. The DEA artifact writer uses it, and downstream packages writing their own h5ad can share the same protocol instead of copying it.</p></li>
+<li><p>The Docker image now carries the prolfquasaint build that stamps <code>estimate_type</code> on SAINT contrast tables, so a SAINT analysis writes an artifact whose per-row estimate provenance downstream enrichment tools can read. Without it, asking to exclude imputed estimates failed on a SAINT result.</p></li>
 </ul>
 </section>
 <section id="prolfquapp-2.10.2" class="level1">
