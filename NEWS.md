@@ -1,3 +1,7 @@
+# prolfquapp 2.10.2
+
+- The Docker image now refreshes the unpinned `prolfquasaint` and `saintexpress` dependency chain, so SAINT GSEA rank generation uses the current `score = NULL` contract instead of the dependencies embedded in the preceding image.
+
 # prolfquapp 2.10.1
 
 - GSEA rank files (`.rnk`) now carry the model's test statistic rather than the
