@@ -118,9 +118,8 @@ preprocess_SIM <- function(
     pattern_contaminants = pattern_contaminants,
     pattern_decoys = pattern_decoys
   )
-  pannot$row_annot$nr_tryptic_peptides <- pannot$row_annot$nr_peptides * 2
-  pannot$row_annot$protein_length <- pannot$row_annot$nr_peptides * 10
-  pannot$row_annot$nrPeptides <- pannot$row_annot$nr_peptides
+  pannot$row_annot$nr_tryptic_peptides <- pannot$row_annot$nrPeptides * 2
+  pannot$row_annot$protein_length <- pannot$row_annot$nrPeptides * 10
 
   list(
     lfqdata = lfqdata,

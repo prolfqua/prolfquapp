@@ -24,7 +24,7 @@ example_deanalyse <- function(Nprot = 100) {
       hierarchy_keys_depth = pep$hierarchy_keys()[1],
       file_name = pep$file_name(),
       nr_children_col = pep$nr_children_col(),
-      name_nr_child = "nr_peptides"
+      name_nr_child = "nrPeptides"
     ),
     by = "protein_Id"
   )
@@ -85,8 +85,6 @@ example_qc_generator <- function(Nprot = 100) {
   GRP2 <- make_DEA_config_R6(PATH = tempfile("prolfquapp-example-"))
   GRP2$set_zipdir_name()
   dir.create(GRP2$get_zipdir(), showWarnings = FALSE, recursive = TRUE)
-  # Alias nr_peptides -> nrPeptides (expected by QC report templates)
-  res$pannot$row_annot$nrPeptides <- res$pannot$row_annot$nr_peptides
   pap <- QC_generator$new(res$lfqdata, res$pannot, GRP2)
   pap$get_prot_data()
   pap

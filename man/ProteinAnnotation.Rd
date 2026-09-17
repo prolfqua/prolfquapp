@@ -103,7 +103,7 @@ initialize
   description = NULL,
   cleaned_ids = NULL,
   full_id = NULL,
-  exp_nr_children = "nr_peptides",
+  exp_nr_children = "nrPeptides",
   pattern_contaminants = NULL,
   pattern_decoys = NULL
 )}\if{html}{\out{</div>}}

@@ -88,8 +88,8 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE) {
     pattern_contaminants = "^zz",
     pattern_decoys = "^REV"
   )
-  pannot$row_annot$nr_tryptic_peptides <- pannot$row_annot$nr_peptides * 2
-  pannot$row_annot$protein_length <- pannot$row_annot$nr_peptides * 10
+  pannot$row_annot$nr_tryptic_peptides <- pannot$row_annot$nrPeptides * 2
+  pannot$row_annot$protein_length <- pannot$row_annot$nrPeptides * 10
 
   return(list(pannot = pannot, lfqdata = lfqdata))
 }
@@ -333,7 +333,7 @@ ProteinAnnotation <-
         description = NULL,
         cleaned_ids = NULL,
         full_id = NULL,
-        exp_nr_children = "nr_peptides",
+        exp_nr_children = "nrPeptides",
         pattern_contaminants = NULL,
         pattern_decoys = NULL
       ) {

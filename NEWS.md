@@ -1,3 +1,12 @@
+# prolfquapp 2.10.4
+
+- The per-feature peptide count is now called `nrPeptides` everywhere, in the
+  annotation, the XLSX sheet and the AnnData artifact. Simulated and MSstats
+  analyses used to call it `nr_peptides`, and two readers carried a line
+  copying one spelling to the other, so a tool reading the artifact had to know
+  which reader had run. Both aliases are gone. The `nr_peptides` *option*
+  (minimum peptides per protein) is unchanged.
+
 # prolfquapp 2.10.3
 
 - New exported `write_h5ad_atomic()`: writes an AnnData to a temporary file

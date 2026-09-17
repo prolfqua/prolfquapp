@@ -151,7 +151,7 @@ preprocess_MSstats_FPDIA <- function(
   config$ident_q_value <- "qValue"
   config$hierarchy[["protein_Id"]] <- c("ProteinName")
   config$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
-  config$nr_children <- "nr_peptides"
+  config$nr_children <- "nrPeptides"
   config$set_response("Intensity")
   config$hierarchy_depth <- hierarchy_depth
 
@@ -274,7 +274,7 @@ preprocess_MSstats <- function(
   config$ident_q_value <- "qValue"
   config$hierarchy[["protein_Id"]] <- c("ProteinName")
   config$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
-  config$nr_children <- "nr_peptides"
+  config$nr_children <- "nrPeptides"
   config$set_response("Intensity")
   config$hierarchy_depth <- hierarchy_depth
 
