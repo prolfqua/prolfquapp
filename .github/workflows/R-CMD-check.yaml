@@ -37,7 +37,12 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
+          # "always" also routes macOS through Posit Package Manager. Workaround:
+          # CRAN's macOS builder now ships zstd-compressed .tgz binaries, which the
+          # pak/pkgdepends version this action installs cannot extract
+          # (https://github.com/r-lib/pkgdepends/issues/485). P3M still serves gzip.
+          # Revert to "true" once pkgdepends understands zstd archives.
+          use-public-rspm: always
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
