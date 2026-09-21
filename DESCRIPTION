@@ -17,7 +17,7 @@ Description: The prolfquapp is a user-friendly application to streamline protein
 URL: https://prolfqua.github.io/prolfquapp/, https://github.com/prolfqua/prolfquapp
 BugReports: https://github.com/prolfqua/prolfquapp/issues
 Remotes:
-    github::fgcz/fgczQuartoTemplate@dbeb852bc14f4374d59ff8b94350faf84f4513e1,
+    github::fgcz/fgczQuartoTemplate@5f7cd7f41203a949c78aa78cddb10637ce395fe1,
     github::fgcz/prolfqua,
     github::prolfqua/prolfquasaint
 License: MIT + file LICENSE
