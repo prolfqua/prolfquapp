@@ -1,5 +1,11 @@
 # prolfquapp 2.10.4
 
+- The tabbed DEA report shows the volcano plot again for SAINT analyses. It
+  looked the panel up under the fixed name `FDR`, while the plotter names each
+  panel after the backend's own column, so a SAINT run (`BFDR`) got "No plot is
+  available for this data set" where the volcano belongs. Models whose FDR
+  column is called `FDR` were unaffected.
+
 - Align the report-template dependency with protsea so downstream packages can resolve their combined dependencies in CI.
 
 - Read and atomically write complete MuData containers from R, preserving independent AnnData modalities, shared sample annotations, and container metadata for downstream PTM analysis.

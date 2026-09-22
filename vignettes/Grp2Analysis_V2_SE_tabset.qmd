@@ -602,7 +602,13 @@ draw_upset_or_empty(
 #| fig-width: 9
 #| fig-height: 7
 if (!is.null(contrast_plotter)) {
-  volcano_plot <- safe_plot(contrast_plotter$volcano()$FDR, "Could not draw volcano plot.")
+  # The plotter names its volcano panels after the score column it was given,
+  # so the FDR panel is keyed by the backend's own FDR column (`BFDR` for
+  # SAINT), never by the literal name "FDR".
+  volcano_plot <- safe_plot(
+    contrast_plotter$volcano()[[reader$contrast_config$fdr_col]],
+    "Could not draw volcano plot."
+  )
   save_if_ggplot(volcano_plot, "volcano", width = 9, height = 7)
   show_plot(volcano_plot)
 } else {

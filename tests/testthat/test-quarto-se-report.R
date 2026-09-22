@@ -160,16 +160,18 @@ test_that("DEAResultReader resolves SAINT column roles", {
     ),
     metadata = list(
       default_model = "saint",
-      contrast_configuration = list(
-        subject_id = "protein_Id",
-        contrast_col = "Bait",
-        effect_col = "log2_EFCs",
-        score_col = "SaintScore",
-        pvalue_col = NA_character_,
-        fdr_col = "BFDR",
-        supports_dea_qc = FALSE,
-        needs_saint_annotation = TRUE,
-        significance_directional = TRUE
+      contrast_configuration = prolfqua::R6_extract_values(
+        prolfqua::ContrastConfiguration$new(
+          subject_id = "protein_Id",
+          contrast_col = "Bait",
+          effect_col = "log2_EFCs",
+          score_col = "SaintScore",
+          pvalue_col = NA_character_,
+          fdr_col = "BFDR",
+          supports_dea_qc = FALSE,
+          needs_saint_annotation = TRUE,
+          significance_directional = TRUE
+        )
       )
     )
   )
@@ -194,7 +196,29 @@ test_that("DEAResultReader resolves SAINT column roles", {
   # even though its BFDR passes.
   significant <- report$significant(FDR_threshold = 0.05, diff_threshold = 0.5)
   expect_equal(significant$protein_Id, "P1")
-  expect_s3_class(report$get_Plotter(), "ContrastsPlotter")
+  plotter <- report$get_Plotter()
+  expect_s3_class(plotter, "ContrastsPlotter")
+  # The volcano panel is keyed by the backend's FDR column, so the report must
+  # look it up through the configuration and not under the literal name "FDR".
+  expect_equal(names(plotter$volcano()), "BFDR")
+})
+
+test_that("SAINT column roles survive the AnnData round trip", {
+  skip_if_not_installed("anndataR")
+  skip_if_not_installed("rhdf5")
+
+  dea <- prolfquapp::example_deanalyse(Nprot = 12)
+  reporter <- prolfquapp::DEAReportGenerator$new(dea, dea$prolfq_app_config)
+  se <- reporter$make_SummarizedExperiment()
+  # A backend without a p-value, as SAINT reports its contrasts.
+  S4Vectors::metadata(se)$contrast_configuration$pvalue_col <- ""
+
+  path <- tempfile(fileext = ".h5ad")
+  prolfquapp:::write_summarized_experiment_h5ad(se, path)
+  report <- prolfquapp::DEAResultReader$new(path)
+
+  expect_equal(report$contrast_config$pvalue_col, "")
+  expect_false(report$contrast_config$has_pvalue())
 })
 
 test_that("SE Quarto tabset report renders with reconstructed LFQData", {
