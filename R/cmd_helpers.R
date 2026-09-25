@@ -1,7 +1,5 @@
-# Orchestration helpers for CMD scripts
-#
-# Each function encapsulates the core logic of a CMD_*.R script,
-# keeping optparse and file I/O in the CMD script itself.
+# Orchestration helpers for CMD scripts: the core logic of each CMD_*.R script,
+# while optparse and file I/O stay in the CMD script itself.
 
 # --- CMD_CONTRASTS helpers ----------------------------------------------------
 
@@ -23,22 +21,12 @@
 #'
 run_contrasts_single <- function(annotation_file, control, group = NULL) {
   stopifnot(file.exists(annotation_file))
-
   res <- prolfquapp::read_annotation(annotation_file, QC = TRUE)
   annot <- res$annot
-  group_col <- if (!is.null(group)) group else res$atable$factors[["G_"]]
-
+  group_col <- group %||% res$atable$factors[["G_"]]
   if (!control %in% annot[[group_col]]) {
-    stop(
-      "control '",
-      control,
-      "' not found in column '",
-      group_col,
-      "'.",
-      call. = FALSE
-    )
+    stop("control '", control, "' not found in column '", group_col, "'.", call. = FALSE)
   }
-
   annot$CONTROL <- ifelse(annot[[group_col]] == control, "C", "T")
   annot
 }
@@ -60,31 +48,14 @@ run_contrasts_single <- function(annotation_file, control, group = NULL) {
 #' result <- run_contrasts_twofactor(csv, f1 = "treatment", f2 = "time")
 #' unique(result[!is.na(result$ContrastName), c("ContrastName", "Contrast")])
 #'
-run_contrasts_twofactor <- function(
-  annotation_file,
-  f1,
-  f2,
-  interactions = TRUE
-) {
+run_contrasts_twofactor <- function(annotation_file, f1, f2, interactions = TRUE) {
   stopifnot(file.exists(annotation_file))
-
   df <- prolfquapp::read_table_data(annotation_file)
   missing_cols <- setdiff(c(f1, f2), colnames(df))
   if (length(missing_cols) > 0) {
-    stop(
-      "Column(s) not found: ",
-      paste(missing_cols, collapse = ", "),
-      call. = FALSE
-    )
+    stop("Column(s) not found: ", paste(missing_cols, collapse = ", "), call. = FALSE)
   }
-
-  res <- prolfqua::annotation_add_contrasts(
-    df,
-    primary_col = f1,
-    secondary_col = f2,
-    interactions = interactions
-  )
-  res$annot
+  prolfqua::annotation_add_contrasts(df, primary_col = f1, secondary_col = f2, interactions = interactions)$annot
 }
 
 # --- CMD_MAKE_YAML helper -----------------------------------------------------
@@ -132,12 +103,9 @@ run_make_yaml <- function(
     GRP2$path <- outdir
   }
   cfg <- GRP2$as_list()
-
   # Move verbose/internal fields to bottom for readability
-  fields_to_move <- c("ext_reader", "group")
-  main <- cfg[!names(cfg) %in% fields_to_move]
-  bottom <- cfg[names(cfg) %in% fields_to_move]
-  c(main, bottom)
+  bottom <- names(cfg) %in% c("ext_reader", "group")
+  c(cfg[!bottom], cfg[bottom])
 }
 
 # --- CMD_QUANT_QC helper ------------------------------------------------------
@@ -187,58 +155,28 @@ run_qc_preprocess <- function(
     )
   }
   GRP2$flat_outdir <- isTRUE(flat_outdir)
-
   if (!file.exists(dataset)) {
     stop("No annotation file found: ", dataset, call. = FALSE)
   }
-
   annotation <- prolfquapp::read_table_data(dataset) |>
     prolfquapp::read_annotation(QC = TRUE, repeated = FALSE)
-
   procsoft <- prolfquapp::preprocess_software(
     indir,
     annotation,
-    preprocess_functions = prolfquapp::prolfqua_preprocess_functions[[
-      software
-    ]],
+    preprocess_functions = prolfquapp::prolfqua_preprocess_functions[[software]],
     pattern_contaminants = GRP2$processing_options$pattern_contaminants,
     pattern_decoys = GRP2$processing_options$pattern_decoys
   )
-
-  xd <- procsoft$xd
-  xd$lfqdata$set_config_value("hierarchy_depth", 1)
-
-  list(xd = xd, files = procsoft$files, config = GRP2)
+  procsoft$xd$lfqdata$set_config_value("hierarchy_depth", 1)
+  list(xd = procsoft$xd, files = procsoft$files, config = GRP2)
 }
 
 # --- CMD_DEA_V2 helper -------------------------------------------------------
 
-#' Resolve the reader for a (possibly nested) facade
-#'
-#' Nested facades (e.g. \code{firth_nested}, \code{lmer}, \code{ropeca}) fit
-#' models on peptide-level data and therefore require a peptide-level reader.
-#' Peptide readers are registered as \code{"<reader>_PEPTIDE"} and differ from
-#' their protein-level counterpart only by \code{hierarchy_depth}. When a nested
-#' facade is paired with a protein-level reader, this transparently switches the
-#' software key to the matching peptide-level reader (e.g.
-#' \code{"prolfquapp.DIANN"} -> \code{"prolfquapp.DIANN_PEPTIDE"}) instead of
-#' failing. Non-nested facades, and readers that are already peptide-level, are
-#' returned unchanged.
-#'
-#' @param software software key (e.g. "prolfquapp.DIANN")
-#' @param is_nested logical; whether the facade needs peptide-level data
-#' @param available character vector of registered software keys
-#'   (\code{names(get_procfuncs())})
-#' @param facade facade name, used only for messages
-#' @return the (possibly remapped) software key
-#' @keywords internal
-#' @noRd
-.resolve_nested_reader <- function(
-  software,
-  is_nested,
-  available,
-  facade = ""
-) {
+# Nested facades (e.g. firth_nested, lmer_nested) fit peptide-level data. Paired
+# with a protein-level reader, switch to its registered "<reader>_PEPTIDE"
+# counterpart (same reader, other hierarchy_depth) instead of failing.
+.resolve_nested_reader <- function(software, is_nested, available, facade = "") {
   if (!is_nested || grepl("_PEPTIDE$", software)) {
     return(software)
   }
@@ -269,112 +207,16 @@ run_qc_preprocess <- function(
   peptide_software
 }
 
-.resolve_dea_pipeline <- function(software, config) {
-  default_model <- .resolve_facade_model(
-    config$processing_options$model,
-    config$processing_options$model_missing
-  )
-  model_entry <- prolfqua::lookup_facade(default_model)
-  if (is.null(model_entry)) {
-    stop("Unknown facade: ", default_model, call. = FALSE)
-  }
-
-  preprocess_functions <- prolfquapp::get_procfuncs()
-  is_nested <- identical(model_entry$needs, "nested")
-  resolved_software <- .resolve_nested_reader(
-    software,
-    is_nested,
-    available = names(preprocess_functions),
-    facade = default_model
-  )
-  config$software <- resolved_software
-
-  list(
-    default_model = default_model,
-    is_nested = is_nested,
-    saint_annotation = isTRUE(
-      model_entry$needs_saint_annotation
-    ),
-    preprocess_functions = preprocess_functions,
-    software = resolved_software
-  )
-}
-
-.read_dea_annotation <- function(dataset, config, saint_annotation) {
-  prolfquapp::read_table_data(dataset) |>
-    prolfquapp::read_annotation(
-      prefix = config$group,
-      SAINT = saint_annotation
-    )
-}
-
-.preprocess_dea_data <- function(
-  indir,
-  annotation,
-  pipeline,
-  config
-) {
-  if (!pipeline$software %in% names(pipeline$preprocess_functions)) {
-    stop(
-      "Software '",
-      pipeline$software,
-      "' not found. Available: ",
-      paste(names(pipeline$preprocess_functions), collapse = ", "),
-      call. = FALSE
-    )
-  }
-
-  prolfquapp::preprocess_software(
-    indir,
-    annotation,
-    preprocess_functions = pipeline$preprocess_functions[[
-      pipeline$software
-    ]],
-    pattern_contaminants = config$processing_options$pattern_contaminants,
-    pattern_decoys = config$processing_options$pattern_decoys,
-    nr_peptides = config$processing_options$nr_peptides
-  )
-}
-
-.configure_dea_progress <- function() {
-  if (!is.null(getOption("prolfqua.progress"))) {
-    return(invisible(NULL))
-  }
-  options(prolfqua.progress = function(i, total, label) {
-    label <- if (is.null(label) || identical(label, "")) {
-      "fit"
-    } else {
-      label
-    }
-    logger::log_info(
-      "{label}: {i}/{total} ({round(100 * i / total)}%)"
-    )
-  })
-  invisible(NULL)
-}
-
-.build_nested_deanalyse <- function(
-  data_prep,
-  config,
-  contrasts,
-  default_model
-) {
+# Fit a nested facade on peptide-level data; the report data are the aggregated
+# protein-level data.
+.build_nested_deanalyse <- function(data_prep, config, contrasts, default_model) {
   lfq_peptide <- data_prep$lfq_data_peptide$get_copy()
   lfq_peptide$set_config_value("hierarchy_depth", 1)
-  lfq_raw <- lfq_peptide
-  lfq_model <- prolfquapp::transform_lfqdata(
-    lfq_peptide,
-    method = config$processing_options$transform
-  )
-
-  report_prep <- prolfquapp::ProteinDataPrep$new(
-    lfq_peptide$get_copy(),
-    data_prep$rowAnnot,
-    config
-  )
+  lfq_model <- prolfquapp::transform_lfqdata(lfq_peptide, method = config$processing_options$transform)
+  report_prep <- prolfquapp::ProteinDataPrep$new(lfq_peptide$get_copy(), data_prep$rowAnnot, config)
   report_prep$aggregate()
   report_prep$transform_data()
-  lfq_raw$rename_response("abundance")
+  lfq_peptide$rename_response("abundance")
   lfq_model$rename_response("normalized_abundance")
 
   deanalyse <- DEAnalysePeptideToProtein$new(
@@ -383,7 +225,7 @@ run_qc_preprocess <- function(
     prolfq_app_config = config,
     contrasts = contrasts,
     default_model = default_model,
-    lfq_data_raw = lfq_raw,
+    lfq_data_raw = lfq_peptide,
     summary = data_prep$summary
   )
   deanalyse$build_default()
@@ -393,32 +235,13 @@ run_qc_preprocess <- function(
   deanalyse
 }
 
+# Transform the prepared data and fit the default model.
 .build_protein_deanalyse <- function(data_prep, contrasts) {
-  data_prep$aggregate()
   data_prep$transform_data()
   deanalyse <- data_prep$build_deanalyse(contrasts)
   deanalyse$build_default()
   deanalyse$get_annotated_contrasts()
   deanalyse
-}
-
-.build_deanalyse <- function(
-  data_prep,
-  config,
-  contrasts,
-  pipeline
-) {
-  if (pipeline$is_nested) {
-    return(
-      .build_nested_deanalyse(
-        data_prep,
-        config,
-        contrasts,
-        pipeline$default_model
-      )
-    )
-  }
-  .build_protein_deanalyse(data_prep, contrasts)
 }
 
 #' Run differential expression analysis pipeline
@@ -456,102 +279,92 @@ run_dea <- function(indir, dataset, software, config) {
   if (!file.exists(dataset)) {
     stop("Annotation file not found: ", dataset, call. = FALSE)
   }
-  requested_software <- software
-  pipeline <- .resolve_dea_pipeline(software, config)
-  annotation <- .read_dea_annotation(
-    dataset,
-    config,
-    pipeline$saint_annotation
-  )
-  procsoft <- .preprocess_dea_data(
+  po <- config$processing_options
+  default_model <- .resolve_facade_model(po$model, po$model_missing)
+  model_entry <- prolfqua::lookup_facade(default_model)
+  if (is.null(model_entry)) {
+    stop("Unknown facade: ", default_model, call. = FALSE)
+  }
+  preprocess_functions <- prolfquapp::get_procfuncs()
+  is_nested <- identical(model_entry$needs, "nested")
+  config$software <- .resolve_nested_reader(software, is_nested, names(preprocess_functions), default_model)
+
+  annotation <- prolfquapp::read_table_data(dataset) |>
+    prolfquapp::read_annotation(prefix = config$group, SAINT = isTRUE(model_entry$needs_saint_annotation))
+  if (!config$software %in% names(preprocess_functions)) {
+    stop(
+      "Software '",
+      config$software,
+      "' not found. Available: ",
+      paste(names(preprocess_functions), collapse = ", "),
+      call. = FALSE
+    )
+  }
+  procsoft <- prolfquapp::preprocess_software(
     indir,
     annotation,
-    pipeline,
-    config
+    preprocess_functions = preprocess_functions[[config$software]],
+    pattern_contaminants = po$pattern_contaminants,
+    pattern_decoys = po$pattern_decoys,
+    nr_peptides = po$nr_peptides
   )
   xd <- procsoft$xd
 
-  data_prep <- prolfquapp::ProteinDataPrep$new(
-    xd$lfqdata,
-    xd$protein_annotation,
-    config
-  )
-  # Single filtering path: no quant filtering here. Contaminants are kept +
-  # labelled (annotation CON flag rides the export join); decoys are kept in the
-  # quant and dropped only at the model fit (DEAnalyse$build_facade). This just
-  # records the contaminant / decoy QC proportions.
+  data_prep <- prolfquapp::ProteinDataPrep$new(xd$lfqdata, xd$protein_annotation, config)
+  # Single filtering path: no quant filtering here. Contaminants are kept and
+  # labelled; decoys are dropped only at the model fit (DEAnalyse$build_facade).
+  # This just records the contaminant / decoy QC proportions.
   data_prep$cont_decoy_summary()
 
-  # Route prolfqua's per-protein / per-contrast progress into the watched log.
-  # prolfqua's progress::progress_bar is silently disabled on the non-tty
-  # stderr of a docker/slurm run, so a long fit (e.g. firth_nested) leaves the
-  # log frozen. prolfqua only ever calls this user-supplied
-  # function(i, total, label) -- it takes no logger dependency. Don't clobber a
-  # reporter the caller already set.
-  .configure_dea_progress()
+  # Route prolfqua's progress into the log: its progress bar is disabled on the
+  # non-tty stderr of docker/slurm runs, freezing the log during long fits.
+  # Don't clobber a reporter the caller already set.
+  if (is.null(getOption("prolfqua.progress"))) {
+    options(prolfqua.progress = function(i, total, label) {
+      if (is.null(label) || identical(label, "")) {
+        label <- "fit"
+      }
+      logger::log_info("{label}: {i}/{total} ({round(100 * i / total)}%)")
+    })
+  }
   fit_start <- Sys.time()
-  logger::log_info(
-    "start fitting / contrasts for model: {pipeline$default_model}"
-  )
-  deanalyse <- .build_deanalyse(
-    data_prep,
-    config,
-    annotation$contrasts,
-    pipeline
-  )
-
+  logger::log_info("start fitting / contrasts for model: {default_model}")
+  deanalyse <- if (is_nested) {
+    .build_nested_deanalyse(data_prep, config, annotation$contrasts, default_model)
+  } else {
+    data_prep$aggregate()
+    .build_protein_deanalyse(data_prep, annotation$contrasts)
+  }
   fit_min <- round(as.numeric(difftime(Sys.time(), fit_start, units = "mins")), 2)
-  logger::log_info(paste0(
-    "done fitting / contrasts for ",
-    pipeline$default_model,
-    " in ",
-    fit_min,
-    " min"
-  ))
+  logger::log_info(paste0("done fitting / contrasts for ", default_model, " in ", fit_min, " min"))
 
   list(
     deanalyse = deanalyse,
     xd = xd,
     annotation = annotation,
     files = procsoft$files,
-    software = pipeline$software,
-    requested_software = requested_software
+    software = config$software,
+    requested_software = software
   )
 }
 
 write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   deanalyse <- result$deanalyse
   xd <- result$xd
-  annotation <- result$annotation
-  files <- result$files
+  config$software <- result$software %||% opt$software
 
-  resolved_software <- result$software
-  if (is.null(resolved_software)) {
-    resolved_software <- opt$software
-  }
-  config$software <- resolved_software
-
-  logger::log_info("Processing done: ", resolved_software)
+  logger::log_info("Processing done: ", config$software)
   logger::log_info(paste(
-    c(
-      "Protein Annotation :\n",
-      capture.output(print(xd$protein_annotation$get_summary()))
-    ),
+    c("Protein Annotation :\n", capture.output(print(xd$protein_annotation$get_summary()))),
     collapse = "\n"
   ))
-  logger::log_info(
-    "ContrastNames: \n",
-    paste(names(annotation$contrasts), collapse = "\n")
-  )
+  logger::log_info("ContrastNames: \n", paste(names(result$annotation$contrasts), collapse = "\n"))
   logger::log_info("END OF ANALYSIS")
 
   logger::log_info("CREATING DEAReportGenerator")
   reporter <- DEAReportGenerator$new(deanalyse, config, name = "")
   logger::log_info("Writing results to: ", config$get_zipdir())
-
-  outdir <- reporter$write_DEA_all(
-    boxplot = FALSE
-  )
+  outdir <- reporter$write_DEA_all(boxplot = FALSE)
 
   arrow::write_parquet(
     deanalyse$lfq_data$data_long(),
@@ -560,67 +373,36 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$get_config())
   yaml::write_yaml(cfg, file.path(config$get_result_dir(), "lfqdata.yaml"))
 
-  # Single filtering path: no contaminant/decoy pre-filter here. compute_IBAQ_values
-  # inner-joins the protein annotation itself for protein_length / nr_tryptic_peptides
-  # (a functional join), so contaminants are kept + labelled and decoys need no
-  # explicit drop. Use a copy because compute_IBAQ_values mutates its LFQData.
-  lfqdataIB <- xd$lfqdata$get_copy()
-
-  ibaq_file <- file.path(
-    reporter$resultdir,
-    paste0("IBAQ_", opt$workunit, ".xlsx")
-  )
+  # compute_IBAQ_values joins the protein annotation itself, so contaminants
+  # stay labelled and decoys need no explicit drop. It mutates its LFQData,
+  # hence the copy.
+  ibaq_file <- file.path(reporter$resultdir, paste0("IBAQ_", opt$workunit, ".xlsx"))
   ibaq <- NULL
   if (length(xd$lfqdata$relevant_hierarchy_keys()) == 1) {
-    ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
-    writexl::write_xlsx(
-      ibaq$data_wide()$data,
-      path = ibaq_file
-    )
+    ibaq <- compute_IBAQ_values(xd$lfqdata$get_copy(), xd$protein_annotation)
+    writexl::write_xlsx(ibaq$data_wide()$data, path = ibaq_file)
   }
   outdir$data_files$ibaq_file <- ibaq_file
 
   summarized_experiment <- reporter$make_SummarizedExperiment(ibaq = ibaq)
-
   # Writes AnnData.h5ad + SummarizedExperiment.rds + DEAnalyse.rds and renders
-  # the Quarto reports (primary R6 DEA report, tabset overview from the AnnData,
-  # differential-expression QC, and sample-size estimation). Each renders
-  # independently; a failure warns without aborting the run.
-  logger::log_info(
-    "Writing AnnData and summarized experiment, then rendering Quarto reports."
-  )
+  # the Quarto reports; a failing report warns without aborting the run.
+  logger::log_info("Writing AnnData and summarized experiment, then rendering Quarto reports.")
   reports <- render_dea_reports(reporter, summarized_experiment)
   outdir$data_files$anndata_file <- reports$anndata_file
   outdir$dea_file <- reports$dea_file
   outdir$qc_file <- reports$qc_file
   outdir$quarto_file <- reports$tabset_file
   outdir$sse_file <- reports$sse_file
-
   prolfquapp::write_index_html(outdir, result_dir = reporter$ZIPDIR)
 
-  logger::log_info(
-    "Creating directory with input files :",
-    config$get_input_dir()
-  )
-  dir.create(config$get_input_dir())
-
-  prolfquapp::copy_shell_script(workdir = config$get_input_dir())
-
-  file.copy(
-    c(files$data, files$fasta, ymlfile, opt$dataset),
-    config$get_input_dir()
-  )
-
-  logger::log_info(
-    "Write yaml with parameters: ",
-    file.path(config$get_input_dir(), "minimal.yaml")
-  )
-
-  yaml::write_yaml(
-    prolfqua::R6_extract_values(config),
-    file = file.path(config$get_input_dir(), "minimal.yaml")
-  )
-
+  input_dir <- config$get_input_dir()
+  logger::log_info("Creating directory with input files :", input_dir)
+  dir.create(input_dir)
+  prolfquapp::copy_shell_script(workdir = input_dir)
+  file.copy(c(result$files$data, result$files$fasta, ymlfile, opt$dataset), input_dir)
+  logger::log_info("Write yaml with parameters: ", file.path(input_dir, "minimal.yaml"))
+  yaml::write_yaml(prolfqua::R6_extract_values(config), file = file.path(input_dir, "minimal.yaml"))
   invisible(outdir)
 }
 
@@ -637,12 +419,7 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
 #' @return list with \code{deanalyse}, \code{xd}, \code{annotation}, and
 #'   \code{files}
 #' @export
-run_dea_cd <- function(
-  input = NULL,
-  config,
-  files = NULL,
-  subset_column = NULL
-) {
+run_dea_cd <- function(input = NULL, config, files = NULL, subset_column = NULL) {
   if (is.null(files)) {
     if (is.null(input)) {
       stop("Either input or files must be supplied.", call. = FALSE)
@@ -656,17 +433,8 @@ run_dea_cd <- function(
     config = config,
     subset_column = subset_column
   )
-  xd <- list(
-    lfqdata = cd$lfqdata,
-    protein_annotation = cd$protein_annotation
-  )
-  annotation <- cd$annotation
-
-  data_prep <- prolfquapp::ProteinDataPrep$new(
-    xd$lfqdata,
-    xd$protein_annotation,
-    config
-  )
+  xd <- list(lfqdata = cd$lfqdata, protein_annotation = cd$protein_annotation)
+  data_prep <- prolfquapp::ProteinDataPrep$new(xd$lfqdata, xd$protein_annotation, config)
   # Single filtering path (see run_dea): QC only, no quant filtering here.
   data_prep$cont_decoy_summary()
   if (length(xd$lfqdata$hierarchy_keys()) == xd$lfqdata$get_config()$hierarchy_depth) {
@@ -674,16 +442,6 @@ run_dea_cd <- function(
   } else {
     data_prep$aggregate()
   }
-  data_prep$transform_data()
-
-  deanalyse <- data_prep$build_deanalyse(annotation$contrasts)
-  deanalyse$build_default()
-  deanalyse$get_annotated_contrasts()
-
-  list(
-    deanalyse = deanalyse,
-    xd = xd,
-    annotation = annotation,
-    files = files
-  )
+  deanalyse <- .build_protein_deanalyse(data_prep, cd$annotation$contrasts)
+  list(deanalyse = deanalyse, xd = xd, annotation = cd$annotation, files = files)
 }
