@@ -148,32 +148,8 @@ preprocess_software <- function(
   nr_peptides = 1,
   extreader = NULL
 ) {
-  to_function <- function(x) {
-    list(
-      get_files = getFromNamespace(
-        sub(".*::", "", x$get_files),
-        sub("^(.*)::.*", "\\1", x$get_files)
-      ),
-      preprocess = getFromNamespace(
-        sub(".*::", "", x$preprocess),
-        sub("^(.*)::.*", "\\1", x$preprocess)
-      ),
-      extra_args = eval(parse(text = x$extra_args))
-    )
-  }
-
-  preprocess_functions <- to_function(preprocess_functions)
-
-  # Fetch files
-  files_fn <- preprocess_functions$get_files
-
-  # Preprocess the data
-  preprocess_fn <- preprocess_functions$preprocess
-  extra_args <- preprocess_functions$extra_args
-
-  files <- files_fn(indir)
-
-  # Log files information
+  preprocess_fn <- .resolve_function(preprocess_functions$preprocess)
+  files <- .resolve_function(preprocess_functions$get_files)(indir)
   logger::log_info("Files data: ", paste(files$data, collapse = "; "))
   logger::log_info("Files fasta: ", paste0(files$fasta, collapse = "; "))
 
@@ -184,12 +160,14 @@ preprocess_software <- function(
     pattern_contaminants = pattern_contaminants,
     pattern_decoys = pattern_decoys
   )
-
   base_args <- .forward_nr_peptides(base_args, preprocess_fn, nr_peptides)
+  xd <- do.call(preprocess_fn, c(base_args, eval(parse(text = preprocess_functions$extra_args))))
+  list(xd = xd, files = files)
+}
 
-  xd <- do.call(preprocess_fn, c(base_args, extra_args))
-
-  return(list(xd = xd, files = files))
+# resolve a "pkg::fun" string to the function (exported or not)
+.resolve_function <- function(x) {
+  getFromNamespace(sub(".*::", "", x), sub("^(.*)::.*", "\\1", x))
 }
 
 
@@ -208,20 +186,9 @@ preprocess_software <- function(
 #' dataset <- dataset_funcs$dataset_fn(files, "output_file.csv")
 #' }
 dataset_get_functions <- function(preprocess_functions) {
-  to_function <- function(x) {
-    list(
-      files_fn = getFromNamespace(
-        sub(".*::", "", x$get_files),
-        sub("^(.*)::.*", "\\1", x$get_files)
-      ),
-      dataset_fn = getFromNamespace(
-        sub(".*::", "", x$dataset),
-        sub("^(.*)::.*", "\\1", x$dataset)
-      ),
-      extra_args = eval(parse(text = x$extra_args))
-    )
-  }
-
-  preprocess_functions <- to_function(preprocess_functions)
-  return(preprocess_functions)
+  list(
+    files_fn = .resolve_function(preprocess_functions$get_files),
+    dataset_fn = .resolve_function(preprocess_functions$dataset),
+    extra_args = eval(parse(text = preprocess_functions$extra_args))
+  )
 }

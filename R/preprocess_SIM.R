@@ -39,7 +39,6 @@ preprocess_SIM <- function(
 ) {
   sim <- prolfqua::sim_lfq_data_peptide_config(Nprot = 50)
 
-  # Clone annotation atable and configure for simulated data columns
   config <- annotation$atable$clone(deep = TRUE)
   config$file_name <- "sample"
   config$sample_name <- "sampleName"
@@ -50,42 +49,22 @@ preprocess_SIM <- function(
   config$nr_children <- "nr_children"
   config$ident_q_value <- "qValue"
 
-  # Map annotation factor columns onto simulated data
-  # config$factors maps e.g. G_ -> "group", meaning:
-  # "create factor column G_ from source column group"
-  # The sim data has group_ but not group, so add the source column
+  # config$factors maps a factor key to its annotation source column (e.g. G_ -> "group");
+  # the sim data only has `group_`, so add the missing source columns.
   raw <- sim$data
+  annot <- annotation$annot
+  group_src <- config$factors[[setdiff(names(config$factors), c("CONTROL", "Subject_"))[1]]]
   for (fkey in names(config$factors)) {
     src_col <- config$factors[[fkey]]
-    if (
-      identical(fkey, "CONTROL") &&
-        src_col %in% colnames(annotation$annot)
-    ) {
-      group_key <- setdiff(names(config$factors), c("CONTROL", "Subject_"))[1]
-      group_src <- config$factors[[group_key]]
-      if (group_src %in% colnames(annotation$annot)) {
-        control_map <- dplyr::distinct(
-          annotation$annot[, c(group_src, src_col), drop = FALSE]
-        )
-        raw[[src_col]] <- control_map[[src_col]][match(
-          raw[["group_"]],
-          control_map[[group_src]]
-        )]
-        next
-      }
-    }
-    if (!src_col %in% colnames(raw)) {
+    if (identical(fkey, "CONTROL") && all(c(src_col, group_src) %in% colnames(annot))) {
+      control_map <- dplyr::distinct(annot[, c(group_src, src_col), drop = FALSE])
+      raw[[src_col]] <- control_map[[src_col]][match(raw[["group_"]], control_map[[group_src]])]
+    } else if (!src_col %in% colnames(raw)) {
       raw[[src_col]] <- raw[["group_"]]
     }
   }
 
-  # Reader-local min-peptides-per-protein filter on the simulated peptide data.
-  raw <- prolfquapp::filter_by_peptide_count(
-    raw,
-    "protein_Id",
-    "peptide_Id",
-    nr_peptides
-  )
+  raw <- prolfquapp::filter_by_peptide_count(raw, "protein_Id", "peptide_Id", nr_peptides)
   adata <- prolfqua::setup_analysis(raw, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
 
@@ -94,22 +73,9 @@ preprocess_SIM <- function(
   tmp_data$protein_Id <- prolfquapp::add_RevCon(tmp_data$protein_Id)
   lfqdata$set_data(tmp_data)
 
-  pids <- grep(
-    "^zz|^REV",
-    unique(lfqdata$data_long()$protein_Id),
-    value = TRUE,
-    invert = TRUE
-  )
-  addannot <- data.frame(
-    protein_Id = pids,
-    description = stringi::stri_rand_strings(length(pids), 13)
-  )
-  addannot <- addannot |>
-    tidyr::separate(
-      protein_Id,
-      c("cleanID", NA),
-      remove = FALSE
-    )
+  pids <- grep("^zz|^REV", unique(lfqdata$data_long()$protein_Id), value = TRUE, invert = TRUE)
+  addannot <- data.frame(protein_Id = pids, description = stringi::stri_rand_strings(length(pids), 13)) |>
+    tidyr::separate(protein_Id, c("cleanID", NA), remove = FALSE)
   pannot <- prolfquapp::ProteinAnnotation$new(
     lfqdata,
     addannot,
@@ -120,9 +86,5 @@ preprocess_SIM <- function(
   )
   pannot$row_annot$nr_tryptic_peptides <- pannot$row_annot$nrPeptides * 2
   pannot$row_annot$protein_length <- pannot$row_annot$nrPeptides * 10
-
-  list(
-    lfqdata = lfqdata,
-    protein_annotation = pannot
-  )
+  list(lfqdata = lfqdata, protein_annotation = pannot)
 }

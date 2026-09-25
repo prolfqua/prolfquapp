@@ -3,19 +3,9 @@
 #' @return list with paths to data and fasta
 #' @export
 get_MSstats_files <- function(path) {
-  msstats.path <- grep(
-    "msstats.*\\.(csv|tsv)$",
-    dir(path = path, recursive = TRUE, full.names = TRUE),
-    value = TRUE,
-    ignore.case = TRUE
-  )
-  fasta.files <- grep(
-    "*\\.fasta$|*\\.fas$",
-    dir(path = path, recursive = TRUE, full.names = TRUE),
-    ignore.case = TRUE,
-    value = TRUE
-  )
-
+  files <- dir(path = path, recursive = TRUE, full.names = TRUE)
+  msstats.path <- grep("msstats.*\\.(csv|tsv)$", files, value = TRUE, ignore.case = TRUE)
+  fasta.files <- grep("*\\.fasta$|*\\.fas$", files, ignore.case = TRUE, value = TRUE)
   if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
     fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
   }
@@ -24,13 +14,9 @@ get_MSstats_files <- function(path) {
     stop()
   }
   if (length(msstats.path) > 1) {
-    logger::log_warn(
-      "more then 1 msstats.tsv file found :",
-      length(msstats.path),
-      ". Returning first."
-    )
+    logger::log_warn("more then 1 msstats.tsv file found :", length(msstats.path), ". Returning first.")
   }
-  return(list(data = msstats.path[1], fasta = fasta.files))
+  list(data = msstats.path[1], fasta = fasta.files)
 }
 
 
@@ -39,24 +25,10 @@ get_MSstats_files <- function(path) {
 #' @return A tibble with peptide-level intensities and child counts.
 #' @export
 read_msstats <- function(file) {
-  msstats <- readr::read_csv(file)
-  msstats <- msstats |> dplyr::select(-all_of(c("Condition", "BioReplicate")))
-
-  peptideLevelInt <- msstats |>
-    dplyr::group_by(dplyr::across(c(
-      "ProteinName",
-      "PeptideSequence",
-      "IsotopeLabelType",
-      "Run"
-    ))) |>
-    dplyr::summarise(
-      nr_children = dplyr::n(),
-      Intensity = sum(Intensity, na.rm = TRUE),
-      .groups = "drop"
-    )
-  peptideLevelInt <- peptideLevelInt |>
+  readr::read_csv(file) |>
+    dplyr::group_by(dplyr::across(c("ProteinName", "PeptideSequence", "IsotopeLabelType", "Run"))) |>
+    dplyr::summarise(nr_children = dplyr::n(), Intensity = sum(Intensity, na.rm = TRUE), .groups = "drop") |>
     dplyr::mutate(Intensity = ifelse(Intensity < 1e-10, NA, Intensity))
-  return(peptideLevelInt)
 }
 
 #' create dataset template from MSStats data.
@@ -64,18 +36,75 @@ read_msstats <- function(file) {
 #' @export
 #'
 dataset_template_MSSTATS <- function(files) {
-  msstats_df <- prolfquapp::read_table_data(files$data)
-  datasetannot <- msstats_df |>
-    dplyr::select(
-      raw.file = "Run",
-      "Group" = "Condition",
-      "Subject" = "BioReplicate"
-    ) |>
+  datasetannot <- prolfquapp::read_table_data(files$data) |>
+    dplyr::select(raw.file = "Run", "Group" = "Condition", "Subject" = "BioReplicate") |>
     dplyr::distinct()
   datasetannot$Control <- ""
-  datasetannot <- datasetannot |>
-    tidyr::unite("Name", "Group", "Subject", sep = "_", remove = FALSE)
-  return(datasetannot)
+  tidyr::unite(datasetannot, "Name", "Group", "Subject", sep = "_", remove = FALSE)
+}
+
+# Shared MSstats reader. `fasta_key` is the FASTA column matched to `ProteinName`:
+# "proteinname" (FragPipe DIA, cleaned accessions) or "fasta.id" (full FASTA ids).
+.preprocess_msstats <- function(
+  quant_data,
+  fasta_file,
+  annotation,
+  pattern_contaminants,
+  pattern_decoys,
+  hierarchy_depth,
+  nr_peptides,
+  fasta_key
+) {
+  config <- annotation$atable$clone(deep = TRUE)
+  annot <- annotation$annot |>
+    dplyr::mutate(
+      !!config$file_name := gsub("^x|\\.d\\.zip$|\\.raw$", "", basename(.data[[config$file_name]]))
+    )
+
+  peptide <- read_msstats(quant_data)
+  peptide$nr_peptides <- 1
+  nrPeptides_exp <- peptide |>
+    dplyr::distinct(dplyr::across(c("ProteinName", "PeptideSequence"))) |>
+    dplyr::count(dplyr::across("ProteinName"), name = "nrPeptides")
+
+  # MSstats `PeptideSequence` may carry modifications depending on the upstream
+  # converter; if so the count over-counts (under-filters, never over-drops).
+  peptide <- prolfquapp::filter_by_peptide_count(peptide, "ProteinName", "PeptideSequence", nr_peptides)
+  .stop_if_unannotated(annot[[config$file_name]], peptide$Run)
+
+  peptide$qValue <- 0
+  config$ident_q_value <- "qValue"
+  config$hierarchy[["protein_Id"]] <- c("ProteinName")
+  config$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
+  config$nr_children <- "nrPeptides"
+  config$set_response("Intensity")
+  config$hierarchy_depth <- hierarchy_depth
+
+  apeptide <- dplyr::inner_join(annot, peptide, multiple = "all", by = stats::setNames("Run", config$file_name))
+  .diagnose_sample_join(annot[[config$file_name]], peptide$Run, apeptide[[config$file_name]], "MSstats")
+
+  adata <- prolfqua::setup_analysis(apeptide, config)
+  lfqdata <- prolfqua::LFQData$new(adata, config)
+  logger::log_info("Start reading fasta: ", fasta_file)
+  fasta_annot <- get_annot_from_fasta(fasta_file, pattern_decoys = pattern_decoys)
+  logger::log_info("Finished reading fasta: ", fasta_file)
+
+  fasta_annot <- nrPeptides_exp |>
+    dplyr::left_join(fasta_annot, by = c("ProteinName" = fasta_key)) |>
+    dplyr::rename(!!lfqdata$relevant_hierarchy_keys()[1] := "ProteinName", description = "fasta.header")
+  fpdia <- fasta_key == "proteinname"
+  prot_annot <- prolfquapp::ProteinAnnotation$new(
+    lfqdata,
+    fasta_annot,
+    description = "description",
+    cleaned_ids = if (fpdia) "protein_Id" else "proteinname",
+    full_id = if (fpdia) "fasta.id" else "protein_Id",
+    exp_nr_children = "nrPeptides",
+    pattern_contaminants = pattern_contaminants,
+    pattern_decoys = pattern_decoys
+  )
+  lfqdata$remove_small_intensities()
+  list(lfqdata = lfqdata, protein_annotation = prot_annot)
 }
 
 #' preprocess MSstats fragpipe
@@ -93,105 +122,16 @@ preprocess_MSstats_FPDIA <- function(
   hierarchy_depth = 1,
   nr_peptides = 1
 ) {
-  annot <- annotation$annot
-  config <- annotation$atable$clone(deep = TRUE)
-  annot <- annot |>
-    dplyr::mutate(
-      !!config$file_name := (gsub(
-        "^x|\\.d\\.zip$|\\.raw$",
-        "",
-        (basename(annot[[config$file_name]]))
-      ))
-    )
-
-  peptide <- read_msstats(quant_data)
-  peptide$nr_peptides <- 1
-
-  nrPeptides_exp <- peptide |>
-    dplyr::select(all_of(c("ProteinName", "PeptideSequence"))) |>
-    dplyr::distinct() |>
-    dplyr::group_by(dplyr::across("ProteinName")) |>
-    dplyr::summarize(nrPeptides = dplyr::n())
-
-  # Reader-local min-peptides-per-protein filter. NOTE: MSstats `PeptideSequence`
-  # may carry modifications depending on the upstream converter; if so the count
-  # over-counts (under-filters, never over-drops). Annotation is right-joined
-  # onto the filtered LFQData below.
-  peptide <- prolfquapp::filter_by_peptide_count(
-    peptide,
-    "ProteinName",
-    "PeptideSequence",
-    nr_peptides
-  )
-
-  nr <- sum(annot[[config$file_name]] %in% sort(unique(peptide$Run)))
-  logger::log_info(
-    "nr : ",
-    nr,
-    " files annotated out of ",
-    length(unique(peptide$Run))
-  )
-  stopifnot(nr > 0)
-  logger::log_info(
-    "channels in annotation which are not in peptide.txt file : ",
-    paste(
-      setdiff(annot[[config$file_name]], sort(unique(peptide$Run))),
-      collapse = " ; "
-    )
-  )
-  logger::log_info(
-    "channels in peptide.txt which are not in annotation file : ",
-    paste(
-      setdiff(sort(unique(peptide$Run)), annot[[config$file_name]]),
-      collapse = " ; "
-    )
-  )
-
-  peptide$qValue <- 0
-  config$ident_q_value <- "qValue"
-  config$hierarchy[["protein_Id"]] <- c("ProteinName")
-  config$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
-  config$nr_children <- "nrPeptides"
-  config$set_response("Intensity")
-  config$hierarchy_depth <- hierarchy_depth
-
-  bycol <- c("Run")
-  names(bycol) <- config$file_name
-  apeptide <- dplyr::inner_join(annot, peptide, multiple = "all", by = bycol)
-
-  adata <- prolfqua::setup_analysis(apeptide, config)
-  lfqdata <- prolfqua::LFQData$new(adata, config)
-  logger::log_info("Start reading fasta: ", fasta_file)
-  fasta_annot <- get_annot_from_fasta(
+  .preprocess_msstats(
+    quant_data,
     fasta_file,
-    pattern_decoys = pattern_decoys
+    annotation,
+    pattern_contaminants,
+    pattern_decoys,
+    hierarchy_depth,
+    nr_peptides,
+    fasta_key = "proteinname"
   )
-  logger::log_info("Finished reading fasta: ", fasta_file)
-
-  fasta_annot <- dplyr::left_join(
-    nrPeptides_exp,
-    fasta_annot,
-    by = c("ProteinName" = "proteinname")
-  )
-
-  fasta_annot <- fasta_annot |>
-    dplyr::rename(
-      !!lfqdata$relevant_hierarchy_keys()[1] := !!rlang::sym("ProteinName")
-    )
-  fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
-
-  prot_annot <- prolfquapp::ProteinAnnotation$new(
-    lfqdata,
-    fasta_annot,
-    description = "description",
-    cleaned_ids = "protein_Id",
-    full_id = "fasta.id",
-    exp_nr_children = "nrPeptides",
-    pattern_contaminants = pattern_contaminants,
-    pattern_decoys = pattern_decoys
-  )
-  lfqdata$remove_small_intensities()
-  return(list(lfqdata = lfqdata, protein_annotation = prot_annot))
 }
 
 
@@ -216,102 +156,14 @@ preprocess_MSstats <- function(
   hierarchy_depth = 1,
   nr_peptides = 1
 ) {
-  annot <- annotation$annot
-  config <- annotation$atable$clone(deep = TRUE)
-  annot <- annot |>
-    dplyr::mutate(
-      !!config$file_name := (gsub(
-        "^x|\\.d\\.zip$|\\.raw$",
-        "",
-        (basename(annot[[config$file_name]]))
-      ))
-    )
-
-  peptide <- read_msstats(quant_data)
-  peptide$nr_peptides <- 1
-
-  nrPeptides_exp <- peptide |>
-    dplyr::select(all_of(c("ProteinName", "PeptideSequence"))) |>
-    dplyr::distinct() |>
-    dplyr::group_by(dplyr::across("ProteinName")) |>
-    dplyr::summarize(nrPeptides = dplyr::n())
-
-  # Reader-local min-peptides-per-protein filter. NOTE: MSstats `PeptideSequence`
-  # may carry modifications depending on the upstream converter; if so the count
-  # over-counts (under-filters, never over-drops). Annotation is right-joined
-  # onto the filtered LFQData below.
-  peptide <- prolfquapp::filter_by_peptide_count(
-    peptide,
-    "ProteinName",
-    "PeptideSequence",
-    nr_peptides
-  )
-
-  nr <- sum(annot[[config$file_name]] %in% sort(unique(peptide$Run)))
-  logger::log_info(
-    "nr : ",
-    nr,
-    " files annotated out of ",
-    length(unique(peptide$Run))
-  )
-  stopifnot(nr > 0)
-  logger::log_info(
-    "channels in annotation which are not in peptide.txt file : ",
-    paste(
-      setdiff(annot[[config$file_name]], sort(unique(peptide$Run))),
-      collapse = " ; "
-    )
-  )
-  logger::log_info(
-    "channels in peptide.txt which are not in annotation file : ",
-    paste(
-      setdiff(sort(unique(peptide$Run)), annot[[config$file_name]]),
-      collapse = " ; "
-    )
-  )
-
-  peptide$qValue <- 0
-  config$ident_q_value <- "qValue"
-  config$hierarchy[["protein_Id"]] <- c("ProteinName")
-  config$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
-  config$nr_children <- "nrPeptides"
-  config$set_response("Intensity")
-  config$hierarchy_depth <- hierarchy_depth
-
-  bycol <- c("Run")
-  names(bycol) <- config$file_name
-  apeptide <- dplyr::inner_join(annot, peptide, multiple = "all", by = bycol)
-
-  adata <- prolfqua::setup_analysis(apeptide, config)
-  lfqdata <- prolfqua::LFQData$new(adata, config)
-  logger::log_info("Start reading fasta: ", fasta_file)
-  fasta_annot <- get_annot_from_fasta(
+  .preprocess_msstats(
+    quant_data,
     fasta_file,
-    pattern_decoys = pattern_decoys
+    annotation,
+    pattern_contaminants,
+    pattern_decoys,
+    hierarchy_depth,
+    nr_peptides,
+    fasta_key = "fasta.id"
   )
-  logger::log_info("Finished reading fasta: ", fasta_file)
-
-  fasta_annot <- dplyr::left_join(
-    nrPeptides_exp,
-    fasta_annot,
-    by = c("ProteinName" = "fasta.id")
-  )
-
-  fasta_annot <- fasta_annot |>
-    dplyr::rename(
-      !!lfqdata$relevant_hierarchy_keys()[1] := !!rlang::sym("ProteinName")
-    )
-  fasta_annot <- fasta_annot |> dplyr::rename(description = fasta.header)
-  prot_annot <- prolfquapp::ProteinAnnotation$new(
-    lfqdata,
-    fasta_annot,
-    description = "description",
-    cleaned_ids = "proteinname",
-    full_id = "protein_Id",
-    exp_nr_children = "nrPeptides",
-    pattern_contaminants = pattern_contaminants,
-    pattern_decoys = pattern_decoys
-  )
-  lfqdata$remove_small_intensities()
-  return(list(lfqdata = lfqdata, protein_annotation = prot_annot))
 }

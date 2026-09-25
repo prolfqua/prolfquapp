@@ -27,10 +27,7 @@ write_parquet_isolated <- function(
     stdout = TRUE,
     stderr = TRUE
   )
-  status <- attr(output, "status")
-  if (is.null(status)) {
-    status <- 0L
-  }
+  status <- if (is.null(attr(output, "status"))) 0L else attr(output, "status")
 
   list(
     sink = sink,
