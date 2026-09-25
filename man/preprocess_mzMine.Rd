@@ -37,19 +37,9 @@ A list containing the prepared \code{LFQData} and
 preprocess mzMine input
 }
 \examples{
-
 if(FALSE){
-xd <- "outputs-20250407T1707/bfabric/input_dataset.tsv"
-annot <- readr::read_tsv(xd)
-
-annotation <- read_annotation(annot, QC = TRUE)
-xd <- "outputs-20250407T1707/"
-files <- get_mzMine_files(path)
-files
-undebug(preprocess_mzMine)
-res <- preprocess_mzMine(files$data, files$fasta , annotation)
-dim(res$lfqdata$data)
+annotation <- read_annotation(readr::read_tsv("outputs-20250407T1707/bfabric/input_dataset.tsv"), QC = TRUE)
+files <- get_mzMine_files("outputs-20250407T1707/")
 res <- preprocess_mzMine(files$data, files$fasta , annotation, annotated = TRUE)
-dim(res$lfqdata$data)
 }
 }

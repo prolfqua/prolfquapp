@@ -27,9 +27,7 @@ tidy_FragPipe_combined_protein_deprec(
 FragPipe read FragPipe combined protein files up to Version 15
 }
 \examples{
-
 prottsv <- prolfqua::find_package_file("prolfquapp", "samples/FragPipe/combined_protein_small.tsv")
-
 prot <- tidy_FragPipe_combined_protein_deprec(prottsv)
 stopifnot( dim(prot) ==c(19980,27))
 }

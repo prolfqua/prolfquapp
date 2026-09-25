@@ -18,7 +18,6 @@ protein_txt <- read.csv(
   unz(protein_txt, "proteinGroups.txt"),
   header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 mq_proteins <-tidyMQ_ProteinGroups(protein_txt)
-
 }
 \seealso{
 Other MaxQuant: 
