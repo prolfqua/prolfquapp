@@ -21,7 +21,6 @@ preprocess_dummy <- function(
   annotation,
   pattern_contaminants = "^zz|^CON|Cont_",
   pattern_decoys = "^REV_|^rev",
-  # nr_peptides accepted for interface uniformity but ignored (interface stub).
   nr_peptides = 1
 ) {
   return(list(

@@ -13,15 +13,11 @@ tidyMQ_Peptides(MQPeptides, proteotypic_only = TRUE)
 parse MQ peptides.txt
 }
 \examples{
-
-
 peptide_txt <- prolfqua::find_package_file("prolfquapp", "samples/maxquant_txt/tiny2.zip")
-
 peptides_txt <- read.csv(
   unz(peptide_txt, "peptides.txt"),
   header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 mq_peptides <- tidyMQ_Peptides(peptides_txt)
-
 }
 \seealso{
 Other MaxQuant: 

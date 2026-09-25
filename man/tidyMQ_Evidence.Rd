@@ -13,7 +13,6 @@ tidyMQ_Evidence(Evidence)
 read evidence file
 }
 \examples{
-
 evidence_txt <- prolfqua::find_package_file("prolfquapp", "samples/maxquant_txt/tiny2.zip")
 evidence_txt <- read.csv(
   unz(evidence_txt, "evidence.txt"),
