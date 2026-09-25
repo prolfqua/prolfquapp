@@ -45,41 +45,17 @@ filter_by_peptide_count <- function(data, protein_col, peptide_col, nr_peptides 
     dplyr::distinct(dplyr::across(dplyr::all_of(c(protein_col, peptide_col)))) |>
     dplyr::count(dplyr::across(dplyr::all_of(protein_col)), name = ".nr_peptides")
   keep <- counts[[protein_col]][counts[[".nr_peptides"]] >= nr_peptides]
-
-  n_total <- nrow(counts)
-  n_kept <- length(keep)
   logger::log_info(
-    "nr_peptides filter (>= ",
-    nr_peptides,
-    " distinct ",
-    peptide_col,
-    " per ",
-    protein_col,
-    "): kept ",
-    n_kept,
-    " / ",
-    n_total,
-    " proteins (dropped ",
-    n_total - n_kept,
-    ")"
+    "nr_peptides filter (>= {nr_peptides} distinct {peptide_col} per {protein_col}): ",
+    "kept {length(keep)} / {nrow(counts)} proteins (dropped {nrow(counts) - length(keep)})"
   )
-
   data[data[[protein_col]] %in% keep, , drop = FALSE]
 }
 
 
-#' Validate and normalize an `nr_peptides` threshold
-#'
-#' Central guard for the minimum-peptides-per-protein threshold, applied where
-#' the value enters a `ProlfquAppConfig` (native YAML, programmatic config, and
-#' CLI override). Accepts clean YAML numerics (`2`, `2.0`) and numeric-looking
-#' strings (`"2"`); rejects values that are not a single whole number `>= 1`.
-#'
-#' @param x candidate value (numeric, integer, or character scalar); `NULL`
-#'   defaults to `1L`
-#' @return the value coerced to a positive whole-number integer
-#' @keywords internal
-#' @noRd
+# Validate an `nr_peptides` threshold where it enters a `ProlfquAppConfig`
+# (YAML, programmatic config, CLI): a single whole number >= 1, numeric or
+# numeric-looking string; `NULL` defaults to 1L.
 .validate_nr_peptides <- function(x) {
   if (is.null(x)) {
     return(1L)
@@ -88,45 +64,20 @@ filter_by_peptide_count <- function(data, protein_col, peptide_col, nr_peptides 
     stop("nr_peptides must be a single whole number >= 1", call. = FALSE)
   }
   num <- suppressWarnings(as.numeric(x))
-  if (
-    !is.finite(num) ||
-      num < 1 ||
-      num != round(num) ||
-      num > .Machine$integer.max
-  ) {
-    stop(
-      "nr_peptides must be a whole number >= 1, got: ",
-      format(x),
-      call. = FALSE
-    )
+  if (!is.finite(num) || num < 1 || num != round(num) || num > .Machine$integer.max) {
+    stop("nr_peptides must be a whole number >= 1, got: ", format(x), call. = FALSE)
   }
   as.integer(round(num))
 }
 
 
-#' Add `nr_peptides` to reader args only for readers that declare it
-#'
-#' Each reader owns the minimum-peptides-per-protein count against its own
-#' stripped-peptide column, so the threshold is forwarded only to readers whose
-#' formals declare an `nr_peptides` argument. A reader without it is left
-#' unfiltered; a warning is raised when the caller asked for filtering
-#' (`nr_peptides > 1`) so the skip is explicit rather than a silent no-op.
-#'
-#' @param base_args named list of arguments passed to the reader
-#' @param preprocess_fn the resolved reader function
-#' @param nr_peptides minimum distinct peptides per protein
-#' @return `base_args`, with `nr_peptides` added iff the reader supports it
-#' @keywords internal
-#' @noRd
+# Forward `nr_peptides` only to readers whose formals declare it; warn when
+# filtering was requested (`nr_peptides > 1`) but the reader cannot apply it.
 .forward_nr_peptides <- function(base_args, preprocess_fn, nr_peptides) {
   if ("nr_peptides" %in% names(formals(preprocess_fn))) {
     base_args$nr_peptides <- nr_peptides
   } else if (!is.null(nr_peptides) && nr_peptides > 1) {
-    warning(
-      "reader does not support nr_peptides filtering; ignoring nr_peptides = ",
-      nr_peptides,
-      call. = FALSE
-    )
+    warning("reader does not support nr_peptides filtering; ignoring nr_peptides = ", nr_peptides, call. = FALSE)
   }
   base_args
 }

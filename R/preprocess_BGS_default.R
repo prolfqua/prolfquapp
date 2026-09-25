@@ -6,7 +6,6 @@ read_BGS <- function(
   file = "Experiment1_Report_BGS Factory Report (Normal).tsv"
 ) {
   bgs <- readr::read_tsv(file)
-  colnames(bgs)
   colnames(bgs) <- colnames(bgs) |>
     stringr::str_replace_all("[[:space:]\\(\\)\\-]", "_") |>
     stringr::str_replace_all("_+", "_") |>
@@ -25,14 +24,11 @@ read_BGS <- function(
     "PEP.NrOfMissedCleavages",
     "EG.ModifiedSequence",
     "EG.Qvalue",
-    #"EG.TotalQuantity_Settings",
     "FG.Qvalue",
     "FG.Charge",
-    #"FG.LabeledSequence",
     "FG.Quantity"
   )
-  bgsf <- bgs[, ctoselect]
-  return(bgsf)
+  bgs[, ctoselect]
 }
 
 
@@ -54,21 +50,7 @@ get_BGS_files <- function(
     dir(path = path, recursive = TRUE, full.names = TRUE),
     value = TRUE
   )
-  fasta.files <- grep(
-    "*.fasta$|*.fas$",
-    dir(path = path, recursive = TRUE, full.names = TRUE),
-    value = TRUE
-  )
-  if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
-    fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
-  }
-  fasta.files <- fasta.files[!grepl("first-pass", fasta.files)]
-
-  if (length(fasta.files) == 0) {
-    logger::log_error("No fasta file found!")
-    stop()
-  }
-  return(list(data = diann.path, fasta = fasta.files))
+  list(data = diann.path, fasta = .get_fasta_files(path))
 }
 
 #' create templte dataset for BGS data
@@ -122,50 +104,21 @@ preprocess_BGS <- function(
   hierarchy_depth = 2,
   nr_peptides = 1
 ) {
-  annot <- annotation$annot
   config <- annotation$atable$clone(deep = TRUE)
-  annot <- annot |>
+  annot <- annotation$annot |>
     dplyr::mutate(
-      raw.file = gsub(
-        "^x|\\.d\\.zip$|\\.raw$",
-        "",
-        (basename(annot[[config$file_name]]))
-      )
+      raw.file = gsub("^x|\\.d\\.zip$|\\.raw$", "", basename(.data[[config$file_name]]))
     )
-  report2 <- read_BGS(quant_data)
-
-  nrPEP <- report2 |>
-    dplyr::select("PG.ProteinGroups", "PEP.GroupingKey") |>
-    dplyr::distinct() |>
-    dplyr::group_by(dplyr::across("PG.ProteinGroups")) |>
-    dplyr::summarize(nrPeptides = n())
-
-  nrPEP$Protein.Group.2 <- sapply(nrPEP$PG.ProteinGroups, function(x) {
-    unlist(strsplit(x, "[ ;]"))[1]
-  })
-
-  # Reader-local min-peptides-per-protein filter. `PEP.GroupingKey` is the
-  # Spectronaut peptide-level grouping key (`EG.ModifiedSequence` carries the
-  # mods). Annotation is right-joined onto the filtered LFQData below.
+  bgs <- read_BGS(quant_data)
+  # `PEP.GroupingKey` is the Spectronaut peptide-level grouping key
+  # (`EG.ModifiedSequence` carries the mods).
   report2 <- prolfquapp::filter_by_peptide_count(
-    report2,
+    bgs,
     "PG.ProteinGroups",
     "PEP.GroupingKey",
     nr_peptides
   )
-
-  nr <- sum(annot$raw.file %in% sort(unique(report2$R.FileName)))
-  logger::log_info(
-    "nr : ",
-    nr,
-    " files annotated out of ",
-    length(unique(report2$R.FileName))
-  )
-  if (nr == 0) {
-    stop(
-      "No files are annotated. The annotation file is not compatible withe quant data."
-    )
-  }
+  .stop_if_unannotated(annot$raw.file, report2$R.FileName)
 
   config$file_name <- "raw.file"
   config$ident_q_value <- "FG.Qvalue"
@@ -185,37 +138,14 @@ preprocess_BGS <- function(
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()
 
-  # build protein annotation
-  logger::log_info("start reading fasta.")
-  fasta_annot <- get_annot_from_fasta(
-    fasta_file,
-    pattern_decoys = pattern_decoys,
-    isUniprot = TRUE
-  )
-  logger::log_info("reading fasta done, creating protein annotation.")
-
-  prot_annot <- dplyr::left_join(
-    nrPEP,
-    fasta_annot,
-    by = c(Protein.Group.2 = "proteinname")
-  )
-  prot_annot <- dplyr::rename(
-    prot_annot,
-    IDcolumn = "Protein.Group.2",
-    description = "fasta.header",
-    protein_Id = "PG.ProteinGroups"
-  )
-
-  protAnnot <- prolfquapp::ProteinAnnotation$new(
+  protAnnot <- .uniprot_protein_annotation(
     lfqdata,
-    prot_annot,
-    description = "description",
-    cleaned_ids = "IDcolumn",
-    full_id = "fasta.id",
-    exp_nr_children = "nrPeptides",
-    pattern_contaminants = pattern_contaminants,
-    pattern_decoys = pattern_decoys
+    bgs,
+    "PG.ProteinGroups",
+    "PEP.GroupingKey",
+    fasta_file,
+    pattern_contaminants,
+    pattern_decoys
   )
-  logger::log_info("protein annotation done.")
-  return(list(lfqdata = lfqdata, protein_annotation = protAnnot))
+  list(lfqdata = lfqdata, protein_annotation = protAnnot)
 }
