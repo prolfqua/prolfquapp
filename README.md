@@ -141,7 +141,7 @@ R --vanilla << EOF
 install.packages(c("remotes","seqinr", "prozor", "logger", "arrow"), repos = "https://stat.ethz.ch/CRAN/")
 remotes::install_gitlab("wolski/prolfquadata", host="gitlab.bfabric.org")
 remotes::install_github("fgcz/prolfqua", build_vignettes = TRUE, dependencies = TRUE)
-remotes::install_github("prolfqua/prolfquapp", dependencies = TRUE)
+remotes::install_github("prolfqua/prolfquapp", build_vignettes = TRUE, dependencies = TRUE)
 EOF
 ```
 
