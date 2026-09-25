@@ -1,30 +1,19 @@
-# Create a named list of functions
 #' read dataset file in csv, tsv or xlsx format
 #' @param file_path path to csv, tsv, or xlsx file
 #' @return A data frame read from \code{file_path}.
 #' @export
 read_table_data <- function(file_path) {
-  read_functions <- list(
+  reader <- list(
     csv = readr::read_csv,
     tsv = readr::read_tsv,
     xlsx = readxl::read_xlsx
-  )
-
-  # Get the file extension
-  file_extension <- tools::file_ext(file_path)
-
-  # Check if the file extension is supported
-  if (!file_extension %in% names(read_functions)) {
+  )[[tools::file_ext(file_path)]]
+  if (is.null(reader)) {
     stop("Unsupported file extension")
   }
-
-  # Call the appropriate reading function
-  data <- read_functions[[file_extension]](file_path)
-
-  return(data)
+  reader(file_path)
 }
 
-# Create a named list of functions
 #' Write dataset to file in csv, tsv, or xlsx format
 #' @param data data frame to write
 #' @param file_path output file path (csv, tsv, or xlsx)
@@ -35,24 +24,16 @@ read_table_data <- function(file_path) {
 #' write_annotation_file(ds, file_path = file.path(tempdir(),"test.xlsx"))
 #'
 write_annotation_file <- function(data, file_path) {
-  write_functions <- list(
+  writer <- list(
     csv = readr::write_csv,
     tsv = readr::write_tsv,
     xlsx = writexl::write_xlsx
-  )
-
-  # Get the file extension
-  file_extension <- tools::file_ext(file_path)
-
-  # Check if the file extension is supported
-  if (!file_extension %in% names(write_functions)) {
+  )[[tools::file_ext(file_path)]]
+  if (is.null(writer)) {
     stop("Unsupported file extension")
   }
-
-  # Call the appropriate writing function
-  write_functions[[file_extension]](data, file_path)
+  writer(data, file_path)
 }
-
 
 # AnnotationProcessor  -----
 #' AnnotationProcessor
@@ -99,10 +80,6 @@ write_annotation_file <- function(data, file_path) {
 #' stopifnot(aa$atable$factors == "group")
 #' aa <- ap$read_annotation(annot)
 #' aa$atable$file_name
-#' aa$atable$sample_name
-#' as <- annot
-#' as$sample <- c("s1","s2","s3","s4")
-#' aa <- ap$read_annotation(annot)
 #' aa$atable$sample_name
 #' stopifnot(is.null(aa$annotation))
 #'
@@ -178,91 +155,43 @@ AnnotationProcessor <- R6::R6Class(
     #' check annotation
     #' @param annot annotation
     check_annotation = function(annot) {
-      filename <- grep(
-        self$file_pattern,
-        colnames(annot),
-        ignore.case = TRUE,
-        value = TRUE
-      )
+      warn_multiple <- function(cols) {
+        if (length(cols) > 1) {
+          warning(
+            "there are more than one column for sample: ",
+            paste(cols, collapse = ", ")
+          )
+        }
+      }
+      filename <- private$find_cols(annot, self$file_pattern)
       if (length(filename) < 1) {
         stop("column starting with :", self$file_pattern, " is missing.")
       }
-      if (length(filename) > 1) {
-        warning(
-          "there are more than one column for sample: ",
-          paste(filename, collapse = ", ")
-        )
-      }
+      warn_multiple(filename)
 
-      samples <- grep(
-        self$sample_name_pattern,
-        colnames(annot),
-        ignore.case = TRUE,
-        value = TRUE
-      )
+      samples <- private$find_cols(annot, self$sample_name_pattern)
       if (length(samples) < 1) {
-        warning(
-          "column starting with :",
-          self$sample_name_pattern,
-          " is missing."
-        )
+        warning("column starting with :", self$sample_name_pattern, " is missing.")
       }
-      if (length(samples) > 1) {
-        warning(
-          "there are more than one column for sample: ",
-          paste(samples, collapse = ", ")
-        )
-      }
+      warn_multiple(samples)
 
-      grouping <- grep(
-        self$grouping_pattern,
-        colnames(annot),
-        ignore.case = TRUE,
-        value = TRUE
-      )
-      non_empty_grouping <- vapply(
-        grouping,
-        function(col) {
-          any(!is.na(annot[[col]]) & trimws(as.character(annot[[col]])) != "")
-        },
-        logical(1)
-      )
-      if (any(non_empty_grouping)) {
-        grouping <- grouping[non_empty_grouping]
-      }
-      if (length(grouping) < 1) {
-        # QC does not require a grouping variable: a single dummy group is
-        # injected later in set_grouping_var(). For DEA a grouping column is
-        # mandatory. (Message names grouping_pattern, not sample_name_pattern.)
-        if (self$QC) {
-          warning(
-            "no grouping column (",
-            self$grouping_pattern,
-            ") found; QC will use a single group."
-          )
-        } else {
-          stop("column starting with :", self$grouping_pattern, " is missing.")
-        }
-      }
-      if (length(grouping) > 1) {
+      grouping <- private$grouping_cols(annot)
+      # QC does not require a grouping column: set_grouping_var() injects a
+      # single dummy group. For DEA a grouping column is mandatory.
+      if (length(grouping) < 1 && self$QC) {
         warning(
-          "there are more than one column for sample: ",
-          paste(grouping, collapse = ", ")
+          "no grouping column (",
+          self$grouping_pattern,
+          ") found; QC will use a single group."
         )
+      } else if (length(grouping) < 1) {
+        stop("column starting with :", self$grouping_pattern, " is missing.")
       }
+      warn_multiple(grouping)
 
-      if (!self$QC) {
-        contrast <- grep(
-          self$control_pattern,
-          colnames(annot),
-          ignore.case = TRUE,
-          value = TRUE
-        )
-        if (length(contrast) < 1) {
-          stop(paste0("you must specify a CONTROL column."))
-        }
+      if (!self$QC && length(private$find_cols(annot, self$control_pattern)) < 1) {
+        stop("you must specify a CONTROL column.")
       }
-
       if ("CONTROL" %in% colnames(annot)) {
         stopifnot(all(c("C", "T") %in% annot[["CONTROL"]]))
       }
@@ -271,297 +200,23 @@ AnnotationProcessor <- R6::R6Class(
     #' read annotation
     #' @param dsf either dataframe or file path.
     read_annotation = function(dsf) {
-      if ("data.frame" %in% class(dsf)) {
-        annot <- dsf
-      } else {
-        annot <- prolfquapp::read_table_data(dsf)
-      }
+      annot <- if (inherits(dsf, "data.frame")) dsf else read_table_data(dsf)
       annot <- data.frame(lapply(annot, as.character), check.names = FALSE)
       self$check_annotation(annot)
       res <- private$dataset_set_factors(annot)
       if (!self$QC) {
-        factor_key <- private$primary_factor_key()
-        contrasts <- self$extract_contrasts(
+        res$contrasts <- self$extract_contrasts(
           res$annot,
-          group = res$atable$factors[[factor_key]]
+          group = res$atable$factors[[private$primary_factor_key()]]
         )
-        res[["contrasts"]] <- contrasts
       }
-      return(res)
+      res
     },
     #' @description
     #' check annotation
     #' @param annot annotation
     #' @param group group column e.g. group
     extract_contrasts = function(annot, group) {
-      levels <- private$get_levels(annot, group)
-      logger::log_info("levels: ", paste(levels, collapse = " "))
-      factor_key <- private$primary_factor_key()
-      if (!(length(levels[[factor_key]]) > 1)) {
-        logger::log_error("not enough group levels to make comparisons.")
-      }
-      if (all(c("ContrastName", "Contrast") %in% colnames(annot))) {
-        return(private$get_defined_contrasts(annot))
-      } else {
-        return(private$generate_contrasts(annot, levels, group))
-      }
-    },
-    #' @description
-    #' add vector of contrasts to annot table
-    #' @param annot annotation
-    #' @param Contrasts vector with contrasts
-    add_contrasts_vec = function(annot, Contrasts) {
-      if (length(Contrasts) <= nrow(annot)) {
-        annot$CONTROL <- NULL
-        annot$ContrastName <- c(
-          names(Contrasts),
-          rep(NA, nrow(annot) - length(Contrasts))
-        )
-        annot$Contrast <- c(Contrasts, rep(NA, nrow(annot) - length(Contrasts)))
-      } else {
-        warning("There are more Contrasts than samples.")
-      }
-      return(annot)
-    }
-  ),
-
-  private = list(
-    primary_factor_key = function() {
-      if (self$SAINT) {
-        return("Bait_")
-      }
-      self$prefix
-    },
-
-    dataset_set_factors = function(annot) {
-      atable <- prolfqua::AnalysisConfiguration$new()
-      annot <- private$set_sample_name(annot, atable)
-      private$set_file_name(annot, atable)
-      annot <- private$set_grouping_var(annot, atable)
-      private$process_subject_var(annot, atable)
-      private$set_control_var(annot, atable)
-      private$set_norm_value(annot, atable)
-      return(list(atable = atable, annot = annot))
-    },
-
-    set_sample_name = function(annot, atable) {
-      sample_cols <- grep(
-        self$sample_name_pattern,
-        colnames(annot),
-        value = TRUE,
-        ignore.case = TRUE
-      )
-      if (length(sample_cols) == 0) {
-        return(annot)
-      }
-
-      source_sample_name <- sample_cols[1]
-      atable$sample_name <- source_sample_name
-      sample_names <- annot[[source_sample_name]]
-      needs_shortening <- self$shorten_sample_names &&
-        any(
-          nchar(sample_names, type = "chars") > self$sample_name_suffix_length,
-          na.rm = TRUE
-        )
-      needs_unique_display <- any(duplicated(sample_names))
-
-      if (self$strict && needs_unique_display) {
-        stop("sample Names must be unique.")
-      }
-
-      if (!needs_shortening && !needs_unique_display) {
-        return(annot)
-      }
-
-      display_col <- private$available_sample_name_column(
-        annot,
-        source_sample_name
-      )
-      display_names <- sample_names
-      if (needs_shortening) {
-        display_names <- private$suffix_sample_names(display_names)
-      }
-      display_names[is.na(display_names) | !nzchar(display_names)] <- "NA"
-      if (any(duplicated(display_names))) {
-        display_names <- make.unique(display_names, sep = "_")
-      }
-
-      annot[[display_col]] <- display_names
-      atable$sample_name <- display_col
-      logger::log_info(
-        "Using derived sample display names in column '{display_col}'."
-      )
-      return(annot)
-    },
-
-    available_sample_name_column = function(annot, source_sample_name) {
-      display_col <- self$sample_name_display_column
-      if (!display_col %in% colnames(annot) || display_col == source_sample_name) {
-        return(display_col)
-      }
-
-      candidate <- display_col
-      index <- 1L
-      while (candidate %in% colnames(annot) && candidate != source_sample_name) {
-        candidate <- paste0(display_col, "_", index)
-        index <- index + 1L
-      }
-      candidate
-    },
-
-    suffix_sample_names = function(sample_names) {
-      n_chars <- nchar(sample_names, type = "chars")
-      starts <- pmax(1L, n_chars - self$sample_name_suffix_length + 1L)
-      substring(sample_names, starts, n_chars)
-    },
-
-    set_file_name = function(annot, atable) {
-      fileName <- grep(
-        self$file_pattern,
-        colnames(annot),
-        value = TRUE,
-        ignore.case = TRUE
-      )[1]
-      atable$file_name <- fileName
-      if (any(duplicated(annot[[atable$file_name]]))) {
-        stop("file Names must be unique.")
-      }
-    },
-
-    set_grouping_var = function(annot, atable) {
-      groupingVAR <- grep(
-        self$grouping_pattern,
-        colnames(annot),
-        value = TRUE,
-        ignore.case = TRUE
-      )
-      # Drop candidate columns that carry no information (all NA / all blank).
-      # Datasets frequently ship an empty "Bait ID" column alongside a populated
-      # "Grouping Var"; without this filter the bait-preference below would pick
-      # the empty column, yielding an all-NA grouping factor that crashes the
-      # missingness heatmap (pheatmap: "'gpar' element 'fill' must not be length 0").
-      non_empty <- vapply(
-        groupingVAR,
-        function(col) {
-          any(!is.na(annot[[col]]) & trimws(as.character(annot[[col]])) != "")
-        },
-        logical(1)
-      )
-      if (any(non_empty)) {
-        groupingVAR <- groupingVAR[non_empty]
-      }
-      # QC datasets may carry no grouping column at all. Synthesize one so a
-      # valid factor is still produced; the NA-coercion below turns the empty
-      # column into a single "NA" group (mirrors the all-empty-column case).
-      if (length(groupingVAR) < 1) {
-        annot[["group"]] <- NA_character_
-        groupingVAR <- "group"
-      }
-      if (any(grepl("^bait", groupingVAR, ignore.case = TRUE))) {
-        groupingVAR <- grep(
-          "^bait",
-          groupingVAR,
-          value = TRUE,
-          ignore.case = TRUE
-        )[1]
-      } else {
-        groupingVAR <- groupingVAR[1]
-      }
-
-      # Coerce missing / blank entries to the literal "NA" so an empty (or
-      # partially empty) grouping column still yields a valid factor instead of
-      # an all-NA grouping that crashes downstream (e.g. the missingness
-      # heatmap, pheatmap: "'gpar' element 'fill' must not be length 0").
-      # All-empty -> a single "NA" group; partial -> real groups plus an "NA"
-      # group. Mirrors the display-name handling in set_sample_name().
-      grouping_vals <- as.character(annot[[groupingVAR]])
-      grouping_vals[is.na(grouping_vals) | trimws(grouping_vals) == ""] <- "NA"
-      annot[[groupingVAR]] <- grouping_vals
-
-      annot[[groupingVAR]] <- gsub("[[:space:]]", "", annot[[groupingVAR]])
-      annot[[groupingVAR]] <- gsub(
-        "[-\\+\\/\\*\\(\\)]",
-        "_",
-        annot[[groupingVAR]]
-      )
-
-      if (self$SAINT) {
-        atable$factors[["Bait_"]] <- groupingVAR
-      } else {
-        atable$factors[[self$prefix]] <- groupingVAR
-      }
-
-      atable$factor_depth <- 1
-      return(annot)
-    },
-
-    process_subject_var = function(annot, atable) {
-      if (
-        sum(grepl(self$subject_pattern, colnames(annot), ignore.case = TRUE)) == 1 &&
-          self$repeated
-      ) {
-        subvar <- grep(
-          self$subject_pattern,
-          colnames(annot),
-          value = TRUE,
-          ignore.case = TRUE
-        )
-        atable$factors[["Subject_"]] <- subvar
-        factor_key <- private$primary_factor_key()
-
-        fct <- dplyr::distinct(annot[, c(
-          atable$file_name,
-          atable$factors[[factor_key]],
-          subvar
-        )])
-        tmp <- data.frame(table(fct[, c(
-          atable$factors[[factor_key]],
-          subvar
-        )]))
-        if (all(tmp$Freq >= 1)) {
-          atable$factor_depth <- 2
-        }
-      }
-    },
-
-    set_control_var = function(annot, atable) {
-      ctrl <- grep(
-        self$control_col_pattern,
-        colnames(annot),
-        value = TRUE,
-        ignore.case = TRUE
-      )
-      if (length(ctrl) == 1) {
-        atable$factors[["CONTROL"]] <- ctrl
-        factor_key <- private$primary_factor_key()
-
-        stopifnot(length(setdiff(unique(annot[[ctrl]]), c("C", "T"))) == 0)
-        # TODO add check that
-        tt <- table(annot[[ctrl]], annot[[atable$factors[[factor_key]]]])
-      }
-    },
-
-    set_norm_value = function(annot, atable) {
-      norm_col <- grep(
-        self$norm_value_pattern,
-        colnames(annot),
-        value = TRUE,
-        ignore.case = TRUE
-      )
-      if (length(norm_col) >= 1) {
-        atable$norm_value <- norm_col[1]
-        if (length(norm_col) > 1) {
-          warning(
-            "Multiple normalization value columns found: ",
-            paste(norm_col, collapse = ", "),
-            ". Using: ",
-            norm_col[1]
-          )
-        }
-      }
-    },
-
-    get_levels = function(annot, group) {
       factor_key <- private$primary_factor_key()
       levels <- annot |>
         dplyr::select(
@@ -569,31 +224,24 @@ AnnotationProcessor <- R6::R6Class(
           control = starts_with("control", ignore.case = TRUE)
         ) |>
         dplyr::distinct()
-      return(levels)
-    },
-
-    get_defined_contrasts = function(annot) {
-      factor_key <- private$primary_factor_key()
-      contr <- annot |>
-        dplyr::select(all_of(c("ContrastName", "Contrast"))) |>
-        dplyr::filter(nchar(!!rlang::sym("Contrast")) > 0)
-
-      Contrasts <- contr$Contrast
-      names(Contrasts) <- contr$ContrastName
-      nrpr <- sum(grepl(paste0("\\b", factor_key), Contrasts))
-      if (nrpr < 1) {
-        stop(
-          "Group prefix should be: ",
-          factor_key,
-          "; but contrasts look like this: ",
-          paste(Contrasts, collapse = "\n")
-        )
+      logger::log_info("levels: ", paste(levels, collapse = " "))
+      if (length(levels[[factor_key]]) <= 1) {
+        logger::log_error("not enough group levels to make comparisons.")
       }
-      return(Contrasts)
-    },
-
-    generate_contrasts = function(annot, levels, group) {
-      factor_key <- private$primary_factor_key()
+      if (all(c("ContrastName", "Contrast") %in% colnames(annot))) {
+        contr <- dplyr::filter(annot, nchar(!!rlang::sym("Contrast")) > 0)
+        Contrasts <- contr$Contrast
+        names(Contrasts) <- contr$ContrastName
+        if (!any(grepl(paste0("\\b", factor_key), Contrasts))) {
+          stop(
+            "Group prefix should be: ",
+            factor_key,
+            "; but contrasts look like this: ",
+            paste(Contrasts, collapse = "\n")
+          )
+        }
+        return(Contrasts)
+      }
       if (ncol(levels) != 2) {
         stop(
           "either column ",
@@ -602,40 +250,153 @@ AnnotationProcessor <- R6::R6Class(
           paste(colnames(levels), collapse = " ")
         )
       }
+      lv <- levels[[factor_key]]
       Contrasts <- character()
       Names <- character()
-      ## Generate contrasts from dataset
-      if (!is.null(levels$control)) {
-        for (i in seq_len(nrow(levels))) {
-          for (j in seq_len(nrow(levels))) {
-            if (i != j && levels$control[j] == "C") {
-              logger::log_info(
-                "contrast: {levels[[factor_key]][i]} vs {levels[[factor_key]][j]}"
-              )
-              Contrasts <- c(
-                Contrasts,
-                paste0(
-                  factor_key,
-                  levels[[factor_key]][i],
-                  " - ",
-                  factor_key,
-                  levels[[factor_key]][j]
-                )
-              )
-              Names <- c(
-                Names,
-                paste0(
-                  levels[[factor_key]][i],
-                  "_vs_",
-                  levels[[factor_key]][j]
-                )
-              )
-            }
-          }
+      for (i in seq_along(lv)) {
+        for (j in setdiff(which(levels$control == "C"), i)) {
+          logger::log_info("contrast: {lv[i]} vs {lv[j]}")
+          Contrasts <- c(Contrasts, paste0(factor_key, lv[i], " - ", factor_key, lv[j]))
+          Names <- c(Names, paste0(lv[i], "_vs_", lv[j]))
         }
+      }
+      if (!is.null(levels$control)) {
         names(Contrasts) <- Names
       }
-      return(Contrasts)
+      Contrasts
+    },
+    #' @description
+    #' add vector of contrasts to annot table
+    #' @param annot annotation
+    #' @param Contrasts vector with contrasts
+    add_contrasts_vec = function(annot, Contrasts) {
+      if (length(Contrasts) > nrow(annot)) {
+        warning("There are more Contrasts than samples.")
+        return(annot)
+      }
+      pad <- rep(NA, nrow(annot) - length(Contrasts))
+      annot$CONTROL <- NULL
+      annot$ContrastName <- c(names(Contrasts), pad)
+      annot$Contrast <- c(Contrasts, pad)
+      annot
+    }
+  ),
+
+  private = list(
+    primary_factor_key = function() if (self$SAINT) "Bait_" else self$prefix,
+
+    find_cols = function(annot, pattern) {
+      grep(pattern, colnames(annot), value = TRUE, ignore.case = TRUE)
+    },
+
+    # Grouping candidates, dropping columns that carry no information (all NA /
+    # blank): datasets often ship an empty "Bait ID" beside a populated
+    # "Grouping Var", and the bait preference would otherwise pick the empty one.
+    grouping_cols = function(annot) {
+      cols <- private$find_cols(annot, self$grouping_pattern)
+      non_empty <- vapply(
+        cols,
+        function(col) any(!is.na(annot[[col]]) & trimws(annot[[col]]) != ""),
+        logical(1)
+      )
+      if (any(non_empty)) cols[non_empty] else cols
+    },
+
+    dataset_set_factors = function(annot) {
+      atable <- prolfqua::AnalysisConfiguration$new()
+      annot <- private$set_sample_name(annot, atable)
+      atable$file_name <- private$find_cols(annot, self$file_pattern)[1]
+      if (any(duplicated(annot[[atable$file_name]]))) {
+        stop("file Names must be unique.")
+      }
+      annot <- private$set_grouping_var(annot, atable)
+      private$process_subject_var(annot, atable)
+      ctrl <- private$find_cols(annot, self$control_col_pattern)
+      if (length(ctrl) == 1) {
+        atable$factors[["CONTROL"]] <- ctrl
+        stopifnot(all(annot[[ctrl]] %in% c("C", "T")))
+      }
+      norm_col <- private$find_cols(annot, self$norm_value_pattern)
+      if (length(norm_col) >= 1) {
+        atable$norm_value <- norm_col[1]
+      }
+      if (length(norm_col) > 1) {
+        warning(
+          "Multiple normalization value columns found: ",
+          paste(norm_col, collapse = ", "),
+          ". Using: ",
+          norm_col[1]
+        )
+      }
+      list(atable = atable, annot = annot)
+    },
+
+    set_sample_name = function(annot, atable) {
+      source_sample_name <- private$find_cols(annot, self$sample_name_pattern)[1]
+      if (is.na(source_sample_name)) {
+        return(annot)
+      }
+      atable$sample_name <- source_sample_name
+      display_names <- annot[[source_sample_name]]
+      n_chars <- nchar(display_names, type = "chars")
+      needs_shortening <- self$shorten_sample_names &&
+        any(n_chars > self$sample_name_suffix_length, na.rm = TRUE)
+      needs_unique_display <- any(duplicated(display_names))
+      if (self$strict && needs_unique_display) {
+        stop("sample Names must be unique.")
+      }
+      if (!needs_shortening && !needs_unique_display) {
+        return(annot)
+      }
+
+      display_col <- self$sample_name_display_column
+      candidate <- display_col
+      index <- 0L
+      while (candidate %in% colnames(annot) && candidate != source_sample_name) {
+        index <- index + 1L
+        candidate <- paste0(display_col, "_", index)
+      }
+      if (needs_shortening) {
+        starts <- pmax(1L, n_chars - self$sample_name_suffix_length + 1L)
+        display_names <- substring(display_names, starts, n_chars)
+      }
+      display_names[is.na(display_names) | !nzchar(display_names)] <- "NA"
+      annot[[candidate]] <- make.unique(display_names, sep = "_")
+      atable$sample_name <- candidate
+      logger::log_info("Using derived sample display names in column '{candidate}'.")
+      annot
+    },
+
+    set_grouping_var = function(annot, atable) {
+      groupingVAR <- private$grouping_cols(annot)
+      # QC datasets may carry no grouping column at all: synthesize one, which
+      # the NA coercion below turns into a single "NA" group.
+      if (length(groupingVAR) < 1) {
+        annot[["group"]] <- NA_character_
+        groupingVAR <- "group"
+      }
+      groupingVAR <- c(grep("^bait", groupingVAR, value = TRUE, ignore.case = TRUE), groupingVAR)[1]
+      # Missing / blank entries become the literal "NA" group so the grouping
+      # factor is never all-NA (which crashes the missingness heatmap).
+      vals <- as.character(annot[[groupingVAR]])
+      vals[is.na(vals) | trimws(vals) == ""] <- "NA"
+      vals <- gsub("[[:space:]]", "", vals)
+      annot[[groupingVAR]] <- gsub("[-\\+\\/\\*\\(\\)]", "_", vals)
+      atable$factors[[private$primary_factor_key()]] <- groupingVAR
+      atable$factor_depth <- 1
+      annot
+    },
+
+    process_subject_var = function(annot, atable) {
+      subvar <- private$find_cols(annot, self$subject_pattern)
+      if (length(subvar) == 1 && self$repeated) {
+        atable$factors[["Subject_"]] <- subvar
+        group <- atable$factors[[private$primary_factor_key()]]
+        fct <- dplyr::distinct(annot[, c(atable$file_name, group, subvar)])
+        if (all(table(fct[, c(group, subvar)]) >= 1)) {
+          atable$factor_depth <- 2
+        }
+      }
     }
   )
 )
@@ -669,7 +430,7 @@ read_annotation <- function(
   sample_name_suffix_length = 14L,
   sample_name_display_column = "sampleName"
 ) {
-  res <- AnnotationProcessor$new(
+  AnnotationProcessor$new(
     repeated = repeated,
     SAINT = SAINT,
     prefix = prefix,
@@ -678,7 +439,6 @@ read_annotation <- function(
     sample_name_suffix_length = sample_name_suffix_length,
     sample_name_display_column = sample_name_display_column
   )$read_annotation(dsf)
-  return(res)
 }
 
 #' extract contrast from annotation file

@@ -67,20 +67,13 @@ ProcessingOptions <- R6::R6Class(
         c("Normalization / transformation", self$transform),
         c(
           "Internal standard proteins",
-          if (length(self$internal) > 0) {
-            paste(self$internal, collapse = ", ")
-          } else {
-            "none"
-          }
+          if (length(self$internal) > 0) paste(self$internal, collapse = ", ") else "none"
         ),
         c("Missingness modelled", if (isTRUE(self$model_missing)) "yes" else "no"),
         c("Interaction terms", if (isTRUE(self$interaction)) "yes" else "no"),
         c("FDR threshold", self$FDR_threshold),
         c("Difference threshold (|log2 FC|)", self$diff_threshold),
-        c(
-          "Contaminants",
-          paste("kept and flagged,", fmt_pattern(self$pattern_contaminants))
-        ),
+        c("Contaminants", paste("kept and flagged,", fmt_pattern(self$pattern_contaminants))),
         c(
           "Decoys",
           if (is.null(self$pattern_decoys)) {
@@ -197,40 +190,17 @@ zipdir_name <- function(
   transform = "vsn",
   date = Sys.Date()
 ) {
-  # Handle project ID
-  pi <- if (length(project_id) == 0 || project_id == "") {
-    NULL
-  } else {
-    paste0("_PI", project_id)
-  }
-
-  # Handle order ID
-  oi <- if (length(order_id) == 0 || order_id == "") {
-    NULL
-  } else {
-    paste0("_O", order_id)
-  }
-
-  # Handle workunit ID
-  wu <- if (length(workunit_id) == 0 || workunit_id == "") {
-    NULL
-  } else {
-    paste0("_WU", workunit_id)
-  }
-
-  # Build the result string
-  res <- paste0(
+  tag <- function(label, id) if (length(id) == 0 || id == "") NULL else paste0(label, id)
+  paste0(
     prefix,
     "_",
     format(date, "%Y%m%d"),
-    pi,
-    oi,
-    wu,
+    tag("_PI", project_id),
+    tag("_O", order_id),
+    tag("_WU", workunit_id),
     "_",
     transform
   )
-
-  return(res)
 }
 
 # ProlfquAppConfig -----
@@ -332,40 +302,28 @@ ProlfquAppConfig <- R6::R6Class(
     #' results are written directly into `path`.
     #' @return full path to zip directory
     get_zipdir = function() {
-      if (isTRUE(self$flat_outdir)) {
-        return(self$path)
-      }
-      return(file.path(self$path, self$zipdir_name))
+      if (isTRUE(self$flat_outdir)) self$path else file.path(self$path, self$zipdir_name)
     },
 
     #' @description
     #' Get the results directory path
     #' @return path to results directory
     get_result_dir = function() {
-      tmp <- file.path(
-        self$get_zipdir(),
-        paste0("Results_WU_", self$project_spec$workunit_Id)
-      )
-      return(tmp)
+      file.path(self$get_zipdir(), paste0("Results_WU_", self$project_spec$workunit_Id))
     },
 
     #' @description
     #' Get the input directory path
     #' @return path to input directory
     get_input_dir = function() {
-      tmp <- file.path(
-        self$get_zipdir(),
-        paste0("Inputs_WU_", self$project_spec$workunit_Id)
-      )
-      return(tmp)
+      file.path(self$get_zipdir(), paste0("Inputs_WU_", self$project_spec$workunit_Id))
     },
 
     #' @description
     #' Convert R6 object to list
     #' @return list representation of the R6 object
     as_list = function() {
-      res <- prolfqua::R6_extract_values(self)
-      return(res)
+      prolfqua::R6_extract_values(self)
     }
   )
 )
@@ -408,42 +366,6 @@ set_list_to_R6 <- function(config_list, r6obj_config) {
 #' stopifnot(config$zipdir_name == configList$zipdir_name)
 #'
 list_to_R6_app_config <- function(dd) {
-  .assert_required_config_fields(dd)
-  popR6 <- ProcessingOptions$new()
-  pop <- dd$processing_options
-  for (i in names(pop)) {
-    popR6[[i]] <- pop[[i]]
-  }
-  popR6$nr_peptides <- .validate_nr_peptides(popR6$nr_peptides)
-  psR6 <- ProjectSpec$new()
-  ps <- dd$project_spec
-  for (i in names(ps)) {
-    psR6[[i]] <- ps[[i]]
-  }
-  extR6 <- ExternalReader$new()
-  ext <- dd$ext_reader
-  for (i in names(ext)) {
-    extR6[[i]] <- ext[[i]]
-  }
-  r6obj_config <- ProlfquAppConfig$new(popR6, psR6, extR6)
-  r6obj_config$zipdir_name <- dd$zipdir_name
-  r6obj_config$software <- dd$software
-  r6obj_config$group <- dd$group
-  r6obj_config$path <- dd$path
-  r6obj_config$prefix <- dd$prefix
-  r6obj_config$flat_outdir <- isTRUE(dd$flat_outdir)
-
-  if (is.null(r6obj_config$zipdir_name)) {
-    r6obj_config$set_zipdir_name()
-  }
-  return(r6obj_config)
-}
-
-
-#' Stop unless a native config carries the fields prolfquapp needs
-#' @param dd parsed native config list (project_spec + processing_options + ...)
-#' @noRd
-.assert_required_config_fields <- function(dd) {
   required <- c(
     "project_spec$project_Id",
     "project_spec$order_Id",
@@ -452,24 +374,33 @@ list_to_R6_app_config <- function(dd) {
     "prefix",
     "group"
   )
-  has_field <- function(path) {
-    node <- dd
-    for (key in strsplit(path, "$", fixed = TRUE)[[1]]) {
-      node <- node[[key]]
-      if (is.null(node)) {
-        return(FALSE)
-      }
-    }
-    TRUE
-  }
-  missing <- required[!vapply(required, has_field, logical(1))]
+  missing <- Filter(function(path) is.null(Reduce(`[[`, strsplit(path, "$", fixed = TRUE)[[1]], dd)), required)
   if (length(missing) > 0) {
-    stop(
-      "config is missing required field(s): ",
-      paste(missing, collapse = ", "),
-      call. = FALSE
-    )
+    stop("config is missing required field(s): ", paste(missing, collapse = ", "), call. = FALSE)
   }
+  fill <- function(obj, values) {
+    for (i in names(values)) {
+      obj[[i]] <- values[[i]]
+    }
+    obj
+  }
+  popR6 <- fill(ProcessingOptions$new(), dd$processing_options)
+  popR6$nr_peptides <- .validate_nr_peptides(popR6$nr_peptides)
+  r6obj_config <- ProlfquAppConfig$new(
+    popR6,
+    fill(ProjectSpec$new(), dd$project_spec),
+    fill(ExternalReader$new(), dd$ext_reader),
+    zipdir_name = dd$zipdir_name,
+    path = dd$path,
+    software = dd$software,
+    prefix = dd$prefix,
+    flat_outdir = isTRUE(dd$flat_outdir)
+  )
+  r6obj_config$group <- dd$group
+  if (is.null(r6obj_config$zipdir_name)) {
+    r6obj_config$set_zipdir_name()
+  }
+  r6obj_config
 }
 
 
@@ -525,8 +456,6 @@ make_DEA_config_R6 <- function(
   Normalization <- match.arg(Normalization)
   aggregation <- match.arg(aggregation)
 
-  ext <- ExternalReader$new()
-
   pop <- ProcessingOptions$new()
   pop$pattern_contaminants <- patternContaminants
   pop$pattern_decoys <- patternDecoys
@@ -543,11 +472,16 @@ make_DEA_config_R6 <- function(
   ps$project_Id <- PROJECTID
   ps$workunit_Id <- WORKUNITID
 
-  r6obj_config <- ProlfquAppConfig$new(pop, ps, ext, prefix = prefix)
+  r6obj_config <- ProlfquAppConfig$new(
+    pop,
+    ps,
+    ExternalReader$new(),
+    path = PATH,
+    software = application,
+    prefix = prefix
+  )
   r6obj_config$set_zipdir_name()
-  r6obj_config$software <- application
-  r6obj_config$path <- PATH
-  return(r6obj_config)
+  r6obj_config
 }
 
 
@@ -565,51 +499,25 @@ make_DEA_config_R6 <- function(
 #'
 read_BF_yamlR6 <- function(ymlfile, application = "DIANN") {
   yml <- yaml::read_yaml(ymlfile)
-
-  WORKUNITID <- yml$job_configuration$workunit_id
-  PROJECTID <- yml$job_configuration$project_id
-  ORDERID <- yml$job_configuration$order_id
-  ORDERID <- if (is.null(ORDERID)) {
-    PROJECTID
-  } else {
-    ORDERID
-  }
-
+  job <- yml$job_configuration
+  par <- yml$application$parameters
   ps <- ProjectSpec$new()
-  ps$order_Id <- ORDERID
-  ps$project_Id <- PROJECTID
-  ps$workunit_Id <- WORKUNITID
-  ps$project_name <- ""
-  # at least 2 peptides per protein
+  ps$project_Id <- job$project_id
+  ps$order_Id <- if (is.null(job$order_id)) job$project_id else job$order_id
+  ps$workunit_Id <- job$workunit_id
+
   pop <- ProcessingOptions$new()
-  pop$transform <- yml$application$parameters$`3|Normalization`
-  pop$aggregate <- "medpolish"
-  pop$diff_threshold <- as.numeric(
-    yml$application$parameters$`4|Difference_threshold`
-  )
-  pop$FDR_threshold <- as.numeric(yml$application$parameters$`5|FDR_threshold`)
+  pop$transform <- par$`3|Normalization`
+  pop$diff_threshold <- as.numeric(par$`4|Difference_threshold`)
+  pop$FDR_threshold <- as.numeric(par$`5|FDR_threshold`)
+  pop$remove_cont <- par$`6|remConDec` == "true"
+  pop$remove_decoys <- par$`6|remConDec` == "true"
+  pop$pattern_decoys <- if (par$`7|REVpattern` == "") NULL else par$`7|REVpattern`
+  pop$pattern_contaminants <- if (par$`8|CONpattern` == "") NULL else par$`8|CONpattern`
 
-  pop$remove_cont <- yml$application$parameters$`6|remConDec` == "true"
-  pop$remove_decoys <- yml$application$parameters$`6|remConDec` == "true"
-  pop$pattern_decoys <- yml$application$parameters$`7|REVpattern`
-  pop$pattern_decoys <- if (pop$pattern_decoys == "") {
-    NULL
-  } else {
-    pop$pattern_decoys
-  }
-  pop$pattern_contaminants <- yml$application$parameters$`8|CONpattern`
-  pop$pattern_contaminants <- if (pop$pattern_contaminants == "") {
-    NULL
-  } else {
-    pop$pattern_contaminants
-  }
-
-  ext <- ExternalReader$new()
-  r6obj_config <- ProlfquAppConfig$new(pop, ps, ext)
+  r6obj_config <- ProlfquAppConfig$new(pop, ps, ExternalReader$new(), software = application)
   r6obj_config$set_zipdir_name()
-  r6obj_config$software <- application
-
-  return(r6obj_config)
+  r6obj_config
 }
 
 
@@ -625,44 +533,23 @@ read_BF_yamlR6 <- function(ymlfile, application = "DIANN") {
 #' get_config()
 get_config <- function(yamlfile, WORKUNITID = "HelloWorld", ORDERID = "123") {
   if (missing(yamlfile)) {
-    GRP2 <- prolfquapp::make_DEA_config_R6(
+    return(make_DEA_config_R6(
       PROJECTID = as.character(ORDERID),
       ORDERID = as.character(ORDERID),
       WORKUNITID = WORKUNITID
-    )
-  } else if (file.exists(yamlfile)) {
-    xx <- yaml::read_yaml(yamlfile)
-    if (!is.null(xx$project_spec)) {
-      logger::log_info("prolfquapp yaml")
-      GRP2 <- list_to_R6_app_config(xx)
-      GRP2$set_zipdir_name()
-    } else {
-      GRP2 <- yamlfile |> prolfquapp::read_BF_yamlR6(application = "DIANN")
-      GRP2$set_zipdir_name()
-      logger::log_info("bfabric yaml")
-    }
-  } else {
+    ))
+  }
+  if (!file.exists(yamlfile)) {
     stop("no such file :", yamlfile)
   }
-  return(GRP2)
-}
-
-
-if (FALSE) {
-  yfile <- file.path(
-    find.package("prolfquapp"),
-    "/application/DIANN/myYamls.zip"
-  )
-  file.exists(yfile)
-  xx <- unzip(yfile, list = TRUE)
-  yfiles <- grep(".yml$", xx$Name, value = TRUE)
-
-  res <- list()
-  for (file in yfiles) {
-    config <- read_BF_yamlR6(unz(yfile, file))
-    x <- (prolfqua::R6_extract_values(config))
-    df <- data.frame(unlist(x))
-    names(df)[1] <- basename(file)
-    res[[basename(file)]] <- as.data.frame(t(df))
+  xx <- yaml::read_yaml(yamlfile)
+  if (!is.null(xx$project_spec)) {
+    logger::log_info("prolfquapp yaml")
+    GRP2 <- list_to_R6_app_config(xx)
+  } else {
+    logger::log_info("bfabric yaml")
+    GRP2 <- read_BF_yamlR6(yamlfile, application = "DIANN")
   }
+  GRP2$set_zipdir_name()
+  GRP2
 }

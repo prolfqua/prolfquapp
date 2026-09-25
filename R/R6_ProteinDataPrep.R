@@ -91,23 +91,14 @@ ProteinDataPrep <- R6::R6Class(
         self$aggregator$aggregate()
         self$lfq_data <- self$aggregator$lfq_agg
       } else if (agg_method == "rlm" || agg_method == "medpolish") {
-        transformed_peptide <- lfqdata_peptide$get_Transformer()$intensity_array(
-          log
-        )$lfq
+        transformed_peptide <- lfqdata_peptide$get_Transformer()$intensity_array(log)$lfq
         self$aggregator <- transformed_peptide$get_Aggregator(agg_method)
         self$aggregator$aggregate()
 
-        lfq_data <- self$aggregator$lfq_agg
-        tr <- lfq_data$get_Transformer()
-        tr <- tr$intensity_array(exp, force = TRUE)
-        lfq_data <- tr$lfq
-        lfq_data$is_transformed(FALSE)
-        self$lfq_data <- lfq_data
+        self$lfq_data <- self$aggregator$lfq_agg$get_Transformer()$intensity_array(exp, force = TRUE)$lfq
+        self$lfq_data$is_transformed(FALSE)
       } else if (agg_method == "limpa") {
-        self$aggregator <- prolfqua::AggregateLimpa$new(
-          lfqdata_peptide,
-          "protein"
-        )
+        self$aggregator <- prolfqua::AggregateLimpa$new(lfqdata_peptide, "protein")
         self$lfq_data <- self$aggregator$aggregate()
       } else {
         logger::log_warn("no such aggregator {agg_method}.")
@@ -120,20 +111,14 @@ ProteinDataPrep <- R6::R6Class(
     #' Get aggregation plots
     #' @param exp_nr_children minimum number of peptides per protein; default 2
     get_aggregation_plots = function(exp_nr_children = 2) {
-      subset <- self$rowAnnot$filter_by_nr_children(
-        exp_nr_children = exp_nr_children
-      )
-      res <- self$aggregator$plot(subset)
-      return(res)
+      self$aggregator$plot(self$rowAnnot$filter_by_nr_children(exp_nr_children = exp_nr_children))
     },
 
     #' @description
     #' Write aggregation plots to file
     #' @param exp_nr_children minimum number of peptides per protein; default 2
     write_aggregation_plots = function(exp_nr_children = 2) {
-      subset <- self$rowAnnot$filter_by_nr_children(
-        exp_nr_children = exp_nr_children
-      )
+      subset <- self$rowAnnot$filter_by_nr_children(exp_nr_children = exp_nr_children)
       self$aggregator$write_plots(self$prolfq_app_config$zipdir, subset)
     },
 
@@ -146,24 +131,14 @@ ProteinDataPrep <- R6::R6Class(
       )
       self$lfq_data$rename_response("abundance")
 
-      if (length(self$prolfq_app_config$processing_options$internal) > 0) {
+      internal <- self$prolfq_app_config$processing_options$internal
+      if (length(internal) > 0) {
         x <- transformed$hierarchy()
-        mm <- colnames(x)[1]
-        x <- x |>
-          dplyr::filter(
-            !!dplyr::sym(mm) %in%
-              self$prolfq_app_config$processing_options$internal
-          )
+        x <- x[x[[1]] %in% internal, , drop = FALSE]
         if (nrow(x) == 0) {
-          what <- paste(
-            self$prolfq_app_config$processing_options$internal,
-            collapse = ","
-          )
-          warning("not in list : ", what)
+          warning("not in list : ", paste(internal, collapse = ","))
         } else {
-          xs <- transformed$get_subset(x)
-          tr <- transformed$get_Transformer()
-          transformed <- tr$center_to_reference(xs)$lfq
+          transformed <- transformed$get_Transformer()$center_to_reference(transformed$get_subset(x))$lfq
         }
       }
 
@@ -191,13 +166,11 @@ ProteinDataPrep <- R6::R6Class(
     #' @param default_model facade registry key, or NULL to read from config
     #' @return DEAnalyse R6 object
     build_deanalyse = function(contrasts, default_model = NULL) {
+      po <- self$prolfq_app_config$processing_options
       if (is.null(default_model)) {
-        default_model <- self$prolfq_app_config$processing_options$model
+        default_model <- po$model
       }
-      default_model <- .resolve_facade_model(
-        default_model,
-        self$prolfq_app_config$processing_options$model_missing
-      )
+      default_model <- .resolve_facade_model(default_model, po$model_missing)
       entry <- prolfqua::lookup_facade(default_model)
       if (is.null(entry)) {
         stop("Unknown facade: ", default_model)

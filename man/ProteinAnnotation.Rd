@@ -150,11 +150,8 @@ configured decoy pattern, or NULL when none was set
 \subsection{Method \code{annotate_contaminants()}}{
 annotate contaminants
 
-Sets the logical \code{CON} column via the shared
-\code{prolfqua::is_contaminant} detector (configured pattern unioned with
-the built-in defaults; an empty / \code{NULL} / \code{"a^"} pattern falls
-back to the defaults only -- never \code{grepl("", x)}, which would flag
-every protein). This is the same detector the quant layer uses.
+Sets the logical \code{CON} column via \code{prolfqua::is_contaminant},
+the same detector the quant layer uses.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$annotate_contaminants()}\if{html}{\out{</div>}}
 }
