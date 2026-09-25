@@ -44,33 +44,16 @@ QC_generator <- R6::R6Class(
     #' @return peptide data in wide format
     get_peptides_wide = function() {
       lfqdata <- self$lfqdata$get_copy()
-      lfqdata$set_config_value(
-        "hierarchy_depth",
-        min(
-          2,
-          length(self$lfqdata$hierarchy_keys())
-        )
-      )
-      self$lfqdata_peptide <- prolfquapp::aggregate_data(
-        lfqdata,
-        agg_method = "medpolish"
-      )
-      peptide_wide <- dplyr::left_join(
-        self$protein_annotation$row_annot,
-        self$lfqdata$data_wide()$data,
-        multiple = "all"
-      )
-      invisible(peptide_wide)
+      lfqdata$set_config_value("hierarchy_depth", min(2, length(self$lfqdata$hierarchy_keys())))
+      self$lfqdata_peptide <- prolfquapp::aggregate_data(lfqdata, agg_method = "medpolish")
+      invisible(private$annotate(self$lfqdata$data_wide()$data))
     },
     #' @description
     #' get VSN-transformed peptide data
     #' @return VSN-transformed peptide LFQData
     get_peptides_transformed = function() {
       if (is.null(self$lfqdata_peptide_transformed)) {
-        self$lfqdata_peptide_transformed <- prolfquapp::transform_lfqdata(
-          self$lfqdata,
-          method = "vsn"
-        )
+        self$lfqdata_peptide_transformed <- prolfquapp::transform_lfqdata(self$lfqdata, method = "vsn")
       }
       invisible(self$lfqdata_peptide_transformed)
     },
@@ -78,33 +61,20 @@ QC_generator <- R6::R6Class(
     #' get VSN-transformed peptide data in wide format
     #' @return VSN-transformed peptide data in wide format
     get_peptides_transformed_wide = function() {
-      lfqdata_pep_tr <- self$get_peptides_transformed()
-      if (is.null(lfqdata_pep_tr)) {
-        return(NULL)
-      }
-      peptide_wide <- dplyr::left_join(
-        self$protein_annotation$row_annot,
-        lfqdata_pep_tr$data_wide()$data,
-        multiple = "all"
-      )
-      return(peptide_wide)
+      private$annotate(self$get_peptides_transformed()$data_wide()$data)
     },
     #' @description
     #' get annotation data
     #' @return annotation data.frame
     get_annotation = function() {
-      annotation <- self$lfqdata$factors()
-      invisible(annotation)
+      invisible(self$lfqdata$factors())
     },
     #' @description
     #' get protein data
     #' @return protein LFQData
     get_prot_data = function() {
       if (is.null(self$lfqdata_prot)) {
-        self$lfqdata_prot <- prolfquapp::aggregate_data(
-          self$lfqdata,
-          agg_method = "medpolish"
-        )
+        self$lfqdata_prot <- prolfquapp::aggregate_data(self$lfqdata, agg_method = "medpolish")
       }
       invisible(self$lfqdata_prot)
     },
@@ -112,33 +82,14 @@ QC_generator <- R6::R6Class(
     #' get protein data in wide format
     #' @return protein data in wide format
     get_prot_wide = function() {
-      lfqdata_prot <- self$get_prot_data()
-      proteins_wide <- dplyr::left_join(
-        self$protein_annotation$row_annot,
-        lfqdata_prot$data_wide()$data,
-        multiple = "all"
-      )
-
-      # Get nr_children data using helper method
-      nr_children_data <- private$get_nr_children_data(lfqdata_prot)
-
-      proteins_wide <- dplyr::inner_join(
-        proteins_wide,
-        nr_children_data,
-        by = c(lfqdata_prot$relevant_hierarchy_keys(), "isotopeLabel")
-      )
-      return(proteins_wide)
+      private$annotate_with_nr_children(self$get_prot_data())
     },
     #' @description
     #' get VSN-transformed protein data
     #' @return VSN-transformed protein LFQData
     get_prot_transformed = function() {
       if (is.null(self$lfqdata_prot_transformed)) {
-        lfqdata_prot <- self$get_prot_data()
-        self$lfqdata_prot_transformed <- prolfquapp::transform_lfqdata(
-          lfqdata_prot,
-          method = "vsn"
-        )
+        self$lfqdata_prot_transformed <- prolfquapp::transform_lfqdata(self$get_prot_data(), method = "vsn")
       }
       invisible(self$lfqdata_prot_transformed)
     },
@@ -146,35 +97,17 @@ QC_generator <- R6::R6Class(
     #' get VSN-transformed protein data in wide format
     #' @return VSN-transformed protein data in wide format
     get_prot_transformed_wide = function() {
-      lfqdata_prot_tr <- self$get_prot_transformed()
-      if (is.null(lfqdata_prot_tr)) {
-        return(NULL)
-      }
-      proteins_wide <- dplyr::left_join(
-        self$protein_annotation$row_annot,
-        lfqdata_prot_tr$data_wide()$data,
-        multiple = "all"
-      )
-      return(proteins_wide)
+      private$annotate(self$get_prot_transformed()$data_wide()$data)
     },
     #' @description
     #' get IBAQ protein data
     #' @return IBAQ protein LFQData
     get_prot_IBAQ = function() {
       relevant_columns <- c("protein_length", "nr_tryptic_peptides")
-      if (
-        is.null(self$lfqdata_prot_IBAQ) &&
-          all(relevant_columns %in% colnames(self$protein_annotation$row_annot))
-      ) {
-        self$lfqdata_prot_IBAQ <- prolfquapp::compute_IBAQ_values(
-          self$lfqdata,
-          self$protein_annotation
-        )
-      } else if (!all(relevant_columns %in% colnames(self$protein_annotation$row_annot))) {
-        warning(
-          "skipping IBAQ computation, no:",
-          paste(relevant_columns, collapse = "; ")
-        )
+      if (!all(relevant_columns %in% colnames(self$protein_annotation$row_annot))) {
+        warning("skipping IBAQ computation, no:", paste(relevant_columns, collapse = "; "))
+      } else if (is.null(self$lfqdata_prot_IBAQ)) {
+        self$lfqdata_prot_IBAQ <- prolfquapp::compute_IBAQ_values(self$lfqdata, self$protein_annotation)
       }
       invisible(self$lfqdata_prot_IBAQ)
     },
@@ -182,30 +115,19 @@ QC_generator <- R6::R6Class(
     #' get protein abundance per group
     #' @return protein abundance per group
     get_protein_per_group_abundance = function() {
-      summarizer <- self$get_prot_IBAQ()$get_Summariser()
-      precabund <- summarizer$percentage_abundance()
-      invisible(precabund)
+      invisible(self$get_prot_IBAQ()$get_Summariser()$percentage_abundance())
     },
     #' @description
     #' get protein abundance per group with row annotation
     #' @return protein abundance per group with annotation
     get_protein_per_group_abundance_with_row_annot = function() {
-      summarizer <- self$get_prot_IBAQ()$get_Summariser()
-      precabund <- summarizer$percentage_abundance()
-      precabund <- dplyr::inner_join(
-        self$protein_annotation$row_annot,
-        precabund,
-        multiple = "all",
-        by = self$get_prot_IBAQ()$relevant_hierarchy_keys()
-      )
-      invisible(precabund)
+      private$annotate_per_group(self$get_protein_per_group_abundance())
     },
     #' @description
     #' get protein abundance per group in wide format
     #' @return protein abundance per group in wide format
     get_protein_per_group_abundance_wide = function() {
-      precabund <- self$get_protein_per_group_abundance()
-      precabund_data_wide <- precabund |>
+      precabund_data_wide <- self$get_protein_per_group_abundance() |>
         tidyr::pivot_wider(
           id_cols = self$lfqdata$hierarchy_keys()[1],
           names_from = interaction,
@@ -224,42 +146,14 @@ QC_generator <- R6::R6Class(
             percent_prot
           )
         )
-      precabund <- dplyr::inner_join(
-        self$protein_annotation$row_annot,
-        precabund_data_wide,
-        multiple = "all",
-        by = self$get_prot_IBAQ()$relevant_hierarchy_keys()
-      )
-
-      invisible(precabund)
+      private$annotate_per_group(precabund_data_wide)
     },
     #' @description
     #' get IBAQ protein data in wide format
     #' @return IBAQ protein data in wide format
     get_prot_IBAQ_wide = function() {
-      if (!is.null(self$get_prot_IBAQ())) {
-        IBAQ_abundances <-
-          dplyr::left_join(
-            self$protein_annotation$row_annot,
-            self$get_prot_IBAQ()$data_wide()$data,
-            multiple = "all"
-          )
-
-        # Get nr_children data using helper method
-        nr_children_data <- private$get_nr_children_data(self$get_prot_IBAQ())
-
-        IBAQ_abundances <- dplyr::inner_join(
-          IBAQ_abundances,
-          nr_children_data,
-          by = c(
-            self$get_prot_IBAQ()$relevant_hierarchy_keys(),
-            "isotopeLabel"
-          )
-        )
-        return(IBAQ_abundances)
-      } else {
-        return(NULL)
-      }
+      ibaq <- self$get_prot_IBAQ()
+      if (is.null(ibaq)) NULL else private$annotate_with_nr_children(ibaq)
     },
     #' @description
     #' get list of all tables
@@ -278,14 +172,7 @@ QC_generator <- R6::R6Class(
     #' @description
     #' write tables to xlsx file
     write_xlsx = function() {
-      xlsxfile <- file.path(
-        self$output_dir,
-        paste0(
-          "proteinAbundances_",
-          self$GRP2$project_spec$workunit_Id,
-          ".xlsx"
-        )
-      )
+      xlsxfile <- file.path(self$output_dir, paste0("proteinAbundances_", self$GRP2$project_spec$workunit_Id, ".xlsx"))
       writexl::write_xlsx(self$get_list(), path = xlsxfile)
       self$links[["QC_XLSX"]] <- xlsxfile
     },
@@ -309,153 +196,64 @@ QC_generator <- R6::R6Class(
         {
           pap_file <- file.path(self$output_dir, "proteinAbundances.rds")
           saveRDS(self, file = pap_file)
-          as_id <- function(x) {
-            if (length(x) >= 1 && nzchar(as.character(x)[[1]])) {
-              as.character(x)[[1]]
-            } else {
-              NULL
-            }
-          }
-          ps <- self$GRP2$project_spec
           render_quarto_protein_abundances_report(
             pap_file = pap_file,
             output_dir = self$output_dir,
             output_file = "QC_ProteinAbundances_tabset.html",
-            project_info = list(
-              project_Id = as_id(ps$project_Id),
-              project_name = as_id(ps$project_name),
-              order_Id = as_id(ps$order_Id),
-              workunit_Id = as_id(ps$workunit_Id),
-              input_URL = as_id(ps$input_URL),
-              software = as_id(self$GRP2$software)
-            ),
+            project_info = private$project_info(),
             factors = TRUE
           )
         },
-        error = function(e) {
-          logger::log_warn(
-            "Skipping QC protein-abundances Quarto report: ",
-            conditionMessage(e)
-          )
-        }
+        error = function(e) logger::log_warn("Skipping QC protein-abundances Quarto report: ", conditionMessage(e))
       )
-      self$links[["QC_ABUNDANCES"]] <- file.path(
-        self$output_dir,
-        "QC_ProteinAbundances_tabset.html"
-      )
+      self$links[["QC_ABUNDANCES"]] <- file.path(self$output_dir, "QC_ProteinAbundances_tabset.html")
     },
     #' @description
     #' render sample size QC report
     render_sample_size_QC = function() {
       if (nrow(self$get_prot_data()$factors()) > 1) {
-        # Render the sample-size (SSE) Quarto report from a serialized copy of
-        # the QC data. Quarto serializes execute params to YAML, so the project
-        # spec is passed as a plain list of scalars (empty fields become NULL and
-        # the report falls back to "n/a") to populate the Workunit/Project/Order
-        # header.
         tryCatch(
           {
-            qc_data_file <- file.path(
-              self$output_dir,
-              "QC_sampleSizeEstimation.rds"
-            )
-            saveRDS(
-              list(
-                data = self$get_prot_data()$data_long(),
-                configuration = self$get_prot_data()$get_config()
-              ),
-              file = qc_data_file
-            )
-            as_id <- function(x) {
-              if (length(x) >= 1 && nzchar(as.character(x)[[1]])) {
-                as.character(x)[[1]]
-              } else {
-                NULL
-              }
+            qc_data_file <- file.path(self$output_dir, "QC_sampleSizeEstimation.rds")
+            prot <- self$get_prot_data()
+            saveRDS(list(data = prot$data_long(), configuration = prot$get_config()), file = qc_data_file)
+            software <- self$GRP2$software
+            target_type <- if (grepl("MZMINE", software)) {
+              "metabolite"
+            } else if (grepl("PEPTIDE", software)) {
+              "peptide"
+            } else {
+              "protein"
             }
-            ps <- self$GRP2$project_spec
             render_quarto_qc_sse_report(
               qc_data_file = qc_data_file,
               output_dir = self$output_dir,
               output_file = "QCandSSE_tabset.html",
-              project_conf = list(
-                project_Id = as_id(ps$project_Id),
-                project_name = as_id(ps$project_name),
-                order_Id = as_id(ps$order_Id),
-                workunit_Id = as_id(ps$workunit_Id),
-                input_URL = as_id(ps$input_URL),
-                software = as_id(self$GRP2$software)
-              ),
-              target_type = private$get_target_type()
+              project_conf = private$project_info(),
+              target_type = target_type
             )
           },
-          error = function(e) {
-            logger::log_warn(
-              "Skipping QC sample-size Quarto report: ",
-              conditionMessage(e)
-            )
-          }
+          error = function(e) logger::log_warn("Skipping QC sample-size Quarto report: ", conditionMessage(e))
         )
       } else {
         message("only a single sample: ", nrow(self$get_prot_data()$factors()))
       }
-      self$links[["QC_SAMPLE_SIZE"]] <- file.path(
-        self$output_dir,
-        "QCandSSE_tabset.html"
-      )
+      self$links[["QC_SAMPLE_SIZE"]] <- file.path(self$output_dir, "QCandSSE_tabset.html")
     },
     #' @description
     #' render index HTML file
     render_index_html = function() {
-      str <- c(
-        "<!DOCTYPE html>",
-        "<html>",
-        "<head>",
-        paste0(
-          "<title>QC Results for WU : ",
-          self$GRP2$project_spec$workunit_Id,
-          " and input : ",
-          self$GRP2$software,
-          "</title>"
-        ),
-        "</head>",
-        "<body>",
-        paste0(
-          "<h1>QC Results for WU : ",
-          self$GRP2$project_spec$workunit_Id,
-          " and input : ",
-          self$GRP2$software,
-          "</h1>"
-        ),
-        "<ul>"
-      )
-      # Sort links to ensure QC_XLSX is last
-      sorted_links <- names(self$links)
-      if ("QC_XLSX" %in% sorted_links) {
-        sorted_links <- c(sorted_links[sorted_links != "QC_XLSX"], "QC_XLSX")
-        self$links <- self$links[sorted_links]
-      }
-      # Add links
-      for (name in names(self$links)) {
-        link_path <- basename(self$links[[name]])
-        str <- c(
-          str,
-          paste0("<li><a href='", link_path, "'>", name, "</a></li>")
-        )
-      }
-
-      str <- c(
-        str,
-        "</ul>",
-        "</body>",
-        "</html>"
-      )
-
+      title <- paste0("QC Results for WU : ", self$GRP2$project_spec$workunit_Id, " and input : ", self$GRP2$software)
+      self$links <- self$links[order(names(self$links) == "QC_XLSX")]
+      items <- sprintf("<li><a href='%s'>%s</a></li>", vapply(self$links, basename, ""), names(self$links))
+      str <- c("<!DOCTYPE html>", "<html>", "<head>", paste0("<title>", title, "</title>"), "</head>", "<body>")
+      str <- c(str, paste0("<h1>", title, "</h1>"), "<ul>", items, "</ul>", "</body>", "</html>")
       cat(str, file = file.path(self$output_dir, "index.html"), sep = "\n")
     },
     #' @description
     #' render index markdown file
     render_index_md = function() {
+      self$links <- self$links[order(names(self$links) == "QC_XLSX")]
       str <- c(
         paste0(
           "# QC Results for WU : ",
@@ -464,96 +262,52 @@ QC_generator <- R6::R6Class(
           self$GRP2$software,
           "\n"
         ),
-        "\n## Available Reports\n"
+        "\n## Available Reports\n",
+        sprintf("- [%s](%s)", names(self$links), vapply(self$links, basename, ""))
       )
-
-      sorted_links <- names(self$links)
-      if ("QC_XLSX" %in% sorted_links) {
-        sorted_links <- c(sorted_links[sorted_links != "QC_XLSX"], "QC_XLSX")
-        self$links <- self$links[sorted_links]
-      }
-
-      # Add links
-      for (name in names(self$links)) {
-        link_path <- basename(self$links[[name]])
-        str <- c(
-          str,
-          paste0("- [", name, "](", link_path, ")")
-        )
-      }
-
       cat(str, file = file.path(self$output_dir, "index.md"), sep = "\n")
     },
     #' @description
     #' get protein per group small wide format
     #' @return protein per group data in small wide format
     get_protein_per_group_small_wide = function() {
-      n <- 2
-      precabund <- self$get_protein_per_group_abundance()
       tableconfig <- self$get_prot_IBAQ()$get_config()
       protID <- tableconfig$hierarchy_keys_depth()
-      precabund <- dplyr::inner_join(
-        self$protein_annotation$row_annot,
-        precabund,
-        by = protID
-      )
-
-      precabund_table <- precabund |>
-        dplyr::mutate(
-          abundance_percent = signif(abundance_percent, n),
-          abundance_percent_cumulative = signif(
-            abundance_percent_cumulative,
-            n
-          ),
-          percent_prot = signif(percent_prot, 3)
-        )
-      precabund_table <- precabund_table |>
-        dplyr::select(
-          all_of(c(
-            protID,
-            "nrPeptides",
-            tableconfig$factor_keys_depth(),
-            "nrMeasured",
-            "meanAbundance",
-            "abundance_percent",
-            "description"
-          ))
-        )
-      factors <- TRUE
-      if (factors) {
-        precabund_table <- precabund_table |>
-          tidyr::pivot_wider(
-            names_from = tableconfig$factor_keys_depth(),
-            values_from = c("nrMeasured", "meanAbundance", "abundance_percent")
-          )
-      } else {
-        precabund_table <- dplyr::select(
-          precabund_table,
-          -all_of(tableconfig$factor_keys_depth())
-        )
-      }
-      return(precabund_table)
+      factor_keys <- tableconfig$factor_keys_depth()
+      value_cols <- c("nrMeasured", "meanAbundance", "abundance_percent")
+      dplyr::inner_join(self$protein_annotation$row_annot, self$get_protein_per_group_abundance(), by = protID) |>
+        dplyr::mutate(abundance_percent = signif(abundance_percent, 2)) |>
+        dplyr::select(all_of(c(protID, "nrPeptides", factor_keys, value_cols, "description"))) |>
+        tidyr::pivot_wider(names_from = all_of(factor_keys), values_from = all_of(value_cols))
     }
   ),
   private = list(
-    get_target_type = function() {
-      if (grepl("MZMINE", self$GRP2$software)) {
-        return("metabolite")
-      } else if (grepl("PEPTIDE", self$GRP2$software)) {
-        return("peptide")
-      } else {
-        return("protein")
-      }
+    annotate = function(data) {
+      dplyr::left_join(self$protein_annotation$row_annot, data, multiple = "all")
     },
-
-    # Helper method to get nr_children data
-    # @param lfqdata LFQData object to get nr_children data from
-    # @return data frame with nr_children data
-    get_nr_children_data = function(lfqdata) {
-      # Get nr_children data using the configured column name
-      nr_children_col_name <- lfqdata$nr_children_col()
-      nr_children_data <- lfqdata$data_wide(value = nr_children_col_name)$data
-      return(nr_children_data)
+    annotate_per_group = function(data) {
+      by <- self$get_prot_IBAQ()$relevant_hierarchy_keys()
+      invisible(dplyr::inner_join(self$protein_annotation$row_annot, data, multiple = "all", by = by))
+    },
+    annotate_with_nr_children = function(lfqdata) {
+      dplyr::inner_join(
+        private$annotate(lfqdata$data_wide()$data),
+        lfqdata$data_wide(value = lfqdata$nr_children_col())$data,
+        by = c(lfqdata$relevant_hierarchy_keys(), "isotopeLabel")
+      )
+    },
+    # Plain list of scalar project identifiers (empty fields become NULL) for the Quarto report headers.
+    project_info = function() {
+      as_id <- function(x) if (length(x) >= 1 && nzchar(as.character(x)[[1]])) as.character(x)[[1]]
+      ps <- self$GRP2$project_spec
+      list(
+        project_Id = as_id(ps$project_Id),
+        project_name = as_id(ps$project_name),
+        order_Id = as_id(ps$order_Id),
+        workunit_Id = as_id(ps$workunit_Id),
+        input_URL = as_id(ps$input_URL),
+        software = as_id(self$GRP2$software)
+      )
     }
   )
 )

@@ -30,17 +30,12 @@ aggregate_data <- function(
     aggregator <- lfqdata$get_Aggregator("topN", N = N)
     aggregator$aggregate()
     lfqdata <- aggregator$lfq_agg
-  } else if (agg_method == "rlm" || agg_method == "medpolish") {
+  } else {
     transformed <- lfqdata$get_Transformer()$intensity_array(log)$lfq
     aggregator <- transformed$get_Aggregator(agg_method)
     aggregator$aggregate()
-    ag <- aggregator$lfq_agg
-    tr <- ag$get_Transformer()
-    tr <- tr$intensity_array(exp, force = TRUE)
-    lfqdata <- tr$lfq
+    lfqdata <- aggregator$lfq_agg$get_Transformer()$intensity_array(exp, force = TRUE)$lfq
     lfqdata$is_transformed(FALSE)
-  } else {
-    logger::log_warn("no such aggregator {agg_method}.")
   }
   return(lfqdata)
 }
@@ -68,33 +63,15 @@ compute_IBAQ_values <- function(
 ) {
   required <- c(protein_length, nr_tryptic_peptides)
   stopifnot(all(required %in% colnames(protein_annotation$row_annot)))
-  rel_annot <- dplyr::select(
-    protein_annotation$row_annot,
-    c(protein_annotation$pID, required)
-  )
+  rel_annot <- dplyr::select(protein_annotation$row_annot, c(protein_annotation$pID, required))
   lfqdata$set_config_value("hierarchy_depth", 1) # you want to roll up to protein
-  lfqdataProtTotal <- prolfquapp::aggregate_data(
-    lfqdata,
-    agg_method = "topN",
-    N = 10000
-  )
-  lfqdataProtTotal$set_data(dplyr::inner_join(
-    lfqdataProtTotal$data_long(),
-    rel_annot,
-    by = protein_annotation$pID
-  ))
+  lfqdataProtTotal <- prolfquapp::aggregate_data(lfqdata, agg_method = "topN", N = 10000)
+  response <- sym(lfqdataProtTotal$response())
   lfqdataProtTotal$set_data(
-    lfqdataProtTotal$data_long() |>
+    dplyr::inner_join(lfqdataProtTotal$data_long(), rel_annot, by = protein_annotation$pID) |>
       dplyr::mutate(
-        IBAQValue_proteinLength = !!sym(lfqdataProtTotal$response()) /
-          !!sym(protein_length)
-      )
-  )
-  lfqdataProtTotal$set_data(
-    lfqdataProtTotal$data_long() |>
-      dplyr::mutate(
-        IBAQValue = !!sym(lfqdataProtTotal$response()) /
-          ifelse(!!sym(nr_tryptic_peptides) > 0, !!sym(nr_tryptic_peptides), 1)
+        IBAQValue_proteinLength = !!response / !!sym(protein_length),
+        IBAQValue = !!response / ifelse(!!sym(nr_tryptic_peptides) > 0, !!sym(nr_tryptic_peptides), 1)
       )
   )
   lfqdataProtTotal$get_config()$set_response("IBAQValue")

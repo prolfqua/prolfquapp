@@ -42,20 +42,14 @@ sync_opt_config <- function(opt, config) {
   if (!is.null(opt$outdir)) {
     config$path <- opt$outdir
   } else {
-    if (!is.null(config$path)) {
-      opt$outdir <- config$path
-    } else {
-      opt$outdir <- "."
-      config$path <- opt$outdir
-    }
+    opt$outdir <- config$path %||% "."
+    config$path <- opt$outdir
   }
   if (!is.null(opt$model)) {
     config$processing_options$model <- opt$model
   }
   if (!is.null(opt$nr_peptides)) {
-    config$processing_options$nr_peptides <- .validate_nr_peptides(
-      opt$nr_peptides
-    )
+    config$processing_options$nr_peptides <- .validate_nr_peptides(opt$nr_peptides)
   }
   if (!is.null(opt$flat_outdir)) {
     config$flat_outdir <- isTRUE(opt$flat_outdir)
@@ -78,13 +72,9 @@ sync_opt_config <- function(opt, config) {
 #' normalize_path(exp_paths)
 #'
 normalize_path <- function(paths, os = .Platform$OS.type) {
-  # Check the operating system
   if (os == "windows") {
-    # On Windows, use the native path
-    normalized_paths <- normalizePath(paths, winslash = "\\", mustWork = FALSE)
+    normalizePath(paths, winslash = "\\", mustWork = FALSE)
   } else {
-    # On Unix-like systems (Linux, macOS), replace backslashes with forward slashes
-    normalized_paths <- gsub("\\\\", "/", paths)
+    gsub("\\\\", "/", paths)
   }
-  return(normalized_paths)
 }

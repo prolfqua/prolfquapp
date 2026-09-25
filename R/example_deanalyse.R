@@ -30,27 +30,16 @@ example_deanalyse <- function(Nprot = 100) {
   )
   pA <- ProteinAnnotation$new(pep, row_annot = pA, description = "description")
 
-  # Write into a unique temp dir so the example/config never points at the
-  # working directory (avoids leaving DEA_<date>_none dirs when a consumer
-  # such as DEAReportGenerator creates the output folder).
-  GRP2 <- make_DEA_config_R6(
-    PATH = tempfile("prolfquapp-example-"),
-    model = "lm_impute"
-  )
-  # The simulated effects sit below 1, so the example carries a threshold its
-  # own data can clear -- otherwise every significance panel renders empty.
+  # A unique temp dir keeps consumers (e.g. DEAReportGenerator) from creating output in the working directory.
+  GRP2 <- make_DEA_config_R6(PATH = tempfile("prolfquapp-example-"), model = "lm_impute")
+  # The simulated effects sit below 1; use a threshold the data can clear so significance panels are not empty.
   GRP2$processing_options$diff_threshold <- 0.4
   GRP2$processing_options$transform <- "robscale"
-  # Populate the B-fabric identifiers so example/vignette renders show the
-  # project context instead of blank Workunit/Project/Order fields.
+  # B-fabric identifiers, so example renders show a Workunit/Project/Order context.
   GRP2$project_spec$project_Id <- 3000
   GRP2$project_spec$order_Id <- 6200
   GRP2$project_spec$workunit_Id <- 23000
-
-  contrasts <- c(
-    "AVsC" = "group_A - group_Ctrl",
-    "BVsC" = "group_B - group_Ctrl"
-  )
+  contrasts <- c("AVsC" = "group_A - group_Ctrl", "BVsC" = "group_B - group_Ctrl")
 
   data_prep <- ProteinDataPrep$new(pep, pA, GRP2)
   data_prep$cont_decoy_summary()
@@ -80,8 +69,6 @@ example_deanalyse <- function(Nprot = 100) {
 #'
 example_qc_generator <- function(Nprot = 100) {
   res <- sim_data_protAnnot(Nprot = Nprot)
-  # Write into a unique temp dir so the example never creates output folders
-  # in the working directory.
   GRP2 <- make_DEA_config_R6(PATH = tempfile("prolfquapp-example-"))
   GRP2$set_zipdir_name()
   dir.create(GRP2$get_zipdir(), showWarnings = FALSE, recursive = TRUE)

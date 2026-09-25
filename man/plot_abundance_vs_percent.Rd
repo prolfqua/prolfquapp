@@ -51,7 +51,6 @@ istar <- prolfqua::prolfqua_data('data_ionstar')$filtered()
 data <- istar$data |> dplyr::filter(protein_Id \%in\% sample(protein_Id, 100))
 lfqdata <- prolfqua::LFQData$new(data, istar$config)
 sr <- lfqdata$get_Summariser()
-undebug(plot_abundance_vs_percent)
 plot_abundance_vs_percent(sr$percentage_abundance(),
  lfqdata$get_config(),
  top_N = 6, factors = FALSE, logY = TRUE)
@@ -65,6 +64,5 @@ plot_abundance_vs_percent(
 plot_abundance_vs_percent(
   sr$percentage_abundance(),
   lfqdata$get_config(), top_N = NULL, factors = TRUE)
-
 
 }

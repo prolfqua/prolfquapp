@@ -3,8 +3,6 @@
 utils::globalVariables(c(
   "abundance",
   "adduct",
-  "BFDR",
-  "Bait",
   "compound_name",
   "config",
   "contrast",
@@ -15,11 +13,9 @@ utils::globalVariables(c(
   "feature_rt",
   "file_id",
   "Formula",
-  "Group_",
   "id",
   "Intensity",
   "leading.razor.protein",
-  "log2_EFCs",
   "metabolite_feature_Id",
   "mol_formula",
   "nrPeptides",
@@ -29,6 +25,5 @@ utils::globalVariables(c(
   "Protein",
   "protein_Id",
   "Purity",
-  "score",
-  "set_config"
+  "score"
 ))
