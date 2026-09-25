@@ -55,8 +55,13 @@ write_h5mu <- function(modalities, path, obs, uns = list()) {
 }
 
 .validate_mudata_inputs <- function(modalities, obs) {
-  .validate_mudata_names(names(modalities))
   keys <- names(modalities)
+  if (length(keys) == 0L) {
+    stop("MuData requires named modalities.")
+  }
+  if (any(is.na(keys), !nzchar(keys), duplicated(keys), grepl("/", keys, fixed = TRUE))) {
+    stop("MuData requires uniquely named modalities without slashes.")
+  }
   if (!is.data.frame(obs) || anyDuplicated(rownames(obs))) {
     stop("MuData obs must be a data frame with unique sample names.")
   }
@@ -149,8 +154,7 @@ read_h5mu <- function(path) {
   if (length(keys) == 0L || anyDuplicated(keys)) {
     stop("MuData has no valid modality order: ", path)
   }
-  modalities <- lapply(keys, function(name) .read_mudata_modality(path, name))
-  names(modalities) <- keys
+  modalities <- sapply(keys, function(name) .read_mudata_modality(path, name), simplify = FALSE)
   shared <- .read_mudata_shared(path, modalities[[1L]]$obs)
   .validate_mudata_inputs(modalities, shared$obs)
   list(modalities = modalities, obs = shared$obs, uns = shared$uns)
@@ -197,11 +201,9 @@ read_h5mu <- function(path) {
 .write_mudata_h5ad <- function(adata, path) {
   adata$write_h5ad(path, compression = "gzip", mode = "w")
   .repair_mudata_booleans(adata, path)
-  frames <- c("obs", "var", .mudata_frame_paths(adata$uns, "uns"))
-  for (group in frames) {
+  for (group in c("obs", "var", .mudata_frame_paths(adata$uns, "uns"))) {
     attributes <- rhdf5::h5readAttributes(path, group)
-    columns <- c(attributes[["_index"]], attributes[["column-order"]])
-    for (column in columns) {
+    for (column in c(attributes[["_index"]], attributes[["column-order"]])) {
       .mudata_column_array(path, paste0(group, "/", column))
     }
   }
@@ -223,25 +225,16 @@ read_h5mu <- function(path) {
   .mudata_attribute(dataset, "encoding-version", "0.2.0")
 }
 
-.validate_mudata_names <- function(keys) {
-  if (length(keys) == 0L) {
-    stop("MuData requires named modalities.")
-  }
-  invalid <- c(anyNA(keys), any(!nzchar(keys)), anyDuplicated(keys) > 0L, any(grepl("/", keys, fixed = TRUE)))
-  if (any(invalid)) stop("MuData requires uniquely named modalities without slashes.")
-}
-
 # Python's newer nullable string encoding is not yet read by anndataR.
 # Decode it in the private copy as categorical, then restore character columns.
 .read_mudata_h5ad <- function(path) {
   nodes <- rhdf5::h5ls(path)
-  candidates <- unique(nodes$group[nodes$name == "mask"])
-  converted <- character()
-  for (name in candidates) {
-    if (identical(rhdf5::h5readAttributes(path, name)[["encoding-type"]], "nullable-string-array")) {
-      .decode_mudata_strings(path, name)
-      converted <- c(converted, name)
-    }
+  is_nullable <- function(name) {
+    identical(rhdf5::h5readAttributes(path, name)[["encoding-type"]], "nullable-string-array")
+  }
+  converted <- Filter(is_nullable, unique(nodes$group[nodes$name == "mask"]))
+  for (name in converted) {
+    .decode_mudata_strings(path, name)
   }
   adata <- anndataR::read_h5ad(path)
   for (name in converted) {
@@ -297,14 +290,22 @@ read_h5mu <- function(path) {
   if (!is.list(value)) {
     return(character())
   }
-  unlist(
-    Map(function(element, key) .mudata_frame_paths(element, paste0(path, "/", key)), value, names(value)),
-    use.names = FALSE
-  )
+  unlist(Map(function(element, key) .mudata_frame_paths(element, paste0(path, "/", key)), value, names(value)))
 }
 
 # anndataR's boolean writer drops matrix dimensions when converting to integer.
-.write_mudata_boolean <- function(path, name, value) {
+.repair_mudata_booleans <- function(adata, path) {
+  for (slot in c("obsm", "varm", "layers", "obsp", "varp")) {
+    for (key in names(adata[[slot]])) {
+      .repair_mudata_boolean(path, paste0(slot, "/", key), adata[[slot]][[key]])
+    }
+  }
+}
+
+.repair_mudata_boolean <- function(path, name, value) {
+  if (!is.matrix(value) || !is.logical(value) || anyNA(value)) {
+    return(invisible(NULL))
+  }
   rhdf5::h5delete(path, name)
   handle <- rhdf5::H5Fopen(path)
   on.exit(rhdf5::H5Fclose(handle), add = TRUE)
@@ -318,20 +319,6 @@ read_h5mu <- function(path) {
   rhdf5::H5Dwrite(dataset, as.raw(as.vector(t(value))), h5type = type)
   .mudata_attribute(dataset, "encoding-type", "array")
   .mudata_attribute(dataset, "encoding-version", "0.2.0")
-}
-
-.repair_mudata_booleans <- function(adata, path) {
-  for (slot in c("obsm", "varm", "layers", "obsp", "varp")) {
-    for (key in names(adata[[slot]])) {
-      .repair_mudata_boolean(adata[[slot]][[key]], path, paste0(slot, "/", key))
-    }
-  }
-}
-
-.repair_mudata_boolean <- function(value, path, key) {
-  if (is.matrix(value) && is.logical(value) && !anyNA(value)) {
-    .write_mudata_boolean(path, key, value)
-  }
 }
 
 .mudata_value <- function(value) {

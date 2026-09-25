@@ -18,7 +18,6 @@
 #' data <- istar$data |> dplyr::filter(protein_Id %in% sample(protein_Id, 100))
 #' lfqdata <- prolfqua::LFQData$new(data, istar$config)
 #' sr <- lfqdata$get_Summariser()
-#' undebug(plot_abundance_vs_percent)
 #' plot_abundance_vs_percent(sr$percentage_abundance(),
 #'  lfqdata$get_config(),
 #'  top_N = 6, factors = FALSE, logY = TRUE)
@@ -33,7 +32,6 @@
 #'   sr$percentage_abundance(),
 #'   lfqdata$get_config(), top_N = NULL, factors = TRUE)
 #'
-#'
 plot_abundance_vs_percent <- function(
   percInfo,
   cfg_config,
@@ -47,42 +45,27 @@ plot_abundance_vs_percent <- function(
   logY = TRUE
 ) {
   protID <- cfg_config$hierarchy_keys_depth()
-  #Select relevant columns
-  percInfo <- percInfo |>
-    dplyr::select(dplyr::all_of(c(
-      protID,
-      "percent_prot",
-      columnAb,
-      cfg_config$factor_keys_depth()
-    )))
-
+  factor_keys <- cfg_config$factor_keys_depth()
+  percInfo <- dplyr::select(percInfo, dplyr::all_of(c(protID, "percent_prot", columnAb, factor_keys)))
   if (!factors) {
-    percInfo <- percInfo |>
-      dplyr::filter(!!rlang::sym(cfg_config$factor_keys_depth()[1]) == "All")
+    percInfo <- dplyr::filter(percInfo, !!rlang::sym(factor_keys[1]) == "All")
   }
   colorV <- rep("black", nrow(percInfo))
-
   for (i in seq_along(colors)) {
     colorV[grepl(names(colors)[i], percInfo[[protID]])] <- colors[i]
   }
   percInfo$color <- colorV
 
-  # Draw the highlighted proteins (contaminants / decoys) last so they are
-  # plotted on top of the regular (black) points instead of being hidden behind
-  # them when points overlap. order() is stable, so the abundance-rank ordering
-  # within each colour group is preserved. colorV is reordered in lockstep with
-  # percInfo because geom_point() receives it as a positional colour vector.
+  # Draw highlighted proteins (contaminants / decoys) last, on top of the black points; order() is stable.
+  # colorV and alphaV are positional aesthetics, so they are reordered in lockstep with percInfo.
   draw_order <- order(colorV != "black")
   percInfo <- percInfo[draw_order, , drop = FALSE]
   colorV <- colorV[draw_order]
-
-  # Highlighted proteins get their own (typically higher) opacity so they stand
-  # out from the faded background points. Positional, aligned with colorV.
   alphaV <- ifelse(colorV == "black", alpha, highlight_alpha)
 
   if (!is.null(top_N)) {
     topN <- percInfo |>
-      dplyr::group_by(dplyr::across(cfg_config$factor_keys_depth())) |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(factor_keys))) |>
       dplyr::slice_max(order_by = !!rlang::sym(columnAb), n = top_N)
   } else {
     message("creating shared data with key : ", paste0(" ~ ", protID))
@@ -95,31 +78,14 @@ plot_abundance_vs_percent <- function(
 
   myplot <- ggplot(
     percInfo,
-    aes(
-      x = !!rlang::sym("percent_prot"),
-      y = !!rlang::sym(columnAb),
-      label = !!rlang::sym(protID)
-    )
+    aes(x = !!rlang::sym("percent_prot"), y = !!rlang::sym(columnAb), label = !!rlang::sym(protID))
   ) +
     geom_point(color = colorV, alpha = alphaV) +
-    facet_wrap(as.formula(paste0(
-      " ~ ",
-      paste(cfg_config$factor_keys_depth(), collapse = " + ")
-    ))) +
-    if (logY) {
-      ggplot2::scale_y_log10()
-    } else {
-      NULL
-    }
-
+    facet_wrap(as.formula(paste0(" ~ ", paste(factor_keys, collapse = " + ")))) +
+    if (logY) ggplot2::scale_y_log10()
   if (!is.null(top_N)) {
     myplot <- myplot +
-      ggrepel::geom_label_repel(
-        data = topN,
-        aes(label = !!rlang::sym(protID)),
-        size = 3,
-        max.overlaps = 100
-      )
+      ggrepel::geom_label_repel(data = topN, aes(label = !!rlang::sym(protID)), size = 3, max.overlaps = 100)
   }
   return(myplot)
 }

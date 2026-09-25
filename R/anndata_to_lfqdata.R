@@ -21,16 +21,11 @@ LFQData_from_anndata <- function(adata) {
   pmeta <- adata$uns[["prolfquapp"]]
   artifact_type <- pmeta$artifact_type %||% "lfqdata"
   if (!identical(artifact_type, "lfqdata")) {
-    stop(
-      "LFQData_from_anndata() requires a prolfquapp LFQData artifact; got '",
-      artifact_type,
-      "'."
-    )
+    stop("LFQData_from_anndata() requires a prolfquapp LFQData artifact; got '", artifact_type, "'.")
   }
   ac <- pmeta$analysis_configuration
   pa <- pmeta$protein_annotation
 
-  # --- rebuild AnalysisConfiguration ---
   config <- prolfqua::AnalysisConfiguration$new()
   config$sep <- ac$sep
   config$file_name <- ac$file_name %||% ac$fileName
@@ -45,22 +40,14 @@ LFQData_from_anndata <- function(adata) {
   config$hierarchy <- ac$hierarchy
   config$hierarchy_depth <- ac$hierarchy_depth %||% ac$hierarchyDepth
   config$min_peptides_protein <- ac$min_peptides_protein
-
   for (wi in (ac$work_intensity %||% ac$workIntensity)) {
     config$set_response(wi)
   }
 
-  # --- convert wide → long ---
-  long_data <- anndata_to_long(adata, config)
-
-  lfqdata <- prolfqua::LFQData$new(long_data, config)
-
-  # --- rebuild ProteinAnnotation ---
-  var_df <- as.data.frame(adata$var)
-
+  lfqdata <- prolfqua::LFQData$new(anndata_to_long(adata, config), config)
   protAnnot <- prolfquapp::ProteinAnnotation$new(
     lfqdata,
-    var_df,
+    as.data.frame(adata$var),
     description = pa$description,
     cleaned_ids = pa$cleaned_ids,
     full_id = pa$full_id,
@@ -68,7 +55,6 @@ LFQData_from_anndata <- function(adata) {
     pattern_contaminants = pa$pattern_contaminants,
     pattern_decoys = pa$pattern_decoys
   )
-
   return(list(lfqdata = lfqdata, protein_annotation = protAnnot))
 }
 
@@ -81,42 +67,22 @@ validate_prolfquapp_anndata <- function(adata) {
   if (is.null(adata$uns)) {
     stop("AnnData has no 'uns' slot.")
   }
-  if (is.null(adata$uns[["prolfquapp"]])) {
-    stop(
-      "AnnData uns is missing the 'prolfquapp' namespace. ",
-      "This AnnData was not created by prolfquapp."
-    )
-  }
   pmeta <- adata$uns[["prolfquapp"]]
+  if (is.null(pmeta)) {
+    stop("AnnData uns is missing the 'prolfquapp' namespace. This AnnData was not created by prolfquapp.")
+  }
   artifact_type <- pmeta$artifact_type %||% "lfqdata"
-  required_by_type <- list(
-    lfqdata = c(
-      "schema_version",
-      "source_software",
-      "analysis_configuration",
-      "protein_annotation"
-    ),
-    dea_results = c(
-      "artifact_type",
-      "schema_version",
-      "source_software",
-      "analysis_configuration",
-      "layer_names",
-      "contrasts",
-      "formula",
-      "provenance"
-    )
-  )
-  required <- required_by_type[[artifact_type]]
+  common <- c("schema_version", "source_software", "analysis_configuration")
+  required <- list(
+    lfqdata = c(common, "protein_annotation"),
+    dea_results = c("artifact_type", common, "layer_names", "contrasts", "formula", "provenance")
+  )[[artifact_type]]
   if (is.null(required)) {
     stop("Unsupported prolfquapp AnnData artifact type: ", artifact_type)
   }
   missing <- setdiff(required, names(pmeta))
   if (length(missing) > 0) {
-    stop(
-      "prolfquapp uns is missing required keys: ",
-      paste(missing, collapse = ", ")
-    )
+    stop("prolfquapp uns is missing required keys: ", paste(missing, collapse = ", "))
   }
   invisible(TRUE)
 }
@@ -135,92 +101,41 @@ validate_prolfquapp_anndata <- function(adata) {
 anndata_to_long <- function(adata, config) {
   obs_df <- as.data.frame(adata$obs)
   var_df <- as.data.frame(adata$var)
-
-  # Determine which columns from var are hierarchy keys
-  hierarchy_cols <- config$hierarchy_keys()
-  # isotopeLabel column
   iso_col <- config$isotope_label
+  melt <- function(mat, value_name) {
+    dimnames(mat) <- list(rownames(obs_df), rownames(var_df))
+    long <- as.data.frame(mat, check.names = FALSE)
+    long[[config$sample_name]] <- rownames(obs_df)
+    tidyr::pivot_longer(
+      long,
+      cols = -dplyr::all_of(config$sample_name),
+      names_to = ".feature_id",
+      values_to = value_name
+    )
+  }
 
-  # Get sample names (row names of X = obs rownames)
-  sample_names <- rownames(obs_df)
-  # Get feature IDs (column names of X = var rownames)
-  feature_ids <- rownames(var_df)
-
-  # Primary intensity layer
-  X <- adata$X
-  rownames(X) <- sample_names
-  colnames(X) <- feature_ids
-
-  # Melt X to long format: sampleName, featureID, value
-  X_long <- as.data.frame(X, check.names = FALSE)
-  X_long[[config$sample_name]] <- sample_names
-  X_long <- tidyr::pivot_longer(
-    X_long,
-    cols = -dplyr::all_of(config$sample_name),
-    names_to = ".feature_id",
-    values_to = config$get_response()
-  )
-
-  # Add additional layers as columns
-  layer_names <- adata$uns[["prolfquapp"]]$layer_names
-  if (!is.null(layer_names)) {
-    for (lname in layer_names) {
-      if (lname == config$get_response()) {
-        next
-      }
-      layer_mat <- adata$layers[[lname]]
-      if (is.null(layer_mat)) {
-        next
-      }
-      rownames(layer_mat) <- sample_names
-      colnames(layer_mat) <- feature_ids
-      layer_long <- as.data.frame(layer_mat, check.names = FALSE)
-      layer_long[[config$sample_name]] <- sample_names
-      layer_long <- tidyr::pivot_longer(
-        layer_long,
-        cols = -dplyr::all_of(config$sample_name),
-        names_to = ".feature_id",
-        values_to = lname
-      )
-      X_long <- dplyr::left_join(
-        X_long,
-        layer_long,
-        by = c(config$sample_name, ".feature_id")
-      )
+  long_data <- melt(adata$X, config$get_response())
+  for (lname in adata$uns[["prolfquapp"]]$layer_names) {
+    if (lname != config$get_response() && !is.null(adata$layers[[lname]])) {
+      layer_long <- melt(adata$layers[[lname]], lname)
+      long_data <- dplyr::left_join(long_data, layer_long, by = c(config$sample_name, ".feature_id"))
     }
   }
 
-  # Build var lookup: feature_id → hierarchy columns + metadata columns
-  var_lookup <- var_df
-  var_lookup$.feature_id <- feature_ids
-
-  # Select hierarchy keys + isotopeLabel + identification columns from var
-  var_cols_to_join <- intersect(
-    c(hierarchy_cols, iso_col, config$ident_q_value, config$nr_children),
-    colnames(var_lookup)
-  )
-  var_join <- var_lookup[, c(".feature_id", var_cols_to_join), drop = FALSE]
-
-  # Join var metadata onto long data
-  long_data <- dplyr::left_join(X_long, var_join, by = ".feature_id")
+  # Join hierarchy keys, isotope label and identification columns from var
+  var_cols <- intersect(c(config$hierarchy_keys(), iso_col, config$ident_q_value, config$nr_children), colnames(var_df))
+  var_df$.feature_id <- rownames(var_df)
+  long_data <- dplyr::left_join(long_data, var_df[, c(".feature_id", var_cols), drop = FALSE], by = ".feature_id")
   long_data$.feature_id <- NULL
 
-  # Join obs metadata (factors, fileName)
-  obs_cols_to_join <- intersect(
-    c(config$file_name, config$factor_keys(), iso_col),
-    colnames(obs_df)
-  )
-  obs_join <- obs_df[, c(config$sample_name, obs_cols_to_join), drop = FALSE]
-  # Deduplicate in case sampleName is already in obs_cols_to_join
+  # Join obs metadata (factors, fileName); drop a duplicated sampleName column
+  obs_cols <- intersect(c(config$file_name, config$factor_keys(), iso_col), colnames(obs_df))
+  obs_join <- obs_df[, c(config$sample_name, obs_cols), drop = FALSE]
   obs_join <- obs_join[, !duplicated(colnames(obs_join)), drop = FALSE]
-
   long_data <- dplyr::left_join(long_data, obs_join, by = config$sample_name)
-
-  # Ensure isotopeLabel exists
 
   if (!iso_col %in% colnames(long_data)) {
     long_data[[iso_col]] <- "light"
   }
-
   tibble::as_tibble(long_data)
 }

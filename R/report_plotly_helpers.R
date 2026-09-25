@@ -36,74 +36,56 @@ plotly_ggplot_subplot <- function(
   legend_groupclick = "togglegroup"
 ) {
   if (!requireNamespace("plotly", quietly = TRUE)) {
-    stop(
-      "Package 'plotly' is required to build this interactive subplot.",
-      call. = FALSE
-    )
+    stop("Package 'plotly' is required to build this interactive subplot.", call. = FALSE)
   }
-
   plots <- list(...)
   if (length(plots) == 0) {
     stop("At least one plot must be supplied.", call. = FALSE)
   }
+  plotly_plots <- lapply(plots, function(plot) {
+    if (inherits(plot, "plotly")) {
+      return(.set_plotly_widget_size(plot, width = width, height = height))
+    }
+    plotly::ggplotly(plot, width = if (is.numeric(width)) width, height = height)
+  })
+  subplot_args <- list(nrows = nrows, titleX = titleX, titleY = titleY, margin = margin)
+  plotly_obj <- do.call(plotly::subplot, c(plotly_plots, subplot_args))
 
-  plotly_plots <- lapply(plots, .as_sized_plotly, width = width, height = height)
-
-  plotly_obj <- do.call(
-    plotly::subplot,
-    c(
-      plotly_plots,
-      list(nrows = nrows, titleX = titleX, titleY = titleY, margin = margin)
-    )
-  )
   plotly_obj <- .deduplicate_plotly_legend(plotly_obj, showlegend = showlegend)
-
   if (!is.null(legend_groupclick)) {
     plotly_obj <- plotly::layout(plotly_obj, legend = list(groupclick = legend_groupclick))
   }
-  plotly_obj <- .highlight_keyed_plotly(plotly_obj)
+
+  # Highlight keyed traces on hover, linked by their crosstalk group.
+  highlight_groups <- unique(unlist(lapply(plotly_obj$x$data, function(trace) {
+    if (!is.null(trace$key)) as.character(trace$set)
+  })))
+  if (length(highlight_groups) > 0) {
+    plotly_obj <- plotly::highlight(
+      plotly_obj,
+      on = "plotly_hover",
+      off = "plotly_doubleclick",
+      opacityDim = 0.15,
+      selected = plotly::attrs_selected(opacity = 1)
+    )
+    plotly_obj$x$highlight$ctGroups <- I(highlight_groups)
+  }
   .set_plotly_widget_size(plotly_obj, width = width, height = height)
 }
 
-.as_sized_plotly <- function(plot, width = NULL, height = NULL) {
-  if (inherits(plot, "plotly")) {
-    return(.set_plotly_widget_size(plot, width = width, height = height))
+# One legend entry per trace name; same-named traces share a legend group across panels.
+.deduplicate_plotly_legend <- function(plotly_obj, showlegend = TRUE) {
+  legend_names <- character()
+  for (i in seq_along(plotly_obj$x$data)) {
+    trace_name <- as.character(plotly_obj$x$data[[i]]$name)
+    if (length(trace_name) != 1 || is.na(trace_name) || !nzchar(trace_name)) {
+      plotly_obj$x$data[[i]]$showlegend <- FALSE
+      next
+    }
+    plotly_obj$x$data[[i]]$legendgroup <- trace_name
+    plotly_obj$x$data[[i]]$showlegend <- isTRUE(showlegend) && !(trace_name %in% legend_names)
+    legend_names <- c(legend_names, trace_name)
   }
-
-  ggplotly_args <- list(p = plot)
-  if (!is.null(width) && is.numeric(width)) {
-    ggplotly_args$width <- width
-  }
-  if (!is.null(height)) {
-    ggplotly_args$height <- height
-  }
-  do.call(plotly::ggplotly, ggplotly_args)
-}
-
-.highlight_keyed_plotly <- function(plotly_obj, opacity_dim = 0.15) {
-  highlight_groups <- unique(unlist(
-    lapply(
-      plotly_obj$x$data,
-      function(trace) {
-        if (!is.null(trace$key) && !is.null(trace$set)) {
-          return(as.character(trace$set))
-        }
-        character()
-      }
-    ),
-    use.names = FALSE
-  ))
-  if (length(highlight_groups) == 0) {
-    return(plotly_obj)
-  }
-  plotly_obj <- plotly::highlight(
-    plotly_obj,
-    on = "plotly_hover",
-    off = "plotly_doubleclick",
-    opacityDim = opacity_dim,
-    selected = plotly::attrs_selected(opacity = 1)
-  )
-  plotly_obj$x$highlight$ctGroups <- I(highlight_groups)
   plotly_obj
 }
 
@@ -113,27 +95,6 @@ plotly_ggplot_subplot <- function(
   }
   if (!is.null(height)) {
     plotly_obj$height <- height
-  }
-  plotly_obj
-}
-
-.deduplicate_plotly_legend <- function(plotly_obj, showlegend = TRUE) {
-  legend_names <- character()
-  for (i in seq_along(plotly_obj$x$data)) {
-    trace_name <- plotly_obj$x$data[[i]]$name
-    if (is.null(trace_name) || length(trace_name) != 1 || is.na(trace_name)) {
-      plotly_obj$x$data[[i]]$showlegend <- FALSE
-      next
-    }
-    trace_name <- as.character(trace_name)
-    if (!nzchar(trace_name)) {
-      plotly_obj$x$data[[i]]$showlegend <- FALSE
-      next
-    }
-    plotly_obj$x$data[[i]]$legendgroup <- trace_name
-    plotly_obj$x$data[[i]]$showlegend <-
-      isTRUE(showlegend) && !(trace_name %in% legend_names)
-    legend_names <- c(legend_names, trace_name)
   }
   plotly_obj
 }

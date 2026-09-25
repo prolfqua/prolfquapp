@@ -1,12 +1,3 @@
-# Atomic AnnData write ----
-#
-# One protocol for every h5ad prolfquapp or a downstream package publishes:
-# write to a temporary file beside the destination, read it back, hand the
-# restored object to a caller-supplied validator, and only then move it into
-# place. A crash or a failed validation leaves no partial file at `path`.
-# The container-level writer for multimodal (.h5mu) output builds on the same
-# skeleton.
-
 #' Write an AnnData object atomically, validating the round trip
 #'
 #' Writes `adata` to a temporary `.h5ad` in the destination directory, reads
@@ -27,17 +18,11 @@ write_h5ad_atomic <- function(
   validate = function(restored) NULL,
   compression = "gzip"
 ) {
-  destination_dir <- dirname(path)
-  if (!dir.exists(destination_dir)) {
-    stop("AnnData output directory does not exist: ", destination_dir)
+  if (!dir.exists(dirname(path))) {
+    stop("AnnData output directory does not exist: ", dirname(path))
   }
-  temporary <- tempfile(
-    pattern = ".h5ad-write-",
-    tmpdir = destination_dir,
-    fileext = ".h5ad"
-  )
+  temporary <- tempfile(".h5ad-write-", tmpdir = dirname(path), fileext = ".h5ad")
   on.exit(unlink(temporary), add = TRUE)
-
   invisible(rhdf5::H5get_libversion())
   adata$write_h5ad(temporary, compression = compression, mode = "w")
   restored <- anndataR::read_h5ad(temporary)

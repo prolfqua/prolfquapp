@@ -22,20 +22,15 @@ transform_lfqdata <- function(
   } else if (method == "vsn") {
     n_samples <- length(unique(lfqdata$data_long()[[lfqdata$sample_name()]]))
     if (n_samples < 2) {
-      logger::log_warn(
-        "vsn requires >= 2 samples, falling back to log2 transformation."
-      )
+      logger::log_warn("vsn requires >= 2 samples, falling back to log2 transformation.")
       transformed <- lt$log2()$lfq
     } else {
       logger::log_info("Transforming using vsn::justvsn")
       transformed <- lt$intensity_matrix(.func = vsn::justvsn)$lfq
     }
-  } else if (method == "none" || method == "log2") {
+  } else {
     logger::log_info("Transforming using log2")
     transformed <- lt$log2()$lfq
-  } else {
-    logger::log_warn("Transforming no such transformaton : {method}")
-    return(NULL)
   }
   logger::log_info("Transforming data : {method}.")
   return(transformed)
@@ -49,11 +44,7 @@ exp2 <- function(lfqTrans) {
     warning("Data not transformed.")
   }
   tr <- lfqTrans$get_Transformer()
-  .exp2 <- function(x) {
-    2^x
-  }
-  tr$intensity_array(.exp2, force = TRUE)
+  tr$intensity_array(function(x) 2^x, force = TRUE)
   tr$lfq$is_transformed(FALSE)
-  lfqdataProt <- tr$lfq
-  return(lfqdataProt)
+  return(tr$lfq)
 }

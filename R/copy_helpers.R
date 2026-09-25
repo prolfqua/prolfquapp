@@ -3,12 +3,8 @@
 #' @export
 #'
 copy_docker_script <- function(workdir = getwd()) {
-  runscripts <- c(
-    "application/bin/prolfquapp_docker.sh"
-  )
-  # Check the operating system and add the appropriate extension
   prolfqua::script_copy_helper_vec(
-    runscripts,
+    "application/bin/prolfquapp_docker.sh",
     workdir = workdir,
     packagename = "prolfquapp"
   )
@@ -20,23 +16,14 @@ copy_docker_script <- function(workdir = getwd()) {
 #' @export
 #'
 copy_shell_script <- function(workdir = getwd()) {
-  runscripts <- c(
-    "application/bin/prolfqua_dea",
-    "application/bin/prolfqua_dea_cd",
-    "application/bin/prolfqua_yaml",
-    "application/bin/prolfqua_qc",
-    "application/bin/prolfqua_dataset",
-    "application/bin/prolfqua_contrasts"
+  scripts <- c(
+    "prolfqua_dea",
+    "prolfqua_dea_cd",
+    "prolfqua_yaml",
+    "prolfqua_qc",
+    "prolfqua_dataset",
+    "prolfqua_contrasts"
   )
-  # Check the operating system and add the appropriate extension
-  if (.Platform$OS.type == "windows") {
-    runscripts <- paste0(runscripts, ".bat")
-  } else {
-    runscripts <- paste0(runscripts, ".sh")
-  }
-  prolfqua::script_copy_helper_vec(
-    runscripts,
-    workdir = workdir,
-    packagename = "prolfquapp"
-  )
+  runscripts <- paste0("application/bin/", scripts, if (.Platform$OS.type == "windows") ".bat" else ".sh")
+  prolfqua::script_copy_helper_vec(runscripts, workdir = workdir, packagename = "prolfquapp")
 }
