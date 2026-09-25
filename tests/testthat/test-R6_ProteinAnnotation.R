@@ -7,14 +7,14 @@
 test_that(".detect_decoy_ids uses built-in defaults for NULL/empty/'a^'", {
   ids <- c("REV_sp|P1|X", "sp|P2|X", "decoy_P3", "DECOY_P4", "normalProtein")
   for (pat in list(NULL, "", "a^")) {
-    res <- prolfquapp:::.detect_decoy_ids(ids, pattern = pat)
+    res <- prolfqua::is_decoy(ids, pattern = pat)
     expect_equal(res, c(TRUE, FALSE, TRUE, TRUE, FALSE))
   }
 })
 
 test_that(".detect_decoy_ids unions a configured pattern with the defaults", {
   ids <- c("CUSTOM_P1", "REV_sp|P2|X", "sp|P3|X")
-  res <- prolfquapp:::.detect_decoy_ids(ids, pattern = "^CUSTOM_")
+  res <- prolfqua::is_decoy(ids, pattern = "^CUSTOM_")
   expect_equal(res, c(TRUE, TRUE, FALSE))
 })
 
