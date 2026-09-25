@@ -6,22 +6,6 @@
 #' @name FragPipe
 NULL
 
-#' read FragPipe generated MSstats formatted csv files.
-#'
-#' sanitize entries in the Bioreplicate and Condition columns
-#'
-#' @family FragPipe
-#' @export
-#' @param file MSstats formatted file
-#' @keywords internal
-tidy_FragPipe_MSstats_csv <- function(file) {
-  inputFile <- readr::read_csv(unz(file, filename = "MSstats.csv"))
-  inputFile$BioReplicate <- paste("br", inputFile$BioReplicate, sep = "")
-  inputFile$Condition <- make.names(inputFile$Condition)
-  inputFile$pep <- 0
-  return(inputFile)
-}
-
 .read_FP_combined_protein <- function(combprot, ...) {
   if (is.character(combprot) && file.exists(combprot)) {
     tibble::as_tibble(read.csv(combprot, header = TRUE, sep = "\t", stringsAsFactors = FALSE, ...))
@@ -138,74 +122,6 @@ tidy_FragPipe_combined_protein <- function(
   return(merged)
 }
 
-# Select the relevant columns of one psm.tsv table and pivot the quant columns into long format.
-.FP_psm_long <- function(psm, colnamesQuan) {
-  probability_column <- intersect(c("PeptideProphet Probability", "Probability"), colnames(psm))
-  psm |>
-    dplyr::select(dplyr::all_of(c(
-      "Spectrum",
-      "Spectrum File",
-      "Peptide",
-      "Modified Peptide",
-      "Charge",
-      "Intensity",
-      "Purity",
-      "Protein",
-      "Protein Description",
-      Probability = probability_column,
-      "Retention",
-      "Calibrated Observed Mass",
-      "Assigned Modifications",
-      colnamesQuan
-    ))) |>
-    tidyr::pivot_longer(tidyselect::all_of(colnamesQuan), values_to = "abundance", names_to = "channel")
-}
-
-# Filter long psm data, count peptides per protein and optionally aggregate spectra to psm level.
-.FP_psm_filter <- function(psm_long, purity_threshold, PeptideProphetProb, abundance_threshold, aggregate, drop) {
-  if (!is.null(abundance_threshold)) {
-    psm_long <- dplyr::filter(psm_long, abundance > abundance_threshold)
-  }
-  nrPeptides_exp <- psm_long |> dplyr::distinct(Protein, Peptide) |> dplyr::count(Protein, name = "nrPeptides")
-
-  colnames(psm_long) <- make.names(colnames(psm_long))
-  psm_long <- dplyr::filter(psm_long, Purity > purity_threshold & Probability > PeptideProphetProb)
-  if (aggregate) {
-    drop <- c("Spectrum.File", "Spectrum", drop, "Purity", "Retention", "Calibrated.Observed.Mass", "Charge")
-    psm_long <- psm_long |>
-      dplyr::select(-all_of(drop)) |>
-      dplyr::group_by(dplyr::across(-c(abundance, Probability))) |>
-      dplyr::summarize(
-        nr_psm = n(),
-        abundance = sum(abundance, na.rm = TRUE),
-        Probability = max(Probability, na.rm = TRUE)
-      )
-  }
-  return(list(data = psm_long, nrPeptides_exp = nrPeptides_exp))
-}
-
-#' read psm.tsv produced by FragPipe and convert into long format
-#' @export
-#' @param psm_files path(s) to psm.tsv file(s)
-#' @inheritParams tidy_FragPipe_psm
-#' @param quan_column_prefix regex prefix for quantitative columns
-#' @return A list with the long-format PSM data and expected peptide counts.
-tidy_FragPipe_psm_V2 <- function(
-  psm_files,
-  purity_threshold = 0.5,
-  PeptideProphetProb = 0.9,
-  abundance_threshold = 0,
-  quan_column_prefix = "^Intensity",
-  aggregate = TRUE
-) {
-  psm_long <- dplyr::bind_rows(lapply(unique(psm_files), function(psm_file) {
-    psm <- readr::read_tsv(psm_file)
-    .FP_psm_long(psm, grep(quan_column_prefix, colnames(psm), value = TRUE))
-  }))
-  psm_long$channel <- gsub("^\\s+|\\s+$", "", gsub(quan_column_prefix, "", psm_long$channel))
-  .FP_psm_filter(psm_long, purity_threshold, PeptideProphetProb, abundance_threshold, aggregate, NULL)
-}
-
 #' read psm.tsv produced by FragPipe and convert into long format
 #' @export
 #' @param psm_files path(s) to psm.tsv file(s)
@@ -234,10 +150,47 @@ tidy_FragPipe_psm <- function(
       psm <- psm |> dplyr::mutate(Purity = 1, .before = column_before_quants)
     }
     x <- which(colnames(psm) == column_before_quants)
-    psm_long[[psm_file]] <- .FP_psm_long(psm, colnames(psm)[(x + 1):ncol(psm)])
+    colnamesQuan <- colnames(psm)[(x + 1):ncol(psm)]
+    probability_column <- intersect(c("PeptideProphet Probability", "Probability"), colnames(psm))
+    psm_long[[psm_file]] <- psm |>
+      dplyr::select(dplyr::all_of(c(
+        "Spectrum",
+        "Spectrum File",
+        "Peptide",
+        "Modified Peptide",
+        "Charge",
+        "Intensity",
+        "Purity",
+        "Protein",
+        "Protein Description",
+        Probability = probability_column,
+        "Retention",
+        "Calibrated Observed Mass",
+        "Assigned Modifications",
+        colnamesQuan
+      ))) |>
+      tidyr::pivot_longer(tidyselect::all_of(colnamesQuan), values_to = "abundance", names_to = "channel")
   }
   psm_long <- dplyr::bind_rows(psm_long)
-  .FP_psm_filter(psm_long, purity_threshold, PeptideProphetProb, abundance_threshold, aggregate, "Intensity")
+  if (!is.null(abundance_threshold)) {
+    psm_long <- dplyr::filter(psm_long, abundance > abundance_threshold)
+  }
+  nrPeptides_exp <- psm_long |> dplyr::distinct(Protein, Peptide) |> dplyr::count(Protein, name = "nrPeptides")
+
+  colnames(psm_long) <- make.names(colnames(psm_long))
+  psm_long <- dplyr::filter(psm_long, Purity > purity_threshold & Probability > PeptideProphetProb)
+  if (aggregate) {
+    drop <- c("Spectrum.File", "Spectrum", "Intensity", "Purity", "Retention", "Calibrated.Observed.Mass", "Charge")
+    psm_long <- psm_long |>
+      dplyr::select(-all_of(drop)) |>
+      dplyr::group_by(dplyr::across(-c(abundance, Probability))) |>
+      dplyr::summarize(
+        nr_psm = n(),
+        abundance = sum(abundance, na.rm = TRUE),
+        Probability = max(Probability, na.rm = TRUE)
+      )
+  }
+  return(list(data = psm_long, nrPeptides_exp = nrPeptides_exp))
 }
 
 .get_FP_files <- function(path, pattern) {
@@ -335,14 +288,6 @@ preprocess_FP_PSM <- function(
   )
   lfqdata$remove_small_intensities()
   return(list(lfqdata = lfqdata, protein_annotation = prot_annot))
-}
-
-#' get report.tsv and fasta file location in folder
-#' @param path path to data directory
-#' @return list with paths to data and fasta
-#' @export
-get_FP_multiSite_files <- function(path) {
-  .get_FP_files(path, "abundance_multi-site_None.tsv")
 }
 
 #' get dataset annotation template

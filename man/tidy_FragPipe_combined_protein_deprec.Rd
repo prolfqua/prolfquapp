@@ -34,7 +34,6 @@ stopifnot( dim(prot) ==c(19980,27))
 \seealso{
 Other FragPipe: 
 \code{\link{FragPipe}},
-\code{\link{tidy_FragPipe_MSstats_csv}()},
 \code{\link{tidy_FragPipe_combined_protein}()}
 }
 \concept{FragPipe}

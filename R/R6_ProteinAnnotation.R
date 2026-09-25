@@ -36,21 +36,6 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE) {
   } else {
     prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
   }
-  res <- .annotated_experiment(istar)
-  res$pannot$row_annot$nr_tryptic_peptides <- res$pannot$row_annot$nrPeptides * 2
-  res$pannot$row_annot$protein_length <- res$pannot$row_annot$nrPeptides * 10
-  list(pannot = res$pannot, lfqdata = res$lfqdata)
-}
-
-#' make lfqdata with row annotation
-#' @param Nprot number of proteins to simulate
-#' @export
-make_annotated_experiment <- function(Nprot = 100) {
-  .annotated_experiment(prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot))
-}
-
-# LFQData from simulated data with REV/zz-prefixed ids and a random-description annotation.
-.annotated_experiment <- function(istar) {
   lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
   tmp_data <- lfqdata$data_long()
   tmp_data$protein_Id <- add_RevCon(tmp_data$protein_Id)
@@ -66,9 +51,10 @@ make_annotated_experiment <- function(Nprot = 100) {
     pattern_contaminants = "^zz",
     pattern_decoys = "^REV"
   )
-  list(lfqdata = lfqdata, pannot = pannot)
+  pannot$row_annot$nr_tryptic_peptides <- pannot$row_annot$nrPeptides * 2
+  pannot$row_annot$protein_length <- pannot$row_annot$nrPeptides * 10
+  list(pannot = pannot, lfqdata = lfqdata)
 }
-
 
 # Decoy / duplicate-ID resolution helpers ----
 
@@ -126,7 +112,6 @@ make_annotated_experiment <- function(Nprot = 100) {
   )
   row_annot[keep, , drop = FALSE]
 }
-
 
 # ProteinAnnotation ----
 #' Decorates LFQData with a row annotation and some protein specific functions.
@@ -342,7 +327,6 @@ ProteinAnnotation <-
     )
   )
 
-
 #' build Dataset protein annot, defaults are compatible with DIANN
 #'
 #' @export
@@ -403,7 +387,6 @@ build_protein_annot <- function(
     pattern_decoys = pattern_decoys
   )
 }
-
 
 #' Dataset protein annot
 #'

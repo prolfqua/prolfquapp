@@ -35,16 +35,3 @@ transform_lfqdata <- function(
   logger::log_info("Transforming data : {method}.")
   return(transformed)
 }
-
-#' transform lfq data with x^2 - apply if non log data is needed
-#' @param lfqTrans transformed LFQData
-#' @export
-exp2 <- function(lfqTrans) {
-  if (!lfqTrans$is_transformed()) {
-    warning("Data not transformed.")
-  }
-  tr <- lfqTrans$get_Transformer()
-  tr$intensity_array(function(x) 2^x, force = TRUE)
-  tr$lfq$is_transformed(FALSE)
-  return(tr$lfq)
-}
