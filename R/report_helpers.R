@@ -12,7 +12,7 @@ column_to_rownames <- function(.data, var = "rowname", sep = "~lfq~") {
   rownames(res) <- .data[, var, drop = FALSE] |>
     tidyr::unite("id", tidyselect::everything(), sep = sep) |>
     dplyr::pull("id")
-  return(res)
+  res
 }
 
 #' Strip pattern from row names of a matrix or data.frame
@@ -22,28 +22,14 @@ column_to_rownames <- function(.data, var = "rowname", sep = "~lfq~") {
 #' @return the input with cleaned row names
 #' @export
 strip_rownames <- function(.data, strip = "~lfq~light$") {
-  newrnames <- gsub(strip, "", rownames(.data))
-  rownames(.data) <- newrnames
-  return(.data)
+  rownames(.data) <- gsub(strip, "", rownames(.data))
+  .data
 }
 
-#' Enrich a quant/result table with the protein annotation
-#'
-#' Right-joins so every row of \code{x} (the quant or result table) is preserved
-#' and never multiplied.
-#'
-#' Protein annotation has one row per protein and is therefore joined only by
-#' the configured protein ID. Deeper hierarchy keys such as peptide or PTM site
-#' remain on the quant/result side.
-#' @param annotation protein annotation data frame
-#' @param x quant/result table to annotate
-#' @param protein_id configured protein-ID column
-#' @return \code{x} enriched with annotation columns; one row per row of \code{x}
-#' @keywords internal
-#' @noRd
+# Enrich a quant/result table `x` with the protein annotation: a right join on
+# the annotation's key `protein_id` (one column for protein-level analyses,
+# protein_Id and site for sites), so every row of `x` is kept, never multiplied.
 .join_annotation <- function(annotation, x, protein_id) {
-  # protein_id is the annotation's key: one column for a protein-level
-  # analysis, several (protein_Id and site) when the rows are sites.
   if (
     length(protein_id) < 1L ||
       !all(protein_id %in% colnames(annotation)) ||
@@ -66,8 +52,6 @@ strip_rownames <- function(.data, strip = "~lfq~light$") {
 #' @param project_spec ProjectSpec R6 object with project, order, workunit IDs
 #' @export
 #' @examples
-#'
-#'
 #' ps <- ProjectSpec$new()
 #' ps$project_Id <- 32258
 #' ps$order_Id <- 34628
@@ -80,105 +64,54 @@ strip_rownames <- function(.data, strip = "~lfq~light$") {
 #' bfabric_url_builder(ps)
 #'
 bfabric_url_builder <- function(project_spec) {
-  as_bfabric_id <- function(x) {
-    suppressWarnings(as.numeric(x))
+  url <- function(entity, id) {
+    id <- suppressWarnings(as.numeric(id))
+    if ((length(id) > 0) && !is.na(id)) {
+      paste0("https://fgcz-bfabric.uzh.ch/bfabric/", entity, "/show.html?id=", id, "&tab=details")
+    }
   }
-  orderURL <- NULL
-  workunitURL <- NULL
-  projectURL <- NULL
-  orderID <- as_bfabric_id(project_spec$order_Id)
-  if ((length(orderID) > 0) && !is.na(orderID)) {
-    orderURL <- paste0(
-      "https://fgcz-bfabric.uzh.ch/bfabric/order/show.html?id=",
-      orderID,
-      "&tab=details"
-    )
-  }
-  workunitID <- as_bfabric_id(project_spec$workunit_Id)
-  if ((length(workunitID) > 0) && !is.na(workunitID)) {
-    workunitURL <- paste0(
-      "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=",
-      workunitID,
-      "&tab=details"
-    )
-  }
-  projectID <- as_bfabric_id(project_spec$project_Id)
-  if ((length(projectID) > 0) && !is.na(projectID)) {
-    projectURL <- paste0(
-      "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=",
-      projectID,
-      "&tab=details"
-    )
-  }
-
-  return(list(
-    orderURL = orderURL,
-    projectURL = projectURL,
-    workunitURL = workunitURL
-  ))
+  list(
+    orderURL = url("order", project_spec$order_Id),
+    projectURL = url("project", project_spec$project_Id),
+    workunitURL = url("workunit", project_spec$workunit_Id)
+  )
 }
 
-
-.base_dir <- paste0(
-  "./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/",
-  "Results_WU_total_proteome"
-)
-.test_links <- list(
-  dea_file = file.path(.base_dir, "DE_WUtotal_proteome.html"),
-  qc_file = file.path(.base_dir, "QC_WUtotal_proteome.html"),
-  data_files = list(
-    xlsx_file = file.path(.base_dir, "DE_WUtotal_proteome.xlsx"),
-    ora_files = list(
-      ORA_Treated_vs_Control_down_WUtotal_proteome.txt = file.path(
-        .base_dir,
-        "ORA_Treated_vs_Control_down_WUtotal_proteome.txt"
-      ),
-      ORA_Treated_vs_Control_up_WUtotal_proteome.txt = file.path(
-        .base_dir,
-        "ORA_Treated_vs_Control_up_WUtotal_proteome.txt"
-      )
-    ),
-    gsea_files = list(
-      `GSEA_Treated_vs_Control_WUtotal_proteome.rnk` = file.path(
-        .base_dir,
-        "GSEA_Treated_vs_Control_WUtotal_proteome.rnk"
-      )
-    ),
-    ibaq_file = file.path(.base_dir, "IBAQ_total_proteome.xlsx")
+.test_links <- local({
+  in_dir <- function(x) {
+    file.path("./DEA_20250704_PI35298_O38953_WUtotal_proteome_none/Results_WU_total_proteome", x)
+  }
+  ora <- c("ORA_Treated_vs_Control_down_WUtotal_proteome.txt", "ORA_Treated_vs_Control_up_WUtotal_proteome.txt")
+  gsea <- "GSEA_Treated_vs_Control_WUtotal_proteome.rnk"
+  list(
+    dea_file = in_dir("DE_WUtotal_proteome.html"),
+    qc_file = in_dir("QC_WUtotal_proteome.html"),
+    data_files = list(
+      xlsx_file = in_dir("DE_WUtotal_proteome.xlsx"),
+      ora_files = as.list(stats::setNames(in_dir(ora), ora)),
+      gsea_files = as.list(stats::setNames(in_dir(gsea), gsea)),
+      ibaq_file = in_dir("IBAQ_total_proteome.xlsx")
+    )
   )
-)
+})
 
 .path_to_url_path <- function(path) {
   gsub("\\\\", "/", path)
 }
 
-.encode_url_path <- function(path) {
-  parts <- strsplit(path, "/", fixed = TRUE)[[1]]
-  paste(utils::URLencode(parts, reserved = TRUE), collapse = "/")
-}
-
 .index_relative_href <- function(path, result_dir) {
-  path_url <- .path_to_url_path(path)
-  result_url <- sub("/+$", "", .path_to_url_path(result_dir))
-
   if (file.exists(path) && dir.exists(result_dir)) {
-    path_url <- .path_to_url_path(normalizePath(path, mustWork = TRUE))
-    result_url <- sub(
-      "/+$",
-      "",
-      .path_to_url_path(normalizePath(result_dir, mustWork = TRUE))
-    )
+    path <- normalizePath(path, mustWork = TRUE)
+    result_dir <- normalizePath(result_dir, mustWork = TRUE)
   }
-
-  result_prefix <- paste0(result_url, "/")
-
-  if (startsWith(tolower(path_url), tolower(result_prefix))) {
-    rel <- substring(path_url, nchar(result_prefix) + 1)
+  path_url <- .path_to_url_path(path)
+  result_prefix <- paste0(sub("/+$", "", .path_to_url_path(result_dir)), "/")
+  rel <- if (startsWith(tolower(path_url), tolower(result_prefix))) {
+    substring(path_url, nchar(result_prefix) + 1)
   } else {
-    rel <- basename(path_url)
+    basename(path_url)
   }
-
-  paste0("./", .encode_url_path(rel))
+  paste0("./", paste(utils::URLencode(strsplit(rel, "/", fixed = TRUE)[[1]], reserved = TRUE), collapse = "/"))
 }
 
 #' write index.html file with links to all relevant files:
@@ -210,7 +143,6 @@ write_index_html <- function(file_path_list, result_dir) {
     buttons = FALSE,
     execute_params = list(index_data_file = normalizePath(index_data_file))
   )
-  setwd(oldwd)
 
   rendered_file <- file.path(render_dir, "index.html")
   if (!file.exists(rendered_file)) {
@@ -224,19 +156,9 @@ write_index_html <- function(file_path_list, result_dir) {
 }
 
 .index_deliverables <- function(file_path_list, result_dir) {
-  candidate_paths <- c(
-    file_path_list$dea_file,
-    file_path_list$qc_file,
-    file_path_list$quarto_file,
-    file_path_list$sse_file
-  )
-  candidate_paths <- candidate_paths[.index_has_value(candidate_paths)]
-  topdir_path <- if (length(candidate_paths) > 0) {
-    dirname(candidate_paths[1])
-  } else {
-    result_dir
-  }
-  topdir_name <- basename(topdir_path)
+  reports <- c(file_path_list$dea_file, file_path_list$qc_file, file_path_list$quarto_file, file_path_list$sse_file)
+  reports <- reports[.index_has_value(reports)]
+  topdir_name <- basename(if (length(reports) > 0) dirname(reports[1]) else result_dir)
 
   list(
     workunit = sub("^Results_WU_", "", topdir_name),
@@ -325,17 +247,12 @@ write_index_html <- function(file_path_list, result_dir) {
   }
 
   rows <- lapply(entries, function(entry) {
-    values <- data.frame(
-      File = .index_file_link(entry$file, result_dir, entry$label),
-      Description = entry$description,
-      stringsAsFactors = FALSE,
-      check.names = FALSE
-    )
+    row <- data.frame(File = .index_file_link(entry$file, result_dir, entry$label), Description = entry$description)
     if (include_contents) {
-      values$Contents <- entry$contents
+      row$Contents <- entry$contents
     }
-    values$Size <- .index_file_size(entry$file)
-    values
+    row$Size <- .index_file_size(entry$file)
+    row
   })
   data.frame(do.call(rbind, rows), row.names = NULL, check.names = FALSE)
 }
@@ -349,10 +266,7 @@ write_index_html <- function(file_path_list, result_dir) {
   data.frame(
     File = vapply(
       seq_along(paths),
-      function(index) {
-        label <- names(paths)[index]
-        .index_file_link(paths[[index]], result_dir, label)
-      },
+      function(i) .index_file_link(paths[[i]], result_dir, names(paths)[i]),
       character(1)
     ),
     Size = vapply(paths, .index_file_size, character(1), USE.NAMES = FALSE),
@@ -375,20 +289,16 @@ write_index_html <- function(file_path_list, result_dir) {
 }
 
 .index_file_size <- function(path) {
-  if (!file.exists(path)) {
-    return("")
-  }
   size <- file.info(path)$size
   if (is.na(size)) {
-    return("")
+    ""
+  } else if (size >= 1e6) {
+    sprintf("%.1f MB", size / 1e6)
+  } else if (size >= 1e3) {
+    sprintf("%.0f KB", size / 1e3)
+  } else {
+    sprintf("%d B", size)
   }
-  if (size >= 1e6) {
-    return(sprintf("%.1f MB", size / 1e6))
-  }
-  if (size >= 1e3) {
-    return(sprintf("%.0f KB", size / 1e3))
-  }
-  sprintf("%d B", size)
 }
 
 .index_html_escape <- function(x) {

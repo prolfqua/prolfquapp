@@ -9,8 +9,7 @@ DEAReportGenerator
 DEAReportGenerator
 }
 \details{
-Generates all output files for a differential expression analysis.
-Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.
+Generates all output files for a differential expression analysis from a DEAnalyse object.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -143,11 +142,9 @@ Get per-protein boxplots for significant proteins
 \if{html}{\out{<a id="method-DEAReportGenerator-contrasts_to_Grob"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-contrasts_to_Grob}{}}}
 \subsection{Method \code{contrasts_to_Grob()}}{
-Convert significant contrast results to table grobs. Column
-selection and rounding are driven by the contrast object's
-\code{ContrastConfiguration} so SAINT and LM backends both
-produce grobs with canonical \code{contrast}/\code{effect}/
-\code{score}/\code{fdr} columns without backend-specific code.
+Convert significant contrast results to table grobs with the canonical
+\code{contrast}/\code{effect}/\code{score}/\code{fdr} columns, selected
+through the contrast object's \code{ContrastConfiguration}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$contrasts_to_Grob()}\if{html}{\out{</div>}}
 }
@@ -185,8 +182,7 @@ Write per-protein boxplots with contrast tables to PDF
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_DEA_all}{}}}
 \subsection{Method \code{write_DEA_all()}}{
 Write DEA data outputs: XLSX, ORA gene lists, GSEA rank files, and
-boxplots. HTML reports are rendered separately (Quarto) by
-`render_dea_reports()`.
+boxplots. HTML reports are rendered by `render_dea_reports()`.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_DEA_all(boxplot = TRUE, ORA = TRUE, GSEA = TRUE)}\if{html}{\out{</div>}}
 }
