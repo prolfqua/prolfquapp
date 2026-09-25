@@ -212,10 +212,20 @@ list with `data_files` paths; `dea_file` / `qc_file` are NULL as
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-make_SummarizedExperiment}{}}}
 \subsection{Method \code{make_SummarizedExperiment()}}{
 Create SummarizedExperiment object from analysis results
+
+For the \code{lm_impute} default model the object also carries the
+assay \code{imputedData}, \code{transformedData} with every missing
+cell filled by \code{prolfqua::impute_from_model()}, and the rowData
+block \code{imputation} with \code{n_observed}, \code{n_imputed} and
+\code{route} per feature. Decoys are not modelled and stay NA in both.
+
+Given \code{ibaq}, the object also carries the assay \code{ibaq};
+features without an IBAQ value are NA.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$make_SummarizedExperiment(
   strip = "~lfq~light",
-  .url_builder = prolfquapp::bfabric_url_builder
+  .url_builder = prolfquapp::bfabric_url_builder,
+  ibaq = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -225,6 +235,9 @@ Create SummarizedExperiment object from analysis results
 \item{\code{strip}}{pattern to strip from rownames}
 
 \item{\code{.url_builder}}{function to build URLs for bfabric}
+
+\item{\code{ibaq}}{optional protein-level \code{LFQData} with IBAQ values, as
+returned by \code{compute_IBAQ_values()}}
 }
 \if{html}{\out{</div>}}
 }

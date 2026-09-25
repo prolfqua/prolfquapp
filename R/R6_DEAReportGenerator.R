@@ -514,12 +514,24 @@ DEAReportGenerator <- R6::R6Class(
 
     #' @description
     #' Create SummarizedExperiment object from analysis results
+    #'
+    #' For the \code{lm_impute} default model the object also carries the
+    #' assay \code{imputedData}, \code{transformedData} with every missing
+    #' cell filled by \code{prolfqua::impute_from_model()}, and the rowData
+    #' block \code{imputation} with \code{n_observed}, \code{n_imputed} and
+    #' \code{route} per feature. Decoys are not modelled and stay NA in both.
+    #'
+    #' Given \code{ibaq}, the object also carries the assay \code{ibaq};
+    #' features without an IBAQ value are NA.
     #' @param strip pattern to strip from rownames
     #' @param .url_builder function to build URLs for bfabric
+    #' @param ibaq optional protein-level \code{LFQData} with IBAQ values, as
+    #'   returned by \code{compute_IBAQ_values()}
     #' @return SummarizedExperiment object
     make_SummarizedExperiment = function(
       strip = "~lfq~light",
-      .url_builder = prolfquapp::bfabric_url_builder
+      .url_builder = prolfquapp::bfabric_url_builder,
+      ibaq = NULL
     ) {
       dea <- self$deanalyse
       colname <- dea$lfq_data_raw$sample_name()
@@ -549,6 +561,24 @@ DEAReportGenerator <- R6::R6Class(
         )[rownames(mat.raw), colnames(mat.raw), drop = FALSE]
       }
 
+      imputation <- NULL
+      if (identical(dea$default_model, "lm_impute")) {
+        imputation <- .imputed_assay(
+          dea$contrast_results[[dea$default_model]],
+          mat.raw,
+          rowname,
+          strip
+        )
+        assays[["imputedData"]] <- imputation$matrix
+      }
+
+      if (!is.null(ibaq)) {
+        assays[["ibaq"]] <- .align_to_features(
+          prolfquapp::strip_rownames(ibaq$data_wide(as.matrix = TRUE)$data, strip),
+          mat.raw
+        )
+      }
+
       col.data <- prolfquapp::column_to_rownames(
         matRaw$annotation,
         var = colname
@@ -561,7 +591,7 @@ DEAReportGenerator <- R6::R6Class(
         colData = col.data,
         metadata = list(
           artifact_type = "dea_results",
-          schema_version = "2.0.0",
+          schema_version = "2.1.0",
           source_software = as.character(self$GRP2$software),
           feature_keys = rowname,
           sample_key = colname,
@@ -589,8 +619,9 @@ DEAReportGenerator <- R6::R6Class(
         )
       )
 
-      # Feature annotation is stored once, as its own rowData frame, so the
-      # contrast frames carry results only and no column is duplicated.
+      # Feature annotation is stored once, as its own rowData frame. The
+      # contrast frames are the model's contrasts without the annotation, so
+      # they carry the feature keys and the results only.
       annotation <- prolfquapp::column_to_rownames(
         dea$rowAnnot$row_annot,
         var = dea$rowAnnot$pID
@@ -600,10 +631,8 @@ DEAReportGenerator <- R6::R6Class(
       SummarizedExperiment::rowData(x)[["annotation"]] <- annotation
 
       contrast_column <- contrast_obj$get_config()$contrast_col
-      diffbyContrast <- split(
-        resTables$diff_exp_analysis,
-        resTables$diff_exp_analysis[[contrast_column]]
-      )
+      contrasts <- contrast_obj$get_contrasts()
+      diffbyContrast <- split(contrasts, contrasts[[contrast_column]])
       for (i in names(diffbyContrast)) {
         row.data <- prolfquapp::column_to_rownames(
           diffbyContrast[[i]],
@@ -611,10 +640,6 @@ DEAReportGenerator <- R6::R6Class(
         )
         row.data <- row.data[rownames(mat.raw), ]
         rownames(row.data) <- rownames(mat.raw)
-        row.data <- row.data[,
-          setdiff(colnames(row.data), colnames(annotation)),
-          drop = FALSE
-        ]
         SummarizedExperiment::rowData(x)[[paste0("constrast_", i)]] <- row.data
       }
 
@@ -627,7 +652,34 @@ DEAReportGenerator <- R6::R6Class(
         prolfquapp::column_to_rownames(resTables$stats_raw_wide, var = rowname)[
           rownames(mat.raw),
         ]
+      if (!is.null(imputation)) {
+        SummarizedExperiment::rowData(x)[["imputation"]] <- imputation$summary
+      }
       return(x)
     }
   )
 )
+
+# `values` on the rows and columns of `mat.raw`; features it lacks are NA.
+.align_to_features <- function(values, mat.raw) {
+  aligned <- matrix(NA_real_, nrow(mat.raw), ncol(mat.raw), dimnames = dimnames(mat.raw))
+  shared <- intersect(rownames(mat.raw), rownames(values))
+  aligned[shared, ] <- values[shared, colnames(mat.raw), drop = FALSE]
+  aligned
+}
+
+# The imputedData assay and its per-feature imputation summary, aligned to the
+# raw matrix. Decoys are removed before the fit, so their rows stay NA.
+.imputed_assay <- function(facade, mat.raw, rowname, strip) {
+  filled <- prolfqua::impute_from_model(facade$model, facade$.lfqdata)
+  mat_filled <- prolfquapp::strip_rownames(filled$lfqdata$data_wide(as.matrix = TRUE)$data, strip)
+  imputed <- .align_to_features(mat_filled, mat.raw)
+  modelled <- intersect(rownames(mat.raw), rownames(mat_filled))
+  n_unfilled <- sum(rowSums(is.na(imputed[modelled, , drop = FALSE])) > 0)
+  if (n_unfilled > 0) {
+    stop("lm_impute left missing values for ", n_unfilled, " feature(s); imputedData must be complete.", call. = FALSE)
+  }
+  summary <- prolfquapp::column_to_rownames(filled$summary, var = rowname)[rownames(mat.raw), , drop = FALSE]
+  rownames(summary) <- rownames(mat.raw)
+  list(matrix = imputed, summary = summary)
+}

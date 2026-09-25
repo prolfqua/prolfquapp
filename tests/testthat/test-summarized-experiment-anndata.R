@@ -33,19 +33,15 @@ test_that("DEA SummarizedExperiment maps to typed AnnData slots", {
     )
   )
   dea <- as.data.frame(adata$varm[["constrast_A%2FB"]])
-  expect_false(any(c("protein_Id", "site", "SequenceWindow") %in% names(dea)))
+  # A contrast frame carries the feature keys, not the rest of the annotation.
+  expect_true(all(c("protein_Id", "site") %in% names(dea)))
+  expect_false("SequenceWindow" %in% names(dea))
   expect_equal(dea$diff, c(1, -1))
   expect_equal(adata$uns$prolfquapp$artifact_type, "dea_results")
-  expect_equal(adata$uns$prolfquapp$schema_version, "2.0.0")
+  expect_equal(adata$uns$prolfquapp$schema_version, "2.1.0")
   expect_equal(adata$uns$prolfquapp$source_software, "DIANN")
-  expect_equal(
-    adata$uns$prolfquapp$varm_columns[["constrast_A%2FB"]],
-    c("diff", "statistic", "p.value", "FDR")
-  )
-  expect_equal(
-    adata$uns$prolfquapp$varm_annotations[["constrast_A%2FB"]]$modelName,
-    c("lm", "lm")
-  )
+  expect_s3_class(adata$varm[["constrast_A%2FB"]], "data.frame")
+  expect_equal(dea$modelName, c("lm", "lm"))
   expect_no_error(prolfquapp::validate_prolfquapp_anndata(adata))
   expect_error(
     prolfquapp::LFQData_from_anndata(adata),
@@ -71,11 +67,11 @@ test_that("DEA AnnData writes and reads without changing axes or values", {
     as.matrix(restored$layers[["rawData"]]),
     t(SummarizedExperiment::assay(se, "rawData"))
   )
-  columns <- restored$uns$prolfquapp$varm_columns[["constrast_A%2FB"]]
-  statistic_column <- match("statistic", columns)
+  expect_equal(restored$varm[["constrast_A%2FB"]]$statistic, c(2, -2))
+  # The varm data frame index is the feature axis, as Python anndata requires.
   expect_equal(
-    unname(as.matrix(restored$varm[["constrast_A%2FB"]])[, statistic_column]),
-    c(2, -2)
+    as.vector(rhdf5::h5read(path, "varm/constrast_A%2FB/_index")),
+    rownames(se)
   )
   expect_equal(restored$uns$prolfquapp$provenance$workunit_Id, 42)
   expect_length(
@@ -240,6 +236,66 @@ test_that("the AnnData and the SummarizedExperiment read back the same", {
   )
   expect_equal(from_h5ad$metadata$feature_keys, c("protein_Id", "site"))
   expect_equal(from_h5ad$metadata$sample_key, "sampleName")
+  # HDF5 hands list names back in its own order; the recorded order restores
+  # them, at the top level and in nested lists.
+  list_names <- function(x) {
+    if (!is.list(x) || is.data.frame(x)) {
+      return(NULL)
+    }
+    c(list(names(x)), lapply(unname(x), list_names))
+  }
+  expect_identical(list_names(from_h5ad$metadata), list_names(from_rds$metadata))
+})
+
+test_that("DEAResultReader keys every table by the artifact's feature keys", {
+  se <- make_dea_summarized_experiment()
+  imputed <- SummarizedExperiment::assay(se, "transformedData")
+  imputed[is.na(imputed)] <- 3
+  SummarizedExperiment::assays(se)[["imputedData"]] <- imputed
+  SummarizedExperiment::rowData(se)[["imputation"]] <- data.frame(
+    protein_Id = c("P1", "P2"),
+    site = c("S10", "S20"),
+    n_observed = c(3, 2),
+    n_imputed = c(0, 1),
+    route = c("complete", "fitted"),
+    row.names = rownames(se)
+  )
+  output_dir <- tempfile("dea-reader-keys-")
+  dir.create(output_dir)
+  on.exit(unlink(output_dir, recursive = TRUE), add = TRUE)
+  h5ad <- prolfquapp::write_summarized_experiment_h5ad(
+    se,
+    file.path(output_dir, "AnnData.h5ad")
+  )
+
+  for (reader in list(
+    prolfquapp::DEAResultReader$new(se),
+    prolfquapp::DEAResultReader$new(h5ad)
+  )) {
+    expect_equal(reader$subject_id, c("protein_Id", "site"))
+    for (lfq in list(reader$lfq_raw, reader$lfq_transformed, reader$lfq_imputed)) {
+      expect_equal(lfq$hierarchy_keys(), c("protein_Id", "site"))
+      expect_setequal(lfq$data_long()$site, c("S10", "S20"))
+    }
+    abundances <- dplyr::inner_join(
+      reader$contrast_table,
+      reader$lfq_transformed$data_long(),
+      by = reader$subject_id,
+      relationship = "many-to-many"
+    )
+    expect_equal(nrow(abundances), nrow(reader$contrast_table) * ncol(se))
+    imputed_long <- reader$lfq_imputed$data_long()
+    expect_false(anyNA(imputed_long[[reader$lfq_imputed$response()]]))
+    expect_equal(
+      reader$imputation$route[reader$imputation$site == "S20"],
+      "fitted"
+    )
+    expect_equal(
+      reader$annotation$SequenceWindow,
+      c("AAAAASAAAAA", "BBBBBSBBBBB")
+    )
+    expect_equal(reader$samples$sampleName, colnames(se))
+  }
 })
 
 test_that("uns rejects a list AnnData cannot store", {

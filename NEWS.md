@@ -1,3 +1,13 @@
+# prolfquapp 2.10.5
+
+- For the `lm_impute` default model, the DEA SummarizedExperiment and AnnData carry an `imputedData` assay/layer, `transformedData` with every missing cell filled by `prolfqua::impute_from_model()`, and an `imputation` rowData block with `n_observed`, `n_imputed` and `route` per feature. Decoys are not modelled and stay NA in both. `schema_version` is 2.1.0.
+- The DEA SummarizedExperiment contrast frames carry the feature key columns again, so every rowData frame can be joined on the keys. Since 2.10.0 they were stripped with the annotation columns, which broke exploreDE. The contrast frames are now the model's contrasts without the annotation join; the xlsx export is unchanged.
+- On the protein path, the DEA SummarizedExperiment and AnnData carry an `ibaq` assay/layer with the IBAQ values also written to `IBAQ_<workunit>.xlsx`; features without an IBAQ value are NA.
+- `DEAResultReader` keys every table by the artifact's `feature_keys`: `lfq_raw` and `lfq_transformed` carry the real key columns (`protein_Id` and `site` for a site DEA), joined from the `annotation` frame on the feature id, instead of the flattened row name under `protein_Id`, and `subject_id` is the feature keys. With the keys back in the contrast frames, the tabbed report on a site DEA drew an empty significant-feature heatmap and UpSet sets of proteins; both are per site again.
+- The AnnData stores every nested rowData frame (contrasts, statistics, imputation) as a `varm` data frame indexed by the feature ids, with its key columns, instead of numeric matrices plus `uns$prolfquapp$varm_columns`/`varm_annotations`; the order of every metadata list is kept in `uns$prolfquapp$uns_list_order`. Needs the anndataR fork `wolski/anndataR` (scverse/anndataR#525), which writes the data-frame index so Python `anndata` can read the file. AnnData files written by 2.10.0-2.10.4 are not read.
+- `DEAResultReader` requires the artifact's `analysis_configuration`; the heuristic configuration for SummarizedExperiments without one is removed.
+- `DEAResultReader` gains `annotation`, `samples`, `lfq_imputed` (from `imputedData`) and `imputation`, so downstream packages such as prophosqua read a DEA artifact only through it. `write_summarized_experiment_h5ad()` is exported.
+
 # prolfquapp 2.10.4
 
 - The tabbed DEA report shows the volcano plot again for SAINT analyses. It

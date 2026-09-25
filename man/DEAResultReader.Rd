@@ -5,12 +5,14 @@
 \title{Read prolfquapp DEA results into prolfqua objects}
 \description{
 Rebuilds the standard prolfqua structures from a DEA result artifact
-written by [DEAReportGenerator]: the raw and transformed
-\code{prolfqua::LFQData}, the contrast table with the column names the
-modelling backend produced, and a \code{prolfqua::ContrastsTable} carrying
-the backend's \code{prolfqua::ContrastConfiguration}. Accepts a
-\code{SummarizedExperiment}, an \code{anndataR} AnnData, or a path to an
-\code{.rds} or \code{.h5ad} file.
+written by [DEAReportGenerator]: the raw, transformed and (for
+\code{lm_impute}) imputed \code{prolfqua::LFQData}, the feature and sample
+annotation, the per-feature imputation summary, the contrast table with the
+column names the modelling backend produced, and a
+\code{prolfqua::ContrastsTable} carrying the backend's
+\code{prolfqua::ContrastConfiguration}. Every table is keyed by the
+artifact's \code{feature_keys}. Accepts a \code{SummarizedExperiment}, an
+\code{anndataR} AnnData, or a path to an \code{.rds} or \code{.h5ad} file.
 
 Because the column roles travel with the artifact, consumers filter, rank
 and plot through the configuration instead of hard-coding column names.
@@ -38,13 +40,25 @@ backend that produced the results}
 \item{\code{lfq_transformed}}{\code{prolfqua::LFQData} with the transformed
 abundances}
 
+\item{\code{lfq_imputed}}{\code{prolfqua::LFQData} with the transformed
+abundances and every missing value filled by the feature's model, or
+\code{NULL} when the artifact has no \code{imputedData}}
+
+\item{\code{annotation}}{feature annotation, one row per feature}
+
+\item{\code{samples}}{sample annotation, one row per sample}
+
+\item{\code{imputation}}{per feature, how many values were observed and
+imputed and by which route, or \code{NULL} when the artifact has no
+imputation block}
+
 \item{\code{contrast_table}}{all contrasts stacked into one tibble}
 
 \item{\code{contrasts}}{\code{prolfqua::ContrastsTable} over
 \code{contrast_table}, or \code{NULL} when the artifact holds no
 usable contrast results}
 
-\item{\code{subject_id}}{feature-axis column identifying a contrast subject}
+\item{\code{subject_id}}{the feature-key columns identifying a contrast subject}
 }
 \if{html}{\out{</div>}}
 }

@@ -570,6 +570,7 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
     reporter$resultdir,
     paste0("IBAQ_", opt$workunit, ".xlsx")
   )
+  ibaq <- NULL
   if (length(xd$lfqdata$relevant_hierarchy_keys()) == 1) {
     ibaq <- compute_IBAQ_values(lfqdataIB, xd$protein_annotation)
     writexl::write_xlsx(
@@ -579,7 +580,7 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   }
   outdir$data_files$ibaq_file <- ibaq_file
 
-  summarized_experiment <- reporter$make_SummarizedExperiment()
+  summarized_experiment <- reporter$make_SummarizedExperiment(ibaq = ibaq)
 
   # Writes AnnData.h5ad + SummarizedExperiment.rds + DEAnalyse.rds and renders
   # the Quarto reports (primary R6 DEA report, tabset overview from the AnnData,

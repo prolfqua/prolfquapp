@@ -1,9 +1,10 @@
 # Shared fixture: a minimal DEA result SummarizedExperiment shaped exactly like
 # the one DEAReportGenerator$make_SummarizedExperiment() writes -- an annotation
-# rowData frame, results-only contrast frames, and the metadata schema.
+# rowData frame, contrast frames carrying the feature keys, and the metadata
+# schema.
 
 make_dea_summarized_experiment <- function() {
-  feature_names <- c("P1~S10", "P2~S20")
+  feature_names <- c("P1~lfq~S10", "P2~lfq~S20")
   sample_names <- c("S1", "S2", "S3")
   raw <- matrix(
     c(10, NA, 30, 20, 40, 60),
@@ -28,7 +29,7 @@ make_dea_summarized_experiment <- function() {
     ),
     metadata = list(
       artifact_type = "dea_results",
-      schema_version = "2.0.0",
+      schema_version = "2.1.0",
       source_software = "DIANN",
       feature_keys = c("protein_Id", "site"),
       sample_key = "sampleName",
@@ -50,7 +51,7 @@ make_dea_summarized_experiment <- function() {
         hierarchy = list(protein_Id = "protein", site = "site")
       ),
       contrast_configuration = list(
-        subject_id = "protein_Id",
+        subject_id = c("protein_Id", "site"),
         model_name_col = "modelName",
         contrast_col = "contrast",
         effect_col = "diff",
@@ -71,6 +72,8 @@ make_dea_summarized_experiment <- function() {
     data.frame(
       modelName = "lm",
       estimate_type = "observed",
+      protein_Id = c("P1", "P2"),
+      site = c("S10", "S20"),
       contrast = contrast,
       diff = diff,
       statistic = diff * 2,

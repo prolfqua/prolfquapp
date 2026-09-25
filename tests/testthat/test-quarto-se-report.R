@@ -123,7 +123,16 @@ test_that("DEAResultReader drops padded empty contrast rows", {
     colData = S4Vectors::DataFrame(
       sampleName = c("S1", "S2"),
       group = c("A", "B")
+    ),
+    metadata = list(
+      feature_keys = "protein_Id",
+      analysis_configuration_raw = list(sample_name = "sampleName", factors = list(group = "group")),
+      analysis_configuration = list(sample_name = "sampleName", factors = list(group = "group"))
     )
+  )
+  SummarizedExperiment::rowData(se)[["annotation"]] <- data.frame(
+    protein_Id = c("P1", "P2", "P3"),
+    row.names = c("P1", "P2", "P3")
   )
   SummarizedExperiment::rowData(se)[["constrast_A"]] <- data.frame(
     protein_Id = c("P1", "P2", NA_character_),
@@ -159,6 +168,9 @@ test_that("DEAResultReader resolves SAINT column roles", {
       group = c("A", "B")
     ),
     metadata = list(
+      feature_keys = "protein_Id",
+      analysis_configuration_raw = list(sample_name = "sampleName", factors = list(group = "group")),
+      analysis_configuration = list(sample_name = "sampleName", factors = list(group = "group")),
       default_model = "saint",
       contrast_configuration = prolfqua::R6_extract_values(
         prolfqua::ContrastConfiguration$new(
@@ -174,6 +186,10 @@ test_that("DEAResultReader resolves SAINT column roles", {
         )
       )
     )
+  )
+  SummarizedExperiment::rowData(se)[["annotation"]] <- data.frame(
+    protein_Id = c("P1", "P2", "P3"),
+    row.names = c("P1", "P2", "P3")
   )
   SummarizedExperiment::rowData(se)[["constrast_PPE4"]] <- data.frame(
     protein_Id = c("P1", "P2", "P3"),

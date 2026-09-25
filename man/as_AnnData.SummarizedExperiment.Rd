@@ -42,13 +42,8 @@ an AnnData object
 }
 \description{
 Registers prolfquapp's `SummarizedExperiment` method on
-\code{anndataR::as_AnnData}. anndataR itself only provides methods for
-`SingleCellExperiment` and `Seurat`.
-}
-\details{
-The conversion is mechanical: assays become layers, `colData` becomes `obs`,
-flat `rowData` columns become `var`, nested `rowData` data frames become
-`varm` matrices, and `metadata` is carried into `uns$prolfquapp` in full.
-Because metadata is passed through rather than enumerated, anything recorded
-on the SummarizedExperiment reaches the AnnData without changing this code.
+\code{anndataR::as_AnnData}. Assays become layers, `colData` becomes `obs`,
+the `annotation` rowData frame and flat `rowData` columns become `var`,
+other nested `rowData` data frames become `varm` data frames, and `metadata`
+is carried into `uns$prolfquapp` in full.
 }

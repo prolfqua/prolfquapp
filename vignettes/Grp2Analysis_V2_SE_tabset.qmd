@@ -198,7 +198,7 @@ significant_sets_by_direction <- function(significant_contrasts, direction = c("
   if (nrow(significant_contrasts) == 0) {
     return(list())
   }
-  feature_col <- reader$subject_id
+  feature_cols <- reader$subject_id
   contrast_col <- reader$contrast_config$contrast_col
   effect_col <- reader$contrast_config$effect_col
   if (!all(c(contrast_col, effect_col) %in% colnames(significant_contrasts))) {
@@ -210,7 +210,13 @@ significant_sets_by_direction <- function(significant_contrasts, direction = c("
   } else if (identical(direction, "decreased")) {
     data <- dplyr::filter(data, .data[[effect_col]] < 0)
   }
-  sets <- split(data[[feature_col]], data[[contrast_col]])
+  feature_ids <- tidyr::unite(
+    data[feature_cols],
+    "feature",
+    dplyr::everything(),
+    sep = "~"
+  )$feature
+  sets <- split(feature_ids, data[[contrast_col]])
   sets <- lapply(sets, unique)
   sets[lengths(sets) > 0]
 }
@@ -647,7 +653,7 @@ if (!is.null(contrast_plotter)) {
 if (nrow(significant_contrasts) > 0) {
   significant_lfq <- reader$lfq_transformed$get_copy()
   significant_lfq <- significant_lfq$get_subset(significant_contrasts)
-  row_names <- tryCatch(significant_lfq$hierarchy_counts()[[2]] <= 30, error = function(e) FALSE)
+  row_names <- tryCatch(nrow(significant_lfq$hierarchy()) <= 30, error = function(e) FALSE)
   significant_heatmap <- safe_plot(
     significant_lfq$get_Plotter()$heatmap(rownames = row_names),
     "Could not draw significant feature heatmap."

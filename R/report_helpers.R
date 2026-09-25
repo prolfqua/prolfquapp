@@ -9,7 +9,7 @@
 #' column_to_rownames(ind)
 column_to_rownames <- function(.data, var = "rowname", sep = "~lfq~") {
   res <- as.data.frame(.data)
-  rownames(res) <- .data[, var] |>
+  rownames(res) <- .data[, var, drop = FALSE] |>
     tidyr::unite("id", tidyselect::everything(), sep = sep) |>
     dplyr::pull("id")
   return(res)

@@ -1,42 +1,22 @@
 # DEA-results AnnData ----
 #
 # prolfquapp writes its differential-expression results as an AnnData file
-# beside the SummarizedExperiment. The conversion itself lives in
-# `as_AnnData.SummarizedExperiment()` and is purely mechanical; this file adds
-# the DEA-specific expectations: the assays a DEA result must have, and the
-# validation applied before and after the h5ad round-trip.
+# beside the SummarizedExperiment. The conversion is
+# `as_AnnData.SummarizedExperiment()`; this file adds the DEA-specific checks
+# applied before and after the h5ad round-trip.
 
-.dea_anndata_required_assays <- c("rawData", "transformedData")
-
-.validate_dea_result_anndata <- function(
-  adata,
-  expected_obs_names = NULL,
-  expected_var_names = NULL
-) {
+.validate_dea_result_anndata <- function(adata, obs_names, var_names) {
   validate_prolfquapp_anndata(adata)
-  metadata <- adata$uns[["prolfquapp"]]
-  if (!identical(metadata$artifact_type, "dea_results")) {
+  if (!identical(adata$uns[["prolfquapp"]]$artifact_type, "dea_results")) {
     stop("AnnData is not a prolfquapp DEA-results artifact.")
   }
-  if (!is.null(expected_obs_names)) {
-    observed <- rownames(as.data.frame(adata$obs))
-    if (!identical(observed, expected_obs_names)) {
-      stop("AnnData obs names changed during conversion.")
-    }
-  }
-  if (!is.null(expected_var_names)) {
-    observed <- rownames(as.data.frame(adata$var))
-    if (!identical(observed, expected_var_names)) {
-      stop("AnnData var names changed during conversion.")
-    }
+  if (!identical(adata$obs_names, obs_names) || !identical(adata$var_names, var_names)) {
+    stop("AnnData obs or var names changed during conversion.")
   }
   invisible(TRUE)
 }
 
-#' Convert a DEA SummarizedExperiment to AnnData
-#'
-#' Thin wrapper over \code{\link{as_AnnData.SummarizedExperiment}} that checks
-#' the DEA-specific requirements and validates the result.
+#' Convert a DEA SummarizedExperiment to AnnData, with `transformedData` as X
 #'
 #' @param se a \code{SummarizedExperiment} produced by
 #'   \code{DEAReportGenerator$make_SummarizedExperiment()}
@@ -44,36 +24,28 @@
 #' @keywords internal
 #' @noRd
 summarized_experiment_to_anndata <- function(se) {
-  if (!inherits(se, "SummarizedExperiment")) {
-    stop("Expected a SummarizedExperiment object.")
-  }
-  missing_assays <- setdiff(
-    .dea_anndata_required_assays,
-    SummarizedExperiment::assayNames(se)
-  )
+  missing_assays <- setdiff(c("rawData", "transformedData"), SummarizedExperiment::assayNames(se))
   if (length(missing_assays) > 0L) {
-    stop(
-      "SummarizedExperiment is missing required assay(s): ",
-      paste(missing_assays, collapse = ", ")
-    )
+    stop("SummarizedExperiment is missing required assay(s): ", paste(missing_assays, collapse = ", "))
   }
-
-  obs_names <- .summarized_experiment_axis_names(se, "obs")
-  var_names <- .summarized_experiment_axis_names(se, "var")
   adata <- anndataR::as_AnnData(se, assay_name = "transformedData")
-  .validate_dea_result_anndata(adata, obs_names, var_names)
+  .validate_dea_result_anndata(adata, colnames(se), rownames(se))
   adata
 }
 
+#' Write a DEA SummarizedExperiment as an h5ad file
+#'
+#' Converts the result of \code{DEAReportGenerator$make_SummarizedExperiment()}
+#' to AnnData and writes it atomically, validating the file it wrote.
+#'
+#' @param se a \code{SummarizedExperiment} produced by
+#'   \code{DEAReportGenerator$make_SummarizedExperiment()}
+#' @param path destination \code{.h5ad} file; its directory must exist
+#' @return the normalized path of the written file
+#' @export
 write_summarized_experiment_h5ad <- function(se, path) {
-  obs_names <- .summarized_experiment_axis_names(se, "obs")
-  var_names <- .summarized_experiment_axis_names(se, "var")
   adata <- summarized_experiment_to_anndata(se)
-  write_h5ad_atomic(
-    adata,
-    path,
-    validate = function(restored) {
-      .validate_dea_result_anndata(restored, obs_names, var_names)
-    }
-  )
+  write_h5ad_atomic(adata, path, validate = function(restored) {
+    .validate_dea_result_anndata(restored, adata$obs_names, adata$var_names)
+  })
 }
