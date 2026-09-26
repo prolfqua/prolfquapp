@@ -141,7 +141,8 @@ current_time <- Sys.time()
 
 formatted_time <- format(current_time, "%Y%m%d%H%M")
 logfile <- paste0("prolfqua_", formatted_time, ".log")
-appender_combined <- logger::appender_tee(file.path(GRP2$get_zipdir(), logfile))
+# An absolute path: rendering the reports changes the working directory.
+appender_combined <- logger::appender_tee(file.path(normalizePath(GRP2$get_zipdir()), logfile))
 logger::log_appender(appender_combined)
 logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(opt))))
 logger::log_info(

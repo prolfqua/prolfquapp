@@ -228,8 +228,9 @@ run_one <- function(run, base_config) {
   current_time <- Sys.time()
   formatted_time <- format(current_time, "%Y%m%d%H%M")
   logfile <- paste0("prolfqua_", formatted_time, ".log")
+  # An absolute path: rendering the reports changes the working directory.
   appender_combined <- logger::appender_tee(file.path(
-    run_config$get_zipdir(),
+    normalizePath(run_config$get_zipdir()),
     logfile
   ))
   logger::log_appender(appender_combined)
