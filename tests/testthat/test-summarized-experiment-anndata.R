@@ -179,6 +179,10 @@ test_that("DEAResultReader reads a written h5ad file", {
     nrow(from_h5ad$significant(FDR_threshold = 0.25, diff_threshold = 0.5)),
     nrow(from_se$significant(FDR_threshold = 0.25, diff_threshold = 0.5))
   )
+  expect_identical(from_h5ad$formula, dea$formula)
+  expect_identical(from_se$formula, dea$formula)
+  expect_identical(from_h5ad$contrast_definitions, dea$contrasts)
+  expect_identical(from_se$contrast_definitions, dea$contrasts)
 })
 
 test_that("DEA AnnData requires an existing output directory", {

@@ -1,5 +1,6 @@
 # prolfquapp 2.10.5
 
+- `DEAResultReader` exposes the model formula as one string (`formula`) and the contrasts as their expressions named by contrast (`contrast_definitions`), so a consumer no longer unpacks the one-column metadata tables.
 - `prolfqua_dea.sh` no longer fails after the analysis, when it writes `index.html`: the run's log file is opened by its absolute path, so a message logged while a report renders in its own directory still reaches it.
 - For the `lm_impute` default model, the DEA SummarizedExperiment and AnnData carry an `imputedData` assay/layer, `transformedData` with every missing cell filled by `prolfqua::impute_from_model()`, and an `imputation` rowData block with `n_observed`, `n_imputed` and `route` per feature. Decoys are not modelled and stay NA in both. `schema_version` is 2.1.0.
 - The DEA SummarizedExperiment contrast frames carry the feature key columns again, so every rowData frame can be joined on the keys. Since 2.10.0 they were stripped with the annotation columns, which broke exploreDE. The contrast frames are now the model's contrasts without the annotation join; the xlsx export is unchanged.

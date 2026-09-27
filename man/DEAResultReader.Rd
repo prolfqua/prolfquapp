@@ -59,6 +59,12 @@ imputation block}
 usable contrast results}
 
 \item{\code{subject_id}}{the feature-key columns identifying a contrast subject}
+
+\item{\code{formula}}{the model formula the DEA fitted, one string, or
+\code{NULL} when the artifact records none}
+
+\item{\code{contrast_definitions}}{the contrasts the DEA evaluated, their
+expressions named by contrast}
 }
 \if{html}{\out{</div>}}
 }

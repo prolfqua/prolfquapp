@@ -69,6 +69,12 @@ DEAResultReader <- R6::R6Class(
     contrasts = NULL,
     #' @field subject_id the feature-key columns identifying a contrast subject
     subject_id = NULL,
+    #' @field formula the model formula the DEA fitted, one string, or
+    #'   \code{NULL} when the artifact records none
+    formula = NULL,
+    #' @field contrast_definitions the contrasts the DEA evaluated, their
+    #'   expressions named by contrast
+    contrast_definitions = NULL,
     #' @description
     #' Read a DEA result artifact.
     #' @param source a \code{SummarizedExperiment}, an AnnData, or a path to
@@ -83,6 +89,11 @@ DEAResultReader <- R6::R6Class(
       self$metadata <- S4Vectors::metadata(self$se)
       row_data <- SummarizedExperiment::rowData(self$se)
       self$subject_id <- as.character(unlist(self$metadata$feature_keys, use.names = FALSE))
+      self$formula <- .dea_formula(self$metadata)
+      self$contrast_definitions <- stats::setNames(
+        as.character(self$metadata$contrasts$contrast),
+        as.character(self$metadata$contrasts$contrast_name)
+      )
       annotation <- as.data.frame(row_data[["annotation"]])
       self$annotation <- tibble::as_tibble(annotation)
       self$samples <- tibble::as_tibble(as.data.frame(SummarizedExperiment::colData(self$se)))
@@ -273,4 +284,10 @@ DEAResultReader <- R6::R6Class(
     tibble::as_tibble(as.data.frame(frame)),
     dplyr::if_all(dplyr::all_of(feature_keys), ~ !is.na(.x))
   )
+}
+
+# The formula the DEA recorded, one string, or NULL when it recorded none.
+.dea_formula <- function(metadata) {
+  formula <- unlist(metadata$formula, use.names = FALSE)
+  if (length(formula)) as.character(formula[[1]]) else NULL
 }
