@@ -879,6 +879,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="prolfquapp-2.10.5" class="level1">
 <h1>prolfquapp 2.10.5</h1>
 <ul>
+<li><code>DEAResultReader</code> exposes the model formula as one string (<code>formula</code>) and the contrasts as their expressions named by contrast (<code>contrast_definitions</code>), so a consumer no longer unpacks the one-column metadata tables.</li>
+<li><code>prolfqua_dea.sh</code> no longer fails after the analysis, when it writes <code>index.html</code>: the run’s log file is opened by its absolute path, so a message logged while a report renders in its own directory still reaches it.</li>
 <li>For the <code>lm_impute</code> default model, the DEA SummarizedExperiment and AnnData carry an <code>imputedData</code> assay/layer, <code>transformedData</code> with every missing cell filled by <code>prolfqua::impute_from_model()</code>, and an <code>imputation</code> rowData block with <code>n_observed</code>, <code>n_imputed</code> and <code>route</code> per feature. Decoys are not modelled and stay NA in both. <code>schema_version</code> is 2.1.0.</li>
 <li>The DEA SummarizedExperiment contrast frames carry the feature key columns again, so every rowData frame can be joined on the keys. Since 2.10.0 they were stripped with the annotation columns, which broke exploreDE. The contrast frames are now the model’s contrasts without the annotation join; the xlsx export is unchanged.</li>
 <li>On the protein path, the DEA SummarizedExperiment and AnnData carry an <code>ibaq</code> assay/layer with the IBAQ values also written to <code>IBAQ_&lt;workunit&gt;.xlsx</code>; features without an IBAQ value are NA.</li>
