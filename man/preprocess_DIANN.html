@@ -265,12 +265,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/copy_docker_script.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">copy_docker_script</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/copy_shell_script.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">copy_shell_script</span></a>
   </div>
@@ -367,12 +361,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/exp2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">exp2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/ExternalReader.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ExternalReader</span></a>
   </div>
@@ -457,12 +445,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/get_FP_multiSite_files.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">get_FP_multiSite_files</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/get_FP_PSM_files.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">get_FP_PSM_files</span></a>
   </div>
@@ -507,12 +489,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../man/list_to_R6_app_config.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">list_to_R6_app_config</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../man/make_annotated_experiment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">make_annotated_experiment</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -817,12 +793,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tidy_FragPipe_psm_V2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">tidy_FragPipe_psm_V2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/tidy_FragPipe_psm.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">tidy_FragPipe_psm</span></a>
   </div>
@@ -867,6 +837,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../man/write_index_html.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">write_index_html</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/write_summarized_experiment_h5ad.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">write_summarized_experiment_h5ad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1001,14 +977,9 @@ minimum number of peptides per protein
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://prolfqua.github.io/prolfquapp/">"prolfquapp"</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://prolfqua.github.io/prolfquapp/man/get_DIANN_files.html">get_DIANN_files</a></span><span class="op">(</span><span class="st">"inst/application/DIANN/2706527/"</span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">annotation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"inst/application/DIANN/2706527/dataset.csv"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">prolfquapp</span><span class="fu">::</span><span class="fu"><a href="https://prolfqua.github.io/prolfquapp/man/read_annotation.html">read_annotation</a></span><span class="op">(</span>QC <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">x</span><span class="op">$</span><span class="va">fasta</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/debug.html">undebug</a></span><span class="op">(</span><span class="va">preprocess_DIANN</span><span class="op">)</span></span>
-<span><span class="va">xd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://prolfqua.github.io/prolfquapp/man/preprocess_DIANN.html">preprocess_DIANN</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">data</span>, <span class="va">x</span><span class="op">$</span><span class="va">fasta</span>, <span class="va">annotation</span><span class="op">)</span></span>
-<span><span class="va">xd</span><span class="op">$</span><span class="va">lfqdata</span><span class="op">$</span><span class="fu">hierarchy_counts</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">xd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://prolfqua.github.io/prolfquapp/man/preprocess_DIANN.html">preprocess_DIANN</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">data</span>, <span class="va">x</span><span class="op">$</span><span class="va">fasta</span>, <span class="va">annotation</span>, nr_peptides <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">xd</span><span class="op">$</span><span class="va">lfqdata</span><span class="op">$</span><span class="fu">hierarchy_counts</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>

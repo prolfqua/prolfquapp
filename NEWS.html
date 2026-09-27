@@ -246,12 +246,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./man/copy_docker_script.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">copy_docker_script</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./man/copy_shell_script.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">copy_shell_script</span></a>
   </div>
@@ -348,12 +342,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./man/exp2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">exp2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./man/ExternalReader.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ExternalReader</span></a>
   </div>
@@ -438,12 +426,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./man/get_FP_multiSite_files.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">get_FP_multiSite_files</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./man/get_FP_PSM_files.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">get_FP_PSM_files</span></a>
   </div>
@@ -488,12 +470,6 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="./man/list_to_R6_app_config.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">list_to_R6_app_config</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./man/make_annotated_experiment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">make_annotated_experiment</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -798,12 +774,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./man/tidy_FragPipe_psm_V2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">tidy_FragPipe_psm_V2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./man/tidy_FragPipe_psm.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">tidy_FragPipe_psm</span></a>
   </div>
@@ -848,6 +818,12 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="./man/write_index_html.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">write_index_html</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./man/write_summarized_experiment_h5ad.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">write_summarized_experiment_h5ad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -900,6 +876,19 @@ ul.task-list li input[type="checkbox"] {
 
 
 
+<section id="prolfquapp-2.10.5" class="level1">
+<h1>prolfquapp 2.10.5</h1>
+<ul>
+<li>For the <code>lm_impute</code> default model, the DEA SummarizedExperiment and AnnData carry an <code>imputedData</code> assay/layer, <code>transformedData</code> with every missing cell filled by <code>prolfqua::impute_from_model()</code>, and an <code>imputation</code> rowData block with <code>n_observed</code>, <code>n_imputed</code> and <code>route</code> per feature. Decoys are not modelled and stay NA in both. <code>schema_version</code> is 2.1.0.</li>
+<li>The DEA SummarizedExperiment contrast frames carry the feature key columns again, so every rowData frame can be joined on the keys. Since 2.10.0 they were stripped with the annotation columns, which broke exploreDE. The contrast frames are now the model’s contrasts without the annotation join; the xlsx export is unchanged.</li>
+<li>On the protein path, the DEA SummarizedExperiment and AnnData carry an <code>ibaq</code> assay/layer with the IBAQ values also written to <code>IBAQ_&lt;workunit&gt;.xlsx</code>; features without an IBAQ value are NA.</li>
+<li><code>DEAResultReader</code> keys every table by the artifact’s <code>feature_keys</code>: <code>lfq_raw</code> and <code>lfq_transformed</code> carry the real key columns (<code>protein_Id</code> and <code>site</code> for a site DEA), joined from the <code>annotation</code> frame on the feature id, instead of the flattened row name under <code>protein_Id</code>, and <code>subject_id</code> is the feature keys. With the keys back in the contrast frames, the tabbed report on a site DEA drew an empty significant-feature heatmap and UpSet sets of proteins; both are per site again.</li>
+<li>The AnnData stores every nested rowData frame (contrasts, statistics, imputation) as a <code>varm</code> data frame indexed by the feature ids, with its key columns, instead of numeric matrices plus <code>uns$prolfquapp$varm_columns</code>/<code>varm_annotations</code>; the order of every metadata list is kept in <code>uns$prolfquapp$uns_list_order</code>. Needs the anndataR fork <code>wolski/anndataR</code> (scverse/anndataR<a href="https://github.com/prolfqua/prolfquapp/issues/525">#525</a>), which writes the data-frame index so Python <code>anndata</code> can read the file. AnnData files written by 2.10.0-2.10.4 are not read.</li>
+<li>Removed the unused exports <code>exp2()</code>, <code>copy_docker_script()</code>, <code>make_annotated_experiment()</code>, <code>get_FP_multiSite_files()</code>, <code>tidy_FragPipe_psm_V2()</code> and <code>tidy_FragPipe_MSstats_csv()</code>; nothing in prolfquapp or its downstream packages called them. The rest of the package code was simplified, about 30% fewer lines, without changing exported functions or the written artifacts.</li>
+<li><code>DEAResultReader</code> requires the artifact’s <code>analysis_configuration</code>; the heuristic configuration for SummarizedExperiments without one is removed.</li>
+<li><code>DEAResultReader</code> gains <code>annotation</code>, <code>samples</code>, <code>lfq_imputed</code> (from <code>imputedData</code>) and <code>imputation</code>, so downstream packages such as prophosqua read a DEA artifact only through it. <code>write_summarized_experiment_h5ad()</code> is exported.</li>
+</ul>
+</section>
 <section id="prolfquapp-2.10.4" class="level1">
 <h1>prolfquapp 2.10.4</h1>
 <ul>

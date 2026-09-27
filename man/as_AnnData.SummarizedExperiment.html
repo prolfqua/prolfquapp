@@ -246,12 +246,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/copy_docker_script.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">copy_docker_script</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/copy_shell_script.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">copy_shell_script</span></a>
   </div>
@@ -348,12 +342,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/exp2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">exp2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/ExternalReader.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ExternalReader</span></a>
   </div>
@@ -438,12 +426,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/get_FP_multiSite_files.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">get_FP_multiSite_files</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/get_FP_PSM_files.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">get_FP_PSM_files</span></a>
   </div>
@@ -488,12 +470,6 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="../man/list_to_R6_app_config.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">list_to_R6_app_config</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../man/make_annotated_experiment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">make_annotated_experiment</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -798,12 +774,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tidy_FragPipe_psm_V2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">tidy_FragPipe_psm_V2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/tidy_FragPipe_psm.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">tidy_FragPipe_psm</span></a>
   </div>
@@ -848,6 +818,12 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="../man/write_index_html.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">write_index_html</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/write_summarized_experiment_h5ad.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">write_summarized_experiment_h5ad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -904,7 +880,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="unnumbered anchored" data-anchor-id="convert-a-summarizedexperiment-to-anndata">Convert a SummarizedExperiment to AnnData</h2>
 <section id="description" class="level3">
 <h3 class="anchored" data-anchor-id="description">Description</h3>
-<p>Registers prolfquapp’s ‘SummarizedExperiment’ method on <code>anndataR::as_AnnData</code>. anndataR itself only provides methods for ‘SingleCellExperiment’ and ‘Seurat’.</p>
+<p>Registers prolfquapp’s ‘SummarizedExperiment’ method on <code>anndataR::as_AnnData</code>. Assays become layers, ‘colData’ becomes ‘obs’, the ‘annotation’ rowData frame and flat ‘rowData’ columns become ‘var’, other nested ‘rowData’ data frames become ‘varm’ data frames, and ‘metadata’ is carried into ‘uns$prolfquapp’ in full.</p>
 </section>
 <section id="usage" class="level3">
 <h3 class="anchored" data-anchor-id="usage">Usage</h3>
@@ -978,10 +954,6 @@ ignored
 </td>
 </tr>
 </tbody></table>
-</section>
-<section id="details" class="level3">
-<h3 class="anchored" data-anchor-id="details">Details</h3>
-<p>The conversion is mechanical: assays become layers, ‘colData’ becomes ‘obs’, flat ‘rowData’ columns become ‘var’, nested ‘rowData’ data frames become ‘varm’ matrices, and ‘metadata’ is carried into ‘uns$prolfquapp’ in full. Because metadata is passed through rather than enumerated, anything recorded on the SummarizedExperiment reaches the AnnData without changing this code.</p>
 </section>
 <section id="value" class="level3">
 <h3 class="anchored" data-anchor-id="value">Value</h3>

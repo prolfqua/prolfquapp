@@ -246,12 +246,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/copy_docker_script.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">copy_docker_script</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/copy_shell_script.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">copy_shell_script</span></a>
   </div>
@@ -348,12 +342,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/exp2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">exp2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/ExternalReader.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ExternalReader</span></a>
   </div>
@@ -438,12 +426,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/get_FP_multiSite_files.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">get_FP_multiSite_files</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/get_FP_PSM_files.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">get_FP_PSM_files</span></a>
   </div>
@@ -488,12 +470,6 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="../man/list_to_R6_app_config.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">list_to_R6_app_config</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../man/make_annotated_experiment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">make_annotated_experiment</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -798,12 +774,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tidy_FragPipe_psm_V2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">tidy_FragPipe_psm_V2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/tidy_FragPipe_psm.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">tidy_FragPipe_psm</span></a>
   </div>
@@ -848,6 +818,12 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="../man/write_index_html.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">write_index_html</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/write_summarized_experiment_h5ad.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">write_summarized_experiment_h5ad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -909,7 +885,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="details" class="level3">
 <h3 class="anchored" data-anchor-id="details">Details</h3>
-<p>Generates all output files for a differential expression analysis. Uses a DEAnalyse object as data source instead of the legacy GRP2$RES list.</p>
+<p>Generates all output files for a differential expression analysis from a DEAnalyse object.</p>
 </section>
 <section id="public-fields" class="level3">
 <h3 class="anchored" data-anchor-id="public-fields">Public fields</h3>
@@ -1139,7 +1115,7 @@ Usage
 <h4 class="anchored">
 Method <code>contrasts_to_Grob()</code>
 </h4>
-<p>Convert significant contrast results to table grobs. Column selection and rounding are driven by the contrast object’s <code>ContrastConfiguration</code> so SAINT and LM backends both produce grobs with canonical <code>contrast</code>/<code>effect</code>/ <code>score</code>/<code>fdr</code> columns without backend-specific code.</p>
+<p>Convert significant contrast results to table grobs with the canonical <code>contrast</code>/<code>effect</code>/<code>score</code>/<code>fdr</code> columns, selected through the contrast object’s <code>ContrastConfiguration</code>.</p>
 <h5 class="anchored">
 Usage
 </h5>
@@ -1188,7 +1164,7 @@ base filename (without extension)
 <h4 class="anchored">
 Method <code>write_DEA_all()</code>
 </h4>
-<p>Write DEA data outputs: XLSX, ORA gene lists, GSEA rank files, and boxplots. HTML reports are rendered separately (Quarto) by ‘render_dea_reports()’.</p>
+<p>Write DEA data outputs: XLSX, ORA gene lists, GSEA rank files, and boxplots. HTML reports are rendered by ‘render_dea_reports()’.</p>
 <h5 class="anchored">
 Usage
 </h5>
@@ -1230,13 +1206,16 @@ Returns
 Method <code>make_SummarizedExperiment()</code>
 </h4>
 <p>Create SummarizedExperiment object from analysis results</p>
+<p>For the <code>lm_impute</code> default model the object also carries the assay <code>imputedData</code>, <code>transformedData</code> with every missing cell filled by <code>prolfqua::impute_from_model()</code>, and the rowData block <code>imputation</code> with <code>n_observed</code>, <code>n_imputed</code> and <code>route</code> per feature. Decoys are not modelled and stay NA in both.</p>
+<p>Given <code>ibaq</code>, the object also carries the assay <code>ibaq</code>; features without an IBAQ value are NA.</p>
 <h5 class="anchored">
 Usage
 </h5>
 <div class="r">
 <pre>DEAReportGenerator\$make_SummarizedExperiment(
   strip = "~lfq~light",
-  .url_builder = prolfquapp::bfabric_url_builder
+  .url_builder = prolfquapp::bfabric_url_builder,
+  ibaq = NULL
 )</pre>
 </div>
 <h5 class="anchored">
@@ -1255,6 +1234,12 @@ pattern to strip from rownames
 </dt>
 <dd>
 function to build URLs for bfabric
+</dd>
+<dt>
+<code>ibaq</code>
+</dt>
+<dd>
+optional protein-level <code>LFQData</code> with IBAQ values, as returned by <code>compute_IBAQ_values()</code>
 </dd>
 </dl>
 </div>

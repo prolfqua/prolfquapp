@@ -265,12 +265,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/copy_docker_script.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">copy_docker_script</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/copy_shell_script.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">copy_shell_script</span></a>
   </div>
@@ -367,12 +361,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/exp2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">exp2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/ExternalReader.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ExternalReader</span></a>
   </div>
@@ -457,12 +445,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/get_FP_multiSite_files.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">get_FP_multiSite_files</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/get_FP_PSM_files.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">get_FP_PSM_files</span></a>
   </div>
@@ -507,12 +489,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../man/list_to_R6_app_config.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">list_to_R6_app_config</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../man/make_annotated_experiment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">make_annotated_experiment</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -817,12 +793,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tidy_FragPipe_psm_V2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">tidy_FragPipe_psm_V2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/tidy_FragPipe_psm.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">tidy_FragPipe_psm</span></a>
   </div>
@@ -867,6 +837,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../man/write_index_html.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">write_index_html</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/write_summarized_experiment_h5ad.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">write_summarized_experiment_h5ad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1101,7 +1077,7 @@ data.frame with contaminant/decoy summary (optional)
 <h4 class="anchored">
 Method <code>build_facade()</code>
 </h4>
-<p>Build a facade by registry key. Dispatches through <code><a href="https://wolski.github.io/prolfqua/reference/lookup_facade.html">prolfqua::lookup_facade()</a></code> so any facade registered by a downstream package (e.g.&nbsp;<code><a href="https://prolfqua.github.io/prolfquasaint/reference/ContrastsSAINTFacade.html">prolfquasaint::ContrastsSAINTFacade</a></code> registered as <code>“saint”</code>) is reachable the same way as the built-in prolfqua facades. SAINT-style backends that need the protein annotation (registry attribute <code>needs_saint_annotation = TRUE</code>) receive <code>row_annot</code> from <code>self$rowAnnot</code>.</p>
+<p>Build a facade by registry key via <code><a href="https://wolski.github.io/prolfqua/reference/lookup_facade.html">prolfqua::lookup_facade()</a></code>, so facades registered by downstream packages (e.g.&nbsp;<code>“saint”</code>) work like the built-in ones. Backends with <code>needs_saint_annotation = TRUE</code> receive <code>row_annot</code> from <code>self$rowAnnot</code>.</p>
 <h5 class="anchored">
 Usage
 </h5>
@@ -1123,7 +1099,7 @@ facade registry key (e.g.&nbsp;"lm", "lm_missing", "limma", "saint")
 <code>modelstr</code>
 </dt>
 <dd>
-model formula string; auto-generated if NULL. Ignored by facades whose backend derives contrasts from annotation (e.g.&nbsp;SAINT).
+model formula string; auto-generated if NULL, ignored by SAINT-style backends
 </dd>
 </dl>
 </div>
@@ -1148,7 +1124,7 @@ Usage
 <h4 class="anchored">
 Method <code>get_annotated_contrasts()</code>
 </h4>
-<p>Join default-model contrasts with protein row annotations. Significance filtering is delegated to <code>contrast_obj$filter_significant()</code>; backends with <code>ContrastConfiguration$significance_directional = TRUE</code> (e.g.&nbsp;SAINT) get one-sided filtering automatically.</p>
+<p>Join default-model contrasts, and those passing <code>filter_contrasts()</code>, with protein row annotations.</p>
 <h5 class="anchored">
 Usage
 </h5>
@@ -1160,7 +1136,7 @@ Usage
 <h4 class="anchored">
 Method <code>filter_contrasts()</code>
 </h4>
-<p>Return contrast rows passing FDR and difference thresholds</p>
+<p>Return contrast rows passing FDR and difference thresholds, as given by the contrast object’s <code>filter_significant()</code> (one-sided for directional backends such as SAINT).</p>
 <h5 class="anchored">
 Usage
 </h5>

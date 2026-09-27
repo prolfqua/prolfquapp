@@ -265,12 +265,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/copy_docker_script.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">copy_docker_script</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/copy_shell_script.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">copy_shell_script</span></a>
   </div>
@@ -367,12 +361,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/exp2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">exp2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/ExternalReader.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ExternalReader</span></a>
   </div>
@@ -457,12 +445,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/get_FP_multiSite_files.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">get_FP_multiSite_files</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/get_FP_PSM_files.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">get_FP_PSM_files</span></a>
   </div>
@@ -507,12 +489,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../man/list_to_R6_app_config.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">list_to_R6_app_config</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../man/make_annotated_experiment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">make_annotated_experiment</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -817,12 +793,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tidy_FragPipe_psm_V2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">tidy_FragPipe_psm_V2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../man/tidy_FragPipe_psm.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">tidy_FragPipe_psm</span></a>
   </div>
@@ -871,6 +841,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/write_summarized_experiment_h5ad.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">write_summarized_experiment_h5ad</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/writeLinesPaired.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">writeLinesPaired</span></a>
   </div>
@@ -915,7 +891,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/add_contrasts_vec.html">Reference</a></li><li class="breadcrumb-item"><a href="../man/DEAResultReader.html">DEAResultReader</a></li></ol></nav></header><section id="read-prolfquapp-dea-results-into-prolfqua-objects" class="level2 unnumbered"><h2 class="unnumbered anchored" data-anchor-id="read-prolfquapp-dea-results-into-prolfqua-objects">Read prolfquapp DEA results into prolfqua objects</h2>
 <section id="description" class="level3"><h3 class="anchored" data-anchor-id="description">Description</h3>
-<p>Rebuilds the standard prolfqua structures from a DEA result artifact written by [DEAReportGenerator]: the raw and transformed <code><a href="https://wolski.github.io/prolfqua/reference/LFQData.html">prolfqua::LFQData</a></code>, the contrast table with the column names the modelling backend produced, and a <code><a href="https://wolski.github.io/prolfqua/reference/ContrastsTable.html">prolfqua::ContrastsTable</a></code> carrying the backend’s <code><a href="https://wolski.github.io/prolfqua/reference/ContrastConfiguration.html">prolfqua::ContrastConfiguration</a></code>. Accepts a <code>SummarizedExperiment</code>, an <code>anndataR</code> AnnData, or a path to an <code>.rds</code> or <code>.h5ad</code> file.</p>
+<p>Rebuilds the standard prolfqua structures from a DEA result artifact written by [DEAReportGenerator]: the raw, transformed and (for <code>lm_impute</code>) imputed <code><a href="https://wolski.github.io/prolfqua/reference/LFQData.html">prolfqua::LFQData</a></code>, the feature and sample annotation, the per-feature imputation summary, the contrast table with the column names the modelling backend produced, and a <code><a href="https://wolski.github.io/prolfqua/reference/ContrastsTable.html">prolfqua::ContrastsTable</a></code> carrying the backend’s <code><a href="https://wolski.github.io/prolfqua/reference/ContrastConfiguration.html">prolfqua::ContrastConfiguration</a></code>. Every table is keyed by the artifact’s <code>feature_keys</code>. Accepts a <code>SummarizedExperiment</code>, an <code>anndataR</code> AnnData, or a path to an <code>.rds</code> or <code>.h5ad</code> file.</p>
 <p>Because the column roles travel with the artifact, consumers filter, rank and plot through the configuration instead of hard-coding column names.</p>
 </section><section id="public-fields" class="level3"><h3 class="anchored" data-anchor-id="public-fields">Public fields</h3>
 <div class="r6-fields">
@@ -951,6 +927,30 @@ the artifact metadata (<code><a href="https://rdrr.io/pkg/S4Vectors/man/Annotate
 <code><a href="https://wolski.github.io/prolfqua/reference/LFQData.html">prolfqua::LFQData</a></code> with the transformed abundances
 </dd>
 <dt>
+<code>lfq_imputed</code>
+</dt>
+<dd>
+<code><a href="https://wolski.github.io/prolfqua/reference/LFQData.html">prolfqua::LFQData</a></code> with the transformed abundances and every missing value filled by the feature’s model, or <code>NULL</code> when the artifact has no <code>imputedData</code>
+</dd>
+<dt>
+<code>annotation</code>
+</dt>
+<dd>
+feature annotation, one row per feature
+</dd>
+<dt>
+<code>samples</code>
+</dt>
+<dd>
+sample annotation, one row per sample
+</dd>
+<dt>
+<code>imputation</code>
+</dt>
+<dd>
+per feature, how many values were observed and imputed and by which route, or <code>NULL</code> when the artifact has no imputation block
+</dd>
+<dt>
 <code>contrast_table</code>
 </dt>
 <dd>
@@ -966,7 +966,7 @@ all contrasts stacked into one tibble
 <code>subject_id</code>
 </dt>
 <dd>
-feature-axis column identifying a contrast subject
+the feature-key columns identifying a contrast subject
 </dd>
 </dl>
 </div>
