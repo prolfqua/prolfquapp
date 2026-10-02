@@ -798,6 +798,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./man/volcano_static.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">volcano_static</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./man/write_annotation_file.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">write_annotation_file</span></a>
   </div>
@@ -876,9 +882,16 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="prolfquapp-2.10.5" class="level1">
-<h1>prolfquapp 2.10.5</h1>
+<section id="prolfquapp-2.11.0" class="level1">
+<h1>prolfquapp 2.11.0</h1>
 <ul>
+<li>A peptide-level DEA (e.g.&nbsp;<code>prolfquapp.FP_TMT_PEPTIDE</code>) no longer fails after fitting, while writing the ORA lists and GSEA rank files: the gene identifiers are joined on the keys the protein annotation carries, not on the peptide keys it lacks.</li>
+<li>The DEA SummarizedExperiment and AnnData of a peptide-level DEA carry one annotation row per peptide, with <code>protein_Id</code>, <code>peptide_Id</code> and its protein’s annotation. The annotation was keyed by protein only, so every peptide row was empty and <code>DEAResultReader</code> could not read the artifact.</li>
+<li>The MSstats peptide-level readers (<code>prolfquapp.MSSTATS_PEPTIDE</code>, <code>prolfquapp.MSSTATS_FP_DIA_PEPTIDE</code>) carry the peptide’s position in its protein, the <code>Protein.Start</code> and <code>Protein.End</code> columns of FragPipe’s <code>msstats.csv</code>, into the peptide annotation as <code>startInProtein</code> and <code>endInProtein</code>, so they reach the AnnData <code>var</code>. Input without these columns, and the protein-level readers, are unchanged.</li>
+<li><code>prolfqua_contrasts.sh</code> two-factor mode (<code>--f1</code>/<code>--f2</code>) and <code>run_contrasts_twofactor()</code> take <code>--decreasing</code>/<code>decreasing</code>, passed to <code>prolfqua::annotation_add_contrasts()</code>. The contrasts subtract the first level of the alphabetically sorted factor, so levels PKD1 and WT gave only <code>WT_vs_PKD1</code>; <code>--decreasing TRUE</code> gives <code>PKD1_vs_WT</code>.</li>
+<li>Both DEA reports draw the volcano plot with the new exported <code>volcano_static()</code>: a static ggplot with the significant features coloured by direction, their counts in the panel title, and the most significant labelled by gene name. The DEA report (<code>Grp2Analysis_V2_R6</code>) embedded an interactive plotly volcano with every feature and contrast, which made a peptide-level report too large to open; interactive exploration is left to exploreDE.</li>
+<li>The tabbed DEA report leaves out the Contrast Agreement tab when the analysis has fewer than two contrasts, instead of showing three empty UpSet panels.</li>
+<li>The results tables of both DEA reports (<code>Grp2Analysis_V2_R6</code> table of all results, tabbed report Result Table) hold only the significant rows; the results for all features stay in <code>DE_&lt;workunit&gt;.xlsx</code>. Embedding every row made a peptide-level report tens of MB large.</li>
 <li><code>DEAResultReader</code> exposes the model formula as one string (<code>formula</code>) and the contrasts as their expressions named by contrast (<code>contrast_definitions</code>), so a consumer no longer unpacks the one-column metadata tables.</li>
 <li><code>prolfqua_dea.sh</code> no longer fails after the analysis, when it writes <code>index.html</code>: the run’s log file is opened by its absolute path, so a message logged while a report renders in its own directory still reaches it.</li>
 <li>For the <code>lm_impute</code> default model, the DEA SummarizedExperiment and AnnData carry an <code>imputedData</code> assay/layer, <code>transformedData</code> with every missing cell filled by <code>prolfqua::impute_from_model()</code>, and an <code>imputation</code> rowData block with <code>n_observed</code>, <code>n_imputed</code> and <code>route</code> per feature. Decoys are not modelled and stay NA in both. <code>schema_version</code> is 2.1.0.</li>

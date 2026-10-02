@@ -817,6 +817,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/volcano_static.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">volcano_static</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/write_annotation_file.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">write_annotation_file</span></a>
   </div>
@@ -893,7 +899,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="description" class="level3"><h3 class="anchored" data-anchor-id="description">Description</h3>
 <p>Reads an annotation file and adds ContrastName/Contrast columns using <code>annotation_add_contrasts</code>.</p>
 </section><section id="usage" class="level3"><h3 class="anchored" data-anchor-id="usage">Usage</h3>
-<pre><code class="language-R">run_contrasts_twofactor(annotation_file, f1, f2, interactions = TRUE)
+<pre><code class="language-R">run_contrasts_twofactor(
+  annotation_file,
+  f1,
+  f2,
+  interactions = TRUE,
+  decreasing = FALSE
+)
 </code></pre>
 </section><section id="arguments" class="level3"><h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
 <table role="presentation">
@@ -927,6 +939,14 @@ secondary factor column name
 </td>
 <td>
 logical; include interaction contrasts? Default TRUE.
+</td>
+</tr>
+<tr>
+<td style="white-space: collapse; font-family: monospace; vertical-align: top">
+<code id="decreasing">decreasing</code>
+</td>
+<td>
+logical; sort the levels of both factors in decreasing order. The contrasts subtract the first level, so with levels PKD1 and WT the default gives WT_vs_PKD1 and TRUE gives PKD1_vs_WT. Default FALSE.
 </td>
 </tr>
 </tbody></table></section><section id="value" class="level3"><h3 class="anchored" data-anchor-id="value">Value</h3>
