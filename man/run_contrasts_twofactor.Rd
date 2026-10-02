@@ -4,7 +4,13 @@
 \alias{run_contrasts_twofactor}
 \title{Generate contrasts for a two-factor design}
 \usage{
-run_contrasts_twofactor(annotation_file, f1, f2, interactions = TRUE)
+run_contrasts_twofactor(
+  annotation_file,
+  f1,
+  f2,
+  interactions = TRUE,
+  decreasing = FALSE
+)
 }
 \arguments{
 \item{annotation_file}{path to annotation CSV/TSV/XLSX}
@@ -14,6 +20,10 @@ run_contrasts_twofactor(annotation_file, f1, f2, interactions = TRUE)
 \item{f2}{secondary factor column name}
 
 \item{interactions}{logical; include interaction contrasts? Default TRUE.}
+
+\item{decreasing}{logical; sort the levels of both factors in decreasing
+order. The contrasts subtract the first level, so with levels PKD1 and WT
+the default gives WT_vs_PKD1 and TRUE gives PKD1_vs_WT. Default FALSE.}
 }
 \value{
 data.frame with ContrastName and Contrast columns added

@@ -10,7 +10,8 @@ read_msstats(file)
 \item{file}{path to MSstats csv file}
 }
 \value{
-A tibble with peptide-level intensities and child counts.
+A tibble with peptide-level intensities and child counts, plus the
+  peptide's `Protein.Start` and `Protein.End` when the file carries them.
 }
 \description{
 read MSstats.csv files and rollup to ProteinSequence level.

@@ -2,8 +2,11 @@
 # backend does not provide it), without rows lacking an id.
 .map_enrichment_ids <- function(data, row_annot, subject_id, id_column) {
   if (!id_column %in% colnames(data)) {
-    id_map <- dplyr::distinct(dplyr::select(row_annot, dplyr::all_of(c(subject_id, id_column))))
-    data <- dplyr::left_join(data, id_map, by = subject_id, multiple = "all")
+    # A peptide-level DEA keys its results by protein and peptide, its row
+    # annotation by protein only: join on the keys the annotation carries.
+    by <- intersect(subject_id, colnames(row_annot))
+    id_map <- dplyr::distinct(dplyr::select(row_annot, dplyr::all_of(c(by, id_column))))
+    data <- dplyr::left_join(data, id_map, by = by, multiple = "all")
   }
   dplyr::filter(data, !is.na(.data[[id_column]]))
 }
@@ -366,9 +369,9 @@ DEAReportGenerator <- R6::R6Class(
 
       # Feature annotation is stored once, as its own rowData frame; the
       # contrast frames carry the feature keys and the results only.
-      SummarizedExperiment::rowData(x)[["annotation"]] <- .feature_rows(
+      SummarizedExperiment::rowData(x)[["annotation"]] <- .feature_annotation(
         dea$rowAnnot$row_annot,
-        dea$rowAnnot$pID,
+        dplyr::distinct(raw$data_long()[rowname]),
         features
       )
       contrasts <- contrast_obj$get_contrasts()
@@ -397,6 +400,13 @@ DEAReportGenerator <- R6::R6Class(
   df <- prolfquapp::column_to_rownames(df, var = var)[features, , drop = FALSE]
   rownames(df) <- features
   df
+}
+
+# One annotation row per feature, carrying all its keys: the row annotation is
+# joined on the keys it has, the protein alone for a peptide-level DEA.
+.feature_annotation <- function(row_annot, keys, features) {
+  annotation <- dplyr::left_join(keys, row_annot, by = intersect(colnames(keys), colnames(row_annot)))
+  .feature_rows(annotation, colnames(keys), features)
 }
 
 # `values` on the rows and columns of `mat.raw`; features it lacks are NA.

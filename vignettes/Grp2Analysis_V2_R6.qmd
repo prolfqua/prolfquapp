@@ -178,7 +178,7 @@ The overall number of proteins in this experiment is: `r dea$summary$totalNrOfPr
 The percentage of contaminant proteins is:`r dea$summary$percentOfContaminants` %.
 The percentage of decoy proteins among quantified entries is: `r dea$summary$percentOfDecoys` %.
 
-We keep the contaminant proteins because, for some experiments, these contaminants are relevant. They are recognizable by identifiers starting with __zz__ or __CON__, are flagged in the result tables, and are drawn as triangles in the volcano plot.
+We keep the contaminant proteins because, for some experiments, these contaminants are relevant. They are recognizable by identifiers starting with __zz__ or __CON__, and are flagged in the result tables.
 Decoy sequences (identifiers starting with __REV__ or __rev__) are retained in the raw and abundance exports for traceability, but they are **excluded from the model fit** so they cannot distort the variance moderation that is shared across proteins. They therefore carry no fold change, p-value, or FDR, and do not appear in the volcano plot or the differentially-expressed set. Their proportion among quantified entries (reported above) serves as an empirical false-discovery signal for the whole quantified data set — not for the differentially-expressed list.
 
 
@@ -411,7 +411,7 @@ knitr::kable(df)
 and a null hypothesis significance test (NHST) is conducted, where the null hypothesis is that the protein is not differentially expressed [@faraway2004linear].
 
 If there are no abundances measured in one of the groups for some proteins, we assume the observations are missing because the protein abundance is below the detection limit. Therefore, we estimate the detection limit using the mean of the $1\%$ smallest group averages.
-Furthermore, to make it explicit how each estimate was produced, the `estimate_type` column (see table in @fig-table-all) records whether a row was fit from `observed` data, rescued via LOD imputation (`lod_imputed`), or filled from a group-mean fallback (`missing_fallback`); rescued/fallback rows are visualized with a distinct colour in @fig-volcano. The `modelName` column records the selected analysis method (the facade key, e.g. `lm`, `rfit`, `limma`).
+Furthermore, to make it explicit how each estimate was produced, the `estimate_type` column (see table in @fig-table-all) records whether a row was fit from `observed` data, rescued via LOD imputation (`lod_imputed`), or filled from a group-mean fallback (`missing_fallback`). The `modelName` column records the selected analysis method (the facade key, e.g. `lm`, `rfit`, `limma`).
 
 Next, to increase the power of the analysis variance shrinkage is performed [@Smyth2004]. Finally, the false discovery rate (FDR) using the Benjamini-Hochberg procedure is computed [@benjamini1995controlling].
 The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. By filtering the proteins using an FDR threshold of `r cfg$processing_options$FDR_threshold*100` % we can expect this proportion of false positives in the list and `r (1 - cfg$processing_options$FDR_threshold) * 100` % truly differentially expressed proteins. Because we do not know which of them are true positives follow up experiments are necessary.
@@ -445,25 +445,30 @@ table_cols <- if (is_saint) {
   c("ID", "description", "contrast", "modelName", "estimate_type", "diff", "FDR")
 }
 volcano_cap <- paste0(
-  "Volcano plot showing $-\\log_{10}$ transformed FDR as function of the difference ",
-  "between groups. The red line indicates the $-log_{10}(FDR)$ of FDR = ",
+  "Volcano plot showing $-\\log_{10}$ transformed ", score_col, " as function of the difference ",
+  "between groups, one panel per contrast. The horizontal dashed line marks ", score_col, " = ",
   cfg$processing_options$FDR_threshold,
-  ", while the green lines represent the difference of minus and plus ",
+  ", the vertical dashed lines a difference of ",
+  if (is_saint) "" else "minus and plus ",
   cfg$processing_options$diff_threshold,
-  ". Points are coloured by `estimate_type`, so rows estimated by missing-value ",
-  "imputation or group-mean fallback are visually distinguished from observed fits."
+  ". Features passing both thresholds are coloured by direction (blue decreased, red increased) ",
+  "and the most significant are labelled; the panel title gives their numbers. ",
+  "For interactive exploration open the result in exploreDE."
 )
 ```
 
 
 ```{r}
 #| label: fig-table-all
-#| fig-cap: "Interactive, filterable table of per-protein, per-contrast differential expression results: protein ID, description, contrast, model, estimate type, log2 fold-change and FDR."
+#| fig-cap: "Interactive, filterable table of the significant per-protein, per-contrast differential expression results: protein ID, description, contrast, model, estimate type, log2 fold-change and FDR. The results for all proteins are in the Excel file DE_<workunit>.xlsx."
 
 datax <- datax |> tidyr::unite("ID" , tidyselect::all_of(hkey), sep = "~")
 
-bb <- datax |> dplyr::select(
-  tidyselect::all_of(table_cols))
+# Only the significant rows: every row embedded here makes the HTML larger,
+# and a peptide-level DEA has too many to open; all rows are in the xlsx.
+bb <- dea$annotated_contrasts_signif |>
+  tidyr::unite("ID", tidyselect::all_of(hkey), sep = "~") |>
+  dplyr::select(tidyselect::all_of(table_cols))
 
 bb <- crosstalk::SharedData$new(bb,  as.formula("~ ID"), group = "BB")
 
@@ -481,28 +486,30 @@ DT::datatable(bb, filter = "bottom",
 
 ```{r}
 #| label: fig-volcano
-#| fig-dpi: 96
+#| fig-dpi: 150
 #| fig-cap: !expr volcano_cap
 #| fig-alt: ""
 #| fig-width: 9
 #| fig-height: 7
 #| eval: true
 
-plotter <- if (is_saint) {
-  dea$contrast_results[[dea$default_model]]$get_Plotter(
-    fc_threshold = cfg$processing_options$diff_threshold,
-    bfdr_threshold = cfg$processing_options$FDR_threshold
-  )
-} else {
-  dea$contrast_results[[dea$default_model]]$get_Plotter(
-    fc_threshold = cfg$processing_options$diff_threshold,
-    fdr_threshold = cfg$processing_options$FDR_threshold
-  )
+# A static image: an interactive volcano embeds every feature and contrast
+# into the HTML, which a peptide-level DEA makes too large to open.
+volcano_data <- datax
+volcano_data$label <- volcano_data$ID
+if ("gene_name" %in% colnames(volcano_data)) {
+  volcano_data$label <- dplyr::coalesce(dplyr::na_if(volcano_data$gene_name, ""), volcano_data$label)
 }
-volcano_widget <- plotter$volcano_plotly()$FDR
-volcano_widget$width <- 600
-volcano_widget$height <- 500
-sized_widget(volcano_widget)
+prolfquapp::volcano_static(
+  volcano_data,
+  effect = effect_col,
+  significance = score_col,
+  contrast = contrast_col,
+  label = "label",
+  fc_threshold = cfg$processing_options$diff_threshold,
+  fdr_threshold = cfg$processing_options$FDR_threshold,
+  directional = is_saint
+)
 
 ```
 

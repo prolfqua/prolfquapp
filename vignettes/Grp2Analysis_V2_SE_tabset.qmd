@@ -555,14 +555,26 @@ if (reader$has_roles(reader$contrast_config$contrast_col)) {
 dt_table(abundance_summary, caption = "Differential abundance calls by contrast")
 ```
 
-## Contrast Agreement
-
-::: {.panel-tabset}
-
-### All
+```{r}
+#| results: asis
+#| echo: false
+# Agreement between contrasts needs at least two of them; with one the tab
+# would only hold a placeholder, so it is left out.
+contrast_names <- if (reader$has_roles(reader$contrast_config$contrast_col)) {
+  unique(reader$contrast_table[[reader$contrast_config$contrast_col]])
+} else {
+  character()
+}
+show_contrast_agreement <- length(contrast_names) >= 2
+if (show_contrast_agreement) {
+  cat("## Contrast Agreement\n\n::: {.panel-tabset}\n\n### All\n\n")
+}
+```
 
 ```{r}
 #| label: fig-significant-feature-overlap-all
+#| eval: !expr show_contrast_agreement
+#| include: !expr show_contrast_agreement
 #| fig-cap: "UpSet plot of significant features (both FDR and fold-change thresholds met, either direction) shared between contrasts: each vertical bar counts the features called significant in one specific combination of contrasts, shown by the filled dots below the bar, and the horizontal set-size bars on the left give each contrast's total number of significant features."
 #| fig-width: 9
 #| fig-height: 6
@@ -572,10 +584,18 @@ draw_upset_or_empty(
 )
 ```
 
-### Increased
+```{r}
+#| results: asis
+#| eval: !expr show_contrast_agreement
+#| include: !expr show_contrast_agreement
+#| echo: false
+cat("### Increased\n\n")
+```
 
 ```{r}
 #| label: fig-significant-feature-overlap-increased
+#| eval: !expr show_contrast_agreement
+#| include: !expr show_contrast_agreement
 #| fig-cap: "UpSet plot of significantly increased-abundance features (positive fold-change passing both thresholds) shared between contrasts: each vertical bar counts the up-regulated features in one specific combination of contrasts, shown by the filled dots below the bar, and the horizontal set-size bars on the left give each contrast's total number of up-regulated features."
 #| fig-width: 9
 #| fig-height: 6
@@ -585,10 +605,18 @@ draw_upset_or_empty(
 )
 ```
 
-### Decreased
+```{r}
+#| results: asis
+#| eval: !expr show_contrast_agreement
+#| include: !expr show_contrast_agreement
+#| echo: false
+cat("### Decreased\n\n")
+```
 
 ```{r}
 #| label: fig-significant-feature-overlap-decreased
+#| eval: !expr show_contrast_agreement
+#| include: !expr show_contrast_agreement
 #| fig-cap: "UpSet plot of significantly decreased-abundance features (negative fold-change passing both thresholds) shared between contrasts: each vertical bar counts the down-regulated features in one specific combination of contrasts, shown by the filled dots below the bar, and the horizontal set-size bars on the left give each contrast's total number of down-regulated features."
 #| fig-width: 9
 #| fig-height: 6
@@ -598,21 +626,42 @@ draw_upset_or_empty(
 )
 ```
 
-:::
+```{r}
+#| results: asis
+#| eval: !expr show_contrast_agreement
+#| include: !expr show_contrast_agreement
+#| echo: false
+cat(":::\n\n")
+```
 
 ## Volcano
 
 ```{r}
 #| label: fig-volcano
-#| fig-cap: "Volcano plot of differential abundance: log2 fold-change (x) versus -log10(FDR) (y), one panel per contrast; each point is a feature, with dashed vertical lines at the fold-change threshold and a dashed horizontal line at the FDR threshold."
+#| fig-cap: "Volcano plot of differential abundance: log2 fold-change (x) versus -log10(FDR) (y), one panel per contrast; each point is a feature, with dashed vertical lines at the fold-change threshold and a dashed horizontal line at the FDR threshold. Features passing both thresholds are coloured by direction (blue decreased, red increased) and the most significant are labelled; the panel title gives their numbers. For interactive exploration open the result in exploreDE."
 #| fig-width: 9
 #| fig-height: 7
 if (!is.null(contrast_plotter)) {
-  # The plotter names its volcano panels after the score column it was given,
-  # so the FDR panel is keyed by the backend's own FDR column (`BFDR` for
-  # SAINT), never by the literal name "FDR".
+  cfg <- reader$contrast_config
+  volcano_data <- reader$contrast_table
+  volcano_data$label <- do.call(paste, c(volcano_data[reader$subject_id], sep = "~"))
+  if ("gene_name" %in% colnames(reader$annotation)) {
+    gene_names <- reader$annotation[c(reader$subject_id, "gene_name")]
+    volcano_data <- dplyr::left_join(volcano_data, gene_names, by = reader$subject_id)
+    volcano_data$label <- dplyr::coalesce(dplyr::na_if(volcano_data$gene_name, ""), volcano_data$label)
+  }
+  # The backend's own FDR column (`BFDR` for SAINT), never the literal "FDR".
   volcano_plot <- safe_plot(
-    contrast_plotter$volcano()[[reader$contrast_config$fdr_col]],
+    prolfquapp::volcano_static(
+      volcano_data,
+      effect = cfg$effect_col,
+      significance = cfg$fdr_col,
+      contrast = cfg$contrast_col,
+      label = "label",
+      fc_threshold = params$diff_threshold,
+      fdr_threshold = params$fdr_threshold,
+      directional = isTRUE(cfg$significance_directional)
+    ),
     "Could not draw volcano plot."
   )
   save_if_ggplot(volcano_plot, "volcano", width = 9, height = 7)
@@ -720,7 +769,13 @@ if (!is.null(contrast_plotter)) {
 
 ```{r}
 #| label: tbl-contrast-results
-dt_table(reader$contrast_table, caption = "Differential abundance results", page_length = 25)
+# Only the significant rows: every row embedded here makes the HTML larger,
+# and a peptide-level DEA has too many to open; all rows are in the xlsx.
+dt_table(
+  significant_contrasts,
+  caption = "Significant differential abundance results; the results for all features are in the Excel file DE_<workunit>.xlsx",
+  page_length = 25
+)
 ```
 
 # Session Info

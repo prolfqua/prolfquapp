@@ -40,6 +40,9 @@ run_contrasts_single <- function(annotation_file, control, group = NULL) {
 #' @param f1 primary factor column name
 #' @param f2 secondary factor column name
 #' @param interactions logical; include interaction contrasts? Default TRUE.
+#' @param decreasing logical; sort the levels of both factors in decreasing
+#'   order. The contrasts subtract the first level, so with levels PKD1 and WT
+#'   the default gives WT_vs_PKD1 and TRUE gives PKD1_vs_WT. Default FALSE.
 #' @return data.frame with ContrastName and Contrast columns added
 #' @export
 #' @examples
@@ -48,14 +51,20 @@ run_contrasts_single <- function(annotation_file, control, group = NULL) {
 #' result <- run_contrasts_twofactor(csv, f1 = "treatment", f2 = "time")
 #' unique(result[!is.na(result$ContrastName), c("ContrastName", "Contrast")])
 #'
-run_contrasts_twofactor <- function(annotation_file, f1, f2, interactions = TRUE) {
+run_contrasts_twofactor <- function(annotation_file, f1, f2, interactions = TRUE, decreasing = FALSE) {
   stopifnot(file.exists(annotation_file))
   df <- prolfquapp::read_table_data(annotation_file)
   missing_cols <- setdiff(c(f1, f2), colnames(df))
   if (length(missing_cols) > 0) {
     stop("Column(s) not found: ", paste(missing_cols, collapse = ", "), call. = FALSE)
   }
-  prolfqua::annotation_add_contrasts(df, primary_col = f1, secondary_col = f2, interactions = interactions)$annot
+  prolfqua::annotation_add_contrasts(
+    df,
+    primary_col = f1,
+    secondary_col = f2,
+    decreasing = decreasing,
+    interactions = interactions
+  )$annot
 }
 
 # --- CMD_MAKE_YAML helper -----------------------------------------------------

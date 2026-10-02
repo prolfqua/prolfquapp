@@ -9,6 +9,7 @@
 # Scenario 2 - two factor:
 #   Rscript CMD_CONTRASTS.R annotation.csv --f1 treatment --f2 time -o out.csv
 #   Rscript CMD_CONTRASTS.R annotation.csv --f1 treatment --f2 time --interactions FALSE
+#   Rscript CMD_CONTRASTS.R annotation.csv --f1 genotype --f2 sex --decreasing TRUE
 
 if (!require("optparse", quietly = TRUE)) {
   install.packages("optparse", dependencies = TRUE)
@@ -48,6 +49,16 @@ option_list <- list(
     type = "logical",
     default = TRUE,
     help = "[Scenario 2] Include interaction contrasts [default: TRUE]",
+    metavar = "logical"
+  ),
+  optparse::make_option(
+    c("--decreasing"),
+    type = "logical",
+    default = FALSE,
+    help = paste(
+      "[Scenario 2] Sort factor levels in decreasing order; contrasts subtract the first level,",
+      "so TRUE turns WT_vs_PKD1 into PKD1_vs_WT [default: FALSE]"
+    ),
     metavar = "logical"
   ),
   optparse::make_option(
@@ -143,7 +154,8 @@ if (one_factor) {
     annotation_file,
     opt$f1,
     opt$f2,
-    opt$interactions
+    opt$interactions,
+    opt$decreasing
   )
   ct <- dplyr::distinct(annot_out[
     !is.na(annot_out$ContrastName),

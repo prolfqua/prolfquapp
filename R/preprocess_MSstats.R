@@ -22,11 +22,15 @@ get_MSstats_files <- function(path) {
 
 #' read MSstats.csv files and rollup to ProteinSequence level.
 #' @param file path to MSstats csv file
-#' @return A tibble with peptide-level intensities and child counts.
+#' @return A tibble with peptide-level intensities and child counts, plus the
+#'   peptide's `Protein.Start` and `Protein.End` when the file carries them.
 #' @export
 read_msstats <- function(file) {
   readr::read_csv(file) |>
-    dplyr::group_by(dplyr::across(c("ProteinName", "PeptideSequence", "IsotopeLabelType", "Run"))) |>
+    dplyr::group_by(
+      dplyr::across(c("ProteinName", "PeptideSequence", "IsotopeLabelType", "Run")),
+      dplyr::across(dplyr::any_of(c("Protein.Start", "Protein.End")))
+    ) |>
     dplyr::summarise(nr_children = dplyr::n(), Intensity = sum(Intensity, na.rm = TRUE), .groups = "drop") |>
     dplyr::mutate(Intensity = ifelse(Intensity < 1e-10, NA, Intensity))
 }
@@ -41,6 +45,27 @@ dataset_template_MSSTATS <- function(files) {
     dplyr::distinct()
   datasetannot$Control <- ""
   tidyr::unite(datasetannot, "Name", "Group", "Subject", sep = "_", remove = FALSE)
+}
+
+# A peptide-level analysis keys its rows on protein and peptide, so the peptide's
+# position in the protein can travel as row annotation into the AnnData var,
+# named like a site reader's posInProtein. Input without positions is left as is.
+.add_peptide_positions <- function(protein_annot, peptide, keys) {
+  if (!all(c("Protein.Start", "Protein.End") %in% colnames(peptide))) {
+    return(protein_annot)
+  }
+  positions <- peptide |>
+    dplyr::distinct(dplyr::across(c("ProteinName", "PeptideSequence", "Protein.Start", "Protein.End"))) |>
+    dplyr::rename(
+      !!keys[[1]] := "ProteinName",
+      !!keys[[2]] := "PeptideSequence",
+      startInProtein = "Protein.Start",
+      endInProtein = "Protein.End"
+    )
+  # Many-to-many by design: a protein carries many peptides, and the FASTA
+  # annotation may hold a forward and a decoy row per id, which
+  # ProteinAnnotation's decoy-aware resolution drops.
+  dplyr::left_join(positions, protein_annot, by = keys[[1]], relationship = "many-to-many")
 }
 
 # Shared MSstats reader. `fasta_key` is the FASTA column matched to `ProteinName`:
@@ -92,6 +117,9 @@ dataset_template_MSSTATS <- function(files) {
   fasta_annot <- nrPeptides_exp |>
     dplyr::left_join(fasta_annot, by = c("ProteinName" = fasta_key)) |>
     dplyr::rename(!!lfqdata$relevant_hierarchy_keys()[1] := "ProteinName", description = "fasta.header")
+  if (hierarchy_depth == 2) {
+    fasta_annot <- .add_peptide_positions(fasta_annot, peptide, lfqdata$relevant_hierarchy_keys())
+  }
   fpdia <- fasta_key == "proteinname"
   prot_annot <- prolfquapp::ProteinAnnotation$new(
     lfqdata,

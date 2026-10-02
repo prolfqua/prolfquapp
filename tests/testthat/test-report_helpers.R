@@ -169,3 +169,23 @@ test_that(".join_annotation never joins on a coincidentally-shared value column"
   # enrichment succeeds despite avgAbd differing (avgAbd was not a join key)
   expect_equal(res$description[res$protein_Id == "P1"], "a")
 })
+
+test_that(".map_enrichment_ids joins peptide-level results on the protein annotation's keys", {
+  results <- data.frame(
+    protein_Id = c("P1", "P1", "P2"),
+    peptide_Id = c("a", "b", "c"),
+    contrast = "A_vs_B"
+  )
+  row_annot <- data.frame(protein_Id = c("P1", "P2"), IDcolumn = c("G1", "G2"))
+  mapped <- prolfquapp:::.map_enrichment_ids(results, row_annot, c("protein_Id", "peptide_Id"), "IDcolumn")
+  expect_equal(mapped$IDcolumn, c("G1", "G1", "G2"))
+})
+
+test_that(".feature_annotation gives each peptide its keys and its protein's annotation", {
+  row_annot <- data.frame(protein_Id = c("P1", "P2"), gene_name = c("G1", "G2"))
+  keys <- data.frame(protein_Id = c("P1", "P1", "P2"), peptide_Id = c("a", "b", "c"))
+  annotation <- prolfquapp:::.feature_annotation(row_annot, keys, c("P2~lfq~c", "P1~lfq~a"))
+  expect_equal(annotation$peptide_Id, c("c", "a"))
+  expect_equal(annotation$gene_name, c("G2", "G1"))
+  expect_equal(rownames(annotation), c("P2~lfq~c", "P1~lfq~a"))
+})

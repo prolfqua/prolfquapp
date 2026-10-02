@@ -161,6 +161,56 @@ test_that("MSstats readers build their documented LFQData variants", {
   expect_reader_result(fragpipe_dia, 2)
 })
 
+test_that("MSstats peptide-level reader carries peptide positions into the row annotation", {
+  peptide <- tidyr::expand_grid(
+    ProteinName = "P1",
+    PeptideSequence = c("PEPTIDEA", "PEPTIDEB"),
+    Run = c("sample1", "sample2")
+  ) |>
+    dplyr::mutate(
+      Protein.Start = ifelse(.data$PeptideSequence == "PEPTIDEA", 10, 40),
+      Protein.End = .data$Protein.Start + 7,
+      IsotopeLabelType = "L",
+      nr_children = 1,
+      Intensity = seq_len(dplyr::n())
+    )
+  local_mocked_bindings(
+    read_msstats = function(...) peptide,
+    get_annot_from_fasta = function(...) {
+      reader_test_fasta_annotation()
+    },
+    .package = "prolfquapp"
+  )
+  annotation <- reader_test_annotation()
+
+  peptide_level <- suppressWarnings(
+    prolfquapp::preprocess_MSstats(
+      "msstats.csv",
+      "database.fasta",
+      annotation,
+      hierarchy_depth = 2
+    )
+  )
+  row_annot <- peptide_level$protein_annotation$row_annot
+  expect_equal(peptide_level$protein_annotation$pID, c("protein_Id", "peptide_Id"))
+  expect_equal(nrow(row_annot), 2)
+  positions <- row_annot[order(row_annot$peptide_Id), ]
+  expect_equal(positions$startInProtein, c(10, 40))
+  expect_equal(positions$endInProtein, c(17, 47))
+  expect_equal(positions$description, c("Protein 1", "Protein 1"))
+
+  protein_level <- suppressWarnings(
+    prolfquapp::preprocess_MSstats(
+      "msstats.csv",
+      "database.fasta",
+      annotation,
+      hierarchy_depth = 1
+    )
+  )
+  expect_equal(nrow(protein_level$protein_annotation$row_annot), 1)
+  expect_false("startInProtein" %in% colnames(protein_level$protein_annotation$row_annot))
+})
+
 test_that("BGS reader maps Spectronaut hierarchy columns", {
   report <- tidyr::expand_grid(
     PG.ProteinGroups = "P1",

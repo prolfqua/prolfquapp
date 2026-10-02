@@ -82,6 +82,23 @@ test_that("run_contrasts_twofactor without interactions", {
   expect_false(any(grepl("interaction", ct$ContrastName, ignore.case = TRUE)))
 })
 
+test_that("run_contrasts_twofactor decreasing reverses the contrast direction", {
+  csv <- withr::local_tempfile(fileext = ".tsv")
+  annot <- data.frame(
+    file = paste0("s", 1:8),
+    genotype = rep(c("PKD1", "WT"), each = 4),
+    sex = rep(c("F", "M"), times = 4)
+  )
+  write.table(annot, csv, sep = "\t", row.names = FALSE, quote = FALSE)
+
+  contrast_names <- function(decreasing) {
+    result <- prolfquapp::run_contrasts_twofactor(csv, f1 = "genotype", f2 = "sex", decreasing = decreasing)
+    result$ContrastName[!is.na(result$ContrastName)]
+  }
+  expect_contains(contrast_names(FALSE), "WT_vs_PKD1")
+  expect_contains(contrast_names(TRUE), c("PKD1_vs_WT", "PKD1_vs_WT_at_F", "PKD1_vs_WT_at_M"))
+})
+
 test_that("run_contrasts_twofactor errors on missing columns", {
   skip_if(nchar(csv_s1) == 0, "scenario1 CSV not installed")
 
