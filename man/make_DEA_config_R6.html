@@ -922,8 +922,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   PROJECTID = "",
   ORDERID = "",
   WORKUNITID = "",
-  Normalization = c("none", "vsn", "quantile", "robscale"),
-  aggregation = c("medpolish", "top3", "rlm"),
+  Normalization = c("none", "vsn", "robscale"),
+  aggregation = c("medpolish", "topN", "rlm"),
   diff_threshold = 1,
   FDR_threshold = 0.1,
   nr_peptides = 1,
@@ -975,7 +975,7 @@ workunit identifier
 <code id="Normalization">Normalization</code>
 </td>
 <td>
-normalization method: "none", "vsn", "quantile", "robscale"
+normalization method: "none", "vsn", "robscale"
 </td>
 </tr>
 <tr>
@@ -983,7 +983,7 @@ normalization method: "none", "vsn", "quantile", "robscale"
 <code id="aggregation">aggregation</code>
 </td>
 <td>
-aggregation method: "medpolish", "top3", "rlm"
+aggregation method: "medpolish", "topN", "rlm"
 </td>
 </tr>
 <tr>
