@@ -126,7 +126,7 @@ DEAnalyse <- R6::R6Class(
     #' facades registered by downstream packages (e.g. \code{"saint"}) work
     #' like the built-in ones. Backends with \code{needs_saint_annotation = TRUE}
     #' receive \code{row_annot} from \code{self$rowAnnot}.
-    #' @param name facade registry key (e.g. "lm", "lm_missing", "limma", "saint")
+    #' @param name facade registry key (e.g. "lm", "lm_impute", "limma", "saint")
     #' @param modelstr model formula string; auto-generated if NULL, ignored by SAINT-style backends
     #' @return the facade object (invisibly)
     build_facade = function(name, modelstr = NULL) {

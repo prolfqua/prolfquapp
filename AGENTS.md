@@ -103,7 +103,7 @@ The package uses R6 classes to manage state and orchestrate analysis:
   - Transforms data (VSN, quantile, robscale, or none)
   - Dispatches to a prolfqua **facade** by short name via
     `prolfqua::lookup_facade()`. Built-in facades: `lm`, `lm_impute`,
-    `lm_missing`, `limma`, `limma_impute`, `limma_voom`,
+    `limma`, `limma_impute`, `limma_voom`,
     `limma_voom_impute`, `limpa`, `rlm`, `deqms`, `deqms_voom`,
     `firth`, `lmer`, `ropeca`. Downstream packages register more
     via `prolfqua::register_facade()` — `prolfquasaint` registers

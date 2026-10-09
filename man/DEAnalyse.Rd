@@ -133,7 +133,7 @@ receive \code{row_annot} from \code{self$rowAnnot}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{name}}{facade registry key (e.g. "lm", "lm_missing", "limma", "saint")}
+\item{\code{name}}{facade registry key (e.g. "lm", "lm_impute", "limma", "saint")}
 
 \item{\code{modelstr}}{model formula string; auto-generated if NULL, ignored by SAINT-style backends}
 }

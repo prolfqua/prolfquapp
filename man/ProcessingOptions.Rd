@@ -43,7 +43,7 @@ Other ProlfquAppConfig:
 \item{\code{model_missing}}{model missigness, default TRUE}
 
 \item{\code{model}}{facade registry key for contrast analysis.
-Valid keys include prolfqua facade keys such as lm, lm_missing,
+Valid keys include prolfqua facade keys such as lm,
 lm_impute, limma, limma_impute, rlm, deqms, firth, lmer,
 ropeca, plus the prolfquasaint-backed key saint.
 Default "lm_impute".}
