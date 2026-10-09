@@ -10,8 +10,8 @@ make_DEA_config_R6(
   PROJECTID = "",
   ORDERID = "",
   WORKUNITID = "",
-  Normalization = c("none", "vsn", "quantile", "robscale"),
-  aggregation = c("medpolish", "top3", "rlm"),
+  Normalization = c("none", "vsn", "robscale"),
+  aggregation = c("medpolish", "topN", "rlm"),
   diff_threshold = 1,
   FDR_threshold = 0.1,
   nr_peptides = 1,
@@ -33,9 +33,9 @@ make_DEA_config_R6(
 
 \item{WORKUNITID}{workunit identifier}
 
-\item{Normalization}{normalization method: "none", "vsn", "quantile", "robscale"}
+\item{Normalization}{normalization method: "none", "vsn", "robscale"}
 
-\item{aggregation}{aggregation method: "medpolish", "top3", "rlm"}
+\item{aggregation}{aggregation method: "medpolish", "topN", "rlm"}
 
 \item{diff_threshold}{difference threshold}
 

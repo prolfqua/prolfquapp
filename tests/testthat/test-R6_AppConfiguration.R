@@ -40,3 +40,14 @@ test_that("set_list_to_R6 returns the (mutated) R6 object invisibly", {
   expect_identical(out, cfg)
   expect_equal(cfg$software, "FP_TMT")
 })
+
+test_that("make_DEA_config_R6 offers only aggregations and normalizations the pipeline runs", {
+  expect_true(all(
+    eval(formals(prolfquapp::make_DEA_config_R6)$Normalization) %in%
+      eval(formals(prolfquapp::transform_lfqdata)$method)
+  ))
+  cfg <- prolfquapp::make_DEA_config_R6(aggregation = "topN")
+  expect_equal(cfg$processing_options$aggregate, "topN")
+  expect_error(prolfquapp::make_DEA_config_R6(aggregation = "top3"), "should be one of")
+  expect_error(prolfquapp::make_DEA_config_R6(Normalization = "quantile"), "should be one of")
+})

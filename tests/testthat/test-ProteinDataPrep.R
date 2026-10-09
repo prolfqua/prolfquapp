@@ -32,3 +32,27 @@ test_that("ProteinDataPrep aggregate returns unchanged site-level data", {
   )
   expect_null(data_prep$aggregator)
 })
+
+test_that("ProteinDataPrep aggregates with every aggregation make_DEA_config_R6 offers", {
+  sim <- prolfqua::sim_lfq_data_peptide_config(Nprot = 10)
+  lfq <- prolfqua::LFQData$new(sim$data, sim$config)
+  row_annot <- data.frame(
+    protein_Id = unique(lfq$data_long()$protein_Id),
+    description = unique(lfq$data_long()$protein_Id),
+    nr_peptides = 1
+  )
+  pannot <- prolfquapp::ProteinAnnotation$new(
+    lfq,
+    row_annot = row_annot,
+    description = "description",
+    exp_nr_children = "nr_peptides"
+  )
+
+  for (agg in eval(formals(prolfquapp::make_DEA_config_R6)$aggregation)) {
+    config <- prolfquapp::make_DEA_config_R6(aggregation = agg)
+    data_prep <- prolfquapp::ProteinDataPrep$new(lfq, pannot, config)
+    data_prep$aggregate()
+    expect_true("LFQData" %in% class(data_prep$lfq_data), info = agg)
+    expect_equal(data_prep$lfq_data$hierarchy_keys(), "protein_Id", info = agg)
+  }
+})
