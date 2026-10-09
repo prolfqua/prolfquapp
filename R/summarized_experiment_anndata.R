@@ -49,3 +49,33 @@ write_summarized_experiment_h5ad <- function(se, path) {
     .validate_dea_result_anndata(restored, adata$obs_names, adata$var_names)
   })
 }
+
+#' Write an AnnData input and its DEA results as one MuData file
+#'
+#' The container holds two modalities over the DEA samples: \code{lfqdata}, the
+#' input AnnData (e.g. apb-export's \code{prolfqua} file) restricted to the
+#' annotated runs and indexed by sample name, and \code{dea}, the DEA-results
+#' AnnData. The shared \code{obs} is the DEA sample annotation; runs are matched
+#' on the file-name column of each artifact's analysis configuration.
+#'
+#' @param input_file the \code{.h5ad} file the DEA read
+#' @param dea_file the DEA-results \code{.h5ad} written by
+#'   \code{\link{write_summarized_experiment_h5ad}}
+#' @param path destination \code{.h5mu} file; its directory must exist
+#' @return the normalized path of the written file, invisibly
+#' @keywords internal
+#' @noRd
+write_dea_h5mu <- function(input_file, dea_file, path) {
+  input <- anndataR::read_h5ad(input_file)
+  dea <- anndataR::read_h5ad(dea_file)
+  dea_obs <- as.data.frame(dea$obs)
+  dea_runs <- dea_obs[[dea$uns[["prolfquapp"]]$analysis_configuration$file_name]]
+  input_file_name <- input$uns[["prolfquapp"]]$analysis_configuration$file_name
+  rows <- match(dea_runs, .normalize_raw_file(as.data.frame(input$obs)[[input_file_name]]))
+  if (anyNA(rows)) {
+    stop("DEA runs missing from the input AnnData: ", paste(dea_runs[is.na(rows)], collapse = ", "))
+  }
+  lfqdata <- input[rows, ]$as_InMemoryAnnData()
+  lfqdata$obs_names <- rownames(dea_obs)
+  write_h5mu(list(lfqdata = lfqdata, dea = dea), path, obs = dea_obs)
+}

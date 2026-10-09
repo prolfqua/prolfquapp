@@ -23,26 +23,8 @@ LFQData_from_anndata <- function(adata) {
   if (!identical(artifact_type, "lfqdata")) {
     stop("LFQData_from_anndata() requires a prolfquapp LFQData artifact; got '", artifact_type, "'.")
   }
-  ac <- pmeta$analysis_configuration
   pa <- pmeta$protein_annotation
-
-  config <- prolfqua::AnalysisConfiguration$new()
-  config$sep <- ac$sep
-  config$file_name <- ac$file_name %||% ac$fileName
-  config$sample_name <- ac$sample_name %||% ac$sampleName
-  config$isotope_label <- ac$isotope_label %||% ac$isotopeLabel
-  config$ident_q_value <- ac$ident_q_value %||% ac$ident_qValue
-  config$ident_score <- (ac$ident_score %||% ac$ident_Score) %||% character()
-  config$nr_children <- ac$nr_children
-  config$is_response_transformed <- ac$is_response_transformed
-  config$factors <- ac$factors
-  config$factor_depth <- ac$factor_depth %||% ac$factorDepth
-  config$hierarchy <- ac$hierarchy
-  config$hierarchy_depth <- ac$hierarchy_depth %||% ac$hierarchyDepth
-  config$min_peptides_protein <- ac$min_peptides_protein
-  for (wi in (ac$work_intensity %||% ac$workIntensity)) {
-    config$set_response(wi)
-  }
+  config <- .anndata_analysis_configuration(pmeta$analysis_configuration)
 
   lfqdata <- prolfqua::LFQData$new(anndata_to_long(adata, config), config)
   protAnnot <- prolfquapp::ProteinAnnotation$new(
@@ -56,6 +38,43 @@ LFQData_from_anndata <- function(adata) {
     pattern_decoys = pa$pattern_decoys
   )
   return(list(lfqdata = lfqdata, protein_annotation = protAnnot))
+}
+
+# AnalysisConfiguration from the stored `analysis_configuration`. HDF5 returns
+# the `hierarchy` map in name order, so its order comes from `hierarchy_keys`.
+.anndata_analysis_configuration <- function(ac) {
+  config <- prolfqua::AnalysisConfiguration$new()
+  config$sep <- ac$sep
+  config$file_name <- ac$file_name %||% ac$fileName
+  config$sample_name <- ac$sample_name %||% ac$sampleName
+  config$isotope_label <- ac$isotope_label %||% ac$isotopeLabel
+  config$ident_q_value <- ac$ident_q_value %||% ac$ident_qValue
+  config$ident_score <- (ac$ident_score %||% ac$ident_Score) %||% character()
+  config$nr_children <- ac$nr_children
+  config$is_response_transformed <- ac$is_response_transformed
+  config$factors <- ac$factors
+  config$factor_depth <- ac$factor_depth %||% ac$factorDepth
+  config$hierarchy <- .anndata_ordered_hierarchy(ac$hierarchy, ac$hierarchy_keys)
+  config$hierarchy_depth <- ac$hierarchy_depth %||% ac$hierarchyDepth
+  config$min_peptides_protein <- ac$min_peptides_protein
+  for (wi in (ac$work_intensity %||% ac$workIntensity)) {
+    config$set_response(wi)
+  }
+  config
+}
+
+.anndata_ordered_hierarchy <- function(hierarchy, hierarchy_keys) {
+  if (is.null(hierarchy_keys)) {
+    if (length(hierarchy) > 1) {
+      stop(
+        "AnnData analysis_configuration has no 'hierarchy_keys', so the order of the hierarchy ",
+        paste(names(hierarchy), collapse = ", "),
+        " is unknown."
+      )
+    }
+    return(hierarchy)
+  }
+  hierarchy[.anndata_ordered_keys(hierarchy_keys, names(hierarchy), "hierarchy_keys")]
 }
 
 

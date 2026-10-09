@@ -91,7 +91,8 @@ Read a DEA result artifact.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{source}}{a \code{SummarizedExperiment}, an AnnData, or a path to
-an \code{.rds} or \code{.h5ad} file}
+an \code{.rds}, \code{.h5ad} or \code{.h5mu} file; an \code{.h5mu}
+file is read through its \code{dea} modality}
 }
 \if{html}{\out{</div>}}
 }

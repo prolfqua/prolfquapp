@@ -78,7 +78,8 @@ DEAResultReader <- R6::R6Class(
     #' @description
     #' Read a DEA result artifact.
     #' @param source a \code{SummarizedExperiment}, an AnnData, or a path to
-    #'   an \code{.rds} or \code{.h5ad} file
+    #'   an \code{.rds}, \code{.h5ad} or \code{.h5mu} file; an \code{.h5mu}
+    #'   file is read through its \code{dea} modality
     initialize = function(source) {
       self$se <- .dea_result_source_to_se(source)
       assay_names <- SummarizedExperiment::assayNames(self$se)
@@ -206,13 +207,16 @@ DEAResultReader <- R6::R6Class(
     if (grepl("[.]h5ad$", source, ignore.case = TRUE)) {
       return(anndata_to_summarized_experiment(anndataR::read_h5ad(source)))
     }
+    if (grepl("[.]h5mu$", source, ignore.case = TRUE)) {
+      return(anndata_to_summarized_experiment(read_h5mu(source)$modalities[["dea"]]))
+    }
     return(.dea_result_source_to_se(readRDS(source)))
   }
   if (inherits(source, "AbstractAnnData")) {
     return(anndata_to_summarized_experiment(source))
   }
   if (!inherits(source, "SummarizedExperiment")) {
-    stop("Expected a SummarizedExperiment, an AnnData, or a path to an .rds or .h5ad file.", call. = FALSE)
+    stop("Expected a SummarizedExperiment, an AnnData, or a path to an .rds, .h5ad or .h5mu file.", call. = FALSE)
   }
   source
 }

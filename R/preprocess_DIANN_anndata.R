@@ -151,6 +151,7 @@ preprocess_anndata_from_lfq <- function(
         factors = config$factors,
         factor_depth = config$factor_depth,
         hierarchy = config$hierarchy,
+        hierarchy_keys = names(config$hierarchy),
         hierarchy_depth = config$hierarchy_depth,
         min_peptides_protein = config$min_peptides_protein
       ),

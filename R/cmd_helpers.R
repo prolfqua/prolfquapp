@@ -399,6 +399,12 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   logger::log_info("Writing AnnData and summarized experiment, then rendering Quarto reports.")
   reports <- render_dea_reports(reporter, summarized_experiment)
   outdir$data_files$anndata_file <- reports$anndata_file
+  # An AnnData input (apb-export) is kept with its DEA results in one MuData file.
+  if (grepl("[.]h5ad$", result$files$data[[1]])) {
+    mudata_file <- file.path(reporter$resultdir, "MuData.h5mu")
+    logger::log_info("Writing input AnnData and DEA results to: ", mudata_file)
+    outdir$data_files$mudata_file <- write_dea_h5mu(result$files$data[[1]], reports$anndata_file, mudata_file)
+  }
   outdir$dea_file <- reports$dea_file
   outdir$qc_file <- reports$qc_file
   outdir$quarto_file <- reports$tabset_file

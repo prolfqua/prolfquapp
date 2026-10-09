@@ -19,6 +19,18 @@ prolfqua_preprocess_functions <- list(
     extra_args = "list(q_value = 0.01, hierarchy_depth = 2)",
     dataset = "prolfquapp::dataset_template_diann"
   ),
+  APB = list(
+    get_files = "prolfquapp::get_APB_files",
+    preprocess = "prolfquapp::preprocess_APB",
+    extra_args = "list(q_values = list(pg_qValue = 0.01, pg_qValue_experiment = 0.01), hierarchy_depth = 1)",
+    dataset = "prolfquapp::dataset_template_APB"
+  ),
+  APB_PEPTIDE = list(
+    get_files = "prolfquapp::get_APB_files",
+    preprocess = "prolfquapp::preprocess_APB",
+    extra_args = "list(q_values = list(pg_qValue = 0.01, pg_qValue_experiment = 0.01), hierarchy_depth = 2)",
+    dataset = "prolfquapp::dataset_template_APB"
+  ),
   FP_TMT = list(
     get_files = "prolfquapp::get_FP_PSM_files",
     preprocess = "prolfquapp::preprocess_FP_PSM",
