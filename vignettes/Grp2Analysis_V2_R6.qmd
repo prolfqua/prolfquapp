@@ -411,7 +411,7 @@ knitr::kable(df)
 and a null hypothesis significance test (NHST) is conducted, where the null hypothesis is that the protein is not differentially expressed [@faraway2004linear].
 
 If there are no abundances measured in one of the groups for some proteins, we assume the observations are missing because the protein abundance is below the detection limit. Therefore, we estimate the detection limit using the mean of the $1\%$ smallest group averages.
-Furthermore, to make it explicit how each estimate was produced, the `estimate_type` column (see table in @fig-table-all) records whether a row was fit from `observed` data, rescued via LOD imputation (`lod_imputed`), or filled from a group-mean fallback (`missing_fallback`). The `modelName` column records the selected analysis method (the facade key, e.g. `lm`, `rfit`, `limma`).
+Furthermore, to make it explicit how each estimate was produced, the `estimate_type` column (see table in @fig-table-all) records whether a row was fit from `observed` data or rescued via LOD imputation (`lod_imputed`). The `modelName` column records the selected analysis method (the facade key, e.g. `lm`, `rfit`, `limma`).
 
 Next, to increase the power of the analysis variance shrinkage is performed [@Smyth2004]. Finally, the false discovery rate (FDR) using the Benjamini-Hochberg procedure is computed [@benjamini1995controlling].
 The FDR is the expected proportion of false discoveries in a list of proteins, and can be used to select candidates for follow up experiments. FDR thresholds commonly used are 5, 10 or 25%. By filtering the proteins using an FDR threshold of `r cfg$processing_options$FDR_threshold*100` % we can expect this proportion of false positives in the list and `r (1 - cfg$processing_options$FDR_threshold) * 100` % truly differentially expressed proteins. Because we do not know which of them are true positives follow up experiments are necessary.
@@ -426,7 +426,7 @@ hkey <- dea$lfq_data$hierarchy_keys()
 - description - information about the protein provided in the FASTA database
 - contrast - name of the comparison
 - modelName - selected analysis method (facade key, e.g. `lm`, `rfit`, `limma`)
-- estimate_type - how the estimate was produced: `observed`, `lod_imputed`, or `missing_fallback`
+- estimate_type - how the estimate was produced: `observed` or `lod_imputed`
 - FDR - false discovery rate
 - diff - difference between groups.
 
