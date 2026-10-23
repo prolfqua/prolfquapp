@@ -116,9 +116,16 @@ preprocess_APB <- function(
   lfqdata$remove_small_intensities()
 
   # var holds one row per feature; keep the columns describing its protein,
-  # among them protein_length and nr_tryptic_peptides when exported with a FASTA
+  # among them protein_length and nr_tryptic_peptides when exported with a FASTA.
+  # The var key, kept as a column beside the row names, names a feature too.
   var <- as.data.frame(adata$var)
-  per_feature <- c(stored$hierarchy_keys()[-1], stored$nr_children, stored$ident_q_value)
+  var_key <- names(var)[vapply(var, function(values) identical(as.character(values), rownames(var)), logical(1))]
+  per_feature <- c(
+    stored$hierarchy_keys()[-1],
+    stored$nr_children,
+    stored$ident_q_value,
+    setdiff(var_key, keys[[1]])
+  )
   prot_annot <- dplyr::distinct(var[, setdiff(colnames(var), per_feature), drop = FALSE])
   rownames(prot_annot) <- NULL
   protAnnot <- prolfquapp::ProteinAnnotation$new(

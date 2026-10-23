@@ -1,7 +1,9 @@
-# testdata/apb_diann.h5ad is apb-export's prolfqua export of its synthetic
-# DIA-NN report (consumers/export_examples.py), with --fasta testdata/apb_diann.fasta:
-# 4 runs, 6 precursors, one per peptide and protein, with the qValue, pg_qValue,
-# pg_qValue_experiment and pep layers. The FASTA holds P1, P2, P3 and P7.
+# testdata/apb_diann.h5ad is apb-export's prolfqua export of the synthetic DIA-NN
+# report its tests write (tests/conftest.py write_diann), with --fasta
+# testdata/apb_diann.fasta: 4 runs, 6 precursors, one per peptide and protein, the
+# unnormalised Precursor.Quantity as intensity, with the qValue, pg_qValue,
+# pg_qValue_experiment and pep layers. apb2 writes it, so its var key feature_id
+# stays a column. The FASTA holds P1, P2, P3 and P7.
 
 apb_annotation <- function() {
   prolfquapp::read_annotation(
@@ -46,6 +48,8 @@ test_that("APB reader builds protein- and peptide-level LFQData from an apb-expo
   expect_equal(protein$lfqdata$hierarchy_counts()$protein_Id, 6)
   expect_equal(protein$lfqdata$response(), "intensity")
   annot <- protein$protein_annotation$row_annot
+  expect_equal(nrow(annot), 6)
+  expect_false("feature_id" %in% colnames(annot))
   expect_equal(annot$nrPeptides, rep(1L, 6))
   expect_true(all(c("IDcolumn", "fasta.id", "description", "gene_name") %in% colnames(annot)))
   annot <- annot[order(annot$protein_Id), ]
@@ -82,7 +86,7 @@ test_that("APB reader sums the precursors of a peptide and counts them in nr_chi
   })
   xd <- suppressWarnings(prolfquapp::preprocess_APB(path, character(), apb_annotation()))
   p1 <- dplyr::filter(xd$lfqdata$data_long(), .data$peptide_Id == "PEPTIDEK", .data$raw.file == "run_A1")
-  expect_equal(p1$intensity, 900 + 1800)
+  expect_equal(p1$intensity, 1000 + 2000)
   expect_equal(p1$nr_children, 2)
   expect_equal(p1$qValue, 0.001)
 })
