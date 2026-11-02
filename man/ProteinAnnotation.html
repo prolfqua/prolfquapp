@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.19">
+<meta name="generator" content="quarto-1.11.9">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>proteinannotation – prolfquapp</title>
 <style>
@@ -69,14 +69,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d76b89148f2051d413c67903796ad183.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../site_libs/bootstrap/bootstrap-496f847ee350b268dad36aec68740ad7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -104,17 +105,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 </head>
-<body class="nav-sidebar floating nav-fixed fullcontent quarto-light">
+<body class="nav-sidebar floating nav-fixed fullcontent quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site"><div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">prolfquapp</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -128,18 +128,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
+            <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
-    </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+    </nav><nav class="quarto-secondary-nav" aria-label="Toolbar"><div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/add_contrasts_vec.html">Reference</a></li><li class="breadcrumb-item"><a href="../man/ProteinAnnotation.html">ProteinAnnotation</a></li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/add_contrasts_vec.html">Reference</a></li><li class="breadcrumb-item"><a href="../man/ProteinAnnotation.html">ProteinAnnotation</a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="sidebar-menu-container"> 
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Section"><div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
@@ -149,13 +150,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
- <span class="menu-text">Articles</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="false">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">Articles</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 ">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../vignettes/Grp2Analysis_V2_R6.html" class="sidebar-item-text sidebar-link">
@@ -196,13 +194,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Reference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label">Reference</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/add_contrasts_vec.html" class="sidebar-item-text sidebar-link">
@@ -913,9 +908,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/add_contrasts_vec.html">Reference</a></li><li class="breadcrumb-item"><a href="../man/ProteinAnnotation.html">ProteinAnnotation</a></li></ol></nav></header><section id="decorates-lfqdata-with-a-row-annotation-and-some-protein-specific-functions." class="level2 unnumbered"><h2 class="unnumbered anchored" data-anchor-id="decorates-lfqdata-with-a-row-annotation-and-some-protein-specific-functions.">Decorates LFQData with a row annotation and some protein specific functions.</h2>
+<main class="content" id="quarto-document-content" tabindex="-1"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/add_contrasts_vec.html">Reference</a></li><li class="breadcrumb-item"><a href="../man/ProteinAnnotation.html">ProteinAnnotation</a></li></ol></nav></header><section id="decorates-lfqdata-with-a-row-annotation-and-some-protein-specific-functions." class="level2 unnumbered"><h2 class="unnumbered anchored" data-anchor-id="decorates-lfqdata-with-a-row-annotation-and-some-protein-specific-functions.">Decorates LFQData with a row annotation and some protein specific functions.</h2>
 <section id="description" class="level3"><h3 class="anchored" data-anchor-id="description">Description</h3>
-<p>Decorates LFQData with a row annotation and some protein specific functions.</p>
 <p>Decorates LFQData with a row annotation and some protein specific functions.</p>
 </section><section id="public-fields" class="level3"><h3 class="anchored" data-anchor-id="public-fields">Public fields</h3>
 <div class="r6-fields">
@@ -976,7 +970,7 @@ Public methods
 </h4>
 <ul>
 <li>
-<p><a href="#method-ProteinAnnotation-new"><code>ProteinAnnotation$new()</code></a></p>
+<p><a href="#method-ProteinAnnotation-initialize"><code>ProteinAnnotation$new()</code></a></p>
 </li>
 <li>
 <p><a href="#method-ProteinAnnotation-get_rev_pattern"><code>ProteinAnnotation$get_rev_pattern()</code></a></p>
@@ -1001,9 +995,9 @@ Public methods
 </li>
 </ul>
 <hr>
-<p><a id="method-ProteinAnnotation-new"></a></p>
+<p><a id="method-ProteinAnnotation-initialize"></a></p>
 <h4 class="anchored">
-Method <code>new()</code>
+<code>ProteinAnnotation$new()</code>
 </h4>
 <p>initialize</p>
 <h5 class="anchored">
@@ -1079,7 +1073,7 @@ pattern_decoys
 <hr>
 <p><a id="method-ProteinAnnotation-get_rev_pattern"></a></p>
 <h4 class="anchored">
-Method <code>get_rev_pattern()</code>
+<code>ProteinAnnotation$get_rev_pattern()</code>
 </h4>
 <p>configured decoy pattern, or NULL when none was set</p>
 <h5 class="anchored">
@@ -1091,10 +1085,10 @@ Usage
 <hr>
 <p><a id="method-ProteinAnnotation-annotate_contaminants"></a></p>
 <h4 class="anchored">
-Method <code>annotate_contaminants()</code>
+<code>ProteinAnnotation$annotate_contaminants()</code>
 </h4>
 <p>annotate contaminants</p>
-<p>Sets the logical <code>CON</code> column via <code><a href="https://wolski.github.io/prolfqua/reference/is_contaminant.html">prolfqua::is_contaminant</a></code>, the same detector the quant layer uses.</p>
+<p>Sets the logical <code>CON</code> column via <code><a href="https://fgcz.github.io/prolfqua/reference/is_contaminant.html">prolfqua::is_contaminant</a></code>, the same detector the quant layer uses.</p>
 <h5 class="anchored">
 Usage
 </h5>
@@ -1104,7 +1098,7 @@ Usage
 <hr>
 <p><a id="method-ProteinAnnotation-get_summary"></a></p>
 <h4 class="anchored">
-Method <code>get_summary()</code>
+<code>ProteinAnnotation$get_summary()</code>
 </h4>
 <p>get summary (contaminants only; decoys are removed at construction)</p>
 <h5 class="anchored">
@@ -1116,7 +1110,7 @@ Usage
 <hr>
 <p><a id="method-ProteinAnnotation-nr_clean"></a></p>
 <h4 class="anchored">
-Method <code>nr_clean()</code>
+<code>ProteinAnnotation$nr_clean()</code>
 </h4>
 <p>number of proteins kept after <code>clean()</code></p>
 <h5 class="anchored">
@@ -1141,7 +1135,7 @@ remove contaminants
 <hr>
 <p><a id="method-ProteinAnnotation-clean"></a></p>
 <h4 class="anchored">
-Method <code>clean()</code>
+<code>ProteinAnnotation$clean()</code>
 </h4>
 <p>remove contaminants (always) and, when a decoy pattern was configured, decoy proteins from the annotation</p>
 <h5 class="anchored">
@@ -1166,7 +1160,7 @@ remove contaminants
 <hr>
 <p><a id="method-ProteinAnnotation-filter_by_nr_children"></a></p>
 <h4 class="anchored">
-Method <code>filter_by_nr_children()</code>
+<code>ProteinAnnotation$filter_by_nr_children()</code>
 </h4>
 <p>filter by number children</p>
 <h5 class="anchored">
@@ -1191,7 +1185,7 @@ minimum number of children required
 <hr>
 <p><a id="method-ProteinAnnotation-clone"></a></p>
 <h4 class="anchored">
-Method <code>clone()</code>
+<code>ProteinAnnotation$clone()</code>
 </h4>
 <p>The objects of this class are cloneable with this method.</p>
 <h5 class="anchored">
@@ -1218,12 +1212,12 @@ Whether to make a deep clone.
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://prolfqua.github.io/prolfquapp/">"prolfquapp"</a></span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">istar</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://wolski.github.io/prolfqua/reference/sim_lfq_data_peptide_config.html">sim_lfq_data_peptide_config</a></span><span class="op">(</span>Nprot <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="va">lfq0</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="va"><a href="https://wolski.github.io/prolfqua/reference/LFQData.html">LFQData</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">istar</span><span class="op">$</span><span class="va">data</span>, <span class="va">istar</span><span class="op">$</span><span class="va">config</span><span class="op">)</span></span>
-<span><span class="va">xd1</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://wolski.github.io/prolfqua/reference/nr_children_experiment.html">nr_children_experiment</a></span><span class="op">(</span><span class="va">lfq0</span><span class="op">$</span><span class="fu">data_long</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfq0</span><span class="op">$</span><span class="fu">response</span><span class="op">(</span><span class="op">)</span>,</span>
+<span><span class="va">istar</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://fgcz.github.io/prolfqua/reference/sim_lfq_data_peptide_config.html">sim_lfq_data_peptide_config</a></span><span class="op">(</span>Nprot <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">lfq0</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="va"><a href="https://fgcz.github.io/prolfqua/reference/LFQData.html">LFQData</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">istar</span><span class="op">$</span><span class="va">data</span>, <span class="va">istar</span><span class="op">$</span><span class="va">config</span><span class="op">)</span></span>
+<span><span class="va">xd1</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://fgcz.github.io/prolfqua/reference/nr_children_experiment.html">nr_children_experiment</a></span><span class="op">(</span><span class="va">lfq0</span><span class="op">$</span><span class="fu">data_long</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfq0</span><span class="op">$</span><span class="fu">response</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">lfq0</span><span class="op">$</span><span class="fu">relevant_hierarchy_keys</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfq0</span><span class="op">$</span><span class="fu">file_name</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfq0</span><span class="op">$</span><span class="fu">nr_children_col</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">xd2</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://wolski.github.io/prolfqua/reference/nr_features_experiment.html">nr_features_experiment</a></span><span class="op">(</span><span class="va">lfq0</span><span class="op">$</span><span class="fu">data_long</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfq0</span><span class="op">$</span><span class="fu">hierarchy_keys</span><span class="op">(</span><span class="op">)</span>,</span>
+<span><span class="va">xd2</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://fgcz.github.io/prolfqua/reference/nr_features_experiment.html">nr_features_experiment</a></span><span class="op">(</span><span class="va">lfq0</span><span class="op">$</span><span class="fu">data_long</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfq0</span><span class="op">$</span><span class="fu">hierarchy_keys</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">lfq0</span><span class="op">$</span><span class="fu">relevant_hierarchy_keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">xd1</span><span class="op">$</span><span class="va">nr_child_exp</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1231,7 +1225,7 @@ Whether to make a deep clone.
  1  2  3  4  5  6  7  8  9 10 11 12 
 22 26 16 10  9  3  5  4  1  1  1  2 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">lfqdata</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="va"><a href="https://wolski.github.io/prolfqua/reference/LFQData.html">LFQData</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">istar</span><span class="op">$</span><span class="va">data</span>, <span class="va">istar</span><span class="op">$</span><span class="va">config</span><span class="op">)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">lfqdata</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="va"><a href="https://fgcz.github.io/prolfqua/reference/LFQData.html">LFQData</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">istar</span><span class="op">$</span><span class="va">data</span>, <span class="va">istar</span><span class="op">$</span><span class="va">config</span><span class="op">)</span></span>
 <span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="va">lfqdata</span><span class="op">$</span><span class="fu">data_long</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">tmp</span><span class="op">$</span><span class="va">protein_Id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://prolfqua.github.io/prolfquapp/man/add_RevCon.html">add_RevCon</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">$</span><span class="va">protein_Id</span><span class="op">)</span></span>
 <span><span class="va">lfqdata</span><span class="op">$</span><span class="fu">set_data</span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></span>
@@ -1244,9 +1238,9 @@ Whether to make a deep clone.
 <span><span class="va">addannot</span> <span class="op">&lt;-</span> <span class="va">addannot</span> <span class="op">|&gt;</span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/separate.html">separate</a></span><span class="op">(</span><span class="va">protein_Id</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"cleanID"</span>, <span class="cn">NA</span><span class="op">)</span>, remove <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co"># ProteinAnnotation$debug("initialize")</span></span>
 <span><span class="co"># debug(nr_obs_sample)</span></span>
-<span><span class="va">xd4</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://wolski.github.io/prolfqua/reference/nr_obs_sample.html">nr_obs_sample</a></span><span class="op">(</span><span class="va">lfqdata</span><span class="op">$</span><span class="fu">data_long</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfqdata</span><span class="op">$</span><span class="fu">response</span><span class="op">(</span><span class="op">)</span>,</span>
+<span><span class="va">xd4</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://fgcz.github.io/prolfqua/reference/nr_obs_sample.html">nr_obs_sample</a></span><span class="op">(</span><span class="va">lfqdata</span><span class="op">$</span><span class="fu">data_long</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfqdata</span><span class="op">$</span><span class="fu">response</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">lfqdata</span><span class="op">$</span><span class="fu">relevant_hierarchy_keys</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfqdata</span><span class="op">$</span><span class="fu">file_name</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfqdata</span><span class="op">$</span><span class="fu">nr_children_col</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">xd3</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://wolski.github.io/prolfqua/reference/nr_features_experiment.html">nr_features_experiment</a></span><span class="op">(</span><span class="va">lfqdata</span><span class="op">$</span><span class="fu">data_long</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfqdata</span><span class="op">$</span><span class="fu">hierarchy_keys</span><span class="op">(</span><span class="op">)</span>,</span>
+<span><span class="va">xd3</span> <span class="op">&lt;-</span> <span class="fu">prolfqua</span><span class="fu">::</span><span class="fu"><a href="https://fgcz.github.io/prolfqua/reference/nr_features_experiment.html">nr_features_experiment</a></span><span class="op">(</span><span class="va">lfqdata</span><span class="op">$</span><span class="fu">data_long</span><span class="op">(</span><span class="op">)</span>, <span class="va">lfqdata</span><span class="op">$</span><span class="fu">hierarchy_keys</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">lfqdata</span><span class="op">$</span><span class="fu">relevant_hierarchy_keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pannot</span> <span class="op">&lt;-</span> <span class="va"><a href="https://prolfqua.github.io/prolfquapp/man/ProteinAnnotation.html">ProteinAnnotation</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">lfqdata</span>,</span>
@@ -1353,7 +1347,8 @@ Whether to make a deep clone.
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -1362,8 +1357,69 @@ Whether to make a deep clone.
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -1377,6 +1433,7 @@ Whether to make a deep clone.
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -1539,44 +1596,54 @@ Whether to make a deep clone.
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -1674,6 +1741,8 @@ Whether to make a deep clone.
       }
     }
   });
+  </script><script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script>
 </div> <!-- /content -->
 
