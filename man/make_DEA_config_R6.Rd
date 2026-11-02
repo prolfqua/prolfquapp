@@ -76,11 +76,11 @@ R6list <- prolfqua::R6_extract_values(DEAconfig)
 
 }
 \seealso{
-Other ProlfquAppConfig: 
+Other ProlfquAppConfig:
 \code{\link{ExternalReader}},
 \code{\link{ProcessingOptions}},
 \code{\link{ProjectSpec}},
 \code{\link{ProlfquAppConfig}},
-\code{\link{set_list_to_R6}()}
+\code{\link[=set_list_to_R6]{set_list_to_R6()}}
 }
 \concept{ProlfquAppConfig}

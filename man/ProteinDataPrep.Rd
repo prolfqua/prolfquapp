@@ -4,11 +4,6 @@
 \alias{ProteinDataPrep}
 \title{ProteinDataPrep}
 \description{
-ProteinDataPrep
-
-ProteinDataPrep
-}
-\details{
 Handles data preparation for differential expression analysis:
 contaminant/decoy filtering, peptide-to-protein aggregation, and normalization.
 }
@@ -28,175 +23,190 @@ data_prep$transform_data()
 
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{prolfq_app_config}}{ProlfquAppConfig}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{prolfq_app_config}}{ProlfquAppConfig}
 
-\item{\code{lfq_data_peptide}}{LFQData peptide level}
+    \item{\code{lfq_data_peptide}}{LFQData peptide level}
 
-\item{\code{lfq_data}}{LFQData protein level (after aggregation)}
+    \item{\code{lfq_data}}{LFQData protein level (after aggregation)}
 
-\item{\code{lfq_data_transformed}}{normalized LFQData}
+    \item{\code{lfq_data_transformed}}{normalized LFQData}
 
-\item{\code{lfq_data_peptide_transformed}}{transformed peptide-level LFQData (for nested facades)}
+    \item{\code{lfq_data_peptide_transformed}}{transformed peptide-level LFQData (for nested facades)}
 
-\item{\code{aggregator}}{aggregator object}
+    \item{\code{aggregator}}{aggregator object}
 
-\item{\code{rowAnnot}}{ProteinAnnotation}
+    \item{\code{rowAnnot}}{ProteinAnnotation}
 
-\item{\code{summary}}{data.frame with contaminant/decoy summary}
-}
-\if{html}{\out{</div>}}
+    \item{\code{summary}}{data.frame with contaminant/decoy summary}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ProteinDataPrep-new}{\code{ProteinDataPrep$new()}}
-\item \href{#method-ProteinDataPrep-cont_decoy_summary}{\code{ProteinDataPrep$cont_decoy_summary()}}
-\item \href{#method-ProteinDataPrep-aggregate}{\code{ProteinDataPrep$aggregate()}}
-\item \href{#method-ProteinDataPrep-get_aggregation_plots}{\code{ProteinDataPrep$get_aggregation_plots()}}
-\item \href{#method-ProteinDataPrep-write_aggregation_plots}{\code{ProteinDataPrep$write_aggregation_plots()}}
-\item \href{#method-ProteinDataPrep-transform_data}{\code{ProteinDataPrep$transform_data()}}
-\item \href{#method-ProteinDataPrep-transform_peptide_data}{\code{ProteinDataPrep$transform_peptide_data()}}
-\item \href{#method-ProteinDataPrep-build_deanalyse}{\code{ProteinDataPrep$build_deanalyse()}}
-\item \href{#method-ProteinDataPrep-clone}{\code{ProteinDataPrep$clone()}}
-}
+  \itemize{
+    \item \href{#method-ProteinDataPrep-initialize}{\code{ProteinDataPrep$new()}}
+    \item \href{#method-ProteinDataPrep-cont_decoy_summary}{\code{ProteinDataPrep$cont_decoy_summary()}}
+    \item \href{#method-ProteinDataPrep-aggregate}{\code{ProteinDataPrep$aggregate()}}
+    \item \href{#method-ProteinDataPrep-get_aggregation_plots}{\code{ProteinDataPrep$get_aggregation_plots()}}
+    \item \href{#method-ProteinDataPrep-write_aggregation_plots}{\code{ProteinDataPrep$write_aggregation_plots()}}
+    \item \href{#method-ProteinDataPrep-transform_data}{\code{ProteinDataPrep$transform_data()}}
+    \item \href{#method-ProteinDataPrep-transform_peptide_data}{\code{ProteinDataPrep$transform_peptide_data()}}
+    \item \href{#method-ProteinDataPrep-build_deanalyse}{\code{ProteinDataPrep$build_deanalyse()}}
+    \item \href{#method-ProteinDataPrep-clone}{\code{ProteinDataPrep$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ProteinDataPrep-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ProteinDataPrep-new}{}}}
-\subsection{Method \code{new()}}{
-Initialize ProteinDataPrep
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$new(lfq_data_peptide, rowAnnot, prolfq_app_config)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-ProteinDataPrep-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ProteinDataPrep-initialize}{}}}
+\subsection{\code{ProteinDataPrep$new()}}{
+  Initialize ProteinDataPrep
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinDataPrep$new(lfq_data_peptide, rowAnnot, prolfq_app_config)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{lfq_data_peptide}}{LFQData object at peptide level}
+      \item{\code{rowAnnot}}{ProteinAnnotation object}
+      \item{\code{prolfq_app_config}}{ProlfquAppConfig object}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{lfq_data_peptide}}{LFQData object at peptide level}
-
-\item{\code{rowAnnot}}{ProteinAnnotation object}
-
-\item{\code{prolfq_app_config}}{ProlfquAppConfig object}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinDataPrep-cont_decoy_summary"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-cont_decoy_summary}{}}}
-\subsection{Method \code{cont_decoy_summary()}}{
-Contaminant + decoy QC summary. Contaminants are kept and only counted
+\subsection{\code{ProteinDataPrep$cont_decoy_summary()}}{
+  Contaminant + decoy QC summary. Contaminants are kept and only counted
 here (labelled downstream via the annotation `CON` flag); decoys are kept
 in the quant data (dropped only at the model fit) and their proportion is
 reported as an empirical-FDR signal. Neither is removed from the quant.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$cont_decoy_summary()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinDataPrep$cont_decoy_summary()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinDataPrep-aggregate"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-aggregate}{}}}
-\subsection{Method \code{aggregate()}}{
-Aggregate peptide data to protein level
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$aggregate()}\if{html}{\out{</div>}}
+\subsection{\code{ProteinDataPrep$aggregate()}}{
+  Aggregate peptide data to protein level
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinDataPrep$aggregate()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinDataPrep-get_aggregation_plots"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-get_aggregation_plots}{}}}
-\subsection{Method \code{get_aggregation_plots()}}{
-Get aggregation plots
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$get_aggregation_plots(exp_nr_children = 2)}\if{html}{\out{</div>}}
+\subsection{\code{ProteinDataPrep$get_aggregation_plots()}}{
+  Get aggregation plots
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinDataPrep$get_aggregation_plots(exp_nr_children = 2)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{exp_nr_children}}{minimum number of peptides per protein; default 2}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{exp_nr_children}}{minimum number of peptides per protein; default 2}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinDataPrep-write_aggregation_plots"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-write_aggregation_plots}{}}}
-\subsection{Method \code{write_aggregation_plots()}}{
-Write aggregation plots to file
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$write_aggregation_plots(exp_nr_children = 2)}\if{html}{\out{</div>}}
+\subsection{\code{ProteinDataPrep$write_aggregation_plots()}}{
+  Write aggregation plots to file
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinDataPrep$write_aggregation_plots(exp_nr_children = 2)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{exp_nr_children}}{minimum number of peptides per protein; default 2}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{exp_nr_children}}{minimum number of peptides per protein; default 2}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinDataPrep-transform_data"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-transform_data}{}}}
-\subsection{Method \code{transform_data()}}{
-Transform and normalize protein-level data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$transform_data()}\if{html}{\out{</div>}}
+\subsection{\code{ProteinDataPrep$transform_data()}}{
+  Transform and normalize protein-level data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinDataPrep$transform_data()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinDataPrep-transform_peptide_data"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-transform_peptide_data}{}}}
-\subsection{Method \code{transform_peptide_data()}}{
-Transform peptide-level data (for nested facades like lmer/ropeca)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$transform_peptide_data()}\if{html}{\out{</div>}}
+\subsection{\code{ProteinDataPrep$transform_peptide_data()}}{
+  Transform peptide-level data (for nested facades like lmer/ropeca)
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinDataPrep$transform_peptide_data()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinDataPrep-build_deanalyse"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-build_deanalyse}{}}}
-\subsection{Method \code{build_deanalyse()}}{
-Build a DEAnalyse object with the correct data for the chosen facade
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$build_deanalyse(contrasts, default_model = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{ProteinDataPrep$build_deanalyse()}}{
+  Build a DEAnalyse object with the correct data for the chosen facade
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinDataPrep$build_deanalyse(contrasts, default_model = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{contrasts}}{named character vector of contrast definitions}
+      \item{\code{default_model}}{facade registry key, or NULL to read from config}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    DEAnalyse R6 object
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{contrasts}}{named character vector of contrast definitions}
-
-\item{\code{default_model}}{facade registry key, or NULL to read from config}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-DEAnalyse R6 object
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinDataPrep-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinDataPrep-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinDataPrep$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ProteinDataPrep$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinDataPrep$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

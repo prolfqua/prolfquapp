@@ -5,56 +5,56 @@
 \title{external reader R6 class for handling external data sources}
 \description{
 external reader R6 class for handling external data sources
-
-external reader R6 class for handling external data sources
 }
 \examples{
 ExternalReader$new()
 
 }
 \seealso{
-Other ProlfquAppConfig: 
+Other ProlfquAppConfig:
 \code{\link{ProcessingOptions}},
 \code{\link{ProjectSpec}},
 \code{\link{ProlfquAppConfig}},
-\code{\link{make_DEA_config_R6}()},
-\code{\link{set_list_to_R6}()}
+\code{\link[=make_DEA_config_R6]{make_DEA_config_R6()}},
+\code{\link[=set_list_to_R6]{set_list_to_R6()}}
 }
 \concept{ProlfquAppConfig}
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{get_files}}{function name for getting files}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{get_files}}{function name for getting files}
 
-\item{\code{preprocess}}{function name for preprocessing}
+    \item{\code{preprocess}}{function name for preprocessing}
 
-\item{\code{extra_args}}{extra arguments as string}
+    \item{\code{extra_args}}{extra arguments as string}
 
-\item{\code{dataset}}{function name for getting dataset}
-}
-\if{html}{\out{</div>}}
+    \item{\code{dataset}}{function name for getting dataset}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ExternalReader-clone}{\code{ExternalReader$clone()}}
-}
+  \itemize{
+    \item \href{#method-ExternalReader-clone}{\code{ExternalReader$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ExternalReader-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ExternalReader-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ExternalReader$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ExternalReader$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ExternalReader$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

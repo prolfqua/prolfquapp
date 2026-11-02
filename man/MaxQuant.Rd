@@ -7,10 +7,10 @@
 Convert MaxQuant outputs into tidy tables. For more details see functions listed in the see also section.
 }
 \seealso{
-Other MaxQuant: 
-\code{\link{dataset_template_MAXQUANT}()},
-\code{\link{tidyMQ_Evidence}()},
-\code{\link{tidyMQ_Peptides}()},
-\code{\link{tidyMQ_ProteinGroups}()}
+Other MaxQuant:
+\code{\link[=dataset_template_MAXQUANT]{dataset_template_MAXQUANT()}},
+\code{\link[=tidyMQ_Evidence]{tidyMQ_Evidence()}},
+\code{\link[=tidyMQ_Peptides]{tidyMQ_Peptides()}},
+\code{\link[=tidyMQ_ProteinGroups]{tidyMQ_ProteinGroups()}}
 }
 \concept{MaxQuant}

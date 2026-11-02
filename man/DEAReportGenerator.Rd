@@ -4,210 +4,220 @@
 \alias{DEAReportGenerator}
 \title{DEAReportGenerator}
 \description{
-DEAReportGenerator
-
-DEAReportGenerator
-}
-\details{
 Generates all output files for a differential expression analysis from a DEAnalyse object.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{deanalyse}}{DEAnalyse object containing all analysis results}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{deanalyse}}{DEAnalyse object containing all analysis results}
 
-\item{\code{GRP2}}{ProlfquAppConfig object containing analysis configuration}
+    \item{\code{GRP2}}{ProlfquAppConfig object containing analysis configuration}
 
-\item{\code{fname}}{filename prefix for DEA results}
+    \item{\code{fname}}{filename prefix for DEA results}
 
-\item{\code{qcname}}{filename prefix for QC results}
+    \item{\code{qcname}}{filename prefix for QC results}
 
-\item{\code{resultdir}}{directory for storing results}
+    \item{\code{resultdir}}{directory for storing results}
 
-\item{\code{ZIPDIR}}{zip directory path}
-}
-\if{html}{\out{</div>}}
+    \item{\code{ZIPDIR}}{zip directory path}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DEAReportGenerator-new}{\code{DEAReportGenerator$new()}}
-\item \href{#method-DEAReportGenerator-prep_result_list}{\code{DEAReportGenerator$prep_result_list()}}
-\item \href{#method-DEAReportGenerator-write_DEA}{\code{DEAReportGenerator$write_DEA()}}
-\item \href{#method-DEAReportGenerator-make_boxplots}{\code{DEAReportGenerator$make_boxplots()}}
-\item \href{#method-DEAReportGenerator-filter_data}{\code{DEAReportGenerator$filter_data()}}
-\item \href{#method-DEAReportGenerator-get_protein_boxplots}{\code{DEAReportGenerator$get_protein_boxplots()}}
-\item \href{#method-DEAReportGenerator-contrasts_to_Grob}{\code{DEAReportGenerator$contrasts_to_Grob()}}
-\item \href{#method-DEAReportGenerator-get_protein_boxplots_contrasts}{\code{DEAReportGenerator$get_protein_boxplots_contrasts()}}
-\item \href{#method-DEAReportGenerator-write_protein_boxplots}{\code{DEAReportGenerator$write_protein_boxplots()}}
-\item \href{#method-DEAReportGenerator-write_DEA_all}{\code{DEAReportGenerator$write_DEA_all()}}
-\item \href{#method-DEAReportGenerator-make_SummarizedExperiment}{\code{DEAReportGenerator$make_SummarizedExperiment()}}
-\item \href{#method-DEAReportGenerator-clone}{\code{DEAReportGenerator$clone()}}
-}
+  \itemize{
+    \item \href{#method-DEAReportGenerator-initialize}{\code{DEAReportGenerator$new()}}
+    \item \href{#method-DEAReportGenerator-prep_result_list}{\code{DEAReportGenerator$prep_result_list()}}
+    \item \href{#method-DEAReportGenerator-write_DEA}{\code{DEAReportGenerator$write_DEA()}}
+    \item \href{#method-DEAReportGenerator-make_boxplots}{\code{DEAReportGenerator$make_boxplots()}}
+    \item \href{#method-DEAReportGenerator-filter_data}{\code{DEAReportGenerator$filter_data()}}
+    \item \href{#method-DEAReportGenerator-get_protein_boxplots}{\code{DEAReportGenerator$get_protein_boxplots()}}
+    \item \href{#method-DEAReportGenerator-contrasts_to_Grob}{\code{DEAReportGenerator$contrasts_to_Grob()}}
+    \item \href{#method-DEAReportGenerator-get_protein_boxplots_contrasts}{\code{DEAReportGenerator$get_protein_boxplots_contrasts()}}
+    \item \href{#method-DEAReportGenerator-write_protein_boxplots}{\code{DEAReportGenerator$write_protein_boxplots()}}
+    \item \href{#method-DEAReportGenerator-write_DEA_all}{\code{DEAReportGenerator$write_DEA_all()}}
+    \item \href{#method-DEAReportGenerator-make_SummarizedExperiment}{\code{DEAReportGenerator$make_SummarizedExperiment()}}
+    \item \href{#method-DEAReportGenerator-clone}{\code{DEAReportGenerator$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAReportGenerator-new"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAReportGenerator-new}{}}}
-\subsection{Method \code{new()}}{
-Initialize DEAReportGenerator
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$new(deanalyse, GRP2, name = "")}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-DEAReportGenerator-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAReportGenerator-initialize}{}}}
+\subsection{\code{DEAReportGenerator$new()}}{
+  Initialize DEAReportGenerator
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$new(deanalyse, GRP2, name = "")}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deanalyse}}{DEAnalyse R6 object with completed analysis}
+      \item{\code{GRP2}}{ProlfquAppConfig R6 object}
+      \item{\code{name}}{optional name prefix for output files}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deanalyse}}{DEAnalyse R6 object with completed analysis}
-
-\item{\code{GRP2}}{ProlfquAppConfig R6 object}
-
-\item{\code{name}}{optional name prefix for output files}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-prep_result_list"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-prep_result_list}{}}}
-\subsection{Method \code{prep_result_list()}}{
-Prepare result list with all analysis outputs for XLSX
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$prep_result_list()}\if{html}{\out{</div>}}
+\subsection{\code{DEAReportGenerator$prep_result_list()}}{
+  Prepare result list with all analysis outputs for XLSX
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$prep_result_list()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    list containing all analysis results (14 sheets)
+  }
 }
 
-\subsection{Returns}{
-list containing all analysis results (14 sheets)
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-write_DEA"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_DEA}{}}}
-\subsection{Method \code{write_DEA()}}{
-Write DEA results (XLSX, ORA, GSEA files)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_DEA(ORA = TRUE, GSEA = TRUE)}\if{html}{\out{</div>}}
+\subsection{\code{DEAReportGenerator$write_DEA()}}{
+  Write DEA results (XLSX, ORA, GSEA files)
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$write_DEA(ORA = TRUE, GSEA = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{ORA}}{if TRUE write ORA gene lists}
+      \item{\code{GSEA}}{if TRUE write GSEA rank files}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    list with xlsx_file, ora_files, gsea_files paths
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ORA}}{if TRUE write ORA gene lists}
-
-\item{\code{GSEA}}{if TRUE write GSEA rank files}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-list with xlsx_file, ora_files, gsea_files paths
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-make_boxplots"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-make_boxplots}{}}}
-\subsection{Method \code{make_boxplots()}}{
-Generate sample-level boxplots for quality control
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$make_boxplots(boxplot = TRUE)}\if{html}{\out{</div>}}
+\subsection{\code{DEAReportGenerator$make_boxplots()}}{
+  Generate sample-level boxplots for quality control
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$make_boxplots(boxplot = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{boxplot}}{logical, if TRUE write boxplots}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{boxplot}}{logical, if TRUE write boxplots}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-filter_data"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-filter_data}{}}}
-\subsection{Method \code{filter_data()}}{
-Get subset of transformed data for significant proteins
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$filter_data()}\if{html}{\out{</div>}}
+\subsection{\code{DEAReportGenerator$filter_data()}}{
+  Get subset of transformed data for significant proteins
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$filter_data()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-get_protein_boxplots"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-get_protein_boxplots}{}}}
-\subsection{Method \code{get_protein_boxplots()}}{
-Get per-protein boxplots for significant proteins
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$get_protein_boxplots()}\if{html}{\out{</div>}}
+\subsection{\code{DEAReportGenerator$get_protein_boxplots()}}{
+  Get per-protein boxplots for significant proteins
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$get_protein_boxplots()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-contrasts_to_Grob"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-contrasts_to_Grob}{}}}
-\subsection{Method \code{contrasts_to_Grob()}}{
-Convert significant contrast results to table grobs with the canonical
+\subsection{\code{DEAReportGenerator$contrasts_to_Grob()}}{
+  Convert significant contrast results to table grobs with the canonical
 \code{contrast}/\code{effect}/\code{score}/\code{fdr} columns, selected
 through the contrast object's \code{ContrastConfiguration}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$contrasts_to_Grob()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$contrasts_to_Grob()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-get_protein_boxplots_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-get_protein_boxplots_contrasts}{}}}
-\subsection{Method \code{get_protein_boxplots_contrasts()}}{
-Get per-protein boxplots combined with contrast summary tables
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$get_protein_boxplots_contrasts()}\if{html}{\out{</div>}}
+\subsection{\code{DEAReportGenerator$get_protein_boxplots_contrasts()}}{
+  Get per-protein boxplots combined with contrast summary tables
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$get_protein_boxplots_contrasts()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-write_protein_boxplots"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_protein_boxplots}{}}}
-\subsection{Method \code{write_protein_boxplots()}}{
-Write per-protein boxplots with contrast tables to PDF
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_protein_boxplots(filename = "boxplots")}\if{html}{\out{</div>}}
+\subsection{\code{DEAReportGenerator$write_protein_boxplots()}}{
+  Write per-protein boxplots with contrast tables to PDF
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$write_protein_boxplots(filename = "boxplots")}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filename}}{base filename (without extension)}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{filename}}{base filename (without extension)}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-write_DEA_all"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-write_DEA_all}{}}}
-\subsection{Method \code{write_DEA_all()}}{
-Write DEA data outputs: XLSX, ORA gene lists, GSEA rank files, and
+\subsection{\code{DEAReportGenerator$write_DEA_all()}}{
+  Write DEA data outputs: XLSX, ORA gene lists, GSEA rank files, and
 boxplots. HTML reports are rendered by `render_dea_reports()`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$write_DEA_all(boxplot = TRUE, ORA = TRUE, GSEA = TRUE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{boxplot}}{if TRUE generate boxplots}
-
-\item{\code{ORA}}{if TRUE write ORA gene lists}
-
-\item{\code{GSEA}}{if TRUE write GSEA rank files}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-list with `data_files` paths; `dea_file` / `qc_file` are NULL as
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$write_DEA_all(boxplot = TRUE, ORA = TRUE, GSEA = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{boxplot}}{if TRUE generate boxplots}
+      \item{\code{ORA}}{if TRUE write ORA gene lists}
+      \item{\code{GSEA}}{if TRUE write GSEA rank files}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    list with `data_files` paths; `dea_file` / `qc_file` are NULL as
   the Quarto reports are produced by `render_dea_reports()`
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-make_SummarizedExperiment"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-make_SummarizedExperiment}{}}}
-\subsection{Method \code{make_SummarizedExperiment()}}{
-Create SummarizedExperiment object from analysis results
+\subsection{\code{DEAReportGenerator$make_SummarizedExperiment()}}{
+  Create SummarizedExperiment object from analysis results
 
 For the \code{lm_impute} default model the object also carries the
 assay \code{imputedData}, \code{transformedData} with every missing
@@ -217,45 +227,47 @@ block \code{imputation} with \code{n_observed}, \code{n_imputed} and
 
 Given \code{ibaq}, the object also carries the assay \code{ibaq};
 features without an IBAQ value are NA.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$make_SummarizedExperiment(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$make_SummarizedExperiment(
   strip = "~lfq~light",
   .url_builder = prolfquapp::bfabric_url_builder,
   ibaq = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{strip}}{pattern to strip from rownames}
-
-\item{\code{.url_builder}}{function to build URLs for bfabric}
-
-\item{\code{ibaq}}{optional protein-level \code{LFQData} with IBAQ values, as
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{strip}}{pattern to strip from rownames}
+      \item{\code{.url_builder}}{function to build URLs for bfabric}
+      \item{\code{ibaq}}{optional protein-level \code{LFQData} with IBAQ values, as
 returned by \code{compute_IBAQ_values()}}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    SummarizedExperiment object
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-SummarizedExperiment object
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAReportGenerator-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAReportGenerator-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAReportGenerator$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{DEAReportGenerator$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAReportGenerator$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

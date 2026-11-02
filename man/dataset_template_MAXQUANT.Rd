@@ -13,10 +13,10 @@ dataset_template_MAXQUANT(files)
 create template dataset for MAXQUANT data
 }
 \seealso{
-Other MaxQuant: 
+Other MaxQuant:
 \code{\link{MaxQuant}},
-\code{\link{tidyMQ_Evidence}()},
-\code{\link{tidyMQ_Peptides}()},
-\code{\link{tidyMQ_ProteinGroups}()}
+\code{\link[=tidyMQ_Evidence]{tidyMQ_Evidence()}},
+\code{\link[=tidyMQ_Peptides]{tidyMQ_Peptides()}},
+\code{\link[=tidyMQ_ProteinGroups]{tidyMQ_ProteinGroups()}}
 }
 \concept{MaxQuant}

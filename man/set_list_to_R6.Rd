@@ -15,11 +15,11 @@ set_list_to_R6(config_list, r6obj_config)
 set arguments in list config to r6obj
 }
 \seealso{
-Other ProlfquAppConfig: 
+Other ProlfquAppConfig:
 \code{\link{ExternalReader}},
 \code{\link{ProcessingOptions}},
 \code{\link{ProjectSpec}},
 \code{\link{ProlfquAppConfig}},
-\code{\link{make_DEA_config_R6}()}
+\code{\link[=make_DEA_config_R6]{make_DEA_config_R6()}}
 }
 \concept{ProlfquAppConfig}

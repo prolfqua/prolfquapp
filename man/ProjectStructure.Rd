@@ -5,8 +5,6 @@
 \title{keep track of folder paths and create them if needed}
 \description{
 keep track of folder paths and create them if needed
-
-keep track of folder paths and create them if needed
 }
 \examples{
 tmp <- ProjectStructure$new("./test_project",
@@ -28,45 +26,46 @@ unlink("./test_project", recursive = TRUE)
 
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{outpath}}{path}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{outpath}}{path}
 
-\item{\code{qc_dir}}{qc results directory name}
+    \item{\code{qc_dir}}{qc results directory name}
 
-\item{\code{modelling_dir}}{modeling results directory name}
+    \item{\code{modelling_dir}}{modeling results directory name}
 
-\item{\code{project_Id}}{project_Id}
+    \item{\code{project_Id}}{project_Id}
 
-\item{\code{order_Id}}{order_Id}
+    \item{\code{order_Id}}{order_Id}
 
-\item{\code{workunit_Id}}{workunit_Id}
+    \item{\code{workunit_Id}}{workunit_Id}
 
-\item{\code{inputData}}{inputFile}
+    \item{\code{inputData}}{inputFile}
 
-\item{\code{inputAnnotation}}{inputAnnotation xlsx}
-}
-\if{html}{\out{</div>}}
+    \item{\code{inputAnnotation}}{inputAnnotation xlsx}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ProjectStructure-new}{\code{ProjectStructure$new()}}
-\item \href{#method-ProjectStructure-create_outpath}{\code{ProjectStructure$create_outpath()}}
-\item \href{#method-ProjectStructure-qc_path}{\code{ProjectStructure$qc_path()}}
-\item \href{#method-ProjectStructure-modelling_path}{\code{ProjectStructure$modelling_path()}}
-\item \href{#method-ProjectStructure-create}{\code{ProjectStructure$create()}}
-\item \href{#method-ProjectStructure-reset}{\code{ProjectStructure$reset()}}
-\item \href{#method-ProjectStructure-clone}{\code{ProjectStructure$clone()}}
-}
+  \itemize{
+    \item \href{#method-ProjectStructure-initialize}{\code{ProjectStructure$new()}}
+    \item \href{#method-ProjectStructure-create_outpath}{\code{ProjectStructure$create_outpath()}}
+    \item \href{#method-ProjectStructure-qc_path}{\code{ProjectStructure$qc_path()}}
+    \item \href{#method-ProjectStructure-modelling_path}{\code{ProjectStructure$modelling_path()}}
+    \item \href{#method-ProjectStructure-create}{\code{ProjectStructure$create()}}
+    \item \href{#method-ProjectStructure-reset}{\code{ProjectStructure$reset()}}
+    \item \href{#method-ProjectStructure-clone}{\code{ProjectStructure$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ProjectStructure-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ProjectStructure-new}{}}}
-\subsection{Method \code{new()}}{
-create ProjectStructure
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProjectStructure$new(
+\if{html}{\out{<a id="method-ProjectStructure-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ProjectStructure-initialize}{}}}
+\subsection{\code{ProjectStructure$new()}}{
+  create ProjectStructure
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProjectStructure$new(
   outpath,
   project_Id,
   order_Id,
@@ -75,110 +74,116 @@ create ProjectStructure
   inputData,
   qc_dir = "qc_results",
   modelling_dir = "modelling_results"
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{outpath}}{directory}
+      \item{\code{project_Id}}{bfabric project ID}
+      \item{\code{order_Id}}{bfabric order_Id}
+      \item{\code{workunit_Id}}{bfabric workunit_Id}
+      \item{\code{inputAnnotation}}{input annotation path}
+      \item{\code{inputData}}{input data path}
+      \item{\code{qc_dir}}{qc folder}
+      \item{\code{modelling_dir}}{modelling results folder}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{outpath}}{directory}
-
-\item{\code{project_Id}}{bfabric project ID}
-
-\item{\code{order_Id}}{bfabric order_Id}
-
-\item{\code{workunit_Id}}{bfabric workunit_Id}
-
-\item{\code{inputAnnotation}}{input annotation path}
-
-\item{\code{inputData}}{input data path}
-
-\item{\code{qc_dir}}{qc folder}
-
-\item{\code{modelling_dir}}{modelling results folder}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProjectStructure-create_outpath"></a>}}
 \if{latex}{\out{\hypertarget{method-ProjectStructure-create_outpath}{}}}
-\subsection{Method \code{create_outpath()}}{
-create outpath
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProjectStructure$create_outpath()}\if{html}{\out{</div>}}
+\subsection{\code{ProjectStructure$create_outpath()}}{
+  create outpath
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProjectStructure$create_outpath()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProjectStructure-qc_path"></a>}}
 \if{latex}{\out{\hypertarget{method-ProjectStructure-qc_path}{}}}
-\subsection{Method \code{qc_path()}}{
-create qc dir
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProjectStructure$qc_path(qc_dir)}\if{html}{\out{</div>}}
+\subsection{\code{ProjectStructure$qc_path()}}{
+  create qc dir
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProjectStructure$qc_path(qc_dir)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{qc_dir}}{QC directory}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{qc_dir}}{QC directory}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProjectStructure-modelling_path"></a>}}
 \if{latex}{\out{\hypertarget{method-ProjectStructure-modelling_path}{}}}
-\subsection{Method \code{modelling_path()}}{
-create modelling path
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProjectStructure$modelling_path(modelling_dir)}\if{html}{\out{</div>}}
+\subsection{\code{ProjectStructure$modelling_path()}}{
+  create modelling path
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProjectStructure$modelling_path(modelling_dir)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{modelling_dir}}{directory with modelling data}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{modelling_dir}}{directory with modelling data}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProjectStructure-create"></a>}}
 \if{latex}{\out{\hypertarget{method-ProjectStructure-create}{}}}
-\subsection{Method \code{create()}}{
-create all directories
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProjectStructure$create()}\if{html}{\out{</div>}}
+\subsection{\code{ProjectStructure$create()}}{
+  create all directories
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProjectStructure$create()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProjectStructure-reset"></a>}}
 \if{latex}{\out{\hypertarget{method-ProjectStructure-reset}{}}}
-\subsection{Method \code{reset()}}{
-empty modelling_path and qc_path folder.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProjectStructure$reset()}\if{html}{\out{</div>}}
+\subsection{\code{ProjectStructure$reset()}}{
+  empty modelling_path and qc_path folder.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProjectStructure$reset()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProjectStructure-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ProjectStructure-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProjectStructure$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ProjectStructure$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProjectStructure$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

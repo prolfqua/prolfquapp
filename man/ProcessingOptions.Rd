@@ -5,108 +5,109 @@
 \title{processing options R6 class}
 \description{
 processing options R6 class
-
-processing options R6 class
 }
 \seealso{
-Other ProlfquAppConfig: 
+Other ProlfquAppConfig:
 \code{\link{ExternalReader}},
 \code{\link{ProjectSpec}},
 \code{\link{ProlfquAppConfig}},
-\code{\link{make_DEA_config_R6}()},
-\code{\link{set_list_to_R6}()}
+\code{\link[=make_DEA_config_R6]{make_DEA_config_R6()}},
+\code{\link[=set_list_to_R6]{set_list_to_R6()}}
 }
 \concept{ProlfquAppConfig}
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{transform}}{data transformation method}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{transform}}{data transformation method}
 
-\item{\code{aggregate}}{protein abundance estimation method}
+    \item{\code{aggregate}}{protein abundance estimation method}
 
-\item{\code{diff_threshold}}{difference threshold}
+    \item{\code{diff_threshold}}{difference threshold}
 
-\item{\code{FDR_threshold}}{FDR threshold}
+    \item{\code{FDR_threshold}}{FDR threshold}
 
-\item{\code{remove_cont}}{should contaminants be removed}
+    \item{\code{remove_cont}}{should contaminants be removed}
 
-\item{\code{remove_decoys}}{should decoys be removed}
+    \item{\code{remove_decoys}}{should decoys be removed}
 
-\item{\code{pattern_decoys}}{decoy patterns}
+    \item{\code{pattern_decoys}}{decoy patterns}
 
-\item{\code{pattern_contaminants}}{pattern contaminants}
+    \item{\code{pattern_contaminants}}{pattern contaminants}
 
-\item{\code{nr_peptides}}{number of peptides}
+    \item{\code{nr_peptides}}{number of peptides}
 
-\item{\code{interaction}}{model with interactions default FALSE}
+    \item{\code{interaction}}{model with interactions default FALSE}
 
-\item{\code{model_missing}}{model missigness, default TRUE}
+    \item{\code{model_missing}}{model missigness, default TRUE}
 
-\item{\code{model}}{facade registry key for contrast analysis.
+    \item{\code{model}}{facade registry key for contrast analysis.
 Valid keys include prolfqua facade keys such as lm,
 lm_impute, limma, limma_impute, rlm, deqms, firth, lmer_nested,
 ropeca_nested, plus the prolfquasaint-backed key saint.
 Default "lm_impute".}
 
-\item{\code{other}}{list with additional options}
+    \item{\code{other}}{list with additional options}
 
-\item{\code{internal}}{protein IDs for internal standard normalization
+    \item{\code{internal}}{protein IDs for internal standard normalization
 e.g. `internal: [P01876, P02768]`
 After transformation, intensities are centered relative to these proteins.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ProcessingOptions-parameters_table}{\code{ProcessingOptions$parameters_table()}}
-\item \href{#method-ProcessingOptions-clone}{\code{ProcessingOptions$clone()}}
-}
+  \itemize{
+    \item \href{#method-ProcessingOptions-parameters_table}{\code{ProcessingOptions$parameters_table()}}
+    \item \href{#method-ProcessingOptions-clone}{\code{ProcessingOptions$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProcessingOptions-parameters_table"></a>}}
 \if{latex}{\out{\hypertarget{method-ProcessingOptions-parameters_table}{}}}
-\subsection{Method \code{parameters_table()}}{
-Render the processing options as a two-column data frame for reporting.
+\subsection{\code{ProcessingOptions$parameters_table()}}{
+  Render the processing options as a two-column data frame for reporting.
 
 Contaminant and decoy rows describe what the pipeline actually does:
 contaminants are always kept and flagged, and decoys are dropped before
 the model fit only when `pattern_decoys` is set (the `remove_cont` /
 `remove_decoys` fields are not consulted by the pipeline).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProcessingOptions$parameters_table(software = NULL, model = self$model)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{software}}{quantification software; `ProcessingOptions` does not
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProcessingOptions$parameters_table(software = NULL, model = self$model)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{software}}{quantification software; `ProcessingOptions` does not
 carry it, so the caller passes it (omitted from the table when NULL).}
-
-\item{\code{model}}{contrast facade actually used. Defaults to `self$model`;
+      \item{\code{model}}{contrast facade actually used. Defaults to `self$model`;
 pass the resolved facade when `model_missing` may have changed it.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a data frame with columns `Parameter` and `Value`
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-a data frame with columns `Parameter` and `Value`
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProcessingOptions-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ProcessingOptions-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProcessingOptions$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ProcessingOptions$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProcessingOptions$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

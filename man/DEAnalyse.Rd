@@ -4,11 +4,6 @@
 \alias{DEAnalyse}
 \title{Differential expression analysis engine using prolfqua facade classes}
 \description{
-Differential expression analysis engine using prolfqua facade classes
-
-Differential expression analysis engine using prolfqua facade classes
-}
-\details{
 Takes prepared LFQData (at the correct hierarchy level for the chosen facade)
 and runs statistical modelling via prolfqua's ContrastsFacade classes
 or the prolfquasaint SAINTexpress adapter.
@@ -40,54 +35,55 @@ stopifnot(nrow(deanalyse$contrast_results[[deanalyse$default_model]]$get_contras
 
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{prolfq_app_config}}{ProlfquAppConfig}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{prolfq_app_config}}{ProlfquAppConfig}
 
-\item{\code{lfq_data}}{LFQData to model (transformed, at correct hierarchy level)}
+    \item{\code{lfq_data}}{LFQData to model (transformed, at correct hierarchy level)}
 
-\item{\code{lfq_data_raw}}{raw (untransformed) LFQData for reporting}
+    \item{\code{lfq_data_raw}}{raw (untransformed) LFQData for reporting}
 
-\item{\code{rowAnnot}}{ProteinAnnotation}
+    \item{\code{rowAnnot}}{ProteinAnnotation}
 
-\item{\code{contrasts}}{vector with contrasts}
+    \item{\code{contrasts}}{vector with contrasts}
 
-\item{\code{FDR_threshold}}{FDR threshold}
+    \item{\code{FDR_threshold}}{FDR threshold}
 
-\item{\code{diff_threshold}}{difference threshold}
+    \item{\code{diff_threshold}}{difference threshold}
 
-\item{\code{summary}}{data.frame with contaminant/decoy summary}
+    \item{\code{summary}}{data.frame with contaminant/decoy summary}
 
-\item{\code{annotated_contrasts}}{contrasts joined with row annotations}
+    \item{\code{annotated_contrasts}}{contrasts joined with row annotations}
 
-\item{\code{annotated_contrasts_signif}}{significant annotated contrasts}
+    \item{\code{annotated_contrasts_signif}}{significant annotated contrasts}
 
-\item{\code{formula}}{model formula}
+    \item{\code{formula}}{model formula}
 
-\item{\code{contrast_results}}{named list of facade objects}
+    \item{\code{contrast_results}}{named list of facade objects}
 
-\item{\code{default_model}}{facade registry key for the default model}
-}
-\if{html}{\out{</div>}}
+    \item{\code{default_model}}{facade registry key for the default model}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DEAnalyse-new}{\code{DEAnalyse$new()}}
-\item \href{#method-DEAnalyse-build_facade}{\code{DEAnalyse$build_facade()}}
-\item \href{#method-DEAnalyse-build_default}{\code{DEAnalyse$build_default()}}
-\item \href{#method-DEAnalyse-get_annotated_contrasts}{\code{DEAnalyse$get_annotated_contrasts()}}
-\item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
-\item \href{#method-DEAnalyse-clone}{\code{DEAnalyse$clone()}}
-}
+  \itemize{
+    \item \href{#method-DEAnalyse-initialize}{\code{DEAnalyse$new()}}
+    \item \href{#method-DEAnalyse-build_facade}{\code{DEAnalyse$build_facade()}}
+    \item \href{#method-DEAnalyse-build_default}{\code{DEAnalyse$build_default()}}
+    \item \href{#method-DEAnalyse-get_annotated_contrasts}{\code{DEAnalyse$get_annotated_contrasts()}}
+    \item \href{#method-DEAnalyse-filter_contrasts}{\code{DEAnalyse$filter_contrasts()}}
+    \item \href{#method-DEAnalyse-clone}{\code{DEAnalyse$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAnalyse-new"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAnalyse-new}{}}}
-\subsection{Method \code{new()}}{
-Initialize DEAnalyse
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$new(
+\if{html}{\out{<a id="method-DEAnalyse-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAnalyse-initialize}{}}}
+\subsection{\code{DEAnalyse$new()}}{
+  Initialize DEAnalyse
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAnalyse$new(
   lfq_data,
   rowAnnot,
   prolfq_app_config,
@@ -95,102 +91,106 @@ Initialize DEAnalyse
   default_model = "lm_impute",
   lfq_data_raw = NULL,
   summary = NULL
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{lfq_data}}{LFQData to model (transformed, at correct hierarchy level)}
+      \item{\code{rowAnnot}}{ProteinAnnotation object}
+      \item{\code{prolfq_app_config}}{ProlfquAppConfig object}
+      \item{\code{contrasts}}{named vector of contrast definitions}
+      \item{\code{default_model}}{facade registry key (default "lm_impute")}
+      \item{\code{lfq_data_raw}}{raw (untransformed) LFQData for reporting (optional)}
+      \item{\code{summary}}{data.frame with contaminant/decoy summary (optional)}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{lfq_data}}{LFQData to model (transformed, at correct hierarchy level)}
-
-\item{\code{rowAnnot}}{ProteinAnnotation object}
-
-\item{\code{prolfq_app_config}}{ProlfquAppConfig object}
-
-\item{\code{contrasts}}{named vector of contrast definitions}
-
-\item{\code{default_model}}{facade registry key (default "lm_impute")}
-
-\item{\code{lfq_data_raw}}{raw (untransformed) LFQData for reporting (optional)}
-
-\item{\code{summary}}{data.frame with contaminant/decoy summary (optional)}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-build_facade"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-build_facade}{}}}
-\subsection{Method \code{build_facade()}}{
-Build a facade by registry key via \code{prolfqua::lookup_facade()}, so
+\subsection{\code{DEAnalyse$build_facade()}}{
+  Build a facade by registry key via \code{prolfqua::lookup_facade()}, so
 facades registered by downstream packages (e.g. \code{"saint"}) work
 like the built-in ones. Backends with \code{needs_saint_annotation = TRUE}
 receive \code{row_annot} from \code{self$rowAnnot}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_facade(name, modelstr = NULL)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAnalyse$build_facade(name, modelstr = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{name}}{facade registry key (e.g. "lm", "lm_impute", "limma", "saint")}
+      \item{\code{modelstr}}{model formula string; auto-generated if NULL, ignored by SAINT-style backends}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    the facade object (invisibly)
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{name}}{facade registry key (e.g. "lm", "lm_impute", "limma", "saint")}
-
-\item{\code{modelstr}}{model formula string; auto-generated if NULL, ignored by SAINT-style backends}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-the facade object (invisibly)
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-build_default"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-build_default}{}}}
-\subsection{Method \code{build_default()}}{
-Build the default facade (as set in default_model)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$build_default()}\if{html}{\out{</div>}}
+\subsection{\code{DEAnalyse$build_default()}}{
+  Build the default facade (as set in default_model)
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAnalyse$build_default()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-get_annotated_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-get_annotated_contrasts}{}}}
-\subsection{Method \code{get_annotated_contrasts()}}{
-Join default-model contrasts, and those passing \code{filter_contrasts()},
+\subsection{\code{DEAnalyse$get_annotated_contrasts()}}{
+  Join default-model contrasts, and those passing \code{filter_contrasts()},
 with protein row annotations.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$get_annotated_contrasts()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAnalyse$get_annotated_contrasts()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-filter_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-filter_contrasts}{}}}
-\subsection{Method \code{filter_contrasts()}}{
-Return contrast rows passing FDR and difference thresholds, as given by
+\subsection{\code{DEAnalyse$filter_contrasts()}}{
+  Return contrast rows passing FDR and difference thresholds, as given by
 the contrast object's \code{filter_significant()} (one-sided for
 directional backends such as SAINT).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$filter_contrasts()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAnalyse$filter_contrasts()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAnalyse-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAnalyse-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAnalyse$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{DEAnalyse$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAnalyse$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

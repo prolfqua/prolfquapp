@@ -5,8 +5,6 @@
 \title{Decorates LFQData with a row annotation and some protein specific functions.}
 \description{
 Decorates LFQData with a row annotation and some protein specific functions.
-
-Decorates LFQData with a row annotation and some protein specific functions.
 }
 \examples{
 
@@ -57,47 +55,48 @@ stopifnot(nrow(dx2) >= nrow(dx3))
 }
 \concept{LFQData}
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{row_annot}}{data.frame containing further information}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{row_annot}}{data.frame containing further information}
 
-\item{\code{pID}}{key column(s) of the annotation: the protein id, plus the
+    \item{\code{pID}}{key column(s) of the annotation: the protein id, plus the
 site id when the annotation describes sites}
 
-\item{\code{full_id}}{column with protein id e.g. sp| can be same as pID}
+    \item{\code{full_id}}{column with protein id e.g. sp| can be same as pID}
 
-\item{\code{description}}{name of column containing descriptions}
+    \item{\code{description}}{name of column containing descriptions}
 
-\item{\code{cleaned_ids}}{vector with columns containing addition IDs}
+    \item{\code{cleaned_ids}}{vector with columns containing addition IDs}
 
-\item{\code{exp_nr_children}}{name of columns with the number of peptides}
+    \item{\code{exp_nr_children}}{name of columns with the number of peptides}
 
-\item{\code{pattern_contaminants}}{pattern_contaminants}
+    \item{\code{pattern_contaminants}}{pattern_contaminants}
 
-\item{\code{pattern_decoys}}{pattern_decoys}
-}
-\if{html}{\out{</div>}}
+    \item{\code{pattern_decoys}}{pattern_decoys}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ProteinAnnotation-new}{\code{ProteinAnnotation$new()}}
-\item \href{#method-ProteinAnnotation-get_rev_pattern}{\code{ProteinAnnotation$get_rev_pattern()}}
-\item \href{#method-ProteinAnnotation-annotate_contaminants}{\code{ProteinAnnotation$annotate_contaminants()}}
-\item \href{#method-ProteinAnnotation-get_summary}{\code{ProteinAnnotation$get_summary()}}
-\item \href{#method-ProteinAnnotation-nr_clean}{\code{ProteinAnnotation$nr_clean()}}
-\item \href{#method-ProteinAnnotation-clean}{\code{ProteinAnnotation$clean()}}
-\item \href{#method-ProteinAnnotation-filter_by_nr_children}{\code{ProteinAnnotation$filter_by_nr_children()}}
-\item \href{#method-ProteinAnnotation-clone}{\code{ProteinAnnotation$clone()}}
-}
+  \itemize{
+    \item \href{#method-ProteinAnnotation-initialize}{\code{ProteinAnnotation$new()}}
+    \item \href{#method-ProteinAnnotation-get_rev_pattern}{\code{ProteinAnnotation$get_rev_pattern()}}
+    \item \href{#method-ProteinAnnotation-annotate_contaminants}{\code{ProteinAnnotation$annotate_contaminants()}}
+    \item \href{#method-ProteinAnnotation-get_summary}{\code{ProteinAnnotation$get_summary()}}
+    \item \href{#method-ProteinAnnotation-nr_clean}{\code{ProteinAnnotation$nr_clean()}}
+    \item \href{#method-ProteinAnnotation-clean}{\code{ProteinAnnotation$clean()}}
+    \item \href{#method-ProteinAnnotation-filter_by_nr_children}{\code{ProteinAnnotation$filter_by_nr_children()}}
+    \item \href{#method-ProteinAnnotation-clone}{\code{ProteinAnnotation$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ProteinAnnotation-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ProteinAnnotation-new}{}}}
-\subsection{Method \code{new()}}{
-initialize
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$new(
+\if{html}{\out{<a id="method-ProteinAnnotation-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ProteinAnnotation-initialize}{}}}
+\subsection{\code{ProteinAnnotation$new()}}{
+  initialize
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinAnnotation$new(
   lfqdata,
   row_annot = NULL,
   description = NULL,
@@ -106,134 +105,142 @@ initialize
   exp_nr_children = "nrPeptides",
   pattern_contaminants = NULL,
   pattern_decoys = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{lfqdata}}{data frame from \code{\link[prolfqua]{setup_analysis}}}
-
-\item{\code{row_annot}}{data frame with row annotation. Must carry the
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{lfqdata}}{data frame from \code{\link[prolfqua]{setup_analysis}}}
+      \item{\code{row_annot}}{data frame with row annotation. Must carry the
 protein-id column; when it also carries a deeper hierarchy key such
 as \code{site}, the annotation is taken to describe rows at that
 level and stays one row per key combination.}
-
-\item{\code{description}}{name of column with description}
-
-\item{\code{cleaned_ids}}{names of columns with cleaned Ids}
-
-\item{\code{full_id}}{column with full protein ID}
-
-\item{\code{exp_nr_children}}{column with the number of children}
-
-\item{\code{pattern_contaminants}}{pattern_contaminants}
-
-\item{\code{pattern_decoys}}{pattern_decoys}
+      \item{\code{description}}{name of column with description}
+      \item{\code{cleaned_ids}}{names of columns with cleaned Ids}
+      \item{\code{full_id}}{column with full protein ID}
+      \item{\code{exp_nr_children}}{column with the number of children}
+      \item{\code{pattern_contaminants}}{pattern_contaminants}
+      \item{\code{pattern_decoys}}{pattern_decoys}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinAnnotation-get_rev_pattern"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-get_rev_pattern}{}}}
-\subsection{Method \code{get_rev_pattern()}}{
-configured decoy pattern, or NULL when none was set
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$get_rev_pattern()}\if{html}{\out{</div>}}
+\subsection{\code{ProteinAnnotation$get_rev_pattern()}}{
+  configured decoy pattern, or NULL when none was set
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinAnnotation$get_rev_pattern()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinAnnotation-annotate_contaminants"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-annotate_contaminants}{}}}
-\subsection{Method \code{annotate_contaminants()}}{
-annotate contaminants
+\subsection{\code{ProteinAnnotation$annotate_contaminants()}}{
+  annotate contaminants
 
 Sets the logical \code{CON} column via \code{prolfqua::is_contaminant},
 the same detector the quant layer uses.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$annotate_contaminants()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinAnnotation$annotate_contaminants()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinAnnotation-get_summary"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-get_summary}{}}}
-\subsection{Method \code{get_summary()}}{
-get summary (contaminants only; decoys are removed at construction)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$get_summary()}\if{html}{\out{</div>}}
+\subsection{\code{ProteinAnnotation$get_summary()}}{
+  get summary (contaminants only; decoys are removed at construction)
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinAnnotation$get_summary()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinAnnotation-nr_clean"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-nr_clean}{}}}
-\subsection{Method \code{nr_clean()}}{
-number of proteins kept after \code{clean()}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$nr_clean(contaminants = TRUE)}\if{html}{\out{</div>}}
+\subsection{\code{ProteinAnnotation$nr_clean()}}{
+  number of proteins kept after \code{clean()}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinAnnotation$nr_clean(contaminants = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{contaminants}}{remove contaminants}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{contaminants}}{remove contaminants}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinAnnotation-clean"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-clean}{}}}
-\subsection{Method \code{clean()}}{
-remove contaminants (always) and, when a decoy pattern was configured,
+\subsection{\code{ProteinAnnotation$clean()}}{
+  remove contaminants (always) and, when a decoy pattern was configured,
 decoy proteins from the annotation
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$clean(contaminants = TRUE)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinAnnotation$clean(contaminants = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{contaminants}}{remove contaminants}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{contaminants}}{remove contaminants}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinAnnotation-filter_by_nr_children"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-filter_by_nr_children}{}}}
-\subsection{Method \code{filter_by_nr_children()}}{
-filter by number children
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$filter_by_nr_children(exp_nr_children = 2)}\if{html}{\out{</div>}}
+\subsection{\code{ProteinAnnotation$filter_by_nr_children()}}{
+  filter by number children
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinAnnotation$filter_by_nr_children(exp_nr_children = 2)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{exp_nr_children}}{minimum number of children required}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{exp_nr_children}}{minimum number of children required}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProteinAnnotation-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ProteinAnnotation-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProteinAnnotation$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ProteinAnnotation$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProteinAnnotation$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

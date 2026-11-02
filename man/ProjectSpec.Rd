@@ -5,54 +5,54 @@
 \title{project specification R6 class}
 \description{
 project specification R6 class
-
-project specification R6 class
 }
 \seealso{
-Other ProlfquAppConfig: 
+Other ProlfquAppConfig:
 \code{\link{ExternalReader}},
 \code{\link{ProcessingOptions}},
 \code{\link{ProlfquAppConfig}},
-\code{\link{make_DEA_config_R6}()},
-\code{\link{set_list_to_R6}()}
+\code{\link[=make_DEA_config_R6]{make_DEA_config_R6()}},
+\code{\link[=set_list_to_R6]{set_list_to_R6()}}
 }
 \concept{ProlfquAppConfig}
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{project_Id}}{project ID}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{project_Id}}{project ID}
 
-\item{\code{project_name}}{project name}
+    \item{\code{project_name}}{project name}
 
-\item{\code{order_Id}}{order ID}
+    \item{\code{order_Id}}{order ID}
 
-\item{\code{workunit_Id}}{workunit ID}
+    \item{\code{workunit_Id}}{workunit ID}
 
-\item{\code{input_URL}}{input URL}
-}
-\if{html}{\out{</div>}}
+    \item{\code{input_URL}}{input URL}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ProjectSpec-clone}{\code{ProjectSpec$clone()}}
-}
+  \itemize{
+    \item \href{#method-ProjectSpec-clone}{\code{ProjectSpec$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProjectSpec-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ProjectSpec-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProjectSpec$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ProjectSpec$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProjectSpec$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

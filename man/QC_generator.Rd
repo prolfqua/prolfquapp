@@ -5,362 +5,404 @@
 \title{QC_generator}
 \description{
 QC_generator
-
-QC_generator
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{lfqdata}}{lfqdata}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{lfqdata}}{lfqdata}
 
-\item{\code{lfqdata_prot}}{lfqdata_prot}
+    \item{\code{lfqdata_prot}}{lfqdata_prot}
 
-\item{\code{lfqdata_prot_IBAQ}}{lfqdata_prot_IBAQ}
+    \item{\code{lfqdata_prot_IBAQ}}{lfqdata_prot_IBAQ}
 
-\item{\code{lfqdata_prot_transformed}}{lfqdata_prot_transformed (VSN normalized)}
+    \item{\code{lfqdata_prot_transformed}}{lfqdata_prot_transformed (VSN normalized)}
 
-\item{\code{protein_annotation}}{protein_annotation}
+    \item{\code{protein_annotation}}{protein_annotation}
 
-\item{\code{lfqdata_peptide}}{lfqdata_peptide}
+    \item{\code{lfqdata_peptide}}{lfqdata_peptide}
 
-\item{\code{lfqdata_peptide_transformed}}{lfqdata_peptide_transformed (VSN normalized)}
+    \item{\code{lfqdata_peptide_transformed}}{lfqdata_peptide_transformed (VSN normalized)}
 
-\item{\code{output_dir}}{output_dir}
+    \item{\code{output_dir}}{output_dir}
 
-\item{\code{GRP2}}{GRP2}
+    \item{\code{GRP2}}{GRP2}
 
-\item{\code{TABLES2WRITE}}{TABLES2WRITE}
+    \item{\code{TABLES2WRITE}}{TABLES2WRITE}
 
-\item{\code{links}}{links}
-}
-\if{html}{\out{</div>}}
+    \item{\code{links}}{links}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-QC_generator-new}{\code{QC_generator$new()}}
-\item \href{#method-QC_generator-get_peptides_wide}{\code{QC_generator$get_peptides_wide()}}
-\item \href{#method-QC_generator-get_peptides_transformed}{\code{QC_generator$get_peptides_transformed()}}
-\item \href{#method-QC_generator-get_peptides_transformed_wide}{\code{QC_generator$get_peptides_transformed_wide()}}
-\item \href{#method-QC_generator-get_annotation}{\code{QC_generator$get_annotation()}}
-\item \href{#method-QC_generator-get_prot_data}{\code{QC_generator$get_prot_data()}}
-\item \href{#method-QC_generator-get_prot_wide}{\code{QC_generator$get_prot_wide()}}
-\item \href{#method-QC_generator-get_prot_transformed}{\code{QC_generator$get_prot_transformed()}}
-\item \href{#method-QC_generator-get_prot_transformed_wide}{\code{QC_generator$get_prot_transformed_wide()}}
-\item \href{#method-QC_generator-get_prot_IBAQ}{\code{QC_generator$get_prot_IBAQ()}}
-\item \href{#method-QC_generator-get_protein_per_group_abundance}{\code{QC_generator$get_protein_per_group_abundance()}}
-\item \href{#method-QC_generator-get_protein_per_group_abundance_with_row_annot}{\code{QC_generator$get_protein_per_group_abundance_with_row_annot()}}
-\item \href{#method-QC_generator-get_protein_per_group_abundance_wide}{\code{QC_generator$get_protein_per_group_abundance_wide()}}
-\item \href{#method-QC_generator-get_prot_IBAQ_wide}{\code{QC_generator$get_prot_IBAQ_wide()}}
-\item \href{#method-QC_generator-get_list}{\code{QC_generator$get_list()}}
-\item \href{#method-QC_generator-write_xlsx}{\code{QC_generator$write_xlsx()}}
-\item \href{#method-QC_generator-copy_dataset}{\code{QC_generator$copy_dataset()}}
-\item \href{#method-QC_generator-render_QC_protein_abundances}{\code{QC_generator$render_QC_protein_abundances()}}
-\item \href{#method-QC_generator-render_sample_size_QC}{\code{QC_generator$render_sample_size_QC()}}
-\item \href{#method-QC_generator-render_index_html}{\code{QC_generator$render_index_html()}}
-\item \href{#method-QC_generator-render_index_md}{\code{QC_generator$render_index_md()}}
-\item \href{#method-QC_generator-get_protein_per_group_small_wide}{\code{QC_generator$get_protein_per_group_small_wide()}}
-\item \href{#method-QC_generator-clone}{\code{QC_generator$clone()}}
-}
+  \itemize{
+    \item \href{#method-QC_generator-initialize}{\code{QC_generator$new()}}
+    \item \href{#method-QC_generator-get_peptides_wide}{\code{QC_generator$get_peptides_wide()}}
+    \item \href{#method-QC_generator-get_peptides_transformed}{\code{QC_generator$get_peptides_transformed()}}
+    \item \href{#method-QC_generator-get_peptides_transformed_wide}{\code{QC_generator$get_peptides_transformed_wide()}}
+    \item \href{#method-QC_generator-get_annotation}{\code{QC_generator$get_annotation()}}
+    \item \href{#method-QC_generator-get_prot_data}{\code{QC_generator$get_prot_data()}}
+    \item \href{#method-QC_generator-get_prot_wide}{\code{QC_generator$get_prot_wide()}}
+    \item \href{#method-QC_generator-get_prot_transformed}{\code{QC_generator$get_prot_transformed()}}
+    \item \href{#method-QC_generator-get_prot_transformed_wide}{\code{QC_generator$get_prot_transformed_wide()}}
+    \item \href{#method-QC_generator-get_prot_IBAQ}{\code{QC_generator$get_prot_IBAQ()}}
+    \item \href{#method-QC_generator-get_protein_per_group_abundance}{\code{QC_generator$get_protein_per_group_abundance()}}
+    \item \href{#method-QC_generator-get_protein_per_group_abundance_with_row_annot}{\code{QC_generator$get_protein_per_group_abundance_with_row_annot()}}
+    \item \href{#method-QC_generator-get_protein_per_group_abundance_wide}{\code{QC_generator$get_protein_per_group_abundance_wide()}}
+    \item \href{#method-QC_generator-get_prot_IBAQ_wide}{\code{QC_generator$get_prot_IBAQ_wide()}}
+    \item \href{#method-QC_generator-get_list}{\code{QC_generator$get_list()}}
+    \item \href{#method-QC_generator-write_xlsx}{\code{QC_generator$write_xlsx()}}
+    \item \href{#method-QC_generator-copy_dataset}{\code{QC_generator$copy_dataset()}}
+    \item \href{#method-QC_generator-render_QC_protein_abundances}{\code{QC_generator$render_QC_protein_abundances()}}
+    \item \href{#method-QC_generator-render_sample_size_QC}{\code{QC_generator$render_sample_size_QC()}}
+    \item \href{#method-QC_generator-render_index_html}{\code{QC_generator$render_index_html()}}
+    \item \href{#method-QC_generator-render_index_md}{\code{QC_generator$render_index_md()}}
+    \item \href{#method-QC_generator-get_protein_per_group_small_wide}{\code{QC_generator$get_protein_per_group_small_wide()}}
+    \item \href{#method-QC_generator-clone}{\code{QC_generator$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-QC_generator-new"></a>}}
-\if{latex}{\out{\hypertarget{method-QC_generator-new}{}}}
-\subsection{Method \code{new()}}{
-initialize
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$new(lfqdata, protein_annotation, prolfquapp_config)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-QC_generator-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-QC_generator-initialize}{}}}
+\subsection{\code{QC_generator$new()}}{
+  initialize
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$new(lfqdata, protein_annotation, prolfquapp_config)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{lfqdata}}{LFQData object}
+      \item{\code{protein_annotation}}{ProteinAnnotation object}
+      \item{\code{prolfquapp_config}}{ProlfquAppConfig object}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{lfqdata}}{LFQData object}
-
-\item{\code{protein_annotation}}{ProteinAnnotation object}
-
-\item{\code{prolfquapp_config}}{ProlfquAppConfig object}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_peptides_wide"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_peptides_wide}{}}}
-\subsection{Method \code{get_peptides_wide()}}{
-get peptides in wide format
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_peptides_wide()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_peptides_wide()}}{
+  get peptides in wide format
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_peptides_wide()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    peptide data in wide format
+  }
 }
 
-\subsection{Returns}{
-peptide data in wide format
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_peptides_transformed"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_peptides_transformed}{}}}
-\subsection{Method \code{get_peptides_transformed()}}{
-get VSN-transformed peptide data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_peptides_transformed()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_peptides_transformed()}}{
+  get VSN-transformed peptide data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_peptides_transformed()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    VSN-transformed peptide LFQData
+  }
 }
 
-\subsection{Returns}{
-VSN-transformed peptide LFQData
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_peptides_transformed_wide"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_peptides_transformed_wide}{}}}
-\subsection{Method \code{get_peptides_transformed_wide()}}{
-get VSN-transformed peptide data in wide format
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_peptides_transformed_wide()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_peptides_transformed_wide()}}{
+  get VSN-transformed peptide data in wide format
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_peptides_transformed_wide()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    VSN-transformed peptide data in wide format
+  }
 }
 
-\subsection{Returns}{
-VSN-transformed peptide data in wide format
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_annotation"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_annotation}{}}}
-\subsection{Method \code{get_annotation()}}{
-get annotation data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_annotation()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_annotation()}}{
+  get annotation data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_annotation()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    annotation data.frame
+  }
 }
 
-\subsection{Returns}{
-annotation data.frame
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_prot_data"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_prot_data}{}}}
-\subsection{Method \code{get_prot_data()}}{
-get protein data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_prot_data()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_prot_data()}}{
+  get protein data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_prot_data()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    protein LFQData
+  }
 }
 
-\subsection{Returns}{
-protein LFQData
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_prot_wide"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_prot_wide}{}}}
-\subsection{Method \code{get_prot_wide()}}{
-get protein data in wide format
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_prot_wide()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_prot_wide()}}{
+  get protein data in wide format
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_prot_wide()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    protein data in wide format
+  }
 }
 
-\subsection{Returns}{
-protein data in wide format
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_prot_transformed"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_prot_transformed}{}}}
-\subsection{Method \code{get_prot_transformed()}}{
-get VSN-transformed protein data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_prot_transformed()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_prot_transformed()}}{
+  get VSN-transformed protein data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_prot_transformed()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    VSN-transformed protein LFQData
+  }
 }
 
-\subsection{Returns}{
-VSN-transformed protein LFQData
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_prot_transformed_wide"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_prot_transformed_wide}{}}}
-\subsection{Method \code{get_prot_transformed_wide()}}{
-get VSN-transformed protein data in wide format
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_prot_transformed_wide()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_prot_transformed_wide()}}{
+  get VSN-transformed protein data in wide format
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_prot_transformed_wide()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    VSN-transformed protein data in wide format
+  }
 }
 
-\subsection{Returns}{
-VSN-transformed protein data in wide format
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_prot_IBAQ"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_prot_IBAQ}{}}}
-\subsection{Method \code{get_prot_IBAQ()}}{
-get IBAQ protein data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_prot_IBAQ()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_prot_IBAQ()}}{
+  get IBAQ protein data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_prot_IBAQ()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    IBAQ protein LFQData
+  }
 }
 
-\subsection{Returns}{
-IBAQ protein LFQData
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_protein_per_group_abundance"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_protein_per_group_abundance}{}}}
-\subsection{Method \code{get_protein_per_group_abundance()}}{
-get protein abundance per group
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_protein_per_group_abundance()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_protein_per_group_abundance()}}{
+  get protein abundance per group
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_protein_per_group_abundance()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    protein abundance per group
+  }
 }
 
-\subsection{Returns}{
-protein abundance per group
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_protein_per_group_abundance_with_row_annot"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_protein_per_group_abundance_with_row_annot}{}}}
-\subsection{Method \code{get_protein_per_group_abundance_with_row_annot()}}{
-get protein abundance per group with row annotation
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_protein_per_group_abundance_with_row_annot()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_protein_per_group_abundance_with_row_annot()}}{
+  get protein abundance per group with row annotation
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_protein_per_group_abundance_with_row_annot()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    protein abundance per group with annotation
+  }
 }
 
-\subsection{Returns}{
-protein abundance per group with annotation
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_protein_per_group_abundance_wide"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_protein_per_group_abundance_wide}{}}}
-\subsection{Method \code{get_protein_per_group_abundance_wide()}}{
-get protein abundance per group in wide format
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_protein_per_group_abundance_wide()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_protein_per_group_abundance_wide()}}{
+  get protein abundance per group in wide format
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_protein_per_group_abundance_wide()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    protein abundance per group in wide format
+  }
 }
 
-\subsection{Returns}{
-protein abundance per group in wide format
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_prot_IBAQ_wide"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_prot_IBAQ_wide}{}}}
-\subsection{Method \code{get_prot_IBAQ_wide()}}{
-get IBAQ protein data in wide format
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_prot_IBAQ_wide()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_prot_IBAQ_wide()}}{
+  get IBAQ protein data in wide format
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_prot_IBAQ_wide()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    IBAQ protein data in wide format
+  }
 }
 
-\subsection{Returns}{
-IBAQ protein data in wide format
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_list"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_list}{}}}
-\subsection{Method \code{get_list()}}{
-get list of all tables
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_list()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_list()}}{
+  get list of all tables
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_list()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    list of tables
+  }
 }
 
-\subsection{Returns}{
-list of tables
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-write_xlsx"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-write_xlsx}{}}}
-\subsection{Method \code{write_xlsx()}}{
-write tables to xlsx file
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$write_xlsx()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$write_xlsx()}}{
+  write tables to xlsx file
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$write_xlsx()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-copy_dataset"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-copy_dataset}{}}}
-\subsection{Method \code{copy_dataset()}}{
-copy dataset/annotation file to output directory
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$copy_dataset(dataset_path)}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$copy_dataset()}}{
+  copy dataset/annotation file to output directory
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$copy_dataset(dataset_path)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{dataset_path}}{path to the dataset file}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{dataset_path}}{path to the dataset file}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-render_QC_protein_abundances"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-render_QC_protein_abundances}{}}}
-\subsection{Method \code{render_QC_protein_abundances()}}{
-render QC protein abundances report
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$render_QC_protein_abundances()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$render_QC_protein_abundances()}}{
+  render QC protein abundances report
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$render_QC_protein_abundances()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-render_sample_size_QC"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-render_sample_size_QC}{}}}
-\subsection{Method \code{render_sample_size_QC()}}{
-render sample size QC report
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$render_sample_size_QC()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$render_sample_size_QC()}}{
+  render sample size QC report
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$render_sample_size_QC()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-render_index_html"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-render_index_html}{}}}
-\subsection{Method \code{render_index_html()}}{
-render index HTML file
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$render_index_html()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$render_index_html()}}{
+  render index HTML file
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$render_index_html()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-render_index_md"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-render_index_md}{}}}
-\subsection{Method \code{render_index_md()}}{
-render index markdown file
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$render_index_md()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$render_index_md()}}{
+  render index markdown file
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$render_index_md()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-get_protein_per_group_small_wide"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-get_protein_per_group_small_wide}{}}}
-\subsection{Method \code{get_protein_per_group_small_wide()}}{
-get protein per group small wide format
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$get_protein_per_group_small_wide()}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$get_protein_per_group_small_wide()}}{
+  get protein per group small wide format
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$get_protein_per_group_small_wide()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    protein per group data in small wide format
+  }
 }
 
-\subsection{Returns}{
-protein per group data in small wide format
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-QC_generator-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-QC_generator-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{QC_generator$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{QC_generator$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{QC_generator$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

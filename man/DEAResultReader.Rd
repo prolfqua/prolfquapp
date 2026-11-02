@@ -26,150 +26,158 @@ nrow(reader$contrast_table)
 nrow(reader$significant(FDR_threshold = 0.25, diff_threshold = 0.5))
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{se}}{the \code{SummarizedExperiment} the results were read from}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{se}}{the \code{SummarizedExperiment} the results were read from}
 
-\item{\code{metadata}}{the artifact metadata (\code{S4Vectors::metadata})}
+    \item{\code{metadata}}{the artifact metadata (\code{S4Vectors::metadata})}
 
-\item{\code{contrast_config}}{\code{prolfqua::ContrastConfiguration} of the
+    \item{\code{contrast_config}}{\code{prolfqua::ContrastConfiguration} of the
 backend that produced the results}
 
-\item{\code{lfq_raw}}{\code{prolfqua::LFQData} with the raw abundances}
+    \item{\code{lfq_raw}}{\code{prolfqua::LFQData} with the raw abundances}
 
-\item{\code{lfq_transformed}}{\code{prolfqua::LFQData} with the transformed
+    \item{\code{lfq_transformed}}{\code{prolfqua::LFQData} with the transformed
 abundances}
 
-\item{\code{lfq_imputed}}{\code{prolfqua::LFQData} with the transformed
+    \item{\code{lfq_imputed}}{\code{prolfqua::LFQData} with the transformed
 abundances and every missing value filled by the feature's model, or
 \code{NULL} when the artifact has no \code{imputedData}}
 
-\item{\code{annotation}}{feature annotation, one row per feature}
+    \item{\code{annotation}}{feature annotation, one row per feature}
 
-\item{\code{samples}}{sample annotation, one row per sample}
+    \item{\code{samples}}{sample annotation, one row per sample}
 
-\item{\code{imputation}}{per feature, how many values were observed and
+    \item{\code{imputation}}{per feature, how many values were observed and
 imputed and by which route, or \code{NULL} when the artifact has no
 imputation block}
 
-\item{\code{contrast_table}}{all contrasts stacked into one tibble}
+    \item{\code{contrast_table}}{all contrasts stacked into one tibble}
 
-\item{\code{contrasts}}{\code{prolfqua::ContrastsTable} over
+    \item{\code{contrasts}}{\code{prolfqua::ContrastsTable} over
 \code{contrast_table}, or \code{NULL} when the artifact holds no
 usable contrast results}
 
-\item{\code{subject_id}}{the feature-key columns identifying a contrast subject}
+    \item{\code{subject_id}}{the feature-key columns identifying a contrast subject}
 
-\item{\code{formula}}{the model formula the DEA fitted, one string, or
+    \item{\code{formula}}{the model formula the DEA fitted, one string, or
 \code{NULL} when the artifact records none}
 
-\item{\code{contrast_definitions}}{the contrasts the DEA evaluated, their
+    \item{\code{contrast_definitions}}{the contrasts the DEA evaluated, their
 expressions named by contrast}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DEAResultReader-new}{\code{DEAResultReader$new()}}
-\item \href{#method-DEAResultReader-has_roles}{\code{DEAResultReader$has_roles()}}
-\item \href{#method-DEAResultReader-significant}{\code{DEAResultReader$significant()}}
-\item \href{#method-DEAResultReader-get_Plotter}{\code{DEAResultReader$get_Plotter()}}
-\item \href{#method-DEAResultReader-clone}{\code{DEAResultReader$clone()}}
-}
+  \itemize{
+    \item \href{#method-DEAResultReader-initialize}{\code{DEAResultReader$new()}}
+    \item \href{#method-DEAResultReader-has_roles}{\code{DEAResultReader$has_roles()}}
+    \item \href{#method-DEAResultReader-significant}{\code{DEAResultReader$significant()}}
+    \item \href{#method-DEAResultReader-get_Plotter}{\code{DEAResultReader$get_Plotter()}}
+    \item \href{#method-DEAResultReader-clone}{\code{DEAResultReader$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DEAResultReader-new"></a>}}
-\if{latex}{\out{\hypertarget{method-DEAResultReader-new}{}}}
-\subsection{Method \code{new()}}{
-Read a DEA result artifact.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAResultReader$new(source)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{source}}{a \code{SummarizedExperiment}, an AnnData, or a path to
+\if{html}{\out{<a id="method-DEAResultReader-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-DEAResultReader-initialize}{}}}
+\subsection{\code{DEAResultReader$new()}}{
+  Read a DEA result artifact.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAResultReader$new(source)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{source}}{a \code{SummarizedExperiment}, an AnnData, or a path to
 an \code{.rds}, \code{.h5ad} or \code{.h5mu} file; an \code{.h5mu}
 file is read through its \code{dea} modality}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAResultReader-has_roles"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAResultReader-has_roles}{}}}
-\subsection{Method \code{has_roles()}}{
-Does the contrast table carry these columns?
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAResultReader$has_roles(...)}\if{html}{\out{</div>}}
+\subsection{\code{DEAResultReader$has_roles()}}{
+  Does the contrast table carry these columns?
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAResultReader$has_roles(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{column names, or vectors of column names}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{column names, or vectors of column names}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAResultReader-significant"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAResultReader-significant}{}}}
-\subsection{Method \code{significant()}}{
-Contrast rows passing both thresholds. One-sided on the effect column
+\subsection{\code{DEAResultReader$significant()}}{
+  Contrast rows passing both thresholds. One-sided on the effect column
 for backends whose negative effects are not interpretable (SAINT).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAResultReader$significant(FDR_threshold = 0.05, diff_threshold = 1)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAResultReader$significant(FDR_threshold = 0.05, diff_threshold = 1)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{FDR_threshold}}{false discovery rate threshold}
+      \item{\code{diff_threshold}}{effect-size threshold}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{FDR_threshold}}{false discovery rate threshold}
-
-\item{\code{diff_threshold}}{effect-size threshold}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAResultReader-get_Plotter"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAResultReader-get_Plotter}{}}}
-\subsection{Method \code{get_Plotter()}}{
-\code{prolfqua::ContrastsPlotter} over the contrast table, with every
+\subsection{\code{DEAResultReader$get_Plotter()}}{
+  \code{prolfqua::ContrastsPlotter} over the contrast table, with every
 score panel resolved through the column roles. Returns \code{NULL}
 when the artifact holds no usable contrast results.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAResultReader$get_Plotter(fc_threshold = 1, fdr_threshold = 0.1)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAResultReader$get_Plotter(fc_threshold = 1, fdr_threshold = 0.1)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{fc_threshold}}{fold-change threshold}
+      \item{\code{fdr_threshold}}{false discovery rate threshold}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{fc_threshold}}{fold-change threshold}
-
-\item{\code{fdr_threshold}}{false discovery rate threshold}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DEAResultReader-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-DEAResultReader-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DEAResultReader$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{DEAResultReader$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DEAResultReader$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -25,9 +25,9 @@ tidy dataframe or list with df (e.g. total.spectral.count or total.intensity etc
 read combined_protein.tsv file for FragPipe Version 16 or newer
 }
 \seealso{
-Other FragPipe: 
+Other FragPipe:
 \code{\link{FragPipe}},
-\code{\link{tidy_FragPipe_combined_protein_deprec}()}
+\code{\link[=tidy_FragPipe_combined_protein_deprec]{tidy_FragPipe_combined_protein_deprec()}}
 }
 \concept{FragPipe}
 \keyword{internal}

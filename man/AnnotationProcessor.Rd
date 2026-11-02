@@ -5,8 +5,6 @@
 \title{AnnotationProcessor}
 \description{
 AnnotationProcessor
-
-AnnotationProcessor
 }
 \examples{
 
@@ -62,58 +60,59 @@ Subject = c("X","Y","X","Y"))
 ax <- ap$read_annotation(annot)
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{QC}}{is it a QC run}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{QC}}{is it a QC run}
 
-\item{\code{prefix}}{name for one factor designs}
+    \item{\code{prefix}}{name for one factor designs}
 
-\item{\code{repeated}}{is it a repeated measurement}
+    \item{\code{repeated}}{is it a repeated measurement}
 
-\item{\code{SAINT}}{is it a AP MS experiment, then use Bait_ as prefix}
+    \item{\code{SAINT}}{is it a AP MS experiment, then use Bait_ as prefix}
 
-\item{\code{file_pattern}}{colnames for file}
+    \item{\code{file_pattern}}{colnames for file}
 
-\item{\code{grouping_pattern}}{colnames grouping variable}
+    \item{\code{grouping_pattern}}{colnames grouping variable}
 
-\item{\code{subject_pattern}}{colnames for pairing variable}
+    \item{\code{subject_pattern}}{colnames for pairing variable}
 
-\item{\code{control_pattern}}{contrast specification columns}
+    \item{\code{control_pattern}}{contrast specification columns}
 
-\item{\code{control_col_pattern}}{columns which contains C or T.}
+    \item{\code{control_col_pattern}}{columns which contains C or T.}
 
-\item{\code{sample_name_pattern}}{sample name column}
+    \item{\code{sample_name_pattern}}{sample name column}
 
-\item{\code{sample_name_suffix_length}}{maximum suffix length for display sample names}
+    \item{\code{sample_name_suffix_length}}{maximum suffix length for display sample names}
 
-\item{\code{sample_name_display_column}}{preferred derived display sample-name column}
+    \item{\code{sample_name_display_column}}{preferred derived display sample-name column}
 
-\item{\code{shorten_sample_names}}{derive short display names for long sample names}
+    \item{\code{shorten_sample_names}}{derive short display names for long sample names}
 
-\item{\code{norm_value_pattern}}{normalization value column (e.g., Creatinine)}
+    \item{\code{norm_value_pattern}}{normalization value column (e.g., Creatinine)}
 
-\item{\code{strict}}{should name check be strict}
-}
-\if{html}{\out{</div>}}
+    \item{\code{strict}}{should name check be strict}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-AnnotationProcessor-new}{\code{AnnotationProcessor$new()}}
-\item \href{#method-AnnotationProcessor-check_annotation}{\code{AnnotationProcessor$check_annotation()}}
-\item \href{#method-AnnotationProcessor-read_annotation}{\code{AnnotationProcessor$read_annotation()}}
-\item \href{#method-AnnotationProcessor-extract_contrasts}{\code{AnnotationProcessor$extract_contrasts()}}
-\item \href{#method-AnnotationProcessor-add_contrasts_vec}{\code{AnnotationProcessor$add_contrasts_vec()}}
-\item \href{#method-AnnotationProcessor-clone}{\code{AnnotationProcessor$clone()}}
-}
+  \itemize{
+    \item \href{#method-AnnotationProcessor-initialize}{\code{AnnotationProcessor$new()}}
+    \item \href{#method-AnnotationProcessor-check_annotation}{\code{AnnotationProcessor$check_annotation()}}
+    \item \href{#method-AnnotationProcessor-read_annotation}{\code{AnnotationProcessor$read_annotation()}}
+    \item \href{#method-AnnotationProcessor-extract_contrasts}{\code{AnnotationProcessor$extract_contrasts()}}
+    \item \href{#method-AnnotationProcessor-add_contrasts_vec}{\code{AnnotationProcessor$add_contrasts_vec()}}
+    \item \href{#method-AnnotationProcessor-clone}{\code{AnnotationProcessor$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-AnnotationProcessor-new"></a>}}
-\if{latex}{\out{\hypertarget{method-AnnotationProcessor-new}{}}}
-\subsection{Method \code{new()}}{
-initialize
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$new(
+\if{html}{\out{<a id="method-AnnotationProcessor-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-AnnotationProcessor-initialize}{}}}
+\subsection{\code{AnnotationProcessor$new()}}{
+  initialize
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AnnotationProcessor$new(
   QC = FALSE,
   prefix = "G_",
   repeated = TRUE,
@@ -121,116 +120,119 @@ initialize
   shorten_sample_names = TRUE,
   sample_name_suffix_length = 14L,
   sample_name_display_column = "sampleName"
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{QC}}{default FALSE}
+      \item{\code{prefix}}{default "G_"}
+      \item{\code{repeated}}{default TRUE}
+      \item{\code{SAINT}}{default FALSE}
+      \item{\code{shorten_sample_names}}{derive short display sample names from long names}
+      \item{\code{sample_name_suffix_length}}{suffix length used for derived sample names}
+      \item{\code{sample_name_display_column}}{preferred derived display sample-name column}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{QC}}{default FALSE}
-
-\item{\code{prefix}}{default "G_"}
-
-\item{\code{repeated}}{default TRUE}
-
-\item{\code{SAINT}}{default FALSE}
-
-\item{\code{shorten_sample_names}}{derive short display sample names from long names}
-
-\item{\code{sample_name_suffix_length}}{suffix length used for derived sample names}
-
-\item{\code{sample_name_display_column}}{preferred derived display sample-name column}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-check_annotation"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-check_annotation}{}}}
-\subsection{Method \code{check_annotation()}}{
-check annotation
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$check_annotation(annot)}\if{html}{\out{</div>}}
+\subsection{\code{AnnotationProcessor$check_annotation()}}{
+  check annotation
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AnnotationProcessor$check_annotation(annot)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{annot}}{annotation}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{annot}}{annotation}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-read_annotation"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-read_annotation}{}}}
-\subsection{Method \code{read_annotation()}}{
-read annotation
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$read_annotation(dsf)}\if{html}{\out{</div>}}
+\subsection{\code{AnnotationProcessor$read_annotation()}}{
+  read annotation
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AnnotationProcessor$read_annotation(dsf)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{dsf}}{either dataframe or file path.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{dsf}}{either dataframe or file path.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-extract_contrasts"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-extract_contrasts}{}}}
-\subsection{Method \code{extract_contrasts()}}{
-check annotation
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$extract_contrasts(annot, group)}\if{html}{\out{</div>}}
+\subsection{\code{AnnotationProcessor$extract_contrasts()}}{
+  check annotation
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AnnotationProcessor$extract_contrasts(annot, group)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{annot}}{annotation}
+      \item{\code{group}}{group column e.g. group}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{annot}}{annotation}
-
-\item{\code{group}}{group column e.g. group}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-add_contrasts_vec"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-add_contrasts_vec}{}}}
-\subsection{Method \code{add_contrasts_vec()}}{
-add vector of contrasts to annot table
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$add_contrasts_vec(annot, Contrasts)}\if{html}{\out{</div>}}
+\subsection{\code{AnnotationProcessor$add_contrasts_vec()}}{
+  add vector of contrasts to annot table
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AnnotationProcessor$add_contrasts_vec(annot, Contrasts)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{annot}}{annotation}
+      \item{\code{Contrasts}}{vector with contrasts}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{annot}}{annotation}
-
-\item{\code{Contrasts}}{vector with contrasts}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnnotationProcessor-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-AnnotationProcessor-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AnnotationProcessor$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{AnnotationProcessor$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AnnotationProcessor$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

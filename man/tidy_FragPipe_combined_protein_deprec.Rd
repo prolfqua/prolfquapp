@@ -32,9 +32,9 @@ prot <- tidy_FragPipe_combined_protein_deprec(prottsv)
 stopifnot( dim(prot) ==c(19980,27))
 }
 \seealso{
-Other FragPipe: 
+Other FragPipe:
 \code{\link{FragPipe}},
-\code{\link{tidy_FragPipe_combined_protein}()}
+\code{\link[=tidy_FragPipe_combined_protein]{tidy_FragPipe_combined_protein()}}
 }
 \concept{FragPipe}
 \keyword{internal}

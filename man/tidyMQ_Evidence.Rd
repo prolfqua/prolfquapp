@@ -20,11 +20,11 @@ evidence_txt <- read.csv(
 mq_evidence <- tidyMQ_Evidence(evidence_txt)
 }
 \seealso{
-Other MaxQuant: 
+Other MaxQuant:
 \code{\link{MaxQuant}},
-\code{\link{dataset_template_MAXQUANT}()},
-\code{\link{tidyMQ_Peptides}()},
-\code{\link{tidyMQ_ProteinGroups}()}
+\code{\link[=dataset_template_MAXQUANT]{dataset_template_MAXQUANT()}},
+\code{\link[=tidyMQ_Peptides]{tidyMQ_Peptides()}},
+\code{\link[=tidyMQ_ProteinGroups]{tidyMQ_ProteinGroups()}}
 }
 \concept{MaxQuant}
 \keyword{internal}

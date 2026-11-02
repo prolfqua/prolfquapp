@@ -5,8 +5,6 @@
 \title{R6 class representing ProlfquApp configuration}
 \description{
 R6 class representing ProlfquApp configuration
-
-R6 class representing ProlfquApp configuration
 }
 \examples{
 
@@ -28,57 +26,58 @@ r6obj_config$get_input_dir()
 
 }
 \seealso{
-Other ProlfquAppConfig: 
+Other ProlfquAppConfig:
 \code{\link{ExternalReader}},
 \code{\link{ProcessingOptions}},
 \code{\link{ProjectSpec}},
-\code{\link{make_DEA_config_R6}()},
-\code{\link{set_list_to_R6}()}
+\code{\link[=make_DEA_config_R6]{make_DEA_config_R6()}},
+\code{\link[=set_list_to_R6]{set_list_to_R6()}}
 }
 \concept{ProlfquAppConfig}
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{processing_options}}{ProcessingOption R6 class}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{processing_options}}{ProcessingOption R6 class}
 
-\item{\code{project_spec}}{Project Spec R6 class}
+    \item{\code{project_spec}}{Project Spec R6 class}
 
-\item{\code{software}}{name of input software}
+    \item{\code{software}}{name of input software}
 
-\item{\code{prefix}}{either QC or DEA}
+    \item{\code{prefix}}{either QC or DEA}
 
-\item{\code{zipdir_name}}{results should go to zipdir_name}
+    \item{\code{zipdir_name}}{results should go to zipdir_name}
 
-\item{\code{flat_outdir}}{when TRUE, write results directly into `path`
+    \item{\code{flat_outdir}}{when TRUE, write results directly into `path`
 with no dated zipdir subdir (default FALSE keeps the dated layout)}
 
-\item{\code{path}}{path to working directory}
+    \item{\code{path}}{path to working directory}
 
-\item{\code{group}}{group prefix}
+    \item{\code{group}}{group prefix}
 
-\item{\code{ext_reader}}{external reader configuration}
-}
-\if{html}{\out{</div>}}
+    \item{\code{ext_reader}}{external reader configuration}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ProlfquAppConfig-new}{\code{ProlfquAppConfig$new()}}
-\item \href{#method-ProlfquAppConfig-set_zipdir_name}{\code{ProlfquAppConfig$set_zipdir_name()}}
-\item \href{#method-ProlfquAppConfig-get_zipdir}{\code{ProlfquAppConfig$get_zipdir()}}
-\item \href{#method-ProlfquAppConfig-get_result_dir}{\code{ProlfquAppConfig$get_result_dir()}}
-\item \href{#method-ProlfquAppConfig-get_input_dir}{\code{ProlfquAppConfig$get_input_dir()}}
-\item \href{#method-ProlfquAppConfig-as_list}{\code{ProlfquAppConfig$as_list()}}
-\item \href{#method-ProlfquAppConfig-clone}{\code{ProlfquAppConfig$clone()}}
-}
+  \itemize{
+    \item \href{#method-ProlfquAppConfig-initialize}{\code{ProlfquAppConfig$new()}}
+    \item \href{#method-ProlfquAppConfig-set_zipdir_name}{\code{ProlfquAppConfig$set_zipdir_name()}}
+    \item \href{#method-ProlfquAppConfig-get_zipdir}{\code{ProlfquAppConfig$get_zipdir()}}
+    \item \href{#method-ProlfquAppConfig-get_result_dir}{\code{ProlfquAppConfig$get_result_dir()}}
+    \item \href{#method-ProlfquAppConfig-get_input_dir}{\code{ProlfquAppConfig$get_input_dir()}}
+    \item \href{#method-ProlfquAppConfig-as_list}{\code{ProlfquAppConfig$as_list()}}
+    \item \href{#method-ProlfquAppConfig-clone}{\code{ProlfquAppConfig$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ProlfquAppConfig-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ProlfquAppConfig-new}{}}}
-\subsection{Method \code{new()}}{
-Initialize ProlfquAppConfig with processing options, project spec, and external reader
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$new(
+\if{html}{\out{<a id="method-ProlfquAppConfig-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ProlfquAppConfig-initialize}{}}}
+\subsection{\code{ProlfquAppConfig$new()}}{
+  Initialize ProlfquAppConfig with processing options, project spec, and external reader
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProlfquAppConfig$new(
   processing_options,
   project_spec,
   ext_reader,
@@ -87,115 +86,121 @@ Initialize ProlfquAppConfig with processing options, project spec, and external 
   software = "DIANN",
   prefix = "DEA",
   flat_outdir = FALSE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{processing_options}}{instance of ProcessingOptions}
-
-\item{\code{project_spec}}{instance of ProjectSpec}
-
-\item{\code{ext_reader}}{instance of ExternalReader}
-
-\item{\code{zipdir_name}}{where to store results}
-
-\item{\code{path}}{working directory path}
-
-\item{\code{software}}{name of input software}
-
-\item{\code{prefix}}{either QC or DEA}
-
-\item{\code{flat_outdir}}{write results directly into `path` without a dated
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{processing_options}}{instance of ProcessingOptions}
+      \item{\code{project_spec}}{instance of ProjectSpec}
+      \item{\code{ext_reader}}{instance of ExternalReader}
+      \item{\code{zipdir_name}}{where to store results}
+      \item{\code{path}}{working directory path}
+      \item{\code{software}}{name of input software}
+      \item{\code{prefix}}{either QC or DEA}
+      \item{\code{flat_outdir}}{write results directly into `path` without a dated
 subdir (default FALSE)}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-set_zipdir_name"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-set_zipdir_name}{}}}
-\subsection{Method \code{set_zipdir_name()}}{
-Set zip directory name based on project information and date
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$set_zipdir_name()}\if{html}{\out{</div>}}
+\subsection{\code{ProlfquAppConfig$set_zipdir_name()}}{
+  Set zip directory name based on project information and date
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProlfquAppConfig$set_zipdir_name()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    the generated zip directory name
+  }
 }
 
-\subsection{Returns}{
-the generated zip directory name
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-get_zipdir"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_zipdir}{}}}
-\subsection{Method \code{get_zipdir()}}{
-Get the full path to the zip directory
+\subsection{\code{ProlfquAppConfig$get_zipdir()}}{
+  Get the full path to the zip directory
 
 When `flat_outdir` is TRUE the dated zipdir subdir is skipped and
 results are written directly into `path`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_zipdir()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProlfquAppConfig$get_zipdir()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    full path to zip directory
+  }
 }
 
-\subsection{Returns}{
-full path to zip directory
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-get_result_dir"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_result_dir}{}}}
-\subsection{Method \code{get_result_dir()}}{
-Get the results directory path
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_result_dir()}\if{html}{\out{</div>}}
+\subsection{\code{ProlfquAppConfig$get_result_dir()}}{
+  Get the results directory path
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProlfquAppConfig$get_result_dir()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    path to results directory
+  }
 }
 
-\subsection{Returns}{
-path to results directory
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-get_input_dir"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-get_input_dir}{}}}
-\subsection{Method \code{get_input_dir()}}{
-Get the input directory path
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$get_input_dir()}\if{html}{\out{</div>}}
+\subsection{\code{ProlfquAppConfig$get_input_dir()}}{
+  Get the input directory path
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProlfquAppConfig$get_input_dir()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    path to input directory
+  }
 }
 
-\subsection{Returns}{
-path to input directory
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-as_list"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-as_list}{}}}
-\subsection{Method \code{as_list()}}{
-Convert R6 object to list
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$as_list()}\if{html}{\out{</div>}}
+\subsection{\code{ProlfquAppConfig$as_list()}}{
+  Convert R6 object to list
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProlfquAppConfig$as_list()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    list representation of the R6 object
+  }
 }
 
-\subsection{Returns}{
-list representation of the R6 object
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ProlfquAppConfig-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ProlfquAppConfig-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ProlfquAppConfig$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ProlfquAppConfig$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ProlfquAppConfig$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -7,8 +7,8 @@
 Convert FragPipe outputs into tidy tables. For more details see functions listed in the see also section.
 }
 \seealso{
-Other FragPipe: 
-\code{\link{tidy_FragPipe_combined_protein}()},
-\code{\link{tidy_FragPipe_combined_protein_deprec}()}
+Other FragPipe:
+\code{\link[=tidy_FragPipe_combined_protein]{tidy_FragPipe_combined_protein()}},
+\code{\link[=tidy_FragPipe_combined_protein_deprec]{tidy_FragPipe_combined_protein_deprec()}}
 }
 \concept{FragPipe}
