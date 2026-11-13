@@ -1,3 +1,8 @@
+# prolfquapp 2.11.2
+
+- The FragPipe TMT readers (`prolfquapp.FP_TMT`, `prolfquapp.FP_TMT_PEPTIDE`) read the `psm.tsv` of FragPipe 24. FragPipe 24 names each channel's reporter intensity `Intensity <channel>`, adds `Resolution <channel>` and `SNR <channel>`, and puts trace columns (`Apex Retention Time`, ...) after `Mapped Proteins`; `tidy_FragPipe_psm()` took every column after `Mapped Proteins` as a channel, so a TMT18 run gave 61 channels. When `Intensity <channel>` columns are present they are the channels, named by the channel; earlier versions are read as before.
+- The FragPipe readers find a FASTA file ending in `.fas`, as the MSstats readers do; they looked for `.fasta` only.
+
 # prolfquapp 2.11.1
 
 - `make_DEA_config_R6()` offers the aggregation `topN` (top N peptides, N = 3 by default) instead of `top3`, which no aggregator handled, so the DEA ran without protein aggregation. It no longer offers the normalization `quantile`, which `transform_lfqdata()` rejects. The documented model keys are `lmer_nested` and `ropeca_nested`, the names prolfqua registers.
