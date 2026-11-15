@@ -350,3 +350,14 @@ test_that("uns rejects a table nested inside a list", {
     "nested table at metadata\\$provenance\\$tables"
   )
 })
+
+test_that("DEAResultReader plotter draws the FDR and p-value histograms", {
+  skip_on_cran()
+  dea <- prolfquapp::example_deanalyse(Nprot = 12)
+  reporter <- prolfquapp::DEAReportGenerator$new(dea, dea$prolfq_app_config)
+  reader <- prolfquapp::DEAResultReader$new(reporter$make_SummarizedExperiment())
+  histograms <- reader$get_Plotter()$histogram()
+  expect_true(reader$contrast_config$fdr_col %in% names(histograms))
+  fdr_plot <- histograms[[reader$contrast_config$fdr_col]]
+  expect_equal(fdr_plot$layers[[1]]$stat_params$breaks, seq(0, 1, by = 0.05))
+})
