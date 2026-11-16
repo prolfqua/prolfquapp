@@ -69,7 +69,7 @@ test_that(".resolve_nested_reader switches a nested facade to the peptide reader
     "prolfquapp.DIANN",
     is_nested = TRUE,
     available = available,
-    facade = "firth_nested"
+    facade = "binomial_firth_nested"
   )
   expect_equal(out, "prolfquapp.DIANN_PEPTIDE")
 })
@@ -102,7 +102,7 @@ test_that(".resolve_nested_reader errors when no peptide counterpart is register
       "prolfquapp.SIM",
       is_nested = TRUE,
       available = c("prolfquapp.SIM"),
-      facade = "firth_nested"
+      facade = "binomial_firth_nested"
     ),
     "no peptide-level counterpart"
   )
@@ -112,7 +112,7 @@ test_that("run_dea errors when no peptide-level reader exists for a nested facad
   skip_if(nchar(dataset) == 0, "sim_test fixture not installed")
 
   GRP2 <- prolfquapp::make_DEA_config_R6(WORKUNITID = "TEST_DEA_NESTED_NOPEP")
-  GRP2$processing_options$model <- "firth_nested"
+  GRP2$processing_options$model <- "binomial_firth_nested"
   GRP2$processing_options$model_missing <- FALSE
 
   # A metabolomics reader has no peptide-level twin to switch to; SIM does
@@ -298,7 +298,7 @@ test_that("run_dea orchestrates nested peptide models and report aggregation", {
   dataset_file <- tempfile(fileext = ".csv")
   writeLines("file,group\nsample.raw,A", dataset_file)
   on.exit(unlink(dataset_file), add = TRUE)
-  config <- prolfquapp::make_DEA_config_R6(model = "firth_nested")
+  config <- prolfquapp::make_DEA_config_R6(model = "binomial_firth_nested")
   events <- new.env(parent = emptyenv())
   events$pipeline <- character()
   events$constructor_args <- NULL
@@ -427,7 +427,7 @@ test_that("run_dea orchestrates nested peptide models and report aggregation", {
   expect_equal(events$selected_reader, "peptide")
   expect_equal(
     events$constructor_args$default_model,
-    "firth_nested"
+    "binomial_firth_nested"
   )
   expect_identical(
     events$constructor_args$lfq_data,

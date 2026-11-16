@@ -69,7 +69,8 @@ plot_abundance_vs_percent <- function(
       dplyr::slice_max(order_by = !!rlang::sym(columnAb), n = top_N)
   } else {
     message("creating shared data with key : ", paste0(" ~ ", protID))
-    percInfo <- crosstalk::SharedData$new(
+    # highlight_key() makes the crosstalk SharedData and loads plotly, which ggplot needs to plot it
+    percInfo <- plotly::highlight_key(
       as.data.frame(percInfo),
       key = as.formula(paste(" ~ ", protID)),
       group = group

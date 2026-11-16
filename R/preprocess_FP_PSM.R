@@ -122,6 +122,27 @@ tidy_FragPipe_combined_protein <- function(
   return(merged)
 }
 
+#' Reporter-ion channel columns of a FragPipe psm.tsv
+#'
+#' From FragPipe 24 on, each channel has an `Intensity <channel>` column,
+#' followed by `Resolution <channel>` and `SNR <channel>`. Earlier versions
+#' name the channel columns by the channel alone and put them after the last
+#' of `column_before_quants`.
+#' @param columns column names of the psm.tsv file
+#' @param column_before_quants candidate names of the last column before the
+#'   channel columns of FragPipe versions before 24
+#' @return the channel columns, named by channel
+#' @noRd
+.fp_psm_channel_columns <- function(columns, column_before_quants) {
+  reporter <- grep("^Intensity .+", columns, value = TRUE)
+  if (length(reporter) > 0) {
+    return(stats::setNames(reporter, sub("^Intensity ", "", reporter)))
+  }
+  last_annotation <- tail(intersect(columns, column_before_quants), n = 1)
+  channels <- columns[-seq_len(which(columns == last_annotation))]
+  stats::setNames(channels, channels)
+}
+
 #' read psm.tsv produced by FragPipe and convert into long format
 #' @export
 #' @param psm_files path(s) to psm.tsv file(s)
@@ -129,8 +150,9 @@ tidy_FragPipe_combined_protein <- function(
 #' @param PeptideProphetProb default 0.9
 #' @param abundance_threshold minimum abundance threshold
 #' @param column_before_quants describes the last column before the
-#'   quantitative values (not consistent across FP versions),
-#'   default "Quan Usage"
+#'   quantitative values in FragPipe versions before 24 (not consistent
+#'   across these versions), default "Quan Usage". From FragPipe 24 on the
+#'   channels are the `Intensity <channel>` columns and this is not used.
 #' @param aggregate aggregate spectra to psm level
 #' @return A list with the long-format PSM data and expected peptide counts.
 tidy_FragPipe_psm <- function(
@@ -144,13 +166,11 @@ tidy_FragPipe_psm <- function(
   psm_long <- list()
   for (psm_file in psm_files) {
     psm <- readr::read_tsv(psm_file)
-    column_before_quants <- tail(intersect(colnames(psm), column_before_quants), n = 1)
+    channel_columns <- .fp_psm_channel_columns(colnames(psm), column_before_quants)
     if (!"Purity" %in% colnames(psm)) {
       warning("no Purity column in psm file!")
-      psm <- psm |> dplyr::mutate(Purity = 1, .before = column_before_quants)
+      psm <- psm |> dplyr::mutate(Purity = 1)
     }
-    x <- which(colnames(psm) == column_before_quants)
-    colnamesQuan <- colnames(psm)[(x + 1):ncol(psm)]
     probability_column <- intersect(c("PeptideProphet Probability", "Probability"), colnames(psm))
     psm_long[[psm_file]] <- psm |>
       dplyr::select(dplyr::all_of(c(
@@ -167,9 +187,9 @@ tidy_FragPipe_psm <- function(
         "Retention",
         "Calibrated Observed Mass",
         "Assigned Modifications",
-        colnamesQuan
+        channel_columns
       ))) |>
-      tidyr::pivot_longer(tidyselect::all_of(colnamesQuan), values_to = "abundance", names_to = "channel")
+      tidyr::pivot_longer(tidyselect::all_of(names(channel_columns)), values_to = "abundance", names_to = "channel")
   }
   psm_long <- dplyr::bind_rows(psm_long)
   if (!is.null(abundance_threshold)) {
@@ -195,7 +215,7 @@ tidy_FragPipe_psm <- function(
 
 .get_FP_files <- function(path, pattern) {
   data <- dir(path = path, pattern = pattern, recursive = TRUE, full.names = TRUE)
-  fasta.files <- grep("*.fasta$", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
+  fasta.files <- grep("\\.(fasta|fas)$", dir(path = path, recursive = TRUE, full.names = TRUE), value = TRUE)
   if (any(grepl("database[0-9]*.fasta$", fasta.files))) {
     fasta.files <- grep("database[0-9]*.fasta$", fasta.files, value = TRUE)
   }

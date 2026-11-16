@@ -164,12 +164,12 @@ DEAResultReader <- R6::R6Class(
       }
       cfg <- self$contrast_config
       volcano <- list(list(score = cfg$fdr_col, thresh = fdr_threshold))
-      histogram <- list(list(score = cfg$fdr_col, xlim = c(0, 1, 0.05)))
+      histogram <- list(list(score = cfg$fdr_col, breaks = seq(0, 1, by = 0.05)))
       score <- list()
       if (cfg$has_pvalue() && self$has_roles(cfg$pvalue_col)) {
         volcano <- c(list(list(score = cfg$pvalue_col)), volcano)
         histogram <- c(
-          list(list(score = cfg$pvalue_col, xlim = c(0, 1, 0.05))),
+          list(list(score = cfg$pvalue_col, breaks = seq(0, 1, by = 0.05))),
           histogram
         )
       }
@@ -181,7 +181,7 @@ DEAResultReader <- R6::R6Class(
           # so it gets its own histogram and a score panel of its own.
           histogram <- c(
             histogram,
-            list(list(score = cfg$score_col, xlim = c(0, 1, 0.05)))
+            list(list(score = cfg$score_col, breaks = seq(0, 1, by = 0.05)))
           )
           score <- list(list(score = cfg$score_col, thresh = 0.75))
         }

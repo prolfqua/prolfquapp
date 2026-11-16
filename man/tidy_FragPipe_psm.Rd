@@ -23,8 +23,9 @@ tidy_FragPipe_psm(
 \item{abundance_threshold}{minimum abundance threshold}
 
 \item{column_before_quants}{describes the last column before the
-quantitative values (not consistent across FP versions),
-default "Quan Usage"}
+quantitative values in FragPipe versions before 24 (not consistent
+across these versions), default "Quan Usage". From FragPipe 24 on the
+channels are the `Intensity <channel>` columns and this is not used.}
 
 \item{aggregate}{aggregate spectra to psm level}
 }

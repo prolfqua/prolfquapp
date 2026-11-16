@@ -182,7 +182,7 @@ run_qc_preprocess <- function(
 
 # --- CMD_DEA_V2 helper -------------------------------------------------------
 
-# Nested facades (e.g. firth_nested, lmer_nested) fit peptide-level data. Paired
+# Nested facades (e.g. binomial_firth_nested, lmer_nested) fit peptide-level data. Paired
 # with a protein-level reader, switch to its registered "<reader>_PEPTIDE"
 # counterpart (same reader, other hierarchy_depth) instead of failing.
 .resolve_nested_reader <- function(software, is_nested, available, facade = "") {
