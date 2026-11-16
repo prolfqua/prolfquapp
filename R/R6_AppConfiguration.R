@@ -30,7 +30,7 @@ ProcessingOptions <- R6::R6Class(
     #' @field model facade registry key for contrast analysis.
     #'   Valid keys include prolfqua facade keys such as lm,
     #'   lm_impute, limma, limma_impute, rlm, deqms, firth, lmer_nested,
-    #'   ropeca_nested, plus the prolfquasaint-backed key saint.
+    #'   ropeca_nested, ropecaV2_nested, plus the prolfquasaint-backed key saint.
     #'   Default "lm_impute".
     model = "lm_impute",
     #' @field other list with additional options
