@@ -41,7 +41,7 @@ Imports:
   optparse,
   pander,
   plotly,
-  prolfqua (>= 1.9.2),
+  prolfqua (>= 1.9.3),
   purrr,
   readr,
   readxl,
