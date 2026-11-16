@@ -5,6 +5,7 @@
 - The DEA report histograms give their bins as `breaks`, the name prolfqua 1.9.2 uses in a `ContrastsPlotter` histogram spec (it was `xlim`); requires prolfqua >= 1.9.2.
 - The FragPipe TMT readers (`prolfquapp.FP_TMT`, `prolfquapp.FP_TMT_PEPTIDE`) read the `psm.tsv` of FragPipe 24. FragPipe 24 names each channel's reporter intensity `Intensity <channel>`, adds `Resolution <channel>` and `SNR <channel>`, and puts trace columns (`Apex Retention Time`, ...) after `Mapped Proteins`; `tidy_FragPipe_psm()` took every column after `Mapped Proteins` as a channel, so a TMT18 run gave 61 channels. When `Intensity <channel>` columns are present they are the channels, named by the channel; earlier versions are read as before.
 - The FragPipe readers find a FASTA file ending in `.fas`, as the MSstats readers do; they looked for `.fasta` only.
+- `plot_abundance_vs_percent(top_N = NULL)` (the QC report's protein abundance plot) failed with "`data` must be a <data.frame>" once prolfqua 1.9.4 no longer loads 'plotly': ggplot can plot its crosstalk shared data only with 'plotly' loaded. It now creates the shared data with `plotly::highlight_key()`, which loads 'plotly'.
 
 # prolfquapp 2.11.1
 
