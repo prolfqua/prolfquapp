@@ -145,16 +145,8 @@ DEAnalyse <- R6::R6Class(
       # self$lfq_data keeps decoys so the abundance export still carries them.
       model_lfq <- self$lfq_data
       if (!is.null(model_lfq$get_config()$pattern_decoys)) {
-        top <- model_lfq$hierarchy_keys()[1]
-        n_before <- length(unique(model_lfq$data_long()[[top]]))
+        # remove_decoys() reports the dropped decoys (prolfqua message, routed to the log)
         model_lfq <- model_lfq$remove_decoys()
-        n_dropped <- n_before - length(unique(model_lfq$data_long()[[top]]))
-        if (n_dropped > 0) {
-          logger::log_info(
-            "targets-only fit: dropped {n_dropped} decoy {top} before modelling ",
-            "(kept in raw data for export)."
-          )
-        }
       }
 
       if (isTRUE(entry$needs_saint_annotation)) {
