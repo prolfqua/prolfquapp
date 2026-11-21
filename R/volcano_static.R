@@ -54,11 +54,12 @@ volcano_static <- function(
 
   effect_passes <- if (directional) data[[effect]] > fc_threshold else abs(data[[effect]]) > fc_threshold
   passes <- score < fdr_threshold & effect_passes
+  direction <- dplyr::if_else(data[[effect]] > 0, "increased", "decreased")
   data$call <- factor(
-    ifelse(!passes, "not significant", ifelse(data[[effect]] > 0, "increased", "decreased")),
+    dplyr::if_else(passes, direction, "not significant"),
     levels = c("decreased", "not significant", "increased")
   )
-  call_colours <- c(decreased = "#2166AC", `not significant` = "grey75", increased = "#B2182B")
+  call_colours <- c(decreased = "#2166AC", `not significant` = "grey55", increased = "#B2182B")
   background <- data[data$call == "not significant", , drop = FALSE]
   significant <- data[data$call != "not significant", , drop = FALSE]
 
@@ -76,8 +77,8 @@ volcano_static <- function(
 
   y_label <- paste0("-log10(", significance, ")")
   p <- ggplot2::ggplot(mapping = ggplot2::aes(x = .data[[effect]], y = .data$neg_log10_score, colour = .data$call)) +
-    ggplot2::geom_point(data = background, size = 0.5, alpha = 0.5, stroke = 0) +
-    ggplot2::geom_point(data = significant, size = 1.2, alpha = 0.8, stroke = 0) +
+    ggplot2::geom_point(data = background, size = 1, alpha = 0.6, stroke = 0) +
+    ggplot2::geom_point(data = significant, size = 1.6, alpha = 0.9, stroke = 0) +
     ggplot2::geom_vline(
       xintercept = if (directional) fc_threshold else c(-fc_threshold, fc_threshold),
       linetype = "dashed",
@@ -88,12 +89,8 @@ volcano_static <- function(
     ggplot2::scale_colour_manual(values = call_colours, drop = FALSE, name = NULL) +
     ggplot2::facet_wrap(ggplot2::vars(.data[[contrast]])) +
     ggplot2::labs(x = paste0("log2 fold change (", effect, ")"), y = y_label) +
-    ggplot2::theme_bw(base_size = base_size) +
-    ggplot2::theme(
-      panel.grid.minor = ggplot2::element_blank(),
-      strip.background = ggplot2::element_rect(fill = "grey95"),
-      legend.position = "bottom"
-    ) +
+    prolfqua::theme_prolfqua(grid = TRUE, base_size = base_size) +
+    ggplot2::theme(legend.position = "bottom") +
     ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(size = 3, alpha = 1)))
 
   if (!is.null(label) && n_labels > 0 && nrow(significant) > 0) {

@@ -12,7 +12,8 @@ writeLinesPaired(bb, outpath = NULL)
 \item{outpath}{output directory for plots}
 }
 \description{
-nice plot for paired analysis
+One plot per element of the modelled hierarchy level (e.g. protein); a finer level
+(e.g. peptide) is drawn as facets.
 }
 \examples{
 

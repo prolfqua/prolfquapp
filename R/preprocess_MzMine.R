@@ -50,7 +50,7 @@ feature_annotation_collapse_to_single_row <- function(x) {
   x |>
     dplyr::group_by(id) |>
     dplyr::summarise(
-      dplyr::across(.cols = setdiff(names(x), "id"), ~ stringr::str_c(as.character(.x), collapse = "; ")),
+      dplyr::across(.cols = setdiff(names(x), "id"), \(x) stringr::str_c(as.character(x), collapse = "; ")),
       .groups = "drop"
     )
 }

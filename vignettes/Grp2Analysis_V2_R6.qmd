@@ -333,7 +333,7 @@ The median coefficient of variation (CV) of a group of samples or all samples in
 #| fig-alt: ""
 #| eval: true
 stR <- dea$lfq_data_raw$get_Stats()
-pA <- stR$violin() + ggplot2::theme_classic() + ggplot2::labs(tag = "A")
+pA <- stR$violin() + ggplot2::labs(tag = "A")
 pA
 
 ```

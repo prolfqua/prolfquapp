@@ -83,6 +83,7 @@ plot_abundance_vs_percent <- function(
   ) +
     geom_point(color = colorV, alpha = alphaV) +
     facet_wrap(as.formula(paste0(" ~ ", paste(factor_keys, collapse = " + ")))) +
+    prolfqua::theme_prolfqua(grid = TRUE) +
     if (logY) ggplot2::scale_y_log10()
   if (!is.null(top_N)) {
     myplot <- myplot +

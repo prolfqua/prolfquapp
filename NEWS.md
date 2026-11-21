@@ -1,5 +1,7 @@
 # prolfquapp 2.11.2
 
+- prolfquapp's own figures use prolfqua's `theme_prolfqua()`, so they match prolfqua's plots: the static volcano, the paired-design line plots, the QC report's abundance-versus-percent plot and the sample-size bar chart. The DEA and QC reports no longer put `theme_classic()` over prolfqua's violin plots, and the sample-size report no longer sets a global ggplot theme. The static volcano draws non-significant points larger and darker, so they stay visible on the white panel.
+- `writeLinesPaired()` (the paired-design `boxplots_paired.pdf` of the DEA) failed with "`data` must be a <data.frame>" for peptide-level data analysed with a nested model. It now draws one page per protein, with its peptides as facets.
 - `ProteinAnnotation` logs a missing `exp_nr_children` column as info and computes the counts; it no longer raises a warning for this documented default.
 - `compute_IBAQ_values()` no longer triggers tidyselect's "Using an external vector in selections" deprecation warning.
 - Protein-level calibration with `internal` and `transform` `none` or `log2` (not nested models) subtracts each sample's median log2 intensity of the `internal` proteins. It stops and lists the sample IDs that lack a finite reference intensity; `internal` proteins absent from the data now stop the analysis instead of a warning.

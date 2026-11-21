@@ -72,8 +72,6 @@ plot_sd_vs_mean <- params$plot_sd_vs_mean
 if (is.null(plot_sd_vs_mean)) {
   plot_sd_vs_mean <- FALSE
 }
-old.theme <- ggplot2::theme_set(ggplot2::theme_classic())
-
 lfqdata <- prolfqua::LFQData$new(data, local_config)
 nrSamples <- nrow(lfqdata$factors())
 
@@ -541,7 +539,8 @@ if (have_sample_size) {
       ggplot2::geom_bar(stat = "identity", color = "black", fill = "white") +
       ggplot2::geom_text(ggplot2::aes(label = N), nudge_y = nudgeval) +
       ggplot2::facet_wrap(as.formula(paste0("~ ", paste0(factor_keys, collapse = " + ")))) +
-      ggplot2::labs(x = "SD quantile", y = "samples per group")
+      ggplot2::labs(x = "SD quantile", y = "samples per group") +
+      prolfqua::theme_prolfqua()
   }
   table_ssize <- function(d) {
     dplyr::filter(sampleSize2, delta == d) |>
@@ -652,11 +651,6 @@ sessionInfo()
 ```
 
 :::
-
-```{r resetTheme}
-#| include: false
-ggplot2::theme_set(old.theme)
-```
 
 :::
 

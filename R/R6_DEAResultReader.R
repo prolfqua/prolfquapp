@@ -286,7 +286,7 @@ DEAResultReader <- R6::R6Class(
 .se_report_feature_rows <- function(frame, feature_keys) {
   dplyr::filter(
     tibble::as_tibble(as.data.frame(frame)),
-    dplyr::if_all(dplyr::all_of(feature_keys), ~ !is.na(.x))
+    dplyr::if_all(dplyr::all_of(feature_keys), \(x) !is.na(x))
   )
 }
 

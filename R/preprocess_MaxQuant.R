@@ -25,7 +25,7 @@ NULL
 .gather_MQ <- function(data, id, prefix, value) {
   data |>
     dplyr::select(!!id := "id", dplyr::starts_with(prefix)) |>
-    tidyr::gather(key = "raw.file", value = !!value, dplyr::starts_with(prefix)) |>
+    tidyr::pivot_longer(dplyr::starts_with(prefix), names_to = "raw.file", values_to = value) |>
     dplyr::mutate(raw.file = gsub(prefix, "", .data$raw.file))
 }
 

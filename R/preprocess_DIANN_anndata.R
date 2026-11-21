@@ -110,7 +110,10 @@ preprocess_anndata_from_lfq <- function(
     ident_data <- lfqdata$data_long()[, c(hierarchy_keys, ident_cols), drop = FALSE] |>
       as.data.frame() |>
       dplyr::group_by(dplyr::across(dplyr::all_of(hierarchy_keys))) |>
-      dplyr::summarize(dplyr::across(dplyr::all_of(ident_cols), ~ stats::median(.x, na.rm = TRUE)), .groups = "drop") |>
+      dplyr::summarize(
+        dplyr::across(dplyr::all_of(ident_cols), \(x) stats::median(x, na.rm = TRUE)),
+        .groups = "drop"
+      ) |>
       as.data.frame()
     var_df <- dplyr::left_join(var_df, ident_data, by = hierarchy_keys)
   }

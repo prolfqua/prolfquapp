@@ -119,12 +119,11 @@ Panel A in @fig-sd-violin shows the coefficients of variation (CVs) for all prot
 #| fig-width: 7
 #| out-width: "600px"
 stR <- dea$lfq_data_raw$get_Stats()
-pA <- stR$violin() + ggplot2::theme_classic() +
+pA <- stR$violin() +
   ggplot2::labs(tag = "A") +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 st <- dea$lfq_data$get_Stats()
 pC <- st$violin() +
-  ggplot2::theme_classic() +
   ggplot2::labs(tag = "C") +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
@@ -133,7 +132,6 @@ tr <- lfqData$get_Transformer()
 tmp <- tr$log2()$lfq
 stback <- tmp$get_Stats()
 pB <- stback$violin() +
-  ggplot2::theme_classic() +
   ggplot2::labs(tag = "B") +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 

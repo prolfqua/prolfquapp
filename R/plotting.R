@@ -1,4 +1,7 @@
 #' nice plot for paired analysis
+#'
+#' One plot per element of the modelled hierarchy level (e.g. protein); a finer level
+#' (e.g. peptide) is drawn as facets.
 #' @param bb LFQData object with paired data
 #' @param outpath output directory for plots
 #' @export
@@ -14,26 +17,34 @@
 #' xa[[4]]
 #'
 writeLinesPaired <- function(bb, outpath = NULL) {
+  rhk <- bb$relevant_hierarchy_keys()
+  hk <- bb$hierarchy_keys()
+  child <- if (length(rhk) < length(hk)) hk[length(rhk) + 1] else NULL
   nested <- bb$data_long() |>
-    dplyr::ungroup() |>
-    dplyr::group_by(!!!rlang::syms(bb$hierarchy_keys())) |>
-    tidyr::nest()
+    tidyr::nest(.by = dplyr::all_of(rhk))
+  titles <- do.call(paste, c(nested[rhk], sep = " ~ "))
+  treatment <- bb$factor_keys()[1]
+  pairing <- bb$factor_keys()[2]
   plotL <- function(tr, pid) {
-    ggplot2::ggplot(
+    p <- ggplot2::ggplot(
       tr,
       ggplot2::aes(
-        x = !!sym(bb$factor_keys()[1]),
-        y = !!sym(bb$response()),
-        group = !!sym(bb$factor_keys()[2]),
-        colour = !!sym(bb$factor_keys()[2])
+        x = .data[[treatment]],
+        y = .data[[bb$response()]],
+        group = .data[[pairing]],
+        colour = .data[[pairing]]
       )
     ) +
       ggplot2::geom_point() +
       ggplot2::geom_line() +
       ggplot2::labs(title = pid) +
-      ggplot2::theme_bw()
+      prolfqua::theme_prolfqua(grid = TRUE)
+    if (!is.null(child)) {
+      p <- p + ggplot2::facet_wrap(ggplot2::vars(.data[[child]]))
+    }
+    p
   }
-  plots <- purrr::map2(nested[[2]], nested[[1]], plotL)
+  plots <- purrr::map2(nested$data, titles, plotL)
   if (!is.null(outpath)) {
     fn <- file.path(outpath, "boxplots_paired.pdf")
     grDevices::pdf(fn, width = 8, height = 6)

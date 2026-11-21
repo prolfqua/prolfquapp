@@ -223,14 +223,14 @@ DEAReportGenerator <- R6::R6Class(
       dea <- self$deanalyse
       cfg <- dea$contrast_results[[dea$default_model]]$get_config()
       hkeys <- rlang::syms(dea$lfq_data$relevant_hierarchy_keys())
-      xdn <- dplyr::transmute(
+      xdn <- dplyr::mutate(
         dea$filter_contrasts(),
-        !!!hkeys,
         contrast = .data[[cfg$contrast_col]],
         effect = custom_round(.data[[cfg$effect_col]]),
         score = custom_round(.data[[cfg$score_col]]),
         fdr = custom_round(.data[[cfg$fdr_col]])
       ) |>
+        dplyr::select(!!!hkeys, "contrast", "effect", "score", "fdr") |>
         dplyr::nest_by(!!!hkeys)
       pb <- progress::progress_bar$new(total = nrow(xdn))
       xdn$grobs <- lapply(xdn$data, function(d) {
