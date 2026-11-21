@@ -99,7 +99,7 @@ ProcessingOptions <- R6::R6Class(
 
 #' Rebuild a ProcessingOptions R6 object from a plain list
 #'
-#' Counterpart to `prolfqua::R6_extract_values()`, used to restore the options
+#' Counterpart to `prolfqua::r6_extract_values()`, used to restore the options
 #' stored in `SummarizedExperiment` metadata. That extraction drops NULL fields,
 #' so every field the list does not mention is restored as NULL rather than left
 #' at its class default -- a cleared `pattern_decoys` means decoy handling is off
@@ -216,7 +216,7 @@ zipdir_name <- function(
 #'   ProjectSpec$new(),
 #'   ExternalReader$new()
 #' )
-#' xx <- prolfqua::R6_extract_values(r6obj_config)
+#' xx <- prolfqua::r6_extract_values(r6obj_config)
 #' yaml::write_yaml(xx, file = file.path(tempdir(), "test.yaml"))
 #' config <- yaml::read_yaml(file = file.path(tempdir(), "test.yaml"))
 #'
@@ -323,7 +323,7 @@ ProlfquAppConfig <- R6::R6Class(
     #' Convert R6 object to list
     #' @return list representation of the R6 object
     as_list = function() {
-      prolfqua::R6_extract_values(self)
+      prolfqua::r6_extract_values(self)
     }
   )
 )
@@ -357,7 +357,7 @@ set_list_to_R6 <- function(config_list, r6obj_config) {
 #' @examples
 #'
 #' DEAconfig <- make_DEA_config_R6(WORKUNITID = "3333")
-#' configList <- prolfqua::R6_extract_values(DEAconfig)
+#' configList <- prolfqua::r6_extract_values(DEAconfig)
 #' stopifnot(class(configList) == "list")
 #' old <- configList$zipdir_name
 #' config <- list_to_R6_app_config(configList)
@@ -433,7 +433,7 @@ list_to_R6_app_config <- function(dd) {
 #' DEAconfig$get_zipdir()
 #' DEAconfig$get_result_dir()
 #' DEAconfig$get_input_dir()
-#' R6list <- prolfqua::R6_extract_values(DEAconfig)
+#' R6list <- prolfqua::r6_extract_values(DEAconfig)
 #'
 make_DEA_config_R6 <- function(
   PATH = ".",

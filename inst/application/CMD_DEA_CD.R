@@ -252,7 +252,7 @@ run_one <- function(run, base_config) {
 
   logger::log_info("prolfquapp parameters : ")
   logger::log_info(paste(
-    capture.output(lobstr::tree(prolfqua::R6_extract_values(run_config))),
+    capture.output(lobstr::tree(prolfqua::r6_extract_values(run_config))),
     collapse = "\n"
   ))
 
@@ -307,7 +307,7 @@ run_one <- function(run, base_config) {
     boxplot = FALSE
   )
 
-  cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$get_config())
+  cfg <- prolfqua::r6_extract_values(deanalyse$lfq_data$get_config())
   yaml::write_yaml(cfg, file.path(run_config$get_result_dir(), "lfqdata.yaml"))
 
   summarized_experiment <- reporter$make_SummarizedExperiment()
@@ -371,7 +371,7 @@ run_one <- function(run, base_config) {
   )
 
   yaml::write_yaml(
-    prolfqua::R6_extract_values(run_config),
+    prolfqua::r6_extract_values(run_config),
     file = file.path(run_config$get_input_dir(), "minimal.yaml")
   )
 }

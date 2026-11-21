@@ -379,7 +379,7 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
     deanalyse$lfq_data$data_long(),
     sink = file.path(config$get_result_dir(), "lfqdata_normalized.parquet")
   )
-  cfg <- prolfqua::R6_extract_values(deanalyse$lfq_data$get_config())
+  cfg <- prolfqua::r6_extract_values(deanalyse$lfq_data$get_config())
   yaml::write_yaml(cfg, file.path(config$get_result_dir(), "lfqdata.yaml"))
 
   # compute_IBAQ_values joins the protein annotation itself, so contaminants
@@ -417,7 +417,7 @@ write_dea_run_outputs <- function(result, config, opt, ymlfile) {
   prolfquapp::copy_shell_script(workdir = input_dir)
   file.copy(c(result$files$data, result$files$fasta, ymlfile, opt$dataset), input_dir)
   logger::log_info("Write yaml with parameters: ", file.path(input_dir, "minimal.yaml"))
-  yaml::write_yaml(prolfqua::R6_extract_values(config), file = file.path(input_dir, "minimal.yaml"))
+  yaml::write_yaml(prolfqua::r6_extract_values(config), file = file.path(input_dir, "minimal.yaml"))
   invisible(outdir)
 }
 

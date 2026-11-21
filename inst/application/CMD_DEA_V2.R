@@ -153,7 +153,7 @@ logger::log_info(
 )
 
 logger::log_info("prolfquapp paramters : ")
-logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(prolfqua::R6_extract_values(
+logger::log_info(prolfquapp::capture_output(quote(lobstr::tree(prolfqua::r6_extract_values(
   GRP2
 )))))
 

@@ -7,7 +7,7 @@ test_that("the ibaq assay lines up with the features and reaches the AnnData", {
   dropped <- annotation$row_annot[[annotation$pID]][[1]]
   annotation$row_annot <- annotation$row_annot[-1, ]
   # The same simulated peptides example_deanalyse() starts from.
-  pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 30)
+  pep <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 30)
   ibaq <- compute_IBAQ_values(prolfqua::LFQData$new(pep$data, pep$config), annotation)
 
   se <- DEAReportGenerator$new(dea, dea$prolfq_app_config, name = "")$make_SummarizedExperiment(ibaq = ibaq)

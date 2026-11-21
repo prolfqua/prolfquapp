@@ -377,7 +377,7 @@ missing_cumsum <- safe_plot(
   "Could not draw cumulative missingness per group."
 )
 missing_hist <- safe_plot(
-  reader$lfq_raw$get_Plotter()$missigness_histogram(),
+  reader$lfq_raw$get_Plotter()$missingness_histogram(),
   "Could not draw missingness intensity histogram."
 )
 combined_missing <- gridExtra::arrangeGrob(missing_per_group, missing_cumsum, missing_hist, ncol = 3)

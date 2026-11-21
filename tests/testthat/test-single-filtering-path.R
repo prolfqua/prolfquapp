@@ -5,7 +5,7 @@
 # No get_subset(clean()) inner-join filter; one join (the export right_join).
 
 make_fixture <- function(Nprot = 40) {
-  istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
+  istar <- prolfqua::sim_lfq_data_peptide_config(n_proteins = Nprot)
   lfq <- prolfqua::LFQData$new(istar$data, istar$config)
   d <- lfq$data_long()
   d$protein_Id <- prolfquapp::add_RevCon(d$protein_Id) # inject REV_ (~10%) + zz (~5%)

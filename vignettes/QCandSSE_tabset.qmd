@@ -200,7 +200,7 @@ width_na <- max(8, nrSamples * 0.15)
 #| fig-width: !expr max(7, nrSamples * 0.1)
 #| fig-height: !expr max(7, nrSamples * 0.1)
 #| out-width: "450px"
-p <- plotter$missigness_histogram()
+p <- plotter$missingness_histogram()
 xx3 <- summarizer$plot_missingness_per_group()
 xx4 <- summarizer$plot_missingness_per_group_cumsum()
 gridExtra::grid.arrange(p, xx3, xx4, ncol = 1)

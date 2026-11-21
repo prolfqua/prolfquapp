@@ -360,10 +360,10 @@ DEAReportGenerator <- R6::R6Class(
           contrasts = resTables$contrasts,
           formula = resTables$formula,
           default_model = dea$default_model,
-          analysis_configuration_raw = prolfqua::R6_extract_values(raw$get_config()),
-          analysis_configuration = prolfqua::R6_extract_values(dea$lfq_data$get_config()),
-          contrast_configuration = prolfqua::R6_extract_values(contrast_obj$get_config()),
-          processing_options = prolfqua::R6_extract_values(self$GRP2$processing_options)
+          analysis_configuration_raw = prolfqua::r6_extract_values(raw$get_config()),
+          analysis_configuration = prolfqua::r6_extract_values(dea$lfq_data$get_config()),
+          contrast_configuration = prolfqua::r6_extract_values(contrast_obj$get_config()),
+          processing_options = prolfqua::r6_extract_values(self$GRP2$processing_options)
         )
       )
 

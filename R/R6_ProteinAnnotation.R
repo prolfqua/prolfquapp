@@ -32,9 +32,9 @@ add_RevCon <- function(
 #'
 sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE) {
   istar <- if (PROTEIN) {
-    prolfqua::sim_lfq_data_protein_config(Nprot = Nprot)
+    prolfqua::sim_lfq_data_protein_config(n_proteins = Nprot)
   } else {
-    prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
+    prolfqua::sim_lfq_data_peptide_config(n_proteins = Nprot)
   }
   lfqdata <- prolfqua::LFQData$new(istar$data, istar$config)
   tmp_data <- lfqdata$data_long()
@@ -120,7 +120,7 @@ sim_data_protAnnot <- function(Nprot = 100, PROTEIN = FALSE) {
 #' @family LFQData
 #' @examples
 #'
-#' istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
+#' istar <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 100)
 #' lfq0 <- prolfqua::LFQData$new(istar$data, istar$config)
 #' xd1 <- prolfqua::nr_children_experiment(lfq0$data_long(), lfq0$response(),
 #'   lfq0$relevant_hierarchy_keys(), lfq0$file_name(), lfq0$nr_children_col())

@@ -1,5 +1,5 @@
 paired_peptide_lfq <- function() {
-  sim <- prolfqua::sim_lfq_data_peptide_config(Nprot = 3, with_missing = FALSE)
+  sim <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 3, with_missing = FALSE)
   sim$data$subject_ <- sub("^[^_]*_", "", sim$data$sample)
   sim$config$factors$subject_ <- "subject"
   prolfqua::LFQData$new(sim$data, sim$config)
@@ -22,7 +22,7 @@ test_that("writeLinesPaired draws one plot per protein, peptides as facets", {
 })
 
 test_that("writeLinesPaired draws one plot per protein for protein-level data", {
-  sim <- prolfqua::sim_lfq_data_protein_config(Nprot = 3, with_missing = FALSE, paired = TRUE)
+  sim <- prolfqua::sim_lfq_data_protein_config(n_proteins = 3, with_missing = FALSE, paired = TRUE)
   lfq <- prolfqua::LFQData$new(sim$data, sim$config)
 
   plots <- prolfquapp::writeLinesPaired(lfq)

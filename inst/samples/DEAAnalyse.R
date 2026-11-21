@@ -1,6 +1,6 @@
 # Example: facade-based DEA using ProteinDataPrep + DEAnalyse
 #'
-pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
+pep <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 100)
 pep <- prolfqua::LFQData$new(pep$data, pep$config)
 pA <- data.frame(protein_Id = unique(pep$data$protein_Id))
 pA <- pA |> dplyr::mutate(fasta.annot = paste0(pA$protein_Id, "_description"))

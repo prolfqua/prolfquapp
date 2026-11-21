@@ -14,7 +14,7 @@ r6obj_config <- ProlfquAppConfig$new(
   ProjectSpec$new(),
   ExternalReader$new()
 )
-xx <- prolfqua::R6_extract_values(r6obj_config)
+xx <- prolfqua::r6_extract_values(r6obj_config)
 yaml::write_yaml(xx, file = file.path(tempdir(), "test.yaml"))
 config <- yaml::read_yaml(file = file.path(tempdir(), "test.yaml"))
 

@@ -37,7 +37,7 @@ preprocess_SIM <- function(
   hierarchy_depth = 1,
   nr_peptides = 1
 ) {
-  sim <- prolfqua::sim_lfq_data_peptide_config(Nprot = 50)
+  sim <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 50)
 
   config <- annotation$atable$clone(deep = TRUE)
   config$file_name <- "sample"

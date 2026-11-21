@@ -117,7 +117,7 @@ DEAResultReader <- R6::R6Class(
         self$imputation <- .se_report_feature_rows(row_data[["imputation"]], self$subject_id)
       }
 
-      self$contrast_config <- prolfqua::list_to_ContrastConfiguration(self$metadata$contrast_configuration %||% list())
+      self$contrast_config <- prolfqua::list_to_contrast_configuration(self$metadata$contrast_configuration %||% list())
       self$contrast_config$subject_id <- self$subject_id
       self$contrast_table <- .se_report_contrast_table(row_data, self$contrast_config)
       if (
@@ -225,7 +225,7 @@ DEAResultReader <- R6::R6Class(
 # `config` is the artifact's serialized AnalysisConfiguration; its hierarchy is
 # replaced by the feature keys, since the assay holds one row per feature.
 .se_report_lfqdata_from_assay <- function(se, feature_ids, assay_name, response, config, prefix) {
-  config <- prolfqua::list_to_AnalysisConfiguration(config)
+  config <- prolfqua::list_to_analysis_configuration(config)
   feature_keys <- setdiff(colnames(feature_ids), ".feature")
   config$hierarchy <- stats::setNames(as.list(feature_keys), feature_keys)
   config$hierarchy_depth <- length(feature_keys)

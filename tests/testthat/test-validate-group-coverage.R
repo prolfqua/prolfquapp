@@ -16,7 +16,7 @@ make_prep <- function(lfq) {
 
 test_that("missing contrast group aborts with an informative error", {
   skip_on_cran()
-  pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 30)
+  pep <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 30)
   pep <- prolfqua::LFQData$new(pep$data, pep$config)
   fk <- pep$relevant_factor_keys()[1]
 
@@ -38,7 +38,7 @@ test_that("missing contrast group aborts with an informative error", {
 
 test_that("full group coverage does not trigger a false positive", {
   skip_on_cran()
-  pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = 30)
+  pep <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 30)
   pep <- prolfqua::LFQData$new(pep$data, pep$config)
 
   dea <- make_prep(pep)$build_deanalyse(

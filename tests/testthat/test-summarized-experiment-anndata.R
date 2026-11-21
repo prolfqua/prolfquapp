@@ -224,8 +224,8 @@ test_that("the AnnData and the SummarizedExperiment read back the same", {
     from_rds$significant(0.5, 0.5)
   )
   expect_equal(
-    prolfqua::R6_extract_values(from_h5ad$contrast_config),
-    prolfqua::R6_extract_values(from_rds$contrast_config)
+    prolfqua::r6_extract_values(from_h5ad$contrast_config),
+    prolfqua::r6_extract_values(from_rds$contrast_config)
   )
   # Metadata the report reads by name, including the frames that would be lost
   # if uns flattened them to lists of columns.

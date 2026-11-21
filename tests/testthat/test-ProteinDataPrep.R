@@ -1,5 +1,5 @@
 test_that("ProteinDataPrep aggregate returns unchanged site-level data", {
-  sim <- prolfqua::sim_lfq_data_peptide_config(Nprot = 10)
+  sim <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 10)
   lfq <- prolfqua::LFQData$new(sim$data, sim$config)
   lfq$set_config_value("hierarchy_depth", length(lfq$hierarchy_keys()))
 
@@ -34,7 +34,7 @@ test_that("ProteinDataPrep aggregate returns unchanged site-level data", {
 })
 
 test_that("ProteinDataPrep aggregates with every aggregation make_DEA_config_R6 offers", {
-  sim <- prolfqua::sim_lfq_data_peptide_config(Nprot = 10)
+  sim <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 10)
   lfq <- prolfqua::LFQData$new(sim$data, sim$config)
   row_annot <- data.frame(
     protein_Id = unique(lfq$data_long()$protein_Id),

@@ -140,7 +140,7 @@ test_that("a DEA of an APB file writes the input and its results to MuData.h5mu"
   )
   dir.create(config$get_zipdir(), recursive = TRUE)
   ymlfile <- file.path(workdir, "config.yaml")
-  yaml::write_yaml(prolfqua::R6_extract_values(config), ymlfile)
+  yaml::write_yaml(prolfqua::r6_extract_values(config), ymlfile)
   opt <- list(workunit = "WU1", software = "prolfquapp.APB", dataset = dataset)
   outdir <- withr::with_dir(
     workdir,

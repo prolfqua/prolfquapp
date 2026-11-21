@@ -96,7 +96,7 @@ Missing values can reveal potential biases or technical problems in the data. @f
 #| fig-width: 8
 #| out-width: "600px"
 pl <- dea$lfq_data_raw$get_Plotter()
-p2 <- pl$missigness_histogram()
+p2 <- pl$missingness_histogram()
 
 sr <- dea$lfq_data_raw$get_Summariser()
 p1 <- sr$plot_missingness_per_group()

@@ -72,7 +72,7 @@ DEAconfig$set_zipdir_name()
 DEAconfig$get_zipdir()
 DEAconfig$get_result_dir()
 DEAconfig$get_input_dir()
-R6list <- prolfqua::R6_extract_values(DEAconfig)
+R6list <- prolfqua::r6_extract_values(DEAconfig)
 
 }
 \seealso{

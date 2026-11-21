@@ -1,5 +1,6 @@
 # prolfquapp 2.11.2
 
+- Requires prolfqua >= 1.9.5 and calls its renamed functions (`r6_extract_values()`, `list_to_analysis_configuration()`, `list_to_contrast_configuration()`, `$missingness_histogram()`), so the DEA and QC reports show no deprecation warnings.
 - prolfquapp's own figures use prolfqua's `theme_prolfqua()`, so they match prolfqua's plots: the static volcano, the paired-design line plots, the QC report's abundance-versus-percent plot and the sample-size bar chart. The DEA and QC reports no longer put `theme_classic()` over prolfqua's violin plots, and the sample-size report no longer sets a global ggplot theme. The static volcano draws non-significant points larger and darker, so they stay visible on the white panel.
 - `writeLinesPaired()` (the paired-design `boxplots_paired.pdf` of the DEA) failed with "`data` must be a <data.frame>" for peptide-level data analysed with a nested model. It now draws one page per protein, with its peptides as facets.
 - `ProteinAnnotation` logs a missing `exp_nr_children` column as info and computes the counts; it no longer raises a warning for this documented default.

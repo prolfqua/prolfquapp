@@ -8,7 +8,7 @@ Decorates LFQData with a row annotation and some protein specific functions.
 }
 \examples{
 
-istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 100)
+istar <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 100)
 lfq0 <- prolfqua::LFQData$new(istar$data, istar$config)
 xd1 <- prolfqua::nr_children_experiment(lfq0$data_long(), lfq0$response(),
   lfq0$relevant_hierarchy_keys(), lfq0$file_name(), lfq0$nr_children_col())

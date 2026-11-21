@@ -172,7 +172,7 @@ test_that("DEAResultReader resolves SAINT column roles", {
       analysis_configuration_raw = list(sample_name = "sampleName", factors = list(group = "group")),
       analysis_configuration = list(sample_name = "sampleName", factors = list(group = "group")),
       default_model = "saint",
-      contrast_configuration = prolfqua::R6_extract_values(
+      contrast_configuration = prolfqua::r6_extract_values(
         prolfqua::ContrastConfiguration$new(
           subject_id = "protein_Id",
           contrast_col = "Bait",

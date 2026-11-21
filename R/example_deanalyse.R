@@ -11,7 +11,7 @@
 #' dea$contrast_results[[dea$default_model]]$get_contrasts()
 #'
 example_deanalyse <- function(Nprot = 100) {
-  pep <- prolfqua::sim_lfq_data_peptide_config(Nprot = Nprot)
+  pep <- prolfqua::sim_lfq_data_peptide_config(n_proteins = Nprot)
   pep <- prolfqua::LFQData$new(pep$data, pep$config)
 
   pA <- data.frame(protein_Id = unique(pep$data_long()$protein_Id))

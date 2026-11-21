@@ -94,7 +94,7 @@ test_that("every reader declares nr_peptides (MZMine/dummy accept + ignore)", {
 })
 
 test_that("ProteinAnnotation follows the filtered quant (annotation is not a filter)", {
-  istar <- prolfqua::sim_lfq_data_peptide_config(Nprot = 30)
+  istar <- prolfqua::sim_lfq_data_peptide_config(n_proteins = 30)
   long <- istar$data
 
   filtered <- filter_by_peptide_count(long, "protein_Id", "peptide_Id", 3)

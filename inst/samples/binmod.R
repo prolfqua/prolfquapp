@@ -1,7 +1,7 @@
 library(prolfqua)
 library(tidyverse)
 pep <- prolfqua::sim_lfq_data_peptide_config(
-  Nprot = 5,
+  n_proteins = 5,
   with_missing = TRUE,
   weight_missing = 0.4
 )
