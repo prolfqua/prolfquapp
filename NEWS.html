@@ -900,7 +900,6 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li><code>ProteinAnnotation</code> logs a missing <code>exp_nr_children</code> column as info and computes the counts; it no longer raises a warning for this documented default.</li>
 <li><code>compute_IBAQ_values()</code> no longer triggers tidyselect’s “Using an external vector in selections” deprecation warning.</li>
-<li>Protein-level calibration with <code>internal</code> and <code>transform</code> <code>none</code> or <code>log2</code> (not nested models) subtracts each sample’s median log2 intensity of the <code>internal</code> proteins. It stops and lists the sample IDs that lack a finite reference intensity; <code>internal</code> proteins absent from the data now stop the analysis instead of a warning.</li>
 <li>New <code>model: ropecaV2_nested</code>, prolfqua’s ROPECA with calibrated protein p-values: proteins with many peptides are no longer reported as more significant than proteins with few. Takes peptide-level input like <code>ropeca_nested</code>; requires prolfqua &gt;= 1.9.4.</li>
 <li><code>model: firth_nested</code> is no longer available, because prolfqua 1.9.3 removed the method: its detection p-values became more significant the more peptides a protein had. Use <code>binomial_firth_nested</code>; requires prolfqua &gt;= 1.9.3.</li>
 <li>The DEA report histograms give their bins as <code>breaks</code>, the name prolfqua 1.9.2 uses in a <code>ContrastsPlotter</code> histogram spec (it was <code>xlim</code>); requires prolfqua &gt;= 1.9.2.</li>
