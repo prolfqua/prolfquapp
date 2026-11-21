@@ -898,6 +898,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="prolfquapp-2.11.2" class="level1">
 <h1>prolfquapp 2.11.2</h1>
 <ul>
+<li><code>DEAResultReader</code> and the other readers of <code>AnnData.h5ad</code> return missing abundances as <code>NA</code>. They returned <code>NaN</code>, the value HDF5 stores for a missing float, which prolfqua &gt;= 1.9.4 rejects as a non-finite response; prophosqua’s CorrectFirst analysis of an h5ad DEA failed on it.</li>
+<li>Requires prolfqua &gt;= 1.9.5 and calls its renamed functions (<code>r6_extract_values()</code>, <code>list_to_analysis_configuration()</code>, <code>list_to_contrast_configuration()</code>, <code>$missingness_histogram()</code>), so the DEA and QC reports show no deprecation warnings.</li>
 <li>prolfquapp’s own figures use prolfqua’s <code>theme_prolfqua()</code>, so they match prolfqua’s plots: the static volcano, the paired-design line plots, the QC report’s abundance-versus-percent plot and the sample-size bar chart. The DEA and QC reports no longer put <code>theme_classic()</code> over prolfqua’s violin plots, and the sample-size report no longer sets a global ggplot theme. The static volcano draws non-significant points larger and darker, so they stay visible on the white panel.</li>
 <li><code>writeLinesPaired()</code> (the paired-design <code>boxplots_paired.pdf</code> of the DEA) failed with “<code>data</code> must be a &lt;data.frame&gt;” for peptide-level data analysed with a nested model. It now draws one page per protein, with its peptides as facets.</li>
 <li><code>ProteinAnnotation</code> logs a missing <code>exp_nr_children</code> column as info and computes the counts; it no longer raises a warning for this documented default.</li>
