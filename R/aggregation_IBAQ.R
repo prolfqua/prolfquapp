@@ -63,7 +63,7 @@ compute_IBAQ_values <- function(
 ) {
   required <- c(protein_length, nr_tryptic_peptides)
   stopifnot(all(required %in% colnames(protein_annotation$row_annot)))
-  rel_annot <- dplyr::select(protein_annotation$row_annot, c(protein_annotation$pID, required))
+  rel_annot <- dplyr::select(protein_annotation$row_annot, dplyr::all_of(c(protein_annotation$pID, required)))
   lfqdata$set_config_value("hierarchy_depth", 1) # you want to roll up to protein
   lfqdataProtTotal <- prolfquapp::aggregate_data(lfqdata, agg_method = "topN", N = 10000)
   response <- sym(lfqdataProtTotal$response())

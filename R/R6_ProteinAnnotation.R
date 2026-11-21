@@ -238,7 +238,7 @@ ProteinAnnotation <-
         stopifnot(self$cleaned_ids %in% colnames(self$row_annot))
         stopifnot(self$description %in% colnames(self$row_annot))
         if (!self$exp_nr_children %in% colnames(row_annot)) {
-          warning("no exp_nr_children column specified, computing using nr_children_experiment")
+          logger::log_info("no exp_nr_children column specified, computing using nr_children_experiment")
           self$row_annot <- dplyr::inner_join(
             self$row_annot,
             prolfqua::nr_children_experiment(

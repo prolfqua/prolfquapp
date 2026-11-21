@@ -51,7 +51,12 @@ test_that("ProteinDataPrep aggregates with every aggregation make_DEA_config_R6 
   for (agg in eval(formals(prolfquapp::make_DEA_config_R6)$aggregation)) {
     config <- prolfquapp::make_DEA_config_R6(aggregation = agg)
     data_prep <- prolfquapp::ProteinDataPrep$new(lfq, pannot, config)
-    data_prep$aggregate()
+    if (agg == "rlm") {
+      # rlm does not converge for two simulated proteins; they are reported, not dropped
+      expect_warning(data_prep$aggregate(), "failed to converge", class = "prolfqua_fit_failed")
+    } else {
+      data_prep$aggregate()
+    }
     expect_true("LFQData" %in% class(data_prep$lfq_data), info = agg)
     expect_equal(data_prep$lfq_data$hierarchy_keys(), "protein_Id", info = agg)
   }

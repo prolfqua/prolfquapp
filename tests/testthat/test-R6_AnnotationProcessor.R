@@ -100,7 +100,10 @@ test_that("a fully empty grouping/bait column collapses to a single NA group", {
     stringsAsFactors = FALSE
   )
 
-  result <- prolfquapp::read_annotation(annotation, repeated = FALSE, QC = TRUE)
+  expect_warning(
+    result <- prolfquapp::read_annotation(annotation, repeated = FALSE, QC = TRUE),
+    "more than one column for sample: Grouping Var, Bait ID"
+  )
 
   grouping_col <- result$atable$factors[[result$atable$factor_keys()[1]]]
   expect_true(all(!is.na(result$annot[[grouping_col]])))

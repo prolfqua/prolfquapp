@@ -7,7 +7,7 @@ make_prep <- function(lfq) {
   pA <- data.frame(protein_Id = unique(lfq$data_long()$protein_Id))
   pA$fasta.annot <- paste0(pA$protein_Id, "_desc")
   pA <- prolfquapp::ProteinAnnotation$new(lfq, row_annot = pA, description = "fasta.annot")
-  GRP2 <- prolfquapp::make_DEA_config_R6(Normalization = "robscale")
+  GRP2 <- prolfquapp::make_DEA_config_R6(Normalization = "robscale", aggregation = "topN")
   prep <- prolfquapp::ProteinDataPrep$new(lfq, pA, GRP2)
   prep$aggregate()
   prep$transform_data()
