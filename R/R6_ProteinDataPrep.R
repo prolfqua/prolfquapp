@@ -125,17 +125,33 @@ ProteinDataPrep <- R6::R6Class(
     #' @description
     #' Transform and normalize protein-level data
     transform_data = function() {
-      transformed <- prolfquapp::transform_lfqdata(
-        self$lfq_data,
-        method = self$prolfq_app_config$processing_options$transform
-      )
-      self$lfq_data$rename_response("abundance")
+      po <- self$prolfq_app_config$processing_options
+      transformed <- prolfquapp::transform_lfqdata(self$lfq_data, method = po$transform)
 
-      internal <- self$prolfq_app_config$processing_options$internal
+      internal <- po$internal
       if (length(internal) > 0) {
         x <- transformed$hierarchy()
         x <- x[x[[1]] %in% internal, , drop = FALSE]
-        if (nrow(x) == 0) {
+        # Nested analyses also prepare protein abundances for their reports.
+        if (po$transform %in% c("none", "log2") && !identical(prolfqua::lookup_facade(po$model)$needs, "nested")) {
+          sample_name <- transformed$sample_name()
+          samples <- unique(as.character(transformed$data_long()[[sample_name]]))
+          reference <- transformed$get_subset(x)$data_long()
+          values_by_sample <- split(
+            reference[[transformed$response()]],
+            factor(reference[[sample_name]], levels = samples)
+          )
+          offsets <- vapply(values_by_sample, function(values) stats::median(values[is.finite(values)]), numeric(1))
+          missing_samples <- names(offsets)[!is.finite(offsets)]
+          if (length(missing_samples) > 0) {
+            stop(
+              "Internal calibration found no finite reference intensity for samples: ",
+              paste(missing_samples, collapse = ", "),
+              call. = FALSE
+            )
+          }
+          transformed <- transformed$get_Transformer()$subtract_sample_offsets(offsets)$lfq
+        } else if (nrow(x) == 0) {
           warning("not in list : ", paste(internal, collapse = ","))
         } else {
           transformed <- transformed$get_Transformer()$center_to_reference(transformed$get_subset(x))$lfq
@@ -143,6 +159,7 @@ ProteinDataPrep <- R6::R6Class(
       }
 
       transformed$rename_response("normalized_abundance")
+      self$lfq_data$rename_response("abundance")
       self$lfq_data_transformed <- transformed
       invisible(transformed)
     },
