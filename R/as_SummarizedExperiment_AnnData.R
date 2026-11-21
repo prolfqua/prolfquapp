@@ -23,6 +23,8 @@ anndata_to_summarized_experiment <- function(adata) {
   assays <- lapply(stats::setNames(nm = layer_keys), function(key) {
     values <- t(as.matrix(adata$layers[[key]]))
     dimnames(values) <- list(rownames(var), rownames(obs))
+    # HDF5 has no NA for floats: the writer stores a missing value as NaN
+    values[is.nan(values)] <- NA
     values
   })
   se <- SummarizedExperiment::SummarizedExperiment(

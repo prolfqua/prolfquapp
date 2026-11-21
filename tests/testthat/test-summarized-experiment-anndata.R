@@ -361,3 +361,21 @@ test_that("DEAResultReader plotter draws the FDR and p-value histograms", {
   fdr_plot <- histograms[[reader$contrast_config$fdr_col]]
   expect_equal(fdr_plot$layers[[1]]$stat_params$breaks, seq(0, 1, by = 0.05))
 })
+
+test_that("missing assay values read back from h5ad as NA, not NaN", {
+  se <- make_dea_summarized_experiment()
+  SummarizedExperiment::assay(se, "rawData")[1, 1] <- NA
+  SummarizedExperiment::assay(se, "transformedData")[1, 1] <- NA
+  output_dir <- tempfile("dea-anndata-na-")
+  dir.create(output_dir)
+  on.exit(unlink(output_dir, recursive = TRUE), add = TRUE)
+  path <- prolfquapp:::write_summarized_experiment_h5ad(se, file.path(output_dir, "AnnData.h5ad"))
+
+  back <- prolfquapp:::anndata_to_summarized_experiment(anndataR::read_h5ad(path))
+
+  for (assay_name in c("rawData", "transformedData")) {
+    values <- SummarizedExperiment::assay(back, assay_name)
+    expect_false(any(is.nan(values)))
+    expect_identical(is.na(values), is.na(SummarizedExperiment::assay(se, assay_name)))
+  }
+})
