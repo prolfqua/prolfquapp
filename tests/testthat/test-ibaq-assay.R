@@ -14,7 +14,7 @@ test_that("the ibaq assay lines up with the features and reaches the AnnData", {
   values <- SummarizedExperiment::assay(se, "ibaq")
   expect_equal(dimnames(values), dimnames(SummarizedExperiment::assay(se, "rawData")))
   expect_true(all(is.na(values[dropped, ])))
-  expected <- strip_rownames(ibaq$data_wide(as.matrix = TRUE)$data, "~lfq~light")
+  expected <- ibaq$data_wide(as.matrix = TRUE)$data
   shared <- setdiff(intersect(rownames(values), rownames(expected)), dropped)
   expect_gt(length(shared), 0)
   expect_equal(values[shared, ], expected[shared, colnames(values)])

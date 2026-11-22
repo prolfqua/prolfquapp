@@ -230,7 +230,6 @@ features without an IBAQ value are NA.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{DEAReportGenerator$make_SummarizedExperiment(
-  strip = "~lfq~light",
   .url_builder = prolfquapp::bfabric_url_builder,
   ibaq = NULL
 )}
@@ -239,7 +238,6 @@ features without an IBAQ value are NA.
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{strip}}{pattern to strip from rownames}
       \item{\code{.url_builder}}{function to build URLs for bfabric}
       \item{\code{ibaq}}{optional protein-level \code{LFQData} with IBAQ values, as
 returned by \code{compute_IBAQ_values()}}

@@ -293,7 +293,7 @@ QC_generator <- R6::R6Class(
       dplyr::inner_join(
         private$annotate(lfqdata$data_wide()$data),
         lfqdata$data_wide(value = lfqdata$nr_children_col())$data,
-        by = c(lfqdata$relevant_hierarchy_keys(), "isotopeLabel")
+        by = lfqdata$relevant_hierarchy_keys()
       )
     },
     # Plain list of scalar project identifiers (empty fields become NULL) for the Quarto report headers.

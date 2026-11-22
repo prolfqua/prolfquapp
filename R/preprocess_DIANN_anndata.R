@@ -119,7 +119,6 @@ preprocess_anndata_from_lfq <- function(
   }
   var_df <- dplyr::left_join(var_df, as.data.frame(protAnnot$row_annot), by = protAnnot$pID)
   rownames(var_df) <- feature_ids
-  var_df[[config$isotope_label]] <- NULL
 
   uns <- list(
     X_layer_name = config$get_response(),
@@ -145,7 +144,6 @@ preprocess_anndata_from_lfq <- function(
         sep = config$sep,
         file_name = config$file_name,
         sample_name = config$sample_name,
-        isotope_label = config$isotope_label,
         ident_q_value = config$ident_q_value,
         ident_score = config$ident_score,
         nr_children = config$nr_children,

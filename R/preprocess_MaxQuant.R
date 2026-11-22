@@ -158,7 +158,6 @@ tidyMQ_Peptides <- function(MQPeptides, proteotypic_only = TRUE) {
   xx <- xx |>
     tidyr::separate_rows(.data$protein.group.id, sep = ";", convert = TRUE) |>
     dplyr::mutate(proteins = dplyr::if_else(.data$proteins == "", .data$leading.razor.protein, .data$proteins))
-  xx$isotope <- "light"
   if (proteotypic_only) {
     xx <- xx |> dplyr::filter(.data$proteotypic == TRUE)
   }

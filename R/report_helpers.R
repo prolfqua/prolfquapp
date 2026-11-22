@@ -15,17 +15,6 @@ column_to_rownames <- function(.data, var = "rowname", sep = "~lfq~") {
   res
 }
 
-#' Strip pattern from row names of a matrix or data.frame
-#'
-#' @param .data a matrix or data.frame with row names
-#' @param strip regex pattern to remove from row names
-#' @return the input with cleaned row names
-#' @export
-strip_rownames <- function(.data, strip = "~lfq~light$") {
-  rownames(.data) <- gsub(strip, "", rownames(.data))
-  .data
-}
-
 # Enrich a quant/result table `x` with the protein annotation: a right join on
 # the annotation's key `protein_id` (one column for protein-level analyses,
 # protein_Id and site for sites), so every row of `x` is kept, never multiplied.

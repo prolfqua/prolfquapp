@@ -297,13 +297,11 @@ DEAReportGenerator <- R6::R6Class(
     #'
     #' Given \code{ibaq}, the object also carries the assay \code{ibaq};
     #' features without an IBAQ value are NA.
-    #' @param strip pattern to strip from rownames
     #' @param .url_builder function to build URLs for bfabric
     #' @param ibaq optional protein-level \code{LFQData} with IBAQ values, as
     #'   returned by \code{compute_IBAQ_values()}
     #' @return SummarizedExperiment object
     make_SummarizedExperiment = function(
-      strip = "~lfq~light",
       .url_builder = prolfquapp::bfabric_url_builder,
       ibaq = NULL
     ) {
@@ -312,10 +310,10 @@ DEAReportGenerator <- R6::R6Class(
       colname <- raw$sample_name()
       rowname <- raw$hierarchy_keys()
       resTables <- self$prep_result_list()
-      wide <- function(lfq, ...) prolfquapp::strip_rownames(lfq$data_wide(as.matrix = TRUE, ...)$data, strip)
+      wide <- function(lfq, ...) lfq$data_wide(as.matrix = TRUE, ...)$data
 
       matRaw <- raw$data_wide(as.matrix = TRUE)
-      mat.raw <- prolfquapp::strip_rownames(matRaw$data, strip)
+      mat.raw <- matRaw$data
       features <- rownames(mat.raw)
       assays <- list(rawData = mat.raw, transformedData = wide(dea$lfq_data))
 
@@ -326,7 +324,7 @@ DEAReportGenerator <- R6::R6Class(
       contrast_obj <- dea$contrast_results[[dea$default_model]]
       imputation <- NULL
       if (identical(dea$default_model, "lm_impute")) {
-        imputation <- .imputed_assay(contrast_obj, mat.raw, rowname, strip)
+        imputation <- .imputed_assay(contrast_obj, mat.raw, rowname)
         assays[["imputedData"]] <- imputation$matrix
       }
       if (!is.null(ibaq)) {
@@ -419,9 +417,9 @@ DEAReportGenerator <- R6::R6Class(
 
 # The imputedData assay and its per-feature imputation summary, aligned to the
 # raw matrix. Decoys are removed before the fit, so their rows stay NA.
-.imputed_assay <- function(facade, mat.raw, rowname, strip) {
+.imputed_assay <- function(facade, mat.raw, rowname) {
   filled <- prolfqua::impute_from_model(facade$model, facade$.lfqdata)
-  mat_filled <- prolfquapp::strip_rownames(filled$lfqdata$data_wide(as.matrix = TRUE)$data, strip)
+  mat_filled <- filled$lfqdata$data_wide(as.matrix = TRUE)$data
   imputed <- .align_to_features(mat_filled, mat.raw)
   modelled <- intersect(rownames(mat.raw), rownames(mat_filled))
   n_unfilled <- sum(rowSums(is.na(imputed[modelled, , drop = FALSE])) > 0)

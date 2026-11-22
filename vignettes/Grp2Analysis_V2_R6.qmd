@@ -161,7 +161,6 @@ ld <- dea$lfq_data_raw
 fx <- ld$factors()
 sr <- ld$get_Summariser()
 xx <- sr$hierarchy_counts_sample(nr_children = 1)
-xx$isotopeLabel <- NULL
 xx <- xx |> dplyr::rename(nr_quantified = ld$hierarchy_keys())
 
 fx <- dplyr::left_join(fx, xx, by = ld$sample_name())
@@ -589,7 +588,7 @@ DT::datatable(sig, filter = "bottom",
 #| eval: !expr get0("showSignificant", ifnotfound = FALSE)
 signif <- dea$lfq_data$get_copy()
 signif <- signif$get_subset(datax_signif)
-if (signif$hierarchy_counts()[2] > 30) {
+if (signif$hierarchy_counts()[1] > 30) {
   rownames = FALSE
 } else {
   rownames = TRUE

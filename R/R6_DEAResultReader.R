@@ -256,7 +256,6 @@ DEAResultReader <- R6::R6Class(
     config$file_name <- "raw.file"
   }
   long_data[[config$file_name]] <- long_data[[config$file_name]] %||% long_data[[sample_col]]
-  long_data[[config$isotope_label]] <- long_data[[config$isotope_label]] %||% "light"
   long_data[[config$nr_children]] <- dplyr::coalesce(long_data[[config$nr_children]] %||% NA_integer_, 1L)
   for (factor_col in setdiff(config$factor_keys(), colnames(long_data))) {
     long_data[[factor_col]] <- "all"

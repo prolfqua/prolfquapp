@@ -47,7 +47,6 @@ LFQData_from_anndata <- function(adata) {
   config$sep <- ac$sep
   config$file_name <- ac$file_name %||% ac$fileName
   config$sample_name <- ac$sample_name %||% ac$sampleName
-  config$isotope_label <- ac$isotope_label %||% ac$isotopeLabel
   config$ident_q_value <- ac$ident_q_value %||% ac$ident_qValue
   config$ident_score <- (ac$ident_score %||% ac$ident_Score) %||% character()
   config$nr_children <- ac$nr_children
@@ -120,7 +119,6 @@ validate_prolfquapp_anndata <- function(adata) {
 anndata_to_long <- function(adata, config) {
   obs_df <- as.data.frame(adata$obs)
   var_df <- as.data.frame(adata$var)
-  iso_col <- config$isotope_label
   melt <- function(mat, value_name) {
     dimnames(mat) <- list(rownames(obs_df), rownames(var_df))
     long <- as.data.frame(mat, check.names = FALSE)
@@ -141,20 +139,16 @@ anndata_to_long <- function(adata, config) {
     }
   }
 
-  # Join hierarchy keys, isotope label and identification columns from var
-  var_cols <- intersect(c(config$hierarchy_keys(), iso_col, config$ident_q_value, config$nr_children), colnames(var_df))
+  # Join hierarchy keys and identification columns from var
+  var_cols <- intersect(c(config$hierarchy_keys(), config$ident_q_value, config$nr_children), colnames(var_df))
   var_df$.feature_id <- rownames(var_df)
   long_data <- dplyr::left_join(long_data, var_df[, c(".feature_id", var_cols), drop = FALSE], by = ".feature_id")
   long_data$.feature_id <- NULL
 
   # Join obs metadata (factors, fileName); drop a duplicated sampleName column
-  obs_cols <- intersect(c(config$file_name, config$factor_keys(), iso_col), colnames(obs_df))
+  obs_cols <- intersect(c(config$file_name, config$factor_keys()), colnames(obs_df))
   obs_join <- obs_df[, c(config$sample_name, obs_cols), drop = FALSE]
   obs_join <- obs_join[, !duplicated(colnames(obs_join)), drop = FALSE]
   long_data <- dplyr::left_join(long_data, obs_join, by = config$sample_name)
-
-  if (!iso_col %in% colnames(long_data)) {
-    long_data[[iso_col]] <- "light"
-  }
   tibble::as_tibble(long_data)
 }

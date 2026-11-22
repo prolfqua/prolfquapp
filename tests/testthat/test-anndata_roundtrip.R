@@ -34,7 +34,6 @@ test_that("round-trip peptide-level (depth=2) preserves data", {
   expect_equal(back$lfqdata$get_config()$sep, lfqdata$get_config()$sep)
   expect_equal(back$lfqdata$file_name(), lfqdata$file_name())
   expect_equal(back$lfqdata$sample_name(), lfqdata$sample_name())
-  expect_equal(back$lfqdata$isotope_label(), lfqdata$isotope_label())
   expect_equal(back$lfqdata$config$hierarchy, lfqdata$config$hierarchy)
   expect_equal(
     back$lfqdata$get_config()$hierarchy_depth,
