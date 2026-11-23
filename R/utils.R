@@ -78,3 +78,38 @@ normalize_path <- function(paths, os = .Platform$OS.type) {
     gsub("\\\\", "/", paths)
   }
 }
+
+
+#' Split united hierarchy keys into their component columns
+#'
+#' prolfqua unites hierarchy columns that are configured as several columns (e.g. `proteinID` and `idtype2` for
+#' `protein_Id`) with `config$sep`. This adds the components back as columns, after each key column, for the
+#' hierarchy levels up to `config$hierarchy_depth`.
+#' @param data data.frame with the united hierarchy key columns
+#' @param config [prolfqua::AnalysisConfiguration]
+#' @return `data` with each hierarchy key at the current depth split at `config$sep` into its component columns,
+#'   which are added after the key column; keys with too few parts fill from the start
+#' @export
+#' @examples
+#' bb <- prolfqua::sim_lfq_data_protein_config(n_proteins = 3)
+#' lfq <- prolfqua::LFQData$new(bb$data, bb$config)
+#' res <- separate_hierarchy(lfq$data_long(), lfq$get_config())
+#' setdiff(colnames(res), colnames(lfq$data_long()))
+separate_hierarchy <- function(data, config) {
+  for (hkey in config$hierarchy_keys_depth()) {
+    parts <- config$hierarchy[[hkey]]
+    if (!(length(parts) == 1 && hkey == parts)) {
+      data <- data |>
+        tidyr::separate_wider_delim(
+          dplyr::all_of(hkey),
+          delim = config$sep,
+          names = parts,
+          too_few = "align_start",
+          too_many = "drop",
+          cols_remove = FALSE
+        ) |>
+        dplyr::relocate(dplyr::all_of(hkey), .before = dplyr::all_of(parts[1]))
+    }
+  }
+  data
+}

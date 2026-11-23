@@ -1,5 +1,6 @@
 # prolfquapp 2.11.2
 
+- New exported `script_copy_helper_vec()` and `separate_hierarchy()`, moved here from prolfqua 1.9.5, which deprecates them; prophosqua, prolfquappPTMreaders and `copy_shell_script()` use these copies. `script_copy_helper_vec()` logs with logger instead of prolfqua's messages.
 - Follows label-free prolfqua 1.9.5: matrix row names, the `SummarizedExperiment` and `AnnData.h5ad` artifacts, QC tables and reports carry no `isotopeLabel` column and no `~lfq~light` row-name suffix. Artifacts written by earlier versions still load. Removed `strip_rownames()` and the `strip` argument of `DEAReportGenerator$make_SummarizedExperiment()`, which only removed that suffix.
 - `DEAResultReader` and the other readers of `AnnData.h5ad` return missing abundances as `NA`. They returned `NaN`, the value HDF5 stores for a missing float, which prolfqua >= 1.9.4 rejects as a non-finite response; prophosqua's CorrectFirst analysis of an h5ad DEA failed on it.
 - Requires prolfqua >= 1.9.5 and calls its renamed functions (`r6_extract_values()`, `list_to_analysis_configuration()`, `list_to_contrast_configuration()`, `$missingness_histogram()`), so the DEA and QC reports show no deprecation warnings.
