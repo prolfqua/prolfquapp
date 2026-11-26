@@ -134,7 +134,7 @@ preprocess_BGS <- function(
     by = c("raw.file" = "R.FileName")
   )
   # the report has q-values but no PEP for precursors
-  report2$identification_confidence <- 1 - report2$FG.Qvalue
+  report2$identification_confidence <- floor_identification_confidence(1 - report2$FG.Qvalue)
   adata <- prolfqua::setup_analysis(report2, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()

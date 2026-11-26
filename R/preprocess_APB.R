@@ -146,15 +146,15 @@ preprocess_APB <- function(
 }
 
 # Identification confidence of each observation: 1 - PEP from the `pep` layer, else 1 - q-value from the file's
-# q-value layer (`q_layer`), else 1.
+# q-value layer (`q_layer`), else 1; floored at 0.5 (floor_identification_confidence()).
 .apb_identification_confidence <- function(long, q_layer) {
   if ("pep" %in% colnames(long)) {
     logger::log_info("APB: identification confidence = 1 - pep.")
-    return(1 - long$pep)
+    return(floor_identification_confidence(1 - long$pep))
   }
   if (length(q_layer) == 1 && q_layer %in% colnames(long)) {
     logger::log_info("APB: no pep layer; identification confidence = 1 - ", q_layer, ".")
-    return(1 - long[[q_layer]])
+    return(floor_identification_confidence(1 - long[[q_layer]]))
   }
   logger::log_info("APB: no pep or q-value layer; identification confidence = 1.")
   rep(1, nrow(long))

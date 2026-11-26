@@ -267,7 +267,7 @@ preprocess_FP_PSM <- function(
   psm <- parse_fun(quant_data)
   nrPeptides_exp <- psm$nrPeptides
   psm <- psm$data
-  psm$identification_confidence <- psm$Probability
+  psm$identification_confidence <- floor_identification_confidence(psm$Probability)
   # FragPipe `Peptide` is the stripped sequence (`Modified.Peptide` carries the mods).
   psm <- prolfquapp::filter_by_peptide_count(psm, "Protein", "Peptide", nr_peptides)
   annotated <- annot[[config$file_name]]

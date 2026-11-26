@@ -251,7 +251,7 @@ preprocess_DIANN <- function(
   }
   peptide <- prolfquapp::diann_output_to_peptide(report2)
   # PEP is the smallest over the precursors of a peptide in a run, so this is their largest confidence
-  peptide$identification_confidence <- 1 - peptide$PEP
+  peptide$identification_confidence <- floor_identification_confidence(1 - peptide$PEP)
   .stop_if_unannotated(annot$raw.file, peptide$raw.file)
 
   config$file_name <- "raw.file"
