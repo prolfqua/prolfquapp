@@ -33,6 +33,10 @@ ProcessingOptions <- R6::R6Class(
     #'   ropeca_nested, ropecaV2_nested, plus the prolfquasaint-backed key saint.
     #'   Default "lm_impute".
     model = "lm_impute",
+    #' @field use_identification_confidence do the models use the readers' identification confidence (default TRUE)?
+    #'   FALSE sets prolfqua's \code{AnalysisConfiguration$use_identification_confidence}: the default weights leave
+    #'   it out and the detection models count every observation once.
+    use_identification_confidence = TRUE,
     #' @field other list with additional options
     other = NULL,
     #' @field internal protein IDs for internal standard normalization
@@ -70,6 +74,10 @@ ProcessingOptions <- R6::R6Class(
           if (length(self$internal) > 0) paste(self$internal, collapse = ", ") else "none"
         ),
         c("Missingness modelled", if (isTRUE(self$model_missing)) "yes" else "no"),
+        c(
+          "Identification confidence as model weight",
+          if (isFALSE(self$use_identification_confidence)) "no" else "yes"
+        ),
         c("Interaction terms", if (isTRUE(self$interaction)) "yes" else "no"),
         c("FDR threshold", self$FDR_threshold),
         c("Difference threshold (|log2 FC|)", self$diff_threshold),

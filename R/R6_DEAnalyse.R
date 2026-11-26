@@ -112,6 +112,7 @@ DEAnalyse <- R6::R6Class(
       # fires even when aggregation/transform handed back a fresh config.
       self$lfq_data$set_config_value("pattern_decoys", po$pattern_decoys)
       self$lfq_data$set_config_value("pattern_contaminants", po$pattern_contaminants)
+      self$lfq_data$set_config_value("use_identification_confidence", !isFALSE(po$use_identification_confidence))
       self$rowAnnot <- rowAnnot
       self$prolfq_app_config <- prolfq_app_config
       self$contrasts <- contrasts

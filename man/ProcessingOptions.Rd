@@ -46,6 +46,10 @@ lm_impute, limma, limma_impute, rlm, deqms, firth, lmer_nested,
 ropeca_nested, ropecaV2_nested, plus the prolfquasaint-backed key saint.
 Default "lm_impute".}
 
+    \item{\code{use_identification_confidence}}{do the models use the readers' identification confidence (default TRUE)?
+FALSE sets prolfqua's \code{AnalysisConfiguration$use_identification_confidence}: the default weights leave
+it out and the detection models count every observation once.}
+
     \item{\code{other}}{list with additional options}
 
     \item{\code{internal}}{protein IDs for internal standard normalization

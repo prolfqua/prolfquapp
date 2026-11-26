@@ -51,3 +51,21 @@ test_that("make_DEA_config_R6 offers only aggregations and normalizations the pi
   expect_error(prolfquapp::make_DEA_config_R6(aggregation = "top3"), "should be one of")
   expect_error(prolfquapp::make_DEA_config_R6(Normalization = "quantile"), "should be one of")
 })
+
+test_that("use_identification_confidence reaches the YAML list, the report table and the modelling config", {
+  cfg <- prolfquapp::ProlfquAppConfig$new(
+    prolfquapp::ProcessingOptions$new(),
+    prolfquapp::ProjectSpec$new(),
+    prolfquapp::ExternalReader$new()
+  )
+  expect_true(cfg$processing_options$use_identification_confidence)
+  prolfquapp::set_list_to_R6(list(processing_options = list(use_identification_confidence = FALSE)), cfg)
+  expect_false(prolfqua::r6_extract_values(cfg)$processing_options$use_identification_confidence)
+  table <- cfg$processing_options$parameters_table(software = "DIANN")
+  expect_equal(table$Value[table$Parameter == "Identification confidence as model weight"], "no")
+
+  istar <- prolfqua::sim_lfq_data_protein_config(n_proteins = 5)
+  lfq <- prolfqua::LFQData$new(istar$data, istar$config)
+  dea <- prolfquapp::DEAnalyse$new(lfq, NULL, cfg, c(A_vs_Ctrl = "group_A - group_Ctrl"), default_model = "lm")
+  expect_false(dea$lfq_data$get_config()$use_identification_confidence)
+})
