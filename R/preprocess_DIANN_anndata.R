@@ -105,7 +105,7 @@ preprocess_anndata_from_lfq <- function(
 
   # var: hierarchy keys, per-feature median identification metadata, protein annotation
   var_df <- rowdata_df[, hierarchy_keys, drop = FALSE]
-  ident_cols <- intersect(c(config$ident_q_value, config$nr_children), colnames(lfqdata$data_long()))
+  ident_cols <- intersect(c(config$identification_confidence, config$nr_children), colnames(lfqdata$data_long()))
   if (length(ident_cols) > 0) {
     ident_data <- lfqdata$data_long()[, c(hierarchy_keys, ident_cols), drop = FALSE] |>
       as.data.frame() |>
@@ -144,9 +144,11 @@ preprocess_anndata_from_lfq <- function(
         sep = config$sep,
         file_name = config$file_name,
         sample_name = config$sample_name,
-        ident_q_value = config$ident_q_value,
+        identification_confidence = config$identification_confidence,
+        identification_confidence_feature = config$identification_confidence_feature,
         ident_score = config$ident_score,
         nr_children = config$nr_children,
+        nr_children_feature = config$nr_children_feature,
         work_intensity = config$work_intensity,
         is_response_transformed = config$is_response_transformed,
         factors = config$factors,

@@ -283,7 +283,7 @@ preprocess_CD_export <- function(long_file, sample_file, config, subset_column =
   if (nrow(feature_data) == 0) {
     stop("No CD feature rows matched the sample annotation.", call. = FALSE)
   }
-  defaults <- list(qValue = 0, nr_children = 1)
+  defaults <- list(identification_confidence = 1, nr_children = 1)
   for (col in setdiff(names(defaults), colnames(feature_data))) {
     feature_data[[col]] <- defaults[[col]]
   }

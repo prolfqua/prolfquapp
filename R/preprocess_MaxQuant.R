@@ -238,9 +238,9 @@ preprocess_MQ_peptide <- function(
   extra <- paste(setdiff(found, annotated), collapse = " ; ")
   logger::log_info("channels in peptide.txt which are not in annotation file : ", extra)
 
-  peptide$qValue <- 1 - peptide$pep
+  # peptides.txt has one PEP per peptide over all runs
+  peptide$identification_confidence <- 1 - peptide$pep
   config$ident_score <- "pep"
-  config$ident_q_value <- "qValue"
   config$hierarchy[["protein_Id"]] <- "leading.razor.protein"
   config$hierarchy[["peptide_Id"]] <- "sequence"
   config$set_response("peptide.intensity")

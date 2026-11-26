@@ -47,7 +47,6 @@ preprocess_SIM <- function(
   config$set_response("abundance")
   config$hierarchy_depth <- hierarchy_depth
   config$nr_children <- "nr_children"
-  config$ident_q_value <- "qValue"
 
   # config$factors maps a factor key to its annotation source column (e.g. G_ -> "group");
   # the sim data only has `group_`, so add the missing source columns.

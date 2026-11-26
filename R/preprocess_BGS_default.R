@@ -121,7 +121,6 @@ preprocess_BGS <- function(
   .stop_if_unannotated(annot$raw.file, report2$R.FileName)
 
   config$file_name <- "raw.file"
-  config$ident_q_value <- "FG.Qvalue"
   config$hierarchy[["protein_Id"]] <- c("PG.ProteinGroups")
   config$hierarchy[["peptide_Id"]] <- c("PEP.GroupingKey")
   config$hierarchy[["elution_group"]] <- c("EG.ModifiedSequence", "FG.Charge")
@@ -134,6 +133,8 @@ preprocess_BGS <- function(
     multiple = "all",
     by = c("raw.file" = "R.FileName")
   )
+  # the report has q-values but no PEP for precursors
+  report2$identification_confidence <- 1 - report2$FG.Qvalue
   adata <- prolfqua::setup_analysis(report2, config)
   lfqdata <- prolfqua::LFQData$new(adata, config)
   lfqdata$remove_small_intensities()

@@ -97,8 +97,8 @@ dataset_template_MSSTATS <- function(files) {
   peptide <- prolfquapp::filter_by_peptide_count(peptide, "ProteinName", "PeptideSequence", nr_peptides)
   .stop_if_unannotated(annot[[config$file_name]], peptide$Run)
 
-  peptide$qValue <- 0
-  config$ident_q_value <- "qValue"
+  # MSstats input carries no identification evidence
+  peptide$identification_confidence <- 1
   config$hierarchy[["protein_Id"]] <- c("ProteinName")
   config$hierarchy[["peptide_Id"]] <- c("PeptideSequence")
   config$nr_children <- "nrPeptides"

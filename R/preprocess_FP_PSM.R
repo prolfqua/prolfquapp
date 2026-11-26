@@ -267,7 +267,7 @@ preprocess_FP_PSM <- function(
   psm <- parse_fun(quant_data)
   nrPeptides_exp <- psm$nrPeptides
   psm <- psm$data
-  psm$qValue <- 1 - psm$Probability
+  psm$identification_confidence <- psm$Probability
   # FragPipe `Peptide` is the stripped sequence (`Modified.Peptide` carries the mods).
   psm <- prolfquapp::filter_by_peptide_count(psm, "Protein", "Peptide", nr_peptides)
   annotated <- annot[[config$file_name]]
@@ -281,7 +281,6 @@ preprocess_FP_PSM <- function(
   logger::log_info("channels in psm.tsv which are not in annotation file : ", extra)
 
   config$ident_score <- "Probability"
-  config$ident_q_value <- "qValue"
   config$hierarchy[["protein_Id"]] <- "Protein"
   config$hierarchy[["peptide_Id"]] <- "Peptide"
   config$hierarchy[["mod_peptide_Id"]] <- c("Modified.Peptide", "Assigned.Modifications")

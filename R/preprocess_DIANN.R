@@ -250,12 +250,12 @@ preprocess_DIANN <- function(
     )
   }
   peptide <- prolfquapp::diann_output_to_peptide(report2)
-  peptide$qValue <- peptide$PEP
+  # PEP is the smallest over the precursors of a peptide in a run, so this is their largest confidence
+  peptide$identification_confidence <- 1 - peptide$PEP
   .stop_if_unannotated(annot$raw.file, peptide$raw.file)
 
   config$file_name <- "raw.file"
   config$nr_children <- "nr_children"
-  config$ident_q_value <- "qValue"
   config$hierarchy[["protein_Id"]] <- c("Protein.Group")
   config$hierarchy[["peptide_Id"]] <- c("Stripped.Sequence")
   config$set_response("Peptide.Quantity")

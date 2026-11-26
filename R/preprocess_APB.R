@@ -77,6 +77,10 @@ preprocess_APB <- function(
   if (nrow(long) == 0) {
     stop("APB file contains no observations below the q-value thresholds.", call. = FALSE)
   }
+  long[[stored$identification_confidence]] <- .apb_identification_confidence(
+    long,
+    pmeta$analysis_configuration$ident_q_value
+  )
   # the file's hierarchy down to the peptide; its precursors are summed
   keys <- utils::head(stored$hierarchy_keys(), 2)
   file_name <- stored$file_name
@@ -84,7 +88,7 @@ preprocess_APB <- function(
     dplyr::group_by(dplyr::across(dplyr::all_of(c(file_name, keys)))) |>
     dplyr::summarize(
       dplyr::across(dplyr::all_of(response), sum),
-      dplyr::across(dplyr::any_of(stored$ident_q_value), min),
+      dplyr::across(dplyr::all_of(stored$identification_confidence), max),
       dplyr::across(dplyr::all_of(stored$nr_children), sum),
       .groups = "drop"
     )
@@ -123,7 +127,7 @@ preprocess_APB <- function(
   per_feature <- c(
     stored$hierarchy_keys()[-1],
     stored$nr_children,
-    stored$ident_q_value,
+    stored$identification_confidence,
     setdiff(var_key, keys[[1]])
   )
   prot_annot <- dplyr::distinct(var[, setdiff(colnames(var), per_feature), drop = FALSE])
@@ -139,6 +143,21 @@ preprocess_APB <- function(
     pattern_decoys = pattern_decoys
   )
   list(lfqdata = lfqdata, protein_annotation = protAnnot)
+}
+
+# Identification confidence of each observation: 1 - PEP from the `pep` layer, else 1 - q-value from the file's
+# q-value layer (`q_layer`), else 1.
+.apb_identification_confidence <- function(long, q_layer) {
+  if ("pep" %in% colnames(long)) {
+    logger::log_info("APB: identification confidence = 1 - pep.")
+    return(1 - long$pep)
+  }
+  if (length(q_layer) == 1 && q_layer %in% colnames(long)) {
+    logger::log_info("APB: no pep layer; identification confidence = 1 - ", q_layer, ".")
+    return(1 - long[[q_layer]])
+  }
+  logger::log_info("APB: no pep or q-value layer; identification confidence = 1.")
+  rep(1, nrow(long))
 }
 
 # Keeps the observations below the threshold of each q-value layer present.

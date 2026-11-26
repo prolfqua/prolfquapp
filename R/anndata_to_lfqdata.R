@@ -47,9 +47,12 @@ LFQData_from_anndata <- function(adata) {
   config$sep <- ac$sep
   config$file_name <- ac$file_name %||% ac$fileName
   config$sample_name <- ac$sample_name %||% ac$sampleName
-  config$ident_q_value <- ac$ident_q_value %||% ac$ident_qValue
+  config$identification_confidence <- ac$identification_confidence %||% config$identification_confidence
+  config$identification_confidence_feature <- ac$identification_confidence_feature %||%
+    config$identification_confidence_feature
   config$ident_score <- (ac$ident_score %||% ac$ident_Score) %||% character()
   config$nr_children <- ac$nr_children
+  config$nr_children_feature <- ac$nr_children_feature %||% config$nr_children_feature
   config$is_response_transformed <- ac$is_response_transformed
   config$factors <- ac$factors
   config$factor_depth <- ac$factor_depth %||% ac$factorDepth
@@ -140,7 +143,10 @@ anndata_to_long <- function(adata, config) {
   }
 
   # Join hierarchy keys and identification columns from var
-  var_cols <- intersect(c(config$hierarchy_keys(), config$ident_q_value, config$nr_children), colnames(var_df))
+  var_cols <- intersect(
+    c(config$hierarchy_keys(), config$identification_confidence, config$nr_children),
+    colnames(var_df)
+  )
   var_df$.feature_id <- rownames(var_df)
   long_data <- dplyr::left_join(long_data, var_df[, c(".feature_id", var_cols), drop = FALSE], by = ".feature_id")
   long_data$.feature_id <- NULL

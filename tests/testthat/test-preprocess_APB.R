@@ -88,7 +88,16 @@ test_that("APB reader sums the precursors of a peptide and counts them in nr_chi
   p1 <- dplyr::filter(xd$lfqdata$data_long(), .data$peptide_Id == "PEPTIDEK", .data$raw.file == "run_A1")
   expect_equal(p1$intensity, 1000 + 2000)
   expect_equal(p1$nr_children, 2)
-  expect_equal(p1$qValue, 0.001)
+  # the largest identification confidence of its precursors, 1 - pep with pep 0.01 and 0.02
+  expect_equal(p1$identification_confidence, 0.99)
+})
+
+test_that("APB identification confidence is 1 - pep, else 1 - q-value, else 1", {
+  long <- data.frame(pep = c(0.1, 0.2), qValue = c(0.01, 0.02))
+  expect_equal(suppressMessages(prolfquapp:::.apb_identification_confidence(long, "qValue")), c(0.9, 0.8))
+  long$pep <- NULL
+  expect_equal(suppressMessages(prolfquapp:::.apb_identification_confidence(long, "qValue")), c(0.99, 0.98))
+  expect_equal(suppressMessages(prolfquapp:::.apb_identification_confidence(long, NULL)), c(1, 1))
 })
 
 test_that("APB files and dataset template come from the folder's one h5ad file", {
